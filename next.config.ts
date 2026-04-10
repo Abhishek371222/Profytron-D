@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
             key: "Cache-Control",
             value: isProd 
               ? "public, max-age=31536000, immutable"
-              : "public, max-age=0, must-revalidate",
+              : "no-cache, no-store, max-age=0, must-revalidate",
           },
         ],
       },
