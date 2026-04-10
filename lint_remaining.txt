@@ -1,0 +1,64 @@
+﻿
+C:\Users\abhis\Downloads\ye final karo\src\app\(dashboard)\ai-coach\page.tsx
+   95:27  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\abhis\Downloads\ye final karo\src\app\(dashboard)\ai-coach\page.tsx:95:27
+  93 |  const handleSend = (text: string) => {
+  94 |  if (!text.trim()) return;
+> 95 |  const newMessage = { id: Date.now().toString(), role: 'user', text };
+     |                           ^^^^^^^^^^ Cannot call impure function
+  96 |  setMessages(prev => [...prev, newMessage]);
+  97 |  setInputValue('');
+  98 |    react-hooks/purity
+  393:21  error  Comments inside children section of tag should be placed inside braces                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react/jsx-no-comment-textnodes
+
+C:\Users\abhis\Downloads\ye final karo\src\app\(dashboard)\history\page.tsx
+  129:123  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\abhis\Downloads\ye final karo\src\app\(dashboard)\history\page.tsx:129:123
+  127 |  >
+  128 |  <td className="px-8 py-6">
+> 129 |  <span className="text-xs font-mono text-white/30 uppercase group-hover:text-primary transition-colors">TR_{trade.id}X77_{Math.random().toString(36).slice(2,5).toUpperCase()}</span>
+      |                                                                                                                           ^^^^^^^^^^^^^ Cannot call impure function
+  130 |  </td>
+  131 |  <td className="px-8 py-6">
+  132 |  <div className="flex items-center gap-3">  react-hooks/purity
+
+C:\Users\abhis\Downloads\ye final karo\src\app\(dashboard)\settings\api-keys\page.tsx
+  81:2  warning  Expected an assignment or function call and instead saw an expression  @typescript-eslint/no-unused-expressions
+
+C:\Users\abhis\Downloads\ye final karo\src\app\(dashboard)\settings\security\page.tsx
+  359:46  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\abhis\Downloads\ye final karo\src\app\(dashboard)\settings\security\page.tsx:359:46
+  357 |  <div className="w-32 h-32 grid grid-cols-8 gap-0.5">
+  358 |  {Array.from({ length: 64 }).map((_, i) => (
+> 359 |  <div key={i} className={cn("rounded-[1px]", Math.random() > 0.5 ?"bg-black" :"bg-white")} />
+      |                                              ^^^^^^^^^^^^^ Cannot call impure function
+  360 |  ))}
+  361 |  </div>
+  362 |  </div>  react-hooks/purity
+
+C:\Users\abhis\Downloads\ye final karo\src\app\(dashboard)\strategies\page.tsx
+  484:45  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\abhis\Downloads\ye final karo\src\app\(dashboard)\strategies\page.tsx:484:45
+  482 |  {/* Cryptographic background logic */}
+  483 |  <div className="absolute inset-0 opacity-[0.02] font-jet-mono text-xs leading-tight break-all overflow-hidden flex flex-wrap content-start select-none">
+> 484 |  {Array.from({length: 80}).map((_, i) => `${Math.random().toString(36).substr(2, 8).toUpperCase()} `)}
+      |                                             ^^^^^^^^^^^^^ Cannot call impure function
+  485 |  </div>
+  486 |  
+  487 |  <div className="relative z-10 space-y-6">  react-hooks/purity
+  501:77  error  Comments inside children section of tag should be placed inside braces                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react/jsx-no-comment-textnodes
+
+Γ£û 7 problems (6 errors, 1 warning)
+
