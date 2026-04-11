@@ -1,122 +1,125 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { Zap, Globe, Code, Activity, Mail, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import Link from "next/link";
+import { Zap, Globe, Code, Activity, Mail, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const footerLinks = {
- Product: [
- { name: 'Features', href: '#features' },
- { name: 'Strategy Library', href: '/strategies' },
- { name: 'Visual Builder', href: '/strategies/builder' },
- { name: 'Marketplace', href: '/marketplace' },
- { name: 'Security Protocol', href: '/settings/security' },
- ],
- Company: [
- { name: 'About Us', href: '#' },
- { name: 'Careers', href: '#' },
- { name: 'Blog', href: '#' },
- { name: 'Press Kit', href: '#' },
- ],
- Resources: [
- { name: 'Documentation', href: '#' },
- { name: 'API Reference', href: '#' },
- { name: 'Market Guides', href: '#' },
- { name: 'Community', href: '#' },
- ],
- Legal: [
- { name: 'Privacy Policy', href: '#' },
- { name: 'Terms of Service', href: '#' },
- { name: 'Risk Disclosure', href: '#' },
- { name: 'Cookie Policy', href: '#' },
- ],
+  Product: [
+    { name: "Features", href: "#features" },
+    { name: "Strategy Library", href: "/strategies" },
+    { name: "Visual Builder", href: "/strategies/builder" },
+    { name: "Marketplace", href: "/marketplace" },
+    { name: "Security Protocol", href: "/settings/security" },
+  ],
+  Company: [
+    { name: "About Us", href: "#" },
+    { name: "Careers", href: "#" },
+    { name: "Blog", href: "#" },
+    { name: "Press Kit", href: "#" },
+  ],
+  Resources: [
+    { name: "Documentation", href: "#" },
+    { name: "API Reference", href: "#" },
+    { name: "Market Guides", href: "#" },
+    { name: "Community", href: "#" },
+  ],
+  Legal: [
+    { name: "Privacy Policy", href: "#" },
+    { name: "Terms of Service", href: "#" },
+    { name: "Risk Disclosure", href: "#" },
+    { name: "Cookie Policy", href: "#" },
+  ],
 };
 
 export function Footer() {
- return (
- <footer className="pt-40 pb-16 bg-black border-t border-white/5 relative overflow-hidden">
- {/* Background Architectural Glow */}
- <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-p/50 to-transparent" />
- <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-p/5 blur-[150px] rounded-full pointer-events-none" />
- <div className="absolute inset-0 bg-scanlines opacity-5 pointer-events-none" />
+  return (
+    <footer className="pt-24 pb-12 bg-black border-t border-white/[0.05] relative overflow-hidden">
+      {/* Background Architectural Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-p/5 blur-[120px] rounded-full pointer-events-none" />
 
- <div className="container mx-auto px-6 relative z-10">
- <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24 mb-32">
- {/* Logo & Foundation */}
- <div className="lg:col-span-5">
- <Link href="/" className="flex items-center gap-4 mb-12 group">
- <div className="w-14 h-14 bg-p/10 rounded-2xl flex items-center justify-center border border-p/20 group-hover:bg-p/20 transition-all duration-700 shadow-[0_0_30px_rgba(99,102,241,0.2)] group-hover:rotate-[15deg]">
- <Zap className="w-8 h-8 text-p fill-p animate-pulse" />
- </div>
- <span className="text-4xl font-semibold tracking-tight text-white group-hover:text-p transition-colors uppercase">
- PROFY<span className="text-p group-hover:text-white transition-colors duration-700">TRON</span>
- </span>
- </Link>
- <p className="text-white/40 text-2xl mb-16 leading-relaxed max-w-md font-medium tracking-tight">
- Architecting the future of algorithmic wealth. Institutional power, refined for the frontier of finance.
- </p>
- <div className="flex gap-6">
- {[Globe, Code, Activity, Mail].map((Icon, i) => (
- <Link 
- key={i} 
- href="#" 
- className="w-16 h-16 rounded-3xl bg-white/[0.02] border border-white/5 flex items-center justify-center text-white/20 hover:text-p hover:border-p/40 hover:bg-p/5 transition-all duration-500 hover:-translate-y-2 shadow-2xl group"
- >
- <Icon className="w-7 h-7 group-hover:scale-110 transition-transform" />
- </Link>
- ))}
- </div>
- </div>
+      <div className="container mx-auto px-6 relative z-10 max-w-[1200px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24 mb-24">
+          {/* Logo & Foundation */}
+          <div className="lg:col-span-5">
+            <Link href="/" className="flex items-center gap-3 mb-8 group">
+              <div className="w-10 h-10 bg-white/[0.03] rounded-xl flex items-center justify-center border border-white/10 group-hover:border-p/50 transition-all duration-500 shadow-inner group-hover:bg-p/10">
+                <Zap className="w-5 h-5 text-white/70 group-hover:text-p transition-colors" />
+              </div>
+              <span className="text-xl font-bold tracking-tight text-white group-hover:text-white/90 transition-colors">
+                PROFYTRON
+              </span>
+            </Link>
+            <p className="text-white/40 text-sm mb-10 leading-relaxed max-w-sm font-medium">
+              Architecting the future of algorithmic wealth. Institutional
+              power, refined for the frontier of finance.
+            </p>
+            <div className="flex gap-4">
+              {[Globe, Code, Activity, Mail].map((Icon, i) => (
+                <Link
+                  key={i}
+                  href="#"
+                  className="w-10 h-10 rounded-full bg-white/[0.02] border border-white/[0.05] flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all duration-300"
+                >
+                  <Icon className="w-4 h-4" />
+                </Link>
+              ))}
+            </div>
+          </div>
 
- {/* Institutional Navigation */}
- <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-12">
- {Object.entries(footerLinks).map(([title, links]) => (
- <div key={title} className="flex flex-col gap-8">
- <h6 className="font-semibold text-white text-xs uppercase tracking-[0.5em] opacity-30">{title}</h6>
- <ul className="flex flex-col gap-6">
- {links.map((link) => (
- <li key={link.name}>
- <Link href={link.href} className="text-white/40 hover:text-white transition-all duration-300 text-sm font-bold tracking-tight inline-flex items-center group/link uppercase">
- <div className="w-0 h-px bg-p group-hover/link:w-4 transition-all duration-500 mr-0 group-hover/link:mr-3" />
- {link.name}
- </Link>
- </li>
- ))}
- </ul>
- </div>
- ))}
- </div>
- </div>
+          {/* Institutional Navigation */}
+          <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-12">
+            {Object.entries(footerLinks).map(([title, links]) => (
+              <div key={title} className="flex flex-col gap-6">
+                <h6 className="font-semibold text-white text-sm tracking-tight">
+                  {title}
+                </h6>
+                <ul className="flex flex-col gap-4">
+                  {links.map((link) => (
+                    <li key={link.name}>
+                      <Link
+                        href={link.href}
+                        className="text-white/40 hover:text-white transition-colors text-sm font-medium inline-flex items-center"
+                      >
+                        {link.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
 
- {/* Global Matrix Status Bar */}
- <div className="pt-16 border-t border-white/5 flex flex-col xl:flex-row items-start xl:items-center justify-between gap-12">
- <div className="max-w-4xl flex flex-col gap-6">
- <div className="flex items-center gap-6">
- <p className="text-xs text-p font-semibold uppercase tracking-[0.5em]">
- © 2026 PROFYTRON_TECHNOLOGIES_CORP
- </p>
- <div className="h-px w-20 bg-white/5" />
- <p className="text-xs text-white/20 font-semibold uppercase tracking-[0.4em]">
- AUTH_NODES: STABLE
- </p>
- </div>
- <p className="text-xs text-white/10 leading-relaxed tracking-widest uppercase">
- Risk Disclosure: Digital asset trading involves substantial risk of loss and is not suitable for all investors. 
- The performance of algorithmic strategies is inherently speculative. Synchronize responsible leverage metrics.
- </p>
- </div>
- 
- <div className="flex items-center gap-8 shrink-0">
- <div className="flex items-center gap-4 py-3 px-6 rounded-2xl border border-p/20 bg-p/5 backdrop-blur-3xl shadow-[0_0_20px_rgba(99,102,241,0.1)]">
- <div className="relative">
- <div className="w-2.5 h-2.5 rounded-full bg-p animate-pulse" />
- <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-p animate-ping opacity-40" />
- </div>
- <span className="text-xs font-semibold uppercase tracking-[0.4em] text-p">Global_Grid_Synchronized</span>
- </div>
- </div>
- </div>
- </div>
- </footer>
- );
+        {/* Global Matrix Status Bar */}
+        <div className="pt-8 border-t border-white/[0.05] flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4 hidden sm:flex">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+              <span className="text-[11px] font-medium tracking-widest uppercase text-white/50">
+                All Systems Operational
+              </span>
+            </div>
+          </div>
+
+          <p className="text-[11px] text-white/30 tracking-widest uppercase font-medium">
+            © 2026 PROFYTRON_TECHNOLOGIES
+          </p>
+
+          <p className="text-[11px] text-white/30 tracking-widest uppercase font-medium">
+            Designed in India
+          </p>
+        </div>
+
+        {/* Mobile Disclosure */}
+        <div className="mt-8 pt-8 border-t border-white/[0.05] text-center w-full">
+          <p className="text-[10px] text-white/20 leading-relaxed font-mono max-w-4xl mx-auto uppercase tracking-wide">
+            Risk Disclosure: Digital asset trading involves substantial risk of
+            loss and is not suitable for all investors. The performance of
+            algorithmic strategies is inherently speculative.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
 }

@@ -68,13 +68,22 @@ export function LandingNavbar() {
  <div className="hidden lg:flex items-center gap-8 bg-white/[0.03] border border-white/5 py-2 px-8 rounded-full backdrop-blur-3xl shadow-inner">
  {navLinks.map((link) => (
  <Magnetic key={link.name} strength={0.2}>
- <Link
+ <a
  href={link.href}
- className="text-xs font-semibold uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all duration-300 relative group/link"
+ onClick={(e) => {
+ e.preventDefault();
+ const targetId = link.href.replace(/.*\#/, "");
+ const elem = document.getElementById(targetId);
+ if (elem) {
+ const top = elem.getBoundingClientRect().top + window.scrollY - 100;
+ window.scrollTo({ top, behavior: "smooth" });
+ }
+ }}
+ className="text-xs font-semibold uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all duration-300 relative group/link cursor-pointer"
  >
  {link.name}
  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-500 group-hover/link:w-full" />
- </Link>
+ </a>
  </Magnetic>
  ))}
  </div>
@@ -130,14 +139,23 @@ export function LandingNavbar() {
  transition={{ delay: idx * 0.1 }}
  key={link.name}
  >
- <Link
+ <a
  href={link.href}
- className="text-xl font-display font-bold text-white/70 hover:text-primary transition-colors flex items-center justify-between group"
- onClick={() => setMobileMenuOpen(false)}
+ className="text-xl font-display font-bold text-white/70 hover:text-primary transition-colors flex items-center justify-between group cursor-pointer"
+ onClick={(e) => {
+ e.preventDefault();
+ setMobileMenuOpen(false);
+ const targetId = link.href.replace(/.*\#/, "");
+ const elem = document.getElementById(targetId);
+ if (elem) {
+ const top = elem.getBoundingClientRect().top + window.scrollY - 100;
+ window.scrollTo({ top, behavior: "smooth" });
+ }
+ }}
  >
  {link.name}
  <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all text-primary" />
- </Link>
+ </a>
  </motion.div>
  ))}
  <div className="flex flex-col gap-3 pt-6 border-t border-white/5">

@@ -1,115 +1,164 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { Quote, Star } from 'lucide-react';
-import { FadeUp, StaggerList } from '@/components/animations';
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { Quote, Star, ArrowUpRight, Terminal } from "lucide-react";
+import { FadeUp, StaggerList } from "@/components/animations";
 
 const testimonials = [
- {
- quote:"PROFYTRON has completely transformed how our proprietary desk handles high-frequency execution. The latency is incomparable.",
- author:"Jameson Vane",
- role:"Chief Strategy Officer",
- company:"Vanguard Alpha",
- image:"/images/avatar-1.png",
- rating: 5,
- },
- {
- quote:"The visual strategy builder is a masterclass in UX. We've reduced our concept-to-production time by over 70%.",
- author:"Elena Soros",
- role:"Quant Researcher",
- company:"Nexus Capital",
- image: null,
- rating: 5,
- },
- {
- quote:"Security and compliance were our primary concerns. PROFYTRON delivered a bank-grade environment that our auditors loved.",
- author:"Marcus Chen",
- role:"Head of Infrastructure",
- company:"Standard Trading Corp",
- image: null,
- rating: 5,
- },
+  {
+    quote:
+      "PROFYTRON has completely transformed how our proprietary desk handles high-frequency execution. The latency is incomparable.",
+    author: "Jameson Vane",
+    role: "Chief Strategy Officer",
+    company: "Vanguard Alpha",
+    image: "/images/avatar-1.png",
+    rating: 5,
+    metrics: "+42% Alpha",
+  },
+  {
+    quote:
+      "The visual strategy builder is a masterclass. We've reduced our concept-to-production time by over 70%.",
+    author: "Elena Soros",
+    role: "Quant Researcher",
+    company: "Nexus Capital",
+    image: null,
+    rating: 5,
+    metrics: "-70% Dev Time",
+  },
+  {
+    quote:
+      "Security and compliance were our primary concerns. PROFYTRON delivered a bank-grade environment.",
+    author: "Marcus Chen",
+    role: "Head of Infrastructure",
+    company: "Standard Trading",
+    image: null,
+    rating: 5,
+    metrics: "Node Verified",
+  },
 ];
 
 export function Testimonials() {
- return (
- <section id="testimonials" className="py-40 relative overflow-hidden bg-black">
- {/* Background Decorative Architecture */}
- <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
- <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-p/10 blur-[150px] rounded-full translate-x-1/4 translate-y-1/4" />
- <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay opacity-30" />
- </div>
+  return (
+    <section
+      id="testimonials"
+      className="py-22 bg-[#050505] relative overflow-hidden border-t border-white/5"
+    >
+      {/* Heavy Grid Background */}
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(99,102,241,0.08)_0%,transparent_70%)]" />
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
+            backgroundSize: "64px 64px",
+          }}
+        />
+      </div>
 
- <div className="container mx-auto px-6 relative z-10">
- <div className="text-center mb-32">
- <FadeUp>
- <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-p/10 border border-p/20 text-p text-xs font-semibold uppercase tracking-[0.5em] mb-8">
- <Quote className="w-4 h-4" />
- Validated_User_Experience
- </div>
- <h2 className="text-6xl md:text-8xl font-semibold mb-10 leading-tight tracking-tight uppercase text-white">
- Trusted by the <br />
- <span className="text-white/10 outline-text">Frontier.</span>
- </h2>
- </FadeUp>
- </div>
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-10">
+          <FadeUp>
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.4em] mb-6 shadow-inner">
+              <Terminal className="w-3 h-3 text-p" />
+              <span>Verification_Logs</span>
+            </div>
+            <h2 className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight text-white m-0">
+              Validated by the <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-p to-cyan-400 drop-shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                Industry Elite.
+              </span>
+            </h2>
+          </FadeUp>
+          <FadeUp delay={0.2} className="hidden md:block">
+            <p className="text-white/40 text-lg font-medium max-w-sm text-right">
+              Top-tier quantitative firms and proprietary trading desks rely on
+              our architecture to maintain their market edge.
+            </p>
+          </FadeUp>
+        </div>
 
- <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
- {testimonials.map((testimonial, i) => (
- <motion.div
- key={testimonial.author}
- variants={{
- hidden: { opacity: 0, scale: 0.98, y: 30 },
- show: { opacity: 1, scale: 1, y: 0 },
- }}
- className="group relative p-12 rounded-[52px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all duration-700 min-h-[450px] flex flex-col justify-between overflow-hidden"
- >
- {/* Visual Accent */}
- <div className="absolute top-0 left-12 w-16 h-1 bg-p opacity-0 group-hover:opacity-100 transition-all duration-700 shadow-[0_0_15px_#6366f1]" />
- 
- {/* Quote Icon */}
- <div className="absolute top-10 right-12 opacity-5 transition-all duration-700 group-hover:opacity-20 group-hover:rotate-12">
- <Quote className="w-24 h-24 text-p" />
- </div>
+        {/* Sleek Terminal Block Layout for Testimonials */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, i) => (
+            <motion.div
+              key={testimonial.author}
+              variants={{
+                hidden: { opacity: 0, scale: 0.98, y: 30 },
+                show: { opacity: 1, scale: 1, y: 0 },
+              }}
+              className="group relative rounded-2xl bg-[#090909] border border-white/5 flex flex-col overflow-hidden hover:border-white/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-20px_rgba(99,102,241,0.15)]"
+            >
+              {/* Terminal Header */}
+              <div className="h-10 bg-[#050505] border-b border-white/5 flex flex-row items-center justify-between px-4 w-full shrink-0">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/10 group-hover:bg-red-500/50 transition-colors" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/10 group-hover:bg-yellow-500/50 transition-colors delay-75" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/10 group-hover:bg-green-500/50 transition-colors delay-150" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-mono font-semibold uppercase tracking-widest text-white/20 group-hover:text-p/60 transition-colors">
+                    {testimonial.metrics}
+                  </span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-p/20 group-hover:bg-p group-hover:animate-pulse transition-all shadow-[0_0_10px_#6366f1] opacity-0 group-hover:opacity-100" />
+                </div>
+              </div>
 
- <div className="relative z-10">
- <div className="flex gap-1.5 mb-10 text-p">
- {[...Array(testimonial.rating)].map((_, i) => (
- <Star key={i} className="w-4 h-4 fill-current drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]" />
- ))}
- </div>
+              {/* Fake UI Background Textures */}
+              <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.10] mix-blend-overlay pointer-events-none" />
 
- <p className="text-xl md:text-2xl text-white/60 leading-relaxed mb-12 font-medium tracking-tight group-hover:text-white transition-colors duration-500">
- &quot;{testimonial.quote}&quot;
- </p>
- </div>
+              <div className="relative z-10 flex flex-col justify-between flex-1 p-8 md:p-10 gap-8 bg-gradient-to-b from-transparent to-[#050505]/50 hover:to-[#050505] transition-colors">
+                {/* Quote Text */}
+                <div className="relative">
+                  <Quote className="absolute -top-4 -left-4 w-12 h-12 text-white/[0.03] rotate-12 group-hover:text-p/10 transition-colors duration-500" />
+                  <p className="text-xl md:text-[22px] leading-relaxed text-white/60 font-medium tracking-tight group-hover:text-white/90 transition-colors duration-500 relative z-10 italic">
+                    "{testimonial.quote}"
+                  </p>
+                </div>
 
- <div className="relative z-10 flex items-center gap-6 pt-10 border-t border-white/5 mt-auto">
- <div className="w-20 h-20 rounded-[28px] bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-transform">
- {testimonial.image ? (
- <Image src={testimonial.image} alt={testimonial.author} width={80} height={80} className="w-full h-full object-cover" />
- ) : (
- <span className="font-semibold text-3xl text-p">{testimonial.author[0]}</span>
- )}
- </div>
- <div className="flex flex-col">
- <h5 className="text-xl font-semibold text-white tracking-tight uppercase">{testimonial.author}</h5>
- <p className="text-xs text-white/30 uppercase tracking-[0.2em] font-semibold mt-2">
- {testimonial.role} <span className="text-white/10 px-1">{"//"}</span> <span className="text-p">{testimonial.company}</span>
- </p>
- </div>
- 
- {/* Strategy Badge for Authority */}
- <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-p/5 blur-2xl rounded-full" />
- </div>
+                {/* Rating & Author Info */}
+                <div className="flex flex-col gap-6 mt-auto">
+                  <div className="flex gap-1">
+                    {[...Array(testimonial.rating)].map((_, idx) => (
+                      <Star
+                        key={idx}
+                        className={`w-3.5 h-3.5 fill-current text-white/10 group-hover:text-p transition-colors duration-500`}
+                        style={{ transitionDelay: `${idx * 50}ms` }}
+                      />
+                    ))}
+                  </div>
 
- {/* Holographic Scanlines */}
- <div className="absolute inset-0 bg-scanlines opacity-5 pointer-events-none" />
- </motion.div>
- ))}
- </div>
- </div>
- </section>
- );
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1A1A1A] to-[#111] border border-white/10 flex items-center justify-center overflow-hidden shrink-0 group-hover:border-p/40 transition-colors duration-500">
+                      {testimonial.image ? (
+                        <Image
+                          src={testimonial.image}
+                          alt={testimonial.author}
+                          width={48}
+                          height={48}
+                          className="w-full h-full object-cover grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+                        />
+                      ) : (
+                        <span className="font-bold text-lg text-white/50 group-hover:text-white transition-colors">
+                          {testimonial.author[0]}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <h5 className="text-sm font-bold text-white tracking-wide uppercase">
+                        {testimonial.author}
+                      </h5>
+                      <p className="text-[10px] text-white/40 uppercase tracking-[0.1em] font-semibold mt-1">
+                        {testimonial.company}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }

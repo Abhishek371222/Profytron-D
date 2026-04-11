@@ -1,73 +1,69 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Zap, Shield, Rocket } from 'lucide-react';
-import Link from 'next/link';
-import { FadeUp } from '@/components/animations';
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Terminal } from "lucide-react";
+import Link from "next/link";
+import { FadeUp } from "@/components/animations";
 
 export function CTABanner() {
- return (
- <section className="py-40 relative overflow-hidden bg-black">
- <div className="container mx-auto px-6">
- <div className="relative rounded-[64px] bg-white/[0.02] border border-white/5 p-20 md:p-32 overflow-hidden group backdrop-blur-3xl shadow-[0_0_100px_rgba(0,0,0,1)]">
- {/* Immersive Background Architecture */}
- <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-p/20 blur-[180px] rounded-full -mr-96 -mt-96 group-hover:bg-p/30 transition-all duration-1000" />
- <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-500/10 blur-[150px] rounded-full -ml-48 -mb-48" />
- <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.2] mix-blend-overlay pointer-events-none" />
- <div className="absolute inset-0 bg-scanlines opacity-5 pointer-events-none" />
+  return (
+    <section className="pt-2 pb-32 relative overflow-hidden bg-black">
+      <div className="container mx-auto px-6 max-w-[1200px]">
+        <div className="relative rounded-[32px] bg-[#050505] border border-white/[0.05] p-16 md:p-24 overflow-hidden group shadow-2xl">
+          {/* Subtle glow bleeding from center to look like a core */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-p/10 blur-[120px] rounded-full pointer-events-none group-hover:bg-p/20 transition-all duration-1000" />
 
- <div className="relative z-10 text-center max-w-5xl mx-auto">
- <FadeUp>
- <div className="inline-flex items-center gap-4 px-6 py-2 rounded-xl bg-p/10 border border-p/20 text-p text-xs font-semibold uppercase tracking-[0.6em] mb-12 relative overflow-hidden">
- <div className="absolute h-full w-px bg-p/50 right-0 animate-scanline" />
- <Rocket className="w-5 h-5 fill-p animate-pulse" />
- <span>Next_Generation_Neural_Stack_v4.0</span>
- </div>
- 
- <h2 className="text-6xl md:text-[110px] font-semibold mb-12 leading-tight tracking-tight uppercase text-white">
- Engineeri<span className="text-white/10 outline-text">ng</span> <br />
- Your <span className="text-p drop-shadow-[0_0_40px_rgba(99,102,241,0.6)]">Epoch.</span>
- </h2>
- 
- <p className="text-2xl md:text-3xl text-white/40 mb-20 leading-relaxed max-w-3xl mx-auto font-medium tracking-tight">
- Synchronize with the world&apos;s most advanced trading architecture. 
- Deploy Alpha. Eliminate Latency. Own the Market.
- </p>
+          {/* Vercel-style subtle geometric grid softly fading at all edges */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_0%,transparent_100%)] opacity-[0.04] pointer-events-none" />
+          <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.15] mix-blend-overlay pointer-events-none" />
 
- <div className="flex flex-wrap items-center justify-center gap-10">
- <Link href="/register">
- <Button size="lg" className="h-24 px-16 text-2xl bg-p hover:bg-indigo-500 rounded-[32px] group shadow-[0_30px_60px_rgba(99,102,241,0.5)] transition-all duration-700 font-semibold tracking-[0.1em] uppercase relative overflow-hidden">
- <span className="relative z-10 flex items-center gap-4">
- Initialize Core
- <ArrowRight className="w-8 h-8 group-hover:translate-x-3 transition-transform duration-500" />
- </span>
- <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
- </Button>
- </Link>
- <Link href="/dashboard">
- <Button size="lg" variant="ghost" className="h-24 px-16 text-2xl border-2 border-white/5 bg-white/[0.02] hover:bg-white/[0.08] rounded-[32px] font-semibold uppercase text-white/40 hover:text-white transition-all shadow-inner tracking-widest">
- Access Sandbox
- </Button>
- </Link>
- </div>
+          <div className="relative z-10 text-center max-w-3xl mx-auto flex flex-col items-center">
+            <FadeUp>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] text-white/60 text-[11px] font-medium tracking-widest uppercase mb-8 backdrop-blur-md">
+                <Terminal className="w-3 h-3 text-p" />
+                Initialize_System
+              </div>
 
- <div className="mt-24 pt-16 border-t border-white/5 flex flex-wrap justify-center gap-20 opacity-30">
- {[
- { icon: Shield, label: 'PULSE_SHIELD_ACTIVE' },
- { icon: Zap, label: 'SUB_MS_SYNCHRONIZED' },
- { icon: Rocket, label: 'DIRECT_ALPHA_STREAM' }
- ].map((item, i) => (
- <div key={i} className="flex items-center gap-4 text-xs font-semibold uppercase tracking-[0.4em] group hover:text-white transition-colors">
- <item.icon className="w-5 h-5 text-p" />
- {item.label}
- </div>
- ))}
- </div>
- </FadeUp>
- </div>
- </div>
- </div>
- </section>
- );
+              <h2 className="text-5xl md:text-7xl font-bold mb-8 tracking-tight text-white m-0 leading-[1.1]">
+                Ready to deploy <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/30">
+                  pure alpha?
+                </span>
+              </h2>
+
+              <p className="text-lg md:text-xl text-white/40 mb-12 leading-relaxed font-medium">
+                Join the fastest-growing network of quantitative developers.
+                Build your strategy, deploy to our nodes, and execute with zero
+                latency.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
+                <Link href="/register" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    className="w-full sm:w-auto h-14 px-10 text-base bg-white hover:bg-gray-200 text-black rounded-full font-bold transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.1)] group"
+                  >
+                    <span className="flex items-center gap-2">
+                      Start Building
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </Button>
+                </Link>
+                <Link href="/documentation" className="w-full sm:w-auto">
+                  <Button
+                    size="lg"
+                    variant="ghost"
+                    className="w-full sm:w-auto h-14 px-10 text-base border border-white/10 bg-white/5 hover:bg-white/10 text-white rounded-full font-bold transition-all"
+                  >
+                    Read Documentation
+                  </Button>
+                </Link>
+              </div>
+            </FadeUp>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
