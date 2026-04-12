@@ -61,3 +61,4 @@
 {"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
 {"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
 {"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
