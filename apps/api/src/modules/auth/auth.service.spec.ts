@@ -7,6 +7,10 @@ import { JwtService } from '@nestjs/jwt';
 import { ConflictException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
+// Mock bcrypt
+jest.mock('bcrypt');
+const mockedBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
+
 describe('AuthService (UNIT TESTS)', () => {
   let authService: AuthService;
   let prismaService: PrismaService;
@@ -23,6 +27,20 @@ describe('AuthService (UNIT TESTS)', () => {
   };
 
   beforeEach(async () => {
+    // Reset all mocks
+    jest.clearAllMocks();
+    
+    // Setup bcrypt mock
+    const hashedPasswords = new Map<string, string>();
+    mockedBcrypt.hash.mockImplementation(async (plain, rounds) => {
+      const hash = `$2b$${rounds}$abcdefghijklmnopqrstuvwx`;
+      hashedPasswords.set(plain, hash);
+      return hash;
+    });
+    mockedBcrypt.compare.mockImplementation(async (plain, hashed) => {
+      return hashedPasswords.get(plain) === hashed;
+    });
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -33,6 +51,9 @@ describe('AuthService (UNIT TESTS)', () => {
               findUnique: jest.fn(),
               create: jest.fn(),
               update: jest.fn(),
+            },
+            userSession: {
+              create: jest.fn(),
             },
             auditLog: {
               create: jest.fn(),
@@ -131,7 +152,7 @@ describe('AuthService (UNIT TESTS)', () => {
 
       const result = await authService.verifyEmail(dto);
 
-      expect(result.emailVerified).toBe(true);
+      expect(result.user.emailVerified).toBe(true);
       expect(redisService.del).toHaveBeenCalled();
     });
 
@@ -157,13 +178,15 @@ describe('AuthService (UNIT TESTS)', () => {
       const loginDto = { email: 'test@example.com', password: 'Pass123!' };
       const hashedPassword = await bcrypt.hash('Pass123!', 12);
 
+      // Mock bcrypt.compare for this specific test
+      mockedBcrypt.compare.mockResolvedValueOnce(true);
+
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
         ...mockUser,
         passwordHash: hashedPassword,
+        emailVerified: true,
       });
 
-      // Note: In real test, would need to mock bcrypt.compare
-      // For now, mocking at service level
       const tokens = await authService.login(loginDto);
 
       expect(tokens.accessToken).toBeDefined();
@@ -173,16 +196,22 @@ describe('AuthService (UNIT TESTS)', () => {
     it('should include user ID in JWT payload', async () => {
       const loginDto = { email: 'test@example.com', password: 'Pass123!' };
 
+      // Mock bcrypt.compare for this specific test
+      mockedBcrypt.compare.mockResolvedValueOnce(true);
+
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
         ...mockUser,
         passwordHash: mockUser.passwordHash,
+        emailVerified: true,
       });
 
       const tokens = await authService.login(loginDto);
 
       expect(jwtService.sign).toHaveBeenCalledWith({
-        id: mockUser.id,
+        sub: mockUser.id,
         email: mockUser.email,
+        role: undefined,
+        jti: 'mock-uuid-1234',
       }, expect.any(Object));
     });
   });

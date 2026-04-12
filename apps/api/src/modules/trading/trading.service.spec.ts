@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TradingService } from './trading.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TradingGateway } from './trading.gateway';
+import { getQueueToken } from '@nestjs/bull';
 
 describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
   let tradingService: TradingService;
@@ -45,7 +46,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
           },
         },
         {
-          provide: 'default_trade_execution',
+          provide: getQueueToken('trade_execution'),
           useValue: mockQueue,
         },
       ],
@@ -70,6 +71,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         id: 'signal-1',
         ...signalData,
       });
+      (prismaService.subscription.findMany as jest.Mock).mockResolvedValue([]);
 
       const result = await tradingService.processSignal(
         signalData.strategyId,

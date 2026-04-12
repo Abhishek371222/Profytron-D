@@ -103,6 +103,7 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "setupFilesAfterEnv": ["<rootDir>/../jest.setup.js"],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
