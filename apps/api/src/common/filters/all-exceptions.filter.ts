@@ -31,14 +31,20 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const responseBody = {
       success: false,
       statusCode: httpStatus,
-      error: typeof message === 'string' ? message : (message as any).message || message,
+      error:
+        typeof message === 'string'
+          ? message
+          : (message as any).message || message,
       code: (message as any).error || 'INTERNAL_ERROR',
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
     };
 
     if (httpStatus >= 500) {
-      this.logger.error(`[5xx] ${JSON.stringify(responseBody)}`, (exception as any).stack);
+      this.logger.error(
+        `[5xx] ${JSON.stringify(responseBody)}`,
+        (exception as any).stack,
+      );
     }
 
     // Hide stack trace and internal details in production

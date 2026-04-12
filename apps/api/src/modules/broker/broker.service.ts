@@ -23,26 +23,38 @@ export class BrokerService {
         connectionTest = await this.paperAdapter.connect(dto.accountNumber);
       } else {
         // MT5 fallback for BINANCE/BYBIT testing mock during dev
-        connectionTest = await this.mt5Adapter.connect(dto.accountNumber, dto.password, dto.serverName);
+        connectionTest = await this.mt5Adapter.connect(
+          dto.accountNumber,
+          dto.password,
+          dto.serverName,
+        );
       }
 
       if (!connectionTest.connected) {
-        throw new BadRequestException('Connection failed. Check your credentials.');
+        throw new BadRequestException(
+          'Connection failed. Check your credentials.',
+        );
       }
 
       // 1. Encrypt credentials
-      const encrypted = this.cryptoService.encrypt(JSON.stringify({ password: dto.password }));
-      
-      const last4 = dto.accountNumber ? dto.accountNumber.slice(-4).padStart(4, '0') : '0000';
+      const encrypted = this.cryptoService.encrypt(
+        JSON.stringify({ password: dto.password }),
+      );
 
-      const existingAccounts = await this.prisma.brokerAccount.count({ where: { userId } });
+      const last4 = dto.accountNumber
+        ? dto.accountNumber.slice(-4).padStart(4, '0')
+        : '0000';
+
+      const existingAccounts = await this.prisma.brokerAccount.count({
+        where: { userId },
+      });
       const isDefault = existingAccounts === 0;
 
       // 3. Save BrokerAccount to DB
       const account = await this.prisma.brokerAccount.create({
         data: {
           userId,
-          brokerName: dto.brokerName as any,
+          brokerName: dto.brokerName,
           accountNumberLast4: last4,
           credentialsEncrypted: encrypted,
           serverName: dto.serverName,
@@ -56,17 +68,21 @@ export class BrokerService {
         data: {
           eventType: 'BROKER_CONNECTED',
           userId,
-          detailsJson: { brokerName: account.brokerName, accountId: account.id },
+          detailsJson: {
+            brokerName: account.brokerName,
+            accountId: account.id,
+          },
           triggeredBy: 'USER',
-        }
+        },
       });
 
       // 6. Return without credentials
       delete (account as any).credentialsEncrypted;
       return account;
-
     } catch (e) {
-      this.logger.error(`Failed to connect broker for user ${userId}: ${e.message}`);
+      this.logger.error(
+        `Failed to connect broker for user ${userId}: ${e.message}`,
+      );
       throw new BadRequestException(e.message || 'Broker connection failed');
     }
   }
@@ -76,7 +92,7 @@ export class BrokerService {
       where: { userId, isActive: true },
       orderBy: { connectedAt: 'desc' },
     });
-    return accounts.map(acc => {
+    return accounts.map((acc) => {
       delete (acc as any).credentialsEncrypted;
       return acc;
     });
@@ -106,26 +122,37 @@ export class BrokerService {
     if (!account) throw new BadRequestException('Account not found');
 
     try {
-      const plaintext = this.cryptoService.decrypt(account.credentialsEncrypted);
+      const plaintext = this.cryptoService.decrypt(
+        account.credentialsEncrypted,
+      );
       const credentials = JSON.parse(plaintext);
 
       let connectionTest;
       if (account.isPaperTrading) {
-        connectionTest = await this.paperAdapter.connect(account.accountNumberLast4); // Paper mock uses any acc num
+        connectionTest = await this.paperAdapter.connect(
+          account.accountNumberLast4,
+        ); // Paper mock uses any acc num
       } else {
-        connectionTest = await this.mt5Adapter.connect(account.accountNumberLast4, credentials.password, account.serverName || '');
+        connectionTest = await this.mt5Adapter.connect(
+          account.accountNumberLast4,
+          credentials.password,
+          account.serverName || '',
+        );
       }
 
-      return { connected: connectionTest.connected, accountInfo: connectionTest };
+      return {
+        connected: connectionTest.connected,
+        accountInfo: connectionTest,
+      };
     } catch (e) {
       return { connected: false, error: 'Connection failed' };
     }
   }
 
   async getAccountInfo(userId: string, accountId: string) {
-      const test = await this.testConnection(userId, accountId);
-      if(!test.connected) throw new BadRequestException("Cannot fetch account info; disconnected");
-      return test.accountInfo;
+    const test = await this.testConnection(userId, accountId);
+    if (!test.connected)
+      throw new BadRequestException('Cannot fetch account info; disconnected');
+    return test.accountInfo;
   }
 }
-

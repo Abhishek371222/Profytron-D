@@ -13,8 +13,43 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
+      let {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      // Handle providers that return token/code in query/hash when session
+      // is not auto-hydrated by the SDK.
+      if (!session) {
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(
+          `${url.search}${url.hash ? `&${url.hash.replace(/^#/, '')}` : ''}`,
+        );
+
+        const code = params.get('code');
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+
+        if (code) {
+          const exchanged = await supabase.auth.exchangeCodeForSession(code);
+          if (exchanged.error) {
+            console.error('Supabase code exchange failed:', exchanged.error);
+          }
+        } else if (accessToken && refreshToken) {
+          const restored = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (restored.error) {
+            console.error('Supabase session restore failed:', restored.error);
+          }
+        }
+
+        const retry = await supabase.auth.getSession();
+        session = retry.data.session;
+        error = retry.error;
+      }
+
       if (error || !session) {
         console.error('Supabase session retrieval failed:', error);
         router.push('/login?error=auth_failed');

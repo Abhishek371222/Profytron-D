@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Req, Headers } from '@nestjs/common';
 import { WalletService } from './wallet.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -27,4 +27,14 @@ export class WalletController {
   async createDeposit(@Req() req: any, @Body('amount') amount: number) {
     return this.walletService.createDepositIntent(req.user.id, amount);
   }
+
+  @Post('webhook')
+  @ApiOperation({ summary: 'Stripe Webhook Handler' })
+  async handleWebhook(
+    @Body() payload: any,
+    @Headers('stripe-signature') sig: string,
+  ) {
+    return this.walletService.handleStripeWebhook(payload, sig);
+  }
 }
+

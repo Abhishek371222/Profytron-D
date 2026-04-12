@@ -1,4 +1,11 @@
-import { Injectable, ConflictException, UnauthorizedException, ForbiddenException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  UnauthorizedException,
+  ForbiddenException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from './redis.service';
 import { EmailService } from '../email/email.service';
@@ -6,7 +13,12 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { RegisterDto, LoginDto, VerifyEmailDto, SupabaseLoginDto } from './dto/auth.dto';
+import {
+  RegisterDto,
+  LoginDto,
+  VerifyEmailDto,
+  SupabaseLoginDto,
+} from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -21,12 +33,14 @@ export class AuthService {
   ) {
     this.supabase = createClient(
       process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
     );
   }
 
   async register(dto: RegisterDto) {
-    const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
     if (existing) throw new ConflictException('Email already registered');
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
@@ -53,15 +67,29 @@ export class AuthService {
       },
     });
 
-    return { success: true, message: 'Check your email for verification code' };
+    const response: Record<string, unknown> = {
+      success: true,
+      message: 'Check your email for verification code',
+    };
+
+    // Local dev convenience: expose OTP in non-production to unblock testing.
+    if (process.env.NODE_ENV !== 'production') {
+      response.devOtp = otp;
+    }
+
+    return response;
   }
 
   async verifyEmail(dto: VerifyEmailDto) {
     const storedOtp = await this.redisService.get(`auth:otp:${dto.email}`);
-    if (!storedOtp) throw new BadRequestException('OTP expired. Request a new one.');
-    if (storedOtp !== dto.otp) throw new BadRequestException('Invalid verification code');
+    if (!storedOtp)
+      throw new BadRequestException('OTP expired. Request a new one.');
+    if (storedOtp !== dto.otp)
+      throw new BadRequestException('Invalid verification code');
 
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
     if (!user) throw new BadRequestException('User not found');
 
     await this.redisService.del(`auth:otp:${dto.email}`);
@@ -70,8 +98,16 @@ export class AuthService {
       data: { emailVerified: true },
     });
 
-    const tokens = await this.generateTokenPair(updatedUser.id, updatedUser.email, updatedUser.role);
-    await this.redisService.set(`auth:refresh:${updatedUser.id}:default`, tokens.refreshToken, 7 * 24 * 3600);
+    const tokens = await this.generateTokenPair(
+      updatedUser.id,
+      updatedUser.email,
+      updatedUser.role,
+    );
+    await this.redisService.set(
+      `auth:refresh:${updatedUser.id}:default`,
+      tokens.refreshToken,
+      7 * 24 * 3600,
+    );
 
     await this.prisma.auditLog.create({
       data: {
@@ -82,14 +118,22 @@ export class AuthService {
       },
     });
 
-    return { accessToken: tokens.accessToken, user: this.sanitizeUser(updatedUser), refreshTokenForCookie: tokens.refreshToken };
+    return {
+      accessToken: tokens.accessToken,
+      user: this.sanitizeUser(updatedUser),
+      refreshTokenForCookie: tokens.refreshToken,
+    };
   }
 
   async login(dto: LoginDto, req: any) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (!user || !user.passwordHash) throw new UnauthorizedException('Invalid credentials');
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+    if (!user || !user.passwordHash)
+      throw new UnauthorizedException('Invalid credentials');
     if (user.isSuspended) throw new ForbiddenException('Account suspended');
-    if (!user.emailVerified) throw new ForbiddenException('Please verify your email first');
+    if (!user.emailVerified)
+      throw new ForbiddenException('Please verify your email first');
 
     const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
@@ -97,41 +141,81 @@ export class AuthService {
     const ip = req?.ip || '0.0.0.0';
     const userAgent = req?.headers['user-agent'] || 'Unknown';
 
-    await this.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
     await this.prisma.userSession.create({
-      data: { userId: user.id, deviceId: 'default', ipAddress: ip, browser: userAgent },
+      data: {
+        userId: user.id,
+        deviceId: 'default',
+        ipAddress: ip,
+        browser: userAgent,
+      },
     });
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.redisService.set(`auth:refresh:${user.id}:default`, tokens.refreshToken, 7 * 24 * 3600);
+    await this.redisService.set(
+      `auth:refresh:${user.id}:default`,
+      tokens.refreshToken,
+      7 * 24 * 3600,
+    );
 
     await this.prisma.auditLog.create({
-      data: { eventType: 'LOGIN', userId: user.id, detailsJson: { ip, userAgent }, triggeredBy: user.id, ipAddress: ip, userAgent },
+      data: {
+        eventType: 'LOGIN',
+        userId: user.id,
+        detailsJson: { ip, userAgent },
+        triggeredBy: user.id,
+        ipAddress: ip,
+        userAgent,
+      },
     });
 
-    return { accessToken: tokens.accessToken, user: this.sanitizeUser(user), refreshTokenForCookie: tokens.refreshToken };
+    return {
+      accessToken: tokens.accessToken,
+      user: this.sanitizeUser(user),
+      refreshTokenForCookie: tokens.refreshToken,
+    };
   }
 
   async refresh(userId: string, refreshToken: string, jti: string) {
-    const stored = await this.redisService.get(`auth:refresh:${userId}:default`);
-    if (!stored || stored !== refreshToken) throw new UnauthorizedException('Invalid refresh session');
+    const stored = await this.redisService.get(
+      `auth:refresh:${userId}:default`,
+    );
+    if (!stored || stored !== refreshToken)
+      throw new UnauthorizedException('Invalid refresh session');
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedException('User not found');
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.redisService.set(`auth:refresh:${user.id}:default`, tokens.refreshToken, 7 * 24 * 3600);
+    await this.redisService.set(
+      `auth:refresh:${user.id}:default`,
+      tokens.refreshToken,
+      7 * 24 * 3600,
+    );
 
-    return { accessToken: tokens.accessToken, refreshTokenForCookie: tokens.refreshToken };
+    return {
+      accessToken: tokens.accessToken,
+      refreshTokenForCookie: tokens.refreshToken,
+    };
   }
 
   async logout(userId: string, jti: string) {
     await this.redisService.del(`auth:refresh:${userId}:default`);
     if (jti) await this.redisService.set(`auth:blacklist:${jti}`, 'true', 3600);
 
-    await this.prisma.userSession.deleteMany({ where: { userId, deviceId: 'default' } });
+    await this.prisma.userSession.deleteMany({
+      where: { userId, deviceId: 'default' },
+    });
     await this.prisma.auditLog.create({
-      data: { eventType: 'LOGOUT', userId, detailsJson: {}, triggeredBy: userId },
+      data: {
+        eventType: 'LOGOUT',
+        userId,
+        detailsJson: {},
+        triggeredBy: userId,
+      },
     });
 
     return { success: true };
@@ -144,7 +228,10 @@ export class AuthService {
       await this.redisService.set(`auth:reset:${resetToken}`, email, 3600);
       await this.emailService.sendPasswordResetEmail(email, resetToken);
     }
-    return { success: true, message: 'If this email exists, a reset link was sent' };
+    return {
+      success: true,
+      message: 'If this email exists, a reset link was sent',
+    };
   }
 
   async resetPassword(token: string, newPassword: string) {
@@ -157,12 +244,17 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(newPassword, 12);
     await this.prisma.user.update({ where: { email }, data: { passwordHash } });
     await this.redisService.del(`auth:reset:${token}`);
-    
+
     // Invalidate refresh tokens broadly for the user
     await this.redisService.del(`auth:refresh:${user.id}:default`);
 
     await this.prisma.auditLog.create({
-      data: { eventType: 'PASSWORD_RESET', userId: user.id, detailsJson: { email }, triggeredBy: user.id },
+      data: {
+        eventType: 'PASSWORD_RESET',
+        userId: user.id,
+        detailsJson: { email },
+        triggeredBy: user.id,
+      },
     });
 
     return { success: true };
@@ -170,7 +262,11 @@ export class AuthService {
 
   async resendOtp(email: string) {
     const existing = await this.redisService.get(`auth:otp:${email}`);
-    if (existing) return { success: true, message: 'Please wait before requesting a new code' }; // Throttle logic simplified
+    if (existing)
+      return {
+        success: true,
+        message: 'Please wait before requesting a new code',
+      }; // Throttle logic simplified
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await this.redisService.set(`auth:otp:${email}`, otp, 600);
@@ -179,7 +275,9 @@ export class AuthService {
   }
 
   async googleCallback(profile: any) {
-    let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
+    let user = await this.prisma.user.findUnique({
+      where: { email: profile.email },
+    });
     if (!user) {
       user = await this.prisma.user.create({
         data: {
@@ -193,23 +291,35 @@ export class AuthService {
       });
     }
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.redisService.set(`auth:refresh:${user.id}:default`, tokens.refreshToken, 7 * 24 * 3600);
-    return { accessToken: tokens.accessToken, user: this.sanitizeUser(user), refreshTokenForCookie: tokens.refreshToken };
+    await this.redisService.set(
+      `auth:refresh:${user.id}:default`,
+      tokens.refreshToken,
+      7 * 24 * 3600,
+    );
+    return {
+      accessToken: tokens.accessToken,
+      user: this.sanitizeUser(user),
+      refreshTokenForCookie: tokens.refreshToken,
+    };
   }
 
   async supabaseLogin(dto: SupabaseLoginDto) {
     this.logger.log(`Initiating Supabase sync for: ${dto.email}`);
-    
+
     // 1. Verify token with Supabase
     const { data, error } = await this.supabase.auth.getUser(dto.token);
-    
+
     if (error || !data.user) {
-      this.logger.error(`Supabase verification failed for ${dto.email}: ${error?.message}`);
+      this.logger.error(
+        `Supabase verification failed for ${dto.email}: ${error?.message}`,
+      );
       throw new UnauthorizedException('Invalid Supabase token');
     }
 
     if (data.user.email !== dto.email) {
-      this.logger.error(`Email mismatch: Supabase=${data.user.email}, DTO=${dto.email}`);
+      this.logger.error(
+        `Email mismatch: Supabase=${data.user.email}, DTO=${dto.email}`,
+      );
       throw new UnauthorizedException('Email mismatch');
     }
 
@@ -232,12 +342,16 @@ export class AuthService {
 
     // 3. Issue local tokens
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.redisService.set(`auth:refresh:${user.id}:default`, tokens.refreshToken, 7 * 24 * 3600);
+    await this.redisService.set(
+      `auth:refresh:${user.id}:default`,
+      tokens.refreshToken,
+      7 * 24 * 3600,
+    );
 
-    return { 
-      accessToken: tokens.accessToken, 
-      user: this.sanitizeUser(user), 
-      refreshTokenForCookie: tokens.refreshToken 
+    return {
+      accessToken: tokens.accessToken,
+      user: this.sanitizeUser(user),
+      refreshTokenForCookie: tokens.refreshToken,
     };
   }
 
@@ -245,11 +359,21 @@ export class AuthService {
     const jti = uuidv4();
     const accessToken = this.jwtService.sign(
       { sub: userId, email, role, jti },
-      { expiresIn: (process.env.JWT_ACCESS_EXPIRES || '1h') as any, secret: process.env.JWT_ACCESS_SECRET || 'profytron_v1_access_96e8b2c4d1a5f6b7c8d9e0f1a2b3c4d5' }
+      {
+        expiresIn: (process.env.JWT_ACCESS_EXPIRES || '1h') as any,
+        secret:
+          process.env.JWT_ACCESS_SECRET ||
+          'profytron_v1_access_96e8b2c4d1a5f6b7c8d9e0f1a2b3c4d5',
+      },
     );
     const refreshToken = this.jwtService.sign(
       { sub: userId, jti },
-      { expiresIn: (process.env.JWT_REFRESH_EXPIRES || '7d') as any, secret: process.env.JWT_REFRESH_SECRET || 'profytron_v1_refresh_1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p' }
+      {
+        expiresIn: (process.env.JWT_REFRESH_EXPIRES || '7d') as any,
+        secret:
+          process.env.JWT_REFRESH_SECRET ||
+          'profytron_v1_refresh_1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p',
+      },
     );
     return { accessToken, refreshToken };
   }

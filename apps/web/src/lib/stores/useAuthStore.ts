@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           // This call triggers the HTTP-only cookie automatically if credentials inclusion is true
           const { data } = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}/auth/refresh`,
+            `${process.env.NEXT_PUBLIC_API_URL || '/api'}/auth/refresh`,
             {},
             { withCredentials: true }
           );

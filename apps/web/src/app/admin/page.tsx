@@ -161,7 +161,7 @@ export default function AdminDashboard() {
  </div>
  </div>
  <div className="h-[var(--chart-h-md)] w-full">
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={revenueData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
  <defs>
  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
@@ -194,7 +194,7 @@ export default function AdminDashboard() {
  <p className="text-xs text-slate-400">Last 12 months registrations</p>
  </div>
  <div className="h-[var(--chart-h-md)] w-full">
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={userGrowthData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
  <XAxis dataKey="month" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} />

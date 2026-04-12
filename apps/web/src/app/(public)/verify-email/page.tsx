@@ -17,6 +17,7 @@ export default function VerifyEmailPage() {
  const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [timer, setTimer] = useState(60);
   const [email, setEmail] = useState('demo@profytron.com');
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -24,6 +25,12 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('verificationEmail');
     if (storedEmail) setEmail(storedEmail);
+
+    const storedOtp = sessionStorage.getItem('verificationOtp');
+    if (storedOtp && /^\d{6}$/.test(storedOtp)) {
+      setOtp(storedOtp.split(''));
+      sessionStorage.removeItem('verificationOtp');
+    }
   }, []);
 
  useEffect(() => {
@@ -57,6 +64,7 @@ export default function VerifyEmailPage() {
     if (code.length < 6) return;
 
     setIsLoading(true);
+    setErrorMessage(null);
     try {
       const response = await authApi.verifyEmail({ email, otp: code });
       setIsSuccess(true);
@@ -64,6 +72,7 @@ export default function VerifyEmailPage() {
       setTimeout(() => router.push('/dashboard'), 1500);
     } catch (error: any) {
       console.error('Verification failed:', error);
+      setErrorMessage(error?.response?.data?.error || 'Verification failed. Check OTP and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -175,6 +184,11 @@ export default function VerifyEmailPage() {
  </motion.div>
 
  <form onSubmit={handleSubmit} className="space-y-10">
+ {errorMessage && (
+ <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+ {errorMessage}
+ </div>
+ )}
  <motion.div variants={itemVariants} className="flex justify-between gap-3">
  {otp.map((digit, index) => (
  <div key={index} className="relative group/otp flex-1">

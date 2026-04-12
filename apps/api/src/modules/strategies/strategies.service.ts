@@ -1,8 +1,25 @@
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
-import { CreateStrategyDto, UpdateStrategyDto, StrategiesQueryDto, ActivateStrategyDto, RunBacktestDto } from './dto/strategy.dto';
-import { Strategy, UserRole, SubscriptionStatus, VerificationStatus } from '@prisma/client';
+import {
+  CreateStrategyDto,
+  UpdateStrategyDto,
+  StrategiesQueryDto,
+  ActivateStrategyDto,
+  RunBacktestDto,
+} from './dto/strategy.dto';
+import {
+  Strategy,
+  UserRole,
+  SubscriptionStatus,
+  VerificationStatus,
+} from '@prisma/client';
 import axios from 'axios';
 import * as crypto from 'crypto';
 
@@ -16,9 +33,17 @@ export class StrategiesService {
   ) {}
 
   async findAll(query: StrategiesQueryDto, userId?: string) {
-    const { 
-      category, riskLevel, isVerified, priceMin, priceMax, 
-      search, sortBy = 'createdAt', order = 'desc', page = 1, limit = 20 
+    const {
+      category,
+      riskLevel,
+      isVerified,
+      priceMin,
+      priceMax,
+      search,
+      sortBy = 'createdAt',
+      order = 'desc',
+      page = 1,
+      limit = 20,
     } = query;
 
     const skip = (page - 1) * limit;
@@ -31,7 +56,7 @@ export class StrategiesService {
     if (category) where.category = category;
     if (riskLevel) where.riskLevel = riskLevel;
     if (isVerified !== undefined) where.isVerified = isVerified;
-    
+
     if (priceMin !== undefined || priceMax !== undefined) {
       where.monthlyPrice = {
         gte: priceMin || 0,
@@ -55,10 +80,12 @@ export class StrategiesService {
             take: 1,
             orderBy: { date: 'desc' },
           },
-          subscriptions: userId ? {
-            where: { userId, status: SubscriptionStatus.ACTIVE },
-            take: 1,
-          } : false,
+          subscriptions: userId
+            ? {
+                where: { userId, status: SubscriptionStatus.ACTIVE },
+                take: 1,
+              }
+            : false,
         },
         skip,
         take: limit,
@@ -68,7 +95,7 @@ export class StrategiesService {
     ]);
 
     return {
-      strategies: strategies.map(s => ({
+      strategies: strategies.map((s) => ({
         ...s,
         isSubscribed: s.subscriptions?.length > 0,
         latestPerformance: s.performance[0] || null,
@@ -85,7 +112,9 @@ export class StrategiesService {
     const strategy = await this.prisma.strategy.findUnique({
       where: { id },
       include: {
-        creator: { select: { id: true, fullName: true, avatarUrl: true, bio: true } },
+        creator: {
+          select: { id: true, fullName: true, avatarUrl: true, bio: true },
+        },
         performance: {
           orderBy: { date: 'asc' },
         },
@@ -95,19 +124,22 @@ export class StrategiesService {
           orderBy: { createdAt: 'desc' },
           include: { user: { select: { fullName: true, avatarUrl: true } } },
         },
-        subscriptions: userId ? {
-          where: { userId, status: SubscriptionStatus.ACTIVE },
-        } : false,
+        subscriptions: userId
+          ? {
+              where: { userId, status: SubscriptionStatus.ACTIVE },
+            }
+          : false,
       },
     });
 
-    if (!strategy || strategy.deletedAt) throw new NotFoundException('Strategy not found');
+    if (!strategy || strategy.deletedAt)
+      throw new NotFoundException('Strategy not found');
 
     // Calculate Monthly Returns
     const monthlyReturns = this.calculateMonthlyReturns(strategy.performance);
-    
+
     // Format Equity Curve (Last 365 Days)
-    const equityCurve = strategy.performance.map(p => ({
+    const equityCurve = strategy.performance.map((p) => ({
       date: p.date,
       value: p.netPnl,
     }));
@@ -123,11 +155,15 @@ export class StrategiesService {
 
   async create(creatorId: string, dto: CreateStrategyDto) {
     // Validate role/tier (Simplified for now)
-    const user = await this.prisma.user.findUnique({ where: { id: creatorId } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: creatorId },
+    });
     if (!user) throw new NotFoundException('User identity not found');
 
     if (user.role === UserRole.USER && user.subscriptionTier === 'FREE') {
-      throw new ForbiddenException('Upgrade to PRO for Strategy Deployment Handshake');
+      throw new ForbiddenException(
+        'Upgrade to PRO for Strategy Deployment Handshake',
+      );
     }
 
     return this.prisma.strategy.create({
@@ -146,7 +182,7 @@ export class StrategiesService {
     }
 
     const data: any = { ...dto };
-    
+
     // If config changes and it was verified, drop verification
     if (dto.configJson && strategy.isVerified) {
       data.isVerified = false;
@@ -161,10 +197,14 @@ export class StrategiesService {
 
   async delete(id: string, userId: string) {
     const strategy = await this.prisma.strategy.findUnique({ where: { id } });
-    if (!strategy || strategy.creatorId !== userId) throw new ForbiddenException();
+    if (!strategy || strategy.creatorId !== userId)
+      throw new ForbiddenException();
 
     await this.prisma.$transaction([
-      this.prisma.strategy.update({ where: { id }, data: { deletedAt: new Date() } }),
+      this.prisma.strategy.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      }),
       this.prisma.userStrategySubscription.updateMany({
         where: { strategyId: id, status: SubscriptionStatus.ACTIVE },
         data: { status: SubscriptionStatus.CANCELLED, cancelledAt: new Date() },
@@ -175,8 +215,11 @@ export class StrategiesService {
   }
 
   async activate(strategyId: string, userId: string, dto: ActivateStrategyDto) {
-    const strategy = await this.prisma.strategy.findUnique({ where: { id: strategyId } });
-    if (!strategy || !strategy.isPublished) throw new NotFoundException('Strategy not available');
+    const strategy = await this.prisma.strategy.findUnique({
+      where: { id: strategyId },
+    });
+    if (!strategy || !strategy.isPublished)
+      throw new NotFoundException('Strategy not available');
 
     // Check if already active
     const existing = await this.prisma.userStrategySubscription.findUnique({
@@ -186,7 +229,7 @@ export class StrategiesService {
     if (existing && existing.status === SubscriptionStatus.ACTIVE) {
       return this.prisma.userStrategySubscription.update({
         where: { id: existing.id },
-        data: { 
+        data: {
           brokerAccountId: dto.brokerAccountId,
         },
       });
@@ -207,7 +250,9 @@ export class StrategiesService {
       },
     });
 
-    this.logger.log(`STRATEGY_ACTIVATED: User ${userId} -> Strategy ${strategyId}`);
+    this.logger.log(
+      `STRATEGY_ACTIVATED: User ${userId} -> Strategy ${strategyId}`,
+    );
     return sub;
   }
 
@@ -217,7 +262,9 @@ export class StrategiesService {
       data: { status: SubscriptionStatus.CANCELLED, cancelledAt: new Date() },
     });
 
-    this.logger.log(`STRATEGY_DEACTIVATED: User ${userId} -> Strategy ${strategyId}`);
+    this.logger.log(
+      `STRATEGY_DEACTIVATED: User ${userId} -> Strategy ${strategyId}`,
+    );
     return { success: true };
   }
 
@@ -234,7 +281,7 @@ export class StrategiesService {
       },
     });
 
-    return subs.map(s => ({
+    return subs.map((s) => ({
       ...s.strategy,
       subscriptionId: s.id,
       subscribedAt: s.subscribedAt,
@@ -244,10 +291,17 @@ export class StrategiesService {
   }
 
   async runBacktest(strategyId: string, userId: string, dto: RunBacktestDto) {
-    const strategy = await this.prisma.strategy.findUnique({ where: { id: strategyId } });
+    const strategy = await this.prisma.strategy.findUnique({
+      where: { id: strategyId },
+    });
     if (!strategy) throw new NotFoundException();
 
-    return this.executeBacktest(dto.configOverride || strategy.configJson, dto, userId, strategyId);
+    return this.executeBacktest(
+      dto.configOverride || strategy.configJson,
+      dto,
+      userId,
+      strategyId,
+    );
   }
 
   async runBacktestPreview(userId: string, dto: RunBacktestDto) {
@@ -257,34 +311,45 @@ export class StrategiesService {
     return this.executeBacktest(dto.configOverride, dto, userId, 'preview');
   }
 
-  private async executeBacktest(config: any, dto: RunBacktestDto, userId: string, cacheId: string) {
+  private async executeBacktest(
+    config: any,
+    dto: RunBacktestDto,
+    userId: string,
+    cacheId: string,
+  ) {
     // Cache key based on config and params
     const cacheKey = `backtest:${cacheId}:${this.hashObject(dto)}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
     try {
-      const response = await axios.post(`${process.env.BACKTEST_SERVICE_URL}/backtest/run`, {
-        strategyConfig: config,
-        params: {
-          start_date: dto.startDate,
-          end_date: dto.endDate,
-          initial_capital: dto.initialCapital,
+      const response = await axios.post(
+        `${process.env.BACKTEST_SERVICE_URL}/backtest/run`,
+        {
+          strategyConfig: config,
+          params: {
+            start_date: dto.startDate,
+            end_date: dto.endDate,
+            initial_capital: dto.initialCapital,
+          },
+          userId,
         },
-        userId,
-      }, { timeout: 60000 });
+        { timeout: 60000 },
+      );
 
       await this.redis.set(cacheKey, JSON.stringify(response.data), 3600); // 1h cache
       return response.data;
     } catch (error) {
-      if (error.code === 'ECONNABORTED') throw new BadRequestException('Backtest timeout');
+      if (error.code === 'ECONNABORTED')
+        throw new BadRequestException('Backtest timeout');
       throw new BadRequestException('Backtest service unavailable');
     }
   }
 
   async publish(id: string, userId: string) {
     const strategy = await this.prisma.strategy.findUnique({ where: { id } });
-    if (!strategy || strategy.creatorId !== userId) throw new ForbiddenException();
+    if (!strategy || strategy.creatorId !== userId)
+      throw new ForbiddenException();
 
     return this.prisma.strategy.update({
       where: { id },
@@ -297,7 +362,7 @@ export class StrategiesService {
 
   private calculateMonthlyReturns(performance: any[]) {
     const returns: Record<string, number> = {};
-    performance.forEach(p => {
+    performance.forEach((p) => {
       const monthKey = p.date.toISOString().slice(0, 7); // YYYY-MM
       returns[monthKey] = (returns[monthKey] || 0) + p.netPnl;
     });

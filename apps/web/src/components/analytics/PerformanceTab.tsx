@@ -159,7 +159,7 @@ export default function PerformanceTab() {
  </div>
  {/* Explicit height — fixes Recharts warning and uses new density height */}
  <div className="w-full h-[var(--chart-h-lg)]">
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={strategyStats} margin={{ top: 10, right: 20, left: 0, bottom: 10 }} barSize={48}>
  <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.03)" vertical={false} />
  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 900 }} dy={12} />

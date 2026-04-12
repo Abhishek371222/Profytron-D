@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsNumber, IsObject, MinLength, MaxLength, Matches, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsObject,
+  MinLength,
+  MaxLength,
+  Matches,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateProfileDto {
@@ -10,7 +19,10 @@ export class UpdateProfileDto {
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()
-  @Matches(/^[a-zA-Z0-9_]{3,20}$/, { message: 'Username must be 3-20 characters long and contain only letters, numbers, and underscores.' })
+  @Matches(/^[a-zA-Z0-9_]{3,20}$/, {
+    message:
+      'Username must be 3-20 characters long and contain only letters, numbers, and underscores.',
+  })
   username?: string;
 
   @ApiPropertyOptional()
@@ -28,7 +40,7 @@ export class UpdateProfileDto {
   @IsOptional()
   @MaxLength(500)
   bio?: string;
-  
+
   @ApiPropertyOptional()
   @IsString()
   @IsOptional()

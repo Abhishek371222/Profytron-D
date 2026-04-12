@@ -12,4 +12,3 @@ import { PaperBrokerAdapter } from './adapters/paper.adapter';
   exports: [BrokerService],
 })
 export class BrokerModule {}
-

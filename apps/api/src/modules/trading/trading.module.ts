@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bull';
 import { TradingService } from './trading.service';
 import { TradingController } from './trading.controller';
 import { TradingGateway } from './trading.gateway';
+import { TradeProcessor } from './trade.processor';
 import { AuthModule } from '../auth/auth.module';
 
 @Module({
@@ -13,7 +14,8 @@ import { AuthModule } from '../auth/auth.module';
     }),
   ],
   controllers: [TradingController],
-  providers: [TradingService, TradingGateway],
-  exports: [TradingService, TradingGateway],
+  providers: [TradingService, TradingGateway, TradeProcessor],
+  exports: [TradingService, TradingGateway, TradeProcessor],
 })
 export class TradingModule {}
+

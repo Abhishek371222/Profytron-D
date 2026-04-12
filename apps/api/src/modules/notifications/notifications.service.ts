@@ -6,10 +6,15 @@ import { TradingGateway } from '../trading/trading.gateway';
 export class NotificationsService {
   constructor(
     private prisma: PrismaService,
-    private gateway: TradingGateway
+    private gateway: TradingGateway,
   ) {}
 
-  async create(userId: string, title: string, message: string, type: string = 'INFO') {
+  async create(
+    userId: string,
+    title: string,
+    message: string,
+    type: string = 'INFO',
+  ) {
     const notification = await this.prisma.notification.create({
       data: {
         userId,

@@ -13,7 +13,9 @@ import { JwtService } from '@nestjs/jwt';
   cors: { origin: '*' },
   namespace: 'trading',
 })
-export class TradingGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class TradingGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -22,7 +24,8 @@ export class TradingGateway implements OnGatewayConnection, OnGatewayDisconnect 
   constructor(private jwtService: JwtService) {}
 
   async handleConnection(client: Socket) {
-    const token = client.handshake.auth.token || client.handshake.headers.authorization;
+    const token =
+      client.handshake.auth.token || client.handshake.headers.authorization;
     if (!token) {
       client.disconnect();
       return;

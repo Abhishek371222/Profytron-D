@@ -221,7 +221,7 @@ export default function StrategyQueue() {
  
  {/* Equity Curve */}
  <div className="h-[200px] bg-slate-950 border border-slate-800 rounded-lg p-4">
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={equityData}>
  <defs>
  <linearGradient id="eqGradient" x1="0" y1="0" x2="0" y2="1">

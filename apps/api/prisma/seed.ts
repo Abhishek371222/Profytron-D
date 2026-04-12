@@ -104,18 +104,31 @@ async function main() {
       data: {
         creatorId: u3.id,
         name: s.name,
-        description: `High performance ${s.cat} strategy.`,
+        description: `High performance ${s.cat} strategy using institutional data flows and advanced technical indicators. Optimized for ${s.rl.toLowerCase()} risk profiles.`,
         category: s.cat,
         riskLevel: s.rl,
         verificationStatus: s.vs,
         isVerified: s.vs === VerificationStatus.VERIFIED,
         isPublished,
         monthlyPrice: isFree ? 0 : s.price,
-        configJson: { param: 'test' },
+        configJson: { param: 'test', logic: 'EMA_CROSS' },
         copiesCount: Math.floor(Math.random() * 400),
       }
     });
     strategyIds.push(st.id);
+
+    // Create Marketplace Listing
+    await prisma.marketplaceListing.create({
+      data: {
+        strategyId: st.id,
+        monthlyPrice: isFree ? 0 : s.price,
+        annualPrice: isFree ? 0 : s.price * 10,
+        lifetimePrice: isFree ? 0 : s.price * 30,
+        isFeatured: s.cat === StrategyCategory.TREND,
+        trialDays: 7,
+      }
+    });
+
 
     // Seed 365 Days Performance with Brownian Motion
     let cumPnl = 0;

@@ -1,6 +1,23 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, UseGuards, Req, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Req,
+  Query,
+} from '@nestjs/common';
 import { StrategiesService } from './strategies.service';
-import { CreateStrategyDto, UpdateStrategyDto, StrategiesQueryDto, ActivateStrategyDto, RunBacktestDto } from './dto/strategy.dto';
+import {
+  CreateStrategyDto,
+  UpdateStrategyDto,
+  StrategiesQueryDto,
+  ActivateStrategyDto,
+  RunBacktestDto,
+} from './dto/strategy.dto';
 import { Public, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
@@ -41,7 +58,11 @@ export class StrategiesController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update an existing strategy' })
-  async update(@Param('id') id: string, @Req() req: any, @Body() dto: UpdateStrategyDto) {
+  async update(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body() dto: UpdateStrategyDto,
+  ) {
     return this.strategiesService.update(id, req.user.userId, dto);
   }
 
@@ -53,7 +74,11 @@ export class StrategiesController {
 
   @Post(':id/activate')
   @ApiOperation({ summary: 'Activate/Subscribe to a strategy' })
-  async activate(@Param('id') id: string, @Req() req: any, @Body() dto: ActivateStrategyDto) {
+  async activate(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body() dto: ActivateStrategyDto,
+  ) {
     return this.strategiesService.activate(id, req.user.userId, dto);
   }
 
@@ -65,7 +90,11 @@ export class StrategiesController {
 
   @Post(':id/backtest')
   @ApiOperation({ summary: 'Run a backtest for a strategy' })
-  async runBacktest(@Param('id') id: string, @Req() req: any, @Body() dto: RunBacktestDto) {
+  async runBacktest(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body() dto: RunBacktestDto,
+  ) {
     return this.strategiesService.runBacktest(id, req.user.userId, dto);
   }
 

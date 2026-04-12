@@ -1,8 +1,32 @@
-import { Controller, Get, Patch, Post, Delete, Body, Param, Req, UseGuards, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Patch,
+  Post,
+  Delete,
+  Body,
+  Param,
+  Req,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
-import { UpdateProfileDto, UpdateRiskProfileDto, ChangePasswordDto, DeleteAccountDto } from './dto/users.dto';
+import {
+  UpdateProfileDto,
+  UpdateRiskProfileDto,
+  ChangePasswordDto,
+  DeleteAccountDto,
+} from './dto/users.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import type { Request } from 'express';
 
@@ -26,9 +50,11 @@ export class UsersController {
   }
 
   @Post('me/avatar')
-  @UseInterceptors(FileInterceptor('file', {
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    }),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -39,7 +65,10 @@ export class UsersController {
     },
   })
   @ApiOperation({ summary: 'Upload avatar to Supabase storage' })
-  async uploadAvatar(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
+  async uploadAvatar(
+    @Req() req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     if (!file) {
       throw new BadRequestException('No file provided');
     }
@@ -68,7 +97,10 @@ export class UsersController {
   @ApiOperation({ summary: 'Revoke all other sessions' })
   async revokeAllOtherSessions(@Req() req: any) {
     // Current session ID passed from JWT payload
-    return this.usersService.revokeAllOtherSessions(req.user.userId, req.user.jti);
+    return this.usersService.revokeAllOtherSessions(
+      req.user.userId,
+      req.user.jti,
+    );
   }
 
   @Post('me/change-password')
