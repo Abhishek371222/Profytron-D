@@ -1,8 +1,7 @@
 "use client";
 
 import React from"react";
-import { Search, Bell, User, ChevronDown, Command } from"lucide-react";
-import { cn } from"@/lib/utils";
+import { Search, ChevronDown, Command } from"lucide-react";
 import { 
  DropdownMenu, 
  DropdownMenuContent, 
@@ -15,6 +14,7 @@ import { Button } from"@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from"@/components/ui/avatar";
 import { useAuthStore } from"@/lib/stores/useAuthStore";
 import { useUIStore } from"@/lib/stores/useUIStore";
+import { NotificationDropdown } from '@/components/ui/NotificationDropdown';
 
 export function TopBar() {
  const { user } = useAuthStore();
@@ -50,10 +50,7 @@ export function TopBar() {
 
  {/* Actions */}
  <div className="flex items-center gap-4">
- <Button variant="ghost" size="icon" className="relative text-slate-400 hover:text-white rounded-full">
- <Bell className="w-5 h-5" />
- <span className="absolute top-2 right-2 w-2 h-2 bg-p rounded-full border-2 border-bg-base" />
- </Button>
+ <NotificationDropdown />
 
  <DropdownMenu>
  <DropdownMenuTrigger asChild>

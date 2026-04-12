@@ -15,6 +15,18 @@ const protectedRoutes = [
 export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
+  const referralCode = searchParams.get('ref') || searchParams.get('referral');
+  if (referralCode) {
+    const response = NextResponse.next();
+    response.cookies.set('referral_code', referralCode, {
+      path: '/',
+      maxAge: 60 * 60 * 24 * 30,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
+    return response;
+  }
+
   // Some auth providers can land on "/" with token/code params.
   // Normalize those callbacks to the dedicated callback route.
   if (
@@ -39,6 +51,15 @@ export function proxy(request: NextRequest) {
       url.pathname = '/login';
       url.searchParams.set('redirect', pathname);
       return NextResponse.redirect(url);
+    }
+
+    if (pathname.startsWith('/admin')) {
+      const role = request.cookies.get('user_role')?.value;
+      if (role !== 'ADMIN') {
+        const url = request.nextUrl.clone();
+        url.pathname = '/dashboard';
+        return NextResponse.redirect(url);
+      }
     }
   }
 

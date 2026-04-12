@@ -1,7 +1,27 @@
-import { Controller, Get, Post, Body, UseGuards, Req, Headers } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Headers,
+  Param,
+  ParseIntPipe,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+  ValidationPipe,
+} from '@nestjs/common';
 import { WalletService } from './wallet.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import type { Request } from 'express';
+import type { Response } from 'express';
+import { Public, JwtAuthGuard } from '../auth/guards/auth.guard';
+import {
+  InitiateDepositDto,
+  InitiateWithdrawalDto,
+  WalletTransactionsQueryDto,
+} from './dto/wallet.dto';
 
 interface RequestWithUser extends Request {
   user: {
@@ -22,19 +42,70 @@ export class WalletController {
     return this.walletService.getBalance(req.user.id);
   }
 
+  @Get('transactions')
+  @ApiOperation({ summary: 'Get wallet transaction history' })
+  async getTransactions(
+    @Req() req: RequestWithUser,
+    @Query(new ValidationPipe({ transform: true }))
+    query: WalletTransactionsQueryDto,
+  ) {
+    return this.walletService.getTransactions(req.user.id, query);
+  }
+
   @Post('deposit')
   @ApiOperation({ summary: 'Initiate a stripe deposit' })
-  async createDeposit(@Req() req: any, @Body('amount') amount: number) {
-    return this.walletService.createDepositIntent(req.user.id, amount);
+  async createDeposit(
+    @Req() req: RequestWithUser,
+    @Body(new ValidationPipe({ transform: true })) dto: InitiateDepositDto,
+  ) {
+    return this.walletService.initiateDeposit(req.user.id, dto);
+  }
+
+  @Post('withdraw')
+  @ApiOperation({ summary: 'Initiate a wallet withdrawal' })
+  async withdraw(
+    @Req() req: RequestWithUser,
+    @Body(new ValidationPipe({ transform: true })) dto: InitiateWithdrawalDto,
+  ) {
+    return this.walletService.initiateWithdrawal(req.user.id, dto);
+  }
+
+  @Get('statement/:year/:month')
+  @ApiOperation({ summary: 'Generate monthly wallet statement PDF' })
+  async getStatement(
+    @Req() req: RequestWithUser,
+    @Param('year', ParseIntPipe) year: number,
+    @Param('month', ParseIntPipe) month: number,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const data = await this.walletService.generateStatement(req.user.id, year, month);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="profytron_statement_${year}_${month}.pdf"`,
+    );
+    return data.pdfBuffer;
+  }
+
+  @Get('transaction/:id')
+  @ApiOperation({ summary: 'Get transaction detail' })
+  async getTransaction(@Req() req: RequestWithUser, @Param('id') id: string) {
+    return this.walletService.getTransactionDetail(req.user.id, id);
   }
 
   @Post('webhook')
+  @Public()
   @ApiOperation({ summary: 'Stripe Webhook Handler' })
   async handleWebhook(
-    @Body() payload: any,
+    @Req() req: Request,
     @Headers('stripe-signature') sig: string,
   ) {
-    return this.walletService.handleStripeWebhook(payload, sig);
+    const rawBody = Buffer.isBuffer(req.body)
+      ? (req.body as Buffer)
+      : Buffer.from(JSON.stringify(req.body || {}));
+
+    const event = this.walletService.verifyAndBuildStripeEvent(rawBody, sig);
+    return this.walletService.handleStripeWebhook(event);
   }
 }
 

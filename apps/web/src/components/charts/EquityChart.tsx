@@ -10,26 +10,25 @@ import {
  Tooltip, 
  ResponsiveContainer 
 } from 'recharts';
-import { useTradingStore } from '@/lib/stores/useTradingStore';
 
-const data = [
- { time: '09:00', equity: 112000 },
- { time: '10:00', equity: 115000 },
- { time: '11:00', equity: 114000 },
- { time: '12:00', equity: 118000 },
- { time: '13:00', equity: 121000 },
- { time: '14:00', equity: 119500 },
- { time: '15:00', equity: 124580 },
-];
+interface EquityPoint {
+ date: string;
+ equity: number;
+}
 
-function CustomTooltip({ active, payload, label }: any) {
+interface EquityChartProps {
+ data: EquityPoint[];
+ rangeLabel: string;
+ isLoading?: boolean;
+}
+
+function CustomTooltip({ active, payload, label, rangeLabel }: any) {
  if (active && payload && payload.length) {
  return (
  <div className="bg-black/60 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-2xl">
- <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-1">{label} UTC</p>
+ <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-1">{label} ({rangeLabel})</p>
  <div className="flex items-center gap-3">
  <p className="text-lg font-semibold text-white font-mono">${payload[0].value.toLocaleString()}</p>
- <span className="text-xs font-semibold text-green-500 bg-green-500/10 px-1.5 py-0.5 rounded-full">+1.2%</span>
  </div>
  </div>
  );
@@ -37,23 +36,19 @@ function CustomTooltip({ active, payload, label }: any) {
  return null;
 }
 
-export function EquityChart() {
+export function EquityChart({ data, rangeLabel, isLoading }: EquityChartProps) {
  const [mounted, setMounted] = React.useState(false);
- const { portfolioValue } = useTradingStore();
 
  React.useEffect(() => {
  setMounted(true);
  }, []);
 
- if (!mounted) return <div className="h-full w-full bg-white/5 animate-pulse rounded-2xl" />;
- 
- // Create a deep copy to avoid mutating read-only objects in Turbopack
- const displayData = data.map((d, i) => {
- if (i === data.length - 1) {
- return { ...d, equity: portfolioValue };
- }
- return { ...d };
- });
+ if (!mounted || isLoading) return <div className="h-full w-full bg-white/5 animate-pulse rounded-2xl" />;
+
+ const displayData = data.map((d) => ({
+ ...d,
+ time: new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+ }));
 
  return (
  <div className="h-full w-full min-h-[300px]">
@@ -80,7 +75,10 @@ export function EquityChart() {
  tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: 700 }}
  tickFormatter={(value) => `$${(value/1000).toFixed(0)}k`}
  />
- <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(99, 102, 241, 0.2)', strokeWidth: 2 }} />
+ <Tooltip
+ content={<CustomTooltip rangeLabel={rangeLabel} />}
+ cursor={{ stroke: 'rgba(99, 102, 241, 0.2)', strokeWidth: 2 }}
+ />
  <Area
  type="monotone"
  dataKey="equity"

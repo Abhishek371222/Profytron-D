@@ -11,6 +11,6 @@ import { redisClient } from '../../config/redis.config';
     },
     RedisService,
   ],
-  exports: [RedisService],
+  exports: [RedisService, REDIS_CLIENT],
 })
 export class RedisModule {}

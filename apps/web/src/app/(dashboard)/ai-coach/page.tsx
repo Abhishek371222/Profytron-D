@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { Magnetic } from '@/components/ui/Interactions';
+import { aiApi, type CoachingReport } from '@/lib/api/ai';
 
 // Mock Insights
 const INSIGHTS = [
@@ -84,6 +85,7 @@ export default function AICoachPage() {
   const [messages, setMessages] = React.useState(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = React.useState('');
   const [isTyping, setIsTyping] = React.useState(false);
+  const [report, setReport] = React.useState<CoachingReport | null>(null);
   const chatEndRef = React.useRef<HTMLDivElement>(null);
 
   // Auto-scroll
@@ -91,22 +93,37 @@ export default function AICoachPage() {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const handleSend = React.useCallback((text: string) => {
+  React.useEffect(() => {
+    aiApi.getCoachingReport().then(setReport).catch(() => setReport(null));
+  }, []);
+
+  const handleSend = React.useCallback(async (text: string) => {
     if (!text.trim()) return;
     const newMessage = { id: `${Date.now()}`, role: 'user' as const, text };
     setMessages(prev => [...prev, newMessage]);
     setInputValue('');
     
     setIsTyping(true);
-    setTimeout(() => {
+    try {
+      const response = await aiApi.chat(text);
+      const aiResponse = {
+        id: (Date.now() + 1).toString(),
+        role: 'ai',
+        text: response?.reply || 'No response from AI coach.',
+      };
+      setMessages(prev => [...prev, aiResponse]);
+    } catch {
       setIsTyping(false);
       const aiResponse = { 
         id: (Date.now() + 1).toString(), 
         role: 'ai', 
-        text: "Analyzing volatility vectors... Correlation detected: Your Friday afternoon exposure exceeds risk thresholds by 42%. Psychological fatigue likely. Deploying intervention protocol: Recommend closing active positions before 20:30 IST." 
+        text: 'AI coach is temporarily unavailable. Please retry in a few seconds.'
       };
       setMessages(prev => [...prev, aiResponse]);
-    }, 2500);
+      return;
+    } finally {
+      setIsTyping(false);
+    }
   }, []);
 
   return (
@@ -127,6 +144,11 @@ export default function AICoachPage() {
             </div>
             <h1 className="text-3xl font-semibold text-white uppercase tracking-tight leading-tight">Tactical Feed</h1>
             <div className="h-px w-20 bg-primary/30" />
+            {report ? (
+              <p className="text-xs text-white/50 uppercase tracking-[0.2em]">
+                Win Rate: {report.winRate}% | Avg PnL: {report.avgPnl}
+              </p>
+            ) : null}
           </div>
 
           <div className="space-y-6 relative z-10">
@@ -148,7 +170,7 @@ export default function AICoachPage() {
                 <div className="flex gap-5">
                   <div className={cn(
                     "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-700",
-                    "bg-white/5 border-white/5 outline outline-0 outline-white/10 group-hover:outline-1 group-hover:scale-110 group-hover:rotate-6",
+                    "bg-white/5 border-white/5 outline-0 outline-white/10 group-hover:outline-1 group-hover:scale-110 group-hover:rotate-6",
                     insight.color
                   )}>
                     <insight.icon className="w-6 h-6 drop-shadow-[0_0_8px_currentColor]" />
@@ -301,7 +323,7 @@ export default function AICoachPage() {
           </div>
           
           <div className="flex items-center gap-6">
-            <div className="flex flex-col text-right hidden xl:flex">
+            <div className="hidden text-right xl:flex xl:flex-col">
               <span className="text-[10px] font-semibold text-white/20 uppercase tracking-[0.4em]">Active Engine</span>
               <span className="text-sm font-semibold text-white/50 font-jet-mono uppercase tracking-widest">Claude_3.5_Quantum</span>
             </div>

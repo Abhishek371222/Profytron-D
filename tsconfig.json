@@ -1,10 +1,6 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "5.0",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./apps/web/src/*"]
-    }
+    "ignoreDeprecations": "5.0"
   },
   "exclude": ["node_modules", "dist", ".next"]
 }

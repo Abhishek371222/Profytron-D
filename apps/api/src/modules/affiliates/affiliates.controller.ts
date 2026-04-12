@@ -21,4 +21,18 @@ export class AffiliatesController {
   async getMyStats(@Req() req: any) {
     return this.affiliatesService.getAffiliateStats(req.user.id);
   }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get current user affiliate dashboard' })
+  @Get('dashboard')
+  async getMyDashboard(@Req() req: any) {
+    return this.affiliatesService.getAffiliateDashboard(req.user.id);
+  }
+
+  @ApiOperation({ summary: 'Validate and capture referral code from landing flow' })
+  @Post('capture/:code')
+  async captureReferral(@Param('code') code: string) {
+    return this.affiliatesService.captureReferralCode(code);
+  }
 }

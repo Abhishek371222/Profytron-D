@@ -64,7 +64,7 @@ const itemVariants = {
 const WorldMap = () => (
  <motion.div 
  variants={itemVariants}
- className="relative w-full h-(--chart-h-lg) min-h-100 bg-black/40 backdrop-blur-3xl rounded-[40px] overflow-hidden border border-white/5 shadow-2xl group shadow-[inset_0_0_50px_rgba(99,102,241,0.05)]"
+ className="relative w-full h-(--chart-h-lg) min-h-100 bg-black/40 backdrop-blur-3xl rounded-[40px] overflow-hidden border border-white/5 group shadow-[inset_0_0_50px_rgba(99,102,241,0.05)]"
  >
  {/* Background Grid Pattern */}
  <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20" />
@@ -109,7 +109,7 @@ const WorldMap = () => (
  </div>
  
  {/* HUD Tooltip */}
- <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-8 p-6 rounded-4xl bg-[#08080c]/95 backdrop-blur-3xl border border-white/10 opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap scale-75 group-hover:scale-100 translate-y-4 group-hover:translate-y-0 transform origin-bottom z-50 shadow-[0_40px_80px_rgba(0,0,0,0.8)] border-p/20">
+ <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-8 p-6 rounded-4xl bg-[#08080c]/95 backdrop-blur-3xl border border-p/20 opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap scale-75 group-hover:scale-100 translate-y-4 group-hover:translate-y-0 transform origin-bottom z-50 shadow-[0_40px_80px_rgba(0,0,0,0.8)]">
  <div className="flex items-center justify-between gap-10 mb-4">
  <div className="flex items-center gap-3">
  <Radio className="w-3.5 h-3.5 text-p animate-pulse" />

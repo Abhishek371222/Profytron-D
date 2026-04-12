@@ -34,6 +34,30 @@ import type { Request, Response } from 'express';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  private setSessionCookies(
+    res: Response,
+    refreshToken: string,
+    role?: string,
+  ) {
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    if (role) {
+      res.cookie('user_role', role, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+    }
+  }
+
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
@@ -51,13 +75,10 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.verifyEmail(dto);
-    res.cookie('refresh_token', result.refreshTokenForCookie, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-    });
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+    );
     return { accessToken: result.accessToken, user: result.user };
   }
 
@@ -71,13 +92,10 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.login(dto, req);
-    res.cookie('refresh_token', result.refreshTokenForCookie, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+    );
     return { accessToken: result.accessToken, user: result.user };
   }
 
@@ -93,13 +111,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.supabaseLogin(dto);
-    res.cookie('refresh_token', result.refreshTokenForCookie, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+      result.user?.role,
+    );
     return { accessToken: result.accessToken, user: result.user };
   }
 
@@ -112,13 +128,7 @@ export class AuthController {
   async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
     const { userId, refreshToken, jti } = req.user;
     const result = await this.authService.refresh(userId, refreshToken, jti);
-    res.cookie('refresh_token', result.refreshTokenForCookie, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    this.setSessionCookies(res, result.refreshTokenForCookie);
     return { accessToken: result.accessToken };
   }
 
@@ -130,6 +140,7 @@ export class AuthController {
     const { userId, jti } = req.user;
     await this.authService.logout(userId, jti);
     res.clearCookie('refresh_token', { path: '/' });
+    res.clearCookie('user_role', { path: '/' });
     return { success: true };
   }
 
@@ -176,13 +187,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.googleCallback(req.user);
-    res.cookie('refresh_token', result.refreshTokenForCookie, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+      result.user?.role,
+    );
     // Can optionally append access_token to redirect hash or handle differently via popup messaging
     return {
       url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard?token=${result.accessToken}`,

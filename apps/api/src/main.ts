@@ -18,6 +18,7 @@ async function bootstrap() {
 
   app.use('/v1/webhooks/stripe', express.raw({ type: 'application/json' }));
   app.use('/v1/webhooks/razorpay', express.raw({ type: 'application/json' }));
+  app.use('/v1/wallet/webhook', express.raw({ type: 'application/json' }));
   app.use(express.json({ limit: '2mb' }));
   app.use(express.urlencoded({ extended: true }));
 

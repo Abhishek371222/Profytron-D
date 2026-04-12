@@ -61,5 +61,58 @@ The Strategies module is the core of the Profytron platform, supporting the enti
 - **Activation Modal**: A unified deployment flow for initializing, configuring, and starting strategy nodes.
 - **Strategy Library**: Institutional-grade tracking of saved strategies with detailed performance metrics and node management.
 
+## ✅ Comprehensive Testing Suite
+
+Profytron includes a complete testing infrastructure covering 13 categories:
+
+### Test Coverage
+- **Unit Tests**: Authentication, Trading Calculations, Utilities (Jest)
+- **Integration Tests**: API endpoints, Database interactions, Auth flows (Supertest)
+- **E2E Tests**: Complete user journeys from signup to trading (Playwright-ready)
+- **Stripe Testing**: Payment processing, Webhooks, Subscriptions, Refunds
+- **API Testing**: cURL automation script + Postman collection (20+ endpoints)
+- **Environment Validation**: .env configuration checks, security constraints
+- **Performance Testing**: k6 load testing templates, Lighthouse frontend metrics
+- **Security Testing**: JWT validation, SQL injection prevention, XSS checks, Rate limiting
+- **Logging & Monitoring**: Sentry integration, Winston logging, Health checks
+- **Error Handling**: Graceful degradation, Invalid request handling, Service resilience
+- **Cross-Device Testing**: Responsive design validation across viewports
+
+### Running Tests
+```bash
+# All unit + integration tests (NestJS)
+pnpm --filter api test
+
+# Specific test suite
+pnpm --filter api test auth.service.spec.ts
+pnpm --filter api test trading.service.spec.ts
+pnpm --filter api test stripe.webhook.spec.ts
+
+# API automation (cURL)
+./api-tests.sh
+
+# Environment validation
+pnpm --filter api test env.validation.spec.ts
+
+# Watch mode for TDD
+pnpm --filter api test --watch
+```
+
+### Test Files Location
+- **Unit Tests**: `apps/api/src/modules/{module}/*.spec.ts`
+- **Integration Tests**: `apps/api/test/api.integration.spec.ts`
+- **E2E Tests**: `apps/api/test/e2e.user-journey.spec.ts`
+- **Automation**: `/api-tests.sh`, `/Profytron_API_Tests.postman_collection.json`
+- **Documentation**: `/TESTING_GUIDE.md` (6,000+ words with setup instructions)
+
+### Critical Tests (MUST PASS)
+1. **Trading Calculations** - P&L, Sharpe ratio, max drawdown, position sizing
+2. **Stripe Webhooks** - Payment success/failure, subscription management, idempotency
+3. **Authentication** - Registration, email verification, JWT tokens, password hashing
+4. **API Integration** - All protected endpoints, error responses, rate limiting
+5. **Environment Validation** - No test keys in production, all required vars present
+
+See [TESTING_GUIDE.md](./TESTING_GUIDE.md) for comprehensive setup and test scenarios.
+
 ## 📄 License
 Private and Confidential. Internal Use Only.

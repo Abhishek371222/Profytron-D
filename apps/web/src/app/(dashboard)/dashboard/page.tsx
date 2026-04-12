@@ -26,11 +26,12 @@ import Link from 'next/link';
 import { EquityChart } from '@/components/charts/EquityChart';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TradingSimulator } from '@/lib/simulation/TradingSimulator';
 import { useTradingStore } from '@/lib/stores/useTradingStore';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 
 // --- Custom Components for the Dashboard ---
 
@@ -227,6 +228,7 @@ function TradeRow({ trade, onExplain }: { trade: any; onExplain: (t: any) => voi
 
 export default function DashboardPage() {
  const [mounted, setMounted] = React.useState(false);
+	const [chartRange, setChartRange] = React.useState<'1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL'>('1M');
  const { 
  portfolioValue, 
  dailyChange, 
@@ -243,6 +245,21 @@ export default function DashboardPage() {
  }, []);
 
  const [selectedTrade, setSelectedTrade] = React.useState<any>(null);
+
+ const rangeToApi: Record<'1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL', AnalyticsRange> = {
+	 '1D': '1d',
+	 '1W': '1w',
+	 '1M': '1m',
+	 '3M': '3m',
+	 '1Y': '1y',
+	 ALL: 'all',
+ };
+
+ const portfolioQuery = useQuery({
+	 queryKey: ['portfolio', rangeToApi[chartRange]],
+	 queryFn: () => analyticsApi.getPortfolio(rangeToApi[chartRange]),
+	 staleTime: 30_000,
+ });
 
  return (
  <div className={cn("space-y-6", !mounted &&"animate-pulse")} suppressHydrationWarning>
@@ -295,25 +312,36 @@ export default function DashboardPage() {
  <p className="text-xs text-white/40 font-medium font-display uppercase tracking-widest mt-1">Real-time aggregate equity stream</p>
  </div>
  
- <Tabs defaultValue="1M">
- <TabsList>
- {['1D', '1W', '1M', '3M', '1Y', 'ALL'].map(range => (
- <TabsTrigger key={range} value={range}>{range}</TabsTrigger>
+ <div className="flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
+ {(['1D', '1W', '1M', '3M', '1Y', 'ALL'] as const).map((range) => (
+ <button
+ key={range}
+ onClick={() => setChartRange(range)}
+ className={cn(
+ 'px-3 py-1.5 text-xs rounded-md transition-colors',
+ chartRange === range ? 'bg-indigo-500/30 text-indigo-200' : 'text-white/60 hover:bg-white/10',
+ )}
+ >
+ {range}
+ </button>
  ))}
- </TabsList>
- </Tabs>
+ </div>
  </div>
  
  <div className="h-[320px] w-full min-h-[320px]">
- <EquityChart />
+ <EquityChart
+	 data={portfolioQuery.data?.equityCurve ?? []}
+	 rangeLabel={chartRange}
+	 isLoading={portfolioQuery.isLoading}
+ />
  </div>
  
  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
  {[
- { label: 'All-time High', value: '$132,450' },
- { label: 'Max Drawdown', value: '8.4%' },
- { label: 'Sharpe Ratio', value: '1.82' },
- { label: 'Best Month', value: '+12.3%' }
+ { label: 'All-time High', value: `$${(portfolioQuery.data?.allTimeHigh ?? 0).toLocaleString()}` },
+ { label: 'Max Drawdown', value: `${portfolioQuery.data?.maxDrawdown ?? 0}%` },
+ { label: 'Sharpe Ratio', value: `${portfolioQuery.data?.sharpeRatio ?? 0}` },
+ { label: 'Best Month', value: `$${(portfolioQuery.data?.bestMonth ?? 0).toLocaleString()}` }
  ].map((stat, i) => (
  <div key={i} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl">
  <p className="text-xs font-bold text-white/40 uppercase tracking-widest">{stat.label}</p>
@@ -362,7 +390,7 @@ export default function DashboardPage() {
  
  <div>
  <div className="flex justify-between mb-1.5">
- <span className="text-xs font-bold text-white/40 uppercase text-xs">Win Rate</span>
+ <span className="text-xs font-bold text-white/40 uppercase">Win Rate</span>
  <span className="text-xs font-bold text-white font-mono">{strat.winRate}%</span>
  </div>
  <Progress value={strat.winRate} className="h-1" />

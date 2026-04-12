@@ -42,6 +42,31 @@ export class EmailService {
     return this.send(email, subject, html);
   }
 
+  async sendNotificationEmail(
+    email: string,
+    name: string,
+    title: string,
+    message: string,
+    actionUrl?: string,
+  ) {
+    const subject = `Profytron Alert: ${title}`;
+    const cta = actionUrl
+      ? `<a href="${actionUrl}" style="background: #6366f1; color: white; padding: 10px 18px; text-decoration: none; border-radius: 6px; display: inline-block; margin-top: 16px;">Open Alert</a>`
+      : '';
+
+    const html = `
+      <div style="background: #020617; color: white; padding: 40px; font-family: sans-serif; border-radius: 12px;">
+        <h1 style="color: #6366f1; margin: 0 0 16px 0;">PROFYTRON</h1>
+        <p style="margin: 0 0 12px 0;">Hi ${name || 'Trader'},</p>
+        <p style="margin: 0 0 8px 0; font-size: 18px;"><strong>${title}</strong></p>
+        <p style="margin: 0; color: #cbd5e1;">${message}</p>
+        ${cta}
+      </div>
+    `;
+
+    return this.send(email, subject, html);
+  }
+
   private async send(to: string, subject: string, html: string) {
     if (this.resend) {
       try {

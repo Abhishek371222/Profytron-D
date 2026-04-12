@@ -5,7 +5,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { StrategiesModule } from './modules/strategies/strategies.module';
 import { WalletModule } from './modules/wallet/wallet.module';
-import { TradingModule } from './modules/trading/trading.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { BrokerModule } from './modules/broker/broker.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -15,6 +14,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { AIModule } from './modules/ai/ai.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { WebsocketModule } from './modules/websocket/websocket.module';
 
 @Module({
   imports: [
@@ -30,7 +30,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
     UsersModule,
     StrategiesModule,
     WalletModule,
-    TradingModule,
+    WebsocketModule,
     AdminModule,
     BrokerModule,
     NotificationsModule,
