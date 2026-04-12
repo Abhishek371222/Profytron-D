@@ -43,6 +43,7 @@ const CATEGORY_COLORS = {
 };
 
 export default function StrategiesPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = React.useState<'library' | 'my-strategies'>('library');
   const [searchQuery, setSearchQuery] = React.useState('');
