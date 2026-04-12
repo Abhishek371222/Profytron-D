@@ -37,6 +37,7 @@ apps/**/dist/
 .env.production.local
 .env
 ! .env.example
+local-secrets/
 
 # debug
 npm-debug.log*
