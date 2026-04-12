@@ -144,7 +144,7 @@ export function FeaturesSection() {
           {/* Card 2: Neural Signal Core */}
           <div className="col-span-1 md:col-span-4 group">
             <Tilt maxRotation={4}>
-              <motion.div className="relative p-10 md:p-12 rounded-[32px] border border-white/5 bg-[#111] hover:bg-[#151515] transition-colors duration-500 h-[480px] flex flex-col justify-between overflow-hidden shadow-2xl w-full">
+              <motion.div className="relative p-10 md:p-12 rounded-[32px] border border-white/5 bg-[#111] hover:bg-[#151515] transition-colors duration-500 h-[480px] flex flex-col justify-end overflow-hidden shadow-2xl w-full">
                 {/* Dot grid bg */}
                 <div
                   className="absolute inset-0 opacity-[0.2]"
@@ -155,11 +155,56 @@ export function FeaturesSection() {
                   }}
                 />
 
-                <div className="relative z-10 w-full mb-8 flex justify-end">
-                  <div className="w-20 h-20 rounded-full border border-p/20 flex items-center justify-center relative bg-white/[0.02] shadow-xl">
-                    <div className="absolute inset-0 rounded-full border-t border-p/60 animate-[spin_3s_linear_infinite]" />
-                    <div className="absolute inset-2 rounded-full border-b border-indigo-400/40 animate-[spin_4s_linear_infinite_reverse]" />
-                    <Cpu className="w-7 h-7 text-p drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+                {/* ── Radar Sweep — sits above text, centered in upper area ── */}
+                <div className="absolute top-0 left-0 right-0 bottom-[180px] flex items-center justify-center pointer-events-none">
+                  <div className="relative w-[190px] h-[190px]">
+                    {/* Concentric rings */}
+                    <div className="absolute inset-0 rounded-full border border-indigo-500/10" />
+                    <div className="absolute inset-[18%] rounded-full border border-indigo-500/12" />
+                    <div className="absolute inset-[36%] rounded-full border border-indigo-400/20" />
+
+                    {/* Cross-hair lines */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-full h-px bg-indigo-500/8" />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-px h-full bg-indigo-500/8" />
+                    </div>
+
+                    {/* Rotating sweep */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: 'conic-gradient(from 0deg, transparent 75%, rgba(99,102,241,0.18) 95%, rgba(99,102,241,0.04) 100%)',
+                      }}
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                    />
+
+                    {/* Signal blips */}
+                    {[
+                      { top: '18%', left: '62%', delay: 0 },
+                      { top: '58%', left: '22%', delay: 1.3 },
+                      { top: '72%', left: '65%', delay: 2.6 },
+                    ].map((pos, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute w-1.5 h-1.5 rounded-full bg-indigo-400"
+                        style={{ top: pos.top, left: pos.left }}
+                        animate={{ opacity: [0, 1, 0.3], scale: [0.8, 1.3, 1] }}
+                        transition={{
+                          duration: 4,
+                          repeat: Infinity,
+                          delay: pos.delay,
+                          ease: 'easeOut',
+                        }}
+                      />
+                    ))}
+
+                    {/* Center dot */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-400/60" />
+                    </div>
                   </div>
                 </div>
 
@@ -175,6 +220,7 @@ export function FeaturesSection() {
               </motion.div>
             </Tilt>
           </div>
+
 
           {/* Card 3: Sentinel Risk Guard */}
           <div className="col-span-1 md:col-span-4 group">

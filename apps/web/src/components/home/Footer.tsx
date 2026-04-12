@@ -1,8 +1,15 @@
-"use client";
-
 import Link from "next/link";
-import { Zap, Globe, Code, Activity, Mail, ArrowRight } from "lucide-react";
+import { Zap, Globe, MessageSquare, Mail, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const InstagramIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <circle cx="12" cy="12" r="4" />
+    <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" />
+  </svg>
+);
+
 
 const footerLinks = {
   Product: [
@@ -13,24 +20,24 @@ const footerLinks = {
     { name: "Security Protocol", href: "/settings/security" },
   ],
   Company: [
-    { name: "About Us", href: "#" },
-    { name: "Careers", href: "#" },
-    { name: "Blog", href: "#" },
-    { name: "Press Kit", href: "#" },
+    { name: "About Us", href: "/about" },
+    { name: "Careers", href: "/careers" },
+    { name: "Blog", href: "/blog" },
   ],
   Resources: [
-    { name: "Documentation", href: "#" },
-    { name: "API Reference", href: "#" },
-    { name: "Market Guides", href: "#" },
-    { name: "Community", href: "#" },
+    { name: "Documentation", href: "/docs" },
+    { name: "API Reference", href: "/api-reference" },
+    { name: "Market Guides", href: "/guides" },
+    { name: "Community", href: "/community" },
   ],
   Legal: [
-    { name: "Privacy Policy", href: "#" },
-    { name: "Terms of Service", href: "#" },
-    { name: "Risk Disclosure", href: "#" },
-    { name: "Cookie Policy", href: "#" },
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
+    { name: "Risk Disclosure", href: "/risk-disclosure" },
+    { name: "Cookie Policy", href: "/cookies" },
   ],
 };
+
 
 export function Footer() {
   return (
@@ -54,11 +61,19 @@ export function Footer() {
               Architecting the future of algorithmic wealth. Institutional
               power, refined for the frontier of finance.
             </p>
-            <div className="flex gap-4">
-              {[Globe, Code, Activity, Mail].map((Icon, i) => (
+            <div className="flex gap-3">
+              {[
+                { icon: MessageSquare, href: 'https://discord.gg/profytron', label: 'Discord' },
+                { icon: InstagramIcon, href: 'https://www.instagram.com/profytron/', label: 'Instagram' },
+                { icon: Globe, href: '/', label: 'Website' },
+                { icon: Mail, href: 'mailto:hello@profytron.com', label: 'Email' },
+              ].map(({ icon: Icon, href, label }) => (
                 <Link
-                  key={i}
-                  href="#"
+                  key={label}
+                  href={href}
+                  target={href.startsWith('http') ? '_blank' : undefined}
+                  rel={href.startsWith('http') ? 'noreferrer' : undefined}
+                  aria-label={label}
                   className="w-10 h-10 rounded-full bg-white/[0.02] border border-white/[0.05] flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all duration-300"
                 >
                   <Icon className="w-4 h-4" />

@@ -1,87 +1,122 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState, useRef } from"react";
-import { motion, useSpring, useMotionValue } from"framer-motion";
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import gsap from 'gsap';
 
+/**
+ * CinematicCursor – Profytron premium cursor.
+ *
+ * Three-layer system:
+ *  1. Ambient orb  – 500px, ~4 % opacity, screen blend → atmospheric glow
+ *                    that enriches dark backgrounds without touching UI.
+ *  2. Precision dot – 10px solid indigo, instantaneous follow.
+ *  3. Ring          – 22px indigo border, slight lag for a springy feel.
+ *
+ * No goo filter; no large semi-transparent blobs – those were washing
+ * out text and cards.  Renders only on pointer (non-touch) devices.
+ */
 export function CinematicCursor() {
- const [isVisible, setIsVisible] = useState(false);
- const [isTouchDevice, setIsTouchDevice] = useState(true); // Assume touch until proven otherwise
- const cursorX = useMotionValue(-100);
- const cursorY = useMotionValue(-100);
- const rafId = useRef<number | null>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(true);
 
- // Spring config for smooth follow
- const springConfig = { damping: 28, stiffness: 120, mass: 0.5 };
- const springX = useSpring(cursorX, springConfig);
- const springY = useSpring(cursorY, springConfig);
+  // Element refs: [0] ambient, [1] dot, [2] ring
+  const orbRef  = useRef<HTMLDivElement>(null);
+  const dotRef  = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
 
- useEffect(() => {
- // Hide entirely on touch devices — no cursors exist there
- const hasPointer = window.matchMedia("(pointer: fine)").matches;
- 
- // Defer setState to avoid synchronous update in effect
- setTimeout(() => {
-   setIsTouchDevice(!hasPointer);
- }, 0);
+  const handleMove = useCallback((e: MouseEvent) => {
+    const x = e.clientX;
+    const y = e.clientY;
 
- if (!hasPointer) return;
+    // Ambient orb – slow, dreamy drift
+    gsap.to(orbRef.current, {
+      x, y,
+      duration: 0.9,
+      ease: 'power1.out',
+      overwrite: 'auto',
+    });
 
- // Throttle mousemove to rAF to prevent 100s of updates/sec
- const moveCursor = (e: MouseEvent) => {
- if (rafId.current !== null) return;
- rafId.current = requestAnimationFrame(() => {
- cursorX.set(e.clientX);
- cursorY.set(e.clientY);
- rafId.current = null;
- });
- if (!isVisible) setIsVisible(true);
- };
+    // Precision dot – near-instant
+    gsap.to(dotRef.current, {
+      x, y,
+      duration: 0.04,
+      ease: 'power4.out',
+      overwrite: 'auto',
+    });
 
- const handleMouseLeave = () => setIsVisible(false);
- const handleMouseEnter = () => setIsVisible(true);
+    // Ring – light spring lag
+    gsap.to(ringRef.current, {
+      x, y,
+      duration: 0.18,
+      ease: 'power3.out',
+      overwrite: 'auto',
+    });
+  }, []);
 
- window.addEventListener("mousemove", moveCursor, { passive: true });
- document.addEventListener("mouseleave", handleMouseLeave, { passive: true });
- document.addEventListener("mouseenter", handleMouseEnter, { passive: true });
+  useEffect(() => {
+    const hasPointer = window.matchMedia('(pointer: fine)').matches;
+    setIsTouchDevice(!hasPointer);
+    if (!hasPointer) return;
 
- return () => {
- window.removeEventListener("mousemove", moveCursor);
- document.removeEventListener("mouseleave", handleMouseLeave);
- document.removeEventListener("mouseenter", handleMouseEnter);
- if (rafId.current) cancelAnimationFrame(rafId.current);
- };
- }, [cursorX, cursorY, isVisible]);
+    window.addEventListener('mousemove', handleMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMove);
+  }, [handleMove]);
 
- // Don't render anything on touch/mobile devices
- if (isTouchDevice) return null;
+  if (isTouchDevice) return null;
 
- return (
- <>
- {/* Main Spotlight Glow */}
- <motion.div
- className="fixed top-0 left-0 w-[500px] h-[500px] bg-primary/5 blur-[100px] rounded-full pointer-events-none z-[9999] mix-blend-screen"
- style={{
- x: springX,
- y: springY,
- translateX:"-50%",
- translateY:"-50%",
- opacity: isVisible ? 1 : 0,
- willChange:"transform",
- }}
- />
+  return (
+    <>
+      {/* ── 1. Ambient orb ─────────────────────────────────────────────
+           Very large, nearly transparent. Screen blend = additive light
+           on dark bg only; has zero visual impact on text or UI cards
+           because it's only 4 % opacity.                              ── */}
+      <div
+        ref={orbRef}
+        aria-hidden="true"
+        className="fixed top-0 left-0 pointer-events-none will-change-transform rounded-full"
+        style={{
+          zIndex: 9990,
+          width: 500,
+          height: 500,
+          transform: 'translate(-50%, -50%)',
+          background: 'radial-gradient(circle, rgba(99,102,241,0.13) 0%, rgba(6,182,212,0.06) 50%, transparent 70%)',
+          mixBlendMode: 'screen',
+          // No filter — keeps it smooth & GPU-friendly
+        }}
+      />
 
- {/* Precision Pointer */}
- <motion.div
- className="fixed top-0 left-0 w-4 h-4 rounded-full border border-primary/50 pointer-events-none z-[9999] flex items-center justify-center translate-x-[-50%] translate-y-[-50%]"
- style={{
- x: springX,
- y: springY,
- opacity: isVisible ? 1 : 0,
- willChange:"transform",
- }}
- >
- <div className="w-1 h-1 bg-primary rounded-full" />
- </motion.div>
- </>
- );
+      {/* ── 2. Precision dot ───────────────────────────────────────────
+           Solid small circle. Sits above everything, always readable. ── */}
+      <div
+        ref={dotRef}
+        aria-hidden="true"
+        className="fixed top-0 left-0 pointer-events-none will-change-transform rounded-full"
+        style={{
+          zIndex: 9999,
+          width: 8,
+          height: 8,
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: '#818cf8', // p-light — slightly lighter for visibility
+          boxShadow: '0 0 6px 2px rgba(99,102,241,0.8)',
+          mixBlendMode: 'screen',
+        }}
+      />
+
+      {/* ── 3. Ring ────────────────────────────────────────────────────
+           Slightly lagged ring — springy, premium feel. On hover over
+           interactive elements you could expand this (future enhancement). ── */}
+      <div
+        ref={ringRef}
+        aria-hidden="true"
+        className="fixed top-0 left-0 pointer-events-none will-change-transform rounded-full"
+        style={{
+          zIndex: 9998,
+          width: 26,
+          height: 26,
+          transform: 'translate(-50%, -50%)',
+          border: '1px solid rgba(129, 140, 248, 0.55)',
+          mixBlendMode: 'screen',
+        }}
+      />
+    </>
+  );
 }

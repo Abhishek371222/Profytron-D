@@ -1413,3 +1413,165 @@
 {"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
 {"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
 {"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/backtest/preview, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/backtest/preview, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
