@@ -1,7 +1,16 @@
-import { Injectable, BadRequestException, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
-import { UpdateProfileDto, UpdateRiskProfileDto, ChangePasswordDto } from './dto/users.dto';
+import {
+  UpdateProfileDto,
+  UpdateRiskProfileDto,
+  ChangePasswordDto,
+} from './dto/users.dto';
 import { createClient } from '@supabase/supabase-js';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -17,7 +26,7 @@ export class UsersService {
   ) {
     this.supabase = createClient(
       process.env.SUPABASE_URL || '',
-      process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+      process.env.SUPABASE_SERVICE_ROLE_KEY || '',
     );
   }
 
@@ -111,7 +120,7 @@ export class UsersService {
         where: { id: sessionId },
       });
       // We'd also ideally want to remove the specific refresh token related to this session from Redis
-      // But Redis currently stores strings (userId: jti). 
+      // But Redis currently stores strings (userId: jti).
       // If sessionId was saved with JTI, we could sync it perfectly.
     } catch {
       // Ignore if doesn't exist
@@ -129,21 +138,27 @@ export class UsersService {
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user || !user.passwordHash) {
-      throw new UnauthorizedException('Invalid operation for this account type');
+      throw new UnauthorizedException(
+        'Invalid operation for this account type',
+      );
     }
 
-    const isValid = await bcrypt.compare(dto.currentPassword, user.passwordHash);
-    if (!isValid) throw new UnauthorizedException('Current password is incorrect');
+    const isValid = await bcrypt.compare(
+      dto.currentPassword,
+      user.passwordHash,
+    );
+    if (!isValid)
+      throw new UnauthorizedException('Current password is incorrect');
 
     const newHash = await bcrypt.hash(dto.newPassword, 10);
-    
+
     await this.prisma.user.update({
       where: { id: userId },
       data: { passwordHash: newHash },
     });
 
     // Revoke all refresh tokens (omitted pending RedisService scan implementation)
-    
+
     // Also clear session DB
     await this.prisma.userSession.deleteMany({ where: { userId } });
 

@@ -1,8 +1,32 @@
-import { Controller, Post, Get, Body, Req, Res, UseGuards, HttpCode, HttpStatus, Redirect } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Req,
+  Res,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  Redirect,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { RegisterDto, LoginDto, VerifyEmailDto, ForgotPasswordDto, ResetPasswordDto, ResendOtpDto, SupabaseLoginDto } from './dto/auth.dto';
-import { Public, JwtAuthGuard, JwtRefreshGuard, GoogleAuthGuard } from './guards/auth.guard';
+import {
+  RegisterDto,
+  LoginDto,
+  VerifyEmailDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  ResendOtpDto,
+  SupabaseLoginDto,
+} from './dto/auth.dto';
+import {
+  Public,
+  JwtAuthGuard,
+  JwtRefreshGuard,
+  GoogleAuthGuard,
+} from './guards/auth.guard';
 import type { Request, Response } from 'express';
 
 @ApiTags('Auth')
@@ -22,7 +46,10 @@ export class AuthController {
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify email registration OTP' })
-  async verifyEmail(@Body() dto: VerifyEmailDto, @Res({ passthrough: true }) res: Response) {
+  async verifyEmail(
+    @Body() dto: VerifyEmailDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.verifyEmail(dto);
     res.cookie('refresh_token', result.refreshTokenForCookie, {
       httpOnly: true,
@@ -38,7 +65,11 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Authenticate a user' })
-  async login(@Body() dto: LoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() dto: LoginDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.login(dto, req);
     res.cookie('refresh_token', result.refreshTokenForCookie, {
       httpOnly: true,
@@ -53,8 +84,14 @@ export class AuthController {
   @Public()
   @Post('supabase')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Synchronize a Supabase authentication session with the local backend' })
-  async supabaseLogin(@Body() dto: SupabaseLoginDto, @Res({ passthrough: true }) res: Response) {
+  @ApiOperation({
+    summary:
+      'Synchronize a Supabase authentication session with the local backend',
+  })
+  async supabaseLogin(
+    @Body() dto: SupabaseLoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.supabaseLogin(dto);
     res.cookie('refresh_token', result.refreshTokenForCookie, {
       httpOnly: true,
@@ -69,16 +106,18 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Rotate and exchange session refresh token for access token' })
+  @ApiOperation({
+    summary: 'Rotate and exchange session refresh token for access token',
+  })
   async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
     const { userId, refreshToken, jti } = req.user;
     const result = await this.authService.refresh(userId, refreshToken, jti);
     res.cookie('refresh_token', result.refreshTokenForCookie, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     return { accessToken: result.accessToken };
   }
@@ -132,7 +171,10 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Handle Google OAuth2 Callback' })
   @Redirect(process.env.FRONTEND_URL || 'http://localhost:3000/dashboard')
-  async googleCallback(@Req() req: any, @Res({ passthrough: true }) res: Response) {
+  async googleCallback(
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.googleCallback(req.user);
     res.cookie('refresh_token', result.refreshTokenForCookie, {
       httpOnly: true,
@@ -142,6 +184,8 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     // Can optionally append access_token to redirect hash or handle differently via popup messaging
-    return { url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard?token=${result.accessToken}` };
+    return {
+      url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard?token=${result.accessToken}`,
+    };
   }
 }

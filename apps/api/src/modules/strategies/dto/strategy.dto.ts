@@ -1,6 +1,19 @@
-import { IsString, IsNumber, IsArray, IsOptional, IsBoolean, IsEnum, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsArray,
+  IsOptional,
+  IsBoolean,
+  IsEnum,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { StrategyCategory, RiskLevel, VerificationStatus } from '@prisma/client';
+import {
+  StrategyCategory,
+  RiskLevel,
+  VerificationStatus,
+} from '@prisma/client';
 import { Transform } from 'class-transformer';
 
 export class StrategiesQueryDto {

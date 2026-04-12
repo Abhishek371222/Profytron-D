@@ -10,10 +10,13 @@ export interface Strategy {
   creator: {
     fullName: string;
     avatarUrl?: string;
+    bio?: string;
   };
   monthlyPrice: number;
   isVerified: boolean;
   isSubscribed?: boolean;
+  copiesCount: number;
+  totalRevenue?: number;
   latestPerformance?: any;
   equityCurve?: any[];
   monthlyReturns?: Record<string, number>;

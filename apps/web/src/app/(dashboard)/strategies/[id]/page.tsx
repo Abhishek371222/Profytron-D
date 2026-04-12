@@ -311,7 +311,7 @@ function StatBox({ label, value, sub, icon }: { label: string, value: any, sub: 
   return (
     <div className="p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-p/20 transition-all group overflow-hidden relative">
       <div className="absolute -right-2 -bottom-2 opacity-5 group-hover:opacity-10 transition-opacity">
-        {React.cloneElement(icon as React.ReactElement, { className: 'w-20 h-20' })}
+        {React.isValidElement(icon) && React.cloneElement(icon as React.ReactElement<any>, { className: 'w-20 h-20' })}
       </div>
       <div className="relative z-10 space-y-4">
         <div className="flex items-center gap-3">

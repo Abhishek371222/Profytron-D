@@ -17,7 +17,9 @@ import { GoogleStrategy } from './strategies/google.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       // We will sign payload and set dynamically in auth.service, but this acts as default.
-      secret: process.env.JWT_ACCESS_SECRET || 'profytron_v1_access_96e8b2c4d1a5f6b7c8d9e0f1a2b3c4d5',
+      secret:
+        process.env.JWT_ACCESS_SECRET ||
+        'profytron_v1_access_96e8b2c4d1a5f6b7c8d9e0f1a2b3c4d5',
       signOptions: { expiresIn: '1h' },
     }),
     RedisModule,
@@ -25,12 +27,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     UsersModule, // Empty wrapper stub currently
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    JwtRefreshStrategy,
-    GoogleStrategy,
-  ],
+  providers: [AuthService, JwtStrategy, JwtRefreshStrategy, GoogleStrategy],
   exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}

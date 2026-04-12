@@ -10,8 +10,10 @@ declare global {
 
 export function MSWProvider({ children }: { children: React.ReactNode }) {
  useEffect(() => {
- // Definitive singleton lock to prevent redundant worker initializations
- if (typeof window !=="undefined" && process.env.NODE_ENV ==="development") {
+ // Respect the environment variable to disable/enable mocks
+ const isMockEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_API === 'true';
+
+ if (typeof window !== "undefined" && isMockEnabled) {
  // Force unregister all existing service workers to clear any stale Next.js chunks
  if ('serviceWorker' in navigator) {
  navigator.serviceWorker.getRegistrations().then((registrations) => {
@@ -26,7 +28,7 @@ export function MSWProvider({ children }: { children: React.ReactNode }) {
  g.__PROFYTRON_MSW_LOCK__ = true;
  
  import("@/lib/mocks/browser").then(({ worker }) => {
- worker.start({ onUnhandledRequest:"bypass" })
+ worker.start({ onUnhandledRequest: "bypass" })
  .catch((err: unknown) => {
  console.warn("[MSW] Init failure:", err);
  g.__PROFYTRON_MSW_LOCK__ = false;

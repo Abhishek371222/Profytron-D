@@ -14,8 +14,15 @@ export class TradingService {
     @InjectQueue('trade_execution') private tradeQueue: any,
   ) {}
 
-  async processSignal(strategyId: string, signalType: string, pair: string, price: number) {
-    this.logger.log(`[Signal] ${strategyId} triggered ${signalType} for ${pair} at ${price}`);
+  async processSignal(
+    strategyId: string,
+    signalType: string,
+    pair: string,
+    price: number,
+  ) {
+    this.logger.log(
+      `[Signal] ${strategyId} triggered ${signalType} for ${pair} at ${price}`,
+    );
 
     // Persist signal
     const signal = await (this.prisma as any).tradingSignal.create({
@@ -52,10 +59,10 @@ export class TradingService {
   // Failsafe: Emergency stop for all trades per user
   async emergencyStop(userId: string) {
     this.logger.warn(`[EMERGENCY] Stop triggered for user ${userId}`);
-    
+
     // Logic to close all open positions via broker connector
     // ...
-    
+
     this.gateway.sendToUser(userId, 'emergency_stop_triggered', {
       timestamp: new Date(),
       status: 'SUCCESS',

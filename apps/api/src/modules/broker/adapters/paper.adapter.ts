@@ -6,13 +6,13 @@ export class PaperBrokerAdapter {
   private equity = 100000;
 
   async connect(account: string, password?: string, server?: string) {
-    await new Promise(resolve => setTimeout(resolve, 50));
-    
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     return {
       connected: true,
       balance: this.balance,
       equity: this.equity,
-      currency: 'USD'
+      currency: 'USD',
     };
   }
 
@@ -21,7 +21,9 @@ export class PaperBrokerAdapter {
   }
 
   async closeTrade(ticket: string) {
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 250 + 50));
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 250 + 50),
+    );
     return { success: true, ticket, close_price: 0, profit: 0 };
   }
 }

@@ -11,4 +11,3 @@ import { RedisModule } from '../auth/redis.module';
   exports: [UsersService],
 })
 export class UsersModule {}
-
