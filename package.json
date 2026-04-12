@@ -8,6 +8,7 @@
     "dev:ai": "cd services/ai && python main.py",
     "dev:backtest": "cd services/backtest && python main.py",
     "dev:all": "concurrently \"pnpm dev:web\" \"pnpm dev:api\"",
+    "dev:full": "concurrently \"pnpm dev:web\" \"pnpm dev:api\" \"pnpm dev:ai\" \"pnpm dev:backtest\"",
     "db:migrate": "pnpm --filter api prisma migrate dev",
     "db:seed": "pnpm --filter api prisma db seed",
     "db:studio": "pnpm --filter api prisma studio",
