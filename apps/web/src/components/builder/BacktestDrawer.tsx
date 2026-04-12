@@ -134,7 +134,7 @@ export function BacktestDrawer({ isOpen, onClose }: BacktestDrawerProps) {
  {/* Equity Chart */}
  <div className="col-span-8 h-[240px] bg-white/5 border border-white/5 rounded-3xl p-6 relative">
  <p className="text-xs font-semibold text-white/30 uppercase tracking-widest absolute top-6 left-6 z-10">Equity Curve Simulation</p>
- <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={MOCK_BACKTEST_DATA}>
  <defs>
  <linearGradient id="backtestGrad" x1="0" y1="0" x2="0" y2="1">

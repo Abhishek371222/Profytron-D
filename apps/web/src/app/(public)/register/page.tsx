@@ -32,6 +32,8 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function RegisterPage() {
  const router = useRouter();
  const [isLoading, setIsLoading] = React.useState(false);
+ const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+ const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
  
  const {
  register,
@@ -47,12 +49,27 @@ export default function RegisterPage() {
 
  const onSubmit = async (data: RegisterFormValues) => {
  setIsLoading(true);
+ setErrorMessage(null);
+ setSuccessMessage(null);
  try {
- await authApi.register(data);
+ const response = await authApi.register(data);
+ setSuccessMessage('Signup successful. Enter the OTP sent to your email.');
  sessionStorage.setItem('verificationEmail', data.email);
+ if (response?.devOtp) {
+   sessionStorage.setItem('verificationOtp', String(response.devOtp));
+ }
  router.push('/verify-email');
  } catch (error: unknown) {
  console.error('Registration failed:', error);
+ const fallback = 'Signup failed. Please try again with a different email.';
+ const message =
+   typeof error === 'object' &&
+   error !== null &&
+   'response' in error &&
+   typeof (error as any).response?.data?.error === 'string'
+     ? (error as any).response.data.error
+     : fallback;
+ setErrorMessage(message);
  } finally {
  setIsLoading(false);
  }
@@ -178,6 +195,16 @@ export default function RegisterPage() {
  </motion.div>
 
  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+ {successMessage && (
+ <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+ {successMessage}
+ </div>
+ )}
+ {errorMessage && (
+ <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+ {errorMessage}
+ </div>
+ )}
  <motion.div variants={itemVariants}>
  <FloatingLabelInput
  label="Full Operative Name"

@@ -96,7 +96,7 @@ export default function TradeAnalysisTab() {
  </div>
  
  <div className="h-[400px] w-full relative z-10">
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={pnlDist} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
  <CartesianGrid strokeDasharray="6 6" stroke="rgba(255,255,255,0.03)" vertical={false} />
  <XAxis 
@@ -163,7 +163,7 @@ export default function TradeAnalysisTab() {
  <div className="h-[420px] w-full relative mt-12 group/donut">
  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent rounded-full blur-[120px] opacity-0 group-hover/core:opacity-100 transition-opacity duration-1000" />
  
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <PieChart>
  <Pie
  data={winLossData}
@@ -307,7 +307,7 @@ export default function TradeAnalysisTab() {
  </div>
 
  <div className="h-[380px] w-full relative z-10">
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={durationData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
  <CartesianGrid strokeDasharray="5 5" stroke="rgba(255,255,255,0.03)" vertical={false} />
  <XAxis 

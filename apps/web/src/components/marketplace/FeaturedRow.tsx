@@ -73,7 +73,7 @@ export function FeaturedRow() {
  {/* Background Equity Chart */}
  <div className="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity duration-500">
  {isMounted && (
- <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={strategy.chartData}>
  <defs>
  <linearGradient id={`gradient-${strategy.id}`} x1="0" y1="0" x2="0" y2="1">

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, Sparkles, Zap, Lock, Mail, Globe, Shield } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { Button } from '@/components/ui/button';
@@ -26,8 +26,21 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
- const router = useRouter();
+ const searchParams = useSearchParams();
  const { login, isLoading } = useAuthStore();
+ const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
+ const authError = searchParams.get('error');
+ const expired = searchParams.get('expired');
+
+ const urlErrorMessage =
+	 authError === 'auth_failed'
+		 ? 'Authentication callback failed. Please try signing in again.'
+		 : authError === 'sync_failed'
+			 ? 'Social login succeeded, but account sync failed. Try again.'
+			 : expired
+				 ? 'Your session expired. Please sign in again.'
+				 : null;
  
  const {
  register,
@@ -38,12 +51,22 @@ export default function LoginPage() {
  });
 
  const onSubmit = async (data: LoginFormValues) => {
+ setErrorMessage(null);
  try {
  const response = await authApi.login(data);
  login(response.accessToken, response.user);
  window.location.href = '/dashboard';
  } catch (error: unknown) {
  console.error('Login failed:', error);
+ const fallback = 'Login failed. Check your credentials and verify your email.';
+ const message =
+	 typeof error === 'object' &&
+	 error !== null &&
+	 'response' in error &&
+	 typeof (error as any).response?.data?.error === 'string'
+		 ? (error as any).response.data.error
+		 : fallback;
+ setErrorMessage(message);
  }
  };
 
@@ -172,6 +195,16 @@ export default function LoginPage() {
  </motion.div>
 
  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+ {urlErrorMessage && (
+ <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+ {urlErrorMessage}
+ </div>
+ )}
+ {errorMessage && (
+ <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+ {errorMessage}
+ </div>
+ )}
  <motion.div variants={itemVariants}>
  <FloatingLabelInput
  label="Identity Email"

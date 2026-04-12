@@ -371,7 +371,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  
  <div className="w-full lg:w-[200px] h-16 shrink-0 overflow-hidden relative">
  <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505] z-10 pointer-events-none" />
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={(strategy.equityCurve || [0,0,0,0]).map((v: any, i: any) => ({ v: typeof v === 'number' ? v : v.value, i }))}>
  <defs>
  <linearGradient id={`grad_list_v2_${strategy.id}`} x1="0" y1="0" x2="0" y2="1">
@@ -483,7 +483,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  {/* Cinematic Telemetry Chart */}
  <div className="h-32 -mx-6 mb-8 relative border-y border-white/5 bg-white/[0.01]">
  <div className="absolute inset-0 bg-[linear-gradient(0deg,transparent_23px,rgba(255,255,255,0.03)_24px)] bg-[length:100%_24px] pointer-events-none" />
- <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={(strategy.equityCurve || [0,0,0,0]).map((v: any, i: any) => ({ v: typeof v === 'number' ? v : v.value, i }))} key={chartReset.current}>
  <defs>
  <linearGradient id={`grad_cinematic_${strategy.id}`} x1="0" y1="0" x2="0" y2="1">

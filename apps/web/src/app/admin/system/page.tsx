@@ -122,7 +122,7 @@ export default function SystemMonitoring() {
  </div>
  </div>
  <div className="h-[250px] w-full">
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <LineChart data={apiMetrics}>
  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
  <XAxis dataKey="time" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} />
@@ -141,7 +141,7 @@ export default function SystemMonitoring() {
  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex-1">
  <h3 className="font-medium text-slate-200 mb-4 flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500"/> Error Rate</h3>
  <div className="h-[140px] w-full">
- <ResponsiveContainer width="100%" height="100%">
+ <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={errorRates}>
  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
  <XAxis dataKey="time" hide />

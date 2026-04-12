@@ -67,7 +67,17 @@ export class AuthService {
       },
     });
 
-    return { success: true, message: 'Check your email for verification code' };
+    const response: Record<string, unknown> = {
+      success: true,
+      message: 'Check your email for verification code',
+    };
+
+    // Local dev convenience: expose OTP in non-production to unblock testing.
+    if (process.env.NODE_ENV !== 'production') {
+      response.devOtp = otp;
+    }
+
+    return response;
   }
 
   async verifyEmail(dto: VerifyEmailDto) {

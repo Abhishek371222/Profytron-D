@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   transpilePackages: ["lucide-react"],
   reactCompiler: true,
   compress: true, // Enable gzip compression
+  allowedDevOrigins: ["192.168.1.7"],
 
   // Tree-shake large packages — only import used icons/components
   experimental: {
