@@ -1,27 +1,112 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { MarketplaceService } from './marketplace.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import {
+  CreateMarketplaceListingDto,
+  CreateReviewDto,
+  MarketplaceQueryDto,
+  ReplyReviewDto,
+  SubscribeStrategyDto,
+} from './dto/marketplace.dto';
 
 @ApiTags('Marketplace')
 @Controller('marketplace')
 export class MarketplaceController {
   constructor(private readonly marketplaceService: MarketplaceService) {}
 
-  @ApiOperation({ summary: 'List all available strategy listings' })
-  @Get('listings')
-  async getListings() {
-    return this.marketplaceService.exploreListings();
+  @Public()
+  @ApiOperation({ summary: 'Marketplace listing explorer' })
+  @Get()
+  async getListings(@Query() query: MarketplaceQueryDto, @Req() req: any) {
+    return this.marketplaceService.findAll(query, req.user?.userId);
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Featured marketplace strategies' })
+  @Get('featured')
+  async getFeatured() {
+    return this.marketplaceService.getFeatured();
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Get single marketplace strategy details' })
+  @Get(':id')
+  async getById(
+    @Param('id') id: string,
+    @Query() query: MarketplaceQueryDto,
+    @Req() req: any,
+  ) {
+    return this.marketplaceService.findById(id, req.user?.userId, query);
   }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Create a Stripe checkout session for a strategy' })
-  @Post('checkout')
-  async createCheckout(
+  @ApiOperation({ summary: 'Create or update listing for strategy creator' })
+  @Post(':strategyId/listing')
+  async createListing(
+    @Param('strategyId') strategyId: string,
     @Req() req: any,
-    @Body('listingId') listingId: string
+    @Body() dto: CreateMarketplaceListingDto,
   ) {
-    return this.marketplaceService.createCheckoutSession(req.user.id, listingId);
+    return this.marketplaceService.createListing(strategyId, req.user.userId, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Subscribe current user to strategy' })
+  @Post(':strategyId/subscribe')
+  async subscribe(
+    @Param('strategyId') strategyId: string,
+    @Req() req: any,
+    @Body() dto: SubscribeStrategyDto,
+  ) {
+    return this.marketplaceService.subscribe(strategyId, req.user.userId, dto);
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'Get paginated strategy reviews' })
+  @Get(':id/reviews')
+  async getReviews(
+    @Param('id') id: string,
+    @Query() query: MarketplaceQueryDto,
+    @Req() req: any,
+  ) {
+    const details = await this.marketplaceService.findById(id, req.user?.userId, query);
+    return details.reviews;
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Create strategy review' })
+  @Post(':id/reviews')
+  async createReview(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body() dto: CreateReviewDto,
+  ) {
+    return this.marketplaceService.createReview(id, req.user.userId, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Creator reply to strategy review' })
+  @Patch('reviews/:reviewId/reply')
+  async replyToReview(
+    @Param('reviewId') reviewId: string,
+    @Req() req: any,
+    @Body() dto: ReplyReviewDto,
+  ) {
+    return this.marketplaceService.replyToReview(reviewId, req.user.userId, dto);
   }
 }

@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import express from 'express';
 import { AppModule } from './app.module';
 import { winstonConfig } from './config/winston.config';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -11,8 +12,14 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
+    bodyParser: false,
     logger: WinstonModule.createLogger(winstonConfig),
   });
+
+  app.use('/v1/webhooks/stripe', express.raw({ type: 'application/json' }));
+  app.use('/v1/webhooks/razorpay', express.raw({ type: 'application/json' }));
+  app.use(express.json({ limit: '2mb' }));
+  app.use(express.urlencoded({ extended: true }));
 
   app.setGlobalPrefix('v1');
 

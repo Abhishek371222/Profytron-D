@@ -44,7 +44,11 @@ const FEATURED_DATA: FeaturedStrategy[] = [
  }
 ];
 
-export function FeaturedRow() {
+interface FeaturedRowProps {
+ strategies?: FeaturedStrategy[];
+}
+
+export function FeaturedRow({ strategies }: FeaturedRowProps) {
  const [isMounted, setIsMounted] = React.useState(false);
 
  React.useEffect(() => {
@@ -64,7 +68,7 @@ export function FeaturedRow() {
  </div>
 
  <div className="flex gap-6 overflow-x-auto px-8 pb-8 no-scrollbar scroll-smooth snap-x">
- {FEATURED_DATA.map((strategy) => (
+ {(strategies && strategies.length > 0 ? strategies : FEATURED_DATA).map((strategy) => (
  <motion.div
  key={strategy.id}
  whileHover={{ y: -8, scale: 1.02 }}

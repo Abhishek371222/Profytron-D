@@ -14,6 +14,7 @@ import { AffiliatesModule } from './modules/affiliates/affiliates.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { AIModule } from './modules/ai/ai.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AIModule } from './modules/ai/ai.module';
     AffiliatesModule,
     AnalyticsModule,
     MarketplaceModule,
+    PaymentsModule,
     AIModule,
   ],
   controllers: [],

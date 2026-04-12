@@ -3,40 +3,95 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero';
 import { FeaturedRow } from '@/components/marketplace/FeaturedRow';
 import { FilterSidebar } from '@/components/marketplace/FilterSidebar';
 import { MarketplaceCard } from '@/components/marketplace/MarketplaceCard';
-import { SubscriptionModal } from '@/components/marketplace/SubscriptionModal';
+import { SubscribeModal } from '@/components/marketplace/SubscribeModal';
 import { cn } from '@/lib/utils';
-import { mockStrategies } from '@/lib/mocks/data';
+import { marketplaceApi } from '@/lib/api/marketplace';
+import { Button } from '@/components/ui/button';
 
 export default function MarketplacePage() {
+ const router = useRouter();
+ const searchParams = useSearchParams();
  const [isFilterOpen, setIsFilterOpen] = React.useState(true);
  const [viewType, setViewType] = React.useState<'grid' | 'list'>('grid');
  const [selectedStrategy, setSelectedStrategy] = React.useState<any>(null);
- const [searchQuery, setSearchQuery] = React.useState('');
- const [strategies, setStrategies] = React.useState<any[]>(mockStrategies);
- const [isLoading, setIsLoading] = React.useState(false);
+ const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
+ const [sortBy, setSortBy] = React.useState<'trending' | 'top-rated' | 'newest' | 'price'>((searchParams.get('sort') as any) || 'trending');
+ const sortOrder: Array<'trending' | 'top-rated' | 'newest' | 'price'> = ['trending', 'top-rated', 'newest', 'price'];
 
  React.useEffect(() => {
- // Attempt to sync with API, but fail silently since we have local data
- fetch('/api/strategies')
- .then(res => res.json())
- .then(data => {
- if (data && Array.isArray(data)) {
- setStrategies(data);
- }
- })
- .catch(() => {
- // Fallback already active via initial state
- });
- }, []);
+	const params = new URLSearchParams(searchParams.toString());
+	if (searchQuery) {
+	 params.set('q', searchQuery);
+	} else {
+	 params.delete('q');
+	}
+	params.set('sort', sortBy);
+	router.replace(`/marketplace?${params.toString()}`);
+ }, [searchQuery, sortBy, router, searchParams]);
 
- const filteredStrategies = strategies.filter(s => 
- s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
- s.creator.toLowerCase().includes(searchQuery.toLowerCase())
- );
+ const featuredQuery = useQuery({
+	queryKey: ['marketplace-featured'],
+	queryFn: () => marketplaceApi.getFeatured(),
+ });
+
+ const marketplaceQuery = useInfiniteQuery({
+	queryKey: ['marketplace', searchQuery, sortBy],
+	queryFn: ({ pageParam }) =>
+	 marketplaceApi.getMarketplace({
+		limit: 12,
+		cursor: pageParam || undefined,
+		sort: sortBy,
+	 }),
+	initialPageParam: null as string | null,
+	getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
+ });
+
+ const strategies = React.useMemo(() => {
+	const items = marketplaceQuery.data?.pages.flatMap((page) => page.items || []) || [];
+	return items
+	 .filter((item: any) => {
+		if (!searchQuery) return true;
+		const creator = item.strategy?.creator?.fullName || '';
+		const name = item.strategy?.name || '';
+		return (
+		 name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+		 creator.toLowerCase().includes(searchQuery.toLowerCase())
+		);
+	 })
+	 .map((item: any) => ({
+		id: item.strategyId,
+		name: item.strategy.name,
+		category: item.strategy.category,
+		creator: item.strategy.creator?.fullName || 'Unknown',
+		verified: item.strategy.isVerified,
+		price: item.monthlyPrice,
+		monthlyPrice: item.monthlyPrice,
+		annualPrice: item.annualPrice,
+		lifetimePrice: item.lifetimePrice,
+		trialDays: item.trialDays,
+		subscribers: item.strategy.copiesCount,
+		returns: Number(item.strategy.performance?.[0]?.winRate || 0),
+		risk: item.strategy.riskLevel,
+		sharpe: Number(item.strategy.performance?.[0]?.sharpeRatio || 0),
+	 }));
+ }, [marketplaceQuery.data, searchQuery]);
+
+ const featuredStrategies = React.useMemo(() => {
+	const featured = featuredQuery.data || [];
+	return featured.map((item: any) => ({
+	 id: item.strategyId,
+	 name: item.strategy.name,
+	 returns: `+${Number(item.strategy.performance?.[0]?.winRate || 0).toFixed(1)}%`,
+	 subscribers: `${item.strategy.copiesCount} traders`,
+	 chartData: [{ val: 10 }, { val: 15 }, { val: 20 }, { val: 18 }, { val: 24 }, { val: 30 }],
+	}));
+ }, [featuredQuery.data]);
 
  return (
  <main className="flex-1 flex flex-col h-full bg-[#050508] overflow-hidden">
@@ -48,7 +103,7 @@ export default function MarketplacePage() {
 
  {/* Main Content Area */}
  <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar pb-20">
- <FeaturedRow />
+ <FeaturedRow strategies={featuredStrategies} />
 
  <div className="px-8 mt-12 space-y-8">
  {/* Toolbar */}
@@ -57,10 +112,10 @@ export default function MarketplacePage() {
  <div className="flex items-center gap-3">
  <h2 className="text-xl font-bold text-white">All Strategies</h2>
  <div className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-white/40 uppercase">
- {filteredStrategies.length} results
+ {strategies.length} results
  </div>
  </div>
- <p className="text-xs text-white/20 font-bold uppercase tracking-widest mt-1">Showing 47 of 52 available for trade</p>
+ <p className="text-xs text-white/20 font-bold uppercase tracking-widest mt-1">Live marketplace feed</p>
  </div>
 
  <div className="flex items-center gap-3">
@@ -79,8 +134,14 @@ export default function MarketplacePage() {
  <div className="h-8 w-px bg-white/10 mx-1" />
 
  {/* Sort */}
- <button className="h-11 px-4 rounded-xl bg-white/5 border border-white/5 flex items-center gap-3 hover:bg-white/10 transition-colors">
- <span className="text-xs font-semibold text-white/40 uppercase tracking-widest">Trending</span>
+ <button
+ className="h-11 px-4 rounded-xl bg-white/5 border border-white/5 flex items-center gap-3 hover:bg-white/10 transition-colors"
+ onClick={() => {
+  const idx = sortOrder.indexOf(sortBy);
+  setSortBy(sortOrder[(idx + 1) % sortOrder.length]);
+ }}
+ >
+ <span className="text-xs font-semibold text-white/40 uppercase tracking-widest">{sortBy}</span>
  <ChevronDown className="w-3 h-3 text-white/20" />
  </button>
 
@@ -126,12 +187,12 @@ export default function MarketplacePage() {
  :"grid-cols-1"
  )}>
  <AnimatePresence mode="popLayout">
- {isLoading ? (
+ {marketplaceQuery.isLoading ? (
  Array.from({ length: 6 }).map((_, i) => (
  <div key={i} className="h-80 rounded-[28px] bg-white/2 animate-pulse border border-white/5" />
  ))
  ) : (
- filteredStrategies.map((strategy) => (
+ strategies.map((strategy) => (
  <MarketplaceCard 
  key={strategy.id} 
  strategy={strategy} 
@@ -141,12 +202,25 @@ export default function MarketplacePage() {
  )}
  </AnimatePresence>
  </div>
+
+ {marketplaceQuery.hasNextPage && (
+  <div className="mt-8 flex justify-center">
+   <Button
+	variant="outline"
+	className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+	onClick={() => marketplaceQuery.fetchNextPage()}
+	disabled={marketplaceQuery.isFetchingNextPage}
+   >
+	{marketplaceQuery.isFetchingNextPage ? 'Loading...' : 'Load more'}
+   </Button>
+  </div>
+ )}
  </div>
  </div>
  </div>
 
  {/* Subscription Modal */}
- <SubscriptionModal 
+ <SubscribeModal 
  strategy={selectedStrategy}
  isOpen={!!selectedStrategy}
  onClose={() => setSelectedStrategy(null)}
