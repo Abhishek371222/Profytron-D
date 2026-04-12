@@ -1,0 +1,37 @@
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"AllExceptionsFilter","level":"error","message":"[5xx] {\"success\":false,\"statusCode\":500,\"error\":\"Internal server error\",\"code\":\"INTERNAL_ERROR\",\"timestamp\":\"2026-04-10T22:44:45.821Z\",\"path\":\"/v1/auth/supabase\"}","stack":["PrismaClientKnownRequestError: \nInvalid `this.prisma.user.create()` invocation in\nC:\\Users\\abhis\\Downloads\\ye final karo\\apps\\api\\src\\modules\\auth\\auth.service.ts:216:37\n\n  213 let user = await this.prisma.user.findUnique({ where: { email: dto.email } });\n  214 \n  215 if (!user) {\n→ 216   user = await this.prisma.user.create(\nUnique constraint failed on the fields: (`email`)\n    at $n.handleRequestError (C:\\Users\\abhis\\Downloads\\ye final karo\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:7315)\n    at $n.handleAndLogRequestError (C:\\Users\\abhis\\Downloads\\ye final karo\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6623)\n    at $n.request (C:\\Users\\abhis\\Downloads\\ye final karo\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6307)\n    at async l (C:\\Users\\abhis\\Downloads\\ye final karo\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:130:9633)\n    at async AuthService.supabaseLogin (C:\\Users\\abhis\\Downloads\\ye final karo\\apps\\api\\src\\modules\\auth\\auth.service.ts:216:14)\n    at async AuthController.supabaseLogin (C:\\Users\\abhis\\Downloads\\ye final karo\\apps\\api\\src\\modules\\auth\\auth.controller.ts:56:20)"]}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}

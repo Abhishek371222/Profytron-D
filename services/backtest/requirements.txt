@@ -1,0 +1,8 @@
+fastapi[all]
+pandas
+numpy
+python-dotenv
+pydantic
+alpha_vantage
+uvicorn
+sqlite3

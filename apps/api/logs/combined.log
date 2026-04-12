@@ -1,0 +1,1415 @@
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/auth/google/callback, GET} route"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"AllExceptionsFilter","level":"error","message":"[5xx] {\"success\":false,\"statusCode\":500,\"error\":\"Internal server error\",\"code\":\"INTERNAL_ERROR\",\"timestamp\":\"2026-04-10T22:44:45.821Z\",\"path\":\"/v1/auth/supabase\"}","stack":["PrismaClientKnownRequestError: \nInvalid `this.prisma.user.create()` invocation in\nC:\\Users\\abhis\\Downloads\\ye final karo\\apps\\api\\src\\modules\\auth\\auth.service.ts:216:37\n\n  213 let user = await this.prisma.user.findUnique({ where: { email: dto.email } });\n  214 \n  215 if (!user) {\n→ 216   user = await this.prisma.user.create(\nUnique constraint failed on the fields: (`email`)\n    at $n.handleRequestError (C:\\Users\\abhis\\Downloads\\ye final karo\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:7315)\n    at $n.handleAndLogRequestError (C:\\Users\\abhis\\Downloads\\ye final karo\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6623)\n    at $n.request (C:\\Users\\abhis\\Downloads\\ye final karo\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6307)\n    at async l (C:\\Users\\abhis\\Downloads\\ye final karo\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:130:9633)\n    at async AuthService.supabaseLogin (C:\\Users\\abhis\\Downloads\\ye final karo\\apps\\api\\src\\modules\\auth\\auth.service.ts:216:14)\n    at async AuthController.supabaseLogin (C:\\Users\\abhis\\Downloads\\ye final karo\\apps\\api\\src\\modules\\auth\\auth.controller.ts:56:20)"]}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhishekaj371@gmail.com"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PUT} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"EmailService","level":"info","message":"Mock Email -> To: verified@test.com | Subject: Verification Code | OTP: 490000"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Initiating Supabase sync for: abhiaj371@gmail.com"}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"AuthService","level":"info","message":"Identity verified. Syncing user database record..."}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"info","message":"Successfully connected to Redis"}
+{"context":"NestApplication","level":"info","message":"Nest application successfully started"}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/backtest/preview, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"NestFactory","level":"info","message":"Starting Nest application..."}
+{"context":"InstanceLoader","level":"info","message":"AppModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PrismaModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"PassportModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"EmailModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigHostModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"JwtModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"RedisModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"DiscoveryModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"ConfigModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"NotificationsModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BullModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"WalletModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AdminModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"UsersModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"BrokerModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"StrategiesModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"AuthModule dependencies initialized"}
+{"context":"InstanceLoader","level":"info","message":"TradingModule dependencies initialized"}
+{"context":"WebSocketsController","level":"info","message":"TradingGateway subscribed to the \"subscribe_prices\" message"}
+{"context":"RoutesResolver","level":"info","message":"AuthController {/v1/auth}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/register, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/verify-email, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/login, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/supabase, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/refresh, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/logout, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/forgot-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/reset-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/resend-otp, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/auth/google/callback, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"UsersController {/v1/users}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/avatar, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/risk-profile, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/sessions, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me/change-password, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/users/me, DELETE} route"}
+{"context":"RoutesResolver","level":"info","message":"StrategiesController {/v1/strategies}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/my, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, PATCH} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/activate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/deactivate, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/backtest, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/backtest/preview, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/strategies/:id/publish, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"WalletController {/v1/wallet}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/balance, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/wallet/deposit, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"TradingController {/v1/trading}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/trading/emergency-stop, POST} route"}
+{"context":"RoutesResolver","level":"info","message":"AdminController {/v1/admin}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/admin/stats, GET} route"}
+{"context":"RoutesResolver","level":"info","message":"BrokerController {/v1/broker/accounts}:"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/connect, POST} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts, GET} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id, DELETE} route"}
+{"context":"RouterExplorer","level":"info","message":"Mapped {/v1/broker/accounts/:id/test, POST} route"}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNREFUSED"}]}
