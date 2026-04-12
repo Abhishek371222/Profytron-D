@@ -34,10 +34,10 @@ export function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
 
  return (
  <aside className={cn(
-"w-[280px] border-r border-white/[0.05] bg-[#0d0d12]/50 backdrop-blur-3xl flex flex-col shrink-0 transition-all duration-300 relative z-40",
+"w-[280px] border-r border-white/5 bg-[#0d0d12]/50 backdrop-blur-3xl flex flex-col shrink-0 transition-all duration-300 relative z-40",
  !isOpen &&"-ml-[280px]"
  )}>
- <div className="p-6 border-b border-white/[0.05] flex items-center justify-between">
+ <div className="p-6 border-b border-white/5 flex items-center justify-between">
  <div className="flex items-center gap-3">
  <Filter className="w-4 h-4 text-p" />
  <h3 className="text-sm font-semibold text-white uppercase tracking-widest">Filters</h3>

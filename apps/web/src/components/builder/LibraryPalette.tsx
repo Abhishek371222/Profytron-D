@@ -119,7 +119,7 @@ export function LibraryPalette() {
  </div>
 
  {/* Bottom Visual Cap */}
- <div className="p-6 bg-gradient-to-t from-black/40 to-transparent">
+ <div className="p-6 bg-linear-to-t from-black/40 to-transparent">
  <div className="p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex items-center gap-4 group cursor-pointer hover:bg-indigo-500/10 transition-all">
  <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
  <Activity className="w-5 h-5 text-indigo-400" />

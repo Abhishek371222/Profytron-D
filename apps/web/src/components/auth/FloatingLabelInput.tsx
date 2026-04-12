@@ -36,9 +36,9 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
  props.onBlur?.(e);
  }}
  className={cn(
-"peer w-full h-16 bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl px-5 pt-6 pb-2 outline-none transition-all duration-300 font-body text-white placeholder-transparent",
-"hover:bg-white/[0.06] hover:border-white/20",
- isFocused &&"bg-white/[0.08] border-white/20 ring-1 ring-white/10",
+"peer w-full h-16 bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl px-5 pt-6 pb-2 outline-none transition-all duration-300 font-body text-white placeholder-transparent",
+"hover:bg-white/6 hover:border-white/20",
+ isFocused &&"bg-white/8 border-white/20 ring-1 ring-white/10",
  error &&"border-danger/50 focus:border-danger ring-danger/20",
  className
  )}
@@ -66,12 +66,12 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
  )}
 
  {/* Cinematic Focus Line */}
- <div className="absolute bottom-0 left-5 right-5 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent overflow-hidden">
+ <div className="absolute bottom-0 left-5 right-5 h-px bg-linear-to-r from-transparent via-white/10 to-transparent overflow-hidden">
  <motion.div 
  initial={{ x: '-100%' }}
  animate={{ x: isFocused ? '100%' : '-100%' }}
  transition={{ duration: 1.5, repeat: Infinity, ease:"linear" }}
- className="w-1/2 h-full bg-gradient-to-r from-transparent via-p/50 to-transparent"
+ className="w-1/2 h-full bg-linear-to-r from-transparent via-p/50 to-transparent"
  />
  </div>
  </div>

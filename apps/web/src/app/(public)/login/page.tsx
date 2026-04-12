@@ -111,13 +111,13 @@ export default function LoginPage() {
  
  {/* Immersive Background Environment */}
  <div className="fixed inset-0 pointer-events-none z-0">
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-p/10 blur-[180px] rounded-full opacity-40 animate-pulse" />
- <div className="absolute -top-[10%] -left-[10%] w-[600px] h-[600px] bg-s/10 blur-[150px] rounded-full opacity-30" />
- <div className="absolute -bottom-[10%] -right-[10%] w-[600px] h-[600px] bg-p/10 blur-[150px] rounded-full opacity-30" />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-250 h-250 bg-p/10 blur-[180px] rounded-full opacity-40 animate-pulse" />
+ <div className="absolute -top-[10%] -left-[10%] w-150 h-150 bg-s/10 blur-[150px] rounded-full opacity-30" />
+ <div className="absolute -bottom-[10%] -right-[10%] w-150 h-150 bg-p/10 blur-[150px] rounded-full opacity-30" />
  
  {/* Subtle Orbital Ring */}
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-white/[0.03] rounded-full" />
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-white/[0.02] rounded-full" />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 border border-white/3 rounded-full" />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 border border-white/2 rounded-full" />
  </div>
 
  {/* Header / Branding (Detached) */}
@@ -212,7 +212,7 @@ export default function LoginPage() {
  icon={Mail}
  {...register('email')}
  error={errors.email?.message}
- className="bg-white/[0.03]"
+ className="bg-white/3"
  />
  </motion.div>
 
@@ -224,7 +224,7 @@ export default function LoginPage() {
  icon={Lock}
  {...register('password')}
  error={errors.password?.message}
- className="bg-white/[0.03]"
+ className="bg-white/3"
  />
  <div className="flex justify-end">
  <button type="button" className="text-xs text-p font-bold hover:text-p-light transition-colors">
@@ -239,7 +239,7 @@ export default function LoginPage() {
  <Button 
  type="submit" 
  disabled={isLoading}
- className="w-full h-16 bg-gradient-to-r from-p to-p-dark text-white font-semibold text-xl rounded-2xl transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
+ className="w-full h-16 bg-linear-to-r from-p to-p-dark text-white font-semibold text-xl rounded-2xl transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
  >
  <span className="relative z-10 flex items-center justify-center gap-3">
  {isLoading ? (
@@ -253,7 +253,7 @@ export default function LoginPage() {
  </>
  )}
  </span>
- <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+ <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
  </Button>
  </Magnetic>
  </motion.div>

@@ -41,20 +41,20 @@ export default function AboutPage() {
     <PublicPageLayout>
       {/* Hero */}
       <section className="relative py-28 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-100 bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-5xl relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
               <Zap className="w-3 h-3 text-indigo-400" /> Company_Origin
             </div>
             <h1 className="text-6xl md:text-8xl font-bold tracking-[-0.03em] text-white leading-[1] mb-8">
               We Build for
               <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-cyan-400">
                 Edge, Not Average.
               </span>
             </h1>
@@ -69,7 +69,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission Statement */}
-      <section className="py-16 border-y border-white/[0.05]">
+      <section className="py-16 border-y border-white/5">
         <div className="container mx-auto px-6 max-w-5xl">
           <motion.blockquote
             initial={{ opacity: 0 }}
@@ -95,7 +95,7 @@ export default function AboutPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-6">
                 <Layers className="w-3 h-3 text-indigo-400" /> Philosophical_Core
               </div>
               <h2 className="text-4xl font-bold text-white tracking-tight mb-8">
@@ -114,9 +114,9 @@ export default function AboutPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className="relative aspect-square rounded-3xl overflow-hidden border border-white/[0.08] bg-white/[0.02] flex items-center justify-center group"
+              className="relative aspect-square rounded-3xl overflow-hidden border border-white/8 bg-white/2 flex items-center justify-center group"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-br from-indigo-500/10 via-transparent to-transparent" />
               <div className="relative z-10 w-3/4 h-3/4 border border-white/10 rounded-full flex items-center justify-center before:content-[''] before:absolute before:w-full before:h-full before:border before:border-indigo-500/20 before:rounded-full before:animate-ping after:content-[''] after:absolute after:w-1/2 after:h-1/2 after:border after:border-indigo-400/30 after:rounded-full">
                 <Activity className="w-12 h-12 text-indigo-400 group-hover:scale-110 transition-transform duration-500" />
               </div>
@@ -126,7 +126,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="py-24 border-t border-white/[0.05]">
+      <section className="py-24 border-t border-white/5">
         <div className="container mx-auto px-6 max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -134,7 +134,7 @@ export default function AboutPage() {
             viewport={{ once: true }}
             className="mb-16"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-6">
               <Target className="w-3 h-3 text-indigo-400" /> Core_Values
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
@@ -149,7 +149,7 @@ export default function AboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-indigo-500/30 transition-all group"
+                className="p-8 rounded-2xl bg-white/2 border border-white/6 hover:border-indigo-500/30 transition-all group"
               >
                 <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-5 group-hover:bg-indigo-500/20 transition-colors">
                   <v.icon className="w-6 h-6 text-indigo-400" />
@@ -170,7 +170,7 @@ export default function AboutPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-6">
               Global_Network
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-8">
@@ -197,7 +197,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 border-t border-white/[0.05]">
+      <section className="py-24 border-t border-white/5">
         <div className="container mx-auto px-6 max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -217,7 +217,7 @@ const StepFinalizing = () => {
  transition={{ duration: 2, repeat: Infinity }}
  className="absolute inset-4 border border-p/40 rounded-full"
  />
- <div className="absolute inset-8 rounded-full bg-gradient-to-br from-p to-p-dark flex items-center justify-center shadow-[0_0_60px_rgba(var(--p-rgb),0.5)]">
+ <div className="absolute inset-8 rounded-full bg-linear-to-br from-p to-p-dark flex items-center justify-center shadow-[0_0_60px_rgba(var(--p-rgb),0.5)]">
  <BrainCircuit className="w-16 h-16 text-white animate-pulse" />
  </div>
  </div>
@@ -230,7 +230,7 @@ const StepFinalizing = () => {
  initial={{ width: 0 }}
  animate={{ width: '100%' }}
  transition={{ duration: 4, ease: 'easeInOut' }}
- className="h-full bg-gradient-to-r from-p to-p-dark shadow-[0_0_10px_rgba(var(--p-rgb),0.8)]"
+ className="h-full bg-linear-to-r from-p to-p-dark shadow-[0_0_10px_rgba(var(--p-rgb),0.8)]"
  />
  </div>
  <div className="flex justify-between items-center text-xs font-bold text-white/20 uppercase tracking-widest px-1">
@@ -284,12 +284,12 @@ export default function OnboardingPage() {
  <motion.div 
  animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
  transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
- className="absolute top-1/4 -left-1/4 w-[800px] h-[800px] bg-p/10 blur-[200px] rounded-full opacity-30" 
+ className="absolute top-1/4 -left-1/4 w-200 h-200 bg-p/10 blur-[200px] rounded-full opacity-30" 
  />
  <motion.div 
  animate={{ x: [0, -40, 0], y: [0, -50, 0] }}
  transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
- className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-s/10 blur-[180px] rounded-full opacity-25" 
+ className="absolute bottom-1/4 -right-1/4 w-150 h-150 bg-s/10 blur-[180px] rounded-full opacity-25" 
  />
  </div>
 
@@ -402,13 +402,13 @@ export default function OnboardingPage() {
  <Magnetic strength={0.3}>
  <Button
  onClick={nextStep}
- className="h-16 px-12 bg-gradient-to-r from-p to-p-dark text-white font-semibold text-xl rounded-2xl flex items-center gap-4 transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
+ className="h-16 px-12 bg-linear-to-r from-p to-p-dark text-white font-semibold text-xl rounded-2xl flex items-center gap-4 transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
  >
  <span className="relative z-10 flex items-center gap-4">
  {step === 3 ? 'Neural Synchronization' : 'Initialize Next Phase'}
  <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
  </span>
- <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+ <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
  </Button>
  </Magnetic>
 
@@ -419,7 +419,7 @@ export default function OnboardingPage() {
  )}
 
  {/* Global Bottom Shadow Gradient */}
- <div className="fixed bottom-0 inset-x-0 h-40 bg-gradient-to-t from-bg-base to-transparent pointer-events-none z-0" />
+ <div className="fixed bottom-0 inset-x-0 h-40 bg-linear-to-t from-bg-base to-transparent pointer-events-none z-0" />
  </main>
  );
 }

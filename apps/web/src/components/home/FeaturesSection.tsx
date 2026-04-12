@@ -21,13 +21,13 @@ export function FeaturesSection() {
       <div className="container mx-auto px-6 relative z-10 w-full max-w-[1400px]">
         <div className="max-w-3xl mb-24">
           <FadeUp>
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.4em] mb-8 shadow-inner">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/3 border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.4em] mb-8 shadow-inner">
               <Cpu className="w-4 h-4 text-p animate-pulse" />
               <span>Core_Architecture</span>
             </div>
             <h2 className="text-5xl md:text-7xl font-bold mb-8 leading-[1.1] tracking-[-0.02em] text-white">
               Built for{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/30">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-white to-white/30">
                 Total
               </span>{" "}
               <br />
@@ -47,7 +47,7 @@ export function FeaturesSection() {
           {/* Card 1: Precision Execution */}
           <div className="col-span-1 md:col-span-8 group">
             <Tilt maxRotation={2}>
-              <motion.div className="relative p-10 md:p-14 rounded-[32px] border border-white/5 bg-[#111] hover:bg-[#151515] transition-colors duration-500 h-[480px] flex flex-col justify-between overflow-hidden shadow-2xl w-full">
+              <motion.div className="relative p-10 md:p-14 rounded-4xl border border-white/5 bg-[#111] hover:bg-[#151515] transition-colors duration-500 h-[480px] flex flex-col justify-between overflow-hidden shadow-2xl w-full">
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-p/5 blur-[120px] rounded-full group-hover:bg-p/10 transition-all duration-700 pointer-events-none" />
 
                 {/* Visual Graph Wrapper */}
@@ -115,7 +115,7 @@ export function FeaturesSection() {
                 </div>
 
                 <div className="relative z-10 w-full md:max-w-[55%]">
-                  <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center mb-8 shadow-inner">
+                  <div className="w-16 h-16 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center mb-8 shadow-inner">
                     <Zap className="w-8 h-8 text-white/80" />
                   </div>
                   <h3 className="text-3xl font-bold text-white mb-4 tracking-tight">
@@ -144,7 +144,7 @@ export function FeaturesSection() {
           {/* Card 2: Neural Signal Core */}
           <div className="col-span-1 md:col-span-4 group">
             <Tilt maxRotation={4}>
-              <motion.div className="relative p-10 md:p-12 rounded-[32px] border border-white/5 bg-[#111] hover:bg-[#151515] transition-colors duration-500 h-[480px] flex flex-col justify-end overflow-hidden shadow-2xl w-full">
+              <motion.div className="relative p-10 md:p-12 rounded-4xl border border-white/5 bg-[#111] hover:bg-[#151515] transition-colors duration-500 h-[480px] flex flex-col justify-end overflow-hidden shadow-2xl w-full">
                 {/* Dot grid bg */}
                 <div
                   className="absolute inset-0 opacity-[0.2]"
@@ -225,8 +225,8 @@ export function FeaturesSection() {
           {/* Card 3: Sentinel Risk Guard */}
           <div className="col-span-1 md:col-span-4 group">
             <Tilt maxRotation={4}>
-              <motion.div className="relative p-10 md:p-12 rounded-[32px] border border-white/5 bg-[#111] hover:bg-[#151515] transition-colors duration-500 h-[480px] flex flex-col justify-between overflow-hidden shadow-2xl w-full group">
-                <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-30 group-hover:opacity-100 transition-opacity duration-700" />
+              <motion.div className="relative p-10 md:p-12 rounded-4xl border border-white/5 bg-[#111] hover:bg-[#151515] transition-colors duration-500 h-[480px] flex flex-col justify-between overflow-hidden shadow-2xl w-full group">
+                <div className="absolute top-0 left-0 w-full h-0.75 bg-linear-to-r from-transparent via-cyan-500 to-transparent opacity-30 group-hover:opacity-100 transition-opacity duration-700" />
 
                 <div className="relative z-10">
                   <div className="w-14 h-14 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-6 shadow-inner">
@@ -265,11 +265,11 @@ export function FeaturesSection() {
           {/* Card 4: IDE Strategy Builder */}
           <div className="col-span-1 md:col-span-8 group">
             <Tilt maxRotation={2}>
-              <motion.div className="relative p-10 md:p-14 rounded-[32px] border border-white/5 bg-gradient-to-br from-[#111] to-[#0A0A0A] hover:bg-gradient-to-br hover:from-[#151515] hover:to-black transition-colors duration-500 h-auto md:h-[480px] flex flex-col md:flex-row items-center justify-between overflow-hidden shadow-2xl w-full gap-10 md:gap-0">
+              <motion.div className="relative p-10 md:p-14 rounded-4xl border border-white/5 bg-linear-to-br from-[#111] to-[#0A0A0A] hover:bg-linear-to-br hover:from-[#151515] hover:to-black transition-colors duration-500 h-auto md:h-[480px] flex flex-col md:flex-row items-center justify-between overflow-hidden shadow-2xl w-full gap-10 md:gap-0">
                 <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.15] mix-blend-overlay pointer-events-none" />
 
                 <div className="relative z-10 w-full md:w-[50%] flex flex-col justify-center h-full">
-                  <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center shadow-inner mb-8">
+                  <div className="w-16 h-16 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center shadow-inner mb-8">
                     <Workflow className="w-8 h-8 text-white/80" />
                   </div>
                   <h3 className="text-3xl font-bold text-white tracking-tight mb-4">
@@ -284,7 +284,7 @@ export function FeaturesSection() {
                     href="/strategies/builder"
                     className="group/btn relative inline-flex items-center justify-center w-fit gap-3 text-sm font-bold text-white px-8 py-4 rounded-xl transition-all"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-p to-cyan-500 rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.2)] group-hover/btn:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-shadow duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-r from-p to-cyan-500 rounded-xl shadow-[0_0_20px_rgba(99,102,241,0.2)] group-hover/btn:shadow-[0_0_30px_rgba(99,102,241,0.4)] transition-shadow duration-500" />
                     <div className="absolute inset-[1px] bg-[#0c0c0c] rounded-[11px] group-hover/btn:bg-black/50 transition-colors duration-500" />
                     <span className="relative z-10 flex items-center gap-2 tracking-wide">
                       Open Canvas 
@@ -297,7 +297,7 @@ export function FeaturesSection() {
                 <div className="relative z-10 w-full md:w-[45%] h-[300px] md:h-full flex items-center justify-center md:justify-end">
                   <div className="relative w-full max-w-[340px] h-[280px] border border-white/10 rounded-2xl bg-[#090909] shadow-2xl shadow-black overflow-hidden flex flex-col">
                     {/* Window Header */}
-                    <div className="h-10 bg-white/[0.02] border-b border-white/5 flex items-center px-4 gap-2 w-full shrink-0">
+                    <div className="h-10 bg-white/2 border-b border-white/5 flex items-center px-4 gap-2 w-full shrink-0">
                       <div className="w-3 h-3 rounded-full bg-white/10" />
                       <div className="w-3 h-3 rounded-full bg-white/10" />
                       <div className="w-3 h-3 rounded-full bg-white/10" />

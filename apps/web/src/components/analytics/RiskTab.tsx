@@ -75,7 +75,7 @@ export default function RiskTab() {
  {/* VaR Gauge */}
  <motion.div variants={itemVariants}>
  <Card className="p-10 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center h-full relative overflow-hidden group rounded-[40px]">
- <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-amber-500/60 to-transparent" />
+ <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-amber-500/60 to-transparent" />
  <div className="w-full space-y-3 mb-10 relative z-10">
  <div className="flex items-center gap-4">
  <div className="w-10 h-10 rounded-[14px] bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center">
@@ -126,9 +126,9 @@ export default function RiskTab() {
  initial={{ rotate: -90 }} animate={{ rotate: 10 }}
  transition={{ type: 'spring', damping: 15, stiffness: 40, delay: 0.7 }}
  style={{ originX: '50%', originY: '100%' }}
- className="absolute bottom-0 left-1/2 -ml-[2px] w-[4px] h-28 z-20"
+ className="absolute bottom-0 left-1/2 -ml-0.5 w-1 h-28 z-20"
  >
- <div className="h-full bg-gradient-to-t from-white via-amber-400 to-transparent rounded-full shadow-[0_0_16px_rgba(245,158,11,0.6)]" />
+ <div className="h-full bg-linear-to-t from-white via-amber-400 to-transparent rounded-full shadow-[0_0_16px_rgba(245,158,11,0.6)]" />
  <div className="w-6 h-6 rounded-full bg-black border-4 border-amber-500 absolute -bottom-3 -left-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center justify-center">
  <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
  </div>
@@ -169,7 +169,7 @@ export default function RiskTab() {
  {/* Drawdown Chart */}
  <motion.div variants={itemVariants} className="lg:col-span-2">
  <Card className="p-10 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[40px]">
- <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+ <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-red-500/50 to-transparent" />
  <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-8 relative z-10">
  <div className="space-y-3">
  <div className="flex items-center gap-4">
@@ -182,7 +182,7 @@ export default function RiskTab() {
  Underwater analytics relative to High-Water Mark. Visualizing drawdown recovery velocity.
  </p>
  </div>
- <div className="flex bg-red-500/5 px-6 py-4 rounded-[24px] border border-red-500/20 shrink-0">
+ <div className="flex bg-red-500/5 px-6 py-4 rounded-3xl border border-red-500/20 shrink-0">
  <div className="flex flex-col items-end gap-1">
  <span className="text-xs font-semibold text-red-500/40 uppercase tracking-[0.3em]">PEAK_VARIANCE</span>
  <span className="text-2xl font-semibold text-red-500 tracking-tight">-12.48%</span>
@@ -210,8 +210,8 @@ export default function RiskTab() {
  </ResponsiveContainer>
  </div>
 
- <div className="mt-6 flex items-center gap-5 bg-white/[0.02] p-5 rounded-[24px] border border-white/5 relative z-10">
- <div className="w-10 h-10 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+ <div className="mt-6 flex items-center gap-5 bg-white/2 p-5 rounded-3xl border border-white/5 relative z-10">
+ <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
  <Info className="w-5 h-5 text-white/20 animate-pulse" />
  </div>
  <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.3em] leading-relaxed">
@@ -226,8 +226,8 @@ export default function RiskTab() {
  <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
  {riskMetrics.map((m, i) => (
  <motion.div key={i} variants={itemVariants}>
- <Card className="p-8 border-2 border-white/5 bg-black/40 backdrop-blur-3xl hover:border-white/20 transition-all duration-700 overflow-hidden relative group h-full rounded-[32px] shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
- <div className={cn('absolute top-0 left-0 w-full h-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-700', m.bg.replace('bg-', 'bg-').replace('/10', '/60'))} />
+ <Card className="p-8 border-2 border-white/5 bg-black/40 backdrop-blur-3xl hover:border-white/20 transition-all duration-700 overflow-hidden relative group h-full rounded-4xl shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+ <div className={cn('absolute top-0 left-0 w-full h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-700', m.bg.replace('bg-', 'bg-').replace('/10', '/60'))} />
  <div className="flex items-center gap-6 relative z-10">
  <div className={cn('w-14 h-14 rounded-[18px] flex items-center justify-center border-2 group-hover:rotate-12 group-hover:scale-110 transition-all duration-700 shrink-0', m.bg, m.border)}>
  <m.icon className={cn('w-7 h-7', m.color, 'drop-shadow-[0_0_8px_currentColor]')} />
@@ -263,10 +263,10 @@ export default function RiskTab() {
  { scenario: 'Vol Squeeze Regime', impact: '+5.2%', prob: 'HIGH', color: 'emerald' },
  ].map((s, i) => (
  <div key={i} className={cn(
- 'p-6 rounded-[24px] border-2 relative overflow-hidden',
- s.color === 'red' ? 'bg-red-500/[0.04] border-red-500/10' :
- s.color === 'amber' ? 'bg-amber-500/[0.04] border-amber-500/10' :
- 'bg-emerald-500/[0.04] border-emerald-500/10'
+ 'p-6 rounded-3xl border-2 relative overflow-hidden',
+ s.color === 'red' ? 'bg-red-500/4 border-red-500/10' :
+ s.color === 'amber' ? 'bg-amber-500/4 border-amber-500/10' :
+ 'bg-emerald-500/4 border-emerald-500/10'
  )}>
  <p className="text-xs font-semibold text-white/30 uppercase tracking-[0.3em] leading-relaxed">{s.scenario}</p>
  <p className={cn('text-2xl font-semibold tracking-tight mt-3',

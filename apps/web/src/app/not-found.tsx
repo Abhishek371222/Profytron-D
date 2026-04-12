@@ -10,8 +10,8 @@ export default function NotFound() {
  <div className="min-h-screen bg-bg-base flex items-center justify-center p-6 relative overflow-hidden">
  {/* Background Effects */}
  <div className="absolute inset-0 pointer-events-none">
- <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-p/5 rounded-full blur-[150px]" />
- <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-s/5 rounded-full blur-[120px]" />
+ <div className="absolute top-1/4 left-1/4 w-150 h-150 bg-p/5 rounded-full blur-[150px]" />
+ <div className="absolute bottom-1/4 right-1/4 w-[400px] h-100 bg-s/5 rounded-full blur-[120px]" />
  </div>
 
  <motion.div 
@@ -31,7 +31,7 @@ export default function NotFound() {
  404
  </h1>
  <div className="relative -mt-16">
- <div className="w-24 h-1 bg-gradient-to-r from-transparent via-p to-transparent mx-auto" />
+ <div className="w-24 h-1 bg-linear-to-r from-transparent via-p to-transparent mx-auto" />
  </div>
  </motion.div>
 
@@ -51,14 +51,14 @@ export default function NotFound() {
  {/* Action Buttons */}
  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
  <Link href="/">
- <Button className="h-14 px-8 rounded-[16px] bg-p text-white font-semibold uppercase tracking-widest gap-3 hover:bg-p/90 transition-all">
+ <Button className="h-14 px-8 rounded-2xl bg-p text-white font-semibold uppercase tracking-widest gap-3 hover:bg-p/90 transition-all">
  <Home className="w-5 h-5" />
  Return Home
  </Button>
  </Link>
  <Button 
  variant="outline"
- className="h-14 px-8 rounded-[16px] border-white/10 bg-white/5 text-white font-semibold uppercase tracking-widest gap-3 hover:bg-white/10"
+ className="h-14 px-8 rounded-2xl border-white/10 bg-white/5 text-white font-semibold uppercase tracking-widest gap-3 hover:bg-white/10"
  onClick={() => window.history.back()}
  >
  <ArrowLeft className="w-5 h-5" />

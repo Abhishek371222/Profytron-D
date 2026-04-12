@@ -122,7 +122,7 @@ export default function SecuritySettingsPage() {
  value={currentPassword}
  onChange={e => setCurrentPassword(e.target.value)}
  placeholder="••••••••••••"
- className="w-full h-14 bg-white/[0.03] border border-white/5 rounded-[20px] px-6 text-sm font-semibold text-white outline-none focus:border-p/40 focus:bg-p/5 transition-all"
+ className="w-full h-14 bg-white/3 border border-white/5 rounded-[20px] px-6 text-sm font-semibold text-white outline-none focus:border-p/40 focus:bg-p/5 transition-all"
  />
  </div>
  </div>
@@ -134,7 +134,7 @@ export default function SecuritySettingsPage() {
  value={newPassword}
  onChange={e => setNewPassword(e.target.value)}
  placeholder="••••••••••••"
- className="w-full h-14 bg-white/[0.03] border border-white/5 rounded-[20px] px-6 text-sm font-semibold text-white outline-none focus:border-p/40 focus:bg-p/5 transition-all"
+ className="w-full h-14 bg-white/3 border border-white/5 rounded-[20px] px-6 text-sm font-semibold text-white outline-none focus:border-p/40 focus:bg-p/5 transition-all"
  />
  <Key className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10" />
  </div>
@@ -144,7 +144,7 @@ export default function SecuritySettingsPage() {
  <Button 
    onClick={handleRotateKey} 
    disabled={isChangingPassword}
-   className="h-12 px-8 rounded-[16px] bg-white/5 border border-white/10 hover:bg-white/10 font-semibold uppercase tracking-[0.2em] text-xs text-white/40 hover:text-white transition-all disabled:opacity-50"
+   className="h-12 px-8 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 font-semibold uppercase tracking-[0.2em] text-xs text-white/40 hover:text-white transition-all disabled:opacity-50"
   >
  {isChangingPassword ? 'Rotating...' : 'Rotate Secure Key'}
  </Button>
@@ -152,8 +152,8 @@ export default function SecuritySettingsPage() {
 
  {/* ── 2FA PROTOCOL ── */}
  <section className="relative group">
- <div className="absolute -inset-px bg-gradient-to-br from-p/20 to-indigo-500/5 rounded-[36px] blur-xl opacity-30 group-hover:opacity-60 transition-opacity duration-1000" />
- <div className="relative p-8 rounded-[32px] border border-p/20 bg-p/[0.02] overflow-hidden">
+ <div className="absolute -inset-px bg-linear-to-br from-p/20 to-indigo-500/5 rounded-[36px] blur-xl opacity-30 group-hover:opacity-60 transition-opacity duration-1000" />
+ <div className="relative p-8 rounded-4xl border border-p/20 bg-p/2 overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-p/10 rounded-full blur-[100px] -mr-32 -mt-32 animate-pulse pointer-events-none" />
 
  <div className="flex flex-col lg:flex-row items-start justify-between gap-10 relative z-10">
@@ -210,7 +210,7 @@ export default function SecuritySettingsPage() {
 
  <div className="space-y-4">
  {isLoadingSessions ? (
-   <div className="p-6 rounded-[24px] bg-white/[0.02] border border-white/5 animate-pulse h-24" />
+   <div className="p-6 rounded-3xl bg-white/2 border border-white/5 animate-pulse h-24" />
  ) : sessions?.length === 0 ? (
    <div className="p-6 text-center text-white/30 text-xs uppercase tracking-widest">No active sessions found</div>
  ) : sessions?.map((s: any) => (
@@ -218,10 +218,10 @@ export default function SecuritySettingsPage() {
  key={s.id}
  initial={{ opacity: 0, x: -20 }}
  animate={{ opacity: 1, x: 0 }}
- className="flex items-center justify-between p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-white/15 hover:bg-p/[0.02] transition-all group"
+ className="flex items-center justify-between p-6 rounded-3xl bg-white/2 border border-white/5 hover:border-white/15 hover:bg-p/2 transition-all group"
  >
  <div className="flex items-center gap-6">
- <div className="w-14 h-14 rounded-[18px] bg-white/[0.02] border border-white/5 flex items-center justify-center relative group-hover:border-p/30 transition-colors">
+ <div className="w-14 h-14 rounded-[18px] bg-white/2 border border-white/5 flex items-center justify-center relative group-hover:border-p/30 transition-colors">
  <Laptop className="w-7 h-7 text-white/20 group-hover:text-p transition-colors duration-500" />
  </div>
  <div>
@@ -260,7 +260,7 @@ export default function SecuritySettingsPage() {
  </div>
 
  {/* Filter pills */}
- <div className="flex items-center gap-2 p-1 bg-white/[0.02] border border-white/5 rounded-[14px]">
+ <div className="flex items-center gap-2 p-1 bg-white/2 border border-white/5 rounded-[14px]">
  {(['all', 'warning', 'critical'] as const).map(f => (
  <button
  key={f}
@@ -281,7 +281,7 @@ export default function SecuritySettingsPage() {
 
  <div className="rounded-[28px] bg-[#030303] border border-white/5 overflow-hidden">
  {/* Table header */}
- <div className="grid grid-cols-[1fr_150px_120px_80px] gap-4 px-6 py-4 border-b border-white/5 bg-white/[0.01]">
+ <div className="grid grid-cols-[1fr_150px_120px_80px] gap-4 px-6 py-4 border-b border-white/5 bg-white/1">
  {['Event', 'Location', 'Time', 'Level'].map(h => (
  <span key={h} className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">{h}</span>
  ))}
@@ -298,7 +298,7 @@ export default function SecuritySettingsPage() {
  exit={{ opacity: 0 }}
  transition={{ delay: idx * 0.03 }}
  className={cn(
-"grid grid-cols-[1fr_150px_120px_80px] gap-4 px-6 py-4 border-b border-white/[0.03] items-center hover:bg-white/[0.02] transition-colors group/row",
+"grid grid-cols-[1fr_150px_120px_80px] gap-4 px-6 py-4 border-b border-white/3 items-center hover:bg-white/2 transition-colors group/row",
  styles.glow
  )}
  >
@@ -353,8 +353,8 @@ export default function SecuritySettingsPage() {
  {/* ── DANGER ZONE ── */}
  <section className="pt-8 border-t border-rose-500/20">
  <div className="relative group">
- <div className="absolute -inset-px bg-rose-500/10 rounded-[32px] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
- <div className="relative p-8 rounded-[28px] border border-rose-500/20 bg-rose-500/[0.01] overflow-hidden">
+ <div className="absolute -inset-px bg-rose-500/10 rounded-4xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+ <div className="relative p-8 rounded-[28px] border border-rose-500/20 bg-rose-500/1 overflow-hidden">
  <div className="absolute top-0 right-0 w-48 h-48 bg-rose-500/5 rounded-full blur-[80px] -mr-24 -mt-24 pointer-events-none" />
  <div className="flex flex-col lg:flex-row items-center justify-between gap-10 relative z-10">
  <div className="space-y-4">
@@ -391,9 +391,9 @@ export default function SecuritySettingsPage() {
  initial={{ scale: 0.95, y: 20 }}
  animate={{ scale: 1, y: 0 }}
  exit={{ scale: 0.95 }}
- className="w-full max-w-md rounded-[32px] bg-[#080808] border border-white/10 p-8 space-y-8 shadow-[0_0_80px_rgba(0,0,0,1)] relative overflow-hidden"
+ className="w-full max-w-md rounded-4xl bg-[#080808] border border-white/10 p-8 space-y-8 shadow-[0_0_80px_rgba(0,0,0,1)] relative overflow-hidden"
  >
- <div className="absolute inset-0 bg-gradient-to-br from-p/5 to-transparent pointer-events-none" />
+ <div className="absolute inset-0 bg-linear-to-br from-p/5 to-transparent pointer-events-none" />
 
  <div className="relative z-10 space-y-2">
  <div className="flex items-center gap-3 text-p text-xs font-semibold uppercase tracking-[0.3em] font-jet-mono">
@@ -406,7 +406,7 @@ export default function SecuritySettingsPage() {
  <div className="relative z-10 space-y-6">
  {/* Fake QR Code */}
  <div className="flex items-center justify-center">
- <div className="p-4 bg-white rounded-[16px] shadow-[0_0_40px_rgba(255,255,255,0.1)]">
+ <div className="p-4 bg-white rounded-2xl shadow-[0_0_40px_rgba(255,255,255,0.1)]">
  <div className="w-32 h-32 grid grid-cols-8 gap-0.5">
  {Array.from({ length: 64 }).map((_, i) => (
  <div key={i} className={cn("rounded-[1px]", (i % 3 === 0 || i % 7 === 0) ?"bg-black" :"bg-white")} />
@@ -424,7 +424,7 @@ export default function SecuritySettingsPage() {
  value={otpInput}
  onChange={e => setOtpInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
  placeholder="000000"
- className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-[16px] px-5 text-2xl font-semibold text-white text-center tracking-[0.8em] outline-none focus:border-p/50 transition-all font-jet-mono placeholder:tracking-widest placeholder:text-white/10"
+ className="w-full h-14 bg-white/3 border border-white/10 rounded-2xl px-5 text-2xl font-semibold text-white text-center tracking-[0.8em] outline-none focus:border-p/50 transition-all font-jet-mono placeholder:tracking-widest placeholder:text-white/10"
  />
  </div>
  </div>
@@ -436,7 +436,7 @@ export default function SecuritySettingsPage() {
  <Button
  onClick={handleVerify2fa}
  disabled={otpInput.length !== 6}
- className="flex-[2] h-12 bg-white text-black hover:bg-white/90 text-sm font-semibold uppercase tracking-[0.2em] rounded-[14px] disabled:opacity-30"
+ className="flex-2 h-12 bg-white text-black hover:bg-white/90 text-sm font-semibold uppercase tracking-[0.2em] rounded-[14px] disabled:opacity-30"
  >
  Verify & Activate
  </Button>
@@ -456,9 +456,9 @@ export default function SecuritySettingsPage() {
   initial={{ scale: 0.95, y: 20 }}
   animate={{ scale: 1, y: 0 }}
   exit={{ scale: 0.95 }}
-  className="w-full max-w-md rounded-[32px] bg-[#080808] border border-rose-500/30 p-8 space-y-8 shadow-[0_0_80px_rgba(239,68,68,0.2)] relative overflow-hidden"
+  className="w-full max-w-md rounded-4xl bg-[#080808] border border-rose-500/30 p-8 space-y-8 shadow-[0_0_80px_rgba(239,68,68,0.2)] relative overflow-hidden"
   >
-  <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent pointer-events-none" />
+  <div className="absolute inset-0 bg-linear-to-br from-rose-500/5 to-transparent pointer-events-none" />
 
   <div className="relative z-10 space-y-2">
   <div className="flex items-center gap-3 text-rose-500 text-xs font-semibold uppercase tracking-[0.3em] font-jet-mono">
@@ -478,7 +478,7 @@ export default function SecuritySettingsPage() {
   value={deleteConfirm}
   onChange={e => setDeleteConfirm(e.target.value)}
   placeholder="DELETE"
-  className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-[16px] px-5 text-lg font-semibold text-white tracking-[0.4em] outline-none focus:border-rose-500/50 transition-all font-jet-mono"
+  className="w-full h-14 bg-white/3 border border-white/10 rounded-2xl px-5 text-lg font-semibold text-white tracking-[0.4em] outline-none focus:border-rose-500/50 transition-all font-jet-mono"
   />
   </div>
   </div>
@@ -490,7 +490,7 @@ export default function SecuritySettingsPage() {
   <Button
   onClick={handleDeleteAccount}
   disabled={deleteConfirm !== 'DELETE'}
-  className="flex-[2] h-12 bg-rose-500 text-white hover:bg-rose-600 text-sm font-semibold uppercase tracking-[0.2em] rounded-[14px] disabled:opacity-30"
+  className="flex-2 h-12 bg-rose-500 text-white hover:bg-rose-600 text-sm font-semibold uppercase tracking-[0.2em] rounded-[14px] disabled:opacity-30"
   >
   Execute Purge
   </Button>

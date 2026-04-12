@@ -68,7 +68,7 @@ export function FeaturedRow() {
  <motion.div
  key={strategy.id}
  whileHover={{ y: -8, scale: 1.02 }}
- className="flex-shrink-0 w-[400px] h-[220px] rounded-[32px] overflow-hidden relative group snap-start bg-[#0d0d12] border border-white/[0.08]"
+ className="flex-shrink-0 w-[400px] h-[220px] rounded-4xl overflow-hidden relative group snap-start bg-[#0d0d12] border border-white/8"
  >
  {/* Background Equity Chart */}
  <div className="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity duration-500">
@@ -95,7 +95,7 @@ export function FeaturedRow() {
  </div>
 
  {/* Bottom Gradient Fade */}
- <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+ <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
 
  {/* Badges */}
  <div className="absolute top-6 right-6">

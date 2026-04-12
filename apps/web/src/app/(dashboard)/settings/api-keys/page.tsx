@@ -145,7 +145,7 @@ export default function APIKeysPage() {
  initial={{ opacity: 0, y: -20 }}
  animate={{ opacity: 1, y: 0 }}
  exit={{ opacity: 0, y: -20 }}
- className="p-6 rounded-[24px] bg-emerald-500/5 border border-emerald-500/30 flex items-center justify-between gap-6 relative overflow-hidden"
+ className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/30 flex items-center justify-between gap-6 relative overflow-hidden"
  >
  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_left,rgba(16,185,129,0.05),transparent_60%)] pointer-events-none" />
  <div className="flex items-start gap-4 relative z-10">
@@ -159,7 +159,7 @@ export default function APIKeysPage() {
  </div>
  <button
  onClick={() => handleCopy(createdKeyValue, 'new')}
- className="shrink-0 flex items-center gap-2 h-10 px-5 rounded-[12px] bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-all text-sm font-semibold uppercase tracking-widest relative z-10"
+ className="shrink-0 flex items-center gap-2 h-10 px-5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-all text-sm font-semibold uppercase tracking-widest relative z-10"
  >
  {copied === 'new' ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
  {copied === 'new' ? 'Copied!' : 'Copy'}
@@ -169,7 +169,7 @@ export default function APIKeysPage() {
  </AnimatePresence>
 
  {/* Sub-tab switcher */}
- <div className="flex items-center gap-2 p-1.5 bg-white/[0.02] border border-white/5 rounded-[18px] w-fit">
+ <div className="flex items-center gap-2 p-1.5 bg-white/2 border border-white/5 rounded-[18px] w-fit">
  {(['keys', 'terminal'] as const).map(tab => (
  <button
  key={tab}
@@ -212,7 +212,7 @@ export default function APIKeysPage() {
  <div className="flex items-start gap-5 flex-1 min-w-0">
  <div className={cn(
 "w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 border",
- key.status === 'active' ?"bg-p/10 border-p/20" :"bg-white/[0.03] border-white/10"
+ key.status === 'active' ?"bg-p/10 border-p/20" :"bg-white/3 border-white/10"
  )}>
  <Key className={cn("w-5 h-5", key.status === 'active' ?"text-p" :"text-white/20")} />
  </div>
@@ -283,7 +283,7 @@ export default function APIKeysPage() {
  <motion.div key="terminal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
  <div className="rounded-[28px] bg-[#030303] border border-white/10 overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
  {/* Terminal Header */}
- <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-white/[0.01]">
+ <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-white/1">
  <div className="flex items-center gap-4">
  <div className="flex items-center gap-2">
  <div className="w-3 h-3 rounded-full bg-rose-500/60" />
@@ -309,7 +309,7 @@ export default function APIKeysPage() {
  initial={{ opacity: 0, x: -10 }}
  animate={{ opacity: 1, x: 0 }}
  transition={{ delay: i * 0.05 }}
- className="flex items-center gap-4 text-xs py-2.5 px-4 rounded-[10px] hover:bg-white/[0.02] transition-colors group/log cursor-default"
+ className="flex items-center gap-4 text-xs py-2.5 px-4 rounded-[10px] hover:bg-white/2 transition-colors group/log cursor-default"
  >
  <span className="text-white/20 shrink-0 w-16">{log.ts}</span>
  <span className={cn("font-semibold uppercase shrink-0 w-14", getMethodColor(log.method))}>{log.method}</span>
@@ -327,7 +327,7 @@ export default function APIKeysPage() {
  </div>
 
  {/* Footer Stats */}
- <div className="flex items-center justify-between px-6 py-4 border-t border-white/5 bg-white/[0.01] flex-wrap gap-4">
+ <div className="flex items-center justify-between px-6 py-4 border-t border-white/5 bg-white/1 flex-wrap gap-4">
  {[
  { label: 'Total Requests Today', val: '18,031', color: 'text-white' },
  { label: 'Avg Latency', val: '56ms', color: 'text-cyan-400' },
@@ -359,9 +359,9 @@ export default function APIKeysPage() {
  initial={{ opacity: 0, scale: 0.95, y: 20 }}
  animate={{ opacity: 1, scale: 1, y: 0 }}
  exit={{ opacity: 0, scale: 0.95 }}
- className="w-full max-w-lg rounded-[32px] bg-[#080808] border border-white/10 p-8 space-y-8 shadow-[0_0_80px_rgba(0,0,0,1)] relative overflow-hidden"
+ className="w-full max-w-lg rounded-4xl bg-[#080808] border border-white/10 p-8 space-y-8 shadow-[0_0_80px_rgba(0,0,0,1)] relative overflow-hidden"
  >
- <div className="absolute inset-0 bg-gradient-to-br from-p/5 to-transparent pointer-events-none" />
+ <div className="absolute inset-0 bg-linear-to-br from-p/5 to-transparent pointer-events-none" />
  
  <div className="relative z-10 space-y-2">
  <div className="flex items-center gap-3 text-p text-xs font-semibold uppercase tracking-[0.3em] font-jet-mono">
@@ -378,7 +378,7 @@ export default function APIKeysPage() {
  value={newKeyName}
  onChange={e => setNewKeyName(e.target.value)}
  placeholder="e.g. Production Trading Node"
- className="w-full h-14 bg-white/[0.03] border border-white/10 rounded-[16px] px-5 text-sm font-semibold text-white placeholder:text-white/20 outline-none focus:border-p/50 transition-all font-jet-mono"
+ className="w-full h-14 bg-white/3 border border-white/10 rounded-2xl px-5 text-sm font-semibold text-white placeholder:text-white/20 outline-none focus:border-p/50 transition-all font-jet-mono"
  />
  </div>
 
@@ -393,7 +393,7 @@ export default function APIKeysPage() {
  )}
  className={cn(
 "px-4 py-2 rounded-[10px] text-xs font-semibold uppercase tracking-widest border transition-all",
- newKeyPerms.includes(p) ? PERMISSION_COLORS[p] :"bg-white/[0.02] border-white/5 text-white/30 hover:border-white/15"
+ newKeyPerms.includes(p) ? PERMISSION_COLORS[p] :"bg-white/2 border-white/5 text-white/30 hover:border-white/15"
  )}
  >
  {p}
@@ -420,7 +420,7 @@ export default function APIKeysPage() {
  <Button
  onClick={handleCreateKey}
  disabled={!newKeyName.trim() || newKeyPerms.length === 0}
- className="flex-[2] h-12 bg-white text-black hover:bg-white/90 text-sm font-semibold uppercase tracking-[0.2em] rounded-[14px] shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-30"
+ className="flex-2 h-12 bg-white text-black hover:bg-white/90 text-sm font-semibold uppercase tracking-[0.2em] rounded-[14px] shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-30"
  >
  Generate Key
  </Button>

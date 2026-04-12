@@ -57,7 +57,7 @@ const StrategyCard = ({ title, value, winRate, icon: Icon, angle, opacity, yOffs
  initial={{ width: 0 }}
  animate={{ width: `${winRate}%` }}
  transition={{ duration: 1.5, delay: 0.5 + delay }}
- className="h-full bg-gradient-to-r from-p to-s"
+ className="h-full bg-linear-to-r from-p to-s"
  />
  </div>
  </div>

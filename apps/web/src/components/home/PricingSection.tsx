@@ -85,20 +85,20 @@ export function PricingSection() {
       {/* Dynamic Background Architecture */}
       <div className="absolute inset-0 z-0 pointer-events-none flex justify-center">
         {/* Glow at top */}
-        <div className="absolute top-[-20%] w-[1000px] h-[500px] bg-p/20 blur-[120px] rounded-[100%] opacity-50" />
+        <div className="absolute top-[-20%] w-250 h-[500px] bg-p/20 blur-[120px] rounded-[100%] opacity-50" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
       </div>
 
       <div className="container mx-auto px-6 relative z-10 max-w-[1200px]">
         <div className="text-center mb-24">
           <FadeUp>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] text-white/60 text-[11px] font-medium tracking-widest uppercase mb-6 backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/3 border border-white/8 text-white/60 text-[11px] font-medium tracking-widest uppercase mb-6 backdrop-blur-md">
               <DollarSign className="w-3 h-3 text-p" />
               Deployment_Tiers
             </div>
             <h2 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-white m-0">
               Pricing that{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-white to-white/60">
                 Scales.
               </span>
             </h2>
@@ -109,7 +109,7 @@ export function PricingSection() {
             </p>
 
             {/* Premium Vercel-style Toggle */}
-            <div className="flex items-center justify-center p-1 bg-white/[0.03] border border-white/[0.08] rounded-full w-fit mx-auto backdrop-blur-md relative font-medium">
+            <div className="flex items-center justify-center p-1 bg-white/3 border border-white/8 rounded-full w-fit mx-auto backdrop-blur-md relative font-medium">
               <button
                 onClick={() => setBillingCycle("monthly")}
                 className={cn(
@@ -150,15 +150,15 @@ export function PricingSection() {
                 className={cn(
                   "relative p-8 rounded-3xl transition-all duration-500 flex flex-col w-full overflow-hidden backdrop-blur-sm",
                   plan.recommended
-                    ? "bg-white/[0.02] border border-p/30"
-                    : "bg-white/[0.01] border border-white/[0.05]",
+                    ? "bg-white/2 border border-p/30"
+                    : "bg-white/1 border border-white/5",
                 )}
               >
                 {/* Spotlight Background for Recommended */}
                 {plan.recommended && (
                   <>
                     <div className="absolute inset-0 bg-gradient-to-b from-p/10 to-transparent opacity-50" />
-                    <div className="absolute -top-px left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-p to-transparent" />
+                    <div className="absolute -top-px left-1/4 right-1/4 h-px bg-linear-to-r from-transparent via-p to-transparent" />
                   </>
                 )}
 
@@ -198,7 +198,7 @@ export function PricingSection() {
                   </div>
                 </div>
 
-                <div className="h-px w-full bg-white/[0.05] my-2 relative z-10" />
+                <div className="h-px w-full bg-white/5 my-2 relative z-10" />
 
                 <div className="space-y-4 py-8 flex-grow relative z-10">
                   {plan.features.map((feature) => (
@@ -245,7 +245,7 @@ export function PricingSection() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="mt-16 w-full rounded-2xl bg-white/[0.02] border border-white/[0.08] p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 backdrop-blur-sm group hover:border-white/[0.15] transition-colors"
+          className="mt-16 w-full rounded-2xl bg-white/2 border border-white/8 p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 backdrop-blur-sm group hover:border-white/15 transition-colors"
         >
           {/* Hardware grid background inside the block */}
           <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 pointer-events-none" />

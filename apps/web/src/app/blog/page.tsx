@@ -154,12 +154,12 @@ export default function BlogPage() {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-indigo-600/8 blur-[120px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-5xl relative z-10">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
               <BookOpen className="w-3 h-3 text-indigo-400" /> Signal_Log
             </div>
             <h1 className="text-6xl md:text-7xl font-bold tracking-[-0.03em] text-white leading-[1] mb-6">
               The Profytron<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Blog.</span>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-cyan-400">Blog.</span>
             </h1>
             <p className="text-lg text-white/50 max-w-xl font-medium leading-relaxed">
               Technical writing from the team — on algo trading, market microstructure, and the AI powering modern execution.
@@ -178,7 +178,7 @@ export default function BlogPage() {
           <motion.button
             onClick={() => setOpenPost(posts[0])}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="w-full text-left group relative p-10 md:p-12 rounded-3xl bg-gradient-to-br from-indigo-600/10 to-indigo-600/0 border border-indigo-500/20 hover:border-indigo-500/40 transition-all overflow-hidden cursor-pointer"
+            className="w-full text-left group relative p-10 md:p-12 rounded-3xl bg-linear-to-br from-indigo-600/10 to-indigo-600/0 border border-indigo-500/20 hover:border-indigo-500/40 transition-all overflow-hidden cursor-pointer"
           >
             <div className="absolute top-0 right-0 w-[400px] h-[300px] bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none" />
             <div className="relative z-10 max-w-2xl">
@@ -213,7 +213,7 @@ export default function BlogPage() {
                 onClick={() => setOpenPost(post)}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }} viewport={{ once: true }}
-                className="text-left group p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-indigo-500/30 hover:bg-white/[0.04] transition-all flex flex-col cursor-pointer"
+                className="text-left group p-8 rounded-2xl bg-white/2 border border-white/6 hover:border-indigo-500/30 hover:bg-white/4 transition-all flex flex-col cursor-pointer"
               >
                 <div className="flex items-center gap-3 mb-5">
                   <span className={`px-2.5 py-1 rounded-full border text-[9px] font-bold uppercase tracking-widest ${post.tag}`}>
@@ -224,7 +224,7 @@ export default function BlogPage() {
                   {post.title}
                 </h3>
                 <p className="text-white/40 text-sm leading-relaxed mb-6 line-clamp-3">{post.excerpt}</p>
-                <div className="flex items-center justify-between text-xs text-white/25 font-mono border-t border-white/[0.05] pt-4">
+                <div className="flex items-center justify-between text-xs text-white/25 font-mono border-t border-white/5 pt-4">
                   <div className="flex items-center gap-1.5"><Clock className="w-3 h-3" />{post.readTime}</div>
                   <span>{post.date}</span>
                 </div>
@@ -248,7 +248,7 @@ export default function BlogPage() {
             <motion.div
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 250 }}
-              className="fixed right-0 top-0 bottom-0 w-full max-w-2xl bg-[#0a0a10] border-l border-white/[0.08] z-50 overflow-y-auto"
+              className="fixed right-0 top-0 bottom-0 w-full max-w-2xl bg-[#0a0a10] border-l border-white/8 z-50 overflow-y-auto"
             >
               <div className="p-8 md:p-12">
                 {/* Close */}
@@ -273,7 +273,7 @@ export default function BlogPage() {
                   {openPost.title}
                 </h1>
 
-                <div className="h-px w-full bg-white/[0.07] mb-8" />
+                <div className="h-px w-full bg-white/7 mb-8" />
 
                 {/* Article body */}
                 <div className="prose-custom text-white/65 text-[15px] leading-[1.9] space-y-5">
@@ -299,7 +299,7 @@ export default function BlogPage() {
                   })}
                 </div>
 
-                <div className="mt-12 pt-8 border-t border-white/[0.06]">
+                <div className="mt-12 pt-8 border-t border-white/6">
                   <p className="text-white/25 text-xs font-mono">PROFYTRON SIGNAL LOG · {openPost.date}</p>
                 </div>
               </div>

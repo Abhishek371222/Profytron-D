@@ -58,7 +58,7 @@ export default function SettingsLayout({
 "flex items-center gap-6 p-6 rounded-[28px] transition-all relative group overflow-hidden border",
  isActive 
  ?"glass-ultra border-primary/20 shadow-[0_0_40px_rgba(99,102,241,0.15)] bg-primary/5" 
- :"bg-white/[0.02] border-white/5 hover:border-white/10 hover:bg-white/[0.04]"
+ :"bg-white/2 border-white/5 hover:border-white/10 hover:bg-white/4"
  )}
  >
  <div className={cn(
@@ -94,7 +94,7 @@ export default function SettingsLayout({
  })}
  
  {/* System Health Module (Sidebar Bottom) */}
- <div className="mt-8 p-6 rounded-[28px] border border-white/5 bg-white/[0.01] space-y-4">
+ <div className="mt-8 p-6 rounded-[28px] border border-white/5 bg-white/1 space-y-4">
  <div className="flex items-center justify-between">
  <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Interface Stability</span>
  <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">Nominal</span>
@@ -115,16 +115,16 @@ export default function SettingsLayout({
 
  {/* PREMIUM CONTENT AREA */}
  <div className="flex-1 w-full relative group">
- <div className="absolute -inset-1 bg-gradient-to-tr from-primary/10 via-transparent to-indigo-500/10 rounded-[42px] blur-2xl opacity-50 group-hover:opacity-70 transition-opacity" />
+ <div className="absolute -inset-1 bg-linear-to-tr from-primary/10 via-transparent to-indigo-500/10 rounded-[42px] blur-2xl opacity-50 group-hover:opacity-70 transition-opacity" />
  <motion.div
  key={pathname}
  initial={{ opacity: 0, y: 15, scale: 0.99 }}
  animate={{ opacity: 1, y: 0, scale: 1 }}
  transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
- className="bg-bg-base/40 glass-ultra border border-white/5 rounded-[40px] p-12 shadow-2xl relative z-10 min-h-[600px]"
+ className="bg-bg-base/40 glass-ultra border border-white/5 rounded-[40px] p-12 shadow-2xl relative z-10 min-h-150"
  >
  {/* Visual Accent */}
- <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 blur-[120px] rounded-full pointer-events-none -mr-20 -mt-20 -z-10" />
+ <div className="absolute top-0 right-0 w-[400px] h-100 bg-primary/5 blur-[120px] rounded-full pointer-events-none -mr-20 -mt-20 -z-10" />
  
  {children}
  </motion.div>

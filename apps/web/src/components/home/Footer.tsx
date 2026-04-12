@@ -41,7 +41,7 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="pt-24 pb-12 bg-black border-t border-white/[0.05] relative overflow-hidden">
+    <footer className="pt-24 pb-12 bg-black border-t border-white/5 relative overflow-hidden">
       {/* Background Architectural Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-p/5 blur-[120px] rounded-full pointer-events-none" />
 
@@ -50,7 +50,7 @@ export function Footer() {
           {/* Logo & Foundation */}
           <div className="lg:col-span-5">
             <Link href="/" className="flex items-center gap-3 mb-8 group">
-              <div className="w-10 h-10 bg-white/[0.03] rounded-xl flex items-center justify-center border border-white/10 group-hover:border-p/50 transition-all duration-500 shadow-inner group-hover:bg-p/10">
+              <div className="w-10 h-10 bg-white/3 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-p/50 transition-all duration-500 shadow-inner group-hover:bg-p/10">
                 <Zap className="w-5 h-5 text-white/70 group-hover:text-p transition-colors" />
               </div>
               <span className="text-xl font-bold tracking-tight text-white group-hover:text-white/90 transition-colors">
@@ -74,7 +74,7 @@ export function Footer() {
                   target={href.startsWith('http') ? '_blank' : undefined}
                   rel={href.startsWith('http') ? 'noreferrer' : undefined}
                   aria-label={label}
-                  className="w-10 h-10 rounded-full bg-white/[0.02] border border-white/[0.05] flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all duration-300"
+                  className="w-10 h-10 rounded-full bg-white/2 border border-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all duration-300"
                 >
                   <Icon className="w-4 h-4" />
                 </Link>
@@ -107,7 +107,7 @@ export function Footer() {
         </div>
 
         {/* Global Matrix Status Bar */}
-        <div className="pt-8 border-t border-white/[0.05] flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-4 hidden sm:flex">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
@@ -127,7 +127,7 @@ export function Footer() {
         </div>
 
         {/* Mobile Disclosure */}
-        <div className="mt-8 pt-8 border-t border-white/[0.05] text-center w-full">
+        <div className="mt-8 pt-8 border-t border-white/5 text-center w-full">
           <p className="text-[10px] text-white/20 leading-relaxed font-mono max-w-4xl mx-auto uppercase tracking-wide">
             Risk Disclosure: Digital asset trading involves substantial risk of
             loss and is not suitable for all investors. The performance of

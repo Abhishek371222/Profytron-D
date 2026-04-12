@@ -87,7 +87,7 @@ const itemVariants = {
 
 const HeatmapCell = ({ val, name }: { val: number; name: string }) => {
  const getBg = (v: number) => {
- if (v === 0) return 'bg-white/[0.02] border-white/5';
+ if (v === 0) return 'bg-white/2 border-white/5';
  if (v > 8) return 'bg-[#10b981] shadow-[0_0_30px_rgba(16,185,129,0.5)] border-[#10b981]/60';
  if (v > 3) return 'bg-[#10b981]/60 border-[#10b981]/30';
  if (v > 0) return 'bg-[#10b981]/20 border-[#10b981]/10';
@@ -110,7 +110,7 @@ const HeatmapCell = ({ val, name }: { val: number; name: string }) => {
  <span className={cn('text-xs font-semibold ', Math.abs(val) > 5 ? 'text-white' : 'text-white/40')}>
  {val !== 0 ? `${val > 0 ? '+' : ''}${val}%` : ''}
  </span>
- <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover/cell:opacity-100 transition-opacity duration-300" />
+ <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent opacity-0 group-hover/cell:opacity-100 transition-opacity duration-300" />
  </motion.div>
  <span className="text-xs font-semibold text-white/10 uppercase tracking-wider">{name}</span>
  </div>
@@ -120,7 +120,7 @@ const HeatmapCell = ({ val, name }: { val: number; name: string }) => {
 const CustomTooltip = ({ active, payload, label }: any) => {
  if (active && payload && payload.length) {
  return (
- <div className="bg-[#08080c]/95 border-2 border-white/10 rounded-[24px] p-6 shadow-[0_40px_80px_rgba(0,0,0,0.9)] backdrop-blur-3xl">
+ <div className="bg-[#08080c]/95 border-2 border-white/10 rounded-3xl p-6 shadow-[0_40px_80px_rgba(0,0,0,0.9)] backdrop-blur-3xl">
  <p className="text-xs font-semibold text-p uppercase tracking-[0.4em] mb-3">{label}</p>
  {payload.map((p: any, i: number) => (
  <div key={i} className="flex items-center gap-3 mt-1">
@@ -145,7 +145,7 @@ export default function OverviewTab() {
  variants={containerVariants}
  initial="hidden"
  animate="visible"
- className="space-y-[var(--section-gap)] pb-20"
+ className="space-y-(--section-gap) pb-20"
  >
  {/* ── KPI Matrix ── */}
  <div 
@@ -155,8 +155,8 @@ export default function OverviewTab() {
  >
  {kpis.map((kpi, i) => (
  <motion.div key={i} variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative overflow-hidden group hover:border-white/20 transition-all duration-700 rounded-[32px] h-full">
- <div className="absolute inset-0 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity duration-700" style={{ boxShadow: `inset 0 0 60px ${kpi.glow}` }} />
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative overflow-hidden group hover:border-white/20 transition-all duration-700 rounded-4xl h-full">
+ <div className="absolute inset-0 rounded-4xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" style={{ boxShadow: `inset 0 0 60px ${kpi.glow}` }} />
  <div className="absolute top-0 right-0 w-24 h-24 rounded-full blur-[50px] -mr-12 -mt-12 group-hover:scale-150 transition-all duration-1000" style={{ background: kpi.glow }} />
  <div className="space-y-6 relative z-10">
  <div className="flex items-center justify-between">
@@ -187,8 +187,8 @@ export default function OverviewTab() {
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
  {/* Main Equity Chart */}
  <motion.div variants={itemVariants} className="lg:col-span-2">
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden relative group rounded-[40px] h-full">
- <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-p to-transparent opacity-70" />
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] overflow-hidden relative group rounded-[40px] h-full">
+ <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-p to-transparent opacity-70" />
  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-8 mb-8 relative z-10">
  <div className="space-y-3">
  <div className="flex items-center gap-4">
@@ -222,7 +222,7 @@ export default function OverviewTab() {
  </div>
 
  {/* Chart container with new height token */}
- <div className="w-full h-[var(--chart-h-lg)]">
+ <div className="w-full h-(--chart-h-lg)">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={equityData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
  <defs>
@@ -266,7 +266,7 @@ export default function OverviewTab() {
 
  {/* Heatmap */}
  <motion.div variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full flex flex-col relative overflow-hidden group rounded-[40px]">
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full flex flex-col relative overflow-hidden group rounded-[40px]">
  <div className="absolute top-0 right-0 w-40 h-40 bg-p/5 rounded-full blur-[80px] -mr-20 -mt-20 group-hover:bg-p/10 transition-all duration-1000" />
  <div className="mb-6 relative z-10">
  <div className="flex items-center gap-4">
@@ -284,7 +284,7 @@ export default function OverviewTab() {
  <div key={yearData.year} className="space-y-3">
  <div className="flex items-center gap-4">
  <span className="text-xs font-semibold text-white/30 tracking-[0.5em] uppercase">{yearData.year}</span>
- <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+ <div className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent" />
  </div>
  <div className="grid grid-cols-6 gap-2">
  {yearData.months.map((m, idx) => (
@@ -312,7 +312,7 @@ export default function OverviewTab() {
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
  {/* Alpha Regime */}
  <motion.div variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-emerald-500/10 bg-emerald-500/[0.02] backdrop-blur-3xl relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-700 rounded-[40px] shadow-[0_40px_80px_rgba(0,0,0,0.5)]">
+ <Card className="p-(--card-p) border-2 border-emerald-500/10 bg-emerald-500/2 backdrop-blur-3xl relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-700 rounded-[40px] shadow-[0_40px_80px_rgba(0,0,0,0.5)]">
  <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-[80px] -mr-24 -mt-24 group-hover:bg-emerald-500/10 transition-all" />
  <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 40px)' }} />
  <div className="flex items-start justify-between relative z-10">
@@ -360,7 +360,7 @@ export default function OverviewTab() {
 
  {/* Stress Lattice */}
  <motion.div variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-p/10 bg-p/[0.02] backdrop-blur-3xl relative overflow-hidden group hover:border-p/30 transition-all duration-700 rounded-[40px] shadow-[0_40px_80px_rgba(0,0,0,0.5)]">
+ <Card className="p-(--card-p) border-2 border-p/10 bg-p/2 backdrop-blur-3xl relative overflow-hidden group hover:border-p/30 transition-all duration-700 rounded-[40px] shadow-[0_40px_80px_rgba(0,0,0,0.5)]">
  <div className="absolute top-0 right-0 w-48 h-48 bg-p/5 rounded-full blur-[80px] -mr-24 -mt-24 group-hover:bg-p/10 transition-all" />
  <div className="absolute inset-0" style={{ backgroundImage: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 40px)' }} />
  <div className="flex items-start justify-between relative z-10">
@@ -409,8 +409,8 @@ export default function OverviewTab() {
 
  {/* ── Live Activity Stream ── */}
  <motion.div variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_40px_80px_rgba(0,0,0,0.6)] relative overflow-hidden group rounded-[40px]">
- <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-p/60 to-transparent" />
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_40px_80px_rgba(0,0,0,0.6)] relative overflow-hidden group rounded-[40px]">
+ <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-p/60 to-transparent" />
  <div className="flex items-center justify-between mb-8 relative z-10">
  <div className="flex items-center gap-4">
  <div className="w-10 h-10 rounded-[14px] bg-p/10 border-2 border-p/20 flex items-center justify-center">
@@ -439,9 +439,9 @@ export default function OverviewTab() {
  transition={{ delay: 0.3 + i * 0.1 }}
  className={cn(
  'p-6 rounded-[28px] border-2 relative overflow-hidden group/event transition-all duration-500',
- e.color === 'emerald' ? 'bg-emerald-500/[0.04] border-emerald-500/10 hover:border-emerald-500/30' :
- e.color === 'amber' ? 'bg-amber-500/[0.04] border-amber-500/10 hover:border-amber-500/30' :
- 'bg-p/[0.04] border-p/10 hover:border-p/30'
+ e.color === 'emerald' ? 'bg-emerald-500/4 border-emerald-500/10 hover:border-emerald-500/30' :
+ e.color === 'amber' ? 'bg-amber-500/4 border-amber-500/10 hover:border-amber-500/30' :
+ 'bg-p/4 border-p/10 hover:border-p/30'
  )}
  >
  <div className="flex items-start justify-between gap-4 mb-4">

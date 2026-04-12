@@ -29,7 +29,7 @@ export function ConfigPanel() {
  exit={{ x: 300, opacity: 0 }}
  className="w-[320px] h-full bg-bg-card border-l border-white/5 flex flex-col z-50 shadow-2xl shadow-black/50"
  >
- <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+ <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/2">
  <div className="flex items-center gap-3">
  <div className="p-2 rounded-xl bg-indigo-500/10">
  <Settings2 className="w-5 h-5 text-indigo-400" />
@@ -61,13 +61,13 @@ export function ConfigPanel() {
  type="number"
  value={value}
  onChange={(e) => updateNodeParams(selectedNodeId, { [key]: parseFloat(e.target.value) })}
- className="h-11 bg-white/[0.03] border-white/10 rounded-xl font-mono text-sm"
+ className="h-11 bg-white/3 border-white/10 rounded-xl font-mono text-sm"
  />
  ) : typeof value === 'string' && ['SMA', 'EMA', 'WMA'].includes(value) ? (
  <select 
  value={value}
  onChange={(e) => updateNodeParams(selectedNodeId, { [key]: e.target.value })}
- className="w-full h-11 bg-white/[0.03] border border-white/10 rounded-xl px-4 text-xs text-white appearance-none outline-none focus:border-p transition-all cursor-pointer"
+ className="w-full h-11 bg-white/3 border border-white/10 rounded-xl px-4 text-xs text-white appearance-none outline-none focus:border-p transition-all cursor-pointer"
  >
  <option value="SMA">Simple MA</option>
  <option value="EMA">Exponential MA</option>
@@ -77,7 +77,7 @@ export function ConfigPanel() {
  <Input 
   value={value as any}
   onChange={(e) => updateNodeParams(selectedNodeId, { [key]: e.target.value })}
- className="h-11 bg-white/[0.03] border-white/10 rounded-xl text-sm"
+ className="h-11 bg-white/3 border-white/10 rounded-xl text-sm"
  />
  )}
  </div>
@@ -91,10 +91,10 @@ export function ConfigPanel() {
  )}
  </div>
 
- <div className="p-6 border-t border-white/5 space-y-4 bg-white/[0.02]">
+ <div className="p-6 border-t border-white/5 space-y-4 bg-white/2">
  <Button 
  onClick={() => selectNode(null)}
- className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 h-12 rounded-xl text-xs font-semibold uppercase tracking-widest shadow-lg shadow-indigo-600/20"
+ className="w-full bg-linear-to-r from-indigo-600 to-indigo-500 h-12 rounded-xl text-xs font-semibold uppercase tracking-widest shadow-lg shadow-indigo-600/20"
  >
  Update Logic
  </Button>

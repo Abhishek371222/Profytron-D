@@ -21,7 +21,7 @@ const ThreeGlobe = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-[300px] h-[300px] lg:w-[400px] lg:h-[400px] rounded-full bg-primary/5 animate-pulse" />
+      <div className="w-[300px] h-[300px] lg:w-[400px] lg:h-100 rounded-full bg-primary/5 animate-pulse" />
     ),
   },
 );
@@ -75,7 +75,7 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-[1]" />
 
         {/* Scanlines */}
-        <div className="absolute inset-0 animate-scanline bg-gradient-to-b from-transparent via-white/[0.03] to-transparent h-[200%] pointer-events-none z-[2]" />
+        <div className="absolute inset-0 animate-scanline bg-gradient-to-b from-transparent via-white/3 to-transparent h-[200%] pointer-events-none z-[2]" />
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
@@ -88,8 +88,8 @@ export function HeroSection() {
           >
             {/* Badge */}
             <FadeUp delay={0.05}>
-              <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-white/70 text-[10px] font-bold tracking-[0.4em] uppercase backdrop-blur-md relative group overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/3 border border-white/8 text-white/70 text-[10px] font-bold tracking-[0.4em] uppercase backdrop-blur-md relative group overflow-hidden">
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 <Terminal className="w-3 h-3 text-p" />
                 <span>v5.0_Kernel_Ready</span>
               </div>
@@ -109,7 +109,7 @@ export function HeroSection() {
                   className="text-7xl sm:text-8xl md:text-9xl lg:text-[110px] xl:text-[120px] font-bold leading-[0.95] tracking-[-0.04em] uppercase bg-clip-text bg-gradient-to-b from-white via-white to-white/20 text-transparent"
                 >
                   Trading <br />
-                  <span className="bg-gradient-to-r from-p via-indigo-300 to-white/70 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(99,102,241,0.3)]">
+                  <span className="bg-linear-to-r from-p via-indigo-300 to-white/70 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(99,102,241,0.3)]">
                     At The Edge.
                   </span>
                 </motion.h1>
@@ -174,7 +174,7 @@ export function HeroSection() {
 
             {/* Stats Row */}
             <FadeUp delay={0.5}>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-10 mt-8 border-t border-white/[0.05]">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-10 mt-8 border-t border-white/5">
                 {[
                   {
                     label: "Security Level",
@@ -251,7 +251,7 @@ export function HeroSection() {
                 transition={{ duration: 4, repeat: Infinity }}
                 className="absolute inset-0 max-w-full max-h-full flex items-center justify-center"
               >
-                <div className="w-96 h-96 bg-gradient-to-br from-p/30 to-indigo-500/20 blur-[120px] rounded-full pointer-events-none" />
+                <div className="w-96 h-96 bg-linear-to-br from-p/30 to-indigo-500/20 blur-[120px] rounded-full pointer-events-none" />
               </motion.div>
 
               {/* Floating Orbital Dots */}

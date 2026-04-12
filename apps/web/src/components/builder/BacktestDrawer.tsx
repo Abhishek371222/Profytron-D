@@ -88,7 +88,7 @@ export function BacktestDrawer({ isOpen, onClose }: BacktestDrawerProps) {
  <Button 
  onClick={runBacktest}
  disabled={isBacktesting}
- className="w-full h-14 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-semibold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-amber-600/20 group"
+ className="w-full h-14 bg-linear-to-r from-amber-600 to-amber-500 text-white font-semibold text-xs uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-amber-600/20 group"
  >
  {isBacktesting ? (
  <Loader2 className="w-5 h-5 animate-spin" />

@@ -88,7 +88,7 @@ export default function SystemMonitoring() {
  }, []);
 
  return (
- <div className="p-6 md:p-8 flex flex-col space-y-6 max-w-[1600px] mx-auto">
+ <div className="p-6 md:p-8 flex flex-col space-y-6 max-w-400 mx-auto">
  
  {/* Header */}
  <div className="flex justify-between items-center bg-slate-900 p-4 border border-slate-800 rounded-xl">
@@ -121,7 +121,7 @@ export default function SystemMonitoring() {
  <span className="flex items-center gap-1.5 text-red-400"><div className="w-2 h-2 rounded-full bg-red-500"></div> P99 (850ms)</span>
  </div>
  </div>
- <div className="h-[250px] w-full">
+ <div className="h-62.5 w-full">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <LineChart data={apiMetrics}>
  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
@@ -140,7 +140,7 @@ export default function SystemMonitoring() {
  <div className="col-span-1 flex flex-col gap-6">
  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex-1">
  <h3 className="font-medium text-slate-200 mb-4 flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-red-500"/> Error Rate</h3>
- <div className="h-[140px] w-full">
+ <div className="h-35 w-full">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={errorRates}>
  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />

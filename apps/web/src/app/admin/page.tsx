@@ -101,7 +101,7 @@ export default function AdminDashboard() {
  if (!mounted) return null;
 
  return (
- <div className="p-[var(--dashboard-p)] pb-12 max-w-[1800px] mx-auto space-y-[var(--section-gap)]">
+ <div className="p-[var(--dashboard-p)] pb-12 max-w-[1800px] mx-auto space-y-(--section-gap)">
  
  {/* Header */}
  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -124,7 +124,7 @@ export default function AdminDashboard() {
  { title:"Active Strategies", value:"2,341 running", sub:"across 847 users", subColor:"text-slate-400", icon: Activity },
  { title:"Trades Today", value:"15,492", sub:"₹2.4Cr volume", subColor:"text-slate-400", icon: Zap },
  ].map((kpi, i) => (
- <motion.div key={i} variants={itemVariants} className="bg-slate-900 border border-slate-800 rounded-xl p-[var(--card-p)] flex flex-col justify-between">
+ <motion.div key={i} variants={itemVariants} className="bg-slate-900 border border-slate-800 rounded-xl p-(--card-p) flex flex-col justify-between">
  <div className="flex justify-between items-center text-slate-400 mb-6">
  <span className="font-medium text-sm">{kpi.title}</span>
  <kpi.icon className="w-5 h-5 opacity-70" />
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
  <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-3 gap-8">
  
  {/* Revenue Chart */}
- <motion.div variants={itemVariants} className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-[var(--card-p)]">
+ <motion.div variants={itemVariants} className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-(--card-p)">
  <div className="flex justify-between items-center mb-6">
  <div>
  <h3 className="font-medium text-slate-200">Revenue (Last 30 Days)</h3>
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
  </motion.div>
 
  {/* User Growth Chart */}
- <motion.div variants={itemVariants} className="bg-slate-900 border border-slate-800 rounded-xl p-[var(--card-p)]">
+ <motion.div variants={itemVariants} className="bg-slate-900 border border-slate-800 rounded-xl p-(--card-p)">
  <div className="mb-6">
  <h3 className="font-medium text-slate-200">User Growth</h3>
  <p className="text-xs text-slate-400">Last 12 months registrations</p>
@@ -215,8 +215,8 @@ export default function AdminDashboard() {
  <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 lg:grid-cols-2 gap-8">
  
  {/* System Alerts */}
- <motion.div variants={itemVariants} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col h-[var(--chart-h-lg)]">
- <div className="p-[var(--card-p)] border-b border-slate-800 flex justify-between items-center">
+ <motion.div variants={itemVariants} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col h-(--chart-h-lg)">
+ <div className="p-(--card-p) border-b border-slate-800 flex justify-between items-center">
  <h3 className="font-medium text-slate-200 flex items-center gap-2">
  <ShieldAlert className="w-4 h-4 text-slate-400" />
  Recent System Alerts
@@ -271,14 +271,14 @@ export default function AdminDashboard() {
  </motion.div>
 
  {/* Service Health Grid */}
- <motion.div variants={itemVariants} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col h-[var(--chart-h-lg)]">
- <div className="p-[var(--card-p)] border-b border-slate-800">
+ <motion.div variants={itemVariants} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col h-(--chart-h-lg)">
+ <div className="p-(--card-p) border-b border-slate-800">
  <h3 className="font-medium text-slate-200 flex items-center gap-2">
  <Server className="w-4 h-4 text-slate-400" />
  Service Status
  </h3>
  </div>
- <div className="p-[var(--card-p)] grid grid-cols-2 gap-6 overflow-y-auto">
+ <div className="p-(--card-p) grid grid-cols-2 gap-6 overflow-y-auto">
  {services.map((service, i) => (
  <div key={i} className="bg-slate-950/50 border border-slate-800 rounded-lg p-4 hover:border-slate-700 transition-colors cursor-pointer group relative overflow-hidden">
  <div className="flex justify-between items-start mb-3">

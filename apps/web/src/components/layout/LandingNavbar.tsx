@@ -48,7 +48,7 @@ export function LandingNavbar() {
  <div className="container mx-auto px-6">
  <div 
  className={cn(
-"flex items-center justify-between transition-all duration-500 px-6 py-3 rounded-[24px] border border-transparent w-full",
+"flex items-center justify-between transition-all duration-500 px-6 py-3 rounded-3xl border border-transparent w-full",
  isScrolled && mounted
  ?"glass-ultra shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border-white/10" 
  :"bg-transparent"
@@ -65,7 +65,7 @@ export function LandingNavbar() {
  </Link>
 
  {/* Desktop Navigation */}
- <div className="hidden lg:flex items-center gap-8 bg-white/[0.03] border border-white/5 py-2 px-8 rounded-full backdrop-blur-3xl shadow-inner">
+ <div className="hidden lg:flex items-center gap-8 bg-white/3 border border-white/5 py-2 px-8 rounded-full backdrop-blur-3xl shadow-inner">
  {navLinks.map((link) => (
  <Magnetic key={link.name} strength={0.2}>
  <a
@@ -104,7 +104,7 @@ export function LandingNavbar() {
  Open Terminal
  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
  </span>
- <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+ <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
  </Button>
  </Link>
  </Magnetic>
@@ -112,7 +112,7 @@ export function LandingNavbar() {
 
  {/* Mobile Toggle */}
  <button
- className="lg:hidden w-10 h-10 rounded-[12px] bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+ className="lg:hidden w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors"
  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
  aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
  aria-expanded={mobileMenuOpen}
@@ -130,7 +130,7 @@ export function LandingNavbar() {
  animate={{ opacity: 1, y: 0 }}
  exit={{ opacity: 0, y: -20 }}
  transition={{ type:"spring", damping: 25, stiffness: 200 }}
- className="absolute top-[80px] left-6 right-6 glass-ultra rounded-[24px] p-8 lg:hidden flex flex-col gap-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] border-white/10 overflow-hidden"
+ className="absolute top-[80px] left-6 right-6 glass-ultra rounded-3xl p-8 lg:hidden flex flex-col gap-6 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] border-white/10 overflow-hidden"
  >
  {navLinks.map((link, idx) => (
  <motion.div

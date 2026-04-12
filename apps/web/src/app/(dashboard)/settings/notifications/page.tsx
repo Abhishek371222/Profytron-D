@@ -112,10 +112,10 @@ export default function NotificationsPage() {
  <div 
  key={ch.id}
  className={cn(
-"p-8 rounded-[32px] border transition-all group relative overflow-hidden",
+"p-8 rounded-4xl border transition-all group relative overflow-hidden",
  channels[ch.id] 
- ?"bg-p/[0.03] border-p/20 shadow-[0_20px_40px_rgba(99,102,241,0.05)]" 
- :"bg-white/[0.01] border-white/5 opacity-50 grayscale hover:grayscale-0 hover:opacity-100"
+ ?"bg-p/3 border-p/20 shadow-[0_20px_40px_rgba(99,102,241,0.05)]" 
+ :"bg-white/1 border-white/5 opacity-50 grayscale hover:grayscale-0 hover:opacity-100"
  )}
  >
  {channels[ch.id] && (
@@ -161,11 +161,11 @@ export default function NotificationsPage() {
  initial={{ opacity: 0, y: 10 }}
  animate={{ opacity: 1, y: 0 }}
  transition={{ delay: idx * 0.1 }}
- className="flex flex-col lg:flex-row items-center justify-between p-8 rounded-[36px] bg-white/[0.01] border border-white/5 hover:border-white/15 hover:bg-white/[0.02] transition-all group"
+ className="flex flex-col lg:flex-row items-center justify-between p-8 rounded-[36px] bg-white/1 border border-white/5 hover:border-white/15 hover:bg-white/2 transition-all group"
  >
  <div className="flex items-center gap-8 flex-1">
  <div className={cn(
-"w-16 h-16 rounded-[24px] flex items-center justify-center border transition-all duration-500",
+"w-16 h-16 rounded-3xl flex items-center justify-center border transition-all duration-500",
  type.severity === 'critical' ?"bg-rose-500/10 border-rose-500/20 text-rose-500" :
  type.severity === 'high' ?"bg-p/10 border-p/20 text-p" :
 "bg-cyan-500/10 border-cyan-500/20 text-cyan-500"
@@ -219,7 +219,7 @@ export default function NotificationsPage() {
  <div className="h-px flex-1 bg-white/5" />
  </div>
 
- <div className="p-10 rounded-[40px] bg-gradient-to-br from-[#0c0c0c] to-[#050505] border border-white/5 relative overflow-hidden">
+ <div className="p-10 rounded-[40px] bg-linear-to-br from-[#0c0c0c] to-[#050505] border border-white/5 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-96 h-96 bg-p/5 rounded-full blur-[120px] -mr-48 -mt-48" />
  <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
  <div className="space-y-4">

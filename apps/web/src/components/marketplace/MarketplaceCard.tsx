@@ -22,7 +22,7 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
  whileInView={{ opacity: 1, y: 0 }}
  viewport={{ once: true }}
  whileHover={{ y: -4 }}
- className="group bg-[#0d0d12]/60 backdrop-blur-3xl border border-white/[0.05] hover:border-white/10 rounded-[28px] overflow-hidden transition-all duration-500"
+ className="group bg-[#0d0d12]/60 backdrop-blur-3xl border border-white/5 hover:border-white/10 rounded-[28px] overflow-hidden transition-all duration-500"
  >
  {/* Header / Badges */}
  <div className="relative p-6 pb-2">
@@ -55,18 +55,18 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
 
  {/* Stats Grid */}
  <div className="px-6 py-4 grid grid-cols-2 gap-4">
- <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.03]">
+ <div className="p-3 rounded-2xl bg-white/2 border border-white/3">
  <span className="text-xs text-white/20 font-semibold uppercase tracking-widest block mb-1">30D Return</span>
  <span className="text-xs font-bold text-emerald-400">+{strategy.returns}%</span>
  </div>
- <div className="p-3 rounded-2xl bg-white/[0.02] border border-white/[0.03]">
+ <div className="p-3 rounded-2xl bg-white/2 border border-white/3">
  <span className="text-xs text-white/20 font-semibold uppercase tracking-widest block mb-1">Risk Score</span>
  <span className="text-xs font-bold text-white/60">{strategy.risk}</span>
  </div>
  </div>
 
  {/* Pricing & Creator Section */}
- <div className="px-6 py-6 bg-black/20 border-t border-white/[0.03] space-y-6">
+ <div className="px-6 py-6 bg-black/20 border-t border-white/3 space-y-6">
  <div className="flex items-center justify-between">
  <div className="flex flex-col">
  <div className="flex items-baseline gap-1">

@@ -98,12 +98,12 @@ export default function WalletPage() {
 
  return (
  <div className="space-y-16 pb-32 relative min-h-screen">
- <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-p/5 blur-[160px] rounded-full -z-10 pointer-events-none" />
+ <div className="absolute top-0 right-0 w-200 h-200 bg-p/5 blur-[160px] rounded-full -z-10 pointer-events-none" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.02] pointer-events-none" />
  
  {/* HUD Institutional Header */}
  <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 border-b-2 border-white/5 pb-12 relative">
- <div className="absolute bottom-0 left-0 w-32 h-[2px] bg-p shadow-[0_0_15px_#6366f1]" />
+ <div className="absolute bottom-0 left-0 w-32 h-0.5 bg-p shadow-[0_0_15px_#6366f1]" />
  <div className="space-y-6">
  <div className="flex items-center gap-4">
  <div className="w-3 h-3 rounded-full bg-p animate-pulse shadow-[0_0_20px_#6366f1]" />
@@ -113,13 +113,13 @@ export default function WalletPage() {
  <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.3em]">Secure_Institutional_Liquidity_&_Asset_Custodianship_Protocol</p>
  </div>
  
- <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-[32px] border-2 border-white/10 backdrop-blur-3xl shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+ <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-4xl border-2 border-white/10 backdrop-blur-3xl shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
  {TABS.map((tab) => (
  <button
  key={tab.id}
  onClick={() => setActiveTab(tab.id)}
  className={cn(
-"px-8 py-4 rounded-[24px] text-sm font-semibold uppercase tracking-[0.3em] transition-all duration-700 flex items-center gap-3",
+"px-8 py-4 rounded-3xl text-sm font-semibold uppercase tracking-[0.3em] transition-all duration-700 flex items-center gap-3",
  activeTab === tab.id ?"bg-p text-white shadow-[0_0_25px_rgba(99,102,241,0.5)] scale-105" :"text-white/20 hover:text-white/50 hover:bg-white/5"
  )}
  >
@@ -150,7 +150,7 @@ export default function WalletPage() {
  style={{ rotateX, rotateY }}
  className="relative group"
  >
- <div className="absolute -inset-2 bg-gradient-to-r from-p/30 via-indigo-500/30 to-p/30 rounded-[64px] blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+ <div className="absolute -inset-2 bg-linear-to-r from-p/30 via-indigo-500/30 to-p/30 rounded-[64px] blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
  <Card className="p-20 glass-ultra border-2 border-white/10 rounded-[60px] overflow-hidden relative group shadow-[0_60px_120px_rgba(0,0,0,0.9)] border-p/20">
  <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(99,102,241,0.2),transparent_60%)] pointer-events-none" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.05] pointer-events-none" />
@@ -161,10 +161,10 @@ export default function WalletPage() {
  <div className="space-y-10">
  <div className="flex items-center gap-5">
  <span className="text-[12px] font-semibold text-p/40 uppercase tracking-[1em]">Aggregated_Liquidity_Module</span>
- <div className="h-[1px] flex-1 bg-gradient-to-r from-p/20 to-transparent" />
+ <div className="h-px flex-1 bg-linear-to-r from-p/20 to-transparent" />
  </div>
  <div className="flex items-center gap-8">
- <div className="w-24 h-24 rounded-[32px] bg-p/10 border-2 border-p/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-1000">
+ <div className="w-24 h-24 rounded-4xl bg-p/10 border-2 border-p/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-1000">
  <Wallet className="w-12 h-12 text-p shadow-[0_0_20px_rgba(99,102,241,0.5)]" />
  </div>
  <div className="flex items-baseline gap-8">
@@ -200,7 +200,7 @@ export default function WalletPage() {
  whileHover={{ scale: 1.05, y: -5 }}
  whileTap={{ scale: 0.95 }}
  onClick={() => setActiveTab('deposit')}
- className="h-24 px-16 bg-p text-white font-semibold uppercase tracking-[0.5em] rounded-[32px] shadow-[0_0_60px_rgba(99,102,241,0.5)] transition-all group overflow-hidden relative text-lg"
+ className="h-24 px-16 bg-p text-white font-semibold uppercase tracking-[0.5em] rounded-4xl shadow-[0_0_60px_rgba(99,102,241,0.5)] transition-all group overflow-hidden relative text-lg"
  >
  <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
  <div className="absolute inset-0 bg-scanlines opacity-20" />
@@ -215,7 +215,7 @@ export default function WalletPage() {
  whileHover={{ scale: 1.05 }}
  whileTap={{ scale: 0.95 }}
  onClick={() => setActiveTab('withdraw')}
- className="h-24 px-16 glass-ultra border-2 border-white/10 hover:bg-white/5 text-white/50 font-semibold uppercase tracking-[0.5em] rounded-[32px] text-lg hover:text-white transition-all"
+ className="h-24 px-16 glass-ultra border-2 border-white/10 hover:bg-white/5 text-white/50 font-semibold uppercase tracking-[0.5em] rounded-4xl text-lg hover:text-white transition-all"
  >
  Withdrawal_Gateway
  </motion.button>
@@ -287,7 +287,7 @@ export default function WalletPage() {
  <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 + (i * 0.1) }}>
  <Card className="p-10 border-2 border-white/5 bg-black/40 backdrop-blur-3xl rounded-[40px] group hover:border-white/20 transition-all duration-1000 relative overflow-hidden shadow-2xl">
  <div className="absolute inset-0 bg-scanlines opacity-[0.02]" />
- <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-full blur-[60px] -mr-16 -mt-16 group-hover:bg-white/[0.05] transition-all duration-1000" />
+ <div className="absolute top-0 right-0 w-32 h-32 bg-white/2 rounded-full blur-[60px] -mr-16 -mt-16 group-hover:bg-white/5 transition-all duration-1000" />
  <div className="flex items-center gap-8 relative z-10">
  <div className={cn("w-16 h-16 rounded-[22px] flex items-center justify-center border-2 shadow-2xl group-hover:scale-125 group-hover:rotate-[15deg] transition-all duration-1000", stat.bg, stat.border)}>
  <stat.icon className={cn("w-8 h-8 drop-shadow-[0_0_10px_currentColor]", stat.color)} />
@@ -315,7 +315,7 @@ export default function WalletPage() {
  className="max-w-[900px] mx-auto pt-16"
  >
  <Card className="p-20 glass-ultra border-2 border-white/10 rounded-[64px] shadow-[0_60px_120px_rgba(0,0,0,0.9)] relative overflow-hidden group border-p/20">
- <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-p to-transparent opacity-60 animate-scanline" />
+ <div className="absolute top-0 left-0 w-full h-0.75 bg-linear-to-r from-transparent via-p to-transparent opacity-60 animate-scanline" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.05] pointer-events-none" />
  
  <div className="space-y-20 relative z-10">
@@ -324,7 +324,7 @@ export default function WalletPage() {
  <h3 className="text-6xl font-semibold text-white uppercase tracking-tight leading-tight">Liquidity_Influx_Entry</h3>
  <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.8em]">SECURE_PROTOCOL_QUANTUM_L3_NODE_v9.1</p>
  </div>
- <div className="w-24 h-24 rounded-[32px] bg-p/10 border-2 border-p/20 flex items-center justify-center shadow-[0_0_40px_rgba(99,102,241,0.3)] group-hover:scale-110 transition-transform duration-1000">
+ <div className="w-24 h-24 rounded-4xl bg-p/10 border-2 border-p/20 flex items-center justify-center shadow-[0_0_40px_rgba(99,102,241,0.3)] group-hover:scale-110 transition-transform duration-1000">
  <Plus className="w-12 h-12 text-p animate-pulse" />
  </div>
  </div>
@@ -332,7 +332,7 @@ export default function WalletPage() {
  <div className="space-y-12">
  <div className="relative group/input">
  <div className="absolute -inset-4 bg-p/10 blur-[100px] opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-1000" />
- <div className="relative h-40 flex items-center bg-white/[0.03] border-2 border-white/5 rounded-[44px] px-20 group-focus-within/input:border-p/40 transition-all duration-700 group-focus-within/input:bg-white/[0.08] shadow-2xl">
+ <div className="relative h-40 flex items-center bg-white/3 border-2 border-white/5 rounded-[44px] px-20 group-focus-within/input:border-p/40 transition-all duration-700 group-focus-within/input:bg-white/8 shadow-2xl">
  <span className="text-7xl font-semibold text-p/30 mr-12 mt-4">$</span>
  <input 
  type="number"
@@ -357,7 +357,7 @@ export default function WalletPage() {
  whileTap={{ scale: 0.95 }}
  key={amt}
  onClick={() => setDepositAmount(amt.toString())}
- className="h-20 rounded-[28px] bg-white/[0.03] border-2 border-white/5 hover:border-p/50 hover:bg-p/5 text-sm font-semibold text-white/20 hover:text-white transition-all duration-500 uppercase tracking-[0.4em]"
+ className="h-20 rounded-[28px] bg-white/3 border-2 border-white/5 hover:border-p/50 hover:bg-p/5 text-sm font-semibold text-white/20 hover:text-white transition-all duration-500 uppercase tracking-[0.4em]"
  >
  +${amt.toLocaleString()}
  </motion.button>
@@ -376,7 +376,7 @@ export default function WalletPage() {
  key={net.id}
  className={cn(
 "p-12 rounded-[52px] relative transition-all duration-1000 text-left group overflow-hidden border-2",
- net.active ?"bg-p/[0.08] border-p/40 shadow-[0_40px_80px_rgba(0,0,0,0.5)]" :"bg-white/[0.02] border-white/5 hover:border-white/20"
+ net.active ?"bg-p/8 border-p/40 shadow-[0_40px_80px_rgba(0,0,0,0.5)]" :"bg-white/2 border-white/5 hover:border-white/20"
  )}
  >
  <div className={cn("absolute top-8 right-8", net.active ?"block" :"opacity-0 group-hover:opacity-100")}>
@@ -440,7 +440,7 @@ export default function WalletPage() {
  className="max-w-[900px] mx-auto pt-16"
  >
  <Card className="p-20 glass-ultra border-2 border-white/10 rounded-[64px] shadow-[0_60px_120px_rgba(0,0,0,0.9)] relative overflow-hidden group border-amber-500/20">
- <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-60 animate-scanline" />
+ <div className="absolute top-0 left-0 w-full h-0.75 bg-linear-to-r from-transparent via-amber-500 to-transparent opacity-60 animate-scanline" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.05] pointer-events-none" />
  
  <div className="space-y-20 relative z-10">
@@ -449,7 +449,7 @@ export default function WalletPage() {
  <h3 className="text-6xl font-semibold text-white uppercase tracking-tight leading-tight">Liquidity_Outflux</h3>
  <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.8em]">WITHDRAWAL_GATEWAY_NODE_v1.4</p>
  </div>
- <div className="w-24 h-24 rounded-[32px] bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center shadow-[0_0_40px_rgba(245,158,11,0.3)] group-hover:scale-110 transition-transform duration-1000">
+ <div className="w-24 h-24 rounded-4xl bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center shadow-[0_0_40px_rgba(245,158,11,0.3)] group-hover:scale-110 transition-transform duration-1000">
  <ArrowUpRight className="w-12 h-12 text-amber-500 animate-pulse" />
  </div>
  </div>
@@ -457,7 +457,7 @@ export default function WalletPage() {
  <div className="space-y-12">
  <div className="relative group/input">
  <div className="absolute -inset-4 bg-amber-500/10 blur-[100px] opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-1000" />
- <div className="relative h-40 flex items-center bg-white/[0.03] border-2 border-white/5 rounded-[44px] px-20 group-focus-within/input:border-amber-500/40 transition-all duration-700 group-focus-within/input:bg-white/[0.08] shadow-2xl">
+ <div className="relative h-40 flex items-center bg-white/3 border-2 border-white/5 rounded-[44px] px-20 group-focus-within/input:border-amber-500/40 transition-all duration-700 group-focus-within/input:bg-white/8 shadow-2xl">
  <span className="text-7xl font-semibold text-amber-500/30 mr-12 mt-4">$</span>
  <input 
  type="number"
@@ -482,7 +482,7 @@ export default function WalletPage() {
  whileTap={{ scale: 0.95 }}
  key={amt}
  onClick={() => setWithdrawAmount(amt.toString())}
- className="h-20 rounded-[28px] bg-white/[0.03] border-2 border-white/5 hover:border-amber-500/50 hover:bg-amber-500/5 text-sm font-semibold text-white/20 hover:text-white transition-all duration-500 uppercase tracking-[0.4em]"
+ className="h-20 rounded-[28px] bg-white/3 border-2 border-white/5 hover:border-amber-500/50 hover:bg-amber-500/5 text-sm font-semibold text-white/20 hover:text-white transition-all duration-500 uppercase tracking-[0.4em]"
  >
  -${amt.toLocaleString()}
  </motion.button>
@@ -501,7 +501,7 @@ export default function WalletPage() {
  key={net.id}
  className={cn(
 "p-12 rounded-[52px] relative transition-all duration-1000 text-left group overflow-hidden border-2",
- net.active ?"bg-amber-500/[0.08] border-amber-500/40 shadow-[0_40px_80px_rgba(0,0,0,0.5)]" :"bg-white/[0.02] border-white/5 hover:border-white/20"
+ net.active ?"bg-amber-500/8 border-amber-500/40 shadow-[0_40px_80px_rgba(0,0,0,0.5)]" :"bg-white/2 border-white/5 hover:border-white/20"
  )}
  >
  <div className={cn("absolute top-8 right-8", net.active ?"block" :"opacity-0 group-hover:opacity-100")}>
@@ -573,9 +573,9 @@ export default function WalletPage() {
  <div className="relative group">
  <div className="absolute inset-0 bg-p/20 blur-2xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-1000" />
  <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-p transition-colors" />
- <input className="h-16 w-80 bg-white/[0.03] border-2 border-white/5 rounded-[24px] pl-16 pr-8 text-sm font-semibold uppercase tracking-widest text-white outline-none focus:border-p/40 transition-all duration-700" placeholder="SEARCH_REFERENCE_HASH..." />
+ <input className="h-16 w-80 bg-white/3 border-2 border-white/5 rounded-3xl pl-16 pr-8 text-sm font-semibold uppercase tracking-widest text-white outline-none focus:border-p/40 transition-all duration-700" placeholder="SEARCH_REFERENCE_HASH..." />
  </div>
- <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="h-16 w-16 rounded-[24px] glass-ultra border-2 border-white/5 text-white/20 hover:text-white flex items-center justify-center transition-all">
+ <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="h-16 w-16 rounded-3xl glass-ultra border-2 border-white/5 text-white/20 hover:text-white flex items-center justify-center transition-all">
  <Filter className="w-7 h-7" />
  </motion.button>
  </div>
@@ -586,7 +586,7 @@ export default function WalletPage() {
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="border-b-2 border-white/5 bg-white/[0.04]">
+ <tr className="border-b-2 border-white/5 bg-white/4">
  <th className="px-12 py-6 text-[10px] font-bold text-white/40 uppercase tracking-[0.6em]">TAMPER_MARK</th>
  <th className="px-12 py-6 text-[10px] font-bold text-white/40 uppercase tracking-[0.6em]">EXEC_PROTOCOL</th>
  <th className="px-12 py-6 text-[10px] font-bold text-white/40 uppercase tracking-[0.6em]">INTELLIGENCE_METRIC</th>
@@ -594,14 +594,14 @@ export default function WalletPage() {
  <th className="px-12 py-6 text-[10px] font-bold text-white/40 uppercase tracking-[0.6em] text-center">SYSTEM_STATE</th>
  </tr>
  </thead>
- <tbody className="divide-y-2 divide-white/[0.03]">
+ <tbody className="divide-y-2 divide-white/3">
  {TRANSACTIONS.map((tx, idx) => (
  <motion.tr 
  key={tx.id}
  initial={{ opacity: 0, x: -30 }}
  animate={{ opacity: 1, x: 0 }}
  transition={{ delay: idx * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
- className="group hover:bg-white/[0.07] transition-all duration-700 cursor-crosshair h-[100px]"
+ className="group hover:bg-white/7 transition-all duration-700 cursor-crosshair h-[100px]"
  >
  <td className="px-12 py-6 text-[15px] font-semibold text-white/30 font-jet-mono group-hover:text-white transition-colors duration-700">{tx.date}</td>
  <td className="px-12 py-6">

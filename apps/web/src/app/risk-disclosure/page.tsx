@@ -106,10 +106,10 @@ export default function RiskDisclosurePage() {
   return (
     <PublicPageLayout>
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-red-600/6 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-150 h-[300px] bg-red-600/6 blur-[120px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-4xl relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
               <AlertTriangle className="w-3 h-3 text-amber-400" /> Legal
             </div>
             <h1 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] text-white leading-tight mb-6">Risk Disclosure</h1>
@@ -126,7 +126,7 @@ export default function RiskDisclosurePage() {
 
       <section className="pb-8 sticky top-28 z-40">
         <div className="container mx-auto px-6 max-w-4xl">
-          <div className="flex flex-wrap gap-2 py-3 px-4 rounded-xl bg-black/60 backdrop-blur-xl border border-white/[0.06]">
+          <div className="flex flex-wrap gap-2 py-3 px-4 rounded-xl bg-black/60 backdrop-blur-xl border border-white/6">
             {sections.map((s, i) => (
               <a 
                 key={i} 
@@ -147,7 +147,7 @@ export default function RiskDisclosurePage() {
               <div 
                 key={i} 
                 id={`risk-${i}`}
-                className={`p-8 rounded-2xl border scroll-mt-32 ${s.highlight ? 'bg-amber-500/5 border-amber-500/25' : 'bg-white/[0.02] border-white/[0.06]'}`}
+                className={`p-8 rounded-2xl border scroll-mt-32 ${s.highlight ? 'bg-amber-500/5 border-amber-500/25' : 'bg-white/2 border-white/6'}`}
               >
                 {s.highlight && (
                   <div className="flex items-center gap-2 mb-4">
@@ -160,7 +160,7 @@ export default function RiskDisclosurePage() {
               </div>
             ))}
 
-            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+            <div className="flex items-start gap-4 p-6 rounded-xl bg-white/2 border border-white/6">
               <Shield className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
               <p className="text-white/30 text-xs leading-relaxed">
                 This Risk Disclosure Statement is published by Profytron Technologies Pvt. Ltd. for information purposes only. It is not financial, legal, or tax advice. Profytron is not a SEBI-registered investment adviser, broker, portfolio manager, or research analyst. For advice appropriate to your financial situation, consult a qualified financial professional licensed in your jurisdiction.

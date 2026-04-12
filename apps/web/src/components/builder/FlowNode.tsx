@@ -69,22 +69,22 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
       className={cn(
         "rounded-[48px] transition-all duration-700 min-w-[380px] overflow-hidden group relative p-[1px]",
         selected 
-          ? "bg-gradient-to-br from-primary via-indigo-500 to-cyan-400 shadow-[0_0_120px_rgba(99,102,241,0.3)] scale-[1.02] z-50" 
-          : "bg-white/10 border-white/[0.03] shadow-[0_40px_80px_rgba(0,0,0,0.6)]"
+          ? "bg-linear-to-br from-primary via-indigo-500 to-cyan-400 shadow-[0_0_120px_rgba(99,102,241,0.3)] scale-[1.02] z-50" 
+          : "bg-white/10 border-white/3 shadow-[0_40px_80px_rgba(0,0,0,0.6)]"
       )}
     >
       {/* Chassis Depth Layer */}
       <div className="absolute inset-[2px] rounded-[47px] bg-[#050508] z-0 overflow-hidden">
         <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-br from-white/3 via-transparent to-transparent pointer-events-none" />
         {/* Internal Glow for hardware feel */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
       </div>
 
       {/* Internal Content Container */}
       <div className="relative z-20 bg-black/20 backdrop-blur-3xl rounded-[47px] overflow-hidden">
         {/* Module Header Bar - Hardware Terminal Style */}
-        <div className="h-20 bg-white/[0.02] border-b border-white/[0.05] px-10 flex items-center justify-between">
+        <div className="h-20 bg-white/2 border-b border-white/5 px-10 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <div className={cn("w-2 h-2 rounded-full", config.color.replace('text', 'bg'), "shadow-[0_0_10px_currentColor]")} />
@@ -100,7 +100,7 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
             <div className="px-4 py-1.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
               <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest font-mono">NVX-MOD.{id.slice(-4).toUpperCase()}</span>
             </div>
-            <button className="w-10 h-10 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-all group/settings group-hover:border-primary/20">
+            <button className="w-10 h-10 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center hover:bg-primary/20 hover:text-primary transition-all group/settings group-hover:border-primary/20">
               <Settings2 className="w-5 h-5 text-white/20 group-hover/settings:rotate-90 transition-transform duration-700" />
             </button>
           </div>
@@ -122,7 +122,7 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
               config.glow,
               "shadow-[inset_0_0_50px_rgba(255,255,255,0.05)]"
             )}>
-              <div className="absolute inset-4 border border-white/5 rounded-[24px]" />
+              <div className="absolute inset-4 border border-white/5 rounded-3xl" />
               <div className="absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 border-white/30 rounded-tl-lg" />
               <div className="absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 border-white/30 rounded-br-lg" />
               <Icon className={cn("w-14 h-14", config.color, "drop-shadow-[0_0_20px_currentColor]")} />
@@ -149,15 +149,15 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
                 <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/30">Protocol Execution Flow</span>
               </div>
               <div className="flex items-center gap-4">
-                <div className="h-px w-20 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                <div className="h-px w-20 bg-linear-to-r from-transparent via-white/10 to-transparent" />
                 <span className={cn("text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-xl font-jet-mono shadow-2xl bg-black/40 border border-white/5", config.color)}>98.42%_READY</span>
               </div>
             </div>
             
             {/* Neural Lattice Visualization */}
-            <div className="h-24 p-5 rounded-[32px] bg-black/60 border border-white/5 flex items-end gap-2.5 overflow-hidden group-hover:border-primary/30 transition-all duration-700 relative">
+            <div className="h-24 p-5 rounded-4xl bg-black/60 border border-white/5 flex items-end gap-2.5 overflow-hidden group-hover:border-primary/30 transition-all duration-700 relative">
               <div className="absolute inset-0 bg-scanlines opacity-[0.05]" />
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/30 to-transparent animate-scanline" />
+              <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-primary/30 to-transparent animate-scanline" />
               {Array.from({ length: 32 }).map((_, i) => {
                 const h = 20 + ((i * 17) % 75);
                 return (
@@ -176,7 +176,7 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
             </div>
 
             <div className="grid grid-cols-2 gap-8">
-              <div className="p-8 rounded-[40px] bg-white/[0.01] border border-white/[0.03] flex flex-col gap-4 group-hover:bg-white/[0.03] group-hover:border-white/10 transition-all duration-1000 relative overflow-hidden group/subcard">
+              <div className="p-8 rounded-[40px] bg-white/1 border border-white/3 flex flex-col gap-4 group-hover:bg-white/3 group-hover:border-white/10 transition-all duration-1000 relative overflow-hidden group/subcard">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 blur-3xl rounded-full transition-all group-hover/subcard:bg-primary/10" />
                 <div className="flex items-center gap-4">
                   <Activity className="w-5 h-5 text-white/10" />
@@ -187,7 +187,7 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
                   <span className="text-sm font-bold text-white/20 mb-1 uppercase font-mono">ms</span>
                 </div>
               </div>
-              <div className="p-8 rounded-[40px] bg-white/[0.01] border border-white/[0.03] flex flex-col gap-4 group-hover:bg-white/[0.03] group-hover:border-white/10 transition-all duration-1000 relative overflow-hidden group/subcard">
+              <div className="p-8 rounded-[40px] bg-white/1 border border-white/3 flex flex-col gap-4 group-hover:bg-white/3 group-hover:border-white/10 transition-all duration-1000 relative overflow-hidden group/subcard">
                 <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/5 blur-3xl rounded-full transition-all group-hover/subcard:bg-emerald-500/10" />
                 <div className="flex items-center gap-4">
                   <Cpu className="w-5 h-5 text-white/10" />
@@ -209,7 +209,7 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
         </div>
 
         {/* Secure Institutional Footer */}
-        <div className="h-16 bg-white/[0.02] border-t border-white/[0.05] px-12 flex items-center justify-between opacity-30 group-hover:opacity-100 transition-all duration-1000">
+        <div className="h-16 bg-white/2 border-t border-white/5 px-12 flex items-center justify-between opacity-30 group-hover:opacity-100 transition-all duration-1000">
           <div className="flex items-center gap-5">
             <ShieldCheck className="w-5 h-5 text-primary" />
             <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.5em] font-mono">SECURE_HW_LINK: ACTIVE_TLS_1.3</span>

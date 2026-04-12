@@ -54,16 +54,16 @@ export const StrategyNode = memo(({ data, selected }: NodeProps<NodeData>) => {
 
  return (
  <div className={cn(
-"w-[240px] bg-[#11111a]/80 backdrop-blur-3xl border rounded-[24px] overflow-hidden transition-all duration-500 select-none",
+"w-[240px] bg-[#11111a]/80 backdrop-blur-3xl border rounded-3xl overflow-hidden transition-all duration-500 select-none",
  selected 
  ?"ring-[3px] ring-p shadow-[0_0_40px_rgba(99,102,241,0.3)] border-p/50" 
- : cn("border-white/[0.08]", meta.glow, meta.border)
+ : cn("border-white/8", meta.glow, meta.border)
  )}>
  {/* Visual Accent Bar */}
- <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-current to-transparent opacity-20" style={{ color: meta.color }} />
+ <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-current to-transparent opacity-20" style={{ color: meta.color }} />
 
  {/* Header */}
- <div className="px-5 py-4 flex items-center justify-between border-b border-white/[0.05] bg-white/[0.02]">
+ <div className="px-5 py-4 flex items-center justify-between border-b border-white/5 bg-white/2">
  <div className="flex items-center gap-3">
  <div className="p-2 rounded-xl bg-white/5 border border-white/10">
  <Icon className="w-4 h-4" style={{ color: meta.color }} />
@@ -106,7 +106,7 @@ export const StrategyNode = memo(({ data, selected }: NodeProps<NodeData>) => {
  </div>
 
  {/* Footer / Meta */}
- <div className="px-5 py-2.5 bg-black/40 border-t border-white/[0.05] flex items-center justify-between">
+ <div className="px-5 py-2.5 bg-black/40 border-t border-white/5 flex items-center justify-between">
  <div className="flex items-center gap-1.5 opacity-40">
  <div className="w-1.5 h-1.5 rounded-full bg-white" />
  <span className="text-xs font-bold text-white uppercase tracking-widest">Active</span>

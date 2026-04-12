@@ -169,8 +169,8 @@ export default function StrategyBuilderPage() {
       {/* GLOBAL ATMOSPHERE */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
-        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-tr from-p/5 via-transparent to-indigo-500/5" />
-        <div className="absolute top-1/4 left-1/3 w-[800px] h-[800px] bg-p/10 blur-[200px] rounded-full animate-pulse" />
+        <div className="absolute top-0 left-0 w-full h-full bg-linear-to-tr from-p/5 via-transparent to-indigo-500/5" />
+        <div className="absolute top-1/4 left-1/3 w-200 h-200 bg-p/10 blur-[200px] rounded-full animate-pulse" />
       </div>
 
       {/* NODE LIBRARY SIDEBAR */}
@@ -212,7 +212,7 @@ export default function StrategyBuilderPage() {
                   <input
                     value={strategyName}
                     onChange={(e) => setStrategyName(e.target.value)}
-                    className="bg-white/[0.03] border border-white/10 rounded-xl px-6 py-2.5 text-white font-bold focus:border-p/40 focus:outline-none transition-all text-[15px] w-72 uppercase tracking-tight placeholder:text-white/10"
+                    className="bg-white/3 border border-white/10 rounded-xl px-6 py-2.5 text-white font-bold focus:border-p/40 focus:outline-none transition-all text-[15px] w-72 uppercase tracking-tight placeholder:text-white/10"
                     placeholder="ENTER_STRATEGY_ID"
                   />
                   <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-p group-focus-within:w-full transition-all duration-500" />
@@ -244,13 +244,13 @@ export default function StrategyBuilderPage() {
                 onClick={handleSave}
                 disabled={saveMutation.isPending}
                 variant="ghost" 
-                className="w-16 h-16 rounded-[22px] bg-white/[0.02] border border-white/5 text-white/20 hover:text-white hover:border-white/20 transition-all group/save"
+                className="w-16 h-16 rounded-[22px] bg-white/2 border border-white/5 text-white/20 hover:text-white hover:border-white/20 transition-all group/save"
               >
                 {saveMutation.isPending ? <RotateCcw className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6 group-hover:scale-110 transition-transform" />}
               </Button>
             </Magnetic>
             <Magnetic strength={0.1}>
-              <Button variant="ghost" className="w-16 h-16 rounded-[22px] bg-white/[0.02] border border-white/5 text-red-500/20 hover:text-red-400 hover:bg-red-500/5 hover:border-red-500/20 transition-all group/trash" onClick={handleDeleteAll}>
+              <Button variant="ghost" className="w-16 h-16 rounded-[22px] bg-white/2 border border-white/5 text-red-500/20 hover:text-red-400 hover:bg-red-500/5 hover:border-red-500/20 transition-all group/trash" onClick={handleDeleteAll}>
                 <Trash2 className="w-6 h-6 group-hover:rotate-12 transition-transform" />
               </Button>
             </Magnetic>
@@ -262,7 +262,7 @@ export default function StrategyBuilderPage() {
                 onClick={handleSimulate}
                 disabled={backtestMutation.isPending}
                 className={cn(
-                  "h-18 px-14 rounded-[32px] text-xs font-bold uppercase tracking-[0.6em] transition-all relative overflow-hidden group shadow-2xl min-w-[280px]",
+                  "h-18 px-14 rounded-4xl text-xs font-bold uppercase tracking-[0.6em] transition-all relative overflow-hidden group shadow-2xl min-w-[280px]",
                   backtestMutation.isPending ? "bg-emerald-500 text-white shadow-emerald-500/40" : "bg-p text-white shadow-p/40"
                 )}
               >
@@ -292,7 +292,7 @@ export default function StrategyBuilderPage() {
                     </motion.div>
                   )}
                 </AnimatePresence>
-                <div className="absolute inset-x-0 bottom-0 h-[3px] bg-white/20 animate-scanline" />
+                <div className="absolute inset-x-0 bottom-0 h-0.75 bg-white/20 animate-scanline" />
               </Button>
             </Magnetic>
           </div>
@@ -303,8 +303,8 @@ export default function StrategyBuilderPage() {
           {/* VIGNETTE GRADIENTS */}
           <div className="absolute inset-0 pointer-events-none z-10">
             <div className="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-[#050508] to-transparent opacity-90" />
-            <div className="absolute bottom-0 left-0 w-full h-48 bg-gradient-to-t from-[#050508] to-transparent opacity-90" />
-            <div className="absolute left-0 top-0 h-full w-24 bg-gradient-to-r from-black/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 w-full h-48 bg-linear-to-t from-[#050508] to-transparent opacity-90" />
+            <div className="absolute left-0 top-0 h-full w-24 bg-linear-to-r from-black/20 to-transparent" />
           </div>
 
           <ReactFlowProvider>
@@ -335,7 +335,7 @@ export default function StrategyBuilderPage() {
               />
               
               <Controls 
-                className="!bg-black/80 !border !border-white/10 !rounded-[24px] !fill-white/30 !shadow-2xl overflow-hidden backdrop-blur-3xl !m-12 !p-3 !flex-row !gap-6 border-b-4 border-b-p/20" 
+                className="!bg-black/80 !border !border-white/10 !rounded-3xl !fill-white/30 !shadow-2xl overflow-hidden backdrop-blur-3xl !m-12 !p-3 !flex-row !gap-6 border-b-4 border-b-p/20" 
                 showInteractive={false}
               />
               
@@ -347,11 +347,11 @@ export default function StrategyBuilderPage() {
                   className="p-10 rounded-[48px] bg-black/40 backdrop-blur-3xl border border-white/10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] space-y-10 relative overflow-hidden group/panel flex flex-col items-center min-w-[340px]"
                 >
                   <div className="absolute inset-0 bg-scanlines opacity-[0.03]" />
-                  <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+                  <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-primary/50 to-transparent" />
                   
                   <div className="relative group/hex">
                     <div className="absolute inset-0 bg-p/20 blur-[40px] rounded-full scale-0 group-hover/panel:scale-100 transition-transform duration-1000" />
-                    <div className="w-24 h-24 rounded-[32px] bg-white/[0.01] border border-white/10 flex items-center justify-center relative z-10 group-hover/panel:border-p/40 transition-all duration-700 shadow-inner">
+                    <div className="w-24 h-24 rounded-4xl bg-white/1 border border-white/10 flex items-center justify-center relative z-10 group-hover/panel:border-p/40 transition-all duration-700 shadow-inner">
                       <Activity className="w-12 h-12 text-white/10 group-hover/panel:text-p transition-colors duration-500" />
                     </div>
                   </div>
@@ -385,7 +385,7 @@ export default function StrategyBuilderPage() {
                   </div>
 
                   <div className="w-full pt-6 relative z-10">
-                    <button className="w-full h-16 rounded-[22px] bg-white/[0.02] border border-white/5 text-[10px] font-bold uppercase tracking-[0.5em] text-white/20 hover:text-white hover:bg-white/5 hover:border-white/10 transition-all">Export_Extended_Diagnostic</button>
+                    <button className="w-full h-16 rounded-[22px] bg-white/2 border border-white/5 text-[10px] font-bold uppercase tracking-[0.5em] text-white/20 hover:text-white hover:bg-white/5 hover:border-white/10 transition-all">Export_Extended_Diagnostic</button>
                   </div>
                 </motion.div>
               </Panel>
@@ -397,7 +397,7 @@ export default function StrategyBuilderPage() {
                   animate={{ opacity: 1, y: 0 }}
                   className="px-16 h-24 rounded-[42px] bg-black/60 backdrop-blur-3xl border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.8)] flex items-center gap-16 group overflow-hidden relative"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.03] via-transparent to-primary/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                  <div className="absolute inset-0 bg-linear-to-r from-primary/3 via-transparent to-primary/3 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                   
                   <div className="flex items-center gap-8 relative z-10">
                     <div className="relative">
@@ -413,7 +413,7 @@ export default function StrategyBuilderPage() {
                   <div className="w-px h-10 bg-white/5 relative z-10" />
 
                   <div className="flex items-center gap-8 relative z-10 text-white/30 hidden xl:flex">
-                    <div className="bg-white/[0.05] border border-white/10 px-4 py-2 rounded-xl text-[10px] font-bold font-mono text-white/20">CTRL + S</div>
+                    <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-[10px] font-bold font-mono text-white/20">CTRL + S</div>
                     <span className="text-[10px] font-bold uppercase tracking-[0.4em]">QUICK_SAVE_HOTKEY</span>
                   </div>
 

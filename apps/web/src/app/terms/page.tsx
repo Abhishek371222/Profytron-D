@@ -160,10 +160,10 @@ export default function TermsPage() {
   return (
     <PublicPageLayout>
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-0 left-1/3 w-[500px] h-[250px] bg-indigo-600/8 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/3 w-[500px] h-62.5 bg-indigo-600/8 blur-[100px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-4xl relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
               <FileText className="w-3 h-3 text-indigo-400" /> Legal
             </div>
             <h1 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] text-white leading-tight mb-6">Terms of Service</h1>
@@ -180,7 +180,7 @@ export default function TermsPage() {
 
       <section className="pb-8 sticky top-28 z-40">
         <div className="container mx-auto px-6 max-w-4xl">
-          <div className="flex flex-wrap gap-2 py-3 px-4 rounded-xl bg-black/60 backdrop-blur-xl border border-white/[0.06]">
+          <div className="flex flex-wrap gap-2 py-3 px-4 rounded-xl bg-black/60 backdrop-blur-xl border border-white/6">
             {sections.map((s, i) => (
               <a 
                 key={i} 
@@ -198,7 +198,7 @@ export default function TermsPage() {
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="flex flex-col gap-10">
             {sections.map((s, i) => (
-              <div key={i} id={`section-${i}`} className="p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06] scroll-mt-32">
+              <div key={i} id={`section-${i}`} className="p-8 rounded-2xl bg-white/2 border border-white/6 scroll-mt-32">
                 <h2 className="text-lg font-bold text-white mb-4 tracking-tight">{s.title}</h2>
                 <div className="text-white/55 text-sm leading-[1.85] whitespace-pre-line">{s.content}</div>
               </div>

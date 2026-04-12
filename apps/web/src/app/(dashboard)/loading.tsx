@@ -18,7 +18,7 @@ export default function DashboardLoading() {
  {/* Stats Grid Skeleton */}
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
  {[1, 2, 3, 4].map((i) => (
- <div key={i} className="h-40 rounded-[32px] bg-white/5 border border-white/10 p-6 flex flex-col justify-between">
+ <div key={i} className="h-40 rounded-4xl bg-white/5 border border-white/10 p-6 flex flex-col justify-between">
  <div className="h-3 w-20 bg-white/10 rounded-full" />
  <div className="h-8 w-32 bg-white/10 rounded-xl" />
  <div className="h-3 w-24 bg-white/10 rounded-full" />
@@ -28,14 +28,14 @@ export default function DashboardLoading() {
 
  {/* Main Content Area Skeleton */}
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
- <div className="lg:col-span-2 h-[500px] rounded-[32px] bg-white/5 border border-white/10 p-8">
+ <div className="lg:col-span-2 h-[500px] rounded-4xl bg-white/5 border border-white/10 p-8">
  <div className="flex justify-between mb-10">
  <div className="h-6 w-48 bg-white/10 rounded-xl" />
  <div className="h-10 w-32 bg-white/10 rounded-xl" />
  </div>
  <div className="space-y-4">
  {[1, 2, 3, 4, 5].map(i => (
- <div key={i} className="h-14 w-full bg-white/[0.03] rounded-2xl flex items-center px-4 gap-4">
+ <div key={i} className="h-14 w-full bg-white/3 rounded-2xl flex items-center px-4 gap-4">
  <div className="w-8 h-8 rounded-lg bg-white/5" />
  <div className="h-4 flex-1 bg-white/10 rounded-full" />
  <div className="h-4 w-32 bg-white/10 rounded-full" />
@@ -44,7 +44,7 @@ export default function DashboardLoading() {
  </div>
  </div>
  
- <div className="lg:col-span-1 h-[500px] rounded-[32px] bg-white/5 border border-white/10 p-8 flex flex-col justify-between">
+ <div className="lg:col-span-1 h-[500px] rounded-4xl bg-white/5 border border-white/10 p-8 flex flex-col justify-between">
  <div className="h-6 w-32 bg-white/10 rounded-xl" />
  <div className="flex-1 flex items-center justify-center">
  <div className="w-48 h-48 rounded-full border-8 border-white/5 flex flex-col items-center justify-center gap-3">

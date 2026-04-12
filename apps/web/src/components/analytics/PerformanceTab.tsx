@@ -87,13 +87,13 @@ export default function PerformanceTab() {
  variants={containerVariants}
  initial="hidden"
  animate="visible"
- className="space-y-[var(--section-gap)] pb-20"
+ className="space-y-(--section-gap) pb-20"
  >
  {/* ── Strategy Cards ── */}
  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
  {strategyStats.map((s, i) => (
  <motion.div key={i} variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl rounded-[32px] relative overflow-hidden group hover:border-p/30 transition-all duration-700 shadow-[0_30px_60px_rgba(0,0,0,0.5)] h-full">
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl rounded-4xl relative overflow-hidden group hover:border-p/30 transition-all duration-700 shadow-[0_30px_60px_rgba(0,0,0,0.5)] h-full">
  <div className="absolute top-0 right-0 w-24 h-24 bg-p/5 rounded-full blur-[50px] -mr-12 -mt-12 group-hover:bg-p/10 transition-all" />
  <div className="space-y-5 relative z-10">
  <div className="flex items-center justify-between">
@@ -126,8 +126,8 @@ export default function PerformanceTab() {
 
  {/* ── Benchmark Chart ── */}
  <motion.div variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden group rounded-[40px]">
- <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-indigo-500/60 to-transparent" />
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden group rounded-[40px]">
+ <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-indigo-500/60 to-transparent" />
  <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-8 relative z-10">
  <div className="space-y-3">
  <div className="flex items-center gap-4">
@@ -158,7 +158,7 @@ export default function PerformanceTab() {
  </div>
  </div>
  {/* Explicit height — fixes Recharts warning and uses new density height */}
- <div className="w-full h-[var(--chart-h-lg)]">
+ <div className="w-full h-(--chart-h-lg)">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={strategyStats} margin={{ top: 10, right: 20, left: 0, bottom: 10 }} barSize={48}>
  <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.03)" vertical={false} />
@@ -184,8 +184,8 @@ export default function PerformanceTab() {
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
  {/* Correlation Matrix */}
  <motion.div variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden group h-full rounded-[40px]">
- <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden group h-full rounded-[40px]">
+ <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-cyan-500/40 to-transparent" />
  <div className="mb-8">
  <div className="flex items-center gap-4">
  <div className="w-10 h-10 rounded-[14px] bg-cyan-500/10 border-2 border-cyan-500/20 flex items-center justify-center">
@@ -216,14 +216,14 @@ export default function PerformanceTab() {
  key={j}
  whileHover={{ scale: 1.1, zIndex: 10 }}
  className={cn(
- 'aspect-square rounded-[16px] flex items-center justify-center border-2 transition-all duration-500 cursor-pointer',
+ 'aspect-square rounded-2xl flex items-center justify-center border-2 transition-all duration-500 cursor-pointer',
  i === j
- ? 'bg-white/[0.06] border-white/10'
+ ? 'bg-white/6 border-white/10'
  : v > 0.3
- ? 'bg-emerald-500/[0.1] border-emerald-500/20'
+ ? 'bg-emerald-500/10 border-emerald-500/20'
  : v < -0.3
- ? 'bg-red-500/[0.1] border-red-500/20'
- : 'bg-white/[0.02] border-white/5'
+ ? 'bg-red-500/10 border-red-500/20'
+ : 'bg-white/2 border-white/5'
  )}
  >
  <span className={cn(
@@ -243,7 +243,7 @@ export default function PerformanceTab() {
 
  {/* Temporal Heatmap */}
  <motion.div variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full flex flex-col relative overflow-hidden group rounded-[40px]">
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full flex flex-col relative overflow-hidden group rounded-[40px]">
  <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/5 rounded-full blur-[80px] -mr-20 -mt-20 group-hover:bg-amber-500/10 transition-all" />
  <div className="mb-8">
  <div className="flex items-center gap-4">
@@ -273,7 +273,7 @@ export default function PerformanceTab() {
  v > 5 ? 'bg-emerald-500/60 border-emerald-400/20' :
  v > 0 ? 'bg-emerald-500/25 border-emerald-400/10' :
  v < -5 ? 'bg-red-500/50 border-red-400/20' :
- 'bg-white/[0.03] border-white/5'
+ 'bg-white/3 border-white/5'
  )}
  style={{ height: 24 }}
  />
@@ -303,7 +303,7 @@ export default function PerformanceTab() {
 
  {/* ── Neural Optimizer CTA ── */}
  <motion.div variants={itemVariants}>
- <div className="p-10 rounded-[40px] border-2 border-p/20 bg-p/[0.04] backdrop-blur-3xl flex flex-col md:flex-row items-center justify-between gap-10 relative overflow-hidden group shadow-[0_60px_120px_rgba(0,0,0,0.5)]">
+ <div className="p-10 rounded-[40px] border-2 border-p/20 bg-p/4 backdrop-blur-3xl flex flex-col md:flex-row items-center justify-between gap-10 relative overflow-hidden group shadow-[0_60px_120px_rgba(0,0,0,0.5)]">
  <div className="absolute top-0 right-0 w-80 h-80 bg-p/10 rounded-full blur-[120px] -mr-40 -mt-40 group-hover:bg-p/15 transition-all duration-1000" />
  <div className="flex items-center gap-8 relative z-10">
  <div className="w-20 h-20 rounded-[28px] bg-black border-2 border-p/30 flex items-center justify-center shadow-[0_20px_40px_rgba(0,0,0,0.5)] group-hover:scale-110 group-hover:rotate-12 transition-all duration-1000">
@@ -319,9 +319,9 @@ export default function PerformanceTab() {
  <motion.button
  whileHover={{ scale: 1.05 }}
  whileTap={{ scale: 0.95 }}
- className="h-16 px-12 rounded-[24px] bg-p text-white text-[13px] font-semibold uppercase tracking-[0.5em] shadow-[0_20px_40px_rgba(99,102,241,0.4)] relative z-10 overflow-hidden group/btn shrink-0"
+ className="h-16 px-12 rounded-3xl bg-p text-white text-[13px] font-semibold uppercase tracking-[0.5em] shadow-[0_20px_40px_rgba(99,102,241,0.4)] relative z-10 overflow-hidden group/btn shrink-0"
  >
- <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
+ <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-700" />
  Initialize_Optimizer
  </motion.button>
  </div>

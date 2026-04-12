@@ -34,23 +34,23 @@ export default function ApiReferencePage() {
     <PublicPageLayout>
       {/* Hero */}
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-0 right-1/4 w-[500px] h-[250px] bg-cyan-600/8 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-1/4 w-[500px] h-62.5 bg-cyan-600/8 blur-[100px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-5xl relative z-10">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
               <Code2 className="w-3 h-3 text-cyan-400" /> API_Reference
             </div>
             <h1 className="text-6xl md:text-7xl font-bold tracking-[-0.03em] text-white leading-tight mb-6">
               RESTful API<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">Reference.</span>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-cyan-400 to-indigo-400">Reference.</span>
             </h1>
             <p className="text-lg text-white/50 max-w-xl font-medium leading-relaxed">
               Complete HTTP API documentation. All endpoints accept and return JSON. Authentication uses Bearer tokens via JWT.
             </p>
             <div className="flex items-center gap-4 mt-6 text-xs font-mono text-white/40">
-              <span className="px-3 py-1 rounded bg-white/[0.04] border border-white/[0.08]">Base URL: api.profytron.com</span>
-              <span className="px-3 py-1 rounded bg-white/[0.04] border border-white/[0.08]">Version: v1</span>
-              <span className="px-3 py-1 rounded bg-white/[0.04] border border-white/[0.08]">Protocol: HTTPS / WSS</span>
+              <span className="px-3 py-1 rounded bg-white/4 border border-white/8">Base URL: api.profytron.com</span>
+              <span className="px-3 py-1 rounded bg-white/4 border border-white/8">Version: v1</span>
+              <span className="px-3 py-1 rounded bg-white/4 border border-white/8">Protocol: HTTPS / WSS</span>
             </div>
           </motion.div>
         </div>
@@ -73,7 +73,7 @@ export default function ApiReferencePage() {
                   { label: 'Algorithm', val: 'RS256 JWT' },
                   { label: 'Scopes', val: 'read, trade, admin' },
                 ].map(item => (
-                  <div key={item.label} className="flex justify-between py-2 border-b border-white/[0.04] text-sm">
+                  <div key={item.label} className="flex justify-between py-2 border-b border-white/4 text-sm">
                     <span className="text-white/40">{item.label}</span>
                     <span className="text-white/70 font-mono text-xs">{item.val}</span>
                   </div>
@@ -81,8 +81,8 @@ export default function ApiReferencePage() {
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} viewport={{ once: true }}>
-              <div className="rounded-2xl bg-[#0a0a12] border border-white/[0.08] overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] bg-white/[0.02]">
+              <div className="rounded-2xl bg-[#0a0a12] border border-white/8 overflow-hidden">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-white/6 bg-white/2">
                   <span className="text-white/20 text-xs font-mono">Request Header</span>
                   <Terminal className="w-3.5 h-3.5 text-white/20" />
                 </div>
@@ -98,7 +98,7 @@ X-Profytron-Version: 2026-04`}
       </section>
 
       {/* Endpoints */}
-      <section className="py-16 bg-black/20 border-y border-white/[0.05]">
+      <section className="py-16 bg-black/20 border-y border-white/5">
         <div className="container mx-auto px-6 max-w-5xl">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="text-xl font-bold text-white mb-8 tracking-tight">Endpoints
@@ -108,7 +108,7 @@ X-Profytron-Version: 2026-04`}
               <motion.div key={`${ep.method}-${ep.path}`}
                 initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.04 }} viewport={{ once: true }}
-                className="flex items-center gap-5 p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:border-white/10 transition-all group cursor-pointer"
+                className="flex items-center gap-5 p-4 rounded-xl bg-white/2 border border-white/5 hover:border-white/10 transition-all group cursor-pointer"
               >
                 <span className={`px-2.5 py-1 rounded text-[10px] font-bold font-mono border uppercase w-16 text-center ${methodColors[ep.method]}`}>
                   {ep.method}
@@ -140,7 +140,7 @@ X-Profytron-Version: 2026-04`}
                 <motion.div key={l.tier}
                   initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }} viewport={{ once: true }}
-                  className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06]"
+                  className="p-6 rounded-2xl bg-white/2 border border-white/6"
                 >
                   <div className="text-xs font-mono uppercase tracking-widest text-white/40 mb-3">{l.tier}</div>
                   <div className="text-2xl font-bold text-white font-mono mb-1">{l.limit}</div>

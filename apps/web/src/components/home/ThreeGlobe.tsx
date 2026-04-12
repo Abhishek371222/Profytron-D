@@ -24,7 +24,7 @@ const GlobeFallback = () => {
       {/* Main Core */}
       <div className="relative w-80 h-80 rounded-full bg-slate-950 border border-white/5 shadow-[0_0_50px_rgba(99,102,241,0.1)] overflow-hidden">
         {/* Internal Gradient Layers */}
-        <div className="absolute inset-0 bg-gradient-to-tr from-p/20 via-transparent to-transparent opacity-40" />
+        <div className="absolute inset-0 bg-linear-to-tr from-p/20 via-transparent to-transparent opacity-40" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(99,102,241,0.1)_0%,transparent_70%)]" />
         
         {/* Static Grid Effect */}
@@ -55,7 +55,7 @@ const GlobeFallback = () => {
       </div>
 
       {/* Halo Effect */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[1px] bg-gradient-to-r from-transparent via-p/20 to-transparent w-full" />
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-px bg-linear-to-r from-transparent via-p/20 to-transparent w-full" />
       <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[1px] bg-gradient-to-b from-transparent via-p/20 to-transparent h-full" />
     </div>
   );
@@ -65,7 +65,7 @@ export function ThreeGlobe() {
   const isWebGLSupported = useWebGLSupport();
 
   return (
-    <div className="w-full h-full relative min-h-[600px] flex items-center justify-center cursor-crosshair overflow-hidden">
+    <div className="w-full h-full relative min-h-150 flex items-center justify-center cursor-crosshair overflow-hidden">
       {isWebGLSupported === false ? (
         <GlobeFallback />
       ) : isWebGLSupported === true ? (

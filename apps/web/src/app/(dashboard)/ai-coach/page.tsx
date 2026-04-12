@@ -137,12 +137,12 @@ export default function AICoachPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
                 className={cn(
-                  "p-6 rounded-[32px] border border-white/[0.03] bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-500 group cursor-pointer relative overflow-hidden",
+                  "p-6 rounded-4xl border border-white/3 bg-white/1 hover:bg-white/3 transition-all duration-500 group cursor-pointer relative overflow-hidden",
                   "hover:border-white/10"
                 )}
               >
                 {/* Hardware Accent Corners */}
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+                <div className="absolute top-0 right-0 w-16 h-16 bg-linear-to-br from-white/2 to-transparent pointer-events-none" />
                 <div className="absolute bottom-0 left-0 w-2 h-2 bg-white/5 rounded-tr-sm" />
                 
                 <div className="flex gap-5">
@@ -164,7 +164,7 @@ export default function AICoachPage() {
                       {insight.body}
                     </p>
                     {insight.tip && (
-                      <div className="mt-4 p-4 rounded-2xl bg-indigo-500/[0.03] border border-indigo-500/10 flex items-start gap-3">
+                      <div className="mt-4 p-4 rounded-2xl bg-indigo-500/3 border border-indigo-500/10 flex items-start gap-3">
                         <Sparkles className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" />
                         <p className="text-[11px] text-indigo-300 font-semibold uppercase tracking-wider leading-relaxed">
                           Core Suggestion: {insight.tip}
@@ -180,7 +180,7 @@ export default function AICoachPage() {
           {/* Holographic Biometric ID */}
           <div className="p-8 rounded-[40px] bg-black/40 border-2 border-white/5 relative overflow-hidden group shadow-2xl mt-auto">
             <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-primary/20 animate-scanline pointer-events-none" />
+            <div className="absolute top-0 left-0 w-full h-0.5 bg-primary/20 animate-scanline pointer-events-none" />
             
             <div className="flex items-center justify-between mb-8 relative z-10">
               <div className="flex items-center gap-3">
@@ -247,8 +247,8 @@ export default function AICoachPage() {
         </div>
 
         {/* System Status HUD */}
-        <div className="h-24 glass-ultra rounded-[32px] border-white/5 flex items-center justify-between px-10 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        <div className="h-24 glass-ultra rounded-4xl border-white/5 flex items-center justify-between px-10 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-linear-to-r from-emerald-500/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="flex items-center gap-4 relative z-10">
             <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">
               <Cpu className="w-5 h-5 text-white/30" />
@@ -276,14 +276,14 @@ export default function AICoachPage() {
         animate={{ opacity: 1, x: 0 }}
         className="flex-1 glass-ultra rounded-[48px] border-white/5 flex flex-col overflow-hidden relative shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]"
       >
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 blur-[150px] rounded-full pointer-events-none -mr-60 -mt-60 z-0" />
+        <div className="absolute top-0 right-0 w-150 h-150 bg-primary/5 blur-[150px] rounded-full pointer-events-none -mr-60 -mt-60 z-0" />
         
         {/* Chat Header */}
         <div className="h-28 border-b border-white/5 flex items-center justify-between px-12 relative z-10 backdrop-blur-3xl bg-black/20">
           <div className="flex items-center gap-8">
             <div className="relative group/avatar">
-              <div className="absolute -inset-2 bg-primary/20 rounded-[24px] blur-xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-700" />
-              <div className="w-16 h-16 rounded-[22px] bg-gradient-to-tr from-primary via-indigo-400 to-cyan-400 p-[1.5px] relative z-10">
+              <div className="absolute -inset-2 bg-primary/20 rounded-3xl blur-xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-700" />
+              <div className="w-16 h-16 rounded-[22px] bg-linear-to-tr from-primary via-indigo-400 to-cyan-400 p-[1.5px] relative z-10">
                 <div className="w-full h-full rounded-[21px] bg-bg-base flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-scanlines opacity-10 animate-scanline" />
                   <Sparkles className="w-8 h-8 text-primary animate-pulse" />
@@ -306,7 +306,7 @@ export default function AICoachPage() {
               <span className="text-sm font-semibold text-white/50 font-jet-mono uppercase tracking-widest">Claude_3.5_Quantum</span>
             </div>
             <div className="w-px h-12 bg-white/5" />
-            <Button variant="ghost" size="icon" className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-primary/40 hover:bg-primary/5 text-white/20 hover:text-primary transition-all duration-500 group">
+            <Button variant="ghost" size="icon" className="w-14 h-14 rounded-2xl bg-white/3 border border-white/10 hover:border-primary/40 hover:bg-primary/5 text-white/20 hover:text-primary transition-all duration-500 group">
               <History className="w-6 h-6 group-hover:rotate-[-10deg] transition-transform" />
             </Button>
           </div>
@@ -342,8 +342,8 @@ export default function AICoachPage() {
                   <div className={cn(
                     "p-8 rounded-[36px] text-[16px] font-medium leading-[1.7] relative shadow-2xl transition-all duration-700",
                     msg.role === 'ai' 
-                      ? "bg-white/[0.02] border border-white/10 text-white/80 rounded-tl-none hover:bg-white/[0.04] hover:border-white/20" 
-                      : "bg-gradient-to-br from-primary to-indigo-600 text-white border border-primary/30 rounded-tr-none hover:shadow-primary/20"
+                      ? "bg-white/2 border border-white/10 text-white/80 rounded-tl-none hover:bg-white/4 hover:border-white/20" 
+                      : "bg-linear-to-br from-primary to-indigo-600 text-white border border-primary/30 rounded-tr-none hover:shadow-primary/20"
                   )}>
                     {msg.text.split('\n').map((line, i) => {
                       const parts = line.split(/(\$\d+(?:,\d+)*(?:\.\d+)?|\d+(?:\.\d+)?%?)/g);
@@ -391,7 +391,7 @@ export default function AICoachPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-5 ml-20"
               >
-                <div className="flex gap-2 p-4 rounded-2xl bg-white/[0.03] border border-white/10 shadow-inner">
+                <div className="flex gap-2 p-4 rounded-2xl bg-white/3 border border-white/10 shadow-inner">
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
@@ -423,17 +423,17 @@ export default function AICoachPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.8 + (i * 0.1) }}
                 onClick={() => handleSend(s)}
-                className="px-8 py-4 rounded-[22px] bg-white/[0.02] border border-white/10 hover:border-primary/50 text-[11px] font-bold text-white/30 hover:text-white uppercase tracking-[0.2em] transition-all hover:translate-y-[-4px] hover:shadow-[0_10px_30px_rgba(99,102,241,0.1)] active:translate-y-0 whitespace-nowrap"
+                className="px-8 py-4 rounded-[22px] bg-white/2 border border-white/10 hover:border-primary/50 text-[11px] font-bold text-white/30 hover:text-white uppercase tracking-[0.2em] transition-all hover:translate-y-[-4px] hover:shadow-[0_10px_30px_rgba(99,102,241,0.1)] active:translate-y-0 whitespace-nowrap"
               >
                 {s}
               </motion.button>
             ))}
           </div>
 
-          <div className="relative group p-[2px] rounded-[32px] overflow-hidden transition-all duration-700 focus-within:shadow-[0_0_50px_rgba(99,102,241,0.15)]">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/50 to-transparent group-focus-within:translate-x-full transition-transform duration-1500 ease-in-out -translate-x-full" />
+          <div className="relative group p-[2px] rounded-4xl overflow-hidden transition-all duration-700 focus-within:shadow-[0_0_50px_rgba(99,102,241,0.15)]">
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-primary/50 to-transparent group-focus-within:translate-x-full transition-transform duration-1500 ease-in-out -translate-x-full" />
             
-            <div className="h-24 flex items-center bg-white/[0.02] border border-white/10 rounded-[30px] px-10 relative z-10 focus-within:bg-white/[0.04] transition-all duration-500 group-focus-within:border-primary/40">
+            <div className="h-24 flex items-center bg-white/2 border border-white/10 rounded-[30px] px-10 relative z-10 focus-within:bg-white/4 transition-all duration-500 group-focus-within:border-primary/40">
               <input 
                 type="text"
                 value={inputValue}

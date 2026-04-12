@@ -97,9 +97,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.95 }}
-        className="w-full max-w-lg rounded-[32px] bg-[#080808] border border-white/10 p-8 space-y-8 shadow-2xl relative overflow-hidden"
+        className="w-full max-w-lg rounded-4xl bg-[#080808] border border-white/10 p-8 space-y-8 shadow-2xl relative overflow-hidden"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-p/5 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-br from-p/5 to-transparent pointer-events-none" />
         
         <div className="relative z-10 flex items-center justify-between">
           <div className="space-y-1">
@@ -128,21 +128,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
            <>
              <div className="space-y-2">
                <label className="text-[10px] text-white/40 uppercase tracking-widest ml-1 font-bold">Account Number</label>
-               <input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} className="w-full h-12 bg-white/[0.03] border border-white/5 rounded-xl px-4 text-sm text-white focus:border-p/50 outline-none" placeholder="1040294" />
+               <input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} className="w-full h-12 bg-white/3 border border-white/5 rounded-xl px-4 text-sm text-white focus:border-p/50 outline-none" placeholder="1040294" />
              </div>
              <div className="space-y-2">
                <label className="text-[10px] text-white/40 uppercase tracking-widest ml-1 font-bold">Master Password</label>
-               <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="w-full h-12 bg-white/[0.03] border border-white/5 rounded-xl px-4 text-sm text-white focus:border-p/50 outline-none" placeholder="••••••••" />
+               <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="w-full h-12 bg-white/3 border border-white/5 rounded-xl px-4 text-sm text-white focus:border-p/50 outline-none" placeholder="••••••••" />
              </div>
              <div className="space-y-2">
                <label className="text-[10px] text-white/40 uppercase tracking-widest ml-1 font-bold">Server Name</label>
-               <input value={serverName} onChange={(e) => setServerName(e.target.value)} className="w-full h-12 bg-white/[0.03] border border-white/5 rounded-xl px-4 text-sm text-white focus:border-p/50 outline-none" placeholder="Broker-Server-Live" />
+               <input value={serverName} onChange={(e) => setServerName(e.target.value)} className="w-full h-12 bg-white/3 border border-white/5 rounded-xl px-4 text-sm text-white focus:border-p/50 outline-none" placeholder="Broker-Server-Live" />
              </div>
            </>
            )}
 
            {brokerName === 'PAPER' && (
-             <div className="p-6 bg-white/[0.02] border border-white/10 rounded-2xl flex items-center justify-center text-center">
+             <div className="p-6 bg-white/2 border border-white/10 rounded-2xl flex items-center justify-center text-center">
                <p className="text-xs text-white/40 uppercase tracking-widest leading-relaxed">Paper trading will simulate high-fidelity market executions with virtual balance.</p>
              </div>
            )}

@@ -89,7 +89,7 @@ export default function NodeLibrary() {
  <div className="absolute inset-0 bg-scanlines opacity-5 pointer-events-none" />
  
  {/* Header HUD - Industrial Command Center */}
- <div className="p-10 space-y-10 relative z-10 border-b border-white/5 bg-white/[0.01]">
+ <div className="p-10 space-y-10 relative z-10 border-b border-white/5 bg-white/1">
  <div className="flex items-center justify-between">
  <div className="flex flex-col gap-1">
  <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ export default function NodeLibrary() {
 "px-6 h-12 rounded-xl text-xs font-semibold uppercase tracking-[0.2em] transition-all duration-500 whitespace-nowrap border-2 flex items-center gap-3",
  activeCategory === cat.id 
  ?"bg-p text-white border-p shadow-[0_15px_30px_rgba(99,102,241,0.3)]" 
- :"bg-white/[0.02] text-white/20 border-white/5 hover:text-white/40 hover:border-white/10"
+ :"bg-white/2 text-white/20 border-white/5 hover:text-white/40 hover:border-white/10"
  )}
  >
  <cat.icon className={cn("w-4 h-4", activeCategory === cat.id ?"text-white" :"text-white/10")} />
@@ -143,7 +143,7 @@ export default function NodeLibrary() {
  <div key={cat.id} className="space-y-8">
  <div className="flex items-center gap-4 px-2">
  <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.5em] whitespace-nowrap">Core_{cat.label.replace(' ', '_')}</span>
- <div className="h-px w-full bg-gradient-to-r from-white/10 to-transparent" />
+ <div className="h-px w-full bg-linear-to-r from-white/10 to-transparent" />
  </div>
 
  <div className="grid grid-cols-1 gap-6">
@@ -157,7 +157,7 @@ export default function NodeLibrary() {
  onDragStart={(e) => onDragStart(e as unknown as React.DragEvent, 'custom', item.label, item.category)}
  className="group cursor-grab active:cursor-grabbing"
  >
- <Card className="p-8 bg-white/[0.01] border-2 border-white/5 hover:border-p/40 transition-all duration-700 rounded-[32px] relative overflow-hidden shadow-2xl group-hover:bg-white/[0.03]">
+ <Card className="p-8 bg-white/1 border-2 border-white/5 hover:border-p/40 transition-all duration-700 rounded-4xl relative overflow-hidden shadow-2xl group-hover:bg-white/3">
  <div className="absolute top-0 right-0 w-32 h-32 bg-p/5 blur-3xl rounded-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity" />
  <div className="absolute inset-0 bg-scanlines opacity-0 group-hover:opacity-[0.03] transition-opacity" />
  
@@ -200,7 +200,7 @@ export default function NodeLibrary() {
  {/* Fabrication HUD Status */}
  <div className="p-10 border-t border-white/5 bg-black/40 backdrop-blur-3xl">
  <div className="p-8 rounded-[28px] bg-p/5 border-2 border-p/10 space-y-6 relative overflow-hidden group">
- <div className="absolute top-0 left-0 w-full h-[2px] bg-p/20 animate-scanline" />
+ <div className="absolute top-0 left-0 w-full h-0.5 bg-p/20 animate-scanline" />
  <div className="flex items-center justify-between">
  <div className="flex items-center gap-3">
  <Box className="w-5 h-5 text-p" />

@@ -82,7 +82,7 @@ export default function TradeAnalysisTab() {
  {/* Institutional Outcome hardware distribution */}
  <motion.div variants={itemVariants}>
  <Card className="p-12 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden group rounded-[48px]">
- <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-white/40 to-transparent animate-scanline" />
+ <div className="absolute top-0 left-0 w-full h-0.75 bg-linear-to-r from-transparent via-white/40 to-transparent animate-scanline" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
  <div className="space-y-4 mb-16 relative z-10">
@@ -95,7 +95,7 @@ export default function TradeAnalysisTab() {
  <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Trade frequency mapped across institutional P&L corridors.</p>
  </div>
  
- <div className="h-[400px] w-full relative z-10">
+ <div className="h-100 w-full relative z-10">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={pnlDist} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
  <CartesianGrid strokeDasharray="6 6" stroke="rgba(255,255,255,0.03)" vertical={false} />
@@ -147,10 +147,10 @@ export default function TradeAnalysisTab() {
  {/* Institutional Execution hardware core */}
  <motion.div variants={itemVariants}>
  <Card className="p-12 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center relative overflow-hidden rounded-[48px] group/core">
- <div className="absolute top-0 right-0 w-full h-[3px] bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent animate-scanline" />
+ <div className="absolute top-0 right-0 w-full h-0.75 bg-linear-to-r from-transparent via-emerald-500/40 to-transparent animate-scanline" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
- <div className="absolute top-12 left-12 space-y-4 relative z-20 w-full">
+ <div className="absolute top-12 left-12 space-y-4 z-20 w-full">
  <div className="flex items-center gap-5">
  <div className="w-12 h-12 rounded-[18px] bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center">
  <Activity className="w-6 h-6 text-emerald-400" />
@@ -160,8 +160,8 @@ export default function TradeAnalysisTab() {
  <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Real-time volume-weighted win/loss kernel telemetry.</p>
  </div>
  
- <div className="h-[420px] w-full relative mt-12 group/donut">
- <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent rounded-full blur-[120px] opacity-0 group-hover/core:opacity-100 transition-opacity duration-1000" />
+ <div className="h-105 w-full relative mt-12 group/donut">
+ <div className="absolute inset-0 bg-linear-to-r from-emerald-500/5 to-transparent rounded-full blur-[120px] opacity-0 group-hover/core:opacity-100 transition-opacity duration-1000" />
  
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <PieChart>
@@ -246,7 +246,7 @@ export default function TradeAnalysisTab() {
  {/* Hardware Symbol Performance matrix */}
  <motion.div variants={itemVariants}>
  <Card className="p-12 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[48px]">
- <div className="absolute top-0 right-0 w-full h-[3px] bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent animate-scanline" />
+ <div className="absolute top-0 right-0 w-full h-0.75 bg-linear-to-r from-transparent via-cyan-500/40 to-transparent animate-scanline" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
  <div className="space-y-4 mb-16 relative z-10">
@@ -274,12 +274,12 @@ export default function TradeAnalysisTab() {
  <div className="h-0.5 w-12 bg-white/5" />
  </div>
  </div>
- <div className="h-3 rounded-full bg-white/[0.02] overflow-hidden border-2 border-white/[0.05] relative">
+ <div className="h-3 rounded-full bg-white/2 overflow-hidden border-2 border-white/5 relative">
  <motion.div 
  initial={{ width: 0 }}
  animate={{ width: `${Math.abs(item.pnl) / 450}%` }}
  transition={{ duration: 2, delay: idx * 0.15, ease: [0.22, 1, 0.36, 1] }}
- className={cn("h-full rounded-full relative", item.pnl > 0 ?"bg-gradient-to-r from-emerald-600 to-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]" :"bg-gradient-to-r from-red-600 to-red-400 shadow-[0_0_20px_rgba(239,68,68,0.5)]")}
+ className={cn("h-full rounded-full relative", item.pnl > 0 ?"bg-linear-to-r from-emerald-600 to-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]" :"bg-linear-to-r from-red-600 to-red-400 shadow-[0_0_20px_rgba(239,68,68,0.5)]")}
  >
  <div className="absolute inset-0 bg-scanlines opacity-20" />
  </motion.div>
@@ -306,7 +306,7 @@ export default function TradeAnalysisTab() {
  <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Heuristic holding period density distribution by epoch.</p>
  </div>
 
- <div className="h-[380px] w-full relative z-10">
+ <div className="h-95 w-full relative z-10">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={durationData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
  <CartesianGrid strokeDasharray="5 5" stroke="rgba(255,255,255,0.03)" vertical={false} />

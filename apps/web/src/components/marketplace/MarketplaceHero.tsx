@@ -16,7 +16,7 @@ export function MarketplaceHero() {
  <section className="h-[200px] w-full relative overflow-hidden bg-[#0f0e2a]">
  {/* Animated Mesh Gradient */}
  <div className="absolute inset-0 opacity-40">
- <div className="absolute inset-0 bg-gradient-to-br from-[#1e1b4b] to-[#0f0e2a]" />
+ <div className="absolute inset-0 bg-linear-to-br from-[#1e1b4b] to-[#0f0e2a]" />
  <motion.div 
  animate={{
  x: [0, 40, 0],

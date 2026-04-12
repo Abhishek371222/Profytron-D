@@ -36,7 +36,7 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
  {/* Active Track with Glow */}
  <motion.div 
  style={{ width: glowWidth }}
- className="absolute left-0 top-0 h-full bg-gradient-to-r from-p/50 to-p shadow-[0_0_15px_rgba(var(--p-rgb),0.5)] transition-all duration-300"
+ className="absolute left-0 top-0 h-full bg-linear-to-r from-p/50 to-p shadow-[0_0_15px_rgba(var(--p-rgb),0.5)] transition-all duration-300"
  />
  </div>
 

@@ -64,7 +64,7 @@ const itemVariants = {
 const WorldMap = () => (
  <motion.div 
  variants={itemVariants}
- className="relative w-full h-[var(--chart-h-lg)] min-h-[400px] bg-black/40 backdrop-blur-3xl rounded-[40px] overflow-hidden border border-white/5 shadow-2xl group shadow-[inset_0_0_50px_rgba(99,102,241,0.05)]"
+ className="relative w-full h-(--chart-h-lg) min-h-100 bg-black/40 backdrop-blur-3xl rounded-[40px] overflow-hidden border border-white/5 shadow-2xl group shadow-[inset_0_0_50px_rgba(99,102,241,0.05)]"
  >
  {/* Background Grid Pattern */}
  <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20" />
@@ -109,7 +109,7 @@ const WorldMap = () => (
  </div>
  
  {/* HUD Tooltip */}
- <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-8 p-6 rounded-[32px] bg-[#08080c]/95 backdrop-blur-3xl border border-white/10 opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap scale-75 group-hover:scale-100 translate-y-4 group-hover:translate-y-0 transform origin-bottom z-50 shadow-[0_40px_80px_rgba(0,0,0,0.8)] border-p/20">
+ <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-8 p-6 rounded-4xl bg-[#08080c]/95 backdrop-blur-3xl border border-white/10 opacity-0 group-hover:opacity-100 transition-all pointer-events-none whitespace-nowrap scale-75 group-hover:scale-100 translate-y-4 group-hover:translate-y-0 transform origin-bottom z-50 shadow-[0_40px_80px_rgba(0,0,0,0.8)] border-p/20">
  <div className="flex items-center justify-between gap-10 mb-4">
  <div className="flex items-center gap-3">
  <Radio className="w-3.5 h-3.5 text-p animate-pulse" />
@@ -118,7 +118,7 @@ const WorldMap = () => (
  <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">{dot.cluster} CLUSTER</span>
  </div>
  <p className="text-3xl font-semibold text-white tracking-tight uppercase">{dot.city}</p>
- <div className="h-[1px] w-full bg-gradient-to-r from-white/10 via-white/5 to-transparent my-4" />
+ <div className="h-px w-full bg-linear-to-r from-white/10 via-white/5 to-transparent my-4" />
  <div className="flex items-center gap-6">
  <div className="flex flex-col">
  <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Active nodes</span>
@@ -136,7 +136,7 @@ const WorldMap = () => (
 
  {/* Bottom Legend HUD */}
  <div className="absolute bottom-10 left-12 right-12 flex items-center justify-between z-20">
- <div className="flex items-center gap-8 bg-black/60 p-4 rounded-[24px] border border-white/5 backdrop-blur-3xl">
+ <div className="flex items-center gap-8 bg-black/60 p-4 rounded-3xl border border-white/5 backdrop-blur-3xl">
  <div className="flex items-center gap-3">
  <div className="w-2 h-2 rounded-full bg-p shadow-[0_0_10px_#6366f1]" />
  <span className="text-xs font-semibold text-white/40 uppercase tracking-[0.2em]">Institutional Core</span>
@@ -147,7 +147,7 @@ const WorldMap = () => (
  <span className="text-xs font-semibold text-white/40 uppercase tracking-[0.2em]">HFT Satellite</span>
  </div>
  </div>
- <div className="flex items-center gap-3 bg-p p-4 px-8 rounded-[24px] shadow-2xl shadow-p/20 cursor-pointer hover:bg-indigo-500 transition-all">
+ <div className="flex items-center gap-3 bg-p p-4 px-8 rounded-3xl shadow-2xl shadow-p/20 cursor-pointer hover:bg-indigo-500 transition-all">
  <span className="text-xs font-semibold text-white uppercase tracking-[0.4em]">Initialize Global Sync</span>
  <ArrowRight className="w-4 h-4 text-white" />
  </div>
@@ -161,13 +161,13 @@ export default function GlobalIntelligenceTab() {
  variants={containerVariants}
  initial="hidden"
  animate="visible"
- className="space-y-[var(--section-gap)] pb-24"
+ className="space-y-(--section-gap) pb-24"
  >
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
  {/* Institutional Alpha Momentum hardware matrix */}
  <motion.div variants={itemVariants} className="lg:col-span-1">
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] space-y-16 h-full relative overflow-hidden group rounded-[40px]">
- <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-p to-transparent opacity-60 animate-scanline" />
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] space-y-16 h-full relative overflow-hidden group rounded-[40px]">
+ <div className="absolute top-0 left-0 w-full h-0.75 bg-linear-to-r from-transparent via-p to-transparent opacity-60 animate-scanline" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
  <div className="space-y-3 relative z-10">
@@ -192,7 +192,7 @@ export default function GlobalIntelligenceTab() {
  {cat.trend}
  </div>
  </div>
- <div className="h-3 w-full bg-white/[0.02] rounded-full overflow-hidden border-2 border-white/[0.05] p-[1.5px] relative">
+ <div className="h-3 w-full bg-white/2 rounded-full overflow-hidden border-2 border-white/5 p-[1.5px] relative">
  <motion.div 
  initial={{ width: 0 }}
  animate={{ width: `${cat.val}%` }}
@@ -208,13 +208,13 @@ export default function GlobalIntelligenceTab() {
 
  {/* System Regime Status HUD */}
  <div className="pt-16 border-t-2 border-white/5 relative z-10">
- <div className="p-[var(--card-p)] rounded-[32px] border-2 border-white/10 bg-[#08080c] relative overflow-hidden group shadow-[0_40px_80px_rgba(0,0,0,0.8)]">
- <div className="absolute inset-0 bg-gradient-to-br from-p/10 to-transparent opacity-40 group-hover:opacity-70 transition-opacity duration-1000" />
+ <div className="p-(--card-p) rounded-4xl border-2 border-white/10 bg-[#08080c] relative overflow-hidden group shadow-[0_40px_80px_rgba(0,0,0,0.8)]">
+ <div className="absolute inset-0 bg-linear-to-br from-p/10 to-transparent opacity-40 group-hover:opacity-70 transition-opacity duration-1000" />
  <div className="w-3 h-3 rounded-full bg-p animate-pulse absolute top-8 right-10 shadow-[0_0_20px_#6366f1]" />
  
  <div className="relative z-10 space-y-10 flex flex-col items-center text-center">
  <span className="text-sm font-semibold text-p uppercase tracking-[0.6em]">CORE_REGIME_TELEMETRY</span>
- <div className="p-1.5 px-6 rounded-[28px] bg-white/[0.03] border-2 border-white/5 group-hover:scale-110 transition-transform duration-1000 hover:rotate-2">
+ <div className="p-1.5 px-6 rounded-[28px] bg-white/3 border-2 border-white/5 group-hover:scale-110 transition-transform duration-1000 hover:rotate-2">
  <h3 className="text-5xl font-semibold text-white tracking-[0.1em] drop-shadow-[0_15px_20px_rgba(0,0,0,0.8)]">TRENDING</h3>
  </div>
  <div className="grid grid-cols-2 gap-12 w-full">
@@ -240,7 +240,7 @@ export default function GlobalIntelligenceTab() {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
  {/* Institutional Intelligence Hub Feed */}
  <motion.div variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full group relative overflow-hidden rounded-[40px]">
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full group relative overflow-hidden rounded-[40px]">
  <div className="absolute top-0 right-0 w-48 h-48 bg-p/5 rounded-full blur-[80px] -mr-24 -mt-24 opacity-60" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
@@ -261,7 +261,7 @@ export default function GlobalIntelligenceTab() {
  {news.map((n, i) => (
  <div key={i} className="flex gap-10 group/item relative">
  <div className="flex flex-col items-center">
- <div className="w-20 py-3.5 rounded-2xl bg-white/[0.03] border-2 border-white/5 text-sm font-semibold text-white group-hover/item:border-p/50 group-hover/item:text-p transition-all shadow-2xl text-center">
+ <div className="w-20 py-3.5 rounded-2xl bg-white/3 border-2 border-white/5 text-sm font-semibold text-white group-hover/item:border-p/50 group-hover/item:text-p transition-all shadow-2xl text-center">
  {n.time}
  </div>
  {i !== news.length - 1 && <div className="w-0.5 flex-1 bg-white/5 my-6" />}
@@ -281,7 +281,7 @@ export default function GlobalIntelligenceTab() {
 
  {/* Institutional Alpha Command Leaderboard */}
  <motion.div variants={itemVariants}>
- <Card className="p-[var(--card-p)] border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full group relative overflow-hidden rounded-[40px]">
+ <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full group relative overflow-hidden rounded-[40px]">
  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[100px] -mr-32 -mt-32 opacity-60" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
@@ -294,7 +294,7 @@ export default function GlobalIntelligenceTab() {
 
  <div className="space-y-10 relative z-10">
  {traders.map((t, i) => (
- <div key={i} className="flex items-center justify-between group/leader p-6 rounded-[36px] hover:bg-white/[0.04] border-2 border-transparent hover:border-white/5 transition-all duration-700">
+ <div key={i} className="flex items-center justify-between group/leader p-6 rounded-[36px] hover:bg-white/4 border-2 border-transparent hover:border-white/5 transition-all duration-700">
  <div className="flex items-center gap-8">
  <div className="relative">
  <div className="absolute inset-0 bg-p/30 rounded-2xl blur-xl opacity-0 group-hover/leader:opacity-100 transition-opacity duration-1000" />
@@ -321,7 +321,7 @@ export default function GlobalIntelligenceTab() {
  <motion.button 
  whileHover={{ scale: 1.02 }}
  whileTap={{ scale: 0.98 }}
- className="w-full mt-12 h-20 rounded-[32px] bg-white/[0.03] border-2 border-white/5 flex items-center justify-center gap-6 group hover:bg-white/[0.06] hover:border-white/10 transition-all duration-500"
+ className="w-full mt-12 h-20 rounded-4xl bg-white/3 border-2 border-white/5 flex items-center justify-center gap-6 group hover:bg-white/6 hover:border-white/10 transition-all duration-500"
  >
  <span className="text-sm font-semibold text-white/30 uppercase tracking-[0.5em] group-hover:text-white transition-colors">Open_Explorer_Registry</span>
  <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-p group-hover:translate-x-3 transition-all duration-500" />

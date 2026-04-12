@@ -22,7 +22,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
  
  <div className="relative group">
  <div className="absolute -inset-6 bg-primary/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-pulse-slow" />
- <div className="w-24 h-24 rounded-[32px] glass-ultra flex items-center justify-center border border-primary/20 relative overflow-hidden group">
+ <div className="w-24 h-24 rounded-4xl glass-ultra flex items-center justify-center border border-primary/20 relative overflow-hidden group">
  <div className="absolute inset-0 animate-scanline bg-gradient-to-b from-transparent via-primary/10 to-transparent h-[200%] pointer-events-none" />
  <Sparkles className="w-10 h-10 text-primary animate-hologram" />
  
@@ -44,7 +44,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
  </div>
 
  <div className="pt-8 space-y-6">
- <div className="w-64 h-1.5 bg-white/[0.03] rounded-full border border-white/5 p-0.5 overflow-hidden">
+ <div className="w-64 h-1.5 bg-white/3 rounded-full border border-white/5 p-0.5 overflow-hidden">
  <motion.div 
  initial={{ x:"-100%" }}
  animate={{ x:"100%" }}

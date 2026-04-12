@@ -182,7 +182,7 @@ function TradeRow({ trade, onExplain }: { trade: any; onExplain: (t: any) => voi
  <motion.div 
  initial={{ opacity: 0, x: -20 }}
  animate={{ opacity: 1, x: 0 }}
- className="group grid grid-cols-7 items-center py-4 px-6 border-b border-white/[0.03] hover:bg-white/[0.02] cursor-pointer transition-all duration-200"
+ className="group grid grid-cols-7 items-center py-4 px-6 border-b border-white/3 hover:bg-white/2 cursor-pointer transition-all duration-200"
  onClick={() => onExplain(trade)}
  >
  <div className="flex items-center gap-3">
@@ -248,7 +248,7 @@ export default function DashboardPage() {
  <div className={cn("space-y-6", !mounted &&"animate-pulse")} suppressHydrationWarning>
  {!mounted ? (
  <>
- <div className="h-[400px] bg-white/5 rounded-[32px]" />
+ <div className="h-100 bg-white/5 rounded-4xl" />
  <div className="grid grid-cols-4 gap-6">
  {[1,2,3,4].map(i => <div key={i} className="h-40 bg-white/5 rounded-3xl" />)}
  </div>
@@ -411,8 +411,8 @@ export default function DashboardPage() {
  </div>
  
  <div className="overflow-x-auto">
- <div className="min-w-[1000px]">
- <div className="grid grid-cols-7 px-6 py-3 border-b border-white/5 bg-white/[0.01]">
+ <div className="min-w-250">
+ <div className="grid grid-cols-7 px-6 py-3 border-b border-white/5 bg-white/1">
  {['Symbol', 'Type', 'Volume', 'Entry', 'Current P&L', 'Duration', 'Action'].map(head => (
  <span key={head} className="text-xs font-semibold text-white/30 uppercase tracking-[2px]">
  {head}
@@ -420,7 +420,7 @@ export default function DashboardPage() {
  ))}
  </div>
  
- <div className="divide-y divide-white/[0.03]">
+ <div className="divide-y divide-white/3">
  {activeTrades.map((trade) => (
  <TradeRow key={trade.id} trade={trade} onExplain={setSelectedTrade} />
  ))}

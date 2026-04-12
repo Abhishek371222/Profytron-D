@@ -42,10 +42,10 @@ export default function CookiePolicyPage() {
   return (
     <PublicPageLayout>
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-0 left-1/3 w-[500px] h-[250px] bg-indigo-600/8 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/3 w-[500px] h-62.5 bg-indigo-600/8 blur-[100px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-4xl relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
               <Cookie className="w-3 h-3 text-indigo-400" /> Legal
             </div>
             <h1 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] text-white leading-tight mb-6">Cookie Policy</h1>
@@ -63,7 +63,7 @@ export default function CookiePolicyPage() {
       {/* What are cookies */}
       <section className="pb-10">
         <div className="container mx-auto px-6 max-w-4xl">
-          <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+          <div className="p-8 rounded-2xl bg-white/2 border border-white/6">
             <h2 className="text-lg font-bold text-white mb-4 tracking-tight">What Are Cookies?</h2>
             <p className="text-white/55 text-sm leading-relaxed">
               Cookies are small text files placed on your device by a website or web application when you visit it. They allow the service to remember information about your visit — such as your login state, interface preferences, and session identifier.
@@ -76,14 +76,14 @@ export default function CookiePolicyPage() {
       </section>
 
       {/* Cookie Types */}
-      <section className="py-16 bg-black/20 border-y border-white/[0.05]">
+      <section className="py-16 bg-black/20 border-y border-white/5">
         <div className="container mx-auto px-6 max-w-4xl">
           <h2 className="text-xl font-bold text-white mb-8 tracking-tight">Cookie Categories</h2>
           <div className="flex flex-col gap-6">
             {cookieTypes.map((type, i) => (
               <div 
                 key={type.name}
-                className="p-7 rounded-2xl bg-white/[0.02] border border-white/[0.06]"
+                className="p-7 rounded-2xl bg-white/2 border border-white/6"
               >
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
@@ -98,13 +98,13 @@ export default function CookiePolicyPage() {
                 <p className="text-white/50 text-sm leading-relaxed mb-4">{type.desc}</p>
                 <div className="flex flex-wrap gap-2">
                   {type.examples.map(ex => (
-                    <code key={ex} className="px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] text-white/40 text-[10px] font-mono">{ex}</code>
+                    <code key={ex} className="px-2 py-0.5 rounded bg-white/4 border border-white/6 text-white/40 text-[10px] font-mono">{ex}</code>
                   ))}
                 </div>
               </div>
             ))}
 
-            <div className="p-6 rounded-xl bg-white/[0.01] border border-white/[0.04]">
+            <div className="p-6 rounded-xl bg-white/1 border border-white/4">
               <p className="text-white/30 text-xs leading-relaxed">
                 <span className="text-white/50 font-semibold">Marketing & Targeting Cookies:</span> Profytron does not currently use third-party advertising or behavioural tracking cookies. If this changes in the future, this policy will be updated and you will be notified in advance.
               </p>
@@ -117,8 +117,8 @@ export default function CookiePolicyPage() {
       <section className="py-16">
         <div className="container mx-auto px-6 max-w-4xl">
           <h2 className="text-xl font-bold text-white mb-8 tracking-tight">Cookie Retention Periods</h2>
-          <div className="rounded-2xl overflow-hidden border border-white/[0.06]">
-            <div className="grid grid-cols-3 text-[10px] uppercase tracking-widest font-bold text-white/30 bg-white/[0.02] px-5 py-3 border-b border-white/[0.06]">
+          <div className="rounded-2xl overflow-hidden border border-white/6">
+            <div className="grid grid-cols-3 text-[10px] uppercase tracking-widest font-bold text-white/30 bg-white/2 px-5 py-3 border-b border-white/6">
               <div>Cookie Name</div>
               <div>Purpose</div>
               <div>Duration</div>
@@ -126,7 +126,7 @@ export default function CookiePolicyPage() {
             {retention.map((r, i) => (
               <div 
                 key={r.name}
-                className="grid grid-cols-3 px-5 py-4 border-b border-white/[0.04] text-sm hover:bg-white/[0.02] transition-colors"
+                className="grid grid-cols-3 px-5 py-4 border-b border-white/4 text-sm hover:bg-white/2 transition-colors"
               >
                 <code className="text-indigo-300 text-xs font-mono">{r.name}</code>
                 <span className="text-white/50 text-xs">{r.purpose}</span>
@@ -138,9 +138,9 @@ export default function CookiePolicyPage() {
       </section>
 
       {/* Control */}
-      <section className="py-16 border-t border-white/[0.05]">
+      <section className="py-16 border-t border-white/5">
         <div className="container mx-auto px-6 max-w-4xl">
-          <div className="p-8 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
+          <div className="p-8 rounded-2xl bg-white/2 border border-white/6">
             <h2 className="text-lg font-bold text-white mb-5 tracking-tight">How to Control Cookies</h2>
             <div className="text-white/55 text-sm leading-relaxed space-y-4">
               <p>

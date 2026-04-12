@@ -93,7 +93,7 @@ export default function HistoryPage() {
  </select>
  <Filter className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
  </div>
- <Button variant="ghost" className="h-14 border border-white/5 bg-white/[0.02] rounded-2xl text-sm font-semibold uppercase tracking-widest text-white/40 hover:text-white gap-3">
+ <Button variant="ghost" className="h-14 border border-white/5 bg-white/2 rounded-2xl text-sm font-semibold uppercase tracking-widest text-white/40 hover:text-white gap-3">
  <Calendar className="w-4 h-4" />
  Select Custom Range
  </Button>
@@ -108,7 +108,7 @@ export default function HistoryPage() {
  <div className="overflow-x-auto relative z-10">
  <table className="w-full border-collapse">
  <thead>
- <tr className="border-b border-white/5 bg-white/[0.01]">
+ <tr className="border-b border-white/5 bg-white/1">
  {['Execution_ID', 'Asset_Token', 'Logic_Protocol', 'Type', 'Volume', 'Performance', 'Timestamp', 'Status'].map((head) => (
  <th key={head} className="px-8 py-6 text-left text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">
  {head}
@@ -116,14 +116,14 @@ export default function HistoryPage() {
  ))}
  </tr>
  </thead>
- <tbody className="divide-y divide-white/[0.03]">
+ <tbody className="divide-y divide-white/3">
  {MOCK_HISTORY.map((trade, i) => (
  <motion.tr 
  key={trade.id}
  initial={{ opacity: 0, y: 10 }}
  animate={{ opacity: 1, y: 0 }}
  transition={{ delay: i * 0.05 }}
- className="group hover:bg-white/[0.02] transition-all cursor-pointer"
+ className="group hover:bg-white/2 transition-all cursor-pointer"
  >
  <td className="px-8 py-6">
  <span className="text-xs font-mono text-white/30 uppercase group-hover:text-primary transition-colors">TR_{trade.id}X77_{trade.id.slice(-3).toUpperCase()}</span>

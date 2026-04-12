@@ -33,7 +33,7 @@ export default function CareersPage() {
           <motion.div
             animate={{ rotate: -360 }}
             transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
-            className="w-[700px] h-[700px] rounded-full border border-white/[0.03]"
+            className="w-[700px] h-[700px] rounded-full border border-white/3"
           />
         </div>
 
@@ -60,7 +60,7 @@ export default function CareersPage() {
             <div>
               <h1 className="text-6xl md:text-8xl font-bold tracking-[-0.04em] text-white leading-[0.95]">
                 We're Building<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-indigo-300 to-cyan-400">
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 via-indigo-300 to-cyan-400">
                   The Team.
                 </span>
               </h1>
@@ -85,7 +85,7 @@ export default function CareersPage() {
                       onChange={e => setEmail(e.target.value)}
                       placeholder="your@email.com"
                       required
-                      className="w-full h-12 pl-11 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-indigo-500/60 focus:bg-white/[0.06] transition-all"
+                      className="w-full h-12 pl-11 pr-4 rounded-xl bg-white/4 border border-white/10 text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-indigo-500/60 focus:bg-white/6 transition-all"
                     />
                   </div>
                   <button
@@ -112,13 +112,13 @@ export default function CareersPage() {
       </section>
 
       {/* Open application */}
-      <section className="py-20 border-t border-white/[0.05]">
+      <section className="py-20 border-t border-white/5">
         <div className="container mx-auto px-6 max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="p-10 rounded-3xl bg-gradient-to-br from-indigo-600/8 to-cyan-600/5 border border-indigo-500/20 text-center"
+            className="p-10 rounded-3xl bg-linear-to-br from-indigo-600/8 to-cyan-600/5 border border-indigo-500/20 text-center"
           >
             <h2 className="text-2xl font-bold text-white mb-3">Can't Wait?</h2>
             <p className="text-white/50 mb-8 max-w-sm mx-auto text-sm leading-relaxed">

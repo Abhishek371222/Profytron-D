@@ -35,8 +35,8 @@ import { usersApi } from '@/lib/api/users';
 import { useQueryClient } from '@tanstack/react-query';
 
 const Switch = ({ checked, onChange, label, desc }: { checked: boolean; onChange: (v: boolean) => void; label: string; desc: string }) => (
-  <div className="flex items-center justify-between p-8 rounded-[40px] bg-white/[0.01] border border-white/5 hover:border-primary/20 transition-all duration-700 group relative overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+  <div className="flex items-center justify-between p-8 rounded-[40px] bg-white/1 border border-white/5 hover:border-primary/20 transition-all duration-700 group relative overflow-hidden">
+    <div className="absolute inset-0 bg-linear-to-r from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
     <div className="space-y-1 relative z-10">
       <h4 className="text-[14px] font-semibold text-white uppercase tracking-[0.2em] group-hover:text-primary transition-colors">{label}</h4>
       <p className="text-[11px] text-white/20 font-bold uppercase tracking-[0.3em] font-mono">{desc}</p>
@@ -135,7 +135,7 @@ export default function ProfileSettingsPage() {
             {/* Holographic Back Glow */}
             <div className="absolute -inset-10 bg-primary/10 rounded-full blur-[80px] opacity-0 group-hover/identity:opacity-100 transition-opacity duration-1000 animate-pulse" />
             
-            <div className="w-56 h-56 rounded-full p-[2px] bg-gradient-to-tr from-primary via-indigo-500 to-cyan-400 relative overflow-hidden shadow-2xl">
+            <div className="w-56 h-56 rounded-full p-[2px] bg-linear-to-tr from-primary via-indigo-500 to-cyan-400 relative overflow-hidden shadow-2xl">
               <div className="absolute inset-0 animate-scanline bg-gradient-to-b from-transparent via-white/20 to-transparent h-[200%] pointer-events-none z-10" />
               <div className="w-full h-full rounded-full bg-[#08080a] flex items-center justify-center border border-white/5 group-hover/avatar:border-white/20 transition-all overflow-hidden relative">
                 <div className="absolute inset-0 bg-primary/5 opacity-50 transition-opacity" />
@@ -181,7 +181,7 @@ export default function ProfileSettingsPage() {
 
             <div className="flex items-center justify-center lg:justify-start gap-12 pt-4">
               <div className="flex items-center gap-5">
-                <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center shadow-inner group-hover/identity:border-primary/20 transition-colors">
+                <div className="w-14 h-14 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center shadow-inner group-hover/identity:border-primary/20 transition-colors">
                   <Zap className="w-7 h-7 text-primary drop-shadow-[0_0_10px_#6366f1]" />
                 </div>
                 <div className="flex flex-col text-left">
@@ -208,7 +208,7 @@ export default function ProfileSettingsPage() {
               <h4 className="text-3xl font-semibold text-white uppercase tracking-tight">Fabrication Core</h4>
               <p className="text-[10px] text-primary/40 font-bold uppercase tracking-[0.4em]">Configure Sandbox Execution and Neural Mocks</p>
             </div>
-            <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+            <div className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -230,7 +230,7 @@ export default function ProfileSettingsPage() {
               label="Signal Delay" 
               desc="Induce institutional relay lag [60ms - 240ms]" 
             />
-            <div className="p-8 rounded-[40px] bg-primary/[0.02] border border-primary/10 flex items-center justify-between group hover:border-primary/40 transition-all duration-700 relative overflow-hidden shadow-inner">
+            <div className="p-8 rounded-[40px] bg-primary/2 border border-primary/10 flex items-center justify-between group hover:border-primary/40 transition-all duration-700 relative overflow-hidden shadow-inner">
                <div className="absolute inset-0 bg-scanlines opacity-[0.03]" />
                <div className="space-y-1 relative z-10">
                 <h4 className="text-[14px] font-semibold text-primary uppercase tracking-widest">Injection Power</h4>
@@ -238,7 +238,7 @@ export default function ProfileSettingsPage() {
               </div>
               <div className="flex items-center gap-6 relative z-10">
                 <span className="text-2xl font-bold text-white font-jet-mono tracking-tighter">X2.4</span>
-                <Button variant="ghost" className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-primary hover:text-white transition-all text-white/20 border-b-4 border-b-primary/30">+</Button>
+                <Button variant="ghost" className="w-12 h-12 rounded-2xl bg-white/3 border border-white/5 hover:bg-primary hover:text-white transition-all text-white/20 border-b-4 border-b-primary/30">+</Button>
               </div>
             </div>
           </div>
@@ -251,10 +251,10 @@ export default function ProfileSettingsPage() {
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
               >
-                <div className="p-10 rounded-[48px] bg-amber-500/[0.02] border-2 border-amber-500/20 flex items-center gap-10 relative overflow-hidden shadow-2xl">
+                <div className="p-10 rounded-[48px] bg-amber-500/2 border-2 border-amber-500/20 flex items-center gap-10 relative overflow-hidden shadow-2xl">
                   <div className="absolute inset-0 bg-scanlines opacity-[0.05]" />
                   <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-[80px] -mr-24 -mt-24 animate-pulse" />
-                  <div className="w-16 h-16 rounded-[24px] bg-amber-500/10 flex items-center justify-center border border-amber-500/20 flex-shrink-0 animate-pulse shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+                  <div className="w-16 h-16 rounded-3xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 flex-shrink-0 animate-pulse shadow-[0_0_20px_rgba(245,158,11,0.2)]">
                     <AlertCircle className="w-8 h-8 text-amber-500" />
                   </div>
                   <div className="space-y-2">
@@ -270,22 +270,22 @@ export default function ProfileSettingsPage() {
         {/* IDENTITY REGISTRY SECTION */}
         <section className="space-y-12">
           <div className="flex items-center gap-8">
-            <div className="w-16 h-16 rounded-[28px] bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-2xl">
+            <div className="w-16 h-16 rounded-[28px] bg-white/3 border border-white/10 flex items-center justify-center shadow-2xl">
               <Fingerprint className="w-8 h-8 text-white/20" />
             </div>
             <h4 className="text-3xl font-semibold text-white uppercase tracking-tight">Identity Registry</h4>
-            <div className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
+            <div className="h-px flex-1 bg-linear-to-r from-white/10 to-transparent" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div className="space-y-4 group">
               <label className="text-[10px] font-bold text-white/20 uppercase tracking-[0.6em] ml-4 group-focus-within:text-primary transition-colors">Physical Alias</label>
               <div className="relative">
-                <div className="absolute -inset-0.5 bg-gradient-to-br from-primary/20 to-transparent rounded-[32px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                <div className="absolute -inset-0.5 bg-linear-to-br from-primary/20 to-transparent rounded-4xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
                 <input 
                   value={fullName}
                   onChange={(e) => { setFullName(e.target.value); setIsDirty(true); }}
-                  className="w-full h-20 bg-[#08080a] border border-white/[0.03] rounded-[30px] px-10 text-[16px] font-semibold text-white outline-none focus:border-primary/40 focus:bg-primary/[0.02] transition-all relative z-10 shadow-inner"
+                  className="w-full h-20 bg-[#08080a] border border-white/3 rounded-[30px] px-10 text-[16px] font-semibold text-white outline-none focus:border-primary/40 focus:bg-primary/2 transition-all relative z-10 shadow-inner"
                 />
                 <div className="absolute right-8 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white/10" />
               </div>
@@ -294,11 +294,11 @@ export default function ProfileSettingsPage() {
             <div className="space-y-4 group">
               <label className="text-[10px] font-bold text-white/20 uppercase tracking-[0.6em] ml-4 group-focus-within:text-primary transition-colors">Network ID</label>
               <div className="relative">
-                 <div className="absolute -inset-0.5 bg-gradient-to-br from-emerald-500/20 to-transparent rounded-[32px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
+                 <div className="absolute -inset-0.5 bg-linear-to-br from-emerald-500/20 to-transparent rounded-4xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
                 <input 
                   value={username}
                   onChange={(e) => { setUsername(e.target.value); setIsDirty(true); }}
-                  className="w-full h-20 bg-[#08080a] border border-emerald-500/[0.05] rounded-[30px] px-10 text-[16px] font-semibold text-white outline-none focus:border-emerald-500/40 focus:bg-emerald-500/[0.02] transition-all tabular-nums relative z-10 shadow-inner"
+                  className="w-full h-20 bg-[#08080a] border border-emerald-500/5 rounded-[30px] px-10 text-[16px] font-semibold text-white outline-none focus:border-emerald-500/40 focus:bg-emerald-500/2 transition-all tabular-nums relative z-10 shadow-inner"
                 />
                 <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center gap-5">
                   <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest animate-pulse">VERIFIED_AVAILABLE</span>
@@ -314,12 +314,12 @@ export default function ProfileSettingsPage() {
               <span className="text-[10px] font-bold text-white/10 uppercase tracking-widest font-mono">LINT: 112 / 160 CHAR_MAX</span>
             </div>
             <div className="relative">
-              <div className="absolute -inset-0.5 bg-gradient-to-br from-primary/20 to-transparent rounded-[42px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
+              <div className="absolute -inset-0.5 bg-linear-to-br from-primary/20 to-transparent rounded-[42px] opacity-0 group-focus-within:opacity-100 transition-opacity" />
               <textarea 
                 rows={4}
                 value={bio}
                 onChange={(e) => { setBio(e.target.value); setIsDirty(true); }}
-                className="w-full bg-[#08080a] border border-white/[0.03] rounded-[40px] p-10 text-[15px] font-semibold text-white/70 outline-none focus:border-primary/40 focus:bg-primary/[0.02] transition-all resize-none leading-relaxed shadow-inner relative z-10"
+                className="w-full bg-[#08080a] border border-white/3 rounded-[40px] p-10 text-[15px] font-semibold text-white/70 outline-none focus:border-primary/40 focus:bg-primary/2 transition-all resize-none leading-relaxed shadow-inner relative z-10"
               />
             </div>
           </div>
@@ -351,7 +351,7 @@ export default function ProfileSettingsPage() {
                   "h-24 px-20 rounded-[40px] font-bold uppercase tracking-[0.8em] text-[13px] transition-all relative overflow-hidden shadow-2xl",
                   isDirty 
                     ? "bg-primary hover:bg-indigo-500 shadow-[0_30px_60px_rgba(99,102,241,0.3)] text-white" 
-                    : "bg-white/[0.02] text-white/10 pointer-events-none border border-white/5"
+                    : "bg-white/2 text-white/10 pointer-events-none border border-white/5"
                 )}
                 onClick={handleSave}
               >
@@ -378,7 +378,7 @@ export default function ProfileSettingsPage() {
         <motion.div 
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
-          className="p-12 rounded-[56px] glass-ultra border border-white/5 bg-white/[0.01] space-y-16 relative overflow-hidden group shadow-[0_60px_120px_rgba(0,0,0,0.8)]"
+          className="p-12 rounded-[56px] glass-ultra border border-white/5 bg-white/1 space-y-16 relative overflow-hidden group shadow-[0_60px_120px_rgba(0,0,0,0.8)]"
         >
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -mr-60 -mt-60 animate-pulse pointer-events-none" />
           <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
@@ -397,7 +397,7 @@ export default function ProfileSettingsPage() {
                 initial={{ width: 0 }} 
                 animate={{ width: '98%' }} 
                 transition={{ duration: 2, ease: "circOut" }}
-                className="h-full bg-gradient-to-r from-primary via-indigo-400 to-cyan-400 rounded-full shadow-[0_0_20px_rgba(99,102,241,0.6)]" 
+                className="h-full bg-linear-to-r from-primary via-indigo-400 to-cyan-400 rounded-full shadow-[0_0_20px_rgba(99,102,241,0.6)]" 
               />
             </div>
           </div>
@@ -411,7 +411,7 @@ export default function ProfileSettingsPage() {
             ].map((item, i) => (
               <div key={i} className="flex items-center justify-between group/row">
                 <div className="flex items-center gap-6">
-                  <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center group-hover/row:border-white/20 transition-all duration-500">
+                  <div className="w-12 h-12 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center group-hover/row:border-white/20 transition-all duration-500">
                     <item.icon className={cn("w-6 h-6", item.active ? item.color : "text-white/5")} />
                   </div>
                   <span className="text-[12px] font-semibold text-white/30 uppercase tracking-[0.2em] group-hover/row:text-white transition-all">{item.label}</span>
@@ -425,7 +425,7 @@ export default function ProfileSettingsPage() {
             ))}
           </div>
 
-          <Button variant="ghost" className="w-full h-20 rounded-[32px] bg-white/[0.01] border border-white/5 hover:bg-white/[0.03] hover:border-primary/20 text-[11px] font-bold uppercase tracking-[0.5em] text-white/20 hover:text-white transition-all group/audit overflow-hidden relative">
+          <Button variant="ghost" className="w-full h-20 rounded-4xl bg-white/1 border border-white/5 hover:bg-white/3 hover:border-primary/20 text-[11px] font-bold uppercase tracking-[0.5em] text-white/20 hover:text-white transition-all group/audit overflow-hidden relative">
             <span className="relative z-10 flex items-center justify-center gap-4">
               Detailed System Audit
               <ChevronRight className="w-5 h-5 group-hover/audit:translate-x-3 transition-transform duration-700" />
@@ -434,8 +434,8 @@ export default function ProfileSettingsPage() {
           </Button>
         </motion.div>
 
-        <div className="p-12 rounded-[48px] border border-white/5 bg-white/[0.01] space-y-8 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        <div className="p-12 rounded-[48px] border border-white/5 bg-white/1 space-y-8 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex items-center gap-4">
             <Sparkles className="w-6 h-6 text-primary animate-pulse" />
             <h5 className="text-[11px] font-bold text-white/20 uppercase tracking-[0.6em]">Neural AI Directive</h5>

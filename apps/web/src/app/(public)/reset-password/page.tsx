@@ -117,8 +117,8 @@ export default function ResetPasswordPage() {
  
  {/* Immersive Background Environment */}
  <div className="fixed inset-0 pointer-events-none z-0">
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-p/10 blur-[180px] rounded-full opacity-40 animate-pulse" />
- <div className="absolute -bottom-[10%] -left-[10%] w-[600px] h-[600px] bg-s/10 blur-[150px] rounded-full opacity-30" />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-250 h-250 bg-p/10 blur-[180px] rounded-full opacity-40 animate-pulse" />
+ <div className="absolute -bottom-[10%] -left-[10%] w-150 h-150 bg-s/10 blur-[150px] rounded-full opacity-30" />
  </div>
 
  <div className="fixed top-12 right-12 z-50">
@@ -166,7 +166,7 @@ export default function ResetPasswordPage() {
  setPassword(e.target.value);
  }}
  error={errors.password?.message}
- className="bg-white/[0.03]"
+ className="bg-white/3"
  />
  <PasswordStrength password={password} />
  </motion.div>
@@ -178,7 +178,7 @@ export default function ResetPasswordPage() {
  icon={Lock}
  {...register('confirmPassword')}
  error={errors.confirmPassword?.message}
- className="bg-white/[0.03]"
+ className="bg-white/3"
  />
  </motion.div>
 
@@ -187,7 +187,7 @@ export default function ResetPasswordPage() {
  <Button 
  type="submit" 
  disabled={isLoading}
- className="w-full h-16 bg-gradient-to-r from-p to-p-dark text-white font-semibold text-xl rounded-2xl transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
+ className="w-full h-16 bg-linear-to-r from-p to-p-dark text-white font-semibold text-xl rounded-2xl transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
  >
  <span className="relative z-10 flex items-center justify-center gap-3">
  {isLoading ? (
@@ -199,7 +199,7 @@ export default function ResetPasswordPage() {
  <>Update Access Key <CheckCircle2 className="w-5 h-5" /></>
  )}
  </span>
- <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
+ <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
  </Button>
  </Magnetic>
  </motion.div>

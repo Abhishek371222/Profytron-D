@@ -173,7 +173,7 @@ export default function StrategyQueue() {
  <motion.div
  initial={{ x:"100%" }} animate={{ x: 0 }} exit={{ x:"100%" }}
  transition={{ type:"spring", stiffness: 300, damping: 30 }}
- className="absolute right-0 top-0 bottom-0 w-full max-w-[600px] bg-slate-900 border-l border-slate-800 shadow-2xl z-50 flex flex-col"
+ className="absolute right-0 top-0 bottom-0 w-full max-w-150 bg-slate-900 border-l border-slate-800 shadow-2xl z-50 flex flex-col"
  >
  <div className="flex items-center justify-between p-6 border-b border-slate-800">
  <h2 className="text-lg font-medium text-white flex items-center gap-2">

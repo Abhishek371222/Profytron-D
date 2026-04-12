@@ -94,7 +94,7 @@ export function NodePalette() {
  return (
  <div key={cat.id} className="space-y-4">
  <div className="flex items-center gap-3">
- <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
+ <div className="h-px flex-1 bg-linear-to-r from-transparent to-white/10" />
  <span className="text-xs font-bold text-white/30 uppercase tracking-[0.2em] whitespace-nowrap">
  {cat.name}
  </span>
@@ -115,7 +115,7 @@ export function NodePalette() {
  style={{ backgroundColor: cat.color + '20' }}
  />
  
- <div className="relative p-4 rounded-xl bg-white/[0.03] border border-white/5 group-hover:border-white/20 group-hover:bg-white/[0.06] cursor-grab active:cursor-grabbing transition-all duration-300">
+ <div className="relative p-4 rounded-xl bg-white/3 border border-white/5 group-hover:border-white/20 group-hover:bg-white/6 cursor-grab active:cursor-grabbing transition-all duration-300">
  <div className="flex items-center justify-between mb-1.5">
  <span className="text-sm font-bold text-white group-hover:text-white transition-colors tracking-tight">
  {node.label}
@@ -137,7 +137,7 @@ export function NodePalette() {
  </div>
 
  {/* Bottom Visual Cap */}
- <div className="p-6 bg-gradient-to-t from-black/40 to-transparent">
+ <div className="p-6 bg-linear-to-t from-black/40 to-transparent">
  <div className="p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex items-center gap-4 group cursor-pointer hover:bg-indigo-500/10 transition-all">
  <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
  <Activity className="w-5 h-5 text-indigo-400" />

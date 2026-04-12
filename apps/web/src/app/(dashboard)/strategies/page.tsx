@@ -97,9 +97,9 @@ export default function StrategiesPage() {
 
  {!mounted ? (
  <>
- <div className="h-24 bg-white/[0.02] border border-white/5 rounded-3xl" />
+ <div className="h-24 bg-white/2 border border-white/5 rounded-3xl" />
  <div className="grid grid-cols-3 gap-8">
- {[1,2,3,4,5,6].map(i => <div key={i} className="h-80 bg-white/[0.02] border border-white/5 rounded-3xl" />)}
+ {[1,2,3,4,5,6].map(i => <div key={i} className="h-80 bg-white/2 border border-white/5 rounded-3xl" />)}
  </div>
  </>
  ) : (
@@ -127,7 +127,7 @@ export default function StrategiesPage() {
  key={tab}
  onClick={() => setActiveTab(tab as any)}
  className={cn(
-"relative px-8 py-3.5 rounded-[16px] text-sm font-semibold uppercase tracking-[0.2em] transition-all duration-500",
+"relative px-8 py-3.5 rounded-2xl text-sm font-semibold uppercase tracking-[0.2em] transition-all duration-500",
  activeTab === tab 
  ?"text-white" 
  :"text-white/30 hover:text-white/70"
@@ -137,7 +137,7 @@ export default function StrategiesPage() {
  {activeTab === tab && (
  <motion.div
  layoutId="strategyTabGlow"
- className="absolute inset-0 bg-white/10 border border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.05)] rounded-[16px]"
+ className="absolute inset-0 bg-white/10 border border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.05)] rounded-2xl"
  transition={{ type:"spring", bounce: 0.2, duration: 0.7 }}
  />
  )}
@@ -161,7 +161,7 @@ export default function StrategiesPage() {
  <motion.div 
  initial={{ opacity: 0, y: 20 }}
  animate={{ opacity: 1, y: 0 }}
- className="sticky top-0 z-30 flex flex-col gap-4 p-4 lg:p-6 bg-[#030303]/80 backdrop-blur-3xl border border-white/10 rounded-[24px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.8)]"
+ className="sticky top-0 z-30 flex flex-col gap-4 p-4 lg:p-6 bg-[#030303]/80 backdrop-blur-3xl border border-white/10 rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.8)]"
  >
  <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
  
@@ -172,10 +172,10 @@ export default function StrategiesPage() {
  key={cat}
  onClick={() => setSelectedCategory(cat)}
  className={cn(
-"px-5 py-2.5 rounded-[12px] text-xs font-semibold uppercase tracking-[0.2em] transition-all border shrink-0",
+"px-5 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-[0.2em] transition-all border shrink-0",
  selectedCategory === cat
  ?"bg-p/20 border-p/50 text-white shadow-[0_0_20px_#6366f140]"
- :"bg-white/[0.02] border-white/5 text-white/40 hover:bg-white/[0.05] hover:text-white"
+ :"bg-white/2 border-white/5 text-white/40 hover:bg-white/5 hover:text-white"
  )}
  >
  {cat}
@@ -191,11 +191,11 @@ export default function StrategiesPage() {
  placeholder="Scan strategies or creators..."
  value={searchQuery}
  onChange={(e) => setSearchQuery(e.target.value)}
- className="w-full h-12 bg-black/50 border border-white/10 rounded-[16px] pl-12 pr-4 text-xs font-jet-mono text-white placeholder:text-white/20 outline-none focus:border-p/50 focus:shadow-[0_0_20px_#6366f120] transition-all"
+ className="w-full h-12 bg-black/50 border border-white/10 rounded-2xl pl-12 pr-4 text-xs font-jet-mono text-white placeholder:text-white/20 outline-none focus:border-p/50 focus:shadow-[0_0_20px_#6366f120] transition-all"
  />
  </div>
 
- <div className="hidden md:flex items-center gap-4 px-4 h-12 bg-black/50 border border-white/10 rounded-[16px]">
+ <div className="hidden md:flex items-center gap-4 px-4 h-12 bg-black/50 border border-white/10 rounded-2xl">
  <div className="flex items-center gap-3">
  <Switch checked={verifiedOnly} onCheckedChange={setVerifiedOnly} className="data-[state=checked]:bg-green-500" />
  <span className="text-xs font-semibold text-white/40 uppercase tracking-widest flex items-center gap-1.5">
@@ -220,7 +220,7 @@ export default function StrategiesPage() {
  </div>
  </div>
 
- <div className="flex items-center gap-1 p-1 bg-black/50 border border-white/10 rounded-[12px]">
+ <div className="flex items-center gap-1 p-1 bg-black/50 border border-white/10 rounded-xl">
  <button 
  onClick={() => setViewMode('grid')}
  className={cn("p-2 rounded-[8px] transition-all", viewMode === 'grid' ?"bg-white/10 text-white shadow-inner" :"text-white/30 hover:text-white/60")}
@@ -239,12 +239,12 @@ export default function StrategiesPage() {
  
  {/* Hardware Status Line */}
  <div className="w-full flex items-center gap-4">
- <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+ <div className="flex-1 h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
  <div className="flex items-center gap-2 text-xs text-white/30 font-jet-mono uppercase tracking-[0.2em]">
  <Activity className="w-3 h-3 text-p" />
  <span>Found {displayedStrategies.length} Deployable Nodes</span>
  </div>
- <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+ <div className="flex-1 h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
  </div>
  </motion.div>
 
@@ -357,7 +357,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  animate={{ opacity: 1, x: 0 }}
  transition={{ delay: index * 0.05 }}
  onClick={() => router.push(`/strategies/${strategy.id}`)}
- className="group relative flex flex-col lg:flex-row items-center justify-between p-5 rounded-[24px] bg-[#050505] border border-white/5 hover:border-white/20 transition-all cursor-pointer shadow-lg hover:shadow-[0_0_40px_rgba(255,255,255,0.05)] overflow-hidden"
+ className="group relative flex flex-col lg:flex-row items-center justify-between p-5 rounded-3xl bg-[#050505] border border-white/5 hover:border-white/20 transition-all cursor-pointer shadow-lg hover:shadow-[0_0_40px_rgba(255,255,255,0.05)] overflow-hidden"
  >
  <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.01),transparent)] -translate-x-full group-hover:translate-x-full transition-transform duration-[1.5s] ease-in-out pointer-events-none" />
 
@@ -371,7 +371,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  </div>
  
  <div className="w-full lg:w-[200px] h-16 shrink-0 overflow-hidden relative">
- <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-transparent to-[#050505] z-10 pointer-events-none" />
+ <div className="absolute inset-0 bg-linear-to-r from-[#050505] via-transparent to-[#050505] z-10 pointer-events-none" />
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={(strategy.equityCurve || [0,0,0,0]).map((v: any, i: any) => ({ v: typeof v === 'number' ? v : v.value, i }))}>
  <defs>
@@ -415,7 +415,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
 
  <Button 
  onClick={(e) => { e.stopPropagation(); onActivate(); }}
- className="mt-6 lg:mt-0 lg:ml-8 w-full lg:w-auto bg-white/5 text-white hover:bg-white hover:text-black border border-white/10 rounded-[16px] px-8 h-12 group uppercase text-xs font-semibold tracking-[0.2em] transition-all duration-500 relative z-10"
+ className="mt-6 lg:mt-0 lg:ml-8 w-full lg:w-auto bg-white/5 text-white hover:bg-white hover:text-black border border-white/10 rounded-2xl px-8 h-12 group uppercase text-xs font-semibold tracking-[0.2em] transition-all duration-500 relative z-10"
  >
  Initialize
  <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
@@ -458,7 +458,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  {/* Header: Identity & Status */}
  <div className="flex items-start justify-between mb-4">
  <div className="flex items-center gap-3">
- <div className="h-10 w-10 rounded-[10px] bg-white/[0.03] border border-white/10 flex items-center justify-center backdrop-blur-md">
+ <div className="h-10 w-10 rounded-[10px] bg-white/3 border border-white/10 flex items-center justify-center backdrop-blur-md">
  <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${strategy.creator?.fullName || 'Anon'}`} alt="creator" className="w-6 h-6 opacity-80 mix-blend-luminosity" />
  </div>
  <div className="flex flex-col">
@@ -482,7 +482,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  </div>
 
  {/* Cinematic Telemetry Chart */}
- <div className="h-32 -mx-6 mb-8 relative border-y border-white/5 bg-white/[0.01]">
+ <div className="h-32 -mx-6 mb-8 relative border-y border-white/5 bg-white/1">
  <div className="absolute inset-0 bg-[linear-gradient(0deg,transparent_23px,rgba(255,255,255,0.03)_24px)] bg-[length:100%_24px] pointer-events-none" />
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={(strategy.equityCurve || [0,0,0,0]).map((v: any, i: any) => ({ v: typeof v === 'number' ? v : v.value, i }))} key={chartReset.current}>
@@ -506,7 +506,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  </AreaChart>
  </ResponsiveContainer>
  {/* Edge Fades */}
- <div className="absolute top-0 bottom-0 left-0 w-8 bg-gradient-to-r from-[#050505] to-transparent pointer-events-none" />
+ <div className="absolute top-0 bottom-0 left-0 w-8 bg-linear-to-r from-[#050505] to-transparent pointer-events-none" />
  <div className="absolute top-0 bottom-0 right-0 w-8 bg-gradient-to-l from-[#050505] to-transparent pointer-events-none" />
  </div>
 

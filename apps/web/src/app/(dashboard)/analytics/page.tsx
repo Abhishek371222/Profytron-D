@@ -30,18 +30,18 @@ type TabId = typeof TABS[number]['id'];
 
 function AnalyticsSkeleton() {
  return (
- <div className="space-y-[var(--section-gap)] pb-20 animate-pulse">
+ <div className="space-y-(--section-gap) pb-20 animate-pulse">
  {/* KPI Skeleton */}
  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-6">
  {[...Array(5)].map((_, i) => (
- <div key={i} className="h-48 bg-white/5 rounded-[32px] border border-white/5" />
+ <div key={i} className="h-48 bg-white/5 rounded-4xl border border-white/5" />
  ))}
  </div>
  
  {/* Chart Skeleton */}
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
- <div className="lg:col-span-2 h-[400px] bg-white/5 rounded-[40px] border border-white/5" />
- <div className="h-[400px] bg-white/5 rounded-[40px] border border-white/5" />
+ <div className="lg:col-span-2 h-100 bg-white/5 rounded-[40px] border border-white/5" />
+ <div className="h-100 bg-white/5 rounded-[40px] border border-white/5" />
  </div>
  </div>
  );
@@ -77,11 +77,11 @@ export default function AnalyticsPage() {
  </div>
 
  <div className="flex items-center gap-6">
- <div className="flex items-center gap-4 px-6 py-3.5 rounded-[22px] bg-white/[0.03] border border-white/5 group hover:border-white/15 transition-all cursor-pointer shadow-2xl backdrop-blur-3xl">
+ <div className="flex items-center gap-4 px-6 py-3.5 rounded-[22px] bg-white/3 border border-white/5 group hover:border-white/15 transition-all cursor-pointer shadow-2xl backdrop-blur-3xl">
  <Calendar className="w-4 h-4 text-white/40 group-hover:text-p transition-colors" />
  <div className="flex items-center gap-4 text-sm font-semibold text-white/60 uppercase tracking-[0.2em] font-jet-mono">
  <span className="hover:text-white transition-colors">JAN 01</span>
- <div className="w-8 h-[1px] bg-white/10" />
+ <div className="w-8 h-px bg-white/10" />
  <span className="hover:text-white transition-colors">MAR 30</span>
  </div>
  </div>
@@ -104,17 +104,17 @@ export default function AnalyticsPage() {
  key={tab.id}
  onClick={() => setActiveTab(tab.id)}
  className={cn(
-"relative px-10 py-4 rounded-[24px] text-sm font-semibold uppercase tracking-[0.2em] transition-all duration-500",
+"relative px-10 py-4 rounded-3xl text-sm font-semibold uppercase tracking-[0.2em] transition-all duration-500",
  activeTab === tab.id 
  ?"text-white" 
- :"text-white/20 hover:text-white/50 hover:bg-white/[0.02]"
+ :"text-white/20 hover:text-white/50 hover:bg-white/2"
  )}
  >
  <span className="relative z-10">{tab.label}</span>
  {activeTab === tab.id && (
  <motion.div
  layoutId="activeTabGlow"
- className="absolute inset-0 bg-gradient-to-br from-p to-indigo-700 shadow-[0_0_30px_rgba(99,102,241,0.5)] rounded-[24px]"
+ className="absolute inset-0 bg-linear-to-br from-p to-indigo-700 shadow-[0_0_30px_rgba(99,102,241,0.5)] rounded-3xl"
  transition={{ type:"spring", bounce: 0.2, duration: 0.7 }}
  />
  )}

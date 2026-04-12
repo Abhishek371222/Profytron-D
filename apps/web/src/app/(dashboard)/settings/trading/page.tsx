@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 
 const Switch = ({ checked, onChange, label, desc }: { checked: boolean; onChange: (v: boolean) => void; label: string; desc: string }) => (
- <div className="flex items-center justify-between p-8 rounded-[32px] bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all group">
+ <div className="flex items-center justify-between p-8 rounded-4xl bg-white/2 border border-white/5 hover:border-white/10 transition-all group">
  <div className="space-y-1">
  <h4 className="text-sm font-semibold text-white uppercase tracking-widest group-hover:text-p transition-colors">{label}</h4>
  <p className="text-xs text-white/20 font-semibold uppercase tracking-[0.2em]">{desc}</p>
@@ -84,8 +84,8 @@ export default function ExecutionProtocolPage() {
 
  {/* MODE TOGGLE */}
  <div className="relative group">
- <div className="absolute -inset-px bg-gradient-to-br from-amber-500/20 to-transparent rounded-[36px] blur-xl opacity-30" />
- <div className="relative p-10 rounded-[40px] border border-amber-500/20 bg-amber-500/[0.02] overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-10">
+ <div className="absolute -inset-px bg-linear-to-br from-amber-500/20 to-transparent rounded-[36px] blur-xl opacity-30" />
+ <div className="relative p-10 rounded-[40px] border border-amber-500/20 bg-amber-500/2 overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-10">
  <div className="space-y-4">
  <div className="flex items-center gap-4">
  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
@@ -100,7 +100,7 @@ export default function ExecutionProtocolPage() {
  <button 
  onClick={() => setDemoMode(!demoMode)}
  className={cn(
-"h-16 px-12 rounded-[24px] font-semibold uppercase tracking-[0.4em] text-sm transition-all relative overflow-hidden",
+"h-16 px-12 rounded-3xl font-semibold uppercase tracking-[0.4em] text-sm transition-all relative overflow-hidden",
  demoMode ?"bg-amber-500 text-black shadow-[0_0_40px_rgba(245,158,11,0.3)]" :"bg-white/5 text-white/20 border border-white/5"
  )}
  >
@@ -120,7 +120,7 @@ export default function ExecutionProtocolPage() {
  <h5 className="text-sm font-semibold text-white uppercase tracking-widest">Slippage Tolerance</h5>
  </div>
  
- <div className="p-10 rounded-[40px] bg-white/[0.01] border border-white/5 space-y-8">
+ <div className="p-10 rounded-[40px] bg-white/1 border border-white/5 space-y-8">
  <div className="flex justify-between items-end">
  <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">Maximum Deviation</span>
  <span className="text-4xl font-semibold text-p">{slippage[0]}%</span>
@@ -153,7 +153,7 @@ export default function ExecutionProtocolPage() {
  label="Neural Auto-Scaling" 
  desc="Automatically adjust lot size based on account DNA."
  />
- <div className="p-8 rounded-[32px] bg-white/[0.02] border border-white/5 flex items-center justify-between group">
+ <div className="p-8 rounded-4xl bg-white/2 border border-white/5 flex items-center justify-between group">
  <div className="space-y-1">
  <h4 className="text-sm font-semibold text-white uppercase tracking-widest group-hover:text-p transition-colors">Heartbeat Protocol</h4>
  <p className="text-xs text-white/20 font-semibold uppercase tracking-[0.2em]">Health check frequency for active nodes</p>
@@ -182,7 +182,7 @@ export default function ExecutionProtocolPage() {
  { name: 'BINANCE_NEURAL_LINK', status: 'STANDBY', latency: '42ms', type: 'Secondary' },
  { name: 'METATRADER_V5_INST', status: 'LEGACY_SYNC', latency: '112ms', type: 'External' },
  ].map((node, i) => (
- <div key={i} className="p-8 rounded-[36px] bg-white/[0.01] border border-white/5 hover:border-white/15 transition-all group relative overflow-hidden">
+ <div key={i} className="p-8 rounded-[36px] bg-white/1 border border-white/5 hover:border-white/15 transition-all group relative overflow-hidden">
  {node.status === 'SYNCHRONIZED' && (
  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-[40px] -mr-12 -mt-12" />
  )}
@@ -210,7 +210,7 @@ export default function ExecutionProtocolPage() {
  </div>
  ))}
  
- <button className="p-12 rounded-[36px] border border-dashed border-white/10 hover:border-p/40 hover:bg-p/[0.02] transition-all group flex flex-col items-center justify-center gap-4">
+ <button className="p-12 rounded-[36px] border border-dashed border-white/10 hover:border-p/40 hover:bg-p/2 transition-all group flex flex-col items-center justify-center gap-4">
  <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-p group-hover:text-white transition-all">
  <Plus className="w-6 h-6 text-white/20 group-hover:text-white" />
  </div>

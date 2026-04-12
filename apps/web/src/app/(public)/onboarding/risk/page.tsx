@@ -163,7 +163,7 @@ const STEPS = [
  >
  <span className={cn("relative z-10", answers[q.id] === option ?"scale-110" :"")}>{option}</span>
  {answers[q.id] === option && (
- <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
+ <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
  )}
  </button>
  ))}
@@ -199,7 +199,7 @@ const STEPS = [
  <h2 className="text-3xl font-semibold uppercase tracking-[0.2em]">Analyzing Profile DNA...</h2>
  <p className="text-white/30 text-lg font-medium leading-relaxed uppercase tracking-widest">Compiling institutional risk constraints and neural execution protocols.</p>
  </div>
- <div className="bg-white/5 border border-white/10 p-6 rounded-[32px] space-y-4 max-w-sm mx-auto">
+ <div className="bg-white/5 border border-white/10 p-6 rounded-4xl space-y-4 max-w-sm mx-auto">
  <div className="flex items-center gap-3">
  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
  <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">System Protocols Engaged</span>

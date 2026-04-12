@@ -42,7 +42,7 @@ export const AuthVisualPanel = ({
             x: [0, 100, 0]
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-p/20 blur-[120px] rounded-full" 
+          className="absolute -top-32 -left-32 w-150 h-150 bg-p/20 blur-[120px] rounded-full" 
         />
         
         <motion.div 
@@ -52,7 +52,7 @@ export const AuthVisualPanel = ({
             y: [0, -100, 0]
           }}
           transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute -bottom-48 -right-48 w-[800px] h-[800px] bg-s/10 blur-[150px] rounded-full" 
+          className="absolute -bottom-48 -right-48 w-200 h-200 bg-s/10 blur-[150px] rounded-full" 
         />
 
         {/* Floating Particle Simulation (CSS) */}
@@ -90,7 +90,7 @@ export const AuthVisualPanel = ({
  >
  <div className="relative group">
  <div className="absolute inset-0 bg-p blur-xl opacity-20 group-hover:opacity-40 transition-opacity" />
- <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-p to-p-dark flex items-center justify-center border border-white/10 shadow-2xl">
+ <div className="relative w-12 h-12 rounded-2xl bg-linear-to-br from-p to-p-dark flex items-center justify-center border border-white/10 shadow-2xl">
  <Zap className="w-7 h-7 text-white fill-white animate-pulse" />
  </div>
  </div>
@@ -144,9 +144,9 @@ export const AuthVisualPanel = ({
  key={i} 
  className="w-10 h-10 rounded-full border-2 border-bg-card bg-bg-elevated flex items-center justify-center text-xs font-semibold shadow-2xl relative overflow-hidden group/avatar"
  >
- <div className="absolute inset-0 bg-gradient-to-br from-p/20 to-s/20 group-hover/avatar:opacity-0 transition-opacity" />
+ <div className="absolute inset-0 bg-linear-to-br from-p/20 to-s/20 group-hover/avatar:opacity-0 transition-opacity" />
  <span className="relative z-10 text-white opacity-60">TR</span>
- <div className={`absolute inset-0 bg-gradient-to-tr ${i % 2 === 0 ? 'from-p to-purple' : 'from-s to-p'} opacity-40`} />
+ <div className={`absolute inset-0 bg-linear-to-tr ${i % 2 === 0 ? 'from-p to-purple' : 'from-s to-p'} opacity-40`} />
  </div>
  ))}
  <div className="w-10 h-10 rounded-full border-2 border-bg-card bg-p flex items-center justify-center text-xs font-semibold text-white shadow-2xl">

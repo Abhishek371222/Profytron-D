@@ -17,7 +17,7 @@ export function StatsSection() {
     <section className="pt-20 pb-32 bg-black relative overflow-hidden">
       {/* Background Decorative Architecture */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
-        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-p/20 blur-[150px] rounded-full -translate-x-1/2" />
+        <div className="absolute top-1/2 left-0 w-[400px] h-100 bg-p/20 blur-[150px] rounded-full -translate-x-1/2" />
         <div className="absolute inset-0 bg-[url('/noise.svg')] mix-blend-overlay opacity-30" />
       </div>
 
@@ -38,7 +38,7 @@ export function StatsSection() {
                 </span>
               </div>
               <div className="flex flex-col items-center gap-6">
-                <div className="h-[2px] w-16 bg-white/5 relative overflow-hidden group-hover:w-32 transition-all duration-1000">
+                <div className="h-0.5 w-16 bg-white/5 relative overflow-hidden group-hover:w-32 transition-all duration-1000">
                   <div className="absolute inset-0 bg-p opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <p className="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/30 group-hover:text-p/80 transition-all duration-700 text-center max-w-[200px] leading-relaxed break-words">
@@ -51,7 +51,7 @@ export function StatsSection() {
       </div>
 
       {/* Industrial Scanline for section transition */}
-      <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-p/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-p/20 to-transparent" />
     </section>
   );
 }
@@ -118,7 +118,7 @@ export function LiveTicker() {
     <div className="flex flex-col items-center w-full relative z-20">
       <div className="w-full bg-black/80 backdrop-blur-3xl border-y border-white/5 py-5 overflow-hidden relative group z-0">
         <div className="absolute inset-0 bg-scanlines opacity-5 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-r from-black via-transparent to-black z-10 pointer-events-none" />
 
         <div className="container mx-auto px-6 flex items-center gap-16">
           <div className="flex items-center gap-6 shrink-0 z-20">

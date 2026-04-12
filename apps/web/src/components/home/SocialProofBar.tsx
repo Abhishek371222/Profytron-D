@@ -14,13 +14,13 @@ const companies = [
 
 export function SocialProofBar() {
   return (
-    <div className="pt-20 pb-4 border-y border-white/5 bg-gradient-to-b from-black via-white/[0.02] to-black relative overflow-hidden">
+    <div className="pt-20 pb-4 border-y border-white/5 bg-gradient-to-b from-black via-white/2 to-black relative overflow-hidden">
       {/* Subtle Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[300px] bg-p/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-[300px] bg-p/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex items-center justify-center gap-4 mb-14">
-          <div className="h-px w-12 bg-gradient-to-r from-transparent to-white/20" />
+          <div className="h-px w-12 bg-linear-to-r from-transparent to-white/20" />
           <p className="text-center text-xs font-bold uppercase tracking-[0.4em] text-white/60 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
             Institutional Liquidity Connectivity
           </p>

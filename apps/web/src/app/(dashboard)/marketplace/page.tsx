@@ -128,7 +128,7 @@ export default function MarketplacePage() {
  <AnimatePresence mode="popLayout">
  {isLoading ? (
  Array.from({ length: 6 }).map((_, i) => (
- <div key={i} className="h-80 rounded-[28px] bg-white/[0.02] animate-pulse border border-white/[0.05]" />
+ <div key={i} className="h-80 rounded-[28px] bg-white/2 animate-pulse border border-white/5" />
  ))
  ) : (
  filteredStrategies.map((strategy) => (

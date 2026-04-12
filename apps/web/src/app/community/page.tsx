@@ -17,14 +17,14 @@ export default function CommunityPage() {
     <PublicPageLayout>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center py-28 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-600/8 blur-[140px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-100 bg-indigo-600/8 blur-[140px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-4xl relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
           >
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-white/40 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/3 border border-white/8 text-white/40 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
               <motion.div
                 animate={{ scale: [1, 1.4, 1], opacity: [1, 0.4, 1] }}
                 transition={{ duration: 2.5, repeat: Infinity }}
@@ -35,7 +35,7 @@ export default function CommunityPage() {
 
             <h1 className="text-6xl md:text-8xl font-bold tracking-[-0.04em] text-white leading-[0.95] mb-8">
               We're Just<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-cyan-400">
                 Getting Started.
               </span>
             </h1>
@@ -48,7 +48,7 @@ export default function CommunityPage() {
       </section>
 
       {/* Social cards */}
-      <section className="pb-20 border-t border-white/[0.05]">
+      <section className="pb-20 border-t border-white/5">
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-16">
 
@@ -59,7 +59,7 @@ export default function CommunityPage() {
               transition={{ delay: 0 }}
               viewport={{ once: true }}
             >
-              <div className="flex flex-col h-full p-8 rounded-2xl bg-gradient-to-br from-indigo-600/10 to-indigo-600/0 border border-indigo-500/10 opacity-60 select-none">
+              <div className="flex flex-col h-full p-8 rounded-2xl bg-linear-to-br from-indigo-600/10 to-indigo-600/0 border border-indigo-500/10 opacity-60 select-none">
                 <div className="flex items-start justify-between mb-6">
                   <div className="w-12 h-12 rounded-xl border bg-indigo-500/10 border-indigo-500/20 flex items-center justify-center">
                     <MessageSquare className="w-5 h-5 text-indigo-400/60" />
@@ -97,7 +97,7 @@ export default function CommunityPage() {
                 href="https://www.instagram.com/profytron/"
                 target="_blank"
                 rel="noreferrer"
-                className="group flex flex-col h-full p-8 rounded-2xl bg-gradient-to-br from-pink-600/15 to-purple-600/5 border border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 cursor-pointer"
+                className="group flex flex-col h-full p-8 rounded-2xl bg-linear-to-br from-pink-600/15 to-purple-600/5 border border-pink-500/20 hover:border-pink-500/40 transition-all duration-300 cursor-pointer"
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="w-12 h-12 rounded-xl border bg-pink-500/10 border-pink-500/20 flex items-center justify-center">
@@ -125,7 +125,7 @@ export default function CommunityPage() {
       </section>
 
       {/* Why join early */}
-      <section className="py-20 border-t border-white/[0.05] bg-black/20">
+      <section className="py-20 border-t border-white/5 bg-black/20">
         <div className="container mx-auto px-6 max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -149,7 +149,7 @@ export default function CommunityPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
                 viewport={{ once: true }}
-                className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06]"
+                className="p-6 rounded-2xl bg-white/2 border border-white/6"
               >
                 <div className="w-6 h-px bg-indigo-500 mb-4" />
                 <h4 className="font-bold text-white text-sm mb-2">{item.title}</h4>
@@ -161,13 +161,13 @@ export default function CommunityPage() {
       </section>
 
       {/* Direct contact */}
-      <section className="py-20 border-t border-white/[0.05]">
+      <section className="py-20 border-t border-white/5">
         <div className="container mx-auto px-6 max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="p-10 rounded-3xl bg-gradient-to-br from-indigo-600/8 to-cyan-600/5 border border-indigo-500/20 flex flex-col md:flex-row items-center justify-between gap-8"
+            className="p-10 rounded-3xl bg-linear-to-br from-indigo-600/8 to-cyan-600/5 border border-indigo-500/20 flex flex-col md:flex-row items-center justify-between gap-8"
           >
             <div>
               <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Prefer email?</h3>

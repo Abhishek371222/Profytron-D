@@ -59,13 +59,13 @@ export function Testimonials() {
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-10">
           <FadeUp>
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.4em] mb-6 shadow-inner">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/3 border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.4em] mb-6 shadow-inner">
               <Terminal className="w-3 h-3 text-p" />
               <span>Verification_Logs</span>
             </div>
             <h2 className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight text-white m-0">
               Validated by the <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-p to-cyan-400 drop-shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-p to-cyan-400 drop-shadow-[0_0_20px_rgba(99,102,241,0.2)]">
                 Industry Elite.
               </span>
             </h2>
@@ -110,7 +110,7 @@ export function Testimonials() {
               <div className="relative z-10 flex flex-col justify-between flex-1 p-8 md:p-10 gap-8 bg-gradient-to-b from-transparent to-[#050505]/50 hover:to-[#050505] transition-colors">
                 {/* Quote Text */}
                 <div className="relative">
-                  <Quote className="absolute -top-4 -left-4 w-12 h-12 text-white/[0.03] rotate-12 group-hover:text-p/10 transition-colors duration-500" />
+                  <Quote className="absolute -top-4 -left-4 w-12 h-12 text-white/3 rotate-12 group-hover:text-p/10 transition-colors duration-500" />
                   <p className="text-xl md:text-[22px] leading-relaxed text-white/60 font-medium tracking-tight group-hover:text-white/90 transition-colors duration-500 relative z-10 italic">
                     "{testimonial.quote}"
                   </p>
@@ -129,7 +129,7 @@ export function Testimonials() {
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1A1A1A] to-[#111] border border-white/10 flex items-center justify-center overflow-hidden shrink-0 group-hover:border-p/40 transition-colors duration-500">
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[#1A1A1A] to-[#111] border border-white/10 flex items-center justify-center overflow-hidden shrink-0 group-hover:border-p/40 transition-colors duration-500">
                       {testimonial.image ? (
                         <Image
                           src={testimonial.image}

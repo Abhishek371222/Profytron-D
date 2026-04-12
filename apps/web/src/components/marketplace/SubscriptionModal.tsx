@@ -43,7 +43,7 @@ export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionMod
  className="relative w-full max-w-3xl glass-strong border border-white/10 rounded-[40px] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden"
  >
  {/* Header / Stepper */}
- <div className="px-10 py-8 border-b border-white/[0.05] flex items-center justify-between">
+ <div className="px-10 py-8 border-b border-white/5 flex items-center justify-between">
  <div className="flex items-center gap-6">
  <div className="flex items-center gap-2">
  {[1, 2, 3].map((s) => (
@@ -120,7 +120,7 @@ export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionMod
  ))}
  </div>
 
- <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/[0.05] space-y-4">
+ <div className="p-6 rounded-3xl bg-white/2 border border-white/5 space-y-4">
  <h4 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Included Premium Features</h4>
  <div className="grid grid-cols-2 gap-y-3 gap-x-6">
  {['Auto-Execution Enabled', 'Risk Shielding', '1ms Latency Proxy', '24/7 Monitoring'].map((f) => (
@@ -170,7 +170,7 @@ export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionMod
  </div>
  </div>
 
- <div className="p-6 rounded-3xl bg-black/40 border border-white/[0.05] space-y-6">
+ <div className="p-6 rounded-3xl bg-black/40 border border-white/5 space-y-6">
  <h4 className="text-xs font-semibold text-white/30 uppercase tracking-widest">Order Summary</h4>
  <div className="space-y-3">
  <div className="flex justify-between text-xs">
@@ -187,7 +187,7 @@ export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionMod
  <span className="text-lg font-bold text-white font-jet-mono">{PLANS.find(p => p.id === selectedPlan)?.price}</span>
  </div>
  </div>
- <div className="flex items-center gap-3 text-xs text-white/20 font-bold uppercase tracking-widest bg-white/[0.02] p-3 rounded-xl border border-white/[0.03]">
+ <div className="flex items-center gap-3 text-xs text-white/20 font-bold uppercase tracking-widest bg-white/2 p-3 rounded-xl border border-white/3">
  <ShieldCheck className="w-4 h-4 text-emerald-500" />
  Secure Stripe Integration
  </div>
@@ -223,7 +223,7 @@ export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionMod
  </div>
 
  {/* Footer Actions */}
- <div className="px-10 py-8 bg-black/40 border-t border-white/[0.05] flex items-center justify-between">
+ <div className="px-10 py-8 bg-black/40 border-t border-white/5 flex items-center justify-between">
  {step < 3 ? (
  <>
  <button 

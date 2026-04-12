@@ -33,15 +33,15 @@ export default function GuidesPage() {
     <PublicPageLayout>
       {/* Hero */}
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-0 left-1/3 w-[600px] h-[300px] bg-indigo-600/8 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/3 w-150 h-[300px] bg-indigo-600/8 blur-[100px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-5xl relative z-10">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
               <BookOpen className="w-3 h-3 text-indigo-400" /> Market_Guides
             </div>
             <h1 className="text-6xl md:text-7xl font-bold tracking-[-0.03em] text-white leading-tight mb-6">
               Trade Smarter,<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Not Harder.</span>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-cyan-400">Not Harder.</span>
             </h1>
             <p className="text-lg text-white/50 max-w-xl font-medium leading-relaxed">
               Practitioner-written guides on algorithmic strategies, risk management, market microstructure, and AI signal analysis.
@@ -70,14 +70,14 @@ export default function GuidesPage() {
       </section>
 
       {/* Guides Grid */}
-      <section className="py-16 bg-black/20 border-y border-white/[0.05]">
+      <section className="py-16 bg-black/20 border-y border-white/5">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {guides.map((guide, i) => (
               <motion.article key={guide.title}
                 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }} viewport={{ once: true }}
-                className="group p-6 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-indigo-500/30 hover:bg-white/[0.04] transition-all cursor-pointer flex gap-5"
+                className="group p-6 rounded-2xl bg-white/2 border border-white/6 hover:border-indigo-500/30 hover:bg-white/4 transition-all cursor-pointer flex gap-5"
               >
                 <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0">
                   <guide.icon className="w-5 h-5 text-indigo-400" />

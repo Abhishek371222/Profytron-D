@@ -54,8 +54,8 @@ export default function BillingPage() {
  className={cn(
 "p-8 rounded-[36px] border transition-all relative overflow-hidden group",
  tier.active 
- ?"bg-p/[0.03] border-p/20 shadow-[0_30px_60px_rgba(99,102,241,0.08)]" 
- :"bg-white/[0.01] border-white/5 opacity-40 hover:opacity-100 hover:border-white/10"
+ ?"bg-p/3 border-p/20 shadow-[0_30px_60px_rgba(99,102,241,0.08)]" 
+ :"bg-white/1 border-white/5 opacity-40 hover:opacity-100 hover:border-white/10"
  )}
  >
  {tier.active && (
@@ -112,7 +112,7 @@ export default function BillingPage() {
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
- <div className="p-10 rounded-[44px] glass-ultra border border-white/5 bg-gradient-to-br from-p/5 to-transparent relative group overflow-hidden">
+ <div className="p-10 rounded-[44px] glass-ultra border border-white/5 bg-linear-to-br from-p/5 to-transparent relative group overflow-hidden">
  <div className="absolute top-0 right-0 w-32 h-32 bg-p/10 rounded-full blur-[60px] -mr-16 -mt-16" />
  <div className="flex flex-col justify-between h-56 relative z-10">
  <div className="flex justify-between items-start">
@@ -135,7 +135,7 @@ export default function BillingPage() {
  </div>
  </div>
 
- <button className="h-full min-h-[224px] rounded-[44px] border border-dashed border-white/10 hover:border-p/40 hover:bg-p/[0.02] transition-all group flex flex-col items-center justify-center gap-6">
+ <button className="h-full min-h-[224px] rounded-[44px] border border-dashed border-white/10 hover:border-p/40 hover:bg-p/2 transition-all group flex flex-col items-center justify-center gap-6">
  <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-p group-hover:text-white transition-all">
  <Plus className="w-8 h-8 text-white/20 group-hover:text-white" />
  </div>
@@ -158,13 +158,13 @@ export default function BillingPage() {
  </div>
 
  <div className="rounded-[36px] bg-[#030303] border border-white/5 overflow-hidden">
- <div className="grid grid-cols-4 gap-4 px-10 py-6 border-b border-white/5 bg-white/[0.01]">
+ <div className="grid grid-cols-4 gap-4 px-10 py-6 border-b border-white/5 bg-white/1">
  {['Registry ID', 'Handshake Date', 'Liquidity Shipped', 'Relay Status'].map(h => (
  <span key={h} className="text-xs font-semibold text-white/20 uppercase tracking-[0.4em]">{h}</span>
  ))}
  </div>
  {INVOICES.map((inv, i) => (
- <div key={inv.id} className="grid grid-cols-4 gap-4 px-10 py-8 border-b border-white/[0.03] items-center hover:bg-white/[0.02] transition-colors group">
+ <div key={inv.id} className="grid grid-cols-4 gap-4 px-10 py-8 border-b border-white/3 items-center hover:bg-white/2 transition-colors group">
  <span className="text-sm font-semibold text-white font-jet-mono uppercase">{inv.id}</span>
  <span className="text-xs font-semibold text-white/40 font-jet-mono uppercase">{inv.date}</span>
  <span className="text-sm font-semibold text-white font-jet-mono">{inv.amount}</span>

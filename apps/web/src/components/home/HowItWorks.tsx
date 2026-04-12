@@ -35,7 +35,7 @@ export function HowItWorks() {
   return (
     <section id="how-it-works" className="py-32 bg-[#020202] relative border-t border-white/5 overflow-hidden">
       {/* Decorative Architecture */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-bl from-p/5 to-transparent blur-[120px] rounded-full pointer-events-none opacity-50" />
+      <div className="absolute top-0 right-0 w-200 h-200 bg-gradient-to-bl from-p/5 to-transparent blur-[120px] rounded-full pointer-events-none opacity-50" />
       <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
 
       <div className="container mx-auto px-6 relative z-10 w-full max-w-[1400px]">
@@ -43,7 +43,7 @@ export function HowItWorks() {
           {/* Sticky Left Content */}
           <div className="lg:w-[45%] lg:sticky lg:top-40">
             <FadeUp>
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.4em] mb-8 shadow-inner">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/3 border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.4em] mb-8 shadow-inner">
                 <div className="w-2 h-2 rounded-full bg-p animate-ping absolute" />
                 <div className="w-2 h-2 rounded-full bg-p relative" />
                 <span>Operational_Alpha</span>
@@ -51,7 +51,7 @@ export function HowItWorks() {
               
               <h3 className="text-5xl md:text-7xl font-bold mb-8 leading-[1.1] tracking-[-0.02em] text-white">
                 Your Path to <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-p to-indigo-300 drop-shadow-[0_0_20px_rgba(99,102,241,0.2)]">Automated Mastery.</span>
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-p to-indigo-300 drop-shadow-[0_0_20px_rgba(99,102,241,0.2)]">Automated Mastery.</span>
               </h3>
               
               <p className="text-white/40 text-xl md:text-2xl mb-12 leading-relaxed font-medium">
@@ -59,9 +59,9 @@ export function HowItWorks() {
               </p>
 
               {/* Redesigned Testimonial / Highlight Box */}
-              <div className="p-8 md:p-10 rounded-[32px] bg-white/[0.02] border border-white/5 backdrop-blur-xl relative overflow-hidden group hover:borderColor-white/10 transition-colors duration-500 shadow-2xl">
+              <div className="p-8 md:p-10 rounded-4xl bg-white/2 border border-white/5 backdrop-blur-xl relative overflow-hidden group hover:borderColor-white/10 transition-colors duration-500 shadow-2xl">
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-p/20 blur-[50px] rounded-full group-hover:scale-150 transition-transform duration-1000" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
                 
                 <p className="text-xl text-white/90 font-medium leading-relaxed relative z-10 italic">
                   &quot;The most sophisticated execution architecture I&apos;ve seen delivered outside of a tier-1 firm.&quot;
@@ -103,7 +103,7 @@ export function HowItWorks() {
                 >
                   {/* Icon Circle */}
                   <div className="w-20 h-20 rounded-2xl bg-[#0c0c0c] border border-white/5 flex items-center justify-center shrink-0 z-10 transition-all duration-500 group-hover:border-p/40 group-hover:bg-[#111] group-hover:scale-105 shadow-xl relative overflow-hidden group-hover:shadow-[0_0_30px_rgba(99,102,241,0.15)]">
-                    <div className="absolute inset-0 bg-gradient-to-br from-p/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-linear-to-br from-p/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <step.icon className="w-8 h-8 text-white/50 group-hover:text-p transition-colors relative z-10" />
                   </div>
 

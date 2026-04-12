@@ -120,8 +120,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  </main>
 
  {/* Edge Accents */}
- <div className="fixed top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent z-[100] pointer-events-none" />
- <div className="fixed bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/5 to-transparent z-[100] pointer-events-none" />
+ <div className="fixed top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/5 to-transparent z-[100] pointer-events-none" />
+ <div className="fixed bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/5 to-transparent z-[100] pointer-events-none" />
  </div>
  );
 }

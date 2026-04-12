@@ -69,7 +69,7 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
       <DialogContent className="max-w-2xl bg-[#050505] border-white/10 p-0 overflow-hidden rounded-[30px] shadow-[0_0_100px_rgba(0,0,0,1)]">
         
         {/* Modal Ambient Glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-cyan-500/10 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-br from-indigo-500/10 via-transparent to-cyan-500/10 pointer-events-none" />
         
         {/* Scanline overlay */}
         <div className="absolute inset-0 bg-[url('/scanlines.png')] opacity-[0.03] mix-blend-overlay pointer-events-none" />
@@ -92,12 +92,12 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                   <h2 className="text-3xl font-semibold text-white uppercase tracking-tight">Review Telemetry</h2>
                 </div>
 
-                <div className="p-6 rounded-[24px] bg-black/60 border border-white/5 space-y-6 backdrop-blur-xl relative overflow-hidden group">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                <div className="p-6 rounded-3xl bg-black/60 border border-white/5 space-y-6 backdrop-blur-xl relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-linear-to-r from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                   
                   <div className="flex items-start justify-between relative z-10">
                     <div className="flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-[16px] bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-inner">
+                      <div className="h-16 w-16 rounded-2xl bg-white/3 border border-white/10 flex items-center justify-center shadow-inner">
                         <Cpu className="h-8 w-8 text-white/60" />
                       </div>
                       <div>
@@ -134,8 +134,8 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <Button variant="ghost" onClick={onClose} className="h-14 flex-1 rounded-[16px] border border-white/10 font-jet-mono text-xs uppercase tracking-widest hover:bg-white/5">Abort</Button>
-                  <Button onClick={() => setStep(2)} className="h-14 flex-[2] bg-white text-black hover:bg-white/90 rounded-[16px] font-semibold text-xs uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(255,255,255,0.1)]">Authenticate Logic &rarr;</Button>
+                  <Button variant="ghost" onClick={onClose} className="h-14 flex-1 rounded-2xl border border-white/10 font-jet-mono text-xs uppercase tracking-widest hover:bg-white/5">Abort</Button>
+                  <Button onClick={() => setStep(2)} className="h-14 flex-2 bg-white text-black hover:bg-white/90 rounded-2xl font-semibold text-xs uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(255,255,255,0.1)]">Authenticate Logic &rarr;</Button>
                 </div>
               </motion.div>
             )}
@@ -197,8 +197,8 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <Button variant="ghost" onClick={() => setStep(1)} className="h-14 flex-1 rounded-[16px] border border-white/10 font-jet-mono text-xs uppercase tracking-widest hover:bg-white/5">Back</Button>
-                  <Button onClick={() => setStep(3)} className="h-14 flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white rounded-[16px] font-semibold text-xs uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(99,102,241,0.2)]">Sign Logic Contract</Button>
+                  <Button variant="ghost" onClick={() => setStep(1)} className="h-14 flex-1 rounded-2xl border border-white/10 font-jet-mono text-xs uppercase tracking-widest hover:bg-white/5">Back</Button>
+                  <Button onClick={() => setStep(3)} className="h-14 flex-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-semibold text-xs uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(99,102,241,0.2)]">Sign Logic Contract</Button>
                 </div>
               </motion.div>
             )}
@@ -219,7 +219,7 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                   <h2 className="text-3xl font-semibold text-white uppercase tracking-tight">Finalize Deployment</h2>
                 </div>
 
-                <div className="p-8 rounded-[24px] bg-black/80 border border-white/10 relative overflow-hidden backdrop-blur-3xl">
+                <div className="p-8 rounded-3xl bg-black/80 border border-white/10 relative overflow-hidden backdrop-blur-3xl">
                   {/* Cryptographic background logic */}
                   <div className="absolute inset-0 opacity-[0.02] font-jet-mono text-xs leading-tight break-all overflow-hidden flex flex-wrap content-start select-none">
                     {Array.from({length: 80}).map((_, i) => `${((i + 1) * 12345).toString(36).toUpperCase().slice(0, 8)} `)}
@@ -259,14 +259,14 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                   <Button 
                     disabled={activateMutation.isPending}
                     onClick={() => setStep(2)} 
-                    className="h-16 flex-[1] bg-transparent border border-white/10 hover:bg-white/5 rounded-[16px] font-jet-mono text-xs uppercase tracking-widest"
+                    className="h-16 flex-[1] bg-transparent border border-white/10 hover:bg-white/5 rounded-2xl font-jet-mono text-xs uppercase tracking-widest"
                   >
                     Refine
                   </Button>
                   <Button 
                     disabled={activateMutation.isPending}
                     onClick={processActivation} 
-                    className="h-16 flex-[2] relative overflow-hidden bg-white text-black hover:bg-white/90 rounded-[16px] font-semibold text-sm uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(255,255,255,0.2)] group"
+                    className="h-16 flex-2 relative overflow-hidden bg-white text-black hover:bg-white/90 rounded-2xl font-semibold text-sm uppercase tracking-[0.2em] shadow-[0_0_40px_rgba(255,255,255,0.2)] group"
                   >
                     {activateMutation.isPending ? (
                       <div className="flex items-center gap-3">
@@ -308,7 +308,7 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                 </div>
                 <Button 
                   onClick={onClose}
-                  className="w-full max-w-sm h-14 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold uppercase tracking-[0.2em] rounded-[16px] text-xs backdrop-blur-md transition-all duration-500 relative z-10"
+                  className="w-full max-w-sm h-14 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold uppercase tracking-[0.2em] rounded-2xl text-xs backdrop-blur-md transition-all duration-500 relative z-10"
                 >
                   View active nodes in dashboard
                 </Button>

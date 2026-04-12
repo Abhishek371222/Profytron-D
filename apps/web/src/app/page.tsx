@@ -137,8 +137,8 @@ export default function LandingPage() {
 
  {/* Background Glows */}
  <div className="fixed inset-0 pointer-events-none z-[-1]">
- <div className="absolute top-[20%] -left-[10%] w-[800px] h-[800px] bg-primary/5 blur-[180px] rounded-full opacity-50" />
- <div className="absolute bottom-[20%] -right-[10%] w-[800px] h-[800px] bg-indigo-500/5 blur-[180px] rounded-full opacity-50" />
+ <div className="absolute top-[20%] -left-[10%] w-200 h-200 bg-primary/5 blur-[180px] rounded-full opacity-50" />
+ <div className="absolute bottom-[20%] -right-[10%] w-200 h-200 bg-indigo-500/5 blur-[180px] rounded-full opacity-50" />
  </div>
  </main>
  );
