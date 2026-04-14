@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -21,8 +21,14 @@ export default function MarketplacePage() {
  const [viewType, setViewType] = React.useState<'grid' | 'list'>('grid');
  const [selectedStrategy, setSelectedStrategy] = React.useState<any>(null);
  const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
- const [sortBy, setSortBy] = React.useState<'trending' | 'top-rated' | 'newest' | 'price'>((searchParams.get('sort') as any) || 'trending');
- const sortOrder: Array<'trending' | 'top-rated' | 'newest' | 'price'> = ['trending', 'top-rated', 'newest', 'price'];
+ const [sortBy, setSortBy] = React.useState<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'>((searchParams.get('sort') as any) || 'trending');
+ const sortOrder: Array<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'> = ['trending', 'top-rated', 'newest', 'performance', 'subscribers', 'price'];
+ const [filters, setFilters] = React.useState({
+  priceMax: Number(searchParams.get('priceMax') || 5000),
+  selectedRisks: searchParams.get('riskLevel') ? [searchParams.get('riskLevel')!.toLowerCase()] : [],
+  selectedAssets: [] as string[],
+  verifiedOnly: searchParams.get('verified') === 'true',
+ });
 
  React.useEffect(() => {
 	const params = new URLSearchParams(searchParams.toString());
@@ -32,8 +38,13 @@ export default function MarketplacePage() {
 	 params.delete('q');
 	}
 	params.set('sort', sortBy);
+	if (filters.verifiedOnly) params.set('verified', 'true');
+	else params.delete('verified');
+	if (filters.selectedRisks[0]) params.set('riskLevel', filters.selectedRisks[0].toUpperCase());
+	else params.delete('riskLevel');
+	params.set('priceMax', String(filters.priceMax));
 	router.replace(`/marketplace?${params.toString()}`);
- }, [searchQuery, sortBy, router, searchParams]);
+ }, [searchQuery, sortBy, filters, router, searchParams]);
 
  const featuredQuery = useQuery({
 	queryKey: ['marketplace-featured'],
@@ -41,12 +52,16 @@ export default function MarketplacePage() {
  });
 
  const marketplaceQuery = useInfiniteQuery({
-	queryKey: ['marketplace', searchQuery, sortBy],
+	queryKey: ['marketplace', searchQuery, sortBy, filters],
 	queryFn: ({ pageParam }) =>
 	 marketplaceApi.getMarketplace({
 		limit: 12,
 		cursor: pageParam || undefined,
 		sort: sortBy,
+		q: searchQuery || undefined,
+		verified: filters.verifiedOnly || undefined,
+		riskLevel: filters.selectedRisks[0]?.toUpperCase(),
+		priceMax: filters.priceMax,
 	 }),
 	initialPageParam: null as string | null,
 	getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
@@ -55,15 +70,6 @@ export default function MarketplacePage() {
  const strategies = React.useMemo(() => {
 	const items = marketplaceQuery.data?.pages.flatMap((page) => page.items || []) || [];
 	return items
-	 .filter((item: any) => {
-		if (!searchQuery) return true;
-		const creator = item.strategy?.creator?.fullName || '';
-		const name = item.strategy?.name || '';
-		return (
-		 name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-		 creator.toLowerCase().includes(searchQuery.toLowerCase())
-		);
-	 })
 	 .map((item: any) => ({
 		id: item.strategyId,
 		name: item.strategy.name,
@@ -80,7 +86,21 @@ export default function MarketplacePage() {
 		risk: item.strategy.riskLevel,
 		sharpe: Number(item.strategy.performance?.[0]?.sharpeRatio || 0),
 	 }));
- }, [marketplaceQuery.data, searchQuery]);
+ }, [marketplaceQuery.data]);
+
+ const savePreset = React.useCallback(() => {
+  localStorage.setItem('marketplace-filters-preset', JSON.stringify(filters));
+ }, [filters]);
+
+ React.useEffect(() => {
+  const preset = localStorage.getItem('marketplace-filters-preset');
+  if (!preset) return;
+  try {
+   setFilters(JSON.parse(preset));
+  } catch {
+   // ignore malformed value
+  }
+ }, []);
 
  const featuredStrategies = React.useMemo(() => {
 	const featured = featuredQuery.data || [];
@@ -99,7 +119,14 @@ export default function MarketplacePage() {
  
  <div className="flex-1 flex overflow-hidden">
  {/* Sidebar */}
- <FilterSidebar isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+ <FilterSidebar
+  isOpen={isFilterOpen}
+  onClose={() => setIsFilterOpen(false)}
+  value={filters}
+  onChange={setFilters}
+  onApply={() => marketplaceQuery.refetch()}
+  onSavePreset={savePreset}
+ />
 
  {/* Main Content Area */}
  <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar pb-20">

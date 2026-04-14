@@ -42,6 +42,13 @@ export class MarketplaceService {
     if (query.riskLevel) {
       where.strategy.riskLevel = query.riskLevel;
     }
+    if (query.q) {
+      where.strategy.OR = [
+        { name: { contains: query.q, mode: 'insensitive' } },
+        { description: { contains: query.q, mode: 'insensitive' } },
+        { creator: { fullName: { contains: query.q, mode: 'insensitive' } } },
+      ];
+    }
 
     const listings = await this.prisma.marketplaceListing.findMany({
       where,
@@ -111,6 +118,14 @@ export class MarketplaceService {
       );
     } else if (query.sort === 'price') {
       normalized.sort((a, b) => a.monthlyPrice - b.monthlyPrice);
+    } else if (query.sort === 'subscribers') {
+      normalized.sort((a, b) => b.strategy.copiesCount - a.strategy.copiesCount);
+    } else if (query.sort === 'performance') {
+      normalized.sort(
+        (a, b) =>
+          Number(b.strategy.performance?.[0]?.winRate ?? 0) -
+          Number(a.strategy.performance?.[0]?.winRate ?? 0),
+      );
     } else {
       normalized.sort((a, b) => b.trendingScore - a.trendingScore);
     }

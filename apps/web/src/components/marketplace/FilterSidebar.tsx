@@ -9,6 +9,20 @@ import { Button } from '@/components/ui/button';
 interface FilterSidebarProps {
  isOpen: boolean;
  onClose: () => void;
+ value: {
+  priceMax: number;
+  selectedRisks: string[];
+  selectedAssets: string[];
+  verifiedOnly: boolean;
+ };
+ onChange: (value: {
+  priceMax: number;
+  selectedRisks: string[];
+  selectedAssets: string[];
+  verifiedOnly: boolean;
+ }) => void;
+ onApply: () => void;
+ onSavePreset: () => void;
 }
 
 const RISK_LEVELS = [
@@ -21,15 +35,14 @@ const RISK_LEVELS = [
 const ASSETS = ['Forex', 'Crypto', 'Indices', 'Commodities'];
 const TIMEFRAMES = ['M1', 'M5', 'M15', 'H1', 'H4', 'D1'];
 
-export function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
- const [price, setPrice] = React.useState(5000);
- const [selectedRisks, setSelectedRisks] = React.useState<string[]>([]);
- const [selectedAssets, setSelectedAssets] = React.useState<string[]>([]);
+export function FilterSidebar({ isOpen, onClose, value, onChange, onApply, onSavePreset }: FilterSidebarProps) {
+ const { priceMax: price, selectedRisks, selectedAssets, verifiedOnly } = value;
 
  const toggleRisk = (id: string) => {
- setSelectedRisks(prev => 
- prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]
- );
+ const next = selectedRisks.includes(id)
+  ? selectedRisks.filter(r => r !== id)
+  : [...selectedRisks, id];
+ onChange({ ...value, selectedRisks: next });
  };
 
  return (
@@ -47,7 +60,6 @@ export function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
  {selectedRisks.length + selectedAssets.length}
  </span>
  </div>
- </div>
 
  <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
  {/* Price Range */}
@@ -63,7 +75,7 @@ export function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
  max="10000"
  step="500"
  value={price}
- onChange={(e) => setPrice(parseInt(e.target.value))}
+ onChange={(e) => onChange({ ...value, priceMax: parseInt(e.target.value) })}
  className="w-full h-1 bg-white/5 rounded-full appearance-none cursor-pointer accent-indigo-500"
  />
  <div className="flex items-center justify-between mt-3 px-1">
@@ -118,7 +130,12 @@ export function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
  {ASSETS.map((asset) => (
  <button
  key={asset}
- onClick={() => setSelectedAssets(prev => prev.includes(asset) ? prev.filter(a => a !== asset) : [...prev, asset])}
+ onClick={() => {
+  const next = selectedAssets.includes(asset)
+   ? selectedAssets.filter(a => a !== asset)
+   : [...selectedAssets, asset];
+  onChange({ ...value, selectedAssets: next });
+ }}
  className={cn(
 "px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-widest transition-all",
  selectedAssets.includes(asset)
@@ -154,21 +171,33 @@ export function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
  <span className="text-xs font-semibold text-white uppercase tracking-widest">Verified Only</span>
  <span className="text-xs text-white/30 font-bold uppercase tracking-tight mt-0.5">Show only audited creators</span>
  </div>
- <div className="w-10 h-5 rounded-full bg-white/10 relative cursor-pointer p-1 transition-colors hover:bg-white/20">
- <div className="w-3 h-3 rounded-full bg-white/40" />
+ <button
+  onClick={() => onChange({ ...value, verifiedOnly: !verifiedOnly })}
+  className={cn(
+   "w-10 h-5 rounded-full relative cursor-pointer p-1 transition-colors",
+   verifiedOnly ? "bg-indigo-500/40 hover:bg-indigo-500/50" : "bg-white/10 hover:bg-white/20",
+  )}
+ >
+ <div className={cn("w-3 h-3 rounded-full bg-white/90 transition-transform", verifiedOnly && "translate-x-5")} />
+ </button>
  </div>
  </div>
  </div>
  </div>
 
  <div className="p-8 space-y-3">
- <Button className="w-full h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/20 active:scale-95 transition-all">
+ <Button onClick={onApply} className="w-full h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/20 active:scale-95 transition-all">
  Apply Filters
  </Button>
+ <button
+  onClick={onSavePreset}
+  className="w-full text-xs font-semibold text-indigo-300/70 hover:text-indigo-200 uppercase tracking-[0.25em] transition-colors py-1"
+ >
+  Save Preset
+ </button>
  <button 
  onClick={() => {
- setSelectedRisks([]);
- setSelectedAssets([]);
+ onChange({ ...value, selectedRisks: [], selectedAssets: [], verifiedOnly: false, priceMax: 5000 });
  }}
  className="w-full text-xs font-semibold text-red-400/50 hover:text-red-400 uppercase tracking-[0.3em] transition-colors py-2"
  >

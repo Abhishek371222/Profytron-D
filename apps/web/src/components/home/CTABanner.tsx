@@ -50,7 +50,7 @@ export function CTABanner() {
                     </span>
                   </Button>
                 </Link>
-                <Link href="/documentation" className="w-full sm:w-auto">
+                <Link href="/docs" className="w-full sm:w-auto">
                   <Button
                     size="lg"
                     variant="ghost"

@@ -15,10 +15,14 @@ import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { AIModule } from './modules/ai/ai.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { WebsocketModule } from './modules/websocket/websocket.module';
+import { SearchModule } from './modules/search/search.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
+    }),
     BullModule.forRoot({
       redis: {
         host: process.env.REDIS_HOST || 'localhost',
@@ -39,6 +43,7 @@ import { WebsocketModule } from './modules/websocket/websocket.module';
     MarketplaceModule,
     PaymentsModule,
     AIModule,
+    SearchModule,
   ],
   controllers: [],
   providers: [],

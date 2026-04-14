@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { ShieldCheck, TrendingUp, Star, Zap, Activity, Users, MoreHorizontal, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface MarketplaceCardProps {
  strategy: any;
@@ -121,9 +122,9 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
  >
  Subscribe <ArrowRight className="w-3 h-3 ml-2" />
  </Button>
- <button className="text-xs font-semibold text-white/20 hover:text-white uppercase tracking-[0.2em] transition-colors py-2">
+ <Link href={`/marketplace/${strategy.id}`} className="text-xs font-semibold text-white/20 hover:text-white uppercase tracking-[0.2em] transition-colors py-2 text-center">
  View Details
- </button>
+ </Link>
  </div>
  </div>
  </motion.div>

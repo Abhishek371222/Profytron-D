@@ -13,6 +13,10 @@ import { RiskLevel, StrategyCategory } from '@prisma/client';
 
 export class MarketplaceQueryDto {
   @IsOptional()
+  @IsString()
+  q?: string;
+
+  @IsOptional()
   @IsNumber()
   @Transform(({ value }) => Number(value))
   priceMin?: number;
@@ -45,7 +49,7 @@ export class MarketplaceQueryDto {
 
   @IsOptional()
   @IsString()
-  sort?: 'trending' | 'top-rated' | 'newest' | 'price';
+  sort?: 'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers';
 
   @IsOptional()
   @IsString()

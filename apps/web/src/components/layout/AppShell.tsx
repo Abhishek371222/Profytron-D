@@ -3,6 +3,7 @@
 import React from"react";
 import { Sidebar } from"./Sidebar";
 import { TopBar } from"./TopBar";
+import { GlobalCommandPalette } from"./GlobalCommandPalette";
 import { useUIStore } from"@/lib/stores/useUIStore";
 import { cn } from"@/lib/utils";
 import { motion } from"framer-motion";
@@ -122,6 +123,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  {/* Edge Accents */}
  <div className="fixed top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/5 to-transparent z-[100] pointer-events-none" />
  <div className="fixed bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/5 to-transparent z-[100] pointer-events-none" />
+      <GlobalCommandPalette />
  </div>
  );
 }

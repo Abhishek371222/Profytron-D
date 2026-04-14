@@ -3,9 +3,10 @@ import { apiClient } from './client';
 export type PlanType = 'MONTHLY' | 'ANNUAL' | 'LIFETIME';
 
 export interface MarketplaceQueryParams {
+  q?: string;
   cursor?: string;
   limit?: number;
-  sort?: 'trending' | 'top-rated' | 'newest' | 'price';
+  sort?: 'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers';
   category?: string;
   riskLevel?: string;
   verified?: boolean;
