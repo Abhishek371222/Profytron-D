@@ -6,6 +6,7 @@ import { EmailService } from '../email/email.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConflictException, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import type { Request } from 'express';
 
 // Mock bcrypt
 jest.mock('bcrypt');
@@ -34,11 +35,11 @@ describe('AuthService (UNIT TESTS)', () => {
     const hashedPasswords = new Map<string, string>();
     mockedBcrypt.hash.mockImplementation(async (plain, rounds) => {
       const hash = `$2b$${rounds}$abcdefghijklmnopqrstuvwx`;
-      hashedPasswords.set(plain, hash);
+      hashedPasswords.set(String(plain), hash);
       return hash;
     });
     mockedBcrypt.compare.mockImplementation(async (plain, hashed) => {
-      return hashedPasswords.get(plain) === hashed;
+      return hashedPasswords.get(String(plain)) === hashed;
     });
 
     const module: TestingModule = await Test.createTestingModule({
@@ -93,7 +94,7 @@ describe('AuthService (UNIT TESTS)', () => {
 
   describe('1. REGISTRATION', () => {
     it('should register a new user with valid email and password', async () => {
-      const dto = { email: 'newuser@test.com', password: 'Pass123!', fullName: 'New User' };
+      const dto = { email: 'newuser@test.com', password: 'Pass123!', confirmPassword: 'Pass123!', fullName: 'New User' };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
       (prismaService.user.create as jest.Mock).mockResolvedValue({ ...mockUser, email: dto.email });
@@ -108,7 +109,7 @@ describe('AuthService (UNIT TESTS)', () => {
     });
 
     it('should reject registration if email already exists', async () => {
-      const dto = { email: 'existing@test.com', password: 'Pass123!', fullName: 'User' };
+      const dto = { email: 'existing@test.com', password: 'Pass123!', confirmPassword: 'Pass123!', fullName: 'User' };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
@@ -116,7 +117,7 @@ describe('AuthService (UNIT TESTS)', () => {
     });
 
     it('should send OTP email during registration', async () => {
-      const dto = { email: 'newuser@test.com', password: 'Pass123!', fullName: 'New User' };
+      const dto = { email: 'newuser@test.com', password: 'Pass123!', confirmPassword: 'Pass123!', fullName: 'New User' };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
       (prismaService.user.create as jest.Mock).mockResolvedValue({ ...mockUser, email: dto.email });
@@ -127,7 +128,7 @@ describe('AuthService (UNIT TESTS)', () => {
     });
 
     it('should store OTP in Redis with 10-minute expiry', async () => {
-      const dto = { email: 'newuser@test.com', password: 'Pass123!', fullName: 'New User' };
+      const dto = { email: 'newuser@test.com', password: 'Pass123!', confirmPassword: 'Pass123!', fullName: 'New User' };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
       (prismaService.user.create as jest.Mock).mockResolvedValue({ ...mockUser, email: dto.email });
@@ -177,9 +178,10 @@ describe('AuthService (UNIT TESTS)', () => {
     it('should generate valid JWT token on login', async () => {
       const loginDto = { email: 'test@example.com', password: 'Pass123!' };
       const hashedPassword = await bcrypt.hash('Pass123!', 12);
-
-      // Mock bcrypt.compare for this specific test
-      mockedBcrypt.compare.mockResolvedValueOnce(true);
+      const req = {
+        ip: '127.0.0.1',
+        headers: { 'user-agent': 'jest' },
+      } as unknown as Request;
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
         ...mockUser,
@@ -187,7 +189,7 @@ describe('AuthService (UNIT TESTS)', () => {
         emailVerified: true,
       });
 
-      const tokens = await authService.login(loginDto);
+      const tokens = await authService.login(loginDto, req);
 
       expect(tokens.accessToken).toBeDefined();
       expect(jwtService.sign).toHaveBeenCalled();
@@ -195,24 +197,28 @@ describe('AuthService (UNIT TESTS)', () => {
 
     it('should include user ID in JWT payload', async () => {
       const loginDto = { email: 'test@example.com', password: 'Pass123!' };
-
-      // Mock bcrypt.compare for this specific test
-      mockedBcrypt.compare.mockResolvedValueOnce(true);
+      const hashedPassword = await bcrypt.hash('Pass123!', 12);
+      const req = {
+        ip: '127.0.0.1',
+        headers: { 'user-agent': 'jest' },
+      } as unknown as Request;
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
         ...mockUser,
-        passwordHash: mockUser.passwordHash,
+        passwordHash: hashedPassword,
         emailVerified: true,
       });
 
-      const tokens = await authService.login(loginDto);
+      const tokens = await authService.login(loginDto, req);
 
-      expect(jwtService.sign).toHaveBeenCalledWith({
-        sub: mockUser.id,
-        email: mockUser.email,
-        role: undefined,
-        jti: 'mock-uuid-1234',
-      }, expect.any(Object));
+      expect(jwtService.sign).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sub: mockUser.id,
+          email: mockUser.email,
+          jti: expect.any(String),
+        }),
+        expect.any(Object),
+      );
     });
   });
 

@@ -89,7 +89,7 @@ export default function RegisterPage() {
 			provider,
 			options: {
 				redirectTo: redirectUrl,
-				skipBrowserWarning: true,
+				skipBrowserRedirect: false,
 			},
 		});
 		

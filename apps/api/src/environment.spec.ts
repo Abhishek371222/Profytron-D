@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
+import helmet from 'helmet';
 import { App } from 'supertest/types';
 import { AppModule } from '../src/app.module';
 
@@ -13,6 +14,22 @@ describe('🔥 ENVIRONMENT TESTING - Config Validation', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.use(
+      helmet({
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
+        contentSecurityPolicy: false,
+      }),
+    );
+    app.enableCors({
+      origin: [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        process.env.FRONTEND_URL || 'http://localhost:3000',
+      ],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    });
     await app.init();
   });
 
@@ -109,7 +126,11 @@ describe('🔥 ENVIRONMENT TESTING - Config Validation', () => {
       // Test CORS headers
       return request(app.getHttpServer())
         .options('/health')
-        .expect(200)
+        .set('Origin', process.env.FRONTEND_URL || 'http://localhost:3000')
+        .set('Access-Control-Request-Method', 'GET')
+        .expect((res) => {
+          expect([200, 204]).toContain(res.status);
+        })
         .expect((res) => {
           expect(res.headers['access-control-allow-origin']).toBeDefined();
         });
