@@ -5,6 +5,9 @@
   "scripts": {
     "dev:web": "pnpm --filter web dev",
     "dev:api": "pnpm --filter api start:dev",
+    "dev:api:trace": "pnpm --filter api start:dev:trace",
+    "dev:api:stable": "node tools/api-dev-supervisor.mjs",
+    "diagnose:api:crash": "node tools/api-crash-report.mjs",
     "dev:ai": "cd services/ai && python main.py",
     "dev:backtest": "cd services/backtest && python main.py",
     "dev:all": "concurrently \"pnpm dev:web\" \"pnpm dev:api\"",

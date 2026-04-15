@@ -71,7 +71,15 @@ export default function AuthCallback() {
         window.location.href = '/dashboard';
       } catch (e) {
         console.error('Backend synchronization failed:', e);
-        router.push('/login?error=sync_failed');
+        const message = e instanceof Error ? e.message : String(e);
+        const isBackendUnavailable =
+          message.includes('ECONNREFUSED') || message.includes('Network Error');
+
+        router.push(
+          isBackendUnavailable
+            ? '/login?error=backend_unavailable'
+            : '/login?error=sync_failed',
+        );
       }
     };
 

@@ -15,6 +15,7 @@ interface AuthState {
   
   setAuth: (user: User, accessToken: string) => void;
   setToken: (token: string) => void;
+  clearAuth: () => void;
   login: (accessToken: string, user: User) => void;
   logout: () => Promise<void>;
   hydrate: () => Promise<void>;
@@ -33,6 +34,15 @@ export const useAuthStore = create<AuthState>()(
       
       setToken: (accessToken) => set({ accessToken }),
 
+      clearAuth: () =>
+        set({
+          user: null,
+          accessToken: null,
+          isAuthenticated: false,
+          isLoading: false,
+          isHydrating: false,
+        }),
+
       login: (accessToken, user) => {
         set({ user, accessToken, isAuthenticated: true, isLoading: false, isHydrating: false });
       },
@@ -44,7 +54,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (e) {
            console.error("Logout API failed, continuing client purge.");
         }
-        set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false });
+        get().clearAuth();
       },
 
       hydrate: async () => {

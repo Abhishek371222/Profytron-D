@@ -38,6 +38,8 @@ export default function LoginPage() {
 		 ? 'Authentication callback failed. Please try signing in again.'
 		 : authError === 'sync_failed'
 			 ? 'Social login succeeded, but account sync failed. Try again.'
+			 : authError === 'backend_unavailable'
+				 ? 'Backend is temporarily unavailable. Please wait a moment and try again.'
 			 : expired
 				 ? 'Your session expired. Please sign in again.'
 				 : null;
@@ -72,15 +74,32 @@ export default function LoginPage() {
 
  const handleSocialLogin = async (provider: 'google' | 'github') => {
  try {
+ if (!window.location.origin) {
+ throw new Error('Unable to determine redirect URL');
+ }
+ 
+ const redirectUrl = `${window.location.origin}/auth/callback`;
+ console.log(`[${provider.toUpperCase()}] Initiating OAuth flow...`);
+ console.log(`[${provider.toUpperCase()}] Redirect URL: ${redirectUrl}`);
+ 
  const { error } = await supabase.auth.signInWithOAuth({
  provider,
  options: {
- redirectTo: `${window.location.origin}/auth/callback`,
+ redirectTo: redirectUrl,
+ skipBrowserWarning: true,
  },
  });
- if (error) throw error;
+ 
+ if (error) {
+ console.error(`[${provider.toUpperCase()}] OAuth error:`, error);
+ alert(`Unable to sign in with ${provider}. Please check the browser console for details.\n\nError: ${error.message}`);
+ throw error;
+ }
+ 
+ console.log(`[${provider.toUpperCase()}] OAuth flow initiated successfully`);
  } catch (error) {
- console.error(`${provider} login failed:`, error);
+ const message = error instanceof Error ? error.message : String(error);
+ console.error(`[${provider.toUpperCase()}] Login failed:`, message);
  }
  };
 
