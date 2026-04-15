@@ -16,6 +16,8 @@ import { AIModule } from './modules/ai/ai.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { WebsocketModule } from './modules/websocket/websocket.module';
 import { SearchModule } from './modules/search/search.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -45,8 +47,8 @@ import { SearchModule } from './modules/search/search.module';
     AIModule,
     SearchModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
 

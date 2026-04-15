@@ -6,6 +6,7 @@ import {
   BadRequestException,
   Logger,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from './redis.service';
 import { EmailService } from '../email/email.service';
@@ -13,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import type { Request } from 'express';
 import {
   RegisterDto,
   LoginDto,
@@ -37,6 +39,37 @@ export class AuthService {
     );
   }
 
+  private parseExpirySeconds(
+    value: string | undefined,
+    fallbackSeconds: number,
+  ): number {
+    if (!value) {
+      return fallbackSeconds;
+    }
+
+    const normalized = value.trim().toLowerCase();
+    const direct = Number(normalized);
+    if (Number.isFinite(direct) && direct > 0) {
+      return direct;
+    }
+
+    const match = normalized.match(/^(\d+)(s|m|h|d)$/);
+    if (!match) {
+      return fallbackSeconds;
+    }
+
+    const amount = Number(match[1]);
+    const unit = match[2];
+    const multipliers: Record<string, number> = {
+      s: 1,
+      m: 60,
+      h: 3600,
+      d: 86400,
+    };
+
+    return amount * (multipliers[unit] ?? 1);
+  }
+
   async register(dto: RegisterDto) {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -44,15 +77,26 @@ export class AuthService {
     if (existing) throw new ConflictException('Email already registered');
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        passwordHash,
-        fullName: dto.fullName,
-        emailVerified: false,
-        referralCode: uuidv4(),
-      },
-    });
+    let user;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          passwordHash,
+          fullName: dto.fullName,
+          emailVerified: false,
+          referralCode: uuidv4(),
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Email already registered');
+      }
+      throw error;
+    }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     await this.redisService.set(`auth:otp:${dto.email}`, otp, 600);
@@ -125,7 +169,7 @@ export class AuthService {
     };
   }
 
-  async login(dto: LoginDto, req: any) {
+  async login(dto: LoginDto, req: Request) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -138,8 +182,8 @@ export class AuthService {
     const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
     if (!isMatch) throw new UnauthorizedException('Invalid credentials');
 
-    const ip = req?.ip || '0.0.0.0';
-    const userAgent = req?.headers['user-agent'] || 'Unknown';
+    const ip = req.ip || '0.0.0.0';
+    const userAgent = req.headers['user-agent'] || 'Unknown';
 
     await this.prisma.user.update({
       where: { id: user.id },
@@ -357,10 +401,19 @@ export class AuthService {
 
   private async generateTokenPair(userId: string, email: string, role: string) {
     const jti = uuidv4();
+    const accessExpiresIn = this.parseExpirySeconds(
+      process.env.JWT_ACCESS_EXPIRES,
+      3600,
+    );
+    const refreshExpiresIn = this.parseExpirySeconds(
+      process.env.JWT_REFRESH_EXPIRES,
+      7 * 24 * 3600,
+    );
+
     const accessToken = this.jwtService.sign(
       { sub: userId, email, role, jti },
       {
-        expiresIn: (process.env.JWT_ACCESS_EXPIRES || '1h') as any,
+        expiresIn: accessExpiresIn,
         secret:
           process.env.JWT_ACCESS_SECRET ||
           'profytron_v1_access_96e8b2c4d1a5f6b7c8d9e0f1a2b3c4d5',
@@ -369,7 +422,7 @@ export class AuthService {
     const refreshToken = this.jwtService.sign(
       { sub: userId, jti },
       {
-        expiresIn: (process.env.JWT_REFRESH_EXPIRES || '7d') as any,
+        expiresIn: refreshExpiresIn,
         secret:
           process.env.JWT_REFRESH_SECRET ||
           'profytron_v1_refresh_1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p',

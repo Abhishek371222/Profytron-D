@@ -77,15 +77,32 @@ export default function RegisterPage() {
 
  const handleSocialLogin = async (provider: 'google' | 'github') => {
    try {
-     const { error } = await supabase.auth.signInWithOAuth({
-       provider,
-       options: {
-         redirectTo: `${window.location.origin}/auth/callback`,
-       },
-     });
-     if (error) throw error;
+		if (!window.location.origin) {
+			throw new Error('Unable to determine redirect URL');
+		}
+		
+		const redirectUrl = `${window.location.origin}/auth/callback`;
+		console.log(`[${provider.toUpperCase()}] Initiating OAuth flow...`);
+		console.log(`[${provider.toUpperCase()}] Redirect URL: ${redirectUrl}`);
+		
+		const { error } = await supabase.auth.signInWithOAuth({
+			provider,
+			options: {
+				redirectTo: redirectUrl,
+				skipBrowserWarning: true,
+			},
+		});
+		
+		if (error) {
+			console.error(`[${provider.toUpperCase()}] OAuth error:`, error);
+			alert(`Unable to sign up with ${provider}. Please check the browser console for details.\n\nError: ${error.message}`);
+			throw error;
+		}
+		
+		console.log(`[${provider.toUpperCase()}] OAuth flow initiated successfully`);
    } catch (error) {
-     console.error(`${provider} signup failed:`, error);
+     const message = error instanceof Error ? error.message : String(error);
+     console.error(`[${provider.toUpperCase()}] Signup failed:`, message);
    }
  };
 

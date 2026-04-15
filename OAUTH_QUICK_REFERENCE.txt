@@ -1,0 +1,106 @@
+# 🚀 OAuth Setup - Quick Reference Card
+
+## Your Redirect URL
+```
+http://localhost:3000/auth/callback
+```
+
+---
+
+## Step 1️⃣: Supabase Configuration
+**URL:** https://app.supabase.com/project/nghlhhsdtewrchdeyean/auth/providers
+
+**Path:** Authentication → Providers → Google
+
+**Find:** "Authorized redirect URIs"
+
+**Add:** `http://localhost:3000/auth/callback`
+
+**Click:** SAVE
+
+---
+
+## Step 2️⃣: Google Cloud Configuration
+**URL:** https://console.cloud.google.com/apis/credentials
+
+**Project:** profytron-44bdc
+
+**Path:** APIs & Services → Credentials → OAuth 2.0 Client ID (Web)
+
+**Find:** "Authorized redirect URIs"
+
+**Add:**
+```
+http://localhost:3000/auth/callback
+https://nghlhhsdtewrchdeyean.supabase.co/auth/v1/callback
+```
+
+**Click:** SAVE
+
+---
+
+## Step 3️⃣: Wait & Test
+⏱️ Wait 1-2 minutes
+
+**Test Option A (Recommended):**
+http://localhost:3000/oauth-test → Click "Test Google OAuth"
+
+**Test Option B:**
+http://localhost:3000/register → Click "Google" button
+
+---
+
+## 🎯 Test Paths
+| Page | Purpose | URL |
+|------|---------|-----|
+| **OAuth Test** | Diagnostics & verification | http://localhost:3000/oauth-test |
+| **Sign Up** | Register with Google | http://localhost:3000/register |
+| **Sign In** | Login with Google | http://localhost:3000/login |
+
+---
+
+## ✅ Status Check
+
+**Frontend:** http://localhost:3000 ✅ Running
+**Backend:** http://localhost:4000 ✅ Running
+**Database:** ✅ Connected
+**Redis:** ✅ Connected
+
+---
+
+## 📋 Configuration Checklist
+
+- [ ] Copy redirect URL: `http://localhost:3000/auth/callback`
+- [ ] Add to Supabase Google provider
+- [ ] Click SAVE in Supabase
+- [ ] Add to Google Cloud OAuth Client
+- [ ] Click SAVE in Google Cloud
+- [ ] Wait 1-2 minutes
+- [ ] Test OAuth at http://localhost:3000/oauth-test
+- [ ] Test sign up at http://localhost:3000/register
+
+---
+
+## 🔧 If Something Goes Wrong
+
+| Error | Solution |
+|-------|----------|
+| redirect_uri_mismatch | Check URL matches exactly in Supabase & GCP |
+| Still not working | Clear cache (Ctrl+Shift+Delete), try again |
+| Can't find settings | Wrong project - check project ID |
+| Page won't load | Check http://localhost:3000/oauth-test for diagnostics |
+
+---
+
+## 📞 Useful Links
+
+- **OAuth Test Page:** http://localhost:3000/oauth-test
+- **Register Page:** http://localhost:3000/register
+- **Login Page:** http://localhost:3000/login
+- **Supabase Console:** https://app.supabase.com
+- **Google Cloud Console:** https://console.cloud.google.com
+- **Documentation:** See OAUTH_COMPLETE_SETUP.md
+
+---
+
+**That's it! After configuration, OAuth login will work. 🎉**

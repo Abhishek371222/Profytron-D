@@ -47,6 +47,19 @@ export class StrategiesService {
     } = query;
 
     const skip = (page - 1) * limit;
+    const requestedSortBy = String(sortBy);
+    const requestedOrder = order === 'asc' ? 'asc' : 'desc';
+    const scalarSortFields = new Set([
+      'createdAt',
+      'updatedAt',
+      'monthlyPrice',
+      'copiesCount',
+      'totalRevenue',
+      'name',
+      'riskLevel',
+      'category',
+    ]);
+    const performanceSortFields = new Set(['winRate', 'sharpeRatio', 'maxDrawdown', 'netPnl']);
 
     const where: any = {
       deletedAt: null,
@@ -71,8 +84,11 @@ export class StrategiesService {
       ];
     }
 
-    const [strategies, total] = await Promise.all([
-      this.prisma.strategy.findMany({
+    let strategies: Array<Strategy & { creator: { id: string; fullName: string; avatarUrl: string | null }; performance: any[]; subscriptions?: any[] }> = [];
+    let total = 0;
+
+    if (performanceSortFields.has(requestedSortBy)) {
+      const allStrategies = await this.prisma.strategy.findMany({
         where,
         include: {
           creator: { select: { id: true, fullName: true, avatarUrl: true } },
@@ -87,17 +103,53 @@ export class StrategiesService {
               }
             : false,
         },
-        skip,
-        take: limit,
-        orderBy: { [sortBy]: order },
-      }),
-      this.prisma.strategy.count({ where }),
-    ]);
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const sorted = allStrategies.sort((a, b) => {
+        const aMetric = Number((a.performance[0] as Record<string, unknown> | undefined)?.[requestedSortBy] ?? 0);
+        const bMetric = Number((b.performance[0] as Record<string, unknown> | undefined)?.[requestedSortBy] ?? 0);
+        return requestedOrder === 'asc' ? aMetric - bMetric : bMetric - aMetric;
+      });
+
+      total = sorted.length;
+      strategies = sorted.slice(skip, skip + limit);
+    } else {
+      const sortField = scalarSortFields.has(requestedSortBy)
+        ? requestedSortBy
+        : 'createdAt';
+
+      const [pagedStrategies, count] = await Promise.all([
+        this.prisma.strategy.findMany({
+          where,
+          include: {
+            creator: { select: { id: true, fullName: true, avatarUrl: true } },
+            performance: {
+              take: 1,
+              orderBy: { date: 'desc' },
+            },
+            subscriptions: userId
+              ? {
+                  where: { userId, status: SubscriptionStatus.ACTIVE },
+                  take: 1,
+                }
+              : false,
+          },
+          skip,
+          take: limit,
+          orderBy: { [sortField]: requestedOrder },
+        }),
+        this.prisma.strategy.count({ where }),
+      ]);
+
+      strategies = pagedStrategies;
+      total = count;
+    }
 
     return {
       strategies: strategies.map((s) => ({
         ...s,
-        isSubscribed: s.subscriptions?.length > 0,
+        isSubscribed: (s.subscriptions?.length ?? 0) > 0,
         latestPerformance: s.performance[0] || null,
         performance: undefined, // Hide performance array in summary
         subscriptions: undefined,

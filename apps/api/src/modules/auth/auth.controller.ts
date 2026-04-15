@@ -9,8 +9,9 @@ import {
   HttpCode,
   HttpStatus,
   Redirect,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import {
   RegisterDto,
@@ -28,6 +29,15 @@ import {
   GoogleAuthGuard,
 } from './guards/auth.guard';
 import type { Request, Response } from 'express';
+
+type AuthenticatedRequest = Request & {
+  user: {
+    userId: string;
+    refreshToken: string;
+    jti: string;
+    role?: string;
+  };
+};
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -125,8 +135,17 @@ export class AuthController {
   @ApiOperation({
     summary: 'Rotate and exchange session refresh token for access token',
   })
-  async refresh(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    const { userId, refreshToken, jti } = req.user;
+  async refresh(
+    @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userId = req.user?.userId;
+    const refreshToken = req.user?.refreshToken;
+    const jti = req.user?.jti;
+    if (!userId || !refreshToken || !jti) {
+      throw new UnauthorizedException('Invalid refresh session');
+    }
+
     const result = await this.authService.refresh(userId, refreshToken, jti);
     this.setSessionCookies(res, result.refreshTokenForCookie);
     return { accessToken: result.accessToken };
@@ -136,8 +155,16 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Destroy current session' })
-  async logout(@Req() req: any, @Res({ passthrough: true }) res: Response) {
-    const { userId, jti } = req.user;
+  async logout(
+    @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userId = req.user?.userId;
+    const jti = req.user?.jti;
+    if (!userId || !jti) {
+      throw new UnauthorizedException('Invalid session');
+    }
+
     await this.authService.logout(userId, jti);
     res.clearCookie('refresh_token', { path: '/' });
     res.clearCookie('user_role', { path: '/' });
@@ -183,7 +210,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Handle Google OAuth2 Callback' })
   @Redirect(process.env.FRONTEND_URL || 'http://localhost:3000/dashboard')
   async googleCallback(
-    @Req() req: any,
+    @Req() req: Request & { user: { email: string; fullName?: string; avatarUrl?: string; googleId?: string } },
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.googleCallback(req.user);
