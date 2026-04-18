@@ -15,6 +15,7 @@ import { Card } from '@/components/ui/card';
 import { Magnetic } from '@/components/ui/Interactions';
 import { usersApi } from '@/lib/api/users';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 const AUDIT_EVENTS = [
  { id: 'evt_001', action: 'LOGIN_SUCCESS', device: 'Chrome / Desktop', location: 'Mumbai, IN', ip: '122.161.49.21', ts: '2 min ago', level: 'info' },
@@ -61,6 +62,7 @@ export default function SecuritySettingsPage() {
  setIs2faEnabled(true);
  setIs2faOpen(false);
  setOtpInput('');
+ toast.success('2FA protocol activated');
  };
 
  const handleRotateKey = async () => {
@@ -70,9 +72,9 @@ export default function SecuritySettingsPage() {
      await usersApi.changePassword({ currentPassword, newPassword });
      setCurrentPassword('');
      setNewPassword('');
-     alert('Password changed successfully');
+    toast.success('Secure key rotated');
    } catch (e) {
-     alert('Failed to change password');
+    toast.error('Failed to rotate secure key');
    } finally {
      setIsChangingPassword(false);
    }
@@ -82,8 +84,10 @@ export default function SecuritySettingsPage() {
    try {
      await usersApi.revokeSession(id);
      refreshSessions();
+    toast.success('Session revoked');
    } catch (e) {
      console.error('Failed to revoke', e);
+    toast.error('Failed to revoke session');
    }
  };
 
@@ -92,9 +96,23 @@ export default function SecuritySettingsPage() {
      await usersApi.deleteAccount(deleteConfirm);
      window.location.href = '/login';
    } catch (e) {
-     alert('Failed to delete account. Check confirmation word.');
+     toast.error('Failed to delete account. Check confirmation word.');
    }
  };
+
+   const handleExportLedger = () => {
+    const header = ['event_id', 'action', 'device', 'location', 'ip', 'time', 'level'];
+    const rows = filteredEvents.map((evt) => [evt.id, evt.action, evt.device, evt.location, evt.ip, evt.ts, evt.level]);
+    const csv = [header, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `security-ledger-${Date.now()}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    toast.success('Audit ledger exported');
+   };
 
  const filteredEvents = AUDIT_EVENTS.filter(e =>
  auditFilter === 'all' ? true : e.level === auditFilter
@@ -343,7 +361,7 @@ export default function SecuritySettingsPage() {
 
  <div className="px-6 py-4 flex items-center justify-between">
  <span className="text-xs text-white/20 font-semibold uppercase tracking-widest font-jet-mono">{filteredEvents.length} events displayed</span>
- <button className="flex items-center gap-2 text-xs font-semibold text-p/60 hover:text-p uppercase tracking-widest transition-colors">
+ <button onClick={handleExportLedger} className="flex items-center gap-2 text-xs font-semibold text-p/60 hover:text-p uppercase tracking-widest transition-colors">
  Export Full Ledger <ChevronRight className="w-3.5 h-3.5" />
  </button>
  </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { 
@@ -33,6 +34,7 @@ import { Magnetic } from '@/components/ui/Interactions';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import { usersApi } from '@/lib/api/users';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 const Switch = ({ checked, onChange, label, desc }: { checked: boolean; onChange: (v: boolean) => void; label: string; desc: string }) => (
   <div className="flex items-center justify-between p-8 rounded-[40px] bg-white/1 border border-white/5 hover:border-primary/20 transition-all duration-700 group relative overflow-hidden">
@@ -44,13 +46,16 @@ const Switch = ({ checked, onChange, label, desc }: { checked: boolean; onChange
     <button 
       onClick={() => onChange(!checked)}
       className={cn(
-        "w-16 h-8 rounded-full relative transition-all duration-500 p-1 border overflow-hidden",
-        checked ? "bg-primary border-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.5)]" : "bg-white/5 border-white/10"
+        "w-16 h-8 rounded-full relative transition-all duration-500 p-1 border overflow-hidden flex items-center",
+        checked
+          ? "bg-primary border-primary/40 shadow-[0_0_20px_rgba(99,102,241,0.5)] justify-end"
+          : "bg-white/5 border-white/10 justify-start"
       )}
     >
       <div className="absolute inset-0 bg-scanlines opacity-10" />
       <motion.div 
-        animate={{ x: checked ? 32 : 0 }}
+        layout
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
         className={cn(
           "w-6 h-6 rounded-full shadow-lg transition-colors relative z-10",
           checked ? "bg-white" : "bg-white/20"
@@ -61,6 +66,7 @@ const Switch = ({ checked, onChange, label, desc }: { checked: boolean; onChange
 );
 
 export default function ProfileSettingsPage() {
+  const router = useRouter();
   const { data: user, isLoading } = useCurrentUser();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -86,6 +92,7 @@ export default function ProfileSettingsPage() {
   const [demoMode, setDemoMode] = React.useState(false);
   const [volatilitySync, setVolatilitySync] = React.useState(true);
   const [latencySim, setLatencySim] = React.useState(false);
+  const [injectionPower, setInjectionPower] = React.useState(2.4);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -93,8 +100,10 @@ export default function ProfileSettingsPage() {
       await usersApi.updateProfile({ fullName, username, bio });
       await queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       setIsDirty(false);
+      toast.success('Profile synchronized');
     } catch (e) {
       console.error('Failed to update profile', e);
+      toast.error('Profile sync failed');
     } finally {
       setIsSaving(false);
     }
@@ -111,19 +120,31 @@ export default function ProfileSettingsPage() {
       const res = await usersApi.uploadAvatar(file);
       setAvatarPreview(res.avatarUrl); // Set permanent URL
       await queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      toast.success('Avatar updated');
     } catch (e) {
       console.error('Upload failed', e);
       if (user?.avatarUrl) setAvatarPreview(user.avatarUrl); // Revert
+      toast.error('Avatar upload failed');
     }
+  };
+
+  const handleResetChanges = () => {
+    if (!user) return;
+    setFullName(user.fullName || '');
+    setUsername(user.username || '');
+    setBio(user.bio || '');
+    setAvatarPreview(user.avatarUrl || '');
+    setIsDirty(false);
+    toast.message('Changes reverted');
   };
 
   if (isLoading) return <div className="text-white">Loading profile...</div>;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-20">
-      <div className="space-y-24">
+    <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_340px] gap-8 2xl:gap-10 items-start">
+      <div className="space-y-14 xl:space-y-18 2xl:space-y-20 min-w-0">
         {/* IDENTITY BIO-MODULE */}
-        <div className="flex flex-col lg:flex-row items-center gap-12 group/identity">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 xl:gap-12 group/identity min-w-0">
           <div className="relative group/avatar">
             <input 
               type="file" 
@@ -167,10 +188,10 @@ export default function ProfileSettingsPage() {
             </Magnetic>
           </div>
           
-          <div className="space-y-6 flex-1 text-center lg:text-left">
+          <div className="space-y-6 flex-1 min-w-0 text-center lg:text-left">
             <div className="space-y-2">
               <div className="flex items-center justify-center lg:justify-start gap-4">
-                <h3 className="text-5xl font-semibold text-white uppercase tracking-tighter leading-none">{fullName || 'Network Operative'}</h3>
+                <h3 className="text-3xl xl:text-4xl 2xl:text-5xl font-semibold text-white uppercase tracking-tighter leading-none break-words">{fullName || 'Network Operative'}</h3>
                 <div className="px-4 py-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 shadow-lg">
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
                   <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Neural_Verified</span>
@@ -179,7 +200,7 @@ export default function ProfileSettingsPage() {
               <p className="text-[11px] text-white/20 font-bold uppercase tracking-[0.6em] font-mono">NODE_HASH: PX_{user?.id?.substring(0,8)}</p>
             </div>
 
-            <div className="flex items-center justify-center lg:justify-start gap-12 pt-4">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 xl:gap-12 pt-4">
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center shadow-inner group-hover/identity:border-primary/20 transition-colors">
                   <Zap className="w-7 h-7 text-primary drop-shadow-[0_0_10px_#6366f1]" />
@@ -237,8 +258,23 @@ export default function ProfileSettingsPage() {
                 <p className="text-[10px] text-white/20 font-bold uppercase tracking-[0.3em] font-mono">Scaling Mock Signal Density</p>
               </div>
               <div className="flex items-center gap-6 relative z-10">
-                <span className="text-2xl font-bold text-white font-jet-mono tracking-tighter">X2.4</span>
-                <Button variant="ghost" className="w-12 h-12 rounded-2xl bg-white/3 border border-white/5 hover:bg-primary hover:text-white transition-all text-white/20 border-b-4 border-b-primary/30">+</Button>
+                <span className="text-2xl font-bold text-white font-jet-mono tracking-tighter">X{injectionPower.toFixed(1)}</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setInjectionPower((v) => Math.max(1.0, Number((v - 0.1).toFixed(1))))}
+                    className="w-12 h-12 rounded-2xl bg-white/3 border border-white/5 hover:bg-primary hover:text-white transition-all text-white/20"
+                  >
+                    -
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setInjectionPower((v) => Math.min(5.0, Number((v + 0.1).toFixed(1))))}
+                    className="w-12 h-12 rounded-2xl bg-white/3 border border-white/5 hover:bg-primary hover:text-white transition-all text-white/20 border-b-4 border-b-primary/30"
+                  >
+                    +
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -326,12 +362,12 @@ export default function ProfileSettingsPage() {
         </section>
 
         {/* BOTTOM PROTOCOL ACTIONS */}
-        <div className="pt-20 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-12">
+        <div className="pt-14 xl:pt-20 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-8 xl:gap-12">
           <div className="flex items-center gap-8 group/status">
             <div className="w-5 h-5 rounded-full bg-primary/20 animate-pulse relative">
               <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-20" />
             </div>
-            <p className="text-[11px] font-bold text-white/10 uppercase tracking-[0.6em] group-hover/status:text-white/30 transition-colors">Protocol_Status: AES:L2_ENCRYPTED_ID_STABLE</p>
+            <p className="text-[11px] font-bold text-white/10 uppercase tracking-[0.4em] group-hover/status:text-white/30 transition-colors break-all">Protocol_Status: AES:L2_ENCRYPTED_ID_STABLE</p>
           </div>
           
           <div className="flex items-center gap-16">
@@ -340,7 +376,7 @@ export default function ProfileSettingsPage() {
                 "text-[12px] font-bold text-white/20 uppercase tracking-[0.6em] hover:text-white transition-all",
                 !isDirty && "opacity-0 pointer-events-none"
               )}
-              onClick={() => setIsDirty(false)}
+              onClick={handleResetChanges}
             >
               Abort_Changes
             </button>
@@ -374,11 +410,11 @@ export default function ProfileSettingsPage() {
       </div>
 
       {/* SIDEBAR TELEMETRY snapshot */}
-      <div className="space-y-12">
+      <div className="space-y-8 xl:space-y-10 2xl:space-y-12 min-w-0 2xl:w-[340px] xl:grid xl:grid-cols-2 xl:gap-6 2xl:block">
         <motion.div 
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="p-12 rounded-[56px] glass-ultra border border-white/5 bg-white/1 space-y-16 relative overflow-hidden group shadow-[0_60px_120px_rgba(0,0,0,0.8)]"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-5 xl:p-6 2xl:p-8 rounded-[30px] xl:rounded-[32px] 2xl:rounded-[44px] glass-ultra border border-white/5 bg-white/1 space-y-8 xl:space-y-8 2xl:space-y-12 relative overflow-hidden group shadow-[0_40px_80px_rgba(0,0,0,0.6)]"
         >
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] -mr-60 -mt-60 animate-pulse pointer-events-none" />
           <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
@@ -386,7 +422,7 @@ export default function ProfileSettingsPage() {
           <div className="space-y-6 relative z-10">
             <span className="text-[11px] font-bold text-white/20 uppercase tracking-[0.6em]">Trust_Score_Index</span>
             <div className="flex items-end justify-between">
-              <span className="text-7xl font-semibold text-white tracking-tighter">9.82</span>
+              <span className="text-4xl xl:text-5xl 2xl:text-6xl font-semibold text-white tracking-tighter">9.82</span>
               <div className="flex flex-col items-end gap-1">
                 <span className="px-3 py-1 rounded-lg bg-emerald-500/10 text-[10px] font-bold text-emerald-400 uppercase tracking-widest border border-emerald-500/20">A+ STATUS</span>
                 <span className="text-[10px] font-bold text-white/10 uppercase tracking-widest font-mono">HIGH_INTEGRITY</span>
@@ -425,7 +461,7 @@ export default function ProfileSettingsPage() {
             ))}
           </div>
 
-          <Button variant="ghost" className="w-full h-20 rounded-4xl bg-white/1 border border-white/5 hover:bg-white/3 hover:border-primary/20 text-[11px] font-bold uppercase tracking-[0.5em] text-white/20 hover:text-white transition-all group/audit overflow-hidden relative">
+          <Button onClick={() => router.push('/settings/security')} variant="ghost" className="w-full h-14 xl:h-16 2xl:h-20 rounded-3xl bg-white/1 border border-white/5 hover:bg-white/3 hover:border-primary/20 text-[10px] 2xl:text-[11px] font-bold uppercase tracking-[0.28em] 2xl:tracking-[0.45em] text-white/20 hover:text-white transition-all group/audit overflow-hidden relative">
             <span className="relative z-10 flex items-center justify-center gap-4">
               Detailed System Audit
               <ChevronRight className="w-5 h-5 group-hover/audit:translate-x-3 transition-transform duration-700" />
@@ -434,7 +470,7 @@ export default function ProfileSettingsPage() {
           </Button>
         </motion.div>
 
-        <div className="p-12 rounded-[48px] border border-white/5 bg-white/1 space-y-8 relative overflow-hidden group">
+        <div className="p-6 xl:p-6 2xl:p-8 rounded-[30px] xl:rounded-[32px] 2xl:rounded-[40px] border border-white/5 bg-white/1 space-y-6 relative overflow-hidden group">
           <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex items-center gap-4">
             <Sparkles className="w-6 h-6 text-primary animate-pulse" />

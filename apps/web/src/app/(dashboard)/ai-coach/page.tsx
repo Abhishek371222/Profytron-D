@@ -127,15 +127,17 @@ export default function AICoachPage() {
   }, []);
 
   return (
-    <div className="flex h-[calc(100vh-140px)] gap-6 p-2">
+    <div className="relative flex h-[calc(100vh-140px)] flex-col gap-5 overflow-hidden p-2 xl:flex-row">
+      <div className="pointer-events-none absolute -left-24 top-1/3 h-64 w-64 rounded-full bg-cyan-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl" />
       {/* LEFT PANEL: Insights Terminal */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="w-[420px] flex flex-col gap-6"
+        className="flex w-full shrink-0 flex-col gap-4 xl:w-[390px]"
       >
-        <div className="glass-ultra rounded-[40px] border-white/5 p-8 flex-1 overflow-y-auto no-scrollbar space-y-10 relative">
-          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none opacity-50 transition-opacity duration-1000" />
+        <div className="glass-ultra relative flex-1 space-y-8 overflow-y-auto rounded-[34px] border border-white/10 bg-white/[0.015] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.45)] no-scrollbar">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-primary/10 to-transparent opacity-60 transition-opacity duration-1000" />
           
           <div className="space-y-2 relative z-10">
             <div className="flex items-center gap-3">
@@ -143,7 +145,8 @@ export default function AICoachPage() {
               <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.6em]">Neural Engine v4.2</span>
             </div>
             <h1 className="text-3xl font-semibold text-white uppercase tracking-tight leading-tight">Tactical Feed</h1>
-            <div className="h-px w-20 bg-primary/30" />
+            <p className="text-sm text-white/55">Behavioral telemetry and risk-state diagnostics for your active cycle.</p>
+            <div className="h-px w-24 bg-primary/40" />
             {report ? (
               <p className="text-xs text-white/50 uppercase tracking-[0.2em]">
                 Win Rate: {report.winRate}% | Avg PnL: {report.avgPnl}
@@ -159,34 +162,34 @@ export default function AICoachPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1, duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
                 className={cn(
-                  "p-6 rounded-4xl border border-white/3 bg-white/1 hover:bg-white/3 transition-all duration-500 group cursor-pointer relative overflow-hidden",
-                  "hover:border-white/10"
+                  "group relative cursor-pointer overflow-hidden rounded-[26px] border p-5 transition-all duration-500",
+                  "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
                 )}
               >
                 {/* Hardware Accent Corners */}
-                <div className="absolute top-0 right-0 w-16 h-16 bg-linear-to-br from-white/2 to-transparent pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-2 h-2 bg-white/5 rounded-tr-sm" />
+                <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 bg-linear-to-br from-white/5 to-transparent" />
+                <div className="pointer-events-none absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100" />
                 
                 <div className="flex gap-5">
                   <div className={cn(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-700",
-                    "bg-white/5 border-white/5 outline-0 outline-white/10 group-hover:outline-1 group-hover:scale-110 group-hover:rotate-6",
+                    "flex h-12 w-12 items-center justify-center rounded-2xl border transition-all duration-700",
+                    "border-white/10 bg-white/5 outline-0 outline-white/15 group-hover:scale-110 group-hover:rotate-3 group-hover:outline-1",
                     insight.color
                   )}>
                     <insight.icon className="w-6 h-6 drop-shadow-[0_0_8px_currentColor]" />
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center justify-between">
-                      <h4 className={cn("text-[14px] font-semibold uppercase tracking-[0.2em] transition-colors", insight.color)}>
+                      <h4 className={cn("text-[13px] font-semibold uppercase tracking-[0.2em] transition-colors", insight.color)}>
                         {insight.title}
                       </h4>
                       <span className="text-[10px] font-mono text-white/10 uppercase tracking-widest">ID_S.{insight.id}</span>
                     </div>
-                    <p className="text-[14px] text-white/50 font-medium leading-relaxed font-sans group-hover:text-white/70 transition-colors">
+                    <p className="text-[13px] text-white/60 font-medium leading-relaxed font-sans group-hover:text-white/80 transition-colors">
                       {insight.body}
                     </p>
                     {insight.tip && (
-                      <div className="mt-4 p-4 rounded-2xl bg-indigo-500/3 border border-indigo-500/10 flex items-start gap-3">
+                      <div className="mt-4 flex items-start gap-3 rounded-2xl border border-indigo-400/20 bg-indigo-500/10 p-3.5">
                         <Sparkles className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" />
                         <p className="text-[11px] text-indigo-300 font-semibold uppercase tracking-wider leading-relaxed">
                           Core Suggestion: {insight.tip}
@@ -200,11 +203,11 @@ export default function AICoachPage() {
           </div>
 
           {/* Holographic Biometric ID */}
-          <div className="p-8 rounded-[40px] bg-black/40 border-2 border-white/5 relative overflow-hidden group shadow-2xl mt-auto">
+          <div className="relative mt-auto overflow-hidden rounded-[30px] border border-white/10 bg-black/45 p-6 shadow-2xl group">
             <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
             <div className="absolute top-0 left-0 w-full h-0.5 bg-primary/20 animate-scanline pointer-events-none" />
             
-            <div className="flex items-center justify-between mb-8 relative z-10">
+            <div className="relative z-10 mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Box className="w-4 h-4 text-primary animate-pulse" />
                 <span className="text-xs font-semibold text-primary uppercase tracking-[0.4em]">Biometric ID</span>
@@ -212,7 +215,7 @@ export default function AICoachPage() {
               <span className="text-[10px] font-semibold text-white/20 font-mono tracking-widest">TRADER_VAL_8820</span>
             </div>
 
-            <div className="flex items-center gap-8 relative z-10">
+            <div className="relative z-10 flex items-center gap-6">
               <div className="relative w-24 h-24 flex items-center justify-center group-hover:scale-105 transition-transform duration-700">
                 <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                 <svg className="w-full h-full transform -rotate-90 filter drop-shadow-[0_0_8px_rgba(99,102,241,0.3)]">
@@ -234,7 +237,7 @@ export default function AICoachPage() {
                 </div>
               </div>
 
-              <div className="flex-1 space-y-4">
+              <div className="flex-1 space-y-3">
                 <div className="space-y-1">
                   <span className="text-sm font-semibold text-white uppercase tracking-widest">Neural Stability</span>
                   <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest flex items-center gap-2">
@@ -261,7 +264,7 @@ export default function AICoachPage() {
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between text-white/10 uppercase font-mono tracking-widest text-[9px]">
+            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 text-[9px] font-mono tracking-widest text-white/20 uppercase">
               <span>Latency_Sync: Optimized</span>
               <span>Enc: AES-256V4</span>
             </div>
@@ -269,7 +272,7 @@ export default function AICoachPage() {
         </div>
 
         {/* System Status HUD */}
-        <div className="h-24 glass-ultra rounded-4xl border-white/5 flex items-center justify-between px-10 relative overflow-hidden group">
+        <div className="glass-ultra relative flex h-20 items-center justify-between overflow-hidden rounded-[24px] border border-white/10 px-6 group">
           <div className="absolute inset-0 bg-linear-to-r from-emerald-500/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="flex items-center gap-4 relative z-10">
             <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">
@@ -296,12 +299,12 @@ export default function AICoachPage() {
       <motion.div 
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="flex-1 glass-ultra rounded-[48px] border-white/5 flex flex-col overflow-hidden relative shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]"
+        className="glass-ultra relative z-10 flex flex-1 flex-col overflow-hidden rounded-[34px] border border-white/10 bg-white/[0.01] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]"
       >
         <div className="absolute top-0 right-0 w-150 h-150 bg-primary/5 blur-[150px] rounded-full pointer-events-none -mr-60 -mt-60 z-0" />
         
         {/* Chat Header */}
-        <div className="h-28 border-b border-white/5 flex items-center justify-between px-12 relative z-10 backdrop-blur-3xl bg-black/20">
+        <div className="relative z-10 flex h-24 items-center justify-between border-b border-white/10 bg-black/25 px-6 backdrop-blur-3xl xl:px-10">
           <div className="flex items-center gap-8">
             <div className="relative group/avatar">
               <div className="absolute -inset-2 bg-primary/20 rounded-3xl blur-xl opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-700" />
@@ -314,7 +317,7 @@ export default function AICoachPage() {
               <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-4 border-black z-20 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
             </div>
             <div className="flex flex-col gap-1">
-              <h2 className="text-2xl font-semibold text-white uppercase tracking-tight">Intelligence Core</h2>
+              <h2 className="text-xl xl:text-2xl font-semibold text-white uppercase tracking-tight">Intelligence Core</h2>
               <div className="inline-flex items-center gap-3 px-3 py-1 rounded-xl bg-primary/10 border border-primary/20 w-fit">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Quant_Sync v8.2 Tactical</span>
@@ -322,20 +325,20 @@ export default function AICoachPage() {
             </div>
           </div>
           
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 xl:gap-6">
             <div className="hidden text-right xl:flex xl:flex-col">
               <span className="text-[10px] font-semibold text-white/20 uppercase tracking-[0.4em]">Active Engine</span>
               <span className="text-sm font-semibold text-white/50 font-jet-mono uppercase tracking-widest">Claude_3.5_Quantum</span>
             </div>
             <div className="w-px h-12 bg-white/5" />
-            <Button variant="ghost" size="icon" className="w-14 h-14 rounded-2xl bg-white/3 border border-white/10 hover:border-primary/40 hover:bg-primary/5 text-white/20 hover:text-primary transition-all duration-500 group">
+            <Button onClick={() => router.push('/history')} variant="ghost" size="icon" className="w-14 h-14 rounded-2xl bg-white/3 border border-white/10 hover:border-primary/40 hover:bg-primary/5 text-white/20 hover:text-primary transition-all duration-500 group">
               <History className="w-6 h-6 group-hover:rotate-[-10deg] transition-transform" />
             </Button>
           </div>
         </div>
 
         {/* Message Area */}
-        <div className="flex-1 overflow-y-auto px-12 py-12 space-y-16 no-scrollbar relative z-10">
+        <div className="relative z-10 flex-1 space-y-12 overflow-y-auto px-6 py-8 xl:px-10 xl:py-10 no-scrollbar">
           <AnimatePresence initial={false}>
             {messages.map((msg, idx) => (
               <motion.div
@@ -344,7 +347,7 @@ export default function AICoachPage() {
                 animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
                 transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
                 className={cn(
-                  "flex items-start gap-8 max-w-[85%] relative group",
+                  "group relative flex max-w-[92%] items-start gap-5 xl:max-w-[85%]",
                   msg.role === 'user' ? "ml-auto flex-row-reverse" : ""
                 )}
               >
@@ -362,10 +365,10 @@ export default function AICoachPage() {
                   {msg.role === 'ai' && <div className="absolute -inset-4 bg-primary/10 blur-[40px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />}
                   
                   <div className={cn(
-                    "p-8 rounded-[36px] text-[16px] font-medium leading-[1.7] relative shadow-2xl transition-all duration-700",
+                    "relative rounded-[28px] p-5 text-[14px] xl:text-[15px] font-medium leading-[1.7] shadow-2xl transition-all duration-700",
                     msg.role === 'ai' 
-                      ? "bg-white/2 border border-white/10 text-white/80 rounded-tl-none hover:bg-white/4 hover:border-white/20" 
-                      : "bg-linear-to-br from-primary to-indigo-600 text-white border border-primary/30 rounded-tr-none hover:shadow-primary/20"
+                      ? "rounded-tl-none border border-white/10 bg-white/[0.03] text-white/85 hover:border-white/20 hover:bg-white/[0.05]" 
+                      : "rounded-tr-none border border-primary/40 bg-linear-to-br from-primary to-indigo-600 text-white hover:shadow-primary/20"
                   )}>
                     {msg.text.split('\n').map((line, i) => {
                       const parts = line.split(/(\$\d+(?:,\d+)*(?:\.\d+)?|\d+(?:\.\d+)?%?)/g);
@@ -435,9 +438,9 @@ export default function AICoachPage() {
         </div>
 
         {/* Dynamic Command Center */}
-        <div className="p-12 relative z-20 bg-black/20 backdrop-blur-3xl border-t border-white/5">
+          <div className="relative z-20 border-t border-white/10 bg-black/25 p-6 backdrop-blur-3xl xl:p-8">
           {/* Quick Suggestions */}
-          <div className="flex gap-4 mb-10 overflow-x-auto no-scrollbar pb-2 group/suggestions">
+          <div className="group/suggestions mb-6 flex gap-3 overflow-x-auto pb-2 no-scrollbar">
             {SUGGESTIONS.map((s, i) => (
               <motion.button
                 key={i}
@@ -445,7 +448,7 @@ export default function AICoachPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.8 + (i * 0.1) }}
                 onClick={() => handleSend(s)}
-                className="px-8 py-4 rounded-[22px] bg-white/2 border border-white/10 hover:border-primary/50 text-[11px] font-bold text-white/30 hover:text-white uppercase tracking-[0.2em] transition-all hover:translate-y-[-4px] hover:shadow-[0_10px_30px_rgba(99,102,241,0.1)] active:translate-y-0 whitespace-nowrap"
+                className="whitespace-nowrap rounded-[18px] border border-white/10 bg-white/[0.03] px-5 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/50 transition-all hover:-translate-y-1 hover:border-primary/60 hover:text-white hover:shadow-[0_10px_30px_rgba(99,102,241,0.12)] active:translate-y-0"
               >
                 {s}
               </motion.button>
@@ -455,16 +458,16 @@ export default function AICoachPage() {
           <div className="relative group p-[2px] rounded-4xl overflow-hidden transition-all duration-700 focus-within:shadow-[0_0_50px_rgba(99,102,241,0.15)]">
             <div className="absolute inset-0 bg-linear-to-r from-transparent via-primary/50 to-transparent group-focus-within:translate-x-full transition-transform duration-1500 ease-in-out -translate-x-full" />
             
-            <div className="h-24 flex items-center bg-white/2 border border-white/10 rounded-[30px] px-10 relative z-10 focus-within:bg-white/4 transition-all duration-500 group-focus-within:border-primary/40">
+            <div className="relative z-10 flex h-20 items-center rounded-[24px] border border-white/10 bg-white/[0.03] px-5 transition-all duration-500 group-focus-within:border-primary/40 group-focus-within:bg-white/[0.06] xl:h-24 xl:px-8">
               <input 
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend(inputValue)}
                 placeholder="EXECUTE COMMAND OR QUERY CORE..."
-                className="flex-1 bg-transparent outline-none text-[16px] text-white placeholder:text-white/5 font-semibold tracking-tight uppercase"
+                className="flex-1 bg-transparent text-[13px] xl:text-[15px] font-semibold tracking-tight text-white uppercase outline-none placeholder:text-white/20"
               />
-              <div className="flex items-center gap-10">
+              <div className="flex items-center gap-4 xl:gap-8">
                 <span className="text-[10px] font-bold text-white/5 font-mono tracking-[0.3em] hidden xl:block uppercase">
                   METADATA_LENGTH: {inputValue.length} {" // "} 500
                 </span>

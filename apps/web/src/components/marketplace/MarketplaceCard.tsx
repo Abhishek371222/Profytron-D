@@ -13,8 +13,11 @@ interface MarketplaceCardProps {
 }
 
 export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps) {
- const isTrending = strategy.subscribers > 2000;
- const isTopRated = strategy.sharpe > 2.0;
+ const subscribers = Number(strategy.subscribers || 0);
+ const returns = Number(strategy.returns || 0);
+ const price = Number(strategy.price || 0);
+ const isTrending = subscribers > 2000;
+ const isTopRated = Number(strategy.sharpe || 0) > 2.0;
  const isNew = strategy.id === 's_8'; // Just for demo
 
  return (
@@ -23,29 +26,29 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
  whileInView={{ opacity: 1, y: 0 }}
  viewport={{ once: true }}
  whileHover={{ y: -4 }}
- className="group bg-[#0d0d12]/60 backdrop-blur-3xl border border-white/5 hover:border-white/10 rounded-[28px] overflow-hidden transition-all duration-500"
+ className="group bg-[#0d0d12]/60 backdrop-blur-3xl border border-white/10 hover:border-indigo-300/25 rounded-3xl overflow-hidden transition-all duration-500"
  >
  {/* Header / Badges */}
- <div className="relative p-6 pb-2">
- <div className="flex items-center justify-between mb-4">
+ <div className="relative p-5 pb-2">
+ <div className="flex items-center justify-between mb-3">
  <div className="flex items-center gap-2">
- <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center group-hover:bg-p/10 group-hover:border-p/20 transition-colors">
+ <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-p/10 group-hover:border-p/20 transition-colors">
  <Activity className="w-5 h-5 text-white/40 group-hover:text-p transition-colors" />
  </div>
  <div className="flex flex-col">
- <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.2em]">{strategy.category}</span>
+ <span className="text-[10px] font-semibold text-white/25 uppercase tracking-[0.16em]">{strategy.category}</span>
  <h3 className="text-sm font-bold text-white tracking-tight leading-tight mt-0.5">{strategy.name}</h3>
  </div>
  </div>
  <div className="flex flex-col items-end gap-1.5">
  {isTrending && (
- <div className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold uppercase tracking-widest flex items-center gap-1">
+ <div className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-semibold uppercase tracking-[0.12em] flex items-center gap-1">
  <TrendingUp className="w-2.5 h-2.5" />
  Trending
  </div>
  )}
  {isTopRated && (
- <div className="px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-widest flex items-center gap-1">
+ <div className="px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-semibold uppercase tracking-[0.12em] flex items-center gap-1">
  <Star className="w-2.5 h-2.5 fill-current" />
  Top Rated
  </div>
@@ -55,35 +58,35 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
  </div>
 
  {/* Stats Grid */}
- <div className="px-6 py-4 grid grid-cols-2 gap-4">
- <div className="p-3 rounded-2xl bg-white/2 border border-white/3">
- <span className="text-xs text-white/20 font-semibold uppercase tracking-widest block mb-1">30D Return</span>
- <span className="text-xs font-bold text-emerald-400">+{strategy.returns}%</span>
+ <div className="px-5 py-4 grid grid-cols-2 gap-3">
+ <div className="p-3 rounded-xl bg-white/2 border border-white/5">
+ <span className="text-[10px] text-white/20 font-semibold uppercase tracking-[0.12em] block mb-1">30D Return</span>
+ <span className="text-xs font-bold text-emerald-400">+{returns}%</span>
  </div>
- <div className="p-3 rounded-2xl bg-white/2 border border-white/3">
- <span className="text-xs text-white/20 font-semibold uppercase tracking-widest block mb-1">Risk Score</span>
+ <div className="p-3 rounded-xl bg-white/2 border border-white/5">
+ <span className="text-[10px] text-white/20 font-semibold uppercase tracking-[0.12em] block mb-1">Risk Score</span>
  <span className="text-xs font-bold text-white/60">{strategy.risk}</span>
  </div>
  </div>
 
  {/* Pricing & Creator Section */}
- <div className="px-6 py-6 bg-black/20 border-t border-white/3 space-y-6">
+ <div className="px-5 py-5 bg-black/20 border-t border-white/5 space-y-4">
  <div className="flex items-center justify-between">
  <div className="flex flex-col">
  <div className="flex items-baseline gap-1">
  <span className="text-lg font-bold text-white font-jet-mono tracking-tight">
- {strategy.price > 0 ? `₹${strategy.price.toLocaleString()}` :"FREE"}
+ {price > 0 ? `₹${price.toLocaleString()}` :"FREE"}
  </span>
- {strategy.price > 0 && <span className="text-xs font-bold text-white/20 uppercase">/ MO</span>}
+ {price > 0 && <span className="text-xs font-bold text-white/20 uppercase">/ MO</span>}
  </div>
- {strategy.price > 0 && (
+ {price > 0 && (
  <span className="text-xs font-bold text-emerald-500/60 uppercase tracking-tight">
  -20% billed annually
  </span>
  )}
  </div>
- {strategy.price > 2000 && (
- <div className="px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold uppercase tracking-widest animate-pulse">
+ {price > 2000 && (
+ <div className="px-2 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-semibold uppercase tracking-[0.1em] animate-pulse">
  7-Day Trial
  </div>
  )}
@@ -111,14 +114,14 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
  </div>
  <div className="flex items-center gap-1 text-white/20">
  <Users className="w-3 h-3" />
- <span className="text-xs font-semibold">{strategy.subscribers}</span>
+ <span className="text-xs font-semibold">{subscribers}</span>
  </div>
  </div>
 
  <div className="flex flex-col gap-2">
  <Button 
  onClick={() => onSubscribe(strategy)}
- className="w-full h-11 rounded-xl bg-white text-bg-base hover:bg-white/90 font-semibold text-xs uppercase tracking-[0.2em] shadow-xl transition-all active:scale-[0.98]"
+ className="w-full h-10 rounded-xl bg-white text-bg-base hover:bg-white/90 font-semibold text-[11px] uppercase tracking-[0.14em] shadow-xl transition-all active:scale-[0.98]"
  >
  Subscribe <ArrowRight className="w-3 h-3 ml-2" />
  </Button>

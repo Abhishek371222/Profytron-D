@@ -5,23 +5,19 @@ import { useQuery } from '@tanstack/react-query';
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
-  Cell,
   CartesianGrid,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import Link from 'next/link';
+import { ChevronRight, Sparkles, TrendingUp } from 'lucide-react';
+import { demoPortfolio } from './_lib/demoData';
 
-const RANGE_OPTIONS = ['1m', '3m', '1y', 'all'] as const;
+const RANGE_OPTIONS: AnalyticsRange[] = ['1d', '1w', '1m', '3m', '1y', 'all'];
 
 export default function AnalyticsPage() {
   const [range, setRange] = React.useState<AnalyticsRange>('1m');
@@ -62,202 +58,120 @@ export default function AnalyticsPage() {
     staleTime: 300_000,
   });
 
+  const portfolio = portfolioQuery.data ?? demoPortfolio(range);
+  const global = globalQuery.data;
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Analytics</h1>
-          <p className="text-sm text-white/60">Portfolio, strategy, risk, and global intelligence.</p>
+    <div className="space-y-6 pb-8">
+      <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#09112b] via-[#0a1338] to-[#071327] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100">
+              <Sparkles className="h-3.5 w-3.5" />
+              Live Analytics Command Center
+            </p>
+            <h1 className="mt-3 text-3xl font-semibold text-white">Analytics</h1>
+            <p className="mt-2 max-w-2xl text-sm text-white/70">
+              Portfolio intelligence with dedicated section pages for performance, risk, trade quality, and macro context.
+            </p>
+          </div>
+          <Link href="/analytics/global" className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 hover:bg-white/10">
+            Global Terminal
+            <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="mt-5 flex flex-wrap items-center gap-2">
           {RANGE_OPTIONS.map((option) => (
             <button
               key={option}
               onClick={() => setRange(option)}
               className={`px-3 py-1.5 rounded-md text-xs uppercase tracking-wide border transition ${
                 range === option
-                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40'
+                  ? 'bg-gradient-to-r from-cyan-400/25 to-indigo-400/25 text-white border-cyan-300/50'
                   : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
               }`}
             >
               {option}
             </button>
           ))}
-          <Link href="/analytics/global" className="px-3 py-1.5 rounded-md text-xs border border-white/20 text-white/80 hover:bg-white/10">
-            Global Page
-          </Link>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Total Profit" value={`$${(portfolioQuery.data?.totalProfit ?? 0).toLocaleString()}`} />
-        <MetricCard label="Win Rate" value={`${portfolioQuery.data?.winRate ?? 0}%`} />
-        <MetricCard label="Sharpe" value={`${portfolioQuery.data?.sharpeRatio ?? 0}`} />
-        <MetricCard label="Max Drawdown" value={`${portfolioQuery.data?.maxDrawdown ?? 0}%`} />
+        <MetricCard label="Total Profit" value={`$${portfolio.totalProfit.toLocaleString()}`} tone="profit" />
+        <MetricCard label="Win Rate" value={`${portfolio.winRate}%`} tone="neutral" />
+        <MetricCard label="Sharpe" value={`${portfolio.sharpeRatio}`} tone="neutral" />
+        <MetricCard label="Max Drawdown" value={`${portfolio.maxDrawdown}%`} tone="risk" />
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="risk">Risk</TabsTrigger>
-          <TabsTrigger value="trade">Trade</TabsTrigger>
-          <TabsTrigger value="global">Global</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview">
-          <Card className="p-4 bg-black/40 border-white/10">
-            <h3 className="text-sm text-white/70 mb-3">Equity Curve</h3>
-            <div className="h-[320px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={portfolioQuery.data?.equityCurve ?? []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                  <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} />
-                  <YAxis tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="equity" stroke="#6366f1" fill="#6366f133" strokeWidth={2} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="performance">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card className="p-4 bg-black/40 border-white/10">
-              <h3 className="text-sm text-white/70 mb-3">Strategy Comparison</h3>
-              <div className="h-[320px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={strategyQuery.data?.strategies ?? []}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                    <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} />
-                    <YAxis tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} />
-                    <Tooltip />
-                    <Bar dataKey="netPnl" fill="#22c55e" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-
-            <Card className="p-4 bg-black/40 border-white/10">
-              <h3 className="text-sm text-white/70 mb-3">Monthly Returns</h3>
-              <div className="h-[320px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyQuery.data?.months ?? []}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                    <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} />
-                    <YAxis tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} />
-                    <Tooltip />
-                    <Bar dataKey="returnPct" fill="#06b6d4" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
+        <Card className="border-white/10 bg-black/40 p-4">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Equity Curve</h3>
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-2.5 py-1 text-[11px] text-emerald-200">
+              <TrendingUp className="h-3.5 w-3.5" />
+              +{portfolio.bestMonth}% Best Month
+            </span>
           </div>
-        </TabsContent>
-
-        <TabsContent value="risk">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card className="p-4 bg-black/40 border-white/10">
-              <h3 className="text-sm text-white/70 mb-3">Drawdown Curve</h3>
-              <div className="h-[320px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={riskQuery.data?.drawdownCurve ?? []}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                    <XAxis dataKey="time" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} />
-                    <YAxis tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="val" stroke="#ef4444" fill="#ef444433" strokeWidth={2} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-
-            <Card className="p-4 bg-black/40 border-white/10 space-y-2">
-              <RiskRow label="VaR 95%" value={`$${(riskQuery.data?.var95 ?? 0).toLocaleString()}`} />
-              <RiskRow label="Max Consec Losses" value={`${riskQuery.data?.maxConsecutiveLosses ?? 0}`} />
-              <RiskRow label="Largest Loss" value={`$${(riskQuery.data?.largestLoss ?? 0).toLocaleString()}`} />
-              <RiskRow label="Best Single Win" value={`$${(riskQuery.data?.bestSingleWin ?? 0).toLocaleString()}`} />
-              <RiskRow label="Avg Risk/Reward" value={`${riskQuery.data?.avgRiskReward ?? 0}`} />
-              <RiskRow label="Calmar" value={`${riskQuery.data?.calmarRatio ?? 0}`} />
-            </Card>
+          <div className="h-[320px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={portfolio.equityCurve}>
+                <defs>
+                  <linearGradient id="overviewFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.5} />
+                    <stop offset="95%" stopColor="#22d3ee" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.55)', fontSize: 11 }} />
+                <YAxis tick={{ fill: 'rgba(255,255,255,0.55)', fontSize: 11 }} />
+                <Tooltip />
+                <Area type="monotone" dataKey="equity" stroke="#22d3ee" fill="url(#overviewFill)" strokeWidth={2.5} />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
-        </TabsContent>
+        </Card>
 
-        <TabsContent value="trade">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card className="p-4 bg-black/40 border-white/10">
-              <h3 className="text-sm text-white/70 mb-3">P&L Distribution</h3>
-              <div className="h-[320px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={tradeQuery.data?.distribution ?? []}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                    <XAxis dataKey="range" tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} />
-                    <YAxis tick={{ fill: 'rgba(255,255,255,0.5)', fontSize: 11 }} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#f59e0b" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-
-            <Card className="p-4 bg-black/40 border-white/10">
-              <h3 className="text-sm text-white/70 mb-3">Win vs Loss</h3>
-              <div className="h-[320px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={tradeQuery.data?.winLoss ?? []}
-                      dataKey="value"
-                      nameKey="name"
-                      outerRadius={100}
-                      label
-                    >
-                      {(tradeQuery.data?.winLoss ?? []).map((entry, idx) => (
-                        <Cell key={`${entry.name}-${idx}`} fill={idx === 0 ? '#10b981' : '#ef4444'} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
+        <Card className="border-white/10 bg-black/40 p-4">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Quick Links</h3>
+          <div className="mt-4 space-y-2">
+            {[
+              { href: '/analytics/performance', title: 'Performance Lab', desc: 'Compare strategy quality and monthly edge.' },
+              { href: '/analytics/risk', title: 'Risk Radar', desc: 'Monitor drawdown and stress indicators.' },
+              { href: '/analytics/trade', title: 'Trade Forensics', desc: 'Inspect distributions and symbol outcomes.' },
+              { href: '/analytics/global', title: 'Global Intelligence', desc: 'Track macro events and leaderboard flow.' },
+            ].map((item) => (
+              <Link key={item.href} href={item.href} className="block rounded-xl border border-white/10 bg-white/5 p-3 transition hover:border-cyan-200/30 hover:bg-cyan-200/5">
+                <p className="text-sm font-semibold text-white">{item.title}</p>
+                <p className="mt-1 text-xs text-white/65">{item.desc}</p>
+              </Link>
+            ))}
           </div>
-        </TabsContent>
 
-        <TabsContent value="global">
-          <Card className="p-4 bg-black/40 border-white/10 space-y-3">
-            <div className="text-sm text-white/70">Market Regime: <span className="text-white">{globalQuery.data?.marketRegime.label ?? 'N/A'}</span></div>
-            <div className="text-sm text-white/70">Confidence: <span className="text-white">{globalQuery.data?.marketRegime.confidence ?? 0}%</span></div>
-            <div className="space-y-2 pt-2">
-              <h3 className="text-sm text-white/70">Macro Events</h3>
-              {(globalQuery.data?.macroEvents ?? []).map((event) => (
-                <div key={`${event.event}-${event.timestamp}`} className="p-3 rounded-md bg-white/5 border border-white/10 text-sm text-white/80">
-                  {event.event} - {event.impact}
-                </div>
-              ))}
-            </div>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white/70">
+            <p>Regime: <span className="text-white">{global?.marketRegime.label ?? 'Risk-On Rotation'}</span></p>
+            <p className="mt-1">Confidence: <span className="text-white">{global?.marketRegime.confidence ?? 78}%</span></p>
+            <p className="mt-1">Data mode: <span className="text-cyan-200">{portfolioQuery.data ? 'Live' : 'Demo fallback'}</span></p>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function MetricCard({ label, value, tone }: { label: string; value: string; tone: 'profit' | 'risk' | 'neutral' }) {
+  const toneClass =
+    tone === 'profit'
+      ? 'from-emerald-500/15 to-emerald-500/5 border-emerald-300/30'
+      : tone === 'risk'
+        ? 'from-rose-500/15 to-rose-500/5 border-rose-300/30'
+        : 'from-cyan-500/10 to-indigo-500/10 border-cyan-300/20';
+
   return (
-    <Card className="p-4 bg-black/40 border-white/10">
+    <Card className={`border bg-gradient-to-br p-4 ${toneClass}`}>
       <p className="text-xs text-white/60">{label}</p>
-      <p className="text-lg font-semibold text-white">{value}</p>
+      <p className="text-2xl font-semibold text-white">{value}</p>
     </Card>
-  );
-}
-
-function RiskRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between border-b border-white/10 pb-2 last:border-b-0">
-      <span className="text-sm text-white/70">{label}</span>
-      <span className="text-sm font-medium text-white">{value}</span>
-    </div>
   );
 }

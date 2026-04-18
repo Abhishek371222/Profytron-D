@@ -75,6 +75,23 @@ export interface TradeAnalytics {
   winLoss: Array<{ name: string; value: number }>;
 }
 
+export interface TradeExportResponse {
+  range: AnalyticsRange;
+  rows: Array<{
+    id: string;
+    symbol: string;
+    direction: 'BUY' | 'SELL';
+    volume: number;
+    openPrice: number;
+    closePrice: number | null;
+    profit: number | null;
+    status: 'OPEN' | 'CLOSED' | 'CANCELED';
+    strategyName: string | null;
+    openedAt: string;
+    closedAt: string | null;
+  }>;
+}
+
 export interface GlobalIntelligence {
   marketRegime: { label: string; confidence: number };
   sectorRotation: Array<{
@@ -131,6 +148,11 @@ export const analyticsApi = {
   async getTrades(range: AnalyticsRange = '3m') {
     const res = await apiClient.get('/analytics/trades', { params: { range } });
     return unwrap<TradeAnalytics>(res.data);
+  },
+
+  async getTradeExport(range: AnalyticsRange = '3m') {
+    const res = await apiClient.get('/analytics/trades/export', { params: { range } });
+    return unwrap<TradeExportResponse>(res.data);
   },
 
   async getGlobal() {

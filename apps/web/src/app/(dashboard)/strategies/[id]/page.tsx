@@ -6,11 +6,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, Activity, Shield, Zap, TrendingUp, 
   BarChart3, History, Info, Cpu, Globe, Lock,
-  ChevronRight, Share2, Star, AlertTriangle, Terminal
+  ChevronRight, Share2, Star, AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { strategiesApi } from '@/lib/api/strategies';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { StrategyActivationModal } from '@/components/strategies/StrategyActivationModal';
@@ -20,6 +21,7 @@ export default function StrategyDetailPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState<'analytics' | 'trades' | 'details'>('analytics');
   const [isActivationOpen, setIsActivationOpen] = React.useState(false);
+  const [chartRange, setChartRange] = React.useState<'1M' | '3M' | '1Y' | 'ALL'>('1Y');
 
   const { data: strategy, isLoading } = useQuery({
     queryKey: ['strategy', id],
@@ -39,6 +41,36 @@ export default function StrategyDetailPage() {
   }
 
   if (!strategy) return null;
+
+  const equityCurve = strategy.equityCurve || [];
+  const chartData = React.useMemo(() => {
+    if (chartRange === 'ALL') return equityCurve;
+    const points = chartRange === '1M' ? 30 : chartRange === '3M' ? 90 : 365;
+    return equityCurve.slice(-points);
+  }, [chartRange, equityCurve]);
+
+  const mockTrades = React.useMemo(() => {
+    if (Array.isArray(strategy.recentTrades) && strategy.recentTrades.length > 0) {
+      return strategy.recentTrades;
+    }
+
+    return [
+      { id: 'TR-001', pair: 'EUR/USD', side: 'LONG', pnl: 142.8, at: '2026-04-10 13:22' },
+      { id: 'TR-002', pair: 'BTC/USDT', side: 'SHORT', pnl: -38.2, at: '2026-04-10 10:47' },
+      { id: 'TR-003', pair: 'SOL/USDT', side: 'LONG', pnl: 74.4, at: '2026-04-09 18:15' },
+      { id: 'TR-004', pair: 'XAU/USD', side: 'SHORT', pnl: 59.1, at: '2026-04-09 14:08' },
+    ];
+  }, [strategy.recentTrades]);
+
+  const handleShare = async () => {
+    const strategyUrl = `${window.location.origin}/strategies/${strategy.id}`;
+    try {
+      await navigator.clipboard.writeText(strategyUrl);
+      toast.success('Strategy link copied');
+    } catch {
+      toast.error('Unable to copy link');
+    }
+  };
 
   return (
     <div className="flex-1 min-h-screen bg-[#030303] text-white p-8 space-y-10 relative overflow-hidden">
@@ -79,7 +111,7 @@ export default function StrategyDetailPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Button variant="ghost" className="h-14 w-14 rounded-2xl border border-white/5 bg-white/2 hover:bg-white/5">
+          <Button onClick={handleShare} variant="ghost" className="h-14 w-14 rounded-2xl border border-white/5 bg-white/2 hover:bg-white/5">
             <Share2 className="w-5 h-5" />
           </Button>
           <Button 
@@ -116,14 +148,20 @@ export default function StrategyDetailPage() {
               </div>
               <div className="flex items-center gap-2 p-1 bg-white/3 border border-white/5 rounded-xl">
                 {['1M', '3M', '1Y', 'ALL'].map(range => (
-                  <button key={range} className={cn("px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all", range === '1Y' ? "bg-p text-white" : "text-white/20 hover:text-white/40")}>{range}</button>
+                  <button
+                    key={range}
+                    onClick={() => setChartRange(range as '1M' | '3M' | '1Y' | 'ALL')}
+                    className={cn("px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all", range === chartRange ? "bg-p text-white" : "text-white/20 hover:text-white/40")}
+                  >
+                    {range}
+                  </button>
                 ))}
               </div>
             </div>
 
             <div className="h-[450px] w-full">
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
-                <AreaChart data={strategy.equityCurve || []}>
+                <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
@@ -212,10 +250,36 @@ export default function StrategyDetailPage() {
                     </div>
                   </div>
                </div>}
-               {activeTab === 'trades' && <div className="flex flex-col items-center justify-center py-20 text-white/20 space-y-4">
-                  <Terminal className="w-12 h-12 opacity-20" />
-                  <p className="text-xs font-jet-mono uppercase tracking-[0.4em]">Awaiting Execution Telemetry...</p>
-               </div>}
+               {activeTab === 'trades' && (
+                 <div className="animate-in fade-in duration-500 space-y-5">
+                   <div className="flex items-center justify-between">
+                     <p className="text-xs font-jet-mono uppercase tracking-[0.3em] text-white/30">Latest Execution Frames</p>
+                     <Button
+                       variant="ghost"
+                       onClick={() => router.push('/history')}
+                       className="h-8 px-3 rounded-lg border border-white/10 bg-white/5 text-[10px] uppercase tracking-[0.16em]"
+                     >
+                       Open Full Vault
+                     </Button>
+                   </div>
+                   <div className="space-y-3">
+                     {mockTrades.map((trade: any) => (
+                       <div key={trade.id} className="p-4 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-between">
+                         <div className="space-y-1">
+                           <p className="text-xs font-jet-mono text-white/30 uppercase tracking-[0.2em]">{trade.id}</p>
+                           <p className="text-sm font-semibold text-white">{trade.pair} <span className="text-white/40">({trade.side})</span></p>
+                         </div>
+                         <div className="text-right space-y-1">
+                           <p className={cn('text-sm font-bold font-jet-mono', Number(trade.pnl) >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
+                             {Number(trade.pnl) >= 0 ? '+' : ''}${Number(trade.pnl).toFixed(2)}
+                           </p>
+                           <p className="text-xs text-white/30 font-jet-mono">{trade.at}</p>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               )}
                {activeTab === 'details' && <div className="space-y-8 animate-in fade-in duration-500">
                   <p className="text-sm text-white/60 leading-relaxed font-medium uppercase tracking-wide">
                     {strategy.description}
@@ -261,7 +325,13 @@ export default function StrategyDetailPage() {
             <p className="text-xs text-white/30 leading-relaxed uppercase tracking-widest mb-8">
               {strategy.creator?.bio || 'Professional quantitative fund manager specializing in neural liquidity extraction.'}
             </p>
-            <Button variant="ghost" className="w-full h-12 rounded-xl border border-white/5 bg-white/1 hover:bg-white/5 text-[10px] font-bold uppercase tracking-[0.2em]">Contact Node Admin</Button>
+            <Button
+              variant="ghost"
+              onClick={() => router.push(`/ai-coach?topic=${encodeURIComponent(strategy.name)}`)}
+              className="w-full h-12 rounded-xl border border-white/5 bg-white/1 hover:bg-white/5 text-[10px] font-bold uppercase tracking-[0.2em]"
+            >
+              Contact Node Admin
+            </Button>
           </div>
 
           {/* Operational Risk Insight */}

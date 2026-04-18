@@ -9,6 +9,7 @@ import {
  Clock, Globe, RefreshCcw, Code, Cpu, Lock
 } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const MOCK_KEYS = [
  {
@@ -67,6 +68,7 @@ const TERMINAL_LOGS = [
 ];
 
 export default function APIKeysPage() {
+ const [keys, setKeys] = React.useState(MOCK_KEYS);
  const [visibleKeys, setVisibleKeys] = React.useState<Set<string>>(new Set());
  const [copied, setCopied] = React.useState<string | null>(null);
  const [isCreating, setIsCreating] = React.useState(false);
@@ -74,6 +76,23 @@ export default function APIKeysPage() {
  const [newKeyPerms, setNewKeyPerms] = React.useState<string[]>(['READ']);
  const [createdKeyValue, setCreatedKeyValue] = React.useState<string | null>(null);
  const [activeTab, setActiveTab] = React.useState<'keys' | 'terminal'>('keys');
+ const [pendingDeleteId, setPendingDeleteId] = React.useState<string | null>(null);
+
+ React.useEffect(() => {
+  try {
+   const storedKeys = localStorage.getItem('settings.apiKeys.items');
+   if (storedKeys) {
+    const parsed = JSON.parse(storedKeys);
+    if (Array.isArray(parsed)) setKeys(parsed);
+   }
+  } catch {
+   // Ignore malformed saved keys.
+  }
+ }, []);
+
+ React.useEffect(() => {
+  localStorage.setItem('settings.apiKeys.items', JSON.stringify(keys));
+ }, [keys]);
 
  const toggleKeyVisibility = (id: string) => {
  setVisibleKeys(prev => {
@@ -90,16 +109,46 @@ export default function APIKeysPage() {
  const handleCopy = (text: string, id: string) => {
  navigator.clipboard.writeText(text);
  setCopied(id);
+ toast.success('Credential copied to clipboard');
  setTimeout(() => setCopied(null), 2000);
  };
 
  const handleCreateKey = () => {
  if (!newKeyName.trim()) return;
  const fakeKey = `profy_live_${Math.random().toString(36).substr(2, 8)}${Math.random().toString(36).substr(2, 24)}`;
+ const prefix = fakeKey.slice(0, 15);
+ const suffix = `...${fakeKey.slice(-4)}`;
+ setKeys((prev) => [
+  {
+   id: `key_${Date.now()}`,
+   name: newKeyName.trim(),
+   prefix,
+   suffix,
+   created: new Date().toISOString().slice(0, 10),
+   lastUsed: 'never',
+   permissions: newKeyPerms,
+   status: 'active',
+   requests: 0,
+   rateLimit: newKeyPerms.includes('ADMIN') ? '2000 req/min' : '1000 req/min',
+  },
+  ...prev,
+ ]);
  setCreatedKeyValue(fakeKey);
  setIsCreating(false);
  setNewKeyName('');
  setNewKeyPerms(['READ']);
+ toast.success('API key generated');
+ };
+
+ const handleDeleteKey = (id: string) => {
+  if (pendingDeleteId !== id) {
+   setPendingDeleteId(id);
+   toast.message('Click revoke again to confirm');
+   return;
+  }
+  setKeys((prev) => prev.filter((key) => key.id !== id));
+  setPendingDeleteId(null);
+  toast.success('API key revoked');
  };
 
  const getMethodColor = (method: string) => {
@@ -197,7 +246,15 @@ export default function APIKeysPage() {
  <AnimatePresence mode="wait">
  {activeTab === 'keys' && (
  <motion.div key="keys" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
- {MOCK_KEYS.map((key, idx) => (
+ {keys.length === 0 && (
+ <div className="p-12 rounded-[28px] border border-dashed border-white/10 bg-white/1 text-center space-y-4">
+ <p className="text-sm font-semibold text-white/30 uppercase tracking-[0.25em]">No active keys available</p>
+ <Button onClick={() => setIsCreating(true)} className="h-11 px-6 rounded-xl bg-white text-black hover:bg-white/90 uppercase tracking-[0.2em] text-xs font-semibold">
+ Generate First Key
+ </Button>
+ </div>
+ )}
+ {keys.map((key, idx) => (
  <motion.div
  key={key.id}
  initial={{ opacity: 0, y: 20 }}
@@ -270,8 +327,8 @@ export default function APIKeysPage() {
  </div>
 
  {/* Action */}
- <button className="shrink-0 w-10 h-10 rounded-[10px] bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 hover:bg-rose-500/20 transition-all opacity-0 group-hover:opacity-100">
- <Trash2 className="w-4 h-4" />
+ <button onClick={() => handleDeleteKey(key.id)} className={cn("shrink-0 w-10 h-10 rounded-[10px] border flex items-center justify-center transition-all opacity-0 group-hover:opacity-100", pendingDeleteId === key.id ? "bg-amber-500/10 border-amber-500/30 text-amber-300" : "bg-rose-500/10 border-rose-500/20 text-rose-400 hover:bg-rose-500/20")}>
+ {pendingDeleteId === key.id ? <AlertCircle className="w-4 h-4" /> : <Trash2 className="w-4 h-4" />}
  </button>
  </div>
  </motion.div>
