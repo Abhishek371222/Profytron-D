@@ -1,0 +1,12 @@
+[2026-04-15T09:43:06.008Z] API supervisor booting...
+[2026-04-15T09:43:06.014Z] Crash log file: C:\Users\abhis\Downloads\Profytron-build1\.tmp_api_supervisor.log
+[2026-04-15T09:43:06.015Z] Max restarts: 20
+[2026-04-15T09:43:06.018Z] Starting API process (restart #0)
+[2026-04-15T09:44:01.938Z] API supervisor booting...
+[2026-04-15T09:44:01.946Z] Crash log file: C:\Users\abhis\Downloads\Profytron-build1\.tmp_api_supervisor.log
+[2026-04-15T09:44:01.947Z] Max restarts: 20
+[2026-04-15T09:44:01.948Z] Starting API process (restart #0)
+^C[2026-04-15T09:45:12.248Z] API supervisor booting...
+[2026-04-15T09:45:12.257Z] Crash log file: C:\Users\abhis\Downloads\Profytron-build1\.tmp_api_supervisor.log
+[2026-04-15T09:45:12.258Z] Max restarts: 20
+[2026-04-15T09:45:12.260Z] Starting API process (restart #0)

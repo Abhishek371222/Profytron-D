@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { 
  History, 
  Search, 
@@ -10,13 +10,9 @@ import {
  ArrowUpRight, 
  ArrowDownRight, 
  Calendar,
- ChevronRight,
- Target,
- Zap,
- ShieldCheck,
- Activity,
  Box,
- Brain
+ Brain,
+ X
 } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -34,6 +30,107 @@ const MOCK_HISTORY = [
 export default function HistoryPage() {
  const [searchQuery, setSearchQuery] = useState('');
  const [selectedStrategy, setSelectedStrategy] = useState('All Strategies');
+ const [currentPage, setCurrentPage] = useState(1);
+ const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
+ const [selectedRange, setSelectedRange] = useState<'ALL' | '7D' | '30D' | '90D'>('ALL');
+
+ const pageSize = 5;
+
+ const strategyOptions = useMemo(() => {
+  const unique = Array.from(new Set(MOCK_HISTORY.map((trade) => trade.strategy)));
+  return ['All Strategies', ...unique];
+ }, []);
+
+ const filteredHistory = useMemo(() => {
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const now = new Date('2026-04-10T23:59:59');
+
+  return MOCK_HISTORY.filter((trade) => {
+   if (selectedStrategy !== 'All Strategies' && trade.strategy !== selectedStrategy) {
+	return false;
+   }
+
+   if (selectedRange !== 'ALL') {
+	const tradeDate = new Date(trade.time.replace(' ', 'T'));
+	const diffMs = now.getTime() - tradeDate.getTime();
+	const diffDays = diffMs / (1000 * 60 * 60 * 24);
+	const limit = selectedRange === '7D' ? 7 : selectedRange === '30D' ? 30 : 90;
+	if (diffDays > limit) {
+	 return false;
+	}
+   }
+
+   if (!normalizedQuery) {
+	return true;
+   }
+
+   const haystack = `${trade.id} ${trade.asset} ${trade.type} ${trade.strategy} ${trade.time}`.toLowerCase();
+   return haystack.includes(normalizedQuery);
+  });
+ }, [searchQuery, selectedRange, selectedStrategy]);
+
+ const totalPages = Math.max(1, Math.ceil(filteredHistory.length / pageSize));
+
+ const pagedHistory = useMemo(() => {
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+  return filteredHistory.slice(start, end);
+ }, [currentPage, filteredHistory]);
+
+ const selectedTrade = useMemo(
+  () => filteredHistory.find((trade) => trade.id === selectedTradeId) || null,
+  [filteredHistory, selectedTradeId]
+ );
+
+ const aggregatePnl = useMemo(
+  () => filteredHistory.reduce((total, trade) => total + trade.pnl, 0),
+  [filteredHistory]
+ );
+
+ const rangeButtonLabel = useMemo(() => {
+  if (selectedRange === 'ALL') return 'Select Custom Range';
+  return `Range: Last ${selectedRange}`;
+ }, [selectedRange]);
+
+ const cycleRange = () => {
+  const order: Array<'ALL' | '7D' | '30D' | '90D'> = ['ALL', '7D', '30D', '90D'];
+  const index = order.indexOf(selectedRange);
+  setSelectedRange(order[(index + 1) % order.length]);
+  setCurrentPage(1);
+ };
+
+ const handleExport = () => {
+  const header = ['Execution ID', 'Asset', 'Strategy', 'Type', 'Volume', 'PnL', 'Status', 'Timestamp'];
+  const rows = filteredHistory.map((trade) => [
+   `TR_${trade.id}X77_${trade.id.slice(-3).toUpperCase()}`,
+   trade.asset,
+   trade.strategy,
+   trade.type,
+   `${trade.amount} Lots`,
+   trade.pnl.toFixed(2),
+   trade.status,
+   trade.time,
+  ]);
+
+  const csv = [header, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = `execution-vault-${selectedRange.toLowerCase()}-${Date.now()}.csv`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+ };
+
+ React.useEffect(() => {
+  setCurrentPage(1);
+ }, [searchQuery, selectedRange, selectedStrategy]);
+
+ React.useEffect(() => {
+  if (currentPage > totalPages) {
+   setCurrentPage(totalPages);
+  }
+ }, [currentPage, totalPages]);
 
  return (
  <div className="p-8 space-y-10">
@@ -54,14 +151,16 @@ export default function HistoryPage() {
  <div className="flex items-center gap-4">
  <div className="h-14 flex items-center gap-3 glass-strong px-6 rounded-2xl border border-white/5">
  <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Aggregate P&L</span>
- <span className="text-xl font-semibold text-emerald-400 font-mono tracking-tight">+$3,210.25</span>
+ <span className={cn("text-xl font-semibold font-mono tracking-tight", aggregatePnl >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
+ {aggregatePnl >= 0 ? '+' : '-'}${Math.abs(aggregatePnl).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+ </span>
  <div className="w-1 h-4 bg-white/10 mx-2" />
  <div className="flex items-center gap-2">
  <div className="w-2 h-2 rounded-full bg-emerald-500" />
  <span className="text-xs font-bold text-white/40 uppercase">Synced</span>
  </div>
  </div>
- <Button className="h-14 px-8 bg-white text-black hover:bg-white/90 rounded-2xl font-semibold uppercase tracking-widest gap-3 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+ <Button onClick={handleExport} className="h-14 px-8 bg-white text-black hover:bg-white/90 rounded-2xl font-semibold uppercase tracking-widest gap-3 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
  <Download className="w-4 h-4" />
  Export Terminal Log
  </Button>
@@ -86,16 +185,15 @@ export default function HistoryPage() {
  onChange={(e) => setSelectedStrategy(e.target.value)}
  className="w-full h-14 bg-white/5 border border-white/5 rounded-2xl px-6 text-sm font-semibold tracking-widest text-white/60 appearance-none focus:text-white focus:border-primary/30 transition-all outline-none cursor-pointer"
  >
- <option>All Strategies</option>
- <option>MomentumApex v2</option>
- <option>Neural Scalp</option>
- <option>Capital Guard</option>
+ {strategyOptions.map((strategy) => (
+  <option key={strategy} value={strategy}>{strategy}</option>
+ ))}
  </select>
  <Filter className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
  </div>
- <Button variant="ghost" className="h-14 border border-white/5 bg-white/2 rounded-2xl text-sm font-semibold uppercase tracking-widest text-white/40 hover:text-white gap-3">
+ <Button onClick={cycleRange} variant="ghost" className="h-14 border border-white/5 bg-white/2 rounded-2xl text-sm font-semibold uppercase tracking-widest text-white/40 hover:text-white gap-3">
  <Calendar className="w-4 h-4" />
- Select Custom Range
+ {rangeButtonLabel}
  </Button>
  </div>
 
@@ -117,13 +215,14 @@ export default function HistoryPage() {
  </tr>
  </thead>
  <tbody className="divide-y divide-white/3">
- {MOCK_HISTORY.map((trade, i) => (
+ {pagedHistory.map((trade, i) => (
  <motion.tr 
  key={trade.id}
  initial={{ opacity: 0, y: 10 }}
  animate={{ opacity: 1, y: 0 }}
  transition={{ delay: i * 0.05 }}
  className="group hover:bg-white/2 transition-all cursor-pointer"
+ onClick={() => setSelectedTradeId(trade.id)}
  >
  <td className="px-8 py-6">
  <span className="text-xs font-mono text-white/30 uppercase group-hover:text-primary transition-colors">TR_{trade.id}X77_{trade.id.slice(-3).toUpperCase()}</span>
@@ -183,7 +282,7 @@ export default function HistoryPage() {
  </div>
 
  {/* Empty State Mock */}
- {MOCK_HISTORY.length === 0 && (
+ {filteredHistory.length === 0 && (
  <div className="py-32 flex flex-col items-center justify-center space-y-6">
  <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center animate-pulse">
  <Brain className="w-10 h-10 text-white/10" />
@@ -193,19 +292,78 @@ export default function HistoryPage() {
  )}
  </div>
 
+ {selectedTrade && (
+  <div className="glass-ultra rounded-3xl border border-white/10 p-6 space-y-4">
+   <div className="flex items-center justify-between">
+	<h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/70">Execution Detail</h3>
+	<button onClick={() => setSelectedTradeId(null)} className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-colors">
+	 <X className="w-4 h-4" />
+	</button>
+   </div>
+   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+	<div className="rounded-xl border border-white/10 bg-white/5 p-3">
+	 <p className="text-[10px] uppercase tracking-[0.15em] text-white/35">Execution ID</p>
+	 <p className="text-xs font-mono text-white">TR_{selectedTrade.id}X77_{selectedTrade.id.slice(-3).toUpperCase()}</p>
+	</div>
+	<div className="rounded-xl border border-white/10 bg-white/5 p-3">
+	 <p className="text-[10px] uppercase tracking-[0.15em] text-white/35">Entry / Exit</p>
+   <p className="text-xs font-semibold text-white">{selectedTrade.entry}{' -> '}{selectedTrade.exit}</p>
+	</div>
+	<div className="rounded-xl border border-white/10 bg-white/5 p-3">
+	 <p className="text-[10px] uppercase tracking-[0.15em] text-white/35">Type / Volume</p>
+	 <p className="text-xs font-semibold text-white">{selectedTrade.type} / {selectedTrade.amount} Lots</p>
+	</div>
+	<div className="rounded-xl border border-white/10 bg-white/5 p-3">
+	 <p className="text-[10px] uppercase tracking-[0.15em] text-white/35">Settlement</p>
+	 <p className={cn('text-xs font-semibold', selectedTrade.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
+	  {selectedTrade.pnl >= 0 ? '+' : '-'}${Math.abs(selectedTrade.pnl).toLocaleString()}
+	 </p>
+	</div>
+   </div>
+  </div>
+ )}
+
  {/* Pagination / Status */}
  <div className="flex justify-between items-center text-xs font-semibold uppercase tracking-[0.2em] text-white/20">
- <span>Displaying 1-50 of 2,450 Transmissions</span>
+ <span>
+  Displaying {filteredHistory.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+  -{Math.min(currentPage * pageSize, filteredHistory.length)} of {filteredHistory.length} transmissions
+ </span>
  <div className="flex items-center gap-4">
- <button className="hover:text-primary transition-colors">Prev</button>
+ <button
+  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+  disabled={currentPage === 1}
+  className="hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+ >
+  Prev
+ </button>
  <div className="flex gap-2">
- <span className="text-white">1</span>
- <span>2</span>
- <span>3</span>
- <span>...</span>
- <span>49</span>
+ {Array.from({ length: Math.min(3, totalPages) }).map((_, index) => {
+  const page = Math.min(totalPages, Math.max(1, currentPage - 1) + index);
+  return (
+   <button
+	key={page}
+	onClick={() => setCurrentPage(page)}
+	className={cn('transition-colors hover:text-primary', page === currentPage ? 'text-white' : 'text-white/30')}
+   >
+	{page}
+   </button>
+  );
+ })}
+ {totalPages > 3 && <span>...</span>}
+ {totalPages > 3 && (
+  <button onClick={() => setCurrentPage(totalPages)} className={cn('transition-colors hover:text-primary', totalPages === currentPage ? 'text-white' : 'text-white/30')}>
+   {totalPages}
+  </button>
+ )}
  </div>
- <button className="hover:text-primary transition-colors">Next</button>
+ <button
+  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+  disabled={currentPage === totalPages}
+  className="hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+ >
+  Next
+ </button>
  </div>
  </div>
  </div>

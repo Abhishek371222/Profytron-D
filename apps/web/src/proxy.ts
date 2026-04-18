@@ -46,7 +46,8 @@ export function proxy(request: NextRequest) {
 
   if (isProtected) {
     const refreshToken = request.cookies.get('refresh_token');
-    if (!refreshToken) {
+    const demoAccess = request.cookies.get('demo_access')?.value === '1';
+    if (!refreshToken && !demoAccess) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
       url.searchParams.set('redirect', pathname);

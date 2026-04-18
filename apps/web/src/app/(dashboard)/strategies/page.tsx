@@ -24,6 +24,7 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useMotionTemplate } from 'framer-motion';
 import { StrategyActivationModal } from '@/components/strategies/StrategyActivationModal';
+import { demoStrategies, demoMyStrategies } from '@/lib/api/demoData';
 
 const CATEGORIES = ['ALL', 'TREND', 'RANGE', 'SCALPING', 'VOLATILITY', 'ARBITRAGE'];
 const RISK_COLORS = {
@@ -83,9 +84,44 @@ export default function StrategiesPage() {
     setIsActivationOpen(true);
   };
 
+  // Filter and sort strategies with demo data fallback
+  const getFilteredStrategies = (strategies: any[], category: string, query: string, sort: string, verified: boolean) => {
+    let filtered = strategies;
+    
+    if (category !== 'ALL') {
+      filtered = filtered.filter(s => s.category === category);
+    }
+    
+    if (query) {
+      filtered = filtered.filter(s => 
+        s.name.toLowerCase().includes(query.toLowerCase()) ||
+        s.description.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+    
+    if (verified) {
+      filtered = filtered.filter(s => s.isVerified);
+    }
+    
+    // Sort
+    if (sort === 'winRate') {
+      filtered.sort((a, b) => (b.latestPerformance?.winRate || 0) - (a.latestPerformance?.winRate || 0));
+    } else if (sort === 'subscribers') {
+      filtered.sort((a, b) => b.copiesCount - a.copiesCount);
+    } else if (sort === 'price') {
+      filtered.sort((a, b) => a.monthlyPrice - b.monthlyPrice);
+    }
+    
+    return filtered;
+  };
+
+  // Use demo data by default with fallback to API data when available
+  const libraryStrategies = libraryData?.strategies && libraryData.strategies.length > 0 ? libraryData.strategies : demoStrategies;
+  const myStrategyList = myStrategies && myStrategies.length > 0 ? myStrategies : demoMyStrategies;
+
   const displayedStrategies = activeTab === 'library' 
-    ? (libraryData?.strategies || []) 
-    : (myStrategies || []);
+    ? getFilteredStrategies(libraryStrategies, selectedCategory, searchQuery, sortBy, verifiedOnly)
+    : myStrategyList;
 
   const isLoading = activeTab === 'library' ? libraryLoading : myLoading;
 

@@ -91,6 +91,17 @@ export class AnalyticsController {
     );
   }
 
+  @ApiOperation({ summary: 'Get trade rows for CSV export' })
+  @Get('trades/export')
+  async getTradesExport(@Req() req: any, @Query('range') range?: string) {
+    const normalizedRange = this.normalizeRange(range);
+    return this.withCache(
+      `analytics:trades:export:${req.user.id}:${normalizedRange}`,
+      60,
+      () => this.analyticsService.getTradeExport(req.user.id, normalizedRange),
+    );
+  }
+
   @ApiOperation({ summary: 'Get global intelligence snapshot and macro insights' })
   @Get('global')
   async getGlobal(@Req() req: any) {

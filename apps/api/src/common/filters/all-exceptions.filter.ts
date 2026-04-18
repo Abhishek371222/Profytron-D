@@ -17,6 +17,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
 
     const httpStatus =
       exception instanceof HttpException
@@ -52,6 +53,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
       responseBody.error = 'Internal server error';
     }
 
-    httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
+    // Passport can add WWW-Authenticate on 401, which triggers browser auth popups.
+    // Remove it so auth failures are handled by app UI instead of native prompt dialogs.
+    if (httpStatus === HttpStatus.UNAUTHORIZED) {
+      try {
+        response.removeHeader('WWW-Authenticate');
+        response.removeHeader('www-authenticate');
+      } catch {
+        // Ignore header removal issues and continue sending structured error response.
+      }
+    }
+
+    httpAdapter.reply(response, responseBody, httpStatus);
   }
 }

@@ -438,6 +438,43 @@ export class AnalyticsService {
     };
   }
 
+  async getTradeExport(userId: string, range: RangeKey = '3m') {
+    const start = this.rangeStart(range);
+    const trades = await this.prisma.trade.findMany({
+      where: {
+        userId,
+        openedAt: start ? { gte: start } : undefined,
+      },
+      orderBy: {
+        openedAt: 'desc',
+      },
+      include: {
+        strategy: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return {
+      range,
+      rows: trades.map((trade) => ({
+        id: trade.id,
+        symbol: trade.symbol,
+        direction: trade.direction,
+        volume: trade.volume,
+        openPrice: trade.openPrice,
+        closePrice: trade.closePrice,
+        profit: trade.profit,
+        status: trade.status,
+        strategyName: trade.strategy?.name ?? null,
+        openedAt: trade.openedAt,
+        closedAt: trade.closedAt,
+      })),
+    };
+  }
+
   async getGlobalIntelligence() {
     const [regime, leaderboard] = await Promise.all([
       this.prisma.strategyPerformance.groupBy({

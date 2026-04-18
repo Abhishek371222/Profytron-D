@@ -60,12 +60,49 @@ export class TradingService {
   async emergencyStop(userId: string) {
     this.logger.warn(`[EMERGENCY] Stop triggered for user ${userId}`);
 
-    // Logic to close all open positions via broker connector
-    // ...
-
-    this.gateway.sendToUser(userId, 'emergency_stop_triggered', {
-      timestamp: new Date(),
-      status: 'SUCCESS',
+    const now = new Date();
+    const openTrades = await this.prisma.trade.findMany({
+      where: {
+        userId,
+        status: 'OPEN',
+      },
+      select: {
+        id: true,
+        openPrice: true,
+      },
     });
+
+    if (openTrades.length === 0) {
+      const payload = {
+        timestamp: now,
+        status: 'NO_OPEN_TRADES',
+        closedTrades: 0,
+      };
+      this.gateway.sendToUser(userId, 'emergency_stop_triggered', payload);
+      return payload;
+    }
+
+    await this.prisma.$transaction(
+      openTrades.map((trade) =>
+        this.prisma.trade.update({
+          where: { id: trade.id },
+          data: {
+            status: 'CLOSED',
+            closedAt: now,
+            closePrice: trade.openPrice,
+            profit: 0,
+          },
+        }),
+      ),
+    );
+
+    const payload = {
+      timestamp: now,
+      status: 'SUCCESS',
+      closedTrades: openTrades.length,
+    };
+
+    this.gateway.sendToUser(userId, 'emergency_stop_triggered', payload);
+    return payload;
   }
 }

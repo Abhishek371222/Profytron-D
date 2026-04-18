@@ -70,6 +70,24 @@ export class AuthService {
     return amount * (multipliers[unit] ?? 1);
   }
 
+  private async persistRefreshTokenSafely(
+    userId: string,
+    refreshToken: string,
+  ): Promise<void> {
+    try {
+      await this.redisService.set(
+        `auth:refresh:${userId}:default`,
+        refreshToken,
+        7 * 24 * 3600,
+      );
+    } catch (error) {
+      this.logger.warn(
+        `Refresh token cache write failed for user ${userId}. Continuing with access token only.`,
+      );
+      this.logger.debug(String(error));
+    }
+  }
+
   async register(dto: RegisterDto) {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -147,11 +165,7 @@ export class AuthService {
       updatedUser.email,
       updatedUser.role,
     );
-    await this.redisService.set(
-      `auth:refresh:${updatedUser.id}:default`,
-      tokens.refreshToken,
-      7 * 24 * 3600,
-    );
+    await this.persistRefreshTokenSafely(updatedUser.id, tokens.refreshToken);
 
     await this.prisma.auditLog.create({
       data: {
@@ -199,11 +213,7 @@ export class AuthService {
     });
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.redisService.set(
-      `auth:refresh:${user.id}:default`,
-      tokens.refreshToken,
-      7 * 24 * 3600,
-    );
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
 
     await this.prisma.auditLog.create({
       data: {
@@ -234,11 +244,7 @@ export class AuthService {
     if (!user) throw new UnauthorizedException('User not found');
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.redisService.set(
-      `auth:refresh:${user.id}:default`,
-      tokens.refreshToken,
-      7 * 24 * 3600,
-    );
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
 
     return {
       accessToken: tokens.accessToken,
@@ -319,27 +325,44 @@ export class AuthService {
   }
 
   async googleCallback(profile: any) {
+    const fullName = profile.fullName?.trim() || profile.name?.trim() || 'Google User';
+    const avatarUrl = profile.avatarUrl || profile.picture || null;
+    
+    this.logger.log(
+      `Google OAuth callback for ${profile.email}. Profile: fullName="${fullName}", hasAvatar=${!!avatarUrl}`,
+    );
+
     let user = await this.prisma.user.findUnique({
       where: { email: profile.email },
     });
+    
     if (!user) {
       user = await this.prisma.user.create({
         data: {
           email: profile.email,
-          fullName: profile.fullName || 'Google User',
-          avatarUrl: profile.avatarUrl,
+          fullName,
+          avatarUrl,
           googleId: profile.googleId,
           emailVerified: true,
           referralCode: uuidv4(),
         },
       });
+      this.logger.log(`New Google user created: ${user.id} (${user.email})`);
+    } else {
+      // Update existing user with latest profile info if available
+      user = await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          fullName: fullName || user.fullName,
+          avatarUrl: avatarUrl || user.avatarUrl,
+          emailVerified: true,
+        },
+      });
+      this.logger.log(`Existing Google user updated: ${user.id} (${user.email})`);
     }
+
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.redisService.set(
-      `auth:refresh:${user.id}:default`,
-      tokens.refreshToken,
-      7 * 24 * 3600,
-    );
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
     return {
       accessToken: tokens.accessToken,
       user: this.sanitizeUser(user),
@@ -367,30 +390,39 @@ export class AuthService {
       throw new UnauthorizedException('Email mismatch');
     }
 
-    this.logger.log(`Identity verified. Syncing user database record...`);
+    // Ensure fullName has a meaningful default
+    const fullName = dto.fullName?.trim() || 'User';
+    
+    this.logger.log(
+      `Identity verified for ${dto.email}. Provider: ${dto.provider}. Profile: fullName="${fullName}", hasAvatar=${!!dto.avatarUrl}`,
+    );
+
+    // 2. Sync/create user with profile data
     const user = await this.prisma.user.upsert({
       where: { email: dto.email },
       create: {
         email: dto.email,
-        fullName: dto.fullName || 'Social User',
-        avatarUrl: dto.avatarUrl,
+        fullName, // Use the ensured fullName
+        avatarUrl: dto.avatarUrl || null,
+        bio: dto.bio || null,
         emailVerified: true,
         referralCode: uuidv4(),
       },
       update: {
-        fullName: dto.fullName || undefined, // Maintain existing if missing
+        fullName: fullName || undefined, // Update if we have a meaningful name
         avatarUrl: dto.avatarUrl || undefined,
+        bio: dto.bio || undefined,
         emailVerified: true,
       },
     });
 
+    this.logger.log(
+      `User profile synced: ${user.id} (${user.email}) - fullName="${user.fullName}", provider=${dto.provider}`,
+    );
+
     // 3. Issue local tokens
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.redisService.set(
-      `auth:refresh:${user.id}:default`,
-      tokens.refreshToken,
-      7 * 24 * 3600,
-    );
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
 
     return {
       accessToken: tokens.accessToken,

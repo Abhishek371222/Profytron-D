@@ -37,6 +37,11 @@ const SocialProofBar = dynamic(
  { ssr: false, loading: () => <SectionSkeleton /> }
 );
 
+const ValuePillars = dynamic(
+ () => import('@/components/home/ValuePillars').then((m) => ({ default: m.ValuePillars })),
+ { ssr: false, loading: () => <SectionSkeleton /> }
+);
+
 const FeaturesSection = dynamic(
  () => import('@/components/home/FeaturesSection').then((m) => ({ default: m.FeaturesSection })),
  { ssr: false, loading: () => <SectionSkeleton /> }
@@ -85,7 +90,7 @@ const SectionRevealer = dynamic(
 // ─── Page (Server Component — no 'use client' here) ─────────────────────────
 export default function LandingPage() {
  return (
- <main className="min-h-screen bg-bg-base overflow-x-hidden noise relative">
+ <main className="min-h-screen bg-bg-base overflow-x-hidden noise relative aurora-bg">
  {/* Cursor — loads lazily, no SSR needed */}
  <CinematicCursor />
 
@@ -107,6 +112,10 @@ export default function LandingPage() {
 
  <SectionRevealer delay={0.1}>
  <SocialProofBar />
+ </SectionRevealer>
+
+ <SectionRevealer delay={0.15}>
+ <ValuePillars />
  </SectionRevealer>
 
  <SectionRevealer>

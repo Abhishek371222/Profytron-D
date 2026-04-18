@@ -12,6 +12,18 @@ interface FeaturedStrategy {
  returns: string;
  subscribers: string;
  chartData: { val: number }[];
+ creator?: string;
+ category?: string;
+ verified?: boolean;
+ monthlyPrice?: number;
+ annualPrice?: number;
+ lifetimePrice?: number;
+ trialDays?: number;
+ price?: number;
+ risk?: string;
+ sharpe?: number;
+ returnsValue?: number;
+ subscribersValue?: number;
 }
 
 const FEATURED_DATA: FeaturedStrategy[] = [
@@ -46,9 +58,10 @@ const FEATURED_DATA: FeaturedStrategy[] = [
 
 interface FeaturedRowProps {
  strategies?: FeaturedStrategy[];
+ onSubscribe?: (strategy: FeaturedStrategy) => void;
 }
 
-export function FeaturedRow({ strategies }: FeaturedRowProps) {
+export function FeaturedRow({ strategies, onSubscribe }: FeaturedRowProps) {
  const [isMounted, setIsMounted] = React.useState(false);
 
  React.useEffect(() => {
@@ -56,23 +69,23 @@ export function FeaturedRow({ strategies }: FeaturedRowProps) {
  }, []);
 
  return (
- <div className="space-y-4 pt-8">
- <div className="flex items-center justify-between px-8">
- <h2 className="text-lg font-bold text-white uppercase tracking-wider">
+ <div className="space-y-4 pt-4">
+ <div className="flex items-center justify-between px-5 md:px-8">
+ <h2 className="text-base md:text-lg font-bold text-white uppercase tracking-[0.08em]">
  Featured Strategies
  </h2>
  <div className="flex gap-2">
  <div className="w-2 h-2 rounded-full bg-p animate-pulse" />
- <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.2em]">Verified High Performers</span>
+ <span className="text-[10px] md:text-xs font-semibold text-white/35 uppercase tracking-[0.12em]">Verified High Performers</span>
  </div>
  </div>
 
- <div className="flex gap-6 overflow-x-auto px-8 pb-8 no-scrollbar scroll-smooth snap-x">
+ <div className="flex gap-4 md:gap-6 overflow-x-auto px-5 md:px-8 pb-6 no-scrollbar scroll-smooth snap-x">
  {(strategies && strategies.length > 0 ? strategies : FEATURED_DATA).map((strategy) => (
  <motion.div
  key={strategy.id}
- whileHover={{ y: -8, scale: 1.02 }}
- className="flex-shrink-0 w-[400px] h-[220px] rounded-4xl overflow-hidden relative group snap-start bg-[#0d0d12] border border-white/8"
+ whileHover={{ y: -5, scale: 1.01 }}
+ className="flex-shrink-0 w-[320px] md:w-[360px] h-[196px] rounded-3xl overflow-hidden relative group snap-start bg-[#0d0d12] border border-white/10"
  >
  {/* Background Equity Chart */}
  <div className="absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity duration-500">
@@ -102,17 +115,17 @@ export function FeaturedRow({ strategies }: FeaturedRowProps) {
  <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-transparent" />
 
  {/* Badges */}
- <div className="absolute top-6 right-6">
- <div className="px-3 py-1 rounded-full bg-indigo-500 text-white text-xs font-semibold uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(99,102,241,0.5)]">
+ <div className="absolute top-4 right-4">
+ <div className="px-2.5 py-1 rounded-full bg-indigo-500 text-white text-[10px] font-semibold uppercase tracking-[0.12em] shadow-[0_0_15px_rgba(99,102,241,0.5)]">
  Featured
  </div>
  </div>
 
  {/* Content */}
- <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between">
+ <div className="absolute bottom-0 left-0 right-0 p-5 md:p-6 flex items-end justify-between">
  <div className="flex flex-col gap-1">
  <div className="flex items-center gap-3">
- <h3 className="text-xl font-bold text-white tracking-tight">
+ <h3 className="text-lg md:text-xl font-bold text-white tracking-tight">
  {strategy.name}
  </h3>
  <div className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
@@ -120,7 +133,7 @@ export function FeaturedRow({ strategies }: FeaturedRowProps) {
  </div>
  </div>
  <div className="flex items-center gap-2 opacity-40">
- <span className="text-xs font-bold text-white uppercase tracking-widest">
+ <span className="text-[10px] md:text-xs font-bold text-white uppercase tracking-[0.12em]">
  {strategy.subscribers}
  </span>
  </div>
@@ -128,7 +141,8 @@ export function FeaturedRow({ strategies }: FeaturedRowProps) {
 
  <Button 
  variant="ghost" 
- className="h-10 px-6 rounded-xl glass border border-white/10 hover:border-white/20 text-white text-xs font-semibold uppercase tracking-[0.2em] transition-all group/btn"
+ onClick={() => onSubscribe?.(strategy)}
+ className="h-9 px-4 rounded-xl glass border border-white/10 hover:border-white/20 text-white text-[10px] md:text-xs font-semibold uppercase tracking-[0.12em] transition-all group/btn"
  >
  Subscribe 
  <span className="ml-2 group-hover/btn:translate-x-1 transition-transform">→</span>

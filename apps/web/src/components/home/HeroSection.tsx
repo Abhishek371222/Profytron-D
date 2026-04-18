@@ -49,7 +49,7 @@ export function HeroSection() {
     <section
       ref={containerRef}
       onMouseMove={handleMouseMove}
-      className="relative min-h-screen flex items-center pt-30 pb-10 overflow-hidden bg-black"
+      className="relative min-h-screen flex items-center pt-28 pb-10 overflow-hidden bg-[#05070f]"
     >
       {/* Cinematic Background Architecture */}
       <div className="absolute inset-0 z-0 pointer-events-none">
@@ -71,7 +71,8 @@ export function HeroSection() {
         />
 
         {/* Holographic Layering */}
-        <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 brightness-50 contrast-150" />
+        <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-15 brightness-75 contrast-125" />
+        <div className="absolute inset-0 panel-grid opacity-[0.08]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-[1]" />
 
         {/* Scanlines */}
@@ -79,7 +80,7 @@ export function HeroSection() {
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-16 lg:gap-24 items-center">
+        <div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-12 lg:gap-24 items-center">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -106,20 +107,19 @@ export function HeroSection() {
                     delay: 0.15,
                     ease: [0.23, 1, 0.32, 1],
                   }}
-                  className="text-7xl sm:text-8xl md:text-9xl lg:text-[110px] xl:text-[120px] font-bold leading-[0.95] tracking-[-0.04em] uppercase bg-clip-text bg-gradient-to-b from-white via-white to-white/20 text-transparent"
+                  className="text-5xl sm:text-6xl md:text-8xl lg:text-[104px] xl:text-[116px] font-bold leading-[0.95] tracking-[-0.04em] uppercase bg-clip-text bg-gradient-to-b from-white via-white to-white/20 text-transparent"
                 >
-                  Trading <br />
+                  Trade Smarter <br />
                   <span className="bg-linear-to-r from-p via-indigo-300 to-white/70 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(99,102,241,0.3)]">
-                    At The Edge.
+                    With Calm Precision.
                   </span>
                 </motion.h1>
 
                 <FadeUp delay={0.2}>
-                  <p className="text-lg md:text-xl text-white/50 leading-relaxed max-w-2xl font-medium tracking-tight">
-                    Institutional-Grade Algorithmic Trading Powered by Neural
-                    Networks. Deploy sophisticated strategies with
-                    institutional-grade infrastructure and real-time market
-                    intelligence.
+                  <p className="text-lg md:text-xl text-white/60 leading-relaxed max-w-2xl font-medium tracking-tight">
+                    Deploy, monitor, and optimize algorithmic portfolios with a
+                    clearer control surface, lower latency execution, and
+                    real-time intelligence that remains legible under pressure.
                   </p>
                 </FadeUp>
               </div>
@@ -139,7 +139,7 @@ export function HeroSection() {
                         className="h-14 px-8 text-base bg-white hover:bg-gray-100 text-black rounded-full group shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-all duration-500 font-bold tracking-wide border-0"
                       >
                         <span className="relative z-10 flex items-center gap-3">
-                          Initialize System
+                          Start Trading Workspace
                           <motion.div
                             animate={{ x: [0, 4, 0] }}
                             transition={{ duration: 2, repeat: Infinity }}
@@ -164,7 +164,7 @@ export function HeroSection() {
                         className="h-14 px-8 text-base border border-white/10 bg-white/5 hover:bg-white/10 rounded-full font-bold tracking-wide text-white/70 hover:text-white transition-all duration-500 shadow-inner"
                       >
                         <Play className="mr-3 w-4 h-4 fill-current" />
-                        Explore Docs
+                        View Platform Tour
                       </Button>
                     </motion.div>
                   </Link>
@@ -212,86 +212,113 @@ export function HeroSection() {
             </FadeUp>
           </motion.div>
 
-          {/* Right Column - Globe with Enhanced Effects */}
+          {/* Right Column - Structured Visual Module */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative h-[500px] lg:h-[650px] w-full items-center justify-center hidden lg:flex lg:-translate-y-10 xl:-translate-y-20"
+            className="relative hidden md:flex h-[620px] lg:h-[640px] w-full flex-col justify-between rounded-3xl border border-white/15 bg-white/[0.05] p-5 lg:p-6 backdrop-blur-xl md:mt-6 lg:mt-0"
           >
-            {/* Animated Background Elements */}
             <motion.div
               style={{
                 y: y1,
-                rotateX: useTransform(springY, (v) => v * -0.05),
-                rotateY: useTransform(springX, (v) => v * 0.05),
+                rotateX: useTransform(springY, (v) => v * -0.04),
+                rotateY: useTransform(springX, (v) => v * 0.04),
               }}
-              className="relative w-full h-full flex items-center justify-center perspective-container"
+              className="relative h-[360px] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#0a1020]/70"
             >
-              {/* Holographic Rings */}
+              <div className="absolute inset-0 panel-grid opacity-[0.12]" />
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 max-w-full max-h-full flex items-center justify-center"
+                transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 flex items-center justify-center"
               >
-                <div className="absolute w-60 h-60 border-2 border-p/20 rounded-full" />
+                <div className="h-72 w-72 rounded-full border border-p/25" />
               </motion.div>
-
               <motion.div
                 animate={{ rotate: -360 }}
-                transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 max-w-full max-h-full flex items-center justify-center"
+                transition={{ duration: 42, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-0 flex items-center justify-center"
               >
-                <div className="absolute w-40 h-40 border-2 border-indigo-500/20 rounded-full" />
+                <div className="h-56 w-56 rounded-full border border-cyan-400/20" />
               </motion.div>
-
-              {/* Center Glow */}
-              <motion.div
-                animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="absolute inset-0 max-w-full max-h-full flex items-center justify-center"
-              >
-                <div className="w-96 h-96 bg-linear-to-br from-p/30 to-indigo-500/20 blur-[120px] rounded-full pointer-events-none" />
-              </motion.div>
-
-              {/* Floating Orbital Dots */}
-              {[0, 120, 240].map((angle, i) => (
-                <motion.div
-                  key={i}
-                  animate={{ rotate: 360 }}
-                  transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                  className="absolute inset-0 max-w-full max-h-full flex items-center justify-center"
-                  style={{ transform: `rotate(${angle}deg)` }}
-                >
-                  <motion.div
-                    className="absolute w-48 h-0 flex items-start justify-start"
-                    style={{
-                      top: "50%",
-                      left: "50%",
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  >
-                    <motion.div
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{
-                        delay: i * 0.3,
-                        duration: 3,
-                        repeat: Infinity,
-                      }}
-                      className="w-3 h-3 rounded-full bg-p shadow-[0_0_15px_#6366f1]"
-                    />
-                  </motion.div>
-                </motion.div>
-              ))}
-
-              {/* Globe */}
-              <div className="relative z-10 drop-shadow-[0_0_60px_rgba(99,102,241,0.35)]">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-80 w-80 rounded-full bg-linear-to-br from-p/25 to-cyan-400/10 blur-[90px]" />
+              </div>
+              <div className="relative z-10 flex h-full items-center justify-center drop-shadow-[0_0_50px_rgba(99,102,241,0.35)]">
                 <ThreeGlobe />
               </div>
+              <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-white/15 bg-black/55 px-4 py-3 backdrop-blur-md">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-white/70 font-semibold">Signal Confidence</p>
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                  <motion.div
+                    animate={{ width: ["62%", "79%", "74%", "82%"] }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                    className="h-full rounded-full bg-linear-to-r from-cyan-300 to-p"
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                className="rounded-2xl border border-white/20 bg-black/45 p-4 shadow-[0_16px_32px_rgba(0,0,0,0.25)]"
+              >
+                <p className="text-[10px] uppercase tracking-[0.25em] text-white/70 font-semibold">Execution Queue</p>
+                <p className="mt-2 text-3xl font-mono font-extrabold text-white">134</p>
+                <p className="mt-1 text-xs font-semibold text-emerald-300">+12.4% live throughput</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55 }}
+                className="rounded-2xl border border-white/20 bg-black/45 p-4 shadow-[0_16px_32px_rgba(0,0,0,0.25)]"
+              >
+                <p className="text-[10px] uppercase tracking-[0.25em] text-white/70 font-semibold">Risk Envelope</p>
+                <p className="mt-2 text-3xl font-mono font-extrabold text-white">0.42%</p>
+                <p className="mt-1 text-xs font-semibold text-cyan-300">Within guardrails</p>
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65 }}
+              className="rounded-2xl border border-white/20 bg-black/50 px-4 py-3"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] uppercase tracking-[0.25em] text-white/70 font-semibold">Realtime Micro-Chart</p>
+                <p className="text-xs font-bold text-emerald-300">+3.8%</p>
+              </div>
+              <svg viewBox="0 0 320 88" className="mt-3 h-24 w-full">
+                <defs>
+                  <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#22d3ee" />
+                    <stop offset="100%" stopColor="#6366f1" />
+                  </linearGradient>
+                  <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgba(99,102,241,0.35)" />
+                    <stop offset="100%" stopColor="rgba(99,102,241,0.02)" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M0 66 C28 62, 42 54, 63 56 C83 58, 96 68, 118 64 C140 60, 156 30, 178 34 C199 38, 216 76, 237 68 C257 61, 276 44, 320 48 L320 88 L0 88 Z"
+                  fill="url(#fillGrad)"
+                />
+                <motion.path
+                  d="M0 66 C28 62, 42 54, 63 56 C83 58, 96 68, 118 64 C140 60, 156 30, 178 34 C199 38, 216 76, 237 68 C257 61, 276 44, 320 48"
+                  fill="none"
+                  stroke="url(#lineGrad)"
+                  strokeWidth="3"
+                  initial={{ pathLength: 0.2, opacity: 0.5 }}
+                  animate={{ pathLength: [0.2, 1], opacity: [0.5, 1] }}
+                  transition={{ duration: 1.6, ease: "easeOut" }}
+                />
+              </svg>
             </motion.div>
           </motion.div>
         </div>

@@ -4,6 +4,7 @@ import {
   MinLength,
   IsUUID,
   IsStrongPassword,
+  IsOptional,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -81,7 +82,12 @@ export class SupabaseLoginDto {
   fullName: string;
 
   @IsString()
+  @IsOptional()
   avatarUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  bio?: string;
 
   @IsString()
   provider: string;

@@ -59,12 +59,43 @@ export default function AuthCallback() {
       try {
         // Exchange Supabase session for local session
         // We send the Supabase token to our backend to sync/create the user
+        
+        // Extract profile data from Google OAuth metadata
+        // Google provides data in user_metadata with various field names
+        const metadata = session.user.user_metadata || {};
+        
+        // Try multiple sources for profile fields
+        // Google OAuth returns: full_name, name, given_name, family_name, picture, avatar_url
+        const fullName = 
+          metadata.full_name ||
+          metadata.name ||
+          (metadata.given_name && metadata.family_name 
+            ? `${metadata.given_name} ${metadata.family_name}`
+            : metadata.given_name) ||
+          (session.user.email ? session.user.email.split('@')[0] : null) || // fallback to email prefix
+          'User';
+
+        const avatarUrl = 
+          metadata.avatar_url ||
+          metadata.picture ||
+          null;
+
+        const provider = session.user.app_metadata?.provider || 'unknown';
+
+        console.log('OAuth Profile Data:', {
+          email: session.user.email,
+          fullName,
+          avatarUrl,
+          provider,
+          rawMetadata: metadata,
+        });
+
         const { data } = await apiClient.post('/auth/supabase', {
           token: session.access_token,
           email: session.user.email,
-          fullName: session.user.user_metadata.full_name,
-          avatarUrl: session.user.user_metadata.avatar_url,
-          provider: session.user.app_metadata.provider,
+          fullName,
+          avatarUrl,
+          provider,
         });
 
         login(data.accessToken, data.user);

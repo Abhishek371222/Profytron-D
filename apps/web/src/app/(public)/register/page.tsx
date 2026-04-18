@@ -53,12 +53,16 @@ export default function RegisterPage() {
  setSuccessMessage(null);
  try {
  const response = await authApi.register(data);
+ console.log('Registration successful:', response);
  setSuccessMessage('Signup successful. Enter the OTP sent to your email.');
  sessionStorage.setItem('verificationEmail', data.email);
  if (response?.devOtp) {
    sessionStorage.setItem('verificationOtp', String(response.devOtp));
  }
- router.push('/verify-email');
+ // Small delay to ensure state updates before navigation
+ setTimeout(() => {
+   router.push('/verify-email');
+ }, 100);
  } catch (error: unknown) {
  console.error('Registration failed:', error);
  const fallback = 'Signup failed. Please try again with a different email.';

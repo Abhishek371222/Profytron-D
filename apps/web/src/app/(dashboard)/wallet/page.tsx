@@ -10,6 +10,7 @@ import { walletApi } from '@/lib/api/wallet';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { DepositModal } from '@/components/wallet/DepositModal';
 import { WithdrawSheet } from '@/components/wallet/WithdrawSheet';
+import { demoWalletBalance, demoWalletTransactions } from '@/lib/api/demoData';
 
 type TxFilterType = 'ALL' | 'DEPOSIT' | 'WITHDRAWAL' | 'SUBSCRIPTION_PAYMENT';
 type TxFilterStatus = 'ALL' | 'PENDING' | 'CONFIRMED' | 'FAILED';
@@ -70,10 +71,10 @@ export default function WalletPage() {
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
 
-  const transactions = React.useMemo(
-    () => transactionsQuery.data?.pages.flatMap((page) => page.transactions) ?? [],
-    [transactionsQuery.data],
-  );
+  const transactions = React.useMemo(() => {
+    const apiTxs = transactionsQuery.data?.pages.flatMap((page) => page.transactions);
+    return (apiTxs && apiTxs.length > 0) ? apiTxs : demoWalletTransactions;
+  }, [transactionsQuery.data]);
 
   const downloadStatement = async () => {
     try {
@@ -107,19 +108,19 @@ export default function WalletPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4 bg-black/40 border-white/10">
           <p className="text-xs text-white/60">Total</p>
-          <p className="text-xl font-semibold text-white">INR {Number(balanceQuery.data?.total || 0).toFixed(2)}</p>
+          <p className="text-xl font-semibold text-white">${Number(balanceQuery.data?.total ?? demoWalletBalance.totalBalance).toFixed(2)}</p>
         </Card>
         <Card className="p-4 bg-black/40 border-white/10">
           <p className="text-xs text-white/60">Available</p>
-          <p className="text-xl font-semibold text-emerald-400">INR {Number(balanceQuery.data?.available || 0).toFixed(2)}</p>
+          <p className="text-xl font-semibold text-emerald-400">${Number(balanceQuery.data?.available ?? demoWalletBalance.availableBalance).toFixed(2)}</p>
         </Card>
         <Card className="p-4 bg-black/40 border-white/10">
-          <p className="text-xs text-white/60">Pending In</p>
-          <p className="text-xl font-semibold text-amber-300">INR {Number(balanceQuery.data?.pendingIn || 0).toFixed(2)}</p>
+          <p className="text-xs text-white/60">Reserved</p>
+          <p className="text-xl font-semibold text-amber-300">${Number((balanceQuery.data?.pendingIn ?? 0) + (balanceQuery.data?.pendingOut ?? 0) ?? demoWalletBalance.reservedBalance).toFixed(2)}</p>
         </Card>
         <Card className="p-4 bg-black/40 border-white/10">
-          <p className="text-xs text-white/60">Pending Out</p>
-          <p className="text-xl font-semibold text-orange-400">INR {Number(balanceQuery.data?.pendingOut || 0).toFixed(2)}</p>
+          <p className="text-xs text-white/60">Currency</p>
+          <p className="text-xl font-semibold text-orange-400">{balanceQuery.data?.currency || demoWalletBalance.currency}</p>
         </Card>
       </div>
 
@@ -239,7 +240,7 @@ export default function WalletPage() {
       <WithdrawSheet
         open={isWithdrawOpen}
         onOpenChange={setIsWithdrawOpen}
-        availableBalance={Number(balanceQuery.data?.available || 0)}
+        availableBalance={Number(balanceQuery.data?.available ?? demoWalletBalance.availableBalance)}
       />
     </div>
   );

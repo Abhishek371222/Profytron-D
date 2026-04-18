@@ -74,7 +74,35 @@ body {
   font-family: var(--font-body);
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+  background:
+    radial-gradient(60% 50% at 15% 8%, rgba(34, 211, 238, 0.08), transparent 70%),
+    radial-gradient(42% 38% at 90% 12%, rgba(16, 185, 129, 0.07), transparent 75%),
+    radial-gradient(45% 35% at 50% 100%, rgba(245, 158, 11, 0.05), transparent 78%);
+}
+
 @layer utilities {
+  .aurora-bg {
+    background:
+      radial-gradient(circle at 18% 15%, rgba(34, 211, 238, 0.08), transparent 38%),
+      radial-gradient(circle at 85% 24%, rgba(16, 185, 129, 0.06), transparent 35%),
+      radial-gradient(circle at 55% 92%, rgba(251, 191, 36, 0.06), transparent 36%),
+      linear-gradient(180deg, #05070f 0%, #070b14 45%, #06080f 100%);
+  }
+
+  .panel-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: center;
+  }
+
   .glass {
     background: var(--bg-glass);
     backdrop-filter: blur(20px) saturate(180%);

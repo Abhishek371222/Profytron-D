@@ -35,13 +35,18 @@ export const useAuthStore = create<AuthState>()(
       setToken: (accessToken) => set({ accessToken }),
 
       clearAuth: () =>
+        {
+        if (typeof window !== 'undefined') {
+          document.cookie = 'demo_access=; path=/; max-age=0; samesite=lax';
+        }
         set({
           user: null,
           accessToken: null,
           isAuthenticated: false,
           isLoading: false,
           isHydrating: false,
-        }),
+        });
+      },
 
       login: (accessToken, user) => {
         set({ user, accessToken, isAuthenticated: true, isLoading: false, isHydrating: false });

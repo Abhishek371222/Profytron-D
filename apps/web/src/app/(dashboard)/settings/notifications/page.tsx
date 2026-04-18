@@ -21,6 +21,7 @@ import {
  ArrowRight
 } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const NOTIF_CHANNELS = [
  { id: 'ch_app', icon: Smartphone, label: 'Platform HUD', desc: 'In-app terminal overlays', active: true },
@@ -63,12 +64,18 @@ const NOTIF_TYPES = [
  }
 ];
 
-const Switch = ({ checked, onChange, color = 'p' }: { checked: boolean; onChange: () => void; color?: string }) => (
+const Switch = ({ checked, onChange, color = 'p' }: { checked: boolean; onChange: () => void; color?: 'p' | 'rose' | 'cyan' }) => (
  <button
  onClick={onChange}
  className={cn(
 "w-12 h-6 rounded-full transition-all p-1 flex items-center relative",
- checked ? `bg-${color} border-${color}/40 justify-end` :"bg-white/5 border border-white/10 justify-start"
+ checked
+	? color === 'rose'
+		? 'bg-rose-500 border border-rose-400/40 justify-end'
+		: color === 'cyan'
+			? 'bg-cyan-500 border border-cyan-400/40 justify-end'
+			: 'bg-p border border-p/40 justify-end'
+	: "bg-white/5 border border-white/10 justify-start"
  )}
  >
  <motion.div layout className={cn("h-full aspect-square rounded-full", checked ?"bg-white shadow-[0_0_10px_white]" :"bg-white/20")} />
@@ -83,6 +90,47 @@ export default function NotificationsPage() {
  });
 
  const [activeTab, setActiveTab] = React.useState('relay');
+ const [soundMode, setSoundMode] = React.useState<'Muted' | 'Ambient' | 'High Alert'>('Ambient');
+ const [isDirty, setIsDirty] = React.useState(false);
+ const [notifMatrix, setNotifMatrix] = React.useState<Record<string, { App: boolean; Relay: boolean; Push: boolean }>>({
+  type_sig: { App: true, Relay: true, Push: true },
+  type_exe: { App: true, Relay: true, Push: false },
+  type_sys: { App: true, Relay: true, Push: true },
+  type_liq: { App: true, Relay: false, Push: false },
+ });
+
+ const toggleMatrix = (typeId: string, channel: 'App' | 'Relay' | 'Push') => {
+  setNotifMatrix((prev) => ({
+   ...prev,
+   [typeId]: {
+	...prev[typeId],
+	[channel]: !prev[typeId]?.[channel],
+   },
+  }));
+  setIsDirty(true);
+ };
+
+ const savePreferences = () => {
+  localStorage.setItem('settings.notifications.channels', JSON.stringify(channels));
+  localStorage.setItem('settings.notifications.matrix', JSON.stringify(notifMatrix));
+  localStorage.setItem('settings.notifications.soundMode', soundMode);
+  setIsDirty(false);
+  toast.success('Notification preferences saved');
+ };
+
+ React.useEffect(() => {
+  try {
+   const storedChannels = localStorage.getItem('settings.notifications.channels');
+   const storedMatrix = localStorage.getItem('settings.notifications.matrix');
+   const storedSound = localStorage.getItem('settings.notifications.soundMode');
+   if (storedChannels) setChannels(JSON.parse(storedChannels));
+   if (storedMatrix) setNotifMatrix(JSON.parse(storedMatrix));
+   if (storedSound === 'Muted' || storedSound === 'Ambient' || storedSound === 'High Alert') setSoundMode(storedSound);
+   setIsDirty(false);
+  } catch {
+   // Ignore malformed values.
+  }
+ }, []);
 
  return (
  <div className="space-y-16 pb-20">
@@ -102,6 +150,12 @@ export default function NotificationsPage() {
  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
  <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">Relay Active</span>
+ </div>
+ <div className={cn("flex items-center gap-2 px-4 py-2 rounded-full border", isDirty ? "bg-amber-500/10 border-amber-500/20" : "bg-cyan-500/10 border-cyan-500/20")}>
+ <div className={cn("w-1.5 h-1.5 rounded-full", isDirty ? "bg-amber-400" : "bg-cyan-400")} />
+ <span className={cn("text-xs font-semibold uppercase tracking-widest", isDirty ? "text-amber-300" : "text-cyan-300")}>
+ {isDirty ? 'Unsaved Changes' : 'Matrix Synced'}
+ </span>
  </div>
  </div>
  </div>
@@ -131,7 +185,10 @@ export default function NotificationsPage() {
  </div>
  <Switch 
  checked={channels[ch.id]} 
- onChange={() => setChannels(prev => ({ ...prev, [ch.id]: !prev[ch.id] }))} 
+ onChange={() => {
+  setChannels(prev => ({ ...prev, [ch.id]: !prev[ch.id] }));
+  setIsDirty(true);
+ }} 
  />
  </div>
  
@@ -195,12 +252,12 @@ export default function NotificationsPage() {
  {['App', 'Relay', 'Push'].map((label) => (
  <div key={label} className="flex flex-col items-center gap-3">
  <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">{label}</span>
- <Switch checked={true} onChange={() => {}} color={type.severity === 'critical' ? 'rose-500' : 'p'} />
+ <Switch checked={!!notifMatrix[type.id]?.[label as 'App' | 'Relay' | 'Push']} onChange={() => toggleMatrix(type.id, label as 'App' | 'Relay' | 'Push')} color={type.severity === 'critical' ? 'rose' : type.severity === 'medium' ? 'cyan' : 'p'} />
  </div>
  ))}
  </div>
  <div className="w-px h-12 bg-white/5 hidden lg:block" />
- <button className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 hover:bg-white/10 hover:text-white transition-all">
+ <button onClick={() => toast.message(`${type.label} route tuning opened`)} className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 hover:bg-white/10 hover:text-white transition-all">
  <ArrowRight className="w-6 h-6" />
  </button>
  </div>
@@ -229,12 +286,16 @@ export default function NotificationsPage() {
  </p>
  </div>
  <div className="flex items-center gap-4">
- {['Muted', 'Ambient', 'High Alert'].map((mode, i) => (
+ {['Muted', 'Ambient', 'High Alert'].map((mode) => (
  <button 
  key={mode}
+ onClick={() => {
+  setSoundMode(mode as 'Muted' | 'Ambient' | 'High Alert');
+  setIsDirty(true);
+ }}
  className={cn(
 "px-8 py-4 rounded-[20px] text-xs font-semibold uppercase tracking-widest border transition-all",
- i === 1 ?"bg-p text-white border-p shadow-[0_0_30px_rgba(99,102,241,0.3)]" :"bg-white/5 border-white/5 text-white/20 hover:bg-white/10"
+ soundMode === mode ?"bg-p text-white border-p shadow-[0_0_30px_rgba(99,102,241,0.3)]" :"bg-white/5 border-white/5 text-white/20 hover:bg-white/10"
  )}
  >
  {mode}
@@ -244,6 +305,12 @@ export default function NotificationsPage() {
  </div>
  </div>
  </section>
+
+ <div className="flex justify-end">
+   <Button disabled={!isDirty} onClick={savePreferences} className="h-12 px-8 rounded-2xl bg-white text-black hover:bg-white/90 uppercase tracking-[0.2em] text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
+    {isDirty ? 'Save Alert Matrix' : 'Matrix Saved'}
+  </Button>
+ </div>
  </div>
  );
 }

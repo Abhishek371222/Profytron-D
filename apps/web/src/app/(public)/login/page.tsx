@@ -25,10 +25,15 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+const DEMO_EMAIL = 'demo@profytron.com';
+const DEMO_PASSWORD = 'Demo@123';
+const DEMO_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
 export default function LoginPage() {
  const searchParams = useSearchParams();
- const { login, isLoading } = useAuthStore();
+ const { login } = useAuthStore();
  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+ const [isLoading, setIsLoading] = React.useState(false);
 
  const authError = searchParams.get('error');
  const expired = searchParams.get('expired');
@@ -46,6 +51,7 @@ export default function LoginPage() {
  
  const {
  register,
+ setValue,
  handleSubmit,
  formState: { errors },
  } = useForm<LoginFormValues>({
@@ -54,10 +60,36 @@ export default function LoginPage() {
 
  const onSubmit = async (data: LoginFormValues) => {
  setErrorMessage(null);
+ setIsLoading(true);
+
+ const isDemoCredentials =
+ data.email.trim().toLowerCase() === DEMO_EMAIL.toLowerCase() &&
+ data.password === DEMO_PASSWORD;
+
+ if (isDemoCredentials) {
+ document.cookie = `demo_access=1; path=/; max-age=${DEMO_COOKIE_MAX_AGE}; samesite=lax`;
+ login('demo-access-token', {
+ id: 'demo-user',
+ email: DEMO_EMAIL,
+ fullName: 'Demo User',
+ role: 'USER',
+ subscriptionTier: 'DEMO',
+ avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=DemoUser',
+ });
+ setTimeout(() => {
+ window.location.href = '/dashboard';
+ }, 100);
+ return;
+ }
+
  try {
  const response = await authApi.login(data);
+ console.log('Login successful:', response);
  login(response.accessToken, response.user);
+ // Small delay to ensure state updates before navigation
+ setTimeout(() => {
  window.location.href = '/dashboard';
+ }, 100);
  } catch (error: unknown) {
  console.error('Login failed:', error);
  const fallback = 'Login failed. Check your credentials and verify your email.';
@@ -69,6 +101,7 @@ export default function LoginPage() {
 		 ? (error as any).response.data.error
 		 : fallback;
  setErrorMessage(message);
+ setIsLoading(false);
  }
  };
 
@@ -92,7 +125,19 @@ export default function LoginPage() {
  
  if (error) {
  console.error(`[${provider.toUpperCase()}] OAuth error:`, error);
- alert(`Unable to sign in with ${provider}. Please check the browser console for details.\n\nError: ${error.message}`);
+ 
+ // Provide specific guidance based on error type
+ let errorMessage = `Unable to sign in with ${provider}.`;
+ 
+ if (error.message?.includes('not enabled') || error.message?.includes('disabled')) {
+ errorMessage += `\n\n${provider === 'google' ? 'Google' : 'GitHub'} authentication is not enabled in Supabase.\n\nPlease:\n1. Go to Supabase Dashboard\n2. Navigate to Authentication → Providers\n3. Enable ${provider} provider with proper credentials\n4. Wait 2 minutes for changes to sync\n\nOr use demo login: demo@profytron.com / Demo@123`;
+ } else if (error.message?.includes('redirect') || error.message?.includes('mismatch')) {
+ errorMessage += `\n\nRedirect URI configuration issue.\n\nPlease verify in ${provider === 'google' ? 'Google Cloud Console' : 'GitHub Settings'}:\n- Redirect URI includes: ${redirectUrl}\n\nOr use demo login: demo@profytron.com / Demo@123`;
+ } else {
+ errorMessage += `\n\nError: ${error.message}\n\nCheck browser console (F12) for details, or use demo login:\ndemo@profytron.com / Demo@123`;
+ }
+ 
+ setErrorMessage(errorMessage);
  throw error;
  }
  
@@ -211,6 +256,22 @@ export default function LoginPage() {
  <div className="h-px flex-1 bg-white/10" />
  <span className="text-xs uppercase tracking-widest font-semibold text-white/20">Authorized Email</span>
  <div className="h-px flex-1 bg-white/10" />
+ </motion.div>
+
+ <motion.div variants={itemVariants} className="mb-6 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-100">
+ <p className="font-semibold">Permanent Demo Access</p>
+ <p className="mt-1 text-cyan-100/90">Email: {DEMO_EMAIL}</p>
+ <p className="text-cyan-100/90">Password: {DEMO_PASSWORD}</p>
+ <button
+ type="button"
+ onClick={() => {
+ setValue('email', DEMO_EMAIL, { shouldValidate: true });
+ setValue('password', DEMO_PASSWORD, { shouldValidate: true });
+ }}
+ className="mt-2 text-xs font-semibold uppercase tracking-wide text-cyan-200 hover:text-white"
+ >
+ Autofill Demo Credentials
+ </button>
  </motion.div>
 
  <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

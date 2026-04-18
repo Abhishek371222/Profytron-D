@@ -9,10 +9,10 @@ import { Magnetic } from '@/components/ui/Interactions';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
- { name: 'Features', href: '#features' },
+ { name: 'Capabilities', href: '#features' },
  { name: 'How it Works', href: '#how-it-works' },
  { name: 'Pricing', href: '#pricing' },
- { name: 'Testimonials', href: '#testimonials' },
+ { name: 'Reviews', href: '#testimonials' },
 ];
 
 export function LandingNavbar() {
@@ -65,7 +65,7 @@ export function LandingNavbar() {
  </Link>
 
  {/* Desktop Navigation */}
- <div className="hidden lg:flex items-center gap-8 bg-white/3 border border-white/5 py-2 px-8 rounded-full backdrop-blur-3xl shadow-inner">
+ <div className="hidden lg:flex items-center gap-8 bg-black/35 border border-white/10 py-2 px-8 rounded-full backdrop-blur-3xl shadow-inner">
  {navLinks.map((link) => (
  <Magnetic key={link.name} strength={0.2}>
  <a
@@ -92,8 +92,8 @@ export function LandingNavbar() {
  <div className="hidden md:flex items-center gap-4">
  <Magnetic strength={0.1}>
  <Link href="/login">
- <Button variant="ghost" className="hover:bg-white/5 font-semibold text-xs tracking-[0.2em] uppercase text-white/50 hover:text-white">
- Client Portal
+ <Button variant="ghost" className="hover:bg-white/5 font-semibold text-xs tracking-[0.2em] uppercase text-white/60 hover:text-white">
+ Sign In
  </Button>
  </Link>
  </Magnetic>
@@ -101,7 +101,7 @@ export function LandingNavbar() {
  <Link href="/register">
  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-8 h-12 rounded-[14px] group transition-all duration-500 shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] relative overflow-hidden uppercase tracking-widest">
  <span className="relative z-10 flex items-center gap-2">
- Open Terminal
+ Get Started
  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
  </span>
  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
@@ -161,12 +161,12 @@ export function LandingNavbar() {
  <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
  <Button variant="outline" className="w-full h-14 text-sm font-semibold uppercase tracking-widest rounded-[14px] border-white/10 bg-white/5 text-white">
- Client Portal
+ Sign In
  </Button>
  </Link>
  <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
  <Button className="w-full h-14 text-sm font-semibold uppercase tracking-widest rounded-[14px] bg-primary text-white shadow-lg shadow-primary/20">
- Open Terminal
+ Get Started
  </Button>
  </Link>
  </div>

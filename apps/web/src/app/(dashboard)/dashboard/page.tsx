@@ -32,6 +32,9 @@ import { useTradingStore } from '@/lib/stores/useTradingStore';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
+import { useMutation } from '@tanstack/react-query';
+import { tradingApi } from '@/lib/api/trading';
+import { demoDashboardMetrics } from '@/lib/api/demoData';
 
 // --- Custom Components for the Dashboard ---
 
@@ -104,7 +107,17 @@ function StatCard({ label, value, sub, icon: Icon, trend, sparkline: SparkData, 
  );
 }
 
-function RiskMeter({ value, limit }: { value: number; limit: number }) {
+function RiskMeter({
+ value,
+ limit,
+ onKillSwitch,
+ isKilling,
+}: {
+ value: number;
+ limit: number;
+ onKillSwitch: () => void;
+ isKilling: boolean;
+}) {
  const percentage = (value / limit) * 100;
  
  return (
@@ -114,8 +127,14 @@ function RiskMeter({ value, limit }: { value: number; limit: number }) {
  <Shield className="w-4 h-4 text-p" />
  Risk Monitor
  </h3>
- <Button variant="outline" size="sm" className="h-7 px-3 border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white text-xs font-semibold uppercase">
- Kill Switch
+ <Button
+ variant="outline"
+ size="sm"
+ onClick={onKillSwitch}
+ disabled={isKilling}
+ className="h-7 px-3 border-red-500/50 text-red-500 hover:bg-red-500 hover:text-white text-xs font-semibold uppercase"
+ >
+ {isKilling ? 'Stopping...' : 'Kill Switch'}
  </Button>
  </div>
 
@@ -229,6 +248,7 @@ function TradeRow({ trade, onExplain }: { trade: any; onExplain: (t: any) => voi
 export default function DashboardPage() {
  const [mounted, setMounted] = React.useState(false);
 	const [chartRange, setChartRange] = React.useState<'1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL'>('1M');
+ const [isExportingCsv, setIsExportingCsv] = React.useState(false);
  const { 
  portfolioValue, 
  dailyChange, 
@@ -260,6 +280,87 @@ export default function DashboardPage() {
 	 queryFn: () => analyticsApi.getPortfolio(rangeToApi[chartRange]),
 	 staleTime: 30_000,
  });
+
+ const killSwitchMutation = useMutation({
+	 mutationFn: () => tradingApi.emergencyStop(),
+	 onSuccess: (result) => {
+		 const statusLabel = result.status === 'NO_OPEN_TRADES' ? 'No open trades found.' : `Closed ${result.closedTrades} open trade(s).`;
+		 window.alert(`Emergency stop executed. ${statusLabel}`);
+	 },
+	 onError: (error: any) => {
+		 const message = error?.response?.data?.error || error?.message || 'Failed to trigger emergency stop.';
+		 window.alert(message);
+	 },
+ });
+
+ const toCsvValue = (value: unknown) => {
+	 if (value === null || value === undefined) return '';
+	 const text = String(value);
+	 if (text.includes(',') || text.includes('"') || text.includes('\n')) {
+		 return `"${text.replace(/"/g, '""')}"`;
+	 }
+	 return text;
+ };
+
+ const handleExportCsv = async () => {
+	 if (isExportingCsv) return;
+	 setIsExportingCsv(true);
+	 try {
+		 const exportPayload = await analyticsApi.getTradeExport(rangeToApi[chartRange]);
+		 if (!exportPayload.rows.length) {
+			 window.alert('No trades available for this range.');
+			 return;
+		 }
+
+		 const headers = [
+			 'trade_id',
+			 'symbol',
+			 'direction',
+			 'volume',
+			 'open_price',
+			 'close_price',
+			 'profit',
+			 'status',
+			 'strategy_name',
+			 'opened_at',
+			 'closed_at',
+		 ];
+
+		 const lines = exportPayload.rows.map((row) =>
+			 [
+				 row.id,
+				 row.symbol,
+				 row.direction,
+				 row.volume,
+				 row.openPrice,
+				 row.closePrice,
+				 row.profit,
+				 row.status,
+				 row.strategyName,
+				 row.openedAt,
+				 row.closedAt,
+			 ]
+				 .map(toCsvValue)
+				 .join(','),
+		 );
+
+		 const csv = [headers.join(','), ...lines].join('\n');
+		 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+		 const url = URL.createObjectURL(blob);
+		 const anchor = document.createElement('a');
+		 anchor.href = url;
+		 anchor.download = `trades-${exportPayload.range}-${new Date().toISOString().slice(0, 10)}.csv`;
+		 document.body.appendChild(anchor);
+		 anchor.click();
+		 anchor.remove();
+		 URL.revokeObjectURL(url);
+	 } catch (error: any) {
+		 const message = error?.response?.data?.error || error?.message || 'Failed to export CSV.';
+		 window.alert(message);
+	 } finally {
+		 setIsExportingCsv(false);
+	 }
+ };
 
  return (
  <div className={cn("space-y-6", !mounted &&"animate-pulse")} suppressHydrationWarning>
@@ -330,7 +431,7 @@ export default function DashboardPage() {
  
  <div className="h-[320px] w-full min-h-[320px]">
  <EquityChart
-	 data={portfolioQuery.data?.equityCurve ?? []}
+	 data={(portfolioQuery.data?.equityCurve && portfolioQuery.data.equityCurve.length > 0) ? portfolioQuery.data.equityCurve : demoDashboardMetrics.equityCurve}
 	 rangeLabel={chartRange}
 	 isLoading={portfolioQuery.isLoading}
  />
@@ -338,10 +439,10 @@ export default function DashboardPage() {
  
  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
  {[
- { label: 'All-time High', value: `$${(portfolioQuery.data?.allTimeHigh ?? 0).toLocaleString()}` },
- { label: 'Max Drawdown', value: `${portfolioQuery.data?.maxDrawdown ?? 0}%` },
- { label: 'Sharpe Ratio', value: `${portfolioQuery.data?.sharpeRatio ?? 0}` },
- { label: 'Best Month', value: `$${(portfolioQuery.data?.bestMonth ?? 0).toLocaleString()}` }
+ { label: 'All-time High', value: `$${(portfolioQuery.data?.allTimeHigh ?? demoDashboardMetrics.equityCurve[demoDashboardMetrics.equityCurve.length - 1]?.equity).toLocaleString()}` },
+ { label: 'Max Drawdown', value: `${portfolioQuery.data?.maxDrawdown ?? demoDashboardMetrics.maxDrawdown}%` },
+ { label: 'Sharpe Ratio', value: `${portfolioQuery.data?.sharpeRatio ?? demoDashboardMetrics.sharpeRatio}` },
+ { label: 'Best Month', value: `+${(portfolioQuery.data?.bestMonth ?? demoDashboardMetrics.monthlyReturn).toLocaleString()}%` }
  ].map((stat, i) => (
  <div key={i} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl">
  <p className="text-xs font-bold text-white/40 uppercase tracking-widest">{stat.label}</p>
@@ -421,7 +522,12 @@ export default function DashboardPage() {
  </div>
 
  <div className="lg:col-span-1">
- <RiskMeter value={3.4} limit={10} />
+ <RiskMeter
+ value={3.4}
+ limit={10}
+ onKillSwitch={() => killSwitchMutation.mutate()}
+ isKilling={killSwitchMutation.isPending}
+ />
  </div>
  </div>
 
@@ -433,7 +539,15 @@ export default function DashboardPage() {
  Live Execution Feed
  </h2>
  <div className="flex items-center gap-4">
- <Button variant="ghost" size="sm" className="h-8 px-3 text-white/40 hover:text-white uppercase text-xs font-semibold">Export CSV</Button>
+ <Button
+ variant="ghost"
+ size="sm"
+ onClick={handleExportCsv}
+ disabled={isExportingCsv}
+ className="h-8 px-3 text-white/40 hover:text-white uppercase text-xs font-semibold"
+ >
+ {isExportingCsv ? 'Exporting...' : 'Export CSV'}
+ </Button>
  <Link href="/history" className="text-xs font-semibold text-p uppercase tracking-widest">View All →</Link>
  </div>
  </div>
