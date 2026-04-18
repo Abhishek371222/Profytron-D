@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
-import { apiClient } from '@/lib/api/client';
+import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
 
 export default function AuthCallback() {
@@ -59,13 +59,14 @@ export default function AuthCallback() {
       try {
         // Exchange Supabase session for local session
         // We send the Supabase token to our backend to sync/create the user
-        const { data } = await apiClient.post('/auth/supabase', {
+        const response = await apiClient.post('/auth/supabase', {
           token: session.access_token,
           email: session.user.email,
           fullName: session.user.user_metadata.full_name,
           avatarUrl: session.user.user_metadata.avatar_url,
           provider: session.user.app_metadata.provider,
         });
+        const data = unwrapApiResponse<{ accessToken: string; user: any }>(response.data);
 
         login(data.accessToken, data.user);
         window.location.href = '/dashboard';

@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, unwrapApiResponse } from './client';
 
 export interface WalletBalance {
   total: number;
@@ -39,14 +39,14 @@ export interface WalletTransactionsParams {
 export const walletApi = {
   async getBalance() {
     const res = await apiClient.get<WalletBalance>('/wallet/balance');
-    return res.data;
+    return unwrapApiResponse<WalletBalance>(res.data);
   },
 
   async getTransactions(params?: WalletTransactionsParams) {
     const res = await apiClient.get<WalletTransactionsResponse>('/wallet/transactions', {
       params,
     });
-    return res.data;
+    return unwrapApiResponse<WalletTransactionsResponse>(res.data);
   },
 
   async initiateDeposit(data: { amount: number }) {
@@ -55,12 +55,16 @@ export const walletApi = {
       paymentIntentId: string;
       transactionId: string;
     }>('/wallet/deposit', data);
-    return res.data;
+    return unwrapApiResponse<{
+      clientSecret: string;
+      paymentIntentId: string;
+      transactionId: string;
+    }>(res.data);
   },
 
   async initiateWithdrawal(data: { amount: number; bankAccount?: string; otp?: string }) {
     const res = await apiClient.post('/wallet/withdraw', data);
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
 
   async getStatement(year: number, month: number) {
@@ -72,6 +76,6 @@ export const walletApi = {
 
   async getTransaction(id: string) {
     const res = await apiClient.get<WalletTransaction>(`/wallet/transaction/${id}`);
-    return res.data;
+    return unwrapApiResponse<WalletTransaction>(res.data);
   },
 };

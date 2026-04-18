@@ -102,14 +102,21 @@ export class AuthService {
     await this.redisService.set(`auth:otp:${dto.email}`, otp, 600);
     await this.emailService.sendOtpEmail(dto.email, otp);
 
-    await this.prisma.auditLog.create({
-      data: {
-        eventType: 'USER_REGISTERED',
-        userId: user.id,
-        detailsJson: { email: dto.email },
-        triggeredBy: user.id,
-      },
-    });
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          eventType: 'USER_REGISTERED',
+          userId: user.id,
+          detailsJson: { email: dto.email },
+          triggeredBy: user.id,
+        },
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Registration audit logging failed for user ${user.id}. Continuing with successful registration.`,
+      );
+      this.logger.debug?.((error as Error).message);
+    }
 
     const response: Record<string, unknown> = {
       success: true,
@@ -153,14 +160,21 @@ export class AuthService {
       7 * 24 * 3600,
     );
 
-    await this.prisma.auditLog.create({
-      data: {
-        eventType: 'EMAIL_VERIFIED',
-        userId: user.id,
-        detailsJson: { email: dto.email },
-        triggeredBy: user.id,
-      },
-    });
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          eventType: 'EMAIL_VERIFIED',
+          userId: user.id,
+          detailsJson: { email: dto.email },
+          triggeredBy: user.id,
+        },
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Email verification audit logging failed for user ${user.id}. Continuing with successful verification.`,
+      );
+      this.logger.debug?.((error as Error).message);
+    }
 
     return {
       accessToken: tokens.accessToken,
@@ -185,19 +199,6 @@ export class AuthService {
     const ip = req.ip || '0.0.0.0';
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
-    await this.prisma.userSession.create({
-      data: {
-        userId: user.id,
-        deviceId: 'default',
-        ipAddress: ip,
-        browser: userAgent,
-      },
-    });
-
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
     await this.redisService.set(
       `auth:refresh:${user.id}:default`,
@@ -205,16 +206,35 @@ export class AuthService {
       7 * 24 * 3600,
     );
 
-    await this.prisma.auditLog.create({
-      data: {
-        eventType: 'LOGIN',
-        userId: user.id,
-        detailsJson: { ip, userAgent },
-        triggeredBy: user.id,
-        ipAddress: ip,
-        userAgent,
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { lastLoginAt: new Date() },
+      });
+      await this.prisma.userSession.create({
+        data: {
+          userId: user.id,
+          deviceId: 'default',
+          ipAddress: ip,
+          browser: userAgent,
+        },
+      });
+      await this.prisma.auditLog.create({
+        data: {
+          eventType: 'LOGIN',
+          userId: user.id,
+          detailsJson: { ip, userAgent },
+          triggeredBy: user.id,
+          ipAddress: ip,
+          userAgent,
+        },
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Login bookkeeping failed for user ${user.id}. Continuing with successful authentication.`,
+      );
+      this.logger.debug?.((error as Error).message);
+    }
 
     return {
       accessToken: tokens.accessToken,

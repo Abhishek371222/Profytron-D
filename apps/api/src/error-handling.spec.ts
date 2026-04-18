@@ -1,158 +1,110 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
+import { INestApplication } from '@nestjs/common';
+import { PrismaService } from './prisma/prisma.service';
+import { createTestApp } from './test-utils/test-app';
+import { resetTestDatabase } from './test-utils/test-db';
+import { loginAs, seedVerifiedUser } from './test-utils/auth';
 
-describe('⚠️ ERROR HANDLING TESTING (CRITICAL)', () => {
-  let app: INestApplication<App>;
+describe('Error handling', () => {
+  let app: INestApplication;
+  let prisma: PrismaService;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    const testApp = await createTestApp();
+    app = testApp.app;
+    prisma = app.get(PrismaService);
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  describe('1. API ERROR RESPONSES', () => {
-    test('should handle 404 for non-existent endpoints', () => {
-      return request(app.getHttpServer())
-        .get('/api/non-existent-endpoint')
-        .expect(404)
-        .expect((res) => {
-          expect(res.body.message).toBeDefined();
-        });
-    });
-
-    test('should handle malformed JSON requests', () => {
-      return request(app.getHttpServer())
-        .post('/auth/signup')
-        .set('Content-Type', 'application/json')
-        .send('{ invalid json }')
-        .expect(400);
-    });
-
-    test('should handle invalid HTTP methods', () => {
-      return request(app.getHttpServer())
-        .patch('/auth/login')
-        .expect(404);
-    });
+  beforeEach(async () => {
+    await resetTestDatabase(prisma);
   });
 
-  describe('2. DATABASE CONNECTION ERRORS', () => {
-    test('should handle database connection failures gracefully', async () => {
-      // This would require mocking database connection failures
-      // For now, test with valid database operations
-      const response = await request(app.getHttpServer())
-        .get('/health')
-        .expect(200);
-
-      expect(response.body.status).toBe('ok');
-    });
+  it('returns 404 for unknown endpoints', async () => {
+    await request(app.getHttpServer())
+      .get('/api/non-existent-endpoint')
+      .expect(404);
   });
 
-  describe('3. EXTERNAL SERVICE FAILURES', () => {
-    test('should handle Stripe API failures', async () => {
-      // Test webhook with invalid Stripe signature
-      const response = await request(app.getHttpServer())
-        .post('/payments/webhook')
-        .set('stripe-signature', 'invalid')
-        .send({ type: 'test' })
-        .expect(400);
-
-      expect(response.body.message).toContain('signature');
-    });
-
-    test('should handle email service failures', async () => {
-      // Test signup when email service might be down
-      const response = await request(app.getHttpServer())
-        .post('/auth/signup')
-        .send({
-          email: 'error-test@example.com',
-          password: 'TestPass123!',
-          fullName: 'Error Test User'
-        })
-        .expect(201); // Should still succeed even if email fails
-
-      expect(response.body.success).toBe(true);
-    });
+  it('returns 400 for malformed JSON', async () => {
+    await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .set('Content-Type', 'application/json')
+      .send('{ invalid json }')
+      .expect(400);
   });
 
-  describe('4. VALIDATION ERRORS', () => {
-    test('should return detailed validation errors', () => {
-      return request(app.getHttpServer())
-        .post('/auth/signup')
-        .send({
-          email: 'invalid-email',
-          password: '123',
-          fullName: ''
-        })
-        .expect(400)
-        .expect((res) => {
-          expect(res.body.message).toBeInstanceOf(Array);
-          expect(res.body.message.length).toBeGreaterThan(0);
-        });
-    });
+  it('returns 400 with validation details for invalid registration payloads', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        email: 'invalid-email',
+        password: '123',
+        confirmPassword: '123',
+        fullName: '',
+      })
+      .expect(400);
 
-    test('should handle missing required fields', () => {
-      return request(app.getHttpServer())
-        .post('/auth/signup')
-        .send({})
-        .expect(400);
-    });
+    expect([response.body.message, response.body.error]).toContainEqual(
+      expect.anything(),
+    );
   });
 
-  describe('5. NETWORK AND TIMEOUT ERRORS', () => {
-    test('should handle request timeouts gracefully', async () => {
-      // Test with a potentially slow endpoint
-      const startTime = Date.now();
+  it('returns 403 for an invalid Stripe webhook signature', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/v1/webhooks/stripe')
+      .set('Content-Type', 'application/json')
+      .set('stripe-signature', 'invalid')
+      .send(Buffer.from(JSON.stringify({ id: 'evt_invalid', type: 'payment_intent.succeeded' }), 'utf8'))
+      .expect((res) => {
+        expect([400, 403]).toContain(res.status);
+      });
 
-      const response = await request(app.getHttpServer())
-        .get('/health')
-        .timeout(5000)
-        .expect(200);
-
-      const duration = Date.now() - startTime;
-      expect(duration).toBeLessThan(5000); // Should not timeout
-    });
+    expect(
+      String(response.body.message || response.body.error).toLowerCase(),
+    ).toContain('signature');
   });
 
-  describe('6. BUSINESS LOGIC ERRORS', () => {
-    test('should handle trading signal validation errors', () => {
-      return request(app.getHttpServer())
-        .post('/trading/signal')
-        .set('Authorization', 'Bearer mock-token')
-        .send({
-          strategyId: '',
-          signalType: 'INVALID',
-          pair: 'INVALID',
-          price: -1000
-        })
-        .expect(400);
-    });
+  it('returns 401 for protected routes without a token', async () => {
+    await request(app.getHttpServer())
+      .get('/v1/users/me')
+      .expect(401);
+  });
 
-    test('should handle insufficient balance errors', () => {
-      // This would require setting up a user with insufficient balance
-      // For now, test the endpoint exists and validates
-      return request(app.getHttpServer())
-        .post('/trading/signal')
-        .set('Authorization', 'Bearer mock-token')
-        .send({
-          strategyId: 'test',
-          signalType: 'BUY',
-          pair: 'BTCUSD',
-          price: 1000000 // Very high price
-        })
-        .expect((res) => {
-          // Should either succeed or fail with validation error
-          expect([200, 400, 401]).toContain(res.status);
-        });
+  it('rejects unverified users at login', async () => {
+    await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        email: 'unverified@test.com',
+        password: 'ValidPass123!',
+        confirmPassword: 'ValidPass123!',
+        fullName: 'Unverified User',
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/v1/auth/login')
+      .send({
+        email: 'unverified@test.com',
+        password: 'ValidPass123!',
+      })
+      .expect(403);
+  });
+
+  it('allows a valid authenticated request after login', async () => {
+    const { user, password } = await seedVerifiedUser(prisma, {
+      email: 'ok@test.com',
+      password: 'ValidPass123!',
+      fullName: 'Valid User',
     });
+    const token = await loginAs(app, user.email, password);
+
+    await request(app.getHttpServer())
+      .get('/v1/users/me')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
   });
 });

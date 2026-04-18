@@ -144,3 +144,20 @@
 {"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
 {"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
 {"context":"NestApplication","level":"error","message":"Error: listen EADDRINUSE: address already in use :::4000","stack":[null]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"code":"ECONNRESET","errno":-4077,"syscall":"read"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}
+{"context":"RedisConnection","level":"error","message":"Redis connection error:","stack":[{"address":"127.0.0.1","code":"ECONNREFUSED","errno":-4078,"port":56379,"syscall":"connect"}]}

@@ -1,14 +1,14 @@
-import { apiClient } from './client';
+import { apiClient, unwrapApiResponse } from './client';
 
 export const usersApi = {
   async getMe() {
     const res = await apiClient.get('/users/me');
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
 
   async updateProfile(data: any) {
     const res = await apiClient.patch('/users/me', data);
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
 
   async uploadAvatar(file: File) {
@@ -21,37 +21,37 @@ export const usersApi = {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
 
   async updateRiskProfile(data: any) {
     const res = await apiClient.patch('/users/me/risk-profile', data);
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
 
   async getSessions() {
     const res = await apiClient.get('/users/me/sessions');
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
 
   async revokeSession(id: string) {
     const res = await apiClient.delete(`/users/me/sessions/${id}`);
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
 
   async revokeAllOtherSessions() {
     const res = await apiClient.delete('/users/me/sessions');
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
 
   async changePassword(data: any) {
     const res = await apiClient.post('/users/me/change-password', data);
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
 
   async deleteAccount(confirmText: string) {
     const res = await apiClient.delete('/users/me', { data: { confirmText } });
-    return res.data;
+    return unwrapApiResponse<any>(res.data);
   },
   
   async checkUsername(username: string) {

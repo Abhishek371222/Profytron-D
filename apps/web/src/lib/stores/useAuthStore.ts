@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import axios from 'axios';
 import { authApi } from '../api/auth';
+import { unwrapApiResponse } from '../api/client';
 
 // Inline until workspace types are resolved
 type User = any;
@@ -60,11 +61,12 @@ export const useAuthStore = create<AuthState>()(
       hydrate: async () => {
         try {
           // This call triggers the HTTP-only cookie automatically if credentials inclusion is true
-          const { data } = await axios.post(
+          const response = await axios.post(
             `${process.env.NEXT_PUBLIC_API_URL || '/api'}/auth/refresh`,
             {},
             { withCredentials: true }
           );
+          const data = unwrapApiResponse<{ accessToken: string }>(response.data);
           set({ accessToken: data.accessToken, isAuthenticated: true, isHydrating: false });
         } catch (error) {
           // Boot failed silently if no session

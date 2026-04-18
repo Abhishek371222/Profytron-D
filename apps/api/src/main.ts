@@ -1,16 +1,9 @@
-import { NestFactory, HttpAdapterHost } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestFactory } from '@nestjs/core';
 import { WinstonModule } from 'nest-winston';
-import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
-import express from 'express';
-import { RequestMethod } from '@nestjs/common';
 import * as net from 'node:net';
 import { AppModule } from './app.module';
 import { winstonConfig } from './config/winston.config';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { configureApp } from './app.setup';
 
 async function isPortInUse(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -43,58 +36,7 @@ async function bootstrap() {
     logger: WinstonModule.createLogger(winstonConfig),
   });
 
-  app.use('/v1/webhooks/stripe', express.raw({ type: 'application/json' }));
-  app.use('/v1/webhooks/razorpay', express.raw({ type: 'application/json' }));
-  app.use('/v1/wallet/webhook', express.raw({ type: 'application/json' }));
-  app.use(express.json({ limit: '2mb' }));
-  app.use(express.urlencoded({ extended: true }));
-
-  app.setGlobalPrefix('v1', {
-    exclude: [{ path: 'health', method: RequestMethod.ALL }],
-  });
-
-  // Security
-  app.use(
-    helmet({
-      crossOriginResourcePolicy: { policy: 'cross-origin' },
-      contentSecurityPolicy: false, // Disable for dev to avoid blocking cross-port requests
-    }),
-  );
-  app.use(cookieParser());
-  app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      process.env.FRONTEND_URL || 'http://localhost:3000',
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  });
-
-  // Global pipes/filters
-  const httpAdapterHost = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
-  app.useGlobalInterceptors(new TransformInterceptor());
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-
-  // Swagger Documentation
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Profytron API')
-    .setDescription('Complete Profytron backend API')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .addCookieAuth('refresh_token')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  configureApp(app);
 
   const requestedPort = Number(process.env.API_PORT || 4000);
   const port = await resolveApiPort(requestedPort);

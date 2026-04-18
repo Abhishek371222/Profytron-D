@@ -86,7 +86,6 @@ export default function LoginPage() {
  provider,
  options: {
  redirectTo: redirectUrl,
- skipBrowserWarning: true,
  },
  });
  

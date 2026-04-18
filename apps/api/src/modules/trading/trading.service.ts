@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { TradingGateway } from './trading.gateway';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class TradingService {
@@ -24,28 +25,36 @@ export class TradingService {
       `[Signal] ${strategyId} triggered ${signalType} for ${pair} at ${price}`,
     );
 
-    // Persist signal
-    const signal = await (this.prisma as any).tradingSignal.create({
+    const signalId = randomUUID();
+
+    // Persist a durable signal audit entry until a dedicated signal model exists.
+    await this.prisma.auditLog.create({
       data: {
-        strategyId,
-        type: signalType,
-        pair,
-        price,
-        payload: { timestamp: new Date() },
+        eventType: 'TRADING_SIGNAL_RECEIVED',
+        userId: null,
+        detailsJson: {
+          signalId,
+          strategyId,
+          type: signalType,
+          pair,
+          price,
+          timestamp: new Date().toISOString(),
+        },
+        triggeredBy: strategyId,
       },
     });
 
     // Find all users subscribed to this strategy
-    const subscriptions = await (this.prisma as any).subscription.findMany({
-      where: { strategyId, isActive: true },
-      include: { user: true },
+    const subscriptions = await this.prisma.userStrategySubscription.findMany({
+      where: { strategyId, status: 'ACTIVE' },
+      select: { userId: true },
     });
 
     // Queue execution for each user
     for (const sub of subscriptions) {
       await this.tradeQueue.add('execute_trade', {
         userId: sub.userId,
-        signalId: signal.id,
+        signalId,
         strategyId,
         type: signalType,
         pair,
@@ -53,12 +62,23 @@ export class TradingService {
       });
     }
 
-    return { signalId: signal.id, subscribersnotified: subscriptions.length };
+    return { signalId, subscribersnotified: subscriptions.length };
   }
 
   // Failsafe: Emergency stop for all trades per user
   async emergencyStop(userId: string) {
     this.logger.warn(`[EMERGENCY] Stop triggered for user ${userId}`);
+
+    await this.prisma.auditLog.create({
+      data: {
+        eventType: 'TRADING_EMERGENCY_STOP',
+        userId,
+        detailsJson: {
+          requestedAt: new Date().toISOString(),
+        },
+        triggeredBy: userId,
+      },
+    });
 
     // Logic to close all open positions via broker connector
     // ...
@@ -67,5 +87,11 @@ export class TradingService {
       timestamp: new Date(),
       status: 'SUCCESS',
     });
+
+    return {
+      success: true,
+      userId,
+      stoppedAt: new Date().toISOString(),
+    };
   }
 }

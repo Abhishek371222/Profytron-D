@@ -1,23 +1,21 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/prisma/prisma.service';
+import { INestApplication } from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { PrismaService } from './prisma/prisma.service';
+import { createTestApp } from './test-utils/test-app';
+import { resetTestDatabase } from './test-utils/test-db';
+import { PaymentsService } from './modules/payments/payments.service';
 
-describe('🔗 INTEGRATION TESTS - API + Database (CRITICAL)', () => {
-  let app: INestApplication<App>;
+describe('Integration flows', () => {
+  let app: INestApplication;
   let prisma: PrismaService;
+  let paymentsService: PaymentsService;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-
+    const testApp = await createTestApp();
+    app = testApp.app;
     prisma = app.get(PrismaService);
+    paymentsService = app.get(PaymentsService);
   });
 
   afterAll(async () => {
@@ -25,185 +23,220 @@ describe('🔗 INTEGRATION TESTS - API + Database (CRITICAL)', () => {
   });
 
   beforeEach(async () => {
-    // Clean up test data - only clean up tables that exist
-    try {
-      await prisma.user.deleteMany();
-      // Only delete if the table exists
-      if (prisma.tradingSignal) {
-        await prisma.tradingSignal.deleteMany();
-      }
-      if (prisma.subscription) {
-        await prisma.subscription.deleteMany();
-      }
-    } catch (error) {
-      // Ignore errors if tables don't exist
-    }
+    await resetTestDatabase(prisma);
   });
 
-  describe('1. AUTH FLOW INTEGRATION', () => {
-    it('should complete full signup → email verification → login flow', async () => {
-      const signupData = {
-        email: 'integration@test.com',
-        password: 'TestPass123!',
-        fullName: 'Integration Test User'
-      };
+  it('completes register -> verify -> login with the current API contract', async () => {
+    const email = `integration-${randomUUID()}@test.com`;
+    const registerResponse = await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        email,
+        password: 'ValidPass123!',
+        confirmPassword: 'ValidPass123!',
+        fullName: 'Integration Test User',
+      })
+      .expect(201);
 
-      // 1. Signup
-      const signupResponse = await request(app.getHttpServer())
-        .post('/auth/signup')
-        .send(signupData)
-        .expect(201);
+    const otp = registerResponse.body.data.devOtp;
 
-      expect(signupResponse.body.success).toBe(true);
+    const verifyResponse = await request(app.getHttpServer())
+      .post('/v1/auth/verify-email')
+      .send({
+        email,
+        otp,
+      })
+      .expect(200);
 
-      // 2. Verify user was created in database
-      const user = await prisma.user.findUnique({
-        where: { email: signupData.email }
-      });
-      expect(user).toBeTruthy();
-      expect(user?.email).toBe(signupData.email);
-      expect(user?.emailVerified).toBe(false);
+    expect(verifyResponse.body.data.user.emailVerified).toBe(true);
 
-      // 3. Simulate email verification (in real test, would get OTP from email)
-      // For now, manually verify the user
-      await prisma.user.update({
-        where: { email: signupData.email },
-        data: { emailVerified: true }
-      });
+    const loginResponse = await request(app.getHttpServer())
+      .post('/v1/auth/login')
+      .send({
+        email,
+        password: 'ValidPass123!',
+      })
+      .expect(200);
 
-      // 4. Login
-      const loginResponse = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          email: signupData.email,
-          password: signupData.password
-        })
-        .expect(200);
-
-      expect(loginResponse.body.accessToken).toBeDefined();
-      expect(loginResponse.body.user.email).toBe(signupData.email);
-    });
-
-    it('should reject login for unverified email', async () => {
-      const signupData = {
-        email: 'unverified@test.com',
-        password: 'TestPass123!',
-        fullName: 'Unverified User'
-      };
-
-      // Signup
-      await request(app.getHttpServer())
-        .post('/auth/signup')
-        .send(signupData)
-        .expect(201);
-
-      // Try to login without verification
-      await request(app.getHttpServer())
-        .post('/auth/login')
-        .send({
-          email: signupData.email,
-          password: signupData.password
-        })
-        .expect(403);
-    });
+    expect(loginResponse.body.data.accessToken).toBeDefined();
+    expect(loginResponse.body.data.user.email).toBe(email);
   });
 
-  describe('2. TRADING SIGNAL INTEGRATION', () => {
-    let accessToken: string;
-    let userId: string;
-
-    beforeEach(async () => {
-      // Create and verify a test user
-      const user = await prisma.user.create({
-        data: {
-          email: 'trader@test.com',
-          passwordHash: '$2b$12$test',
-          fullName: 'Test Trader',
-          emailVerified: true
-        }
-      });
-      userId = user.id;
-
-      // Mock login to get token (simplified for testing)
-      accessToken = 'mock-jwt-token';
+  it('activates a marketplace subscription from checkout.session.completed', async () => {
+    const creator = await prisma.user.create({
+      data: {
+        email: 'creator@test.com',
+        fullName: 'Creator User',
+        emailVerified: true,
+        role: 'CREATOR',
+      },
+    });
+    const buyer = await prisma.user.create({
+      data: {
+        email: 'buyer@test.com',
+        fullName: 'Buyer User',
+        emailVerified: true,
+      },
     });
 
-    it('should create trading signal and notify subscribers', async () => {
-      const strategyId = 'test-strategy-123';
-
-      // Create a subscription for the user
-      await prisma.subscription.create({
-        data: {
-          userId,
-          strategyId,
-          isActive: true
-        }
-      });
-
-      // Create trading signal (this would normally be called by strategy service)
-      const signalResponse = await request(app.getHttpServer())
-        .post('/trading/signal')
-        .set('Authorization', `Bearer ${accessToken}`)
-        .send({
-          strategyId,
-          signalType: 'BUY',
-          pair: 'BTCUSD',
-          price: 45000
-        })
-        .expect(201);
-
-      expect(signalResponse.body.id).toBeDefined();
-
-      // Verify signal was saved to database
-      const signal = await prisma.tradingSignal.findUnique({
-        where: { id: signalResponse.body.id }
-      });
-      expect(signal).toBeTruthy();
-      expect(signal?.pair).toBe('BTCUSD');
-      expect(signal?.type).toBe('BUY');
+    const strategy = await prisma.strategy.create({
+      data: {
+        creatorId: creator.id,
+        name: 'Momentum Engine',
+        description: 'Integration test strategy',
+        category: 'TREND',
+        riskLevel: 'MEDIUM',
+        configJson: { nodes: [] },
+        monthlyPrice: 29,
+        annualPrice: 199,
+        isPublished: true,
+      },
     });
+
+    await prisma.marketplaceListing.create({
+      data: {
+        strategyId: strategy.id,
+        monthlyPrice: 29,
+        annualPrice: 199,
+        lifetimePrice: 499,
+      },
+    });
+
+    const checkoutEventId = `evt_checkout_${randomUUID()}`;
+    await paymentsService.handleStripeEvent({
+      id: checkoutEventId,
+      object: 'event',
+      type: 'checkout.session.completed',
+      data: {
+        object: {
+          id: 'cs_test_checkout',
+          amount_total: 2900,
+          subscription: 'sub_checkout_123',
+          metadata: {
+            userId: buyer.id,
+            strategyId: strategy.id,
+            planType: 'MONTHLY',
+          },
+        },
+      },
+    });
+
+    const subscription = await prisma.userStrategySubscription.findUnique({
+      where: {
+        userId_strategyId: {
+          userId: buyer.id,
+          strategyId: strategy.id,
+        },
+      },
+    });
+    const creatorCredit = await prisma.walletTransaction.findFirst({
+      where: {
+        userId: creator.id,
+        type: 'MARKETPLACE_SALE',
+      },
+    });
+
+    expect(subscription?.status).toBe('ACTIVE');
+    expect(subscription?.stripeSubId).toBe('sub_checkout_123');
+    expect(creatorCredit?.amount).toBeCloseTo(20.3, 5);
   });
 
-  describe('3. PAYMENT WEBHOOK INTEGRATION', () => {
-    it('should handle Stripe webhook and update user subscription', async () => {
-      // Create a test user
-      const user = await prisma.user.create({
-        data: {
-          email: 'subscriber@test.com',
-          passwordHash: '$2b$12$test',
-          fullName: 'Test Subscriber',
-          emailVerified: true
-        }
-      });
-
-      // Mock Stripe webhook payload for successful payment
-      const webhookPayload = {
-        id: 'evt_test_webhook',
-        object: 'event',
-        type: 'checkout.session.completed',
-        data: {
-          object: {
-            id: 'cs_test_123',
-            customer_email: user.email,
-            amount_total: 2999, // $29.99
-            currency: 'usd',
-            payment_status: 'paid'
-          }
-        }
-      };
-
-      // Send webhook (would need proper Stripe signature in real test)
-      const webhookResponse = await request(app.getHttpServer())
-        .post('/payments/webhook')
-        .set('stripe-signature', 'mock-signature')
-        .send(webhookPayload)
-        .expect(200);
-
-      // Verify user subscription was updated
-      const updatedUser = await prisma.user.findUnique({
-        where: { id: user.id }
-      });
-      expect(updatedUser?.subscriptionStatus).toBe('active');
+  it('renews an existing subscription on invoice.payment_succeeded without crediting the buyer wallet', async () => {
+    const creator = await prisma.user.create({
+      data: {
+        email: 'renew-creator@test.com',
+        fullName: 'Renew Creator',
+        emailVerified: true,
+        role: 'CREATOR',
+      },
     });
+    const buyer = await prisma.user.create({
+      data: {
+        email: 'renew-buyer@test.com',
+        fullName: 'Renew Buyer',
+        emailVerified: true,
+      },
+    });
+
+    const strategy = await prisma.strategy.create({
+      data: {
+        creatorId: creator.id,
+        name: 'Renewal Strategy',
+        description: 'Renewal integration strategy',
+        category: 'TREND',
+        riskLevel: 'LOW',
+        configJson: { nodes: [] },
+        monthlyPrice: 29,
+        isPublished: true,
+      },
+    });
+
+    await prisma.marketplaceListing.create({
+      data: {
+        strategyId: strategy.id,
+        monthlyPrice: 29,
+        annualPrice: 199,
+        lifetimePrice: 499,
+      },
+    });
+
+    await prisma.userStrategySubscription.create({
+      data: {
+        userId: buyer.id,
+        strategyId: strategy.id,
+        status: 'INACTIVE',
+        planType: 'MONTHLY',
+        stripeSubId: 'sub_existing_123',
+      },
+    });
+
+    const invoiceEventId = `evt_invoice_${randomUUID()}`;
+    await paymentsService.handleStripeEvent({
+      id: invoiceEventId,
+      object: 'event',
+      type: 'invoice.payment_succeeded',
+      data: {
+        object: {
+          id: 'in_paid_123',
+          amount_paid: 2900,
+          subscription: 'sub_existing_123',
+          lines: {
+            data: [
+              {
+                period: {
+                  end: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+                },
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    const renewedSubscription = await prisma.userStrategySubscription.findUnique({
+      where: {
+        userId_strategyId: {
+          userId: buyer.id,
+          strategyId: strategy.id,
+        },
+      },
+    });
+    const buyerDebit = await prisma.walletTransaction.findFirst({
+      where: {
+        userId: buyer.id,
+        type: 'SUBSCRIPTION_PAYMENT',
+      },
+    });
+    const accidentalDeposit = await prisma.walletTransaction.findFirst({
+      where: {
+        userId: buyer.id,
+        type: 'DEPOSIT',
+      },
+    });
+
+    expect(renewedSubscription?.status).toBe('ACTIVE');
+    expect(renewedSubscription?.expiresAt).toBeTruthy();
+    expect(buyerDebit?.direction).toBe('OUT');
+    expect(accidentalDeposit).toBeNull();
   });
 });

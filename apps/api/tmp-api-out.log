@@ -1,0 +1,319 @@
+
+> api@0.0.1 start
+> nest start
+
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:46 pm [32m    LOG[39m [33m[NestFactory][39m [32mStarting Nest application...[39m [33m+0ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mBullModule dependencies initialized[39m [33m+155ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mPrismaModule dependencies initialized[39m [33m+43ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mPassportModule dependencies initialized[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mEmailModule dependencies initialized[39m [33m+10ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mWebsocketModule dependencies initialized[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mConfigHostModule dependencies initialized[39m [33m+73ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mJwtModule dependencies initialized[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mRedisModule dependencies initialized[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mDiscoveryModule dependencies initialized[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mConfigModule dependencies initialized[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mBullModule dependencies initialized[39m [33m+5ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mSearchModule dependencies initialized[39m [33m+24ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mBullModule dependencies initialized[39m [33m+11ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mBullModule dependencies initialized[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mAppModule dependencies initialized[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mPaymentsModule dependencies initialized[39m [33m+9ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mAdminModule dependencies initialized[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mAffiliatesModule dependencies initialized[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mAIModule dependencies initialized[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mUsersModule dependencies initialized[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mBrokerModule dependencies initialized[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mStrategiesModule dependencies initialized[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mMarketplaceModule dependencies initialized[39m [33m+0ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mAnalyticsModule dependencies initialized[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mNotificationsModule dependencies initialized[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mAuthModule dependencies initialized[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mTradingModule dependencies initialized[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[InstanceLoader][39m [32mWalletModule dependencies initialized[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[WebSocketsController][39m [32mTradingGateway subscribed to the "subscribe_prices" message[39m [33m+323ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mAppController {/v1}:[39m [33m+10ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1, GET} route[39m [33m+7ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/health, GET} route[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mAuthController {/v1/auth}:[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/register, POST} route[39m [33m+11ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/verify-email, POST} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/login, POST} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/supabase, POST} route[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/refresh, POST} route[39m [33m+5ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/logout, POST} route[39m [33m+7ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/forgot-password, POST} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/reset-password, POST} route[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/resend-otp, POST} route[39m [33m+5ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/google, GET} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/auth/google/callback, GET} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mUsersController {/v1/users}:[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/users/me, GET} route[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/users/me, PATCH} route[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/users/me/avatar, POST} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/users/me/risk-profile, PATCH} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/users/me/sessions, GET} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/users/me/sessions/:id, DELETE} route[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/users/me/sessions, DELETE} route[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/users/me/change-password, POST} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/users/me, DELETE} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mStrategiesController {/v1/strategies}:[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies, GET} route[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies/my, GET} route[39m [33m+5ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies/:id, GET} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies, POST} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies/:id, PATCH} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies/:id, DELETE} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies/:id/activate, POST} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies/:id/deactivate, POST} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies/:id/backtest, POST} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies/backtest/preview, POST} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/strategies/:id/publish, POST} route[39m [33m+10ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mWalletController {/v1/wallet}:[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/wallet/balance, GET} route[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/wallet/transactions, GET} route[39m [33m+7ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/wallet/deposit, POST} route[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/wallet/withdraw, POST} route[39m [33m+9ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/wallet/statement/:year/:month, GET} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/wallet/transaction/:id, GET} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/wallet/webhook, POST} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mTradingController {/v1/trading}:[39m [33m+5ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/trading/emergency-stop, POST} route[39m [33m+5ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mAdminController {/v1/admin}:[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/dashboard, GET} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/stats, GET} route[39m [33m+11ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/users, GET} route[39m [33m+10ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/users/:id, GET} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/users/:id/status, PATCH} route[39m [33m+11ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/users/:id/role, PATCH} route[39m [33m+11ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/verifications, GET} route[39m [33m+7ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/verifications/:id/handle, POST} route[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/payments/overview, GET} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/admin/system/metrics, GET} route[39m [33m+10ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mBrokerController {/v1/broker/accounts}:[39m [33m+5ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/broker/accounts/connect, POST} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/broker/accounts, GET} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/broker/accounts/:id, DELETE} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/broker/accounts/:id/test, POST} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mNotificationsController {/v1/notifications}:[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/notifications, GET} route[39m [33m+7ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/notifications/unread-count, GET} route[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/notifications/:id/read, PATCH} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/notifications/mark-all-read, PATCH} route[39m [33m+11ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mAffiliatesController {/v1/affiliates}:[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/affiliates/click/:code, POST} route[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:47 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/affiliates/me, GET} route[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/affiliates/dashboard, GET} route[39m [33m+13ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/affiliates/capture/:code, POST} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mAnalyticsController {/v1/analytics}:[39m [33m+15ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/analytics/portfolio, GET} route[39m [33m+9ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/analytics/monthly-returns, GET} route[39m [33m+9ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/analytics/strategy-comparison, GET} route[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/analytics/risk, GET} route[39m [33m+4ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/analytics/trades, GET} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/analytics/global, GET} route[39m [33m+17ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/analytics/leaderboard, GET} route[39m [33m+8ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mMarketplaceController {/v1/marketplace}:[39m [33m+12ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/marketplace, GET} route[39m [33m+5ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/marketplace/featured, GET} route[39m [33m+7ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/marketplace/:id, GET} route[39m [33m+19ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/marketplace/:strategyId/listing, POST} route[39m [33m+7ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/marketplace/:strategyId/subscribe, POST} route[39m [33m+7ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/marketplace/:id/reviews, GET} route[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/marketplace/:id/reviews, POST} route[39m [33m+9ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/marketplace/reviews/:reviewId/reply, PATCH} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mPaymentsController {/v1/webhooks}:[39m [33m+2ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/webhooks/stripe, POST} route[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/webhooks/razorpay, POST} route[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mAIController {/v1/ai}:[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/ai/explain-trade/:tradeId, POST} route[39m [33m+9ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/ai/explain, POST} route[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/ai/chat, POST} route[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/ai/coaching-report, GET} route[39m [33m+3ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/ai/market-regime/:symbol, GET} route[39m [33m+7ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/ai/regime, GET} route[39m [33m+5ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RoutesResolver][39m [32mSearchController {/v1/search}:[39m [33m+6ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RouterExplorer][39m [32mMapped {/v1/search/global, GET} route[39m [33m+1ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[RedisConnection][39m [32mSuccessfully connected to Redis[39m [33m+78ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 12:34:48 pm [32m    LOG[39m [33m[NestApplication][39m [32mNest application successfully started[39m [33m+142ms[39m
+[Profytron] API is running on: http://localhost:4000
+[Profytron] Documentation: http://localhost:4000/api/docs
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 1:30:15 pm [32m    LOG[39m [33m[RedisConnection][39m [32mSuccessfully connected to Redis[39m [33m+55m[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:15 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - { stack: [ { errno: [33m-4077[39m, code: [32m'ECONNRESET'[39m, syscall: [32m'read'[39m } ] } [33m+27ms[39m
+[32m[Profytron][39m [32m9956[39m 18/4/2026, 1:30:15 pm [32m    LOG[39m [33m[RedisConnection][39m [32mSuccessfully connected to Redis[39m [33m+159ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:16 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+455ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:16 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+223ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:16 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+264ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:16 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+334ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:17 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+360ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:17 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+407ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:18 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+457ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:18 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+513ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:19 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+552ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:19 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+620ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:20 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+652ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:21 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+729ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:21 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+758ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:22 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+815ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:23 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+857ms[39m
+[31m[Profytron][39m [31m9956[39m 18/4/2026, 1:30:24 pm [31m  ERROR[39m [33m[RedisConnection][39m [31mRedis connection error:[39m - {
+  stack: [
+    {
+      errno: [33m-4078[39m,
+      code: [32m'ECONNREFUSED'[39m,
+      syscall: [32m'connect'[39m,
+      address: [32m'127.0.0.1'[39m,
+      port: [33m56379[39m
+    }
+  ]
+} [33m+905ms[39m

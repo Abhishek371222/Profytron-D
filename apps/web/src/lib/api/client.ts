@@ -1,6 +1,13 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
 
+export const unwrapApiResponse = <T>(payload: any): T => {
+  if (payload && typeof payload === 'object' && 'data' in payload) {
+    return payload.data as T;
+  }
+  return payload as T;
+};
+
 const isAuthBootstrapEndpoint = (url?: string): boolean => {
   if (!url) return false;
   return /\/auth\/(login|register|supabase|verify-email|forgot-password|reset-password|refresh|logout)/.test(url);
@@ -59,11 +66,12 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
-        const { data } = await axios.post(
+        const response = await axios.post(
             `${apiClient.defaults.baseURL}/auth/refresh`,
             {},
             { withCredentials: true }
         );
+        const data = unwrapApiResponse<{ accessToken: string }>(response.data);
         
         // Update global auth store with new token to reflect in future requests
         useAuthStore.getState().setToken(data.accessToken);

@@ -55,7 +55,6 @@ export default function OAuthTestPage() {
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
-          skipBrowserWarning: true,
         },
       });
 
@@ -78,7 +77,6 @@ export default function OAuthTestPage() {
         provider: 'github',
         options: {
           redirectTo: redirectUrl,
-          skipBrowserWarning: true,
         },
       });
 

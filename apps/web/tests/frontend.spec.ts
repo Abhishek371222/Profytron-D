@@ -90,7 +90,7 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
       await expect(page.locator('main')).toBeVisible();
 
       // Check no JavaScript errors
-      const errors = [];
+      const errors: Error[] = [];
       page.on('pageerror', error => errors.push(error));
       await page.waitForTimeout(2000);
       expect(errors).toHaveLength(0);

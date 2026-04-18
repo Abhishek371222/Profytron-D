@@ -65,19 +65,10 @@ export class PaymentsService {
         }
         case 'invoice.payment_succeeded': {
           const invoice = event.data.object as any;
-          const metadata = (invoice.parent as any)?.subscription_details?.metadata || invoice.metadata || {};
-          const userId = metadata.userId;
-          if (userId && invoice.amount_paid > 0) {
-            await this.creditWallet(
-              userId,
-              invoice.amount_paid / 100,
-              'DEPOSIT',
-              {
-                source: 'stripe_invoice',
-                invoiceId: invoice.id,
-              },
-              event.id,
-            );
+          const stripeSubId =
+            typeof invoice.subscription === 'string' ? invoice.subscription : null;
+          if (stripeSubId && invoice.amount_paid > 0) {
+            await this.handleSubscriptionInvoicePaid(stripeSubId, invoice);
           }
           break;
         }
@@ -264,6 +255,140 @@ export class PaymentsService {
       planType,
       activatedAt: new Date().toISOString(),
     });
+  }
+
+  private getPeriodEndDate(stripeObject: any): Date | null {
+    const unixPeriodEnd =
+      (stripeObject as any).current_period_end ||
+      ((stripeObject as any).subscription_details?.current_period_end as
+        | number
+        | undefined) ||
+      (stripeObject as any).lines?.data?.[0]?.period?.end;
+
+    return unixPeriodEnd ? new Date(unixPeriodEnd * 1000) : null;
+  }
+
+  private async createSubscriptionPaymentRecord(
+    userId: string,
+    amount: number,
+    reference: string,
+    idempotencyKey: string,
+    metadata: Record<string, unknown>,
+  ) {
+    const existing = await this.prisma.walletTransaction.findUnique({
+      where: { idempotencyKey },
+    });
+    if (existing) {
+      return existing;
+    }
+
+    const grouped = await this.prisma.walletTransaction.groupBy({
+      by: ['direction'],
+      where: { userId, status: 'CONFIRMED' },
+      _sum: { amount: true },
+    });
+
+    const credits =
+      grouped.find((entry) => entry.direction === 'IN')?._sum.amount ?? 0;
+    const debits =
+      grouped.find((entry) => entry.direction === 'OUT')?._sum.amount ?? 0;
+    const currentBalance = credits - debits;
+
+    return this.prisma.walletTransaction.create({
+      data: {
+        userId,
+        type: 'SUBSCRIPTION_PAYMENT',
+        direction: 'OUT',
+        amount,
+        balanceAfter: currentBalance - amount,
+        status: 'CONFIRMED',
+        reference,
+        idempotencyKey,
+        metadataJson: metadata as any,
+      },
+    });
+  }
+
+  private async handleSubscriptionInvoicePaid(
+    stripeSubId: string,
+    invoice: any,
+  ) {
+    const subscription = await this.prisma.userStrategySubscription.findFirst({
+      where: { stripeSubId },
+    });
+
+    if (!subscription) {
+      this.logger.warn(
+        `No local subscription found for Stripe subscription ${stripeSubId}`,
+      );
+      return;
+    }
+
+    const amount = Number(invoice.amount_paid || 0) / 100;
+    const expiresAt =
+      this.getPeriodEndDate(invoice) ||
+      (subscription.planType === 'ANNUAL'
+        ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+        : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.userStrategySubscription.update({
+        where: { id: subscription.id },
+        data: {
+          status: 'ACTIVE',
+          expiresAt,
+          cancelledAt: null,
+        },
+      });
+
+      await tx.marketplaceListing.update({
+        where: { strategyId: subscription.strategyId },
+        data: { totalRevenue: { increment: amount } },
+      });
+
+      await tx.strategy.update({
+        where: { id: subscription.strategyId },
+        data: { totalRevenue: { increment: amount } },
+      });
+    });
+
+    await this.createSubscriptionPaymentRecord(
+      subscription.userId,
+      amount,
+      invoice.id,
+      `subscription_invoice_${invoice.id}`,
+      {
+        source: 'stripe_invoice',
+        invoiceId: invoice.id,
+        stripeSubId,
+        strategyId: subscription.strategyId,
+      },
+    );
+
+    await this.creditWallet(
+      (
+        await this.prisma.strategy.findUniqueOrThrow({
+          where: { id: subscription.strategyId },
+          select: { creatorId: true },
+        })
+      ).creatorId,
+      amount * 0.7,
+      'MARKETPLACE_SALE',
+      {
+        source: 'marketplace_renewal',
+        invoiceId: invoice.id,
+        strategyId: subscription.strategyId,
+        buyerId: subscription.userId,
+      },
+      `creator_credit_invoice_${invoice.id}`,
+    );
+
+    await this.notifications.create(
+      subscription.userId,
+      'Subscription Renewed',
+      'Your recurring marketplace subscription payment was confirmed.',
+      'SUCCESS',
+    );
   }
 
   async creditWallet(

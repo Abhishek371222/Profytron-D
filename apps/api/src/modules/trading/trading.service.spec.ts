@@ -21,11 +21,10 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         {
           provide: PrismaService,
           useValue: {
-            tradingSignal: {
+            auditLog: {
               create: jest.fn(),
-              findMany: jest.fn(),
             },
-            subscription: {
+            userStrategySubscription: {
               findMany: jest.fn(),
             },
             trade: {
@@ -67,11 +66,10 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         price: 45000,
       };
 
-      (prismaService.tradingSignal.create as jest.Mock).mockResolvedValue({
-        id: 'signal-1',
-        ...signalData,
+      (prismaService.auditLog.create as jest.Mock).mockResolvedValue({
+        id: 'log-1',
       });
-      (prismaService.subscription.findMany as jest.Mock).mockResolvedValue([]);
+      (prismaService.userStrategySubscription.findMany as jest.Mock).mockResolvedValue([]);
 
       const result = await tradingService.processSignal(
         signalData.strategyId,
@@ -80,12 +78,11 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         signalData.price
       );
 
-      expect(prismaService.tradingSignal.create).toHaveBeenCalledWith({
+      expect(result.signalId).toBeDefined();
+      expect(prismaService.auditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          strategyId,
-          type: 'BUY',
-          pair: 'BTCUSD',
-          price: 45000,
+          eventType: 'TRADING_SIGNAL_RECEIVED',
+          triggeredBy: strategyId,
         }),
       });
     });
@@ -93,12 +90,12 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
     it('should notify all subscribed users of signal', async () => {
       const strategyId = 'strat-123';
       const subscribers = [
-        { userId: 'user-1', user: { id: 'user-1' } },
-        { userId: 'user-2', user: { id: 'user-2' } },
+        { userId: 'user-1' },
+        { userId: 'user-2' },
       ];
 
-      (prismaService.tradingSignal.create as jest.Mock).mockResolvedValue({ id: 'signal-1' });
-      (prismaService.subscription.findMany as jest.Mock).mockResolvedValue(subscribers);
+      (prismaService.auditLog.create as jest.Mock).mockResolvedValue({ id: 'log-1' });
+      (prismaService.userStrategySubscription.findMany as jest.Mock).mockResolvedValue(subscribers);
 
       await tradingService.processSignal(strategyId, 'BUY', 'BTCUSD', 45000);
 
