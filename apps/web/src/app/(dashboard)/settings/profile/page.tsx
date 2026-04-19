@@ -94,6 +94,21 @@ export default function ProfileSettingsPage() {
   const [latencySim, setLatencySim] = React.useState(false);
   const [injectionPower, setInjectionPower] = React.useState(2.4);
 
+  const handleDemoModeChange = (next: boolean) => {
+    setDemoMode(next);
+    toast.message(next ? 'Simulation mode enabled' : 'Simulation mode disabled');
+  };
+
+  const handleVolatilitySyncChange = (next: boolean) => {
+    setVolatilitySync(next);
+    toast.message(next ? 'Volatility pulse enabled' : 'Volatility pulse disabled');
+  };
+
+  const handleLatencySimChange = (next: boolean) => {
+    setLatencySim(next);
+    toast.message(next ? 'Signal delay enabled' : 'Signal delay disabled');
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -235,19 +250,19 @@ export default function ProfileSettingsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Switch 
               checked={demoMode} 
-              onChange={setDemoMode} 
+              onChange={handleDemoModeChange} 
               label="Simulation Mode" 
               desc="Redirect transmissions to virtualized shadow networks" 
             />
             <Switch 
               checked={volatilitySync} 
-              onChange={setVolatilitySync} 
+              onChange={handleVolatilitySyncChange} 
               label="Volatility Pulse" 
               desc="Inject high-fidelity market stress vectors" 
             />
             <Switch 
               checked={latencySim} 
-              onChange={setLatencySim} 
+              onChange={handleLatencySimChange} 
               label="Signal Delay" 
               desc="Induce institutional relay lag [60ms - 240ms]" 
             />

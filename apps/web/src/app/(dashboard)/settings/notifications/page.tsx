@@ -100,6 +100,8 @@ export default function NotificationsPage() {
  });
 
  const toggleMatrix = (typeId: string, channel: 'App' | 'Relay' | 'Push') => {
+  const typeLabel = NOTIF_TYPES.find((t) => t.id === typeId)?.label || 'Alert route';
+  const nextEnabled = !notifMatrix[typeId]?.[channel];
   setNotifMatrix((prev) => ({
    ...prev,
    [typeId]: {
@@ -108,6 +110,21 @@ export default function NotificationsPage() {
    },
   }));
   setIsDirty(true);
+  toast.message(`${typeLabel}: ${channel} ${nextEnabled ? 'enabled' : 'disabled'}`);
+ };
+
+ const handleChannelToggle = (channelId: string) => {
+  const next = !channels[channelId];
+  const channelLabel = NOTIF_CHANNELS.find((ch) => ch.id === channelId)?.label || channelId;
+  setChannels((prev) => ({ ...prev, [channelId]: next }));
+  setIsDirty(true);
+  toast.message(`${channelLabel} ${next ? 'enabled' : 'disabled'}`);
+ };
+
+ const handleSoundModeChange = (mode: 'Muted' | 'Ambient' | 'High Alert') => {
+  setSoundMode(mode);
+  setIsDirty(true);
+  toast.message(`Sound mode set to ${mode}`);
  };
 
  const savePreferences = () => {
@@ -185,10 +202,7 @@ export default function NotificationsPage() {
  </div>
  <Switch 
  checked={channels[ch.id]} 
- onChange={() => {
-  setChannels(prev => ({ ...prev, [ch.id]: !prev[ch.id] }));
-  setIsDirty(true);
- }} 
+ onChange={() => handleChannelToggle(ch.id)} 
  />
  </div>
  
@@ -289,10 +303,7 @@ export default function NotificationsPage() {
  {['Muted', 'Ambient', 'High Alert'].map((mode) => (
  <button 
  key={mode}
- onClick={() => {
-  setSoundMode(mode as 'Muted' | 'Ambient' | 'High Alert');
-  setIsDirty(true);
- }}
+ onClick={() => handleSoundModeChange(mode as 'Muted' | 'Ambient' | 'High Alert')}
  className={cn(
 "px-8 py-4 rounded-[20px] text-xs font-semibold uppercase tracking-widest border transition-all",
  soundMode === mode ?"bg-p text-white border-p shadow-[0_0_30px_rgba(99,102,241,0.3)]" :"bg-white/5 border-white/5 text-white/20 hover:bg-white/10"

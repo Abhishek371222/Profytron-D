@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { 
   Sparkles, 
@@ -23,6 +24,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Magnetic } from '@/components/ui/Interactions';
 import { aiApi, type CoachingReport } from '@/lib/api/ai';
+import { toast } from 'sonner';
 
 // Mock Insights
 const INSIGHTS = [
@@ -82,6 +84,7 @@ const INITIAL_MESSAGES = [
 ];
 
 export default function AICoachPage() {
+  const router = useRouter();
   const [messages, setMessages] = React.useState(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = React.useState('');
   const [isTyping, setIsTyping] = React.useState(false);
@@ -94,7 +97,15 @@ export default function AICoachPage() {
   }, [messages, isTyping]);
 
   React.useEffect(() => {
-    aiApi.getCoachingReport().then(setReport).catch(() => setReport(null));
+    aiApi
+      .getCoachingReport()
+      .then(setReport)
+      .catch(() => {
+        setReport(null);
+        toast.error('Coaching report unavailable', {
+          description: 'Using baseline tactical feed until report sync recovers.',
+        });
+      });
   }, []);
 
   const handleSend = React.useCallback(async (text: string) => {
@@ -120,6 +131,9 @@ export default function AICoachPage() {
         text: 'AI coach is temporarily unavailable. Please retry in a few seconds.'
       };
       setMessages(prev => [...prev, aiResponse]);
+      toast.error('AI coach unavailable', {
+        description: 'Unable to process this command right now. Please retry shortly.',
+      });
       return;
     } finally {
       setIsTyping(false);

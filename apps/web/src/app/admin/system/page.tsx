@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api/admin';
 import { RefreshCcw, Server } from 'lucide-react';
+import { toast } from 'sonner';
 
 type ServiceState = Record<string, string>;
 
@@ -22,6 +23,18 @@ export default function AdminSystemPage() {
     refetchInterval: 15_000,
   });
 
+  useEffect(() => {
+    if (metricsQuery.isError) {
+      toast.error('Metrics refresh failed');
+    }
+  }, [metricsQuery.isError]);
+
+  useEffect(() => {
+    if (healthQuery.isError) {
+      toast.error('Service health refresh failed');
+    }
+  }, [healthQuery.isError]);
+
   const services = useMemo(() => {
     const activeServices = (healthQuery.data?.activeServices ?? {}) as ServiceState;
     return Object.entries(activeServices).map(([name, status]) => ({ name, status }));
@@ -38,6 +51,7 @@ export default function AdminSystemPage() {
           onClick={() => {
             queryClient.invalidateQueries({ queryKey: ['admin', 'system-metrics'] });
             queryClient.invalidateQueries({ queryKey: ['admin', 'system-health'] });
+            toast.success('System data refresh queued');
           }}
           className="inline-flex items-center gap-2 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white hover:bg-slate-800"
         >

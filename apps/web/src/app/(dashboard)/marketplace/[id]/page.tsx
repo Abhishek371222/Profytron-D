@@ -41,7 +41,7 @@ export default function MarketplaceStrategyDetailPage() {
   const createReviewMutation = useMutation({
     mutationFn: () =>
       marketplaceApi.createReview(strategyId, {
-        rating,
+        rating: Math.min(5, Math.max(1, Number(rating) || 1)),
         reviewText,
       }),
     onSuccess: () => {
@@ -55,6 +55,28 @@ export default function MarketplaceStrategyDetailPage() {
       toast.error(error?.response?.data?.message || 'Failed to submit review');
     },
   });
+
+  React.useEffect(() => {
+    if (strategyQuery.isError) {
+      toast.error('Strategy details unavailable', {
+        description: 'Try refreshing while the marketplace API recovers.',
+      });
+    }
+  }, [strategyQuery.isError]);
+
+  React.useEffect(() => {
+    if (reviewsQuery.isError) {
+      toast.error('Reviews feed unavailable', {
+        description: 'Review history may be incomplete until sync recovers.',
+      });
+    }
+  }, [reviewsQuery.isError]);
+
+  const refreshDetail = () => {
+    queryClient.invalidateQueries({ queryKey: ['marketplace-strategy', strategyId] });
+    queryClient.invalidateQueries({ queryKey: ['marketplace-reviews', strategyId] });
+    toast.success('Marketplace detail refresh queued');
+  };
 
   if (strategyQuery.isLoading) {
     return <div className="p-8 text-white/70">Loading strategy...</div>;
@@ -71,8 +93,14 @@ export default function MarketplaceStrategyDetailPage() {
   return (
     <main className="space-y-8 p-8 text-white">
       <section className="rounded-3xl border border-white/10 bg-[#0d0d12] p-6">
-        <h1 className="text-3xl font-bold">{strategy.name}</h1>
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-3xl font-bold">{strategy.name}</h1>
+          <Button variant="outline" onClick={refreshDetail}>Refresh</Button>
+        </div>
         <p className="mt-2 text-white/70">{strategy.description}</p>
+        <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-white/50">
+          Reviews status: <span className={reviewsQuery.isError ? 'text-amber-300' : 'text-emerald-300'}>{reviewsQuery.isError ? 'Fallback risk' : 'Live'}</span>
+        </p>
         <div className="mt-6 grid gap-4 md:grid-cols-4">
           <div className="rounded-xl border border-white/10 bg-white/5 p-4">
             <p className="text-xs uppercase text-white/50">Category</p>
@@ -139,6 +167,10 @@ export default function MarketplaceStrategyDetailPage() {
               {review.creatorReply && <p className="mt-3 text-sm text-indigo-300">Creator reply: {review.creatorReply}</p>}
             </div>
           ))}
+
+          {reviews.length === 0 && !reviewsQuery.isLoading && (
+            <p className="text-sm text-white/60">No reviews yet. Be the first to submit one.</p>
+          )}
 
           {reviewsQuery.hasNextPage && (
             <Button variant="outline" onClick={() => reviewsQuery.fetchNextPage()}>

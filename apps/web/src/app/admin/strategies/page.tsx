@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api/admin';
+import { toast } from 'sonner';
 
 type QueueStrategy = {
   id: string;
@@ -24,6 +25,12 @@ export default function AdminStrategiesPage() {
     queryFn: () => adminApi.getVerificationQueue(),
   });
 
+  useEffect(() => {
+    if (queueQuery.isError) {
+      toast.error('Unable to load verification queue');
+    }
+  }, [queueQuery.isError]);
+
   const verifyMutation = useMutation({
     mutationFn: ({
       id,
@@ -37,6 +44,10 @@ export default function AdminStrategiesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'verification-queue'] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'dashboard'] });
+      toast.success('Verification action completed');
+    },
+    onError: () => {
+      toast.error('Verification action failed');
     },
   });
 

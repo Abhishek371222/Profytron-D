@@ -28,9 +28,9 @@ export class AdminService {
       this.prisma.trade.count(),
       this.prisma.walletTransaction.aggregate({
         _sum: { amount: true },
-        where: { 
+        where: {
           type: 'TRADING_PNL',
-          status: 'CONFIRMED'
+          status: 'CONFIRMED',
         },
       }),
       this.prisma.walletTransaction.aggregate({
@@ -38,8 +38,8 @@ export class AdminService {
         where: {
           type: 'SUBSCRIPTION_PAYMENT',
           status: 'CONFIRMED',
-          createdAt: { gte: thirtyDaysAgo }
-        }
+          createdAt: { gte: thirtyDaysAgo },
+        },
       }),
       this.prisma.strategy.count({
         where: { verificationStatus: VerificationStatus.PENDING },
@@ -56,7 +56,10 @@ export class AdminService {
         totalStrategies: strategyCount,
         totalTrades: tradeCount,
         totalVolume,
-        mrr: mrr.toLocaleString('en-US', { style: 'currency', currency: 'USD' }),
+        mrr: mrr.toLocaleString('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }),
         pendingVerifications,
       },
 
@@ -210,16 +213,21 @@ export class AdminService {
     };
   }
 
-  async handleVerification(strategyId: string, approve: boolean, notes?: string) {
-    const status = approve ? VerificationStatus.VERIFIED : VerificationStatus.UNVERIFIED;
-    
+  async handleVerification(
+    strategyId: string,
+    approve: boolean,
+    notes?: string,
+  ) {
+    const status = approve
+      ? VerificationStatus.VERIFIED
+      : VerificationStatus.UNVERIFIED;
+
     return this.prisma.strategy.update({
       where: { id: strategyId },
-      data: { 
+      data: {
         verificationStatus: status,
         isVerified: approve,
       },
     });
   }
 }
-

@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Headers,
-  HttpCode,
-  Post,
-  Req,
-} from '@nestjs/common';
+import { Body, Controller, Headers, HttpCode, Post, Req } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Public } from '../auth/guards/auth.guard';
@@ -25,7 +18,10 @@ export class PaymentsController {
     @Headers('stripe-signature') signature: string,
   ) {
     const rawBody = req.body as Buffer;
-    const event = this.paymentsService.verifyAndBuildStripeEvent(rawBody, signature);
+    const event = this.paymentsService.verifyAndBuildStripeEvent(
+      rawBody,
+      signature,
+    );
     return this.paymentsService.handleStripeEvent(event);
   }
 
@@ -39,7 +35,7 @@ export class PaymentsController {
     @Body() body: any,
   ) {
     const rawBody = Buffer.isBuffer(req.body)
-      ? (req.body as Buffer)
+      ? req.body
       : Buffer.from(JSON.stringify(body || {}));
 
     this.paymentsService.verifyRazorpaySignature(rawBody, signature);

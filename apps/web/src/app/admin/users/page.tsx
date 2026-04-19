@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/lib/api/admin';
 import { Search } from 'lucide-react';
+import { toast } from 'sonner';
 
 type AdminUser = {
   id: string;
@@ -32,6 +33,18 @@ export default function AdminUsersPage() {
     enabled: Boolean(selectedUserId),
   });
 
+  useEffect(() => {
+    if (usersQuery.isError) {
+      toast.error('Unable to load users');
+    }
+  }, [usersQuery.isError]);
+
+  useEffect(() => {
+    if (selectedUserQuery.isError) {
+      toast.error('Unable to load selected user details');
+    }
+  }, [selectedUserQuery.isError]);
+
   const suspendMutation = useMutation({
     mutationFn: ({ id, isSuspended }: { id: string; isSuspended: boolean }) =>
       adminApi.updateUserStatus(id, isSuspended),
@@ -40,6 +53,10 @@ export default function AdminUsersPage() {
       if (selectedUserId) {
         queryClient.invalidateQueries({ queryKey: ['admin', 'users', selectedUserId] });
       }
+      toast.success('User status updated');
+    },
+    onError: () => {
+      toast.error('Failed to update user status');
     },
   });
 

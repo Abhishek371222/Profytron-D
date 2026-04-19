@@ -1,12 +1,17 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { analyticsApi } from '@/lib/api/analytics';
 import { demoGlobal, demoLeaderboard } from '../_lib/demoData';
+import { Button } from '@/components/ui/button';
+import { RefreshCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function GlobalAnalyticsPage() {
+  const queryClient = useQueryClient();
+
   const globalQuery = useQuery({
     queryKey: ['analytics', 'global'],
     queryFn: () => analyticsApi.getGlobal(),
@@ -22,12 +27,34 @@ export default function GlobalAnalyticsPage() {
   const global = globalQuery.data ?? demoGlobal;
   const leaderboard = leaderboardQuery.data ?? demoLeaderboard;
 
+  React.useEffect(() => {
+    if (globalQuery.isError || leaderboardQuery.isError) {
+      toast.error('Global intelligence feed unavailable', {
+        description: 'Showing resilient fallback data while API recovers.',
+      });
+    }
+  }, [globalQuery.isError, leaderboardQuery.isError]);
+
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: ['analytics', 'global'] });
+    queryClient.invalidateQueries({ queryKey: ['analytics', 'leaderboard'] });
+    toast.success('Global feed refresh queued');
+  };
+
   return (
     <div className="space-y-6 pb-8">
       <div>
         <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#0e1f30] via-[#0b1a2e] to-[#16112a] p-6">
-          <h1 className="text-2xl font-semibold text-white">Global Intelligence</h1>
-          <p className="mt-2 text-sm text-white/70">Macro signals, sector rotation, and leaderboard dynamics with resilient demo data when feeds are sparse.</p>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-white">Global Intelligence</h1>
+              <p className="mt-2 text-sm text-white/70">Macro signals, sector rotation, and leaderboard dynamics with resilient demo data when feeds are sparse.</p>
+            </div>
+            <Button onClick={refreshData} variant="outline" className="inline-flex items-center gap-2 border-white/20 bg-white/5 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 hover:bg-white/10">
+              <RefreshCcw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
       </div>
 

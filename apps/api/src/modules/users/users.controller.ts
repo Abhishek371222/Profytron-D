@@ -30,6 +30,13 @@ import {
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import type { Request } from 'express';
 
+type AuthenticatedRequest = Request & {
+  user: {
+    userId: string;
+    jti?: string;
+  };
+};
+
 @ApiTags('Users')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -39,13 +46,16 @@ export class UsersController {
 
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })
-  async getMe(@Req() req: any) {
+  async getMe(@Req() req: AuthenticatedRequest) {
     return this.usersService.findById(req.user.userId);
   }
 
   @Patch('me')
   @ApiOperation({ summary: 'Update user profile' })
-  async updateProfile(@Req() req: any, @Body() dto: UpdateProfileDto) {
+  async updateProfile(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdateProfileDto,
+  ) {
     return this.usersService.updateProfile(req.user.userId, dto);
   }
 
@@ -66,7 +76,7 @@ export class UsersController {
   })
   @ApiOperation({ summary: 'Upload avatar to Supabase storage' })
   async uploadAvatar(
-    @Req() req: any,
+    @Req() req: AuthenticatedRequest,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (!file) {
@@ -77,26 +87,38 @@ export class UsersController {
 
   @Patch('me/risk-profile')
   @ApiOperation({ summary: 'Update Risk Profile (Onboarding Step 4)' })
-  async updateRiskProfile(@Req() req: any, @Body() dto: UpdateRiskProfileDto) {
+  async updateRiskProfile(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: UpdateRiskProfileDto,
+  ) {
     return this.usersService.updateRiskProfile(req.user.userId, dto);
   }
 
   @Get('me/sessions')
   @ApiOperation({ summary: 'Get active sessions' })
-  async getSessions(@Req() req: any) {
+  async getSessions(@Req() req: AuthenticatedRequest) {
     return this.usersService.getSessions(req.user.userId);
   }
 
   @Delete('me/sessions/:id')
   @ApiOperation({ summary: 'Revoke specific session' })
-  async revokeSession(@Req() req: any, @Param('id') sessionId: string) {
+  async revokeSession(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') sessionId: string,
+  ) {
     return this.usersService.revokeSession(req.user.userId, sessionId);
   }
 
   @Delete('me/sessions')
   @ApiOperation({ summary: 'Revoke all other sessions' })
-  async revokeAllOtherSessions(@Req() req: any) {
+  async revokeAllOtherSessions(@Req() req: AuthenticatedRequest) {
     // Current session ID passed from JWT payload
+    if (!req.user.jti) {
+      throw new BadRequestException(
+        'Current session token identifier is missing',
+      );
+    }
+
     return this.usersService.revokeAllOtherSessions(
       req.user.userId,
       req.user.jti,
@@ -105,13 +127,19 @@ export class UsersController {
 
   @Post('me/change-password')
   @ApiOperation({ summary: 'Change password and revoke refresh tokens' })
-  async changePassword(@Req() req: any, @Body() dto: ChangePasswordDto) {
+  async changePassword(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: ChangePasswordDto,
+  ) {
     return this.usersService.changePassword(req.user.userId, dto);
   }
 
   @Delete('me')
   @ApiOperation({ summary: 'Delete account' })
-  async deleteAccount(@Req() req: any, @Body() dto: DeleteAccountDto) {
+  async deleteAccount(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: DeleteAccountDto,
+  ) {
     return this.usersService.deleteAccount(req.user.userId, dto.confirmText);
   }
 }

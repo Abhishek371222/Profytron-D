@@ -49,7 +49,13 @@ export class MarketplaceQueryDto {
 
   @IsOptional()
   @IsString()
-  sort?: 'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers';
+  sort?:
+    | 'trending'
+    | 'top-rated'
+    | 'newest'
+    | 'price'
+    | 'performance'
+    | 'subscribers';
 
   @IsOptional()
   @IsString()

@@ -65,6 +65,24 @@ export default function ExecutionProtocolPage() {
  ]);
  const healthyNodes = nodes.filter((node) => node.status === 'SYNCHRONIZED').length;
 
+ const handleDemoModeToggle = () => {
+  setDemoMode((prev) => {
+   const next = !prev;
+   toast.message(next ? 'Simulation matrix enabled' : 'Simulation matrix disabled');
+   return next;
+  });
+ };
+
+ const handleLatencyInducerChange = (next: boolean) => {
+  setLatencyInducer(next);
+  toast.message(next ? 'Latency induction enabled' : 'Latency induction disabled');
+ };
+
+ const handleAutoScaleChange = (next: boolean) => {
+  setAutoScale(next);
+  toast.message(next ? 'Neural auto-scaling enabled' : 'Neural auto-scaling disabled');
+ };
+
  const refreshNodes = () => {
  setIsRefreshing(true);
  setTimeout(() => {
@@ -143,7 +161,7 @@ export default function ExecutionProtocolPage() {
  </p>
  </div>
  <button 
- onClick={() => setDemoMode(!demoMode)}
+ onClick={handleDemoModeToggle}
  className={cn(
 "h-16 px-12 rounded-3xl font-semibold uppercase tracking-[0.4em] text-sm transition-all relative overflow-hidden",
  demoMode ?"bg-amber-500 text-black shadow-[0_0_40px_rgba(245,158,11,0.3)]" :"bg-white/5 text-white/20 border border-white/5"
@@ -188,13 +206,13 @@ export default function ExecutionProtocolPage() {
  <div className="space-y-6">
  <Switch 
  checked={latencyInducer} 
- onChange={setLatencyInducer} 
+ onChange={handleLatencyInducerChange} 
  label="Latency Induction" 
  desc="Simulate institutional relay delays (40ms - 150ms)."
  />
  <Switch 
  checked={autoScale} 
- onChange={setAutoScale} 
+ onChange={handleAutoScaleChange} 
  label="Neural Auto-Scaling" 
  desc="Automatically adjust lot size based on account DNA."
  />

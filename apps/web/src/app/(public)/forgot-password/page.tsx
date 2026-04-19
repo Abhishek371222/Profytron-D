@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { CinematicCursor } from '@/components/ui/CinematicCursor';
 import { Magnetic } from '@/components/ui/Interactions';
 import { authApi } from '@/lib/api/auth';
+import { toast } from 'sonner';
 
 const forgotPasswordSchema = z.object({
  email: z.string().email("Please enter a valid institutional email"),
@@ -37,8 +38,13 @@ export default function ForgotPasswordPage() {
     try {
       await authApi.forgotPassword(data.email);
       setIsSuccess(true);
+      toast.success('Recovery link sent', {
+        description: 'Check your inbox for reset instructions.',
+      });
     } catch (error: any) {
       console.error('Reset request failed:', error);
+      const message = error?.response?.data?.error || error?.message || 'Unable to send recovery link.';
+      toast.error('Recovery request failed', { description: message });
     } finally {
       setIsLoading(false);
     }

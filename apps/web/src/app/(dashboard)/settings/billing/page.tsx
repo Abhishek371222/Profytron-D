@@ -59,6 +59,11 @@ export default function BillingPage() {
   toast.success(`Downloaded ${invoiceId}`);
  };
 
+ const handleRequestStatement = () => {
+  toast.message('Opening wallet statement center');
+  router.push('/wallet');
+ };
+
  return (
  <div className="space-y-16 pb-20">
  {/* ── ACTIVE PROTOCOL Tier ── */}
@@ -111,7 +116,7 @@ export default function BillingPage() {
  <div key={f} className="flex items-center gap-3">
  <div className="w-1.5 h-1.5 rounded-full bg-white/10" />
  <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">{f}</span>
- </motion.div>
+ </div>
  ))}
  </div>
 
@@ -125,7 +130,7 @@ export default function BillingPage() {
  {tier.name === activeTier ? 'MANAGE_RESOURCES' : 'UPGRADE_Handshake'}
  </Button>
  </div>
- </div>
+ </motion.div>
  ))}
  </div>
  </section>
@@ -207,7 +212,7 @@ export default function BillingPage() {
  ))}
  <div className="p-10 flex items-center justify-between">
  <span className="text-xs font-semibold text-white/10 uppercase tracking-widest font-jet-mono">End of Ledger</span>
- <button onClick={() => router.push('/wallet')} className="text-xs font-semibold text-p/60 hover:text-p uppercase tracking-widest flex items-center gap-2">
+ <button onClick={handleRequestStatement} className="text-xs font-semibold text-p/60 hover:text-p uppercase tracking-widest flex items-center gap-2">
  Request Full Statement <ArrowUpRight className="w-4 h-4" />
  </button>
  </div>

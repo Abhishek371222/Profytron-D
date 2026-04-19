@@ -123,7 +123,9 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
       const userId = 'user-123';
 
       // First payment
-      (prismaService.walletTransaction.findUnique as jest.Mock).mockResolvedValue(null);
+      (
+        prismaService.walletTransaction.findUnique as jest.Mock
+      ).mockResolvedValue(null);
       (prismaService.walletTransaction.create as jest.Mock).mockResolvedValue({
         id: 'txn-1',
         userId,
@@ -139,7 +141,9 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
       });
 
       // Second payment attempt with same ID
-      (prismaService.walletTransaction.findUnique as jest.Mock).mockResolvedValue(txn1);
+      (
+        prismaService.walletTransaction.findUnique as jest.Mock
+      ).mockResolvedValue(txn1);
 
       const txn2 = await prismaService.walletTransaction.findUnique({
         where: { idempotencyKey: event.data.object.id },
@@ -277,7 +281,7 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
 
     it('should reject expired webhook signatures', () => {
       const currentTime = Math.floor(Date.now() / 1000);
-      const webhookTime = currentTime - (6 * 60); // 6 minutes ago
+      const webhookTime = currentTime - 6 * 60; // 6 minutes ago
       const maxAge = 5 * 60; // 5 minutes
 
       const isExpired = currentTime - webhookTime > maxAge;

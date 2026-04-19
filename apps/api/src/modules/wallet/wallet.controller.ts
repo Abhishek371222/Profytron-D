@@ -78,7 +78,11 @@ export class WalletController {
     @Param('month', ParseIntPipe) month: number,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const data = await this.walletService.generateStatement(req.user.id, year, month);
+    const data = await this.walletService.generateStatement(
+      req.user.id,
+      year,
+      month,
+    );
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(
       'Content-Disposition',
@@ -101,11 +105,10 @@ export class WalletController {
     @Headers('stripe-signature') sig: string,
   ) {
     const rawBody = Buffer.isBuffer(req.body)
-      ? (req.body as Buffer)
+      ? req.body
       : Buffer.from(JSON.stringify(req.body || {}));
 
     const event = this.walletService.verifyAndBuildStripeEvent(rawBody, sig);
     return this.walletService.handleStripeWebhook(event);
   }
 }
-

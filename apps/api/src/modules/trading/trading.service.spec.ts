@@ -69,13 +69,15 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
       (prismaService.auditLog.create as jest.Mock).mockResolvedValue({
         id: 'log-1',
       });
-      (prismaService.userStrategySubscription.findMany as jest.Mock).mockResolvedValue([]);
+      (
+        prismaService.userStrategySubscription.findMany as jest.Mock
+      ).mockResolvedValue([]);
 
       const result = await tradingService.processSignal(
         signalData.strategyId,
         signalData.signalType,
         signalData.pair,
-        signalData.price
+        signalData.price,
       );
 
       expect(result.signalId).toBeDefined();
@@ -89,13 +91,14 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
 
     it('should notify all subscribed users of signal', async () => {
       const strategyId = 'strat-123';
-      const subscribers = [
-        { userId: 'user-1' },
-        { userId: 'user-2' },
-      ];
+      const subscribers = [{ userId: 'user-1' }, { userId: 'user-2' }];
 
-      (prismaService.auditLog.create as jest.Mock).mockResolvedValue({ id: 'log-1' });
-      (prismaService.userStrategySubscription.findMany as jest.Mock).mockResolvedValue(subscribers);
+      (prismaService.auditLog.create as jest.Mock).mockResolvedValue({
+        id: 'log-1',
+      });
+      (
+        prismaService.userStrategySubscription.findMany as jest.Mock
+      ).mockResolvedValue(subscribers);
 
       await tradingService.processSignal(strategyId, 'BUY', 'BTCUSD', 45000);
 
@@ -133,20 +136,17 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         { profit: 200, status: 'CLOSED' },
       ];
 
-      const winningTrades = trades.filter(t => t.profit > 0).length;
+      const winningTrades = trades.filter((t) => t.profit > 0).length;
       const winRate = (winningTrades / trades.length) * 100;
 
       expect(winRate).toBe(75); // 3 out of 4 trades won
     });
 
     it('should calculate average profit per trade', () => {
-      const trades = [
-        { profit: 100 },
-        { profit: 200 },
-        { profit: -50 },
-      ];
+      const trades = [{ profit: 100 }, { profit: 200 }, { profit: -50 }];
 
-      const avgProfit = trades.reduce((sum, t) => sum + t.profit, 0) / trades.length;
+      const avgProfit =
+        trades.reduce((sum, t) => sum + t.profit, 0) / trades.length;
 
       expect(avgProfit).toBe(83.33333333333333);
     });
@@ -155,7 +155,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
   describe('3. RISK METRICS', () => {
     it('should calculate max drawdown', () => {
       const equityCurve = [1000, 1200, 1100, 1500, 1300, 1400];
-      
+
       let maxDrawdown = 0;
       let peak = equityCurve[0];
 
@@ -188,7 +188,9 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
       const riskFreeRate = 0.001;
 
       const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
-      const variance = returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length;
+      const variance =
+        returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) /
+        returns.length;
       const stdDev = Math.sqrt(variance);
       const sharpeRatio = (avgReturn - riskFreeRate) / stdDev;
 
@@ -232,7 +234,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         'emergency_stop_triggered',
         expect.objectContaining({
           status: 'SUCCESS',
-        })
+        }),
       );
     });
 
@@ -272,7 +274,8 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         takeProfit: 90, // Below entry - invalid
       };
 
-      const isValid = trade.entry > trade.stopLoss && trade.takeProfit > trade.entry;
+      const isValid =
+        trade.entry > trade.stopLoss && trade.takeProfit > trade.entry;
 
       expect(isValid).toBe(false);
     });

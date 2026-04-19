@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { marketplaceApi } from '@/lib/api/marketplace';
 import { Button } from '@/components/ui/button';
 import { demoFeaturedMarketplace, demoMarketplaceItems } from '@/lib/api/demoData';
+import { toast } from 'sonner';
 
 export default function MarketplacePage() {
  const router = useRouter();
@@ -198,6 +199,35 @@ export default function MarketplacePage() {
 
  const sortLabel = sortBy.replace('-', ' ');
 
+ React.useEffect(() => {
+  if (marketplaceQuery.isError) {
+   toast.error('Marketplace feed unavailable', {
+	description: 'Showing fallback catalog data while the API recovers.',
+   });
+  }
+ }, [marketplaceQuery.isError]);
+
+ React.useEffect(() => {
+  if (featuredQuery.isError) {
+   toast.error('Featured feed unavailable', {
+	description: 'Showing curated fallback featured strategies.',
+   });
+  }
+ }, [featuredQuery.isError]);
+
+ const resetFilters = () => {
+  setSearchQuery('');
+  setSortBy('trending');
+  setFilters({
+   priceMax: 5000,
+   selectedRisks: [],
+   selectedAssets: [],
+   selectedTimeframes: [],
+   verifiedOnly: false,
+  });
+  toast.success('Marketplace filters reset');
+ };
+
  return (
  <main className="flex-1 flex flex-col h-full bg-[#050508] overflow-hidden">
  <MarketplaceHero />
@@ -317,6 +347,20 @@ export default function MarketplacePage() {
  )}
  </AnimatePresence>
  </div>
+
+ {strategies.length === 0 && !marketplaceQuery.isLoading && (
+  <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
+   <p className="text-sm font-semibold text-white">No strategies match the current filters.</p>
+   <p className="mt-1 text-xs text-white/60">Try broadening your criteria or reset to defaults.</p>
+   <Button
+	onClick={resetFilters}
+	variant="outline"
+	className="mt-4 border-white/20 bg-white/5 text-white hover:bg-white/10"
+   >
+	Reset Filters
+   </Button>
+  </div>
+ )}
 
  {marketplaceQuery.hasNextPage && (
   <div className="mt-8 flex justify-center">

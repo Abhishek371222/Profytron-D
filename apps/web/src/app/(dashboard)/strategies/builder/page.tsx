@@ -142,6 +142,13 @@ export default function StrategyBuilderPage() {
   });
 
   const handleSimulate = () => {
+    if (nodes.length === 0) {
+      toast.error('No nodes to simulate', {
+        description: 'Add at least one node to run a backtest preview.',
+      });
+      return;
+    }
+
     backtestMutation.mutate({
       startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
       endDate: new Date().toISOString(),
@@ -150,8 +157,23 @@ export default function StrategyBuilderPage() {
   };
 
   const handleSave = () => {
+    const normalizedName = strategyName.trim();
+    if (!normalizedName) {
+      toast.error('Strategy name required', {
+        description: 'Provide a valid strategy name before saving.',
+      });
+      return;
+    }
+
+    if (nodes.length === 0) {
+      toast.error('Cannot save empty strategy', {
+        description: 'Add nodes to the builder graph before saving.',
+      });
+      return;
+    }
+
     saveMutation.mutate({
-      name: strategyName,
+      name: normalizedName,
       category: 'TREND', // Default for builder
       riskLevel: 'Medium',
       description: `Fabricated via Core v5.28 at ${new Date().toISOString()}`,
@@ -160,8 +182,43 @@ export default function StrategyBuilderPage() {
   };
 
   const handleDeleteAll = () => {
+    if (nodes.length === 0 && edges.length === 0) {
+      toast.message('Builder is already empty');
+      return;
+    }
+
     setNodes([]);
     setEdges([]);
+    toast.success('Builder graph cleared');
+  };
+
+  const handleExportDiagnostic = () => {
+    if (nodes.length === 0 && edges.length === 0) {
+      toast.error('Nothing to export', {
+        description: 'Build a strategy graph before exporting diagnostics.',
+      });
+      return;
+    }
+
+    const payload = {
+      strategyName,
+      nodeCount: nodes.length,
+      edgeCount: edges.length,
+      nodes,
+      edges,
+      backtestResult,
+      exportedAt: new Date().toISOString(),
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `strategy-diagnostic-${strategyName.replace(/[^a-z0-9-_]/gi, '_').toLowerCase()}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+
+    toast.success('Diagnostic export created');
   };
 
   return (
@@ -385,7 +442,7 @@ export default function StrategyBuilderPage() {
                   </div>
 
                   <div className="w-full pt-6 relative z-10">
-                    <button className="w-full h-10 rounded-xl bg-white/2 border border-white/5 text-[9px] font-bold uppercase tracking-[0.2em] text-white/30 hover:text-white hover:bg-white/5 hover:border-white/10 transition-all">Export_Diagnostic</button>
+                    <button onClick={handleExportDiagnostic} className="w-full h-10 rounded-xl bg-white/2 border border-white/5 text-[9px] font-bold uppercase tracking-[0.2em] text-white/30 hover:text-white hover:bg-white/5 hover:border-white/10 transition-all">Export_Diagnostic</button>
                   </div>
                 </motion.div>
               </Panel>

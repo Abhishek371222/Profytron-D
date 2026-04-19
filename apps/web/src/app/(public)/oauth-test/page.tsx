@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Copy, Check, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function OAuthTestPage() {
   const [supabaseUrl, setSupabaseUrl] = useState('');
@@ -12,6 +13,10 @@ export default function OAuthTestPage() {
   const [copied, setCopied] = useState<'url' | 'key' | null>(null);
   const [testLog, setTestLog] = useState<string[]>([]);
   const [sessionInfo, setSessionInfo] = useState<any>(null);
+
+  const addLog = React.useCallback((message: string) => {
+    setTestLog((prev) => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
+  }, []);
 
   useEffect(() => {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -36,16 +41,18 @@ export default function OAuthTestPage() {
     addLog(`Supabase URL: ${url}`);
     addLog(`Redirect URL: ${redirect}`);
     addLog(`Environment check: ${url && key ? '✅ PASS' : '❌ FAIL'}`);
-  }, []);
-
-  const addLog = (message: string) => {
-    setTestLog((prev) => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
-  };
+  }, [addLog]);
 
   const copyToClipboard = (text: string, type: 'url' | 'key') => {
+    if (!text) {
+      toast.error('Nothing to copy');
+      return;
+    }
+
     navigator.clipboard.writeText(text);
     setCopied(type);
     setTimeout(() => setCopied(null), 2000);
+    toast.success('Copied to clipboard');
   };
 
   const testGoogleOAuth = async () => {
@@ -61,12 +68,15 @@ export default function OAuthTestPage() {
       if (error) {
         addLog(`❌ Google OAuth Error: ${error.message}`);
         console.error('Google OAuth error:', error);
+        toast.error('Google OAuth test failed', { description: error.message });
       } else {
         addLog('✅ Google OAuth initiated successfully');
+        toast.success('Google OAuth initiated');
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       addLog(`❌ Exception: ${message}`);
+      toast.error('Google OAuth exception', { description: message });
     }
   };
 
@@ -83,12 +93,15 @@ export default function OAuthTestPage() {
       if (error) {
         addLog(`❌ GitHub OAuth Error: ${error.message}`);
         console.error('GitHub OAuth error:', error);
+        toast.error('GitHub OAuth test failed', { description: error.message });
       } else {
         addLog('✅ GitHub OAuth initiated successfully');
+        toast.success('GitHub OAuth initiated');
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       addLog(`❌ Exception: ${message}`);
+      toast.error('GitHub OAuth exception', { description: message });
     }
   };
 
@@ -98,12 +111,15 @@ export default function OAuthTestPage() {
       const { error } = await supabase.auth.getSession();
       if (error) {
         addLog(`❌ Supabase connection error: ${error.message}`);
+        toast.error('Supabase connection failed', { description: error.message });
       } else {
         addLog('✅ Supabase connection successful');
+        toast.success('Supabase connection successful');
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       addLog(`❌ Exception: ${message}`);
+      toast.error('Supabase check exception', { description: message });
     }
   };
 

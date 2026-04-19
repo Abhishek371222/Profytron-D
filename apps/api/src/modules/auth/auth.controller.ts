@@ -85,10 +85,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.verifyEmail(dto);
-    this.setSessionCookies(
-      res,
-      result.refreshTokenForCookie,
-    );
+    this.setSessionCookies(res, result.refreshTokenForCookie);
     return { accessToken: result.accessToken, user: result.user };
   }
 
@@ -102,10 +99,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.login(dto, req);
-    this.setSessionCookies(
-      res,
-      result.refreshTokenForCookie,
-    );
+    this.setSessionCookies(res, result.refreshTokenForCookie);
     return { accessToken: result.accessToken, user: result.user };
   }
 
@@ -210,7 +204,15 @@ export class AuthController {
   @ApiOperation({ summary: 'Handle Google OAuth2 Callback' })
   @Redirect(process.env.FRONTEND_URL || 'http://localhost:3000/dashboard')
   async googleCallback(
-    @Req() req: Request & { user: { email: string; fullName?: string; avatarUrl?: string; googleId?: string } },
+    @Req()
+    req: Request & {
+      user: {
+        email: string;
+        fullName?: string;
+        avatarUrl?: string;
+        googleId?: string;
+      };
+    },
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.googleCallback(req.user);

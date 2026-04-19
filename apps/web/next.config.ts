@@ -1,8 +1,16 @@
 import type { NextConfig } from "next";
 
+const backendApiOrigin =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.BACKEND_API_ORIGIN ||
+  "http://localhost:4000";
+
 const nextConfig: NextConfig = {
+  output: 'standalone',
   transpilePackages: ["lucide-react"],
   reactCompiler: true,
+  poweredByHeader: false,
+  productionBrowserSourceMaps: false,
   compress: true, // Enable gzip compression
   allowedDevOrigins: ["192.168.1.7"],
 
@@ -32,10 +40,15 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
+    // When mock API mode is explicitly enabled, bypass backend rewrites.
+    if (process.env.NEXT_PUBLIC_ENABLE_MOCK_API === "true") {
+      return [];
+    }
+
     return [
       {
         source: "/api/:path*",
-        destination: "http://localhost:4000/v1/:path*",
+        destination: `${backendApiOrigin}/v1/:path*`,
       },
     ];
   },
@@ -67,6 +80,30 @@ const nextConfig: NextConfig = {
             key: "X-Frame-Options",
             value: "DENY",
           },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), payment=()",
+          },
+          {
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
+          },
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "same-origin",
+          },
+          ...(isProd
+            ? [
+                {
+                  key: "Strict-Transport-Security",
+                  value: "max-age=31536000; includeSubDomains; preload",
+                },
+              ]
+            : []),
         ],
       },
     ];

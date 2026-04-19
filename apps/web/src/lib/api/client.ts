@@ -1,6 +1,11 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
 
+const isMockApiEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_API === 'true';
+const apiBaseURL = isMockApiEnabled
+  ? '/api'
+  : process.env.NEXT_PUBLIC_API_URL || '/api';
+
 export const unwrapApiResponse = <T>(payload: any): T => {
   if (payload && typeof payload === 'object' && 'data' in payload) {
     return payload.data as T;
@@ -27,10 +32,12 @@ const isNetworkUnavailableError = (error: unknown): boolean => {
 
 export const apiClient = axios.create({
   // Use same-origin /api so Next.js rewrites to backend /v1 in dev.
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  baseURL: apiBaseURL,
+  timeout: 15000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
   },
 });
 

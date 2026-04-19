@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { CinematicCursor } from '@/components/ui/CinematicCursor';
 import { Magnetic } from '@/components/ui/Interactions';
 import { authApi } from '@/lib/api/auth';
+import { toast } from 'sonner';
 
 const resetPasswordSchema = z.object({
  password: z.string().min(8,"Minimum 8 characters"),
@@ -79,15 +80,23 @@ export default function ResetPasswordPage() {
   const onSubmit = async (data: ResetPasswordValues) => {
     if (!token) {
       console.error('No reset token found in URL');
+      toast.error('Invalid reset link', {
+        description: 'Reset token is missing. Request a fresh recovery email.',
+      });
       return;
     }
     
     setIsLoading(true);
     try {
       await authApi.resetPassword({ token, newPassword: data.password });
+      toast.success('Password updated', {
+        description: 'Your access key has been updated. Redirecting to login.',
+      });
       router.push('/login?reset=success');
     } catch (error: any) {
       console.error('Reset failed:', error);
+      const message = error?.response?.data?.error || error?.message || 'Unable to reset password.';
+      toast.error('Password reset failed', { description: message });
     } finally {
       setIsLoading(false);
     }
@@ -125,6 +134,17 @@ export default function ResetPasswordPage() {
  <div className="flex items-center gap-3">
  <Zap className="w-6 h-6 text-p fill-p animate-pulse" />
  <span className="text-xl font-display font-semibold tracking-tight text-white">PROFYTRON</span>
+ </div>
+
+ <div className="fixed top-12 left-12 z-50">
+ <Magnetic strength={0.2}>
+ <Link href="/login" className="flex items-center gap-4 group">
+ <div className="w-10 h-10 rounded-xl bg-bg-card border border-white/10 flex items-center justify-center group-hover:border-p/50 transition-colors shadow-2xl">
+ <ArrowLeft className="w-5 h-5 text-white/60 group-hover:text-p transition-colors" />
+ </div>
+ <span className="text-white/40 group-hover:text-white font-bold tracking-widest text-xs uppercase hidden sm:block">Back to Login</span>
+ </Link>
+ </Magnetic>
  </div>
  </div>
 

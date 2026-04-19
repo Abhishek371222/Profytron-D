@@ -43,10 +43,7 @@ export class WalletService {
     });
   }
 
-  private async getGroupedSums(
-    userId: string,
-    tx?: Prisma.TransactionClient,
-  ) {
+  private async getGroupedSums(userId: string, tx?: Prisma.TransactionClient) {
     const client = tx ?? this.prisma;
     return client.walletTransaction.groupBy({
       by: ['direction', 'status'],
@@ -56,7 +53,11 @@ export class WalletService {
   }
 
   private extractAmount(
-    grouped: Array<{ direction: TransactionDirection; status: TransactionStatus; _sum: { amount: number | null } }>,
+    grouped: Array<{
+      direction: TransactionDirection;
+      status: TransactionStatus;
+      _sum: { amount: number | null };
+    }>,
     direction: TransactionDirection,
     status: TransactionStatus,
   ) {
@@ -427,7 +428,9 @@ export class WalletService {
         return { received: true, ignored: true };
       }
       await this.confirmDeposit(userId, intent.id);
-      this.logger.log(`Deposit confirmed for user ${userId}: ${intent.amount / 100}`);
+      this.logger.log(
+        `Deposit confirmed for user ${userId}: ${intent.amount / 100}`,
+      );
       return { received: true };
     }
 
@@ -484,7 +487,9 @@ export class WalletService {
           },
         });
       });
-      this.logger.log(`Subscription activated for user ${userId} -> Strategy ${strategyId}`);
+      this.logger.log(
+        `Subscription activated for user ${userId} -> Strategy ${strategyId}`,
+      );
       return { received: true };
     }
 
@@ -492,4 +497,3 @@ export class WalletService {
     return { received: true, ignored: true };
   }
 }
-

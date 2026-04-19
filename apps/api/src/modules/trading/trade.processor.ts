@@ -31,7 +31,8 @@ export class TradeProcessor {
       }
 
       // 2. Map direction
-      const direction = type === 'BUY' ? TradeDirection.LONG : TradeDirection.SHORT;
+      const direction =
+        type === 'BUY' ? TradeDirection.LONG : TradeDirection.SHORT;
 
       // 3. Create Trade Record (Simulation)
       const trade = await this.prisma.trade.create({
@@ -51,30 +52,34 @@ export class TradeProcessor {
 
       // 4. Notify Frontend
       this.gateway.sendToUser(userId, 'trade_opened', trade);
-      
+
       this.logger.log(`Trade ${trade.id} opened successfully for ${userId}`);
 
       // 5. Automated "Close" after 10s for simulation purposes if it's paper
       if (brokerAccount.isPaperTrading) {
-         setTimeout(async () => {
-            const closePrice = price * (1 + (Math.random() * 0.02 - 0.01)); // +/- 1%
-            const profitValue = (closePrice - price) * (direction === TradeDirection.LONG ? 1 : -1) * 1000;
-            
-            const closedTrade = await this.prisma.trade.update({
-                where: { id: trade.id },
-                data: {
-                    status: TradeStatus.CLOSED,
-                    closePrice,
-                    profit: profitValue,
-                    closedAt: new Date()
-                }
-            });
+        setTimeout(async () => {
+          const closePrice = price * (1 + (Math.random() * 0.02 - 0.01)); // +/- 1%
+          const profitValue =
+            (closePrice - price) *
+            (direction === TradeDirection.LONG ? 1 : -1) *
+            1000;
 
-            this.gateway.sendToUser(userId, 'trade_closed', closedTrade);
-            this.logger.log(`Auto-closed paper trade ${trade.id} with profit ${profitValue}`);
-         }, 10000);
+          const closedTrade = await this.prisma.trade.update({
+            where: { id: trade.id },
+            data: {
+              status: TradeStatus.CLOSED,
+              closePrice,
+              profit: profitValue,
+              closedAt: new Date(),
+            },
+          });
+
+          this.gateway.sendToUser(userId, 'trade_closed', closedTrade);
+          this.logger.log(
+            `Auto-closed paper trade ${trade.id} with profit ${profitValue}`,
+          );
+        }, 10000);
       }
-
     } catch (error) {
       this.logger.error(`Failed to execute trade: ${error.message}`);
     }

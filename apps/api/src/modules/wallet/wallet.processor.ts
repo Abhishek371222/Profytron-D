@@ -38,7 +38,8 @@ export class WalletProcessor {
         where: { id: transactionId },
         data: {
           status: 'FAILED',
-          description: 'Withdrawal failed due to insufficient available funds at processing time',
+          description:
+            'Withdrawal failed due to insufficient available funds at processing time',
         },
       });
       return;

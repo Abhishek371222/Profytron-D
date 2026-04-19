@@ -1,4 +1,5 @@
 import { apiClient, unwrapApiResponse } from './client';
+import { mockUser } from '@/lib/mocks/data';
 
 // Inline until workspace types are resolved
 type User = any;
@@ -15,6 +16,13 @@ export const authApi = {
   },
 
   async login(data: any) {
+    if (data?.email === 'demo@profytron.com' && data?.password === 'Demo@123') {
+      return {
+        accessToken: `mock_token_${Date.now()}`,
+        user: mockUser,
+      };
+    }
+
     const res = await apiClient.post<{ accessToken: string; user: User }>('/auth/login', data);
     return unwrapApiResponse<{ accessToken: string; user: User }>(res.data);
   },

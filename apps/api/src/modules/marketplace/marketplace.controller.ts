@@ -59,7 +59,11 @@ export class MarketplaceController {
     @Req() req: any,
     @Body() dto: CreateMarketplaceListingDto,
   ) {
-    return this.marketplaceService.createListing(strategyId, req.user.userId, dto);
+    return this.marketplaceService.createListing(
+      strategyId,
+      req.user.userId,
+      dto,
+    );
   }
 
   @ApiBearerAuth()
@@ -82,7 +86,11 @@ export class MarketplaceController {
     @Query() query: MarketplaceQueryDto,
     @Req() req: any,
   ) {
-    const details = await this.marketplaceService.findById(id, req.user?.userId, query);
+    const details = await this.marketplaceService.findById(
+      id,
+      req.user?.userId,
+      query,
+    );
     return details.reviews;
   }
 
@@ -107,6 +115,10 @@ export class MarketplaceController {
     @Req() req: any,
     @Body() dto: ReplyReviewDto,
   ) {
-    return this.marketplaceService.replyToReview(reviewId, req.user.userId, dto);
+    return this.marketplaceService.replyToReview(
+      reviewId,
+      req.user.userId,
+      dto,
+    );
   }
 }

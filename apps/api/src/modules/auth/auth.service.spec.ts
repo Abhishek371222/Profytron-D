@@ -33,7 +33,7 @@ describe('AuthService (UNIT TESTS)', () => {
   beforeEach(async () => {
     // Reset all mocks
     jest.clearAllMocks();
-    
+
     // Setup bcrypt mock
     const hashedPasswords = new Map<string, string>();
     mockedBcrypt.hash.mockImplementation(async (plain, rounds) => {
@@ -45,7 +45,7 @@ describe('AuthService (UNIT TESTS)', () => {
       return hashedPasswords.get(plain) === hashed;
     });
 
-      const module: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         {
@@ -106,7 +106,10 @@ describe('AuthService (UNIT TESTS)', () => {
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (prismaService.user.create as jest.Mock).mockResolvedValue({ ...mockUser, email: dto.email });
+      (prismaService.user.create as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        email: dto.email,
+      });
       (redisService.set as jest.Mock).mockResolvedValue(true);
 
       const result = await authService.register(dto);
@@ -127,7 +130,9 @@ describe('AuthService (UNIT TESTS)', () => {
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-      await expect(authService.register(dto)).rejects.toThrow(ConflictException);
+      await expect(authService.register(dto)).rejects.toThrow(
+        ConflictException,
+      );
     });
 
     it('should send OTP email during registration', async () => {
@@ -139,11 +144,17 @@ describe('AuthService (UNIT TESTS)', () => {
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (prismaService.user.create as jest.Mock).mockResolvedValue({ ...mockUser, email: dto.email });
+      (prismaService.user.create as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        email: dto.email,
+      });
 
       await authService.register(dto);
 
-      expect(emailService.sendOtpEmail).toHaveBeenCalledWith(dto.email, expect.any(String));
+      expect(emailService.sendOtpEmail).toHaveBeenCalledWith(
+        dto.email,
+        expect.any(String),
+      );
     });
 
     it('should store OTP in Redis with 10-minute expiry', async () => {
@@ -155,14 +166,17 @@ describe('AuthService (UNIT TESTS)', () => {
       };
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (prismaService.user.create as jest.Mock).mockResolvedValue({ ...mockUser, email: dto.email });
+      (prismaService.user.create as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        email: dto.email,
+      });
 
       await authService.register(dto);
 
       expect(redisService.set).toHaveBeenCalledWith(
         `auth:otp:${dto.email}`,
         expect.any(String),
-        600
+        600,
       );
     });
   });
@@ -173,7 +187,10 @@ describe('AuthService (UNIT TESTS)', () => {
 
       (redisService.get as jest.Mock).mockResolvedValue('123456');
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
-      (prismaService.user.update as jest.Mock).mockResolvedValue({ ...mockUser, emailVerified: true });
+      (prismaService.user.update as jest.Mock).mockResolvedValue({
+        ...mockUser,
+        emailVerified: true,
+      });
 
       const result = await authService.verifyEmail(dto);
 
@@ -186,7 +203,9 @@ describe('AuthService (UNIT TESTS)', () => {
 
       (redisService.get as jest.Mock).mockResolvedValue('123456');
 
-      await expect(authService.verifyEmail(dto)).rejects.toThrow(BadRequestException);
+      await expect(authService.verifyEmail(dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should reject expired OTP', async () => {
@@ -194,7 +213,9 @@ describe('AuthService (UNIT TESTS)', () => {
 
       (redisService.get as jest.Mock).mockResolvedValue(null);
 
-      await expect(authService.verifyEmail(dto)).rejects.toThrow(BadRequestException);
+      await expect(authService.verifyEmail(dto)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 

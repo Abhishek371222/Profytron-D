@@ -1,118 +1,180 @@
-# Profytron - Institutional-Grade Strategy Orchestration
+# Profytron Monorepo
 
-Profytron is a high-performance, full-stack trading strategy builder and execution platform. It features a modern "Dark Luxury" aesthetic, real-time backtesting, and a node-based strategy architecture.
+Profytron is a multi-service trading platform built as a Turborepo monorepo.
+It includes a Next.js web app, a NestJS API, Python microservices for AI and backtesting, and shared TypeScript packages.
 
-## 🚀 Architecture Overview
+## Overview
 
-This project is a **turborepo monorepo** using `pnpm` for package management and `turbo` for build orchestration.
+- Product focus: strategy orchestration, analytics, marketplace, wallet, and affiliate workflows.
+- Frontend: Next.js + React + TanStack Query + Tailwind.
+- API: NestJS + Prisma + PostgreSQL + Redis + JWT/OAuth.
+- Services: Python AI and backtest workers.
+- Tooling: pnpm workspaces + turbo + ESLint + TypeScript.
 
-### 📦 Project Structure
+## Repository Layout
 
-- **`apps/web`**: Next.js 15 dashboard with hardware-inspired Terminal UI, Framer Motion animations, and Recharts telemetry.
-- **`apps/api`**: NestJS backend providing the REST/WebSocket infrastructure, Prisma ORM, and Strategy execution logic.
-- **`services/ai`**: Python-based AI service for strategy optimization and natural language strategy generation.
-- **`services/backtest`**: High-performance Python backtesting engine for sub-millisecond strategy validation.
-- **`packages/types`**: Shared TypeScript definitions and API interfaces used across the monorepo.
-
-## 🛠️ Tech Stack
-
-- **Frontend**: Next.js, Tailwind CSS, Lucide React, Framer Motion, Recharts, React Query.
-- **Backend**: NestJS, PostgreSQL (Prisma), Redis, Supabase (Auth/Storage).
-- **Languages**: TypeScript, Python.
-- **Infrastructure**: Docker, Turbo, pnpm.
-
-## 🏁 Getting Started
-
-### 1. Prerequisites
-- [PNPM](https://pnpm.io/installation) (v10+)
-- [Docker & Docker Compose](https://docs.docker.com/get-docker/)
-- [PostgreSQL](https://www.postgresql.org/download/)
-
-### 2. Environment Setup
-Create environment files from the provided templates:
-```bash
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env.local
+```text
+.
+|-- apps/
+|   |-- web/          # Next.js frontend
+|   `-- api/          # NestJS backend
+|-- services/
+|   |-- ai/           # Python AI service
+|   `-- backtest/     # Python backtesting service
+|-- packages/
+|   `-- types/        # Shared TypeScript types
+|-- deploy/           # Deployment reverse-proxy configs
+|-- supabase/         # Supabase local/deploy config
+|-- tools/            # Local diagnostics and supervisor scripts
+`-- docker-compose.yml
 ```
-*Modify the `.env` files with your local database and provider credentials.*
 
-### 3. Installation & Database
+## Prerequisites
+
+- Node.js 20+
+- pnpm 10+
+- Python 3.10+
+- PostgreSQL (local or container)
+- Redis (local or container)
+
+Optional:
+- Docker / Docker Compose
+
+## Quick Start
+
+### 1) Install dependencies
+
 ```bash
 pnpm install
+```
+
+### 2) Configure environments
+
+Create local env files from templates and fill credentials:
+
+```bash
+cp apps/web/.env.example apps/web/.env.local
+cp apps/api/.env.example apps/api/.env
+```
+
+Minimum expected web envs:
+
+- `NEXT_PUBLIC_API_URL`
+- `NEXT_PUBLIC_BACKEND_URL`
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+### 3) Prepare database
+
+```bash
 pnpm db:migrate
 pnpm db:seed
 ```
 
-### 4. Running the Stack
-```bash
-# Start all services (Web, API, AI, Backtest)
-pnpm dev:full
+### 4) Run services
 
-# Start Core only (Web & API)
+Core (web + API):
+
+```bash
 pnpm dev:all
 ```
 
-## 🧠 Strategies Module
+Full stack (web + API + AI + backtest):
 
-The Strategies module is the core of the Profytron platform, supporting the entire lifecycle of a trading node:
-
-- **Builder**: A sophisticated visual engine for defining strategy parameters, conditions, and risk profiles.
-- **Backtest Preview**: Real-time validation of unsaved strategy configurations against historical or mock data via the Python backtesting microservice.
-- **Activation Modal**: A unified deployment flow for initializing, configuring, and starting strategy nodes.
-- **Strategy Library**: Institutional-grade tracking of saved strategies with detailed performance metrics and node management.
-
-## ✅ Comprehensive Testing Suite
-
-Profytron includes a complete testing infrastructure covering 13 categories:
-
-### Test Coverage
-- **Unit Tests**: Authentication, Trading Calculations, Utilities (Jest)
-- **Integration Tests**: API endpoints, Database interactions, Auth flows (Supertest)
-- **E2E Tests**: Complete user journeys from signup to trading (Playwright-ready)
-- **Stripe Testing**: Payment processing, Webhooks, Subscriptions, Refunds
-- **API Testing**: cURL automation script + Postman collection (20+ endpoints)
-- **Environment Validation**: .env configuration checks, security constraints
-- **Performance Testing**: k6 load testing templates, Lighthouse frontend metrics
-- **Security Testing**: JWT validation, SQL injection prevention, XSS checks, Rate limiting
-- **Logging & Monitoring**: Sentry integration, Winston logging, Health checks
-- **Error Handling**: Graceful degradation, Invalid request handling, Service resilience
-- **Cross-Device Testing**: Responsive design validation across viewports
-
-### Running Tests
 ```bash
-# All unit + integration tests (NestJS)
-pnpm --filter api test
-
-# Specific test suite
-pnpm --filter api test auth.service.spec.ts
-pnpm --filter api test trading.service.spec.ts
-pnpm --filter api test stripe.webhook.spec.ts
-
-# API automation (cURL)
-./api-tests.sh
-
-# Environment validation
-pnpm --filter api test env.validation.spec.ts
-
-# Watch mode for TDD
-pnpm --filter api test --watch
+pnpm dev:full
 ```
 
-### Test Files Location
-- **Unit Tests**: `apps/api/src/modules/{module}/*.spec.ts`
-- **Integration Tests**: `apps/api/test/api.integration.spec.ts`
-- **E2E Tests**: `apps/api/test/e2e.user-journey.spec.ts`
-- **Automation**: `/api-tests.sh`, `/Profytron_API_Tests.postman_collection.json`
-- **Documentation**: `/TESTING_GUIDE.md` (6,000+ words with setup instructions)
+## Common Commands
 
-### Critical Tests (MUST PASS)
-1. **Trading Calculations** - P&L, Sharpe ratio, max drawdown, position sizing
-2. **Stripe Webhooks** - Payment success/failure, subscription management, idempotency
-3. **Authentication** - Registration, email verification, JWT tokens, password hashing
-4. **API Integration** - All protected endpoints, error responses, rate limiting
-5. **Environment Validation** - No test keys in production, all required vars present
+| Command | Purpose |
+|---|---|
+| `pnpm dev:web` | Run frontend only |
+| `pnpm dev:api` | Run Nest API in watch mode |
+| `pnpm dev:api:stable` | API dev with supervisor restart strategy |
+| `pnpm build` | Build all packages via turbo |
+| `pnpm lint` | Run lint across workspace |
+| `pnpm format` | Format TypeScript/Markdown files |
+| `pnpm db:migrate` | Apply Prisma migrations |
+| `pnpm db:seed` | Seed database |
+| `pnpm db:studio` | Open Prisma Studio |
 
-See [TESTING_GUIDE.md](./TESTING_GUIDE.md) for comprehensive setup and test scenarios.
+## Testing
 
-## 📄 License
-Private and Confidential. Internal Use Only.
+API tests:
+
+```bash
+pnpm --filter api test
+pnpm --filter api test:cov
+pnpm --filter api test:e2e
+```
+
+Set `API_TEST_WITH_INFRA=true` to run the database-backed API suites against real PostgreSQL and Redis.
+
+Web tests (Playwright/config available in app):
+
+```bash
+pnpm --filter profytron lint
+pnpm --filter profytron build
+```
+
+Additional testing docs exist at:
+
+- `TESTING_README.md`
+- `DEMO_DATA_VERIFICATION.md`
+- `security-tests/`
+- `performance-tests/`
+
+## OAuth Notes
+
+Google/Supabase OAuth is configured in the web app callback flow.
+If local API is unavailable, the callback includes a fallback continuity mode so social login can still continue locally.
+See:
+
+- `OAUTH_SETUP_GUIDE.md`
+- `GOOGLE_OAUTH_TROUBLESHOOTING.md`
+- `apps/web/src/app/(public)/auth/callback/page.tsx`
+
+## Troubleshooting
+
+### API connection refused (`localhost:4000`)
+
+Symptoms:
+- frontend proxy errors
+- `ECONNREFUSED` in terminal
+
+Checklist:
+1. Start API: `pnpm dev:api`
+2. Confirm PostgreSQL is reachable.
+3. Confirm Redis is reachable.
+4. Re-run migrations: `pnpm db:migrate`
+
+### Lint/build passes but browser shows stale behavior
+
+Restart dev server cleanly:
+
+```bash
+# stop running node processes only if needed
+pnpm --filter profytron dev
+```
+
+Then hard refresh browser.
+
+## Deployment
+
+Deployment and infra references:
+
+- `DEPLOYMENT_CHECKLIST.md`
+- `DOMAIN_DEPLOYMENT_GUIDE.md`
+- `deploy/nginx.conf`
+- `deploy/Caddyfile`
+
+## Security
+
+- Keep secrets in local env files and secret managers only.
+- Do not commit private credentials.
+- `local-secrets/` is for local-only usage and should remain private.
+
+## License
+
+Private repository. Internal use only unless explicitly relicensed by owners.

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AffiliateTier } from '@prisma/client';
 
@@ -29,7 +33,9 @@ export class AffiliatesService {
     const affiliate = await this.getAffiliateStats(userId);
 
     const conversionRate = affiliate.clickCount
-      ? Number(((affiliate.signupCount / affiliate.clickCount) * 100).toFixed(2))
+      ? Number(
+          ((affiliate.signupCount / affiliate.clickCount) * 100).toFixed(2),
+        )
       : 0;
 
     return {
@@ -43,7 +49,9 @@ export class AffiliatesService {
         conversionRate,
         totalEarned: affiliate.totalEarned,
         totalPaid: affiliate.totalPaid,
-        pendingPayout: Number((affiliate.totalEarned - affiliate.totalPaid).toFixed(2)),
+        pendingPayout: Number(
+          (affiliate.totalEarned - affiliate.totalPaid).toFixed(2),
+        ),
       },
     };
   }
@@ -78,14 +86,14 @@ export class AffiliatesService {
       }),
       this.prisma.affiliate.upsert({
         where: { userId: newUserId },
-        create: { 
+        create: {
           userId: newUserId,
-          referrerId: referrer.id 
+          referrerId: referrer.id,
         },
         update: {
-          referrerId: referrer.id
-        }
-      })
+          referrerId: referrer.id,
+        },
+      }),
     ]);
   }
 
@@ -115,13 +123,13 @@ export class AffiliatesService {
 
     if (!affiliate || !affiliate.referrerId) return;
 
-    const commission = amount * (affiliate.commissionRate || 0.30);
+    const commission = amount * (affiliate.commissionRate || 0.3);
 
     await this.prisma.affiliate.update({
       where: { userId: affiliate.referrerId },
-      data: { 
+      data: {
         totalEarned: { increment: commission },
-        conversionCount: { increment: 1 }
+        conversionCount: { increment: 1 },
       },
     });
 
@@ -147,7 +155,8 @@ export class AffiliatesService {
         where: { userId },
         data: {
           tier: nextTier,
-          commissionRate: nextTier === 'ELITE' ? 0.4 : nextTier === 'PRO' ? 0.35 : 0.3,
+          commissionRate:
+            nextTier === 'ELITE' ? 0.4 : nextTier === 'PRO' ? 0.35 : 0.3,
         },
       });
     }

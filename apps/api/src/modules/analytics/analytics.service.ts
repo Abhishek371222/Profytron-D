@@ -63,7 +63,10 @@ export class AnalyticsService {
   private percentile(values: number[], p: number): number {
     if (!values.length) return 0;
     const sorted = [...values].sort((a, b) => a - b);
-    const idx = Math.max(0, Math.min(sorted.length - 1, Math.floor((p / 100) * sorted.length)));
+    const idx = Math.max(
+      0,
+      Math.min(sorted.length - 1, Math.floor((p / 100) * sorted.length)),
+    );
     return sorted[idx] ?? 0;
   }
 
@@ -131,7 +134,10 @@ export class AnalyticsService {
     return '>3D';
   }
 
-  private async getClosedTrades(userId: string, range: RangeKey): Promise<ClosedTradeRow[]> {
+  private async getClosedTrades(
+    userId: string,
+    range: RangeKey,
+  ): Promise<ClosedTradeRow[]> {
     const start = this.rangeStart(range);
     return this.prisma.trade.findMany({
       where: {
@@ -180,15 +186,22 @@ export class AnalyticsService {
     const winRate = (winningTrades / trades.length) * 100;
     const grossProfit = gains.reduce((sum, v) => sum + v, 0);
     const grossLossAbs = Math.abs(losses.reduce((sum, v) => sum + v, 0));
-    const profitFactor = grossLossAbs > 0 ? grossProfit / grossLossAbs : grossProfit > 0 ? 99 : 0;
+    const profitFactor =
+      grossLossAbs > 0 ? grossProfit / grossLossAbs : grossProfit > 0 ? 99 : 0;
     const avgWin = gains.length ? this.mean(gains) : 0;
     const avgLoss = losses.length ? this.mean(losses) : 0;
     const sharpe = this.computeSharpe(pnlSeries);
     const sortino = this.computeSortino(pnlSeries);
 
     const equityCurve = this.buildEquityCurve(trades);
-    const maxDrawdown = equityCurve.reduce((max, point) => Math.max(max, point.drawdownPct), 0);
-    const allTimeHigh = equityCurve.reduce((max, point) => Math.max(max, point.equity), this.baseEquity);
+    const maxDrawdown = equityCurve.reduce(
+      (max, point) => Math.max(max, point.drawdownPct),
+      0,
+    );
+    const allTimeHigh = equityCurve.reduce(
+      (max, point) => Math.max(max, point.equity),
+      this.baseEquity,
+    );
 
     const monthlyPnl = new Map<string, number>();
     for (const trade of trades) {
@@ -196,7 +209,10 @@ export class AnalyticsService {
       const key = trade.closedAt.toISOString().slice(0, 7);
       monthlyPnl.set(key, (monthlyPnl.get(key) ?? 0) + (trade.profit ?? 0));
     }
-    const bestMonth = [...monthlyPnl.values()].reduce((max, pnl) => Math.max(max, pnl), 0);
+    const bestMonth = [...monthlyPnl.values()].reduce(
+      (max, pnl) => Math.max(max, pnl),
+      0,
+    );
 
     return {
       range,
@@ -245,14 +261,22 @@ export class AnalyticsService {
       };
     });
 
-    const byYear = new Map<number, Array<{ name: string; val: number; pnl: number }>>();
+    const byYear = new Map<
+      number,
+      Array<{ name: string; val: number; pnl: number }>
+    >();
     for (const item of months) {
       if (!byYear.has(item.year)) {
-        byYear.set(item.year, Array.from({ length: 12 }, (_, i) => ({
-          name: new Date(Date.UTC(2024, i, 1)).toLocaleString('en-US', { month: 'short' }),
-          val: 0,
-          pnl: 0,
-        })));
+        byYear.set(
+          item.year,
+          Array.from({ length: 12 }, (_, i) => ({
+            name: new Date(Date.UTC(2024, i, 1)).toLocaleString('en-US', {
+              month: 'short',
+            }),
+            val: 0,
+            pnl: 0,
+          })),
+        );
       }
       const list = byYear.get(item.year)!;
       list[item.monthIndex - 1] = {
@@ -302,7 +326,9 @@ export class AnalyticsService {
         netPnl: this.round(total),
         avgPnl: this.round(total / (pnl.length || 1)),
         sharpeRatio: this.round(this.computeSharpe(pnl)),
-        maxDrawdown: this.round(curve.reduce((max, point) => Math.max(max, point.drawdownPct), 0)),
+        maxDrawdown: this.round(
+          curve.reduce((max, point) => Math.max(max, point.drawdownPct), 0),
+        ),
       };
     });
 
@@ -322,7 +348,10 @@ export class AnalyticsService {
           const c = colSeries.slice(0, length);
           const rMean = this.mean(r);
           const cMean = this.mean(c);
-          const numerator = r.reduce((sum, v, idx) => sum + (v - rMean) * (c[idx]! - cMean), 0);
+          const numerator = r.reduce(
+            (sum, v, idx) => sum + (v - rMean) * (c[idx] - cMean),
+            0,
+          );
           const denominator =
             Math.sqrt(r.reduce((sum, v) => sum + (v - rMean) ** 2, 0)) *
             Math.sqrt(c.reduce((sum, v) => sum + (v - cMean) ** 2, 0));
@@ -342,7 +371,10 @@ export class AnalyticsService {
       const day = trade.openedAt.getUTCDay();
       const hour = trade.openedAt.getUTCHours();
       const key = `${day}-${hour}`;
-      heatmapByDayHour.set(key, (heatmapByDayHour.get(key) ?? 0) + (trade.profit ?? 0));
+      heatmapByDayHour.set(
+        key,
+        (heatmapByDayHour.get(key) ?? 0) + (trade.profit ?? 0),
+      );
     }
 
     const var95 = Math.abs(this.percentile(pnl, 5));
@@ -354,10 +386,15 @@ export class AnalyticsService {
       largestLoss: this.round(Math.min(0, ...pnl)),
       bestSingleWin: this.round(Math.max(0, ...pnl)),
       avgRiskReward: this.round(
-        Math.abs(this.mean(pnl.filter((v) => v > 0)) / (this.mean(pnl.filter((v) => v < 0)) || -1)),
+        Math.abs(
+          this.mean(pnl.filter((v) => v > 0)) /
+            (this.mean(pnl.filter((v) => v < 0)) || -1),
+        ),
       ),
       calmarRatio: this.round(
-        this.mean(pnl) / ((curve.reduce((max, p) => Math.max(max, p.drawdownPct), 0) || 1) / 100),
+        this.mean(pnl) /
+          ((curve.reduce((max, p) => Math.max(max, p.drawdownPct), 0) || 1) /
+            100),
       ),
       drawdownCurve: curve.map((point, idx) => ({
         time: idx + 1,
@@ -388,22 +425,28 @@ export class AnalyticsService {
     ];
 
     for (const value of pnl) {
-      const bucket = distribution.find((item) => value >= item.min && value < item.max);
+      const bucket = distribution.find(
+        (item) => value >= item.min && value < item.max,
+      );
       if (bucket) bucket.count += 1;
     }
 
     const durations = new Map<string, number>();
     for (const trade of trades) {
       if (!trade.closedAt) continue;
-      const hours = (trade.closedAt.getTime() - trade.openedAt.getTime()) / (1000 * 60 * 60);
+      const hours =
+        (trade.closedAt.getTime() - trade.openedAt.getTime()) /
+        (1000 * 60 * 60);
       const bucket = this.getDurationBucket(hours);
       durations.set(bucket, (durations.get(bucket) ?? 0) + 1);
     }
 
-    const durationData = ['<1H', '1-4H', '4-8H', '8-24H', '1-3D', '>3D'].map((bucket) => ({
-      range: bucket,
-      count: durations.get(bucket) ?? 0,
-    }));
+    const durationData = ['<1H', '1-4H', '4-8H', '8-24H', '1-3D', '>3D'].map(
+      (bucket) => ({
+        range: bucket,
+        count: durations.get(bucket) ?? 0,
+      }),
+    );
 
     const bySymbol = new Map<string, { pnl: number; trades: number }>();
     for (const trade of trades) {
@@ -428,7 +471,10 @@ export class AnalyticsService {
 
     return {
       range,
-      distribution: distribution.map(({ range: label, count }) => ({ range: label, count })),
+      distribution: distribution.map(({ range: label, count }) => ({
+        range: label,
+        count,
+      })),
       duration: durationData,
       symbolPerformance,
       winLoss: [
@@ -489,11 +535,18 @@ export class AnalyticsService {
 
     return {
       marketRegime: {
-        label: regime.length && (regime[0]?._avg.sharpeRatio ?? 0) > 1 ? 'TRENDING' : 'RANGING',
+        label:
+          regime.length && (regime[0]?._avg.sharpeRatio ?? 0) > 1
+            ? 'TRENDING'
+            : 'RANGING',
         confidence: this.round(
           Math.min(
             99,
-            Math.max(55, ((regime[0]?._avg.winRate ?? 50) + (regime[0]?._avg.sharpeRatio ?? 0) * 15)),
+            Math.max(
+              55,
+              (regime[0]?._avg.winRate ?? 50) +
+                (regime[0]?._avg.sharpeRatio ?? 0) * 15,
+            ),
           ),
         ),
       },
@@ -556,4 +609,3 @@ export class AnalyticsService {
     };
   }
 }
-

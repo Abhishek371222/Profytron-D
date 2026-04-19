@@ -1,4 +1,9 @@
-import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -10,13 +15,16 @@ interface AIChatRequest {
 @Injectable()
 export class AIService {
   private readonly logger = new Logger(AIService.name);
-  private readonly baseUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+  private readonly baseUrl =
+    process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
   constructor(private readonly prisma: PrismaService) {}
 
   async explainTrade(tradeData: any) {
     try {
-      this.logger.log(`Requesting AI explanation for trade on ${tradeData.asset}`);
+      this.logger.log(
+        `Requesting AI explanation for trade on ${tradeData.asset}`,
+      );
       const response = await axios.post(`${this.baseUrl}/ai/explain-trade`, {
         asset: tradeData.asset,
         type: tradeData.type,
@@ -33,7 +41,9 @@ export class AIService {
   async explainTradeById(userId: string, tradeId: string) {
     const trade = await this.prisma.trade.findFirst({
       where: { id: tradeId, userId },
-      include: { strategy: { select: { name: true, category: true, riskLevel: true } } },
+      include: {
+        strategy: { select: { name: true, category: true, riskLevel: true } },
+      },
     });
 
     if (!trade) {
@@ -155,7 +165,9 @@ export class AIService {
 
     return {
       sampleSize: trades.length,
-      winRate: trades.length ? Number(((winningTrades / trades.length) * 100).toFixed(1)) : 0,
+      winRate: trades.length
+        ? Number(((winningTrades / trades.length) * 100).toFixed(1))
+        : 0,
       avgPnl: Number(avgPnl.toFixed(2)),
       behaviorFlags,
       suggestions: [
@@ -173,13 +185,15 @@ export class AIService {
       });
       return response.data;
     } catch (error: any) {
-      this.logger.error(`AI Service error: ${error?.message || 'unknown error'}`);
+      this.logger.error(
+        `AI Service error: ${error?.message || 'unknown error'}`,
+      );
       return {
         regime: 'UNKNOWN',
         adx: 0,
         atr_volatility: 'LOW',
         symbol: symbol || 'BTCUSDT',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }

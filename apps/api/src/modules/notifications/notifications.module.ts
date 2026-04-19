@@ -11,4 +11,3 @@ import { TradingModule } from '../trading/trading.module';
   exports: [NotificationsService],
 })
 export class NotificationsModule {}
-

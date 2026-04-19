@@ -1,11 +1,27 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ComposedChart,
+  Legend,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  ReferenceLine,
+} from 'recharts';
 import { Card } from '@/components/ui/card';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { demoMonthlyReturnsByRange, demoStrategy } from '../_lib/demoData';
+import { Button } from '@/components/ui/button';
+import { RefreshCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 const RANGE_OPTIONS: AnalyticsRange[] = ['1d', '1w', '1m', '3m', '1y', 'all'];
 
@@ -19,6 +35,7 @@ const MONTHS_BY_RANGE: Record<AnalyticsRange, number> = {
 };
 
 export default function PerformanceAnalyticsPage() {
+  const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('3m');
 
   const strategyQuery = useQuery({
@@ -34,6 +51,15 @@ export default function PerformanceAnalyticsPage() {
   });
 
   const strategy = strategyQuery.data ?? demoStrategy(range);
+  const strategyChartData = React.useMemo(
+    () =>
+      strategy.strategies.map((item) => ({
+        ...item,
+        netPnlK: Number((item.netPnl / 1000).toFixed(2)),
+      })),
+    [strategy],
+  );
+
   const monthly = React.useMemo(() => {
     if (!monthlyQuery.data) {
       return demoMonthlyReturnsByRange(range);
@@ -50,11 +76,33 @@ export default function PerformanceAnalyticsPage() {
     };
   }, [monthlyQuery.data, range]);
 
+  React.useEffect(() => {
+    if (strategyQuery.isError || monthlyQuery.isError) {
+      toast.error('Performance analytics unavailable', {
+        description: 'Showing fallback performance data until API recovers.',
+      });
+    }
+  }, [monthlyQuery.isError, strategyQuery.isError]);
+
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: ['analytics', 'strategy-comparison'] });
+    queryClient.invalidateQueries({ queryKey: ['analytics', 'monthly-returns'] });
+    toast.success('Performance refresh queued');
+  };
+
   return (
     <div className="space-y-6 pb-8">
       <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#0a1233] via-[#07122d] to-[#081726] p-6">
-        <h1 className="text-2xl font-semibold text-white">Performance Lab</h1>
-        <p className="mt-2 text-sm text-white/70">Deep comparison across strategies, monthly return rhythm, and production-readiness indicators.</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-white">Performance Lab</h1>
+            <p className="mt-2 text-sm text-white/70">Deep comparison across strategies, monthly return rhythm, and production-readiness indicators.</p>
+          </div>
+          <Button onClick={refreshData} variant="outline" className="inline-flex items-center gap-2 border-white/20 bg-white/5 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 hover:bg-white/10">
+            <RefreshCcw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
         <div className="mt-4 flex flex-wrap gap-2">
           {RANGE_OPTIONS.map((option) => (
             <button
@@ -74,30 +122,63 @@ export default function PerformanceAnalyticsPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="border-white/10 bg-black/40 p-4">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Strategy Net PnL</h3>
+          <h3 className="mb-1 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Strategy Performance Mix</h3>
+          <p className="mb-3 text-xs text-white/55">Bars show net PnL in thousands. Line shows win rate %.</p>
           <div className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={strategy.strategies}>
+              <ComposedChart data={strategyChartData} margin={{ top: 8, right: 18, left: 2, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
                 <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }} />
-                <Tooltip />
-                <Bar dataKey="netPnl" fill="#22d3ee" radius={[6, 6, 0, 0]} />
-              </BarChart>
+                <YAxis
+                  yAxisId="left"
+                  tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }}
+                  tickFormatter={(value) => `${value}k`}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  domain={[0, 100]}
+                  tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }}
+                  tickFormatter={(value) => `${value}%`}
+                />
+                <Tooltip
+                  formatter={(value: any, name: any) => {
+                    if (name === 'netPnlK') return [`$${Number(value).toLocaleString()}k`, 'Net PnL'];
+                    if (name === 'winRate') return [`${Number(value).toFixed(1)}%`, 'Win Rate'];
+                    return [String(value), String(name)];
+                  }}
+                  labelStyle={{ color: '#111827' }}
+                />
+                <Legend formatter={(value) => (value === 'netPnlK' ? 'Net PnL (k)' : 'Win Rate %')} />
+                <Bar yAxisId="left" dataKey="netPnlK" fill="#22d3ee" radius={[6, 6, 0, 0]} />
+                <Line yAxisId="right" dataKey="winRate" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
         <Card className="border-white/10 bg-black/40 p-4">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Monthly Returns</h3>
+          <h3 className="mb-1 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Monthly Return Clarity</h3>
+          <p className="mb-3 text-xs text-white/55">Green bars are positive months, red bars are negative months.</p>
           <div className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthly.months}>
+              <BarChart data={monthly.months} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
                 <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }} />
-                <Tooltip />
-                <Bar dataKey="returnPct" fill="#818cf8" radius={[6, 6, 0, 0]} />
+                <YAxis tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }} tickFormatter={(value) => `${value}%`} />
+                <ReferenceLine y={0} stroke="rgba(255,255,255,0.35)" strokeDasharray="4 4" />
+                <Tooltip
+                  formatter={(value: any, name: any) => {
+                    if (name === 'returnPct') return [`${Number(value).toFixed(2)}%`, 'Return'];
+                    return [String(value), String(name)];
+                  }}
+                  labelStyle={{ color: '#111827' }}
+                />
+                <Bar dataKey="returnPct" radius={[6, 6, 0, 0]}>
+                  {monthly.months.map((item) => (
+                    <Cell key={`${item.month}-${item.year}`} fill={item.returnPct >= 0 ? '#10b981' : '#ef4444'} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>

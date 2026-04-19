@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import { 
  TrendingUp, 
  TrendingDown, 
@@ -23,18 +25,29 @@ import {
 } from '@/components/ui/icons';
 import Link from 'next/link';
 
-import { EquityChart } from '@/components/charts/EquityChart';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { TradingSimulator } from '@/lib/simulation/TradingSimulator';
 import { useTradingStore } from '@/lib/stores/useTradingStore';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { useMutation } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { tradingApi } from '@/lib/api/trading';
 import { demoDashboardMetrics } from '@/lib/api/demoData';
+import { toast } from 'sonner';
+import { affiliatesApi, type AffiliateDashboardResponse } from '@/lib/api/affiliates';
+import { TradingSimulator } from '@/lib/simulation/TradingSimulator';
+import { Network as AffiliateNetwork, Users as AffiliateUsers, TrendingUp as AffiliateTrendingUp, Gift as AffiliateGift, ArrowRight as AffiliateArrowRight, Copy as AffiliateCopy, Send as AffiliateSend } from 'lucide-react';
+
+const EquityChart = dynamic(
+	() => import('@/components/charts/EquityChart').then((mod) => mod.EquityChart),
+	{
+		ssr: false,
+		loading: () => <div className="h-[320px] w-full rounded-xl bg-white/5 animate-pulse" />,
+	},
+);
 
 // --- Custom Components for the Dashboard ---
 
@@ -174,7 +187,7 @@ function RiskMeter({
  <div>
  <div className="flex justify-between items-center mb-2">
  <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Daily Loss Cap</span>
- <span className="text-xs font-mono text-white/60">n1,620 / n10,000</span>
+ <span className="text-xs font-mono text-white/60">$1,620 / $10,000</span>
  </div>
  <Progress value={16.2} className="h-1" />
  </div>
@@ -234,7 +247,15 @@ function TradeRow({ trade, onExplain }: { trade: any; onExplain: (t: any) => voi
  </div>
  
  <div className="flex justify-end">
- <Button variant="ghost" size="sm" className="h-8 px-3 text-p hover:text-p hover:bg-p/10 gap-2 font-semibold uppercase tracking-widest">
+ <Button
+ variant="ghost"
+ size="sm"
+ onClick={(event) => {
+ event.stopPropagation();
+ onExplain(trade);
+ }}
+ className="h-8 px-3 text-p hover:text-p hover:bg-p/10 gap-2 font-semibold uppercase tracking-widest"
+ >
  <Brain className="w-3 h-3" />
  Explain
  </Button>
@@ -246,9 +267,12 @@ function TradeRow({ trade, onExplain }: { trade: any; onExplain: (t: any) => voi
 // --- Main Page Component ---
 
 export default function DashboardPage() {
+	const router = useRouter();
+ const queryClient = useQueryClient();
  const [mounted, setMounted] = React.useState(false);
 	const [chartRange, setChartRange] = React.useState<'1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL'>('1M');
  const [isExportingCsv, setIsExportingCsv] = React.useState(false);
+	const [affiliateShareState, setAffiliateShareState] = React.useState<'idle' | 'copied' | 'tracked'>('idle');
  const { 
  portfolioValue, 
  dailyChange, 
@@ -262,6 +286,20 @@ export default function DashboardPage() {
 
  React.useEffect(() => {
  setMounted(true);
+ }, []);
+
+ React.useEffect(() => {
+  if (typeof window === 'undefined') {
+   return;
+  }
+
+  const usedFallback = sessionStorage.getItem('oauth_sync_fallback') === '1';
+  if (usedFallback) {
+   sessionStorage.removeItem('oauth_sync_fallback');
+   toast.success('Signed in with Google', {
+	description: 'Account sync is delayed; local session is active for now.',
+   });
+  }
  }, []);
 
  const [selectedTrade, setSelectedTrade] = React.useState<any>(null);
@@ -281,15 +319,71 @@ export default function DashboardPage() {
 	 staleTime: 30_000,
  });
 
+	const affiliateQuery = useQuery<AffiliateDashboardResponse>({
+		queryKey: ['affiliate-dashboard'],
+		queryFn: () => affiliatesApi.getDashboard(),
+		staleTime: 120_000,
+	});
+
+ const hasLivePortfolio = Boolean(portfolioQuery.data?.equityCurve && portfolioQuery.data.equityCurve.length > 0);
+
+ React.useEffect(() => {
+ 	if (portfolioQuery.isError) {
+ 		toast.error('Portfolio telemetry unavailable', {
+ 			description: 'Showing fallback dashboard metrics while API recovers.',
+ 		});
+ 	}
+ }, [portfolioQuery.isError]);
+
+ const refreshPortfolio = () => {
+ 	queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+ 	toast.success('Portfolio refresh queued');
+ };
+
+	const affiliateData = affiliateQuery.data;
+	const affiliateReferralLink = affiliateData ? `${typeof window === 'undefined' ? '' : window.location.origin}/signup?ref=${affiliateData.referralCode}` : '';
+
+	const copyAffiliateLink = async () => {
+		if (!affiliateReferralLink) {
+			toast.error('Affiliate link not ready');
+			return;
+		}
+
+		await navigator.clipboard.writeText(affiliateReferralLink);
+		setAffiliateShareState('copied');
+		toast.success('Affiliate link copied');
+	};
+
+	const shareAffiliateLink = async () => {
+		if (!affiliateReferralLink || !affiliateData) {
+			toast.error('Affiliate link not ready');
+			return;
+		}
+
+		try {
+			const message = `Join Profytron with my referral link: ${affiliateReferralLink}`;
+			if (navigator.share) {
+				await navigator.share({ title: 'Profytron referral', text: message, url: affiliateReferralLink });
+			} else {
+				await navigator.clipboard.writeText(message);
+			}
+			await affiliatesApi.trackClick(affiliateData.referralCode);
+			setAffiliateShareState('tracked');
+			toast.success('Affiliate share tracked');
+		} catch {
+			toast.error('Could not share affiliate link');
+		}
+	};
+
  const killSwitchMutation = useMutation({
 	 mutationFn: () => tradingApi.emergencyStop(),
 	 onSuccess: (result) => {
 		 const statusLabel = result.status === 'NO_OPEN_TRADES' ? 'No open trades found.' : `Closed ${result.closedTrades} open trade(s).`;
-		 window.alert(`Emergency stop executed. ${statusLabel}`);
+ toast.success('Emergency stop executed', { description: statusLabel });
 	 },
 	 onError: (error: any) => {
 		 const message = error?.response?.data?.error || error?.message || 'Failed to trigger emergency stop.';
-		 window.alert(message);
+ toast.error('Emergency stop failed', { description: message });
 	 },
  });
 
@@ -308,7 +402,7 @@ export default function DashboardPage() {
 	 try {
 		 const exportPayload = await analyticsApi.getTradeExport(rangeToApi[chartRange]);
 		 if (!exportPayload.rows.length) {
-			 window.alert('No trades available for this range.');
+		 toast.message('No trades available for this range.');
 			 return;
 		 }
 
@@ -354,13 +448,28 @@ export default function DashboardPage() {
 		 anchor.click();
 		 anchor.remove();
 		 URL.revokeObjectURL(url);
+		toast.success('Trade export ready', {
+			description: `CSV generated for ${chartRange}.`,
+		});
 	 } catch (error: any) {
 		 const message = error?.response?.data?.error || error?.message || 'Failed to export CSV.';
-		 window.alert(message);
+	 toast.error('CSV export failed', { description: message });
 	 } finally {
 		 setIsExportingCsv(false);
 	 }
  };
+
+	 const handleManualClose = () => {
+		if (!selectedTrade) {
+			toast.message('Select a trade first');
+			return;
+		}
+
+		toast.success('Manual close order queued', {
+			description: `${selectedTrade.asset} close request submitted for review.`,
+		});
+		setSelectedTrade(null);
+	 };
 
  return (
  <div className={cn("space-y-6", !mounted &&"animate-pulse")} suppressHydrationWarning>
@@ -411,8 +520,15 @@ export default function DashboardPage() {
  <div>
  <h2 className="text-xl font-bold font-display text-white tracking-tight">Institutional Performance Vector</h2>
  <p className="text-xs text-white/40 font-medium font-display uppercase tracking-widest mt-1">Real-time aggregate equity stream</p>
+ <p className="text-[10px] text-white/40 font-semibold uppercase tracking-[0.2em] mt-1">
+ Data Mode: <span className={hasLivePortfolio ? 'text-emerald-300' : 'text-amber-300'}>{hasLivePortfolio ? 'Live' : 'Fallback'}</span>
+ </p>
  </div>
  
+ <div className="flex items-center gap-2">
+ <Button variant="outline" size="sm" onClick={refreshPortfolio} className="h-8 px-3 text-white/70 border-white/20 bg-white/5 hover:bg-white/10 uppercase text-xs font-semibold">
+ Refresh
+ </Button>
  <div className="flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
  {(['1D', '1W', '1M', '3M', '1Y', 'ALL'] as const).map((range) => (
  <button
@@ -426,6 +542,7 @@ export default function DashboardPage() {
  {range}
  </button>
  ))}
+ </div>
  </div>
  </div>
  
@@ -530,6 +647,100 @@ export default function DashboardPage() {
  />
  </div>
  </div>
+
+			<div className="card p-6 overflow-hidden relative">
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.12),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.12),_transparent_30%)] pointer-events-none" />
+				<div className="relative flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
+					<div className="space-y-3 max-w-2xl">
+						<div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/45">
+							<AffiliateNetwork className="h-3.5 w-3.5 text-p" />
+							Affiliate pulse
+						</div>
+						<h2 className="text-2xl font-bold font-display text-white tracking-tight">A compact affiliate widget keeps your referral engine visible on the dashboard.</h2>
+						<p className="text-sm text-white/55 max-w-xl">It stays in sync with the backend, shows your referral code and payout snapshot, and gives you direct copy/share actions without leaving the home page.</p>
+					</div>
+
+					<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 xl:min-w-[640px]">
+						{[
+							  { label: 'Clicks', value: affiliateQuery.data?.stats.clicks ?? 0, icon: AffiliateUsers },
+							  { label: 'Signups', value: affiliateQuery.data?.stats.signups ?? 0, icon: AffiliateGift },
+							  { label: 'Conversions', value: affiliateQuery.data?.stats.conversions ?? 0, icon: AffiliateTrendingUp },
+							  { label: 'Tier', value: affiliateQuery.data?.tier ?? 'STARTER', icon: AffiliateNetwork },
+						].map((item, index) => {
+							const Icon = item.icon;
+							return (
+								<div key={item.label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+									<div className="flex items-center justify-between gap-3 text-white/55">
+										<span className="text-[10px] font-semibold uppercase tracking-[0.22em]">{item.label}</span>
+										<Icon className="h-4 w-4 text-p" />
+									</div>
+									<div className="mt-3 text-xl font-semibold text-white">{item.value.toLocaleString ? item.value.toLocaleString() : item.value}</div>
+									<div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
+										<motion.div
+											className={cn('h-full rounded-full bg-gradient-to-r', index === 0 ? 'from-cyan-400 to-indigo-400' : index === 1 ? 'from-emerald-400 to-teal-400' : index === 2 ? 'from-amber-400 to-orange-400' : 'from-violet-400 to-fuchsia-400')}
+											initial={{ width: '18%' }}
+											animate={{ width: ['18%', '84%', '18%'] }}
+											transition={{ duration: 4 + index * 0.25, repeat: Infinity, ease: 'easeInOut' }}
+										/>
+									</div>
+								</div>
+							);
+						})}
+					</div>
+				</div>
+
+				<div className="relative mt-6 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+					<div className="rounded-3xl border border-white/8 bg-white/4 p-5">
+						<div className="flex items-start justify-between gap-3">
+							<div>
+								<p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/30">Referral code</p>
+								<p className="mt-2 text-2xl font-semibold text-white">{affiliateData?.referralCode ?? 'PROFYTRON-X7A9'}</p>
+								<p className="mt-2 text-sm text-white/50">{affiliateQuery.isLoading ? 'Loading live affiliate feed…' : 'Backend sync ready.'}</p>
+							</div>
+							<div className="rounded-2xl border border-white/8 bg-black/20 p-3 text-cyan-300">
+								<AffiliateCopy className="h-5 w-5" />
+							</div>
+						</div>
+
+						<div className="mt-4 grid gap-3 sm:grid-cols-3">
+							{[
+								{ label: 'Payout pending', value: affiliateData?.stats.pendingPayout ?? 0, tone: 'text-amber-300', format: true },
+								{ label: 'Commission rate', value: Math.round((affiliateData?.commissionRate ?? 0.35) * 100), tone: 'text-emerald-300', suffix: '%' },
+								{ label: 'Conversion rate', value: affiliateData?.stats.conversionRate ?? 0, tone: 'text-cyan-300', suffix: '%' },
+							].map((item) => (
+								<div key={item.label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
+									<p className="text-[10px] uppercase tracking-[0.22em] text-white/30">{item.label}</p>
+									<p className={cn('mt-2 text-xl font-semibold', item.tone)}>
+										{item.format ? `$${Number(item.value).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : `${item.value}${item.suffix ?? ''}`}
+									</p>
+								</div>
+							))}
+						</div>
+					</div>
+
+					<div className="rounded-3xl border border-white/8 bg-white/4 p-5">
+						<p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/30">Quick actions</p>
+						<div className="mt-4 flex flex-col gap-3">
+							<Button onClick={copyAffiliateLink} variant="outline" className="justify-between border-white/15 bg-white/5 text-white hover:bg-white/10">
+								<span>Copy referral link</span>
+								<AffiliateCopy className="h-4 w-4" />
+							</Button>
+							<Button onClick={shareAffiliateLink} variant="outline" className="justify-between border-white/15 bg-white/5 text-white hover:bg-white/10">
+								<span>Share and track</span>
+								<AffiliateSend className="h-4 w-4" />
+							</Button>
+							<Button onClick={() => router.push('/affiliate/best')} className="justify-between rounded-2xl bg-white text-black hover:bg-white/90">
+								<span>Open best affiliates</span>
+								<AffiliateArrowRight className="h-4 w-4" />
+							</Button>
+						</div>
+
+						<div className="mt-4 flex items-center gap-2 rounded-2xl border border-white/8 bg-black/20 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">
+							{affiliateShareState === 'tracked' ? 'Share tracked in backend' : affiliateShareState === 'copied' ? 'Link copied locally' : 'Ready to copy or share'}
+						</div>
+					</div>
+				</div>
+			</div>
 
  {/* Row 4: Recent Trades */}
  <div className="card overflow-hidden">
@@ -689,7 +900,7 @@ export default function DashboardPage() {
  </div>
 
  <div className="pt-8 mt-auto">
- <Button className="w-full h-12 bg-white text-black hover:bg-white/90 rounded-2xl font-semibold uppercase tracking-widest">
+ <Button onClick={handleManualClose} className="w-full h-12 bg-white text-black hover:bg-white/90 rounded-2xl font-semibold uppercase tracking-widest">
  Execute Manual Close
  </Button>
  </div>

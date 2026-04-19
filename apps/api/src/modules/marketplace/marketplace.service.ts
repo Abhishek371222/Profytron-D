@@ -56,7 +56,12 @@ export class MarketplaceService {
         strategy: {
           include: {
             creator: {
-              select: { id: true, fullName: true, avatarUrl: true, country: true },
+              select: {
+                id: true,
+                fullName: true,
+                avatarUrl: true,
+                country: true,
+              },
             },
             performance: { take: 1, orderBy: { date: 'desc' } },
             reviews: { select: { rating: true } },
@@ -85,7 +90,11 @@ export class MarketplaceService {
 
     const normalized = listings
       .filter((listing) => {
-        const prices = [listing.monthlyPrice, listing.annualPrice, listing.lifetimePrice];
+        const prices = [
+          listing.monthlyPrice,
+          listing.annualPrice,
+          listing.lifetimePrice,
+        ];
         const minPrice = Math.min(...prices);
         const maxPrice = Math.max(...prices);
         if (typeof query.priceMin === 'number' && maxPrice < query.priceMin) {
@@ -99,8 +108,10 @@ export class MarketplaceService {
       .map((listing) => {
         const avgRating =
           listing.strategy.reviews.length > 0
-            ? listing.strategy.reviews.reduce((acc, curr) => acc + curr.rating, 0) /
-              listing.strategy.reviews.length
+            ? listing.strategy.reviews.reduce(
+                (acc, curr) => acc + curr.rating,
+                0,
+              ) / listing.strategy.reviews.length
             : 0;
         return {
           ...listing,
@@ -114,12 +125,15 @@ export class MarketplaceService {
       normalized.sort((a, b) => b.rating - a.rating);
     } else if (query.sort === 'newest') {
       normalized.sort(
-        (a, b) => b.strategy.createdAt.getTime() - a.strategy.createdAt.getTime(),
+        (a, b) =>
+          b.strategy.createdAt.getTime() - a.strategy.createdAt.getTime(),
       );
     } else if (query.sort === 'price') {
       normalized.sort((a, b) => a.monthlyPrice - b.monthlyPrice);
     } else if (query.sort === 'subscribers') {
-      normalized.sort((a, b) => b.strategy.copiesCount - a.strategy.copiesCount);
+      normalized.sort(
+        (a, b) => b.strategy.copiesCount - a.strategy.copiesCount,
+      );
     } else if (query.sort === 'performance') {
       normalized.sort(
         (a, b) =>
@@ -132,14 +146,23 @@ export class MarketplaceService {
 
     normalized.sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured));
 
-    let subscriptionMap = new Map<string, { status: SubscriptionStatus; planType: string | null }>();
+    let subscriptionMap = new Map<
+      string,
+      { status: SubscriptionStatus; planType: string | null }
+    >();
     if (userId) {
       const subs = await this.prisma.userStrategySubscription.findMany({
-        where: { userId, strategyId: { in: normalized.map((item) => item.strategyId) } },
+        where: {
+          userId,
+          strategyId: { in: normalized.map((item) => item.strategyId) },
+        },
         select: { strategyId: true, status: true, planType: true },
       });
       subscriptionMap = new Map(
-        subs.map((s) => [s.strategyId, { status: s.status, planType: s.planType }]),
+        subs.map((s) => [
+          s.strategyId,
+          { status: s.status, planType: s.planType },
+        ]),
       );
     }
 
@@ -150,7 +173,10 @@ export class MarketplaceService {
 
     return {
       items,
-      nextCursor: items.length === query.limit ? items[items.length - 1]?.id ?? null : null,
+      nextCursor:
+        items.length === query.limit
+          ? (items[items.length - 1]?.id ?? null)
+          : null,
       count: items.length,
     };
   }
@@ -175,7 +201,9 @@ export class MarketplaceService {
     const reviewsLimit = query?.reviewsLimit ?? 10;
     const reviews = await this.prisma.strategyReview.findMany({
       where: { strategyId: id, isVisible: true },
-      include: { user: { select: { id: true, fullName: true, avatarUrl: true } } },
+      include: {
+        user: { select: { id: true, fullName: true, avatarUrl: true } },
+      },
       orderBy: { createdAt: 'desc' },
       skip: (reviewsPage - 1) * reviewsLimit,
       take: reviewsLimit,
@@ -196,11 +224,14 @@ export class MarketplaceService {
         where: { id: { in: subs.map((s) => s.userId) } },
         select: { country: true },
       });
-      const counts = userCountries.reduce<Record<string, number>>((acc, curr) => {
-        const key = curr.country || 'UNKNOWN';
-        acc[key] = (acc[key] ?? 0) + 1;
-        return acc;
-      }, {});
+      const counts = userCountries.reduce<Record<string, number>>(
+        (acc, curr) => {
+          const key = curr.country || 'UNKNOWN';
+          acc[key] = (acc[key] ?? 0) + 1;
+          return acc;
+        },
+        {},
+      );
       countryStats = Object.entries(counts)
         .map(([country, count]) => ({ country, count }))
         .sort((a, b) => b.count - a.count);
@@ -275,13 +306,21 @@ export class MarketplaceService {
     return listing;
   }
 
-  async subscribe(strategyId: string, userId: string, dto: SubscribeStrategyDto) {
+  async subscribe(
+    strategyId: string,
+    userId: string,
+    dto: SubscribeStrategyDto,
+  ) {
     const listing = await this.prisma.marketplaceListing.findUnique({
       where: { strategyId },
       include: { strategy: true },
     });
 
-    if (!listing || !listing.strategy.isPublished || listing.strategy.deletedAt) {
+    if (
+      !listing ||
+      !listing.strategy.isPublished ||
+      listing.strategy.deletedAt
+    ) {
       throw new NotFoundException('Strategy listing is not active');
     }
 
@@ -294,7 +333,9 @@ export class MarketplaceService {
 
     const planType = dto.planType;
     const isFree =
-      listing.monthlyPrice <= 0 && listing.annualPrice <= 0 && listing.lifetimePrice <= 0;
+      listing.monthlyPrice <= 0 &&
+      listing.annualPrice <= 0 &&
+      listing.lifetimePrice <= 0;
 
     if (isFree) {
       const subscription = await this.prisma.userStrategySubscription.upsert({
@@ -316,7 +357,9 @@ export class MarketplaceService {
     }
 
     if (dto.useTrial && listing.trialDays > 0 && planType !== 'LIFETIME') {
-      const trialEndsAt = new Date(Date.now() + listing.trialDays * 24 * 60 * 60 * 1000);
+      const trialEndsAt = new Date(
+        Date.now() + listing.trialDays * 24 * 60 * 60 * 1000,
+      );
       const subscription = await this.prisma.userStrategySubscription.upsert({
         where: { userId_strategyId: { userId, strategyId } },
         create: {
@@ -414,16 +457,21 @@ export class MarketplaceService {
       where: { userId_strategyId: { userId, strategyId } },
     });
     if (!sub) {
-      throw new ForbiddenException('Subscription required to review this strategy');
+      throw new ForbiddenException(
+        'Subscription required to review this strategy',
+      );
     }
 
     const hasAccess =
       sub.status === 'ACTIVE' ||
       (sub.status === 'CANCELLED' &&
         sub.subscribedAt &&
-        Date.now() - new Date(sub.subscribedAt).getTime() > 7 * 24 * 60 * 60 * 1000);
+        Date.now() - new Date(sub.subscribedAt).getTime() >
+          7 * 24 * 60 * 60 * 1000);
     if (!hasAccess) {
-      throw new ForbiddenException('Only active/past subscribers can review this strategy');
+      throw new ForbiddenException(
+        'Only active/past subscribers can review this strategy',
+      );
     }
 
     const existingReview = await this.prisma.strategyReview.findUnique({
@@ -457,7 +505,11 @@ export class MarketplaceService {
     };
   }
 
-  async replyToReview(reviewId: string, creatorId: string, dto: ReplyReviewDto) {
+  async replyToReview(
+    reviewId: string,
+    creatorId: string,
+    dto: ReplyReviewDto,
+  ) {
     const review = await this.prisma.strategyReview.findUnique({
       where: { id: reviewId },
       include: { strategy: { select: { creatorId: true } } },
@@ -466,7 +518,9 @@ export class MarketplaceService {
       throw new NotFoundException('Review not found');
     }
     if (review.strategy.creatorId !== creatorId) {
-      throw new ForbiddenException('Only strategy creator can reply to reviews');
+      throw new ForbiddenException(
+        'Only strategy creator can reply to reviews',
+      );
     }
 
     return this.prisma.strategyReview.update({

@@ -59,7 +59,12 @@ export class StrategiesService {
       'riskLevel',
       'category',
     ]);
-    const performanceSortFields = new Set(['winRate', 'sharpeRatio', 'maxDrawdown', 'netPnl']);
+    const performanceSortFields = new Set([
+      'winRate',
+      'sharpeRatio',
+      'maxDrawdown',
+      'netPnl',
+    ]);
 
     const where: any = {
       deletedAt: null,
@@ -84,7 +89,13 @@ export class StrategiesService {
       ];
     }
 
-    let strategies: Array<Strategy & { creator: { id: string; fullName: string; avatarUrl: string | null }; performance: any[]; subscriptions?: any[] }> = [];
+    let strategies: Array<
+      Strategy & {
+        creator: { id: string; fullName: string; avatarUrl: string | null };
+        performance: any[];
+        subscriptions?: any[];
+      }
+    > = [];
     let total = 0;
 
     if (performanceSortFields.has(requestedSortBy)) {
@@ -107,8 +118,16 @@ export class StrategiesService {
       });
 
       const sorted = allStrategies.sort((a, b) => {
-        const aMetric = Number((a.performance[0] as Record<string, unknown> | undefined)?.[requestedSortBy] ?? 0);
-        const bMetric = Number((b.performance[0] as Record<string, unknown> | undefined)?.[requestedSortBy] ?? 0);
+        const aMetric = Number(
+          (a.performance[0] as Record<string, unknown> | undefined)?.[
+            requestedSortBy
+          ] ?? 0,
+        );
+        const bMetric = Number(
+          (b.performance[0] as Record<string, unknown> | undefined)?.[
+            requestedSortBy
+          ] ?? 0,
+        );
         return requestedOrder === 'asc' ? aMetric - bMetric : bMetric - aMetric;
       });
 

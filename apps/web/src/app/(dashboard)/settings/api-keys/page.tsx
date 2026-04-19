@@ -97,13 +97,30 @@ export default function APIKeysPage() {
  const toggleKeyVisibility = (id: string) => {
  setVisibleKeys(prev => {
  const next = new Set(prev);
-      if (next.has(id)) {
+      const wasVisible = next.has(id);
+      if (wasVisible) {
         next.delete(id);
       } else {
         next.add(id);
       }
+      toast.message(wasVisible ? 'Credential masked' : 'Credential revealed');
  return next;
  });
+ };
+
+ const handleOpenCreateModal = () => {
+  setIsCreating(true);
+  toast.message('Key generator opened');
+ };
+
+ const handleCloseCreateModal = () => {
+  setIsCreating(false);
+  toast.message('Key generator closed');
+ };
+
+ const handleTabChange = (tab: 'keys' | 'terminal') => {
+  setActiveTab(tab);
+  toast.message(tab === 'keys' ? 'Viewing access keys' : 'Viewing live terminal');
  };
 
  const handleCopy = (text: string, id: string) => {
@@ -179,7 +196,7 @@ export default function APIKeysPage() {
  </p>
  </div>
  <button
- onClick={() => setIsCreating(true)}
+ onClick={handleOpenCreateModal}
  className="flex items-center gap-3 h-14 px-8 rounded-[18px] bg-white text-black hover:bg-white/90 font-semibold text-sm uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all group"
  >
  <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
@@ -222,7 +239,7 @@ export default function APIKeysPage() {
  {(['keys', 'terminal'] as const).map(tab => (
  <button
  key={tab}
- onClick={() => setActiveTab(tab)}
+ onClick={() => handleTabChange(tab)}
  className={cn(
 "relative px-6 py-2.5 rounded-[14px] text-xs font-semibold uppercase tracking-[0.2em] transition-all duration-300",
  activeTab === tab ?"text-white" :"text-white/30 hover:text-white/60"
@@ -249,7 +266,7 @@ export default function APIKeysPage() {
  {keys.length === 0 && (
  <div className="p-12 rounded-[28px] border border-dashed border-white/10 bg-white/1 text-center space-y-4">
  <p className="text-sm font-semibold text-white/30 uppercase tracking-[0.25em]">No active keys available</p>
- <Button onClick={() => setIsCreating(true)} className="h-11 px-6 rounded-xl bg-white text-black hover:bg-white/90 uppercase tracking-[0.2em] text-xs font-semibold">
+ <Button onClick={handleOpenCreateModal} className="h-11 px-6 rounded-xl bg-white text-black hover:bg-white/90 uppercase tracking-[0.2em] text-xs font-semibold">
  Generate First Key
  </Button>
  </div>
@@ -410,7 +427,7 @@ export default function APIKeysPage() {
  animate={{ opacity: 1 }}
  exit={{ opacity: 0 }}
  className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-xl"
- onClick={(e) => e.target === e.currentTarget && setIsCreating(false)}
+ onClick={(e) => e.target === e.currentTarget && handleCloseCreateModal()}
  >
  <motion.div
  initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -469,7 +486,7 @@ export default function APIKeysPage() {
 
  <div className="flex gap-4 relative z-10">
  <Button
- onClick={() => setIsCreating(false)}
+ onClick={handleCloseCreateModal}
  className="flex-1 h-12 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-semibold uppercase tracking-widest rounded-[14px]"
  >
  Cancel

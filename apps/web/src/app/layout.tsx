@@ -4,6 +4,8 @@ import"@/styles/globals.css";
 import"@/styles/animations.css";
 import { TooltipProvider } from"@/components/ui/tooltip";
 import { AuthProvider } from "@/components/AuthProvider";
+import { MSWProvider } from "@/components/providers/MSWProvider";
+import { WebVitalsProvider } from "@/components/providers/WebVitalsProvider";
 
 const syne = Syne({
  subsets: ["latin"],
@@ -54,7 +56,10 @@ export default function RootLayout({
         className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} font-body bg-bg-base text-slate-50 antialiased selection:bg-p/30 selection:text-white`}
       >
         <QueryProvider>
-          <AuthProvider><TooltipProvider>{children}</TooltipProvider></AuthProvider>
+          <WebVitalsProvider />
+          <MSWProvider>
+            <AuthProvider><TooltipProvider>{children}</TooltipProvider></AuthProvider>
+          </MSWProvider>
         </QueryProvider>
       </body>
     </html>

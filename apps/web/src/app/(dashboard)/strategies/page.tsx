@@ -73,11 +73,29 @@ export default function StrategiesPage() {
     enabled: activeTab === 'library',
   });
 
-  const { data: myStrategies, isLoading: myLoading } = useQuery({
+  const { data: myStrategies, isLoading: myLoading, isError: myStrategiesError } = useQuery({
     queryKey: ['my-strategies'],
     queryFn: () => strategiesApi.getMyStrategies(),
     enabled: activeTab === 'my-strategies',
   });
+
+  const libraryError = activeTab === 'library' && !libraryLoading && !libraryData;
+
+  React.useEffect(() => {
+    if (libraryError) {
+      toast.error('Strategy library unavailable', {
+        description: 'Using fallback strategy catalog while the API sync recovers.',
+      });
+    }
+  }, [libraryError]);
+
+  React.useEffect(() => {
+    if (myStrategiesError) {
+      toast.error('My strategies unavailable', {
+        description: 'Showing local fallback strategy nodes.',
+      });
+    }
+  }, [myStrategiesError]);
 
   const handleActivate = (strategy: any) => {
     setSelectedStrategy(strategy);
@@ -106,10 +124,14 @@ export default function StrategiesPage() {
     // Sort
     if (sort === 'winRate') {
       filtered.sort((a, b) => (b.latestPerformance?.winRate || 0) - (a.latestPerformance?.winRate || 0));
-    } else if (sort === 'subscribers') {
+    } else if (sort === 'sharpeRatio') {
+      filtered.sort((a, b) => (b.latestPerformance?.sharpeRatio || 0) - (a.latestPerformance?.sharpeRatio || 0));
+    } else if (sort === 'copiesCount' || sort === 'subscribers') {
       filtered.sort((a, b) => b.copiesCount - a.copiesCount);
+    } else if (sort === 'createdAt') {
+      filtered.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
     } else if (sort === 'price') {
-      filtered.sort((a, b) => a.monthlyPrice - b.monthlyPrice);
+      filtered.sort((a, b) => (a.monthlyPrice || 0) - (b.monthlyPrice || 0));
     }
     
     return filtered;

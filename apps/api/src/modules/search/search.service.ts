@@ -16,7 +16,10 @@ export interface GlobalSearchItem {
 export class SearchService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async globalSearch(query: string, limit: number): Promise<GlobalSearchItem[]> {
+  async globalSearch(
+    query: string,
+    limit: number,
+  ): Promise<GlobalSearchItem[]> {
     const q = query.trim();
     if (!q) {
       return this.getTrendingFallback(limit);
@@ -106,12 +109,19 @@ export class SearchService {
 
     const pageItems: GlobalSearchItem[] = this.rankStaticPages(q);
 
-    return [...strategyItems, ...marketplaceItems, ...creatorItems, ...pageItems]
+    return [
+      ...strategyItems,
+      ...marketplaceItems,
+      ...creatorItems,
+      ...pageItems,
+    ]
       .sort((a, b) => b.score - a.score)
       .slice(0, limit * 2);
   }
 
-  private async getTrendingFallback(limit: number): Promise<GlobalSearchItem[]> {
+  private async getTrendingFallback(
+    limit: number,
+  ): Promise<GlobalSearchItem[]> {
     const trending = await this.prisma.strategy.findMany({
       where: { isPublished: true },
       orderBy: { copiesCount: 'desc' },
@@ -135,29 +145,54 @@ export class SearchService {
 
   private rankStaticPages(query: string): GlobalSearchItem[] {
     const pages = [
-      { title: 'Dashboard', href: '/dashboard', keywords: ['dashboard', 'overview', 'home'] },
-      { title: 'Strategy Builder', href: '/strategies/builder', keywords: ['builder', 'create', 'strategy'] },
-      { title: 'Marketplace', href: '/marketplace', keywords: ['marketplace', 'buy', 'copy'] },
-      { title: 'Analytics', href: '/analytics', keywords: ['analytics', 'performance', 'metrics'] },
-      { title: 'Wallet', href: '/wallet', keywords: ['wallet', 'deposit', 'withdraw'] },
-      { title: 'AI Coach', href: '/ai-coach', keywords: ['ai', 'coach', 'chat'] },
+      {
+        title: 'Dashboard',
+        href: '/dashboard',
+        keywords: ['dashboard', 'overview', 'home'],
+      },
+      {
+        title: 'Strategy Builder',
+        href: '/strategies/builder',
+        keywords: ['builder', 'create', 'strategy'],
+      },
+      {
+        title: 'Marketplace',
+        href: '/marketplace',
+        keywords: ['marketplace', 'buy', 'copy'],
+      },
+      {
+        title: 'Analytics',
+        href: '/analytics',
+        keywords: ['analytics', 'performance', 'metrics'],
+      },
+      {
+        title: 'Wallet',
+        href: '/wallet',
+        keywords: ['wallet', 'deposit', 'withdraw'],
+      },
+      {
+        title: 'AI Coach',
+        href: '/ai-coach',
+        keywords: ['ai', 'coach', 'chat'],
+      },
     ];
 
     const q = query.toLowerCase();
-    const candidates = pages
-      .map((p) => {
-        const hit = p.keywords.some((k) => k.includes(q)) || p.title.toLowerCase().includes(q);
-        return hit
-          ? ({
-              id: p.href,
-              type: 'page' as const,
-              title: p.title,
-              subtitle: 'Navigate quickly',
-              href: p.href,
-              score: 60,
-            })
-          : null;
-      });
+    const candidates = pages.map((p) => {
+      const hit =
+        p.keywords.some((k) => k.includes(q)) ||
+        p.title.toLowerCase().includes(q);
+      return hit
+        ? {
+            id: p.href,
+            type: 'page' as const,
+            title: p.title,
+            subtitle: 'Navigate quickly',
+            href: p.href,
+            score: 60,
+          }
+        : null;
+    });
 
     return candidates.filter((v): v is NonNullable<typeof v> => Boolean(v));
   }

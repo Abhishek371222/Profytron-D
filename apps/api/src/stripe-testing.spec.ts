@@ -4,8 +4,9 @@ import { PrismaService } from './prisma/prisma.service';
 import { createTestApp } from './test-utils/test-app';
 import { resetTestDatabase } from './test-utils/test-db';
 import { PaymentsService } from './modules/payments/payments.service';
+import { describeIfApiInfra } from './test-utils/test-infra';
 
-describe('Stripe webhook flows', () => {
+describeIfApiInfra('Stripe webhook flows', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let paymentsService: PaymentsService;

@@ -11,6 +11,7 @@ import { CinematicCursor } from '@/components/ui/CinematicCursor';
 import { Magnetic } from '@/components/ui/Interactions';
 import { authApi } from '@/lib/api/auth';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { toast } from 'sonner';
 
 export default function VerifyEmailPage() {
  const router = useRouter();
@@ -245,7 +246,16 @@ export default function VerifyEmailPage() {
  <button
    onClick={async () => {
      setTimer(60);
-     try { await authApi.resendOtp(email); } catch (e) { console.error('Failed to resend:', e); }
+     try {
+       await authApi.resendOtp(email);
+       toast.success('Verification code resent', {
+         description: `A new OTP was sent to ${email}.`,
+       });
+     } catch (e: any) {
+       console.error('Failed to resend:', e);
+       const message = e?.response?.data?.error || e?.message || 'Failed to resend code.';
+       toast.error('Resend failed', { description: message });
+     }
    }}
    disabled={timer > 0}
    className="flex items-center gap-2 text-white font-semibold hover:text-p disabled:opacity-30 disabled:hover:text-white transition-all group/resend"

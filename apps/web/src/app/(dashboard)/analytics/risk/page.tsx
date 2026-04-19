@@ -1,15 +1,19 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { demoRisk } from '../_lib/demoData';
+import { Button } from '@/components/ui/button';
+import { RefreshCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 const RANGE_OPTIONS: AnalyticsRange[] = ['1d', '1w', '1m', '3m', '1y', 'all'];
 
 export default function RiskAnalyticsPage() {
+  const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('3m');
 
   const riskQuery = useQuery({
@@ -20,11 +24,32 @@ export default function RiskAnalyticsPage() {
 
   const risk = riskQuery.data ?? demoRisk(range);
 
+  React.useEffect(() => {
+    if (riskQuery.isError) {
+      toast.error('Risk analytics unavailable', {
+        description: 'Showing fallback risk data until API recovers.',
+      });
+    }
+  }, [riskQuery.isError]);
+
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: ['analytics', 'risk'] });
+    toast.success('Risk refresh queued');
+  };
+
   return (
     <div className="space-y-6 pb-8">
       <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#2a1116] via-[#1b1022] to-[#0d1a2c] p-6">
-        <h1 className="text-2xl font-semibold text-white">Risk Radar</h1>
-        <p className="mt-2 text-sm text-white/70">Scenario-aware drawdown tracking, exposure pressure, and capital protection intelligence.</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-white">Risk Radar</h1>
+            <p className="mt-2 text-sm text-white/70">Scenario-aware drawdown tracking, exposure pressure, and capital protection intelligence.</p>
+          </div>
+          <Button onClick={refreshData} variant="outline" className="inline-flex items-center gap-2 border-white/20 bg-white/5 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 hover:bg-white/10">
+            <RefreshCcw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
         <div className="mt-4 flex flex-wrap gap-2">
           {RANGE_OPTIONS.map((option) => (
             <button

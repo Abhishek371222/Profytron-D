@@ -1,8 +1,11 @@
+/// <reference types="jest" />
+
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { createTestApp } from './test-utils/test-app';
+import { describeIfApiInfra } from './test-utils/test-infra';
 
-describe('Environment and runtime configuration', () => {
+describeIfApiInfra('Environment and runtime configuration', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -31,8 +34,12 @@ describe('Environment and runtime configuration', () => {
   });
 
   it('uses strong-enough JWT secrets', () => {
-    expect((process.env.JWT_ACCESS_SECRET || '').length).toBeGreaterThanOrEqual(16);
-    expect((process.env.JWT_REFRESH_SECRET || '').length).toBeGreaterThanOrEqual(16);
+    expect((process.env.JWT_ACCESS_SECRET || '').length).toBeGreaterThanOrEqual(
+      16,
+    );
+    expect(
+      (process.env.JWT_REFRESH_SECRET || '').length,
+    ).toBeGreaterThanOrEqual(16);
   });
 
   it('exposes a healthy database-backed health endpoint', async () => {
@@ -51,7 +58,9 @@ describe('Environment and runtime configuration', () => {
       .set('Access-Control-Request-Method', 'GET');
 
     expect([200, 204]).toContain(response.status);
-    expect(response.headers['access-control-allow-origin']).toBe('http://localhost:3000');
+    expect(response.headers['access-control-allow-origin']).toBe(
+      'http://localhost:3000',
+    );
   });
 
   it('applies helmet security headers', async () => {

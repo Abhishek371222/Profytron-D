@@ -5,8 +5,9 @@ import { PrismaService } from './prisma/prisma.service';
 import { createTestApp } from './test-utils/test-app';
 import { resetTestDatabase } from './test-utils/test-db';
 import { PaymentsService } from './modules/payments/payments.service';
+import { describeIfApiInfra } from './test-utils/test-infra';
 
-describe('Integration flows', () => {
+describeIfApiInfra('Integration flows', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let paymentsService: PaymentsService;
@@ -213,14 +214,15 @@ describe('Integration flows', () => {
       },
     });
 
-    const renewedSubscription = await prisma.userStrategySubscription.findUnique({
-      where: {
-        userId_strategyId: {
-          userId: buyer.id,
-          strategyId: strategy.id,
+    const renewedSubscription =
+      await prisma.userStrategySubscription.findUnique({
+        where: {
+          userId_strategyId: {
+            userId: buyer.id,
+            strategyId: strategy.id,
+          },
         },
-      },
-    });
+      });
     const buyerDebit = await prisma.walletTransaction.findFirst({
       where: {
         userId: buyer.id,

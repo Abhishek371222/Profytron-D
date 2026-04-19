@@ -55,7 +55,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     // Passport can add WWW-Authenticate on 401, which triggers browser auth popups.
     // Remove it so auth failures are handled by app UI instead of native prompt dialogs.
-    if (httpStatus === HttpStatus.UNAUTHORIZED) {
+    if (httpStatus === 401) {
       try {
         response.removeHeader('WWW-Authenticate');
         response.removeHeader('www-authenticate');

@@ -1,15 +1,19 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { demoTrades } from '../_lib/demoData';
+import { Button } from '@/components/ui/button';
+import { RefreshCcw } from 'lucide-react';
+import { toast } from 'sonner';
 
 const RANGE_OPTIONS: AnalyticsRange[] = ['1d', '1w', '1m', '3m', '1y', 'all'];
 
 export default function TradeAnalyticsPage() {
+  const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('3m');
 
   const tradeQuery = useQuery({
@@ -20,11 +24,32 @@ export default function TradeAnalyticsPage() {
 
   const trade = tradeQuery.data ?? demoTrades(range);
 
+  React.useEffect(() => {
+    if (tradeQuery.isError) {
+      toast.error('Trade analytics unavailable', {
+        description: 'Showing fallback trade analytics data until API recovers.',
+      });
+    }
+  }, [tradeQuery.isError]);
+
+  const refreshData = () => {
+    queryClient.invalidateQueries({ queryKey: ['analytics', 'trades'] });
+    toast.success('Trade analytics refresh queued');
+  };
+
   return (
     <div className="space-y-6 pb-8">
       <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#1e1607] via-[#132038] to-[#0f1d1b] p-6">
-        <h1 className="text-2xl font-semibold text-white">Trade Forensics</h1>
-        <p className="mt-2 text-sm text-white/70">Distribution analytics, win-loss geometry, and symbol-level trade quality checks.</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-white">Trade Forensics</h1>
+            <p className="mt-2 text-sm text-white/70">Distribution analytics, win-loss geometry, and symbol-level trade quality checks.</p>
+          </div>
+          <Button onClick={refreshData} variant="outline" className="inline-flex items-center gap-2 border-white/20 bg-white/5 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 hover:bg-white/10">
+            <RefreshCcw className="h-4 w-4" />
+            Refresh
+          </Button>
+        </div>
         <div className="mt-4 flex flex-wrap gap-2">
           {RANGE_OPTIONS.map((option) => (
             <button

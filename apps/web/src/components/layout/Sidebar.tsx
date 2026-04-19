@@ -15,6 +15,8 @@ import {
   ChevronLeft,
   Sparkles,
   Wallet,
+  Network,
+  TrendingUp,
 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/useUIStore";
@@ -118,6 +120,80 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      <div className="px-3 pb-2">
+        <motion.div
+          initial={false}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            "rounded-2xl border border-white/8 bg-gradient-to-br from-white/6 via-white/3 to-transparent p-3 shadow-[0_18px_40px_rgba(0,0,0,0.18)]",
+            !sidebarOpen && "hidden",
+          )}
+        >
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/30">Affiliate Hub</p>
+              <p className="mt-1 text-xs text-white/60">Explore your network and top earners.</p>
+            </div>
+            <div className="rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-widest text-emerald-300">
+              New
+            </div>
+          </div>
+
+          <div className="relative mb-3 h-20 overflow-hidden rounded-2xl border border-white/5 bg-black/20">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.18),_transparent_55%)]" />
+            <motion.div
+              className="absolute left-4 top-4 h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(52,211,153,0.7)]"
+              animate={{ y: [0, 6, 0], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="absolute left-10 top-8 h-1.5 w-1.5 rounded-full bg-cyan-300"
+              animate={{ y: [0, -5, 0], x: [0, 6, 0], opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
+            />
+            <motion.div
+              className="absolute left-16 top-3 h-1.5 w-1.5 rounded-full bg-indigo-300"
+              animate={{ y: [0, 7, 0], x: [0, 8, 0], opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 3.1, repeat: Infinity, ease: 'easeInOut', delay: 0.45 }}
+            />
+            <motion.div
+              className="absolute right-5 bottom-5 h-3 w-3 rounded-full bg-amber-300 shadow-[0_0_18px_rgba(251,191,36,0.45)]"
+              animate={{ scale: [1, 1.12, 1], opacity: [0.7, 1, 0.7] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 220 80" fill="none" aria-hidden="true">
+              <motion.path
+                d="M18 20 C 48 24, 72 28, 98 42 S 142 58, 190 58"
+                stroke="rgba(148,163,184,0.35)"
+                strokeWidth="1.5"
+                strokeDasharray="5 6"
+                animate={{ pathLength: [0.3, 1, 0.3] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              <motion.path
+                d="M32 58 C 62 50, 86 38, 104 24 S 154 12, 202 18"
+                stroke="rgba(99,102,241,0.35)"
+                strokeWidth="1.5"
+                strokeDasharray="4 8"
+                animate={{ pathLength: [1, 0.5, 1] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+              />
+            </svg>
+          </div>
+
+          <div className="grid gap-2">
+            <Link href="/affiliate" className="flex items-center justify-between rounded-xl border border-white/5 bg-white/4 px-3 py-2 text-xs text-white/80 transition-colors hover:border-p/30 hover:bg-p/10 hover:text-white">
+              <span>Affiliate Tree</span>
+              <Network className="h-4 w-4 text-p" />
+            </Link>
+            <Link href="/affiliate/best" className="flex items-center justify-between rounded-xl border border-white/5 bg-white/4 px-3 py-2 text-xs text-white/80 transition-colors hover:border-p/30 hover:bg-p/10 hover:text-white">
+              <span>Best Affiliates</span>
+              <TrendingUp className="h-4 w-4 text-emerald-400" />
+            </Link>
+          </div>
+        </motion.div>
+      </div>
 
       {/* User Profile & Settings */}
       <div className="p-4 space-y-2 border-t border-white/5 flex flex-col shrink-0">

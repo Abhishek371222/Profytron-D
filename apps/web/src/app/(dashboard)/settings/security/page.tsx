@@ -54,8 +54,27 @@ export default function SecuritySettingsPage() {
  });
 
  const handle2faToggle = () => {
- if (is2faEnabled) setIs2faEnabled(false);
- else setIs2faOpen(true);
+ if (is2faEnabled) {
+ setIs2faEnabled(false);
+ toast.message('2FA protocol disabled');
+ } else {
+ setIs2faOpen(true);
+ toast.message('2FA setup opened');
+ }
+ };
+
+ const handleSyncSessions = async () => {
+  try {
+   await refreshSessions();
+   toast.success('Session registry synchronized');
+  } catch {
+   toast.error('Failed to sync session registry');
+  }
+ };
+
+ const handleAuditFilterChange = (next: 'all' | 'critical' | 'warning') => {
+  setAuditFilter(next);
+  toast.message(`Audit filter set to ${next.toUpperCase()}`);
  };
 
  const handleVerify2fa = () => {
@@ -220,7 +239,7 @@ export default function SecuritySettingsPage() {
  </div>
  <h3 className="text-2xl font-semibold text-white uppercase tracking-tight">Authorized Nodes</h3>
  </div>
- <button onClick={() => refreshSessions()} className="flex items-center gap-2 text-xs font-semibold text-white/20 uppercase tracking-widest hover:text-white transition-colors">
+ <button onClick={handleSyncSessions} className="flex items-center gap-2 text-xs font-semibold text-white/20 uppercase tracking-widest hover:text-white transition-colors">
  <RefreshCcw className={cn("w-3.5 h-3.5 transition-transform duration-700", isRefreshing &&"animate-spin")} />
  Sync
  </button>
@@ -282,7 +301,7 @@ export default function SecuritySettingsPage() {
  {(['all', 'warning', 'critical'] as const).map(f => (
  <button
  key={f}
- onClick={() => setAuditFilter(f)}
+ onClick={() => handleAuditFilterChange(f)}
  className={cn(
 "px-4 py-2 rounded-[10px] text-xs font-semibold uppercase tracking-widest transition-all relative",
  auditFilter === f ?"text-white" :"text-white/30 hover:text-white/60"

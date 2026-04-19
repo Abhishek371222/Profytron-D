@@ -19,6 +19,7 @@ import { SearchModule } from './modules/search/search.module';
 import { TradingModule } from './modules/trading/trading.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { MarketModule } from './modules/market/market.module';
 
 @Module({
   imports: [
@@ -51,9 +52,9 @@ import { AppService } from './app.service';
     TradingModule,
     AIModule,
     SearchModule,
+    MarketModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
-

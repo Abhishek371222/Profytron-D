@@ -345,9 +345,10 @@ export class AuthService {
   }
 
   async googleCallback(profile: any) {
-    const fullName = profile.fullName?.trim() || profile.name?.trim() || 'Google User';
+    const fullName =
+      profile.fullName?.trim() || profile.name?.trim() || 'Google User';
     const avatarUrl = profile.avatarUrl || profile.picture || null;
-    
+
     this.logger.log(
       `Google OAuth callback for ${profile.email}. Profile: fullName="${fullName}", hasAvatar=${!!avatarUrl}`,
     );
@@ -355,7 +356,7 @@ export class AuthService {
     let user = await this.prisma.user.findUnique({
       where: { email: profile.email },
     });
-    
+
     if (!user) {
       user = await this.prisma.user.create({
         data: {
@@ -378,7 +379,9 @@ export class AuthService {
           emailVerified: true,
         },
       });
-      this.logger.log(`Existing Google user updated: ${user.id} (${user.email})`);
+      this.logger.log(
+        `Existing Google user updated: ${user.id} (${user.email})`,
+      );
     }
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
@@ -412,7 +415,7 @@ export class AuthService {
 
     // Ensure fullName has a meaningful default
     const fullName = dto.fullName?.trim() || 'User';
-    
+
     this.logger.log(
       `Identity verified for ${dto.email}. Provider: ${dto.provider}. Profile: fullName="${fullName}", hasAvatar=${!!dto.avatarUrl}`,
     );

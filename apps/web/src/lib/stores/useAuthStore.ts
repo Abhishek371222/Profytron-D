@@ -4,6 +4,8 @@ import axios from 'axios';
 import { authApi } from '../api/auth';
 import { unwrapApiResponse } from '../api/client';
 
+const isMockApiEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_API === 'true';
+
 // Inline until workspace types are resolved
 type User = any;
 
@@ -50,6 +52,9 @@ export const useAuthStore = create<AuthState>()(
       },
 
       login: (accessToken, user) => {
+        if (typeof window !== 'undefined' && accessToken.startsWith('mock_token_')) {
+          document.cookie = 'demo_access=1; path=/; max-age=86400; samesite=lax';
+        }
         set({ user, accessToken, isAuthenticated: true, isLoading: false, isHydrating: false });
       },
 
@@ -64,6 +69,14 @@ export const useAuthStore = create<AuthState>()(
       },
 
       hydrate: async () => {
+        if (isMockApiEnabled) {
+          set((state) => ({
+            isAuthenticated: Boolean(state.user),
+            isHydrating: false,
+          }));
+          return;
+        }
+
         try {
           // This call triggers the HTTP-only cookie automatically if credentials inclusion is true
           const response = await axios.post(
@@ -81,7 +94,20 @@ export const useAuthStore = create<AuthState>()(
     }),
     { 
         name: 'profytron-auth',
-        partialize: (state) => ({ user: state.user }) // Prevent saving raw access token to local storage 
+        // Persist a minimal user snapshot only; never persist access tokens.
+        partialize: (state) => ({
+          user: state.user
+            ? {
+                id: state.user.id,
+                googleId: state.user.googleId,
+                email: state.user.email,
+                fullName: state.user.fullName,
+                username: state.user.username,
+                avatarUrl: state.user.avatarUrl,
+                role: state.user.role,
+              }
+            : null,
+        })
     }
   )
 );

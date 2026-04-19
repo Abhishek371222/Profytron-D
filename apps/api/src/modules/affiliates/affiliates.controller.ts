@@ -30,7 +30,9 @@ export class AffiliatesController {
     return this.affiliatesService.getAffiliateDashboard(req.user.id);
   }
 
-  @ApiOperation({ summary: 'Validate and capture referral code from landing flow' })
+  @ApiOperation({
+    summary: 'Validate and capture referral code from landing flow',
+  })
   @Post('capture/:code')
   async captureReferral(@Param('code') code: string) {
     return this.affiliatesService.captureReferralCode(code);

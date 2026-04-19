@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { toast } from 'sonner';
 
 type CheckResult = {
   name: string;
@@ -85,7 +86,9 @@ export default function OauthDiagnosticsPage() {
     });
 
     if (error) {
-      alert(`Google OAuth init failed: ${error.message}`);
+      toast.error('Google OAuth init failed', {
+        description: error.message,
+      });
     }
   };
 

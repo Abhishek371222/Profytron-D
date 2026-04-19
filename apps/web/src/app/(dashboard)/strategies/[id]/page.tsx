@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { strategiesApi } from '@/lib/api/strategies';
+import { analyticsApi } from '@/lib/api/analytics';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,57 @@ export default function StrategyDetailPage() {
     enabled: !!id,
   });
 
+  const { data: tradeExport, isError: tradeExportError } = useQuery({
+    queryKey: ['strategy-trade-export', id],
+    queryFn: () => analyticsApi.getTradeExport('all'),
+    enabled: !!id,
+  });
+
+  React.useEffect(() => {
+    if (tradeExportError) {
+      toast.error('Live execution feed unavailable', {
+        description: 'Showing fallback trade frames for this strategy.',
+      });
+    }
+  }, [tradeExportError]);
+
+  const equityCurve = strategy?.equityCurve || [];
+  const chartData = React.useMemo(() => {
+    if (chartRange === 'ALL') return equityCurve;
+    const points = chartRange === '1M' ? 30 : chartRange === '3M' ? 90 : 365;
+    return equityCurve.slice(-points);
+  }, [chartRange, equityCurve]);
+
+  const strategyName = strategy?.name || '';
+  const strategyRecentTrades = (strategy as unknown as { recentTrades?: unknown[] } | undefined)?.recentTrades;
+  const mockTrades = React.useMemo(() => {
+    if (Array.isArray(strategyRecentTrades) && strategyRecentTrades.length > 0) {
+      return strategyRecentTrades;
+    }
+
+    const liveTrades = (tradeExport?.rows || [])
+      .filter((trade) => (trade.strategyName || '') === strategyName)
+      .slice(0, 8)
+      .map((trade) => ({
+        id: trade.id,
+        pair: trade.symbol,
+        side: trade.direction,
+        pnl: Number(trade.profit ?? 0),
+        at: new Date(trade.closedAt ?? trade.openedAt).toISOString().slice(0, 16).replace('T', ' '),
+      }));
+
+    if (liveTrades.length > 0) {
+      return liveTrades;
+    }
+
+    return [
+      { id: 'TR-001', pair: 'EUR/USD', side: 'LONG', pnl: 142.8, at: '2026-04-10 13:22' },
+      { id: 'TR-002', pair: 'BTC/USDT', side: 'SHORT', pnl: -38.2, at: '2026-04-10 10:47' },
+      { id: 'TR-003', pair: 'SOL/USDT', side: 'LONG', pnl: 74.4, at: '2026-04-09 18:15' },
+      { id: 'TR-004', pair: 'XAU/USD', side: 'SHORT', pnl: 59.1, at: '2026-04-09 14:08' },
+    ];
+  }, [strategyName, strategyRecentTrades, tradeExport?.rows]);
+
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center bg-[#030303]">
@@ -41,26 +93,6 @@ export default function StrategyDetailPage() {
   }
 
   if (!strategy) return null;
-
-  const equityCurve = strategy.equityCurve || [];
-  const chartData = React.useMemo(() => {
-    if (chartRange === 'ALL') return equityCurve;
-    const points = chartRange === '1M' ? 30 : chartRange === '3M' ? 90 : 365;
-    return equityCurve.slice(-points);
-  }, [chartRange, equityCurve]);
-
-  const mockTrades = React.useMemo(() => {
-    if (Array.isArray(strategy.recentTrades) && strategy.recentTrades.length > 0) {
-      return strategy.recentTrades;
-    }
-
-    return [
-      { id: 'TR-001', pair: 'EUR/USD', side: 'LONG', pnl: 142.8, at: '2026-04-10 13:22' },
-      { id: 'TR-002', pair: 'BTC/USDT', side: 'SHORT', pnl: -38.2, at: '2026-04-10 10:47' },
-      { id: 'TR-003', pair: 'SOL/USDT', side: 'LONG', pnl: 74.4, at: '2026-04-09 18:15' },
-      { id: 'TR-004', pair: 'XAU/USD', side: 'SHORT', pnl: 59.1, at: '2026-04-09 14:08' },
-    ];
-  }, [strategy.recentTrades]);
 
   const handleShare = async () => {
     const strategyUrl = `${window.location.origin}/strategies/${strategy.id}`;

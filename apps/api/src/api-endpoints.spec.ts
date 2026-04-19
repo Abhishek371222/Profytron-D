@@ -1,11 +1,14 @@
+/// <reference types="jest" />
+
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
 import { createTestApp } from './test-utils/test-app';
 import { resetTestDatabase } from './test-utils/test-db';
 import { loginAs, seedVerifiedUser } from './test-utils/auth';
+import { describeIfApiInfra } from './test-utils/test-infra';
 
-describe('API endpoint contract', () => {
+describeIfApiInfra('API endpoint contract', () => {
   let app: INestApplication;
   let prisma: PrismaService;
 
@@ -147,7 +150,15 @@ describe('API endpoint contract', () => {
       .post('/v1/webhooks/stripe')
       .set('Content-Type', 'application/json')
       .set('stripe-signature', 'invalid-signature')
-      .send(Buffer.from(JSON.stringify({ id: 'evt_invalid', type: 'payment_intent.succeeded' }), 'utf8'))
+      .send(
+        Buffer.from(
+          JSON.stringify({
+            id: 'evt_invalid',
+            type: 'payment_intent.succeeded',
+          }),
+          'utf8',
+        ),
+      )
       .expect((res) => {
         expect([400, 403]).toContain(res.status);
       });

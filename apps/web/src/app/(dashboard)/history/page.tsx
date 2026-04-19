@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { 
  History, 
  Search, 
@@ -16,6 +17,8 @@ import {
 } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
+import { toast } from 'sonner';
 
 const MOCK_HISTORY = [
  { id: '1', asset: 'EUR/USD', type: 'Long', amount: '2.5', entry: '1.08420', exit: '1.08950', pnl: 1325.50, status: 'Closed', time: '2026-04-10 14:22', strategy: 'MomentumApex v2' },
@@ -27,6 +30,23 @@ const MOCK_HISTORY = [
  { id: '7', asset: 'SOL/USDT', type: 'Long', amount: '50', entry: '174.20', exit: '182.10', pnl: 395.00, status: 'Closed', time: '2026-04-09 14:10', strategy: 'Neural Scalp' },
 ];
 
+const mapRangeToAnalytics = (range: 'ALL' | '7D' | '30D' | '90D'): AnalyticsRange => {
+ if (range === '7D') return '1w';
+ if (range === '30D') return '1m';
+ if (range === '90D') return '3m';
+ return 'all';
+};
+
+const formatPrice = (value: number | null) => {
+ if (value === null || Number.isNaN(value)) {
+  return '--';
+ }
+ if (Math.abs(value) >= 1000) {
+  return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+ }
+ return value.toFixed(5).replace(/0+$/, '').replace(/\.$/, '');
+};
+
 export default function HistoryPage() {
  const [searchQuery, setSearchQuery] = useState('');
  const [selectedStrategy, setSelectedStrategy] = useState('All Strategies');
@@ -36,16 +56,50 @@ export default function HistoryPage() {
 
  const pageSize = 5;
 
+ const {
+  data: liveHistory,
+  isFetching,
+  isError,
+ } = useQuery({
+  queryKey: ['history-export', selectedRange],
+  queryFn: async () => {
+   const payload = await analyticsApi.getTradeExport(mapRangeToAnalytics(selectedRange));
+   return payload.rows.map((row, index) => ({
+    id: row.id || String(index + 1),
+    asset: row.symbol,
+    type: row.direction === 'BUY' ? 'Long' : 'Short',
+    amount: String(row.volume),
+    entry: formatPrice(row.openPrice),
+    exit: formatPrice(row.closePrice),
+    pnl: row.profit ?? 0,
+    status: row.status === 'CLOSED' ? 'Closed' : row.status === 'OPEN' ? 'Open' : 'Canceled',
+    time: new Date(row.closedAt ?? row.openedAt).toISOString().slice(0, 16).replace('T', ' '),
+    strategy: row.strategyName ?? 'Manual Trades',
+   }));
+  },
+ });
+
+ const historyRows = liveHistory && liveHistory.length > 0 ? liveHistory : MOCK_HISTORY;
+ const isFallbackData = !liveHistory || liveHistory.length === 0;
+
+ React.useEffect(() => {
+  if (isError) {
+   toast.error('Live history unavailable', {
+    description: 'Showing local fallback data until API sync recovers.',
+   });
+  }
+ }, [isError]);
+
  const strategyOptions = useMemo(() => {
-  const unique = Array.from(new Set(MOCK_HISTORY.map((trade) => trade.strategy)));
+  const unique = Array.from(new Set(historyRows.map((trade) => trade.strategy)));
   return ['All Strategies', ...unique];
- }, []);
+ }, [historyRows]);
 
  const filteredHistory = useMemo(() => {
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const now = new Date('2026-04-10T23:59:59');
 
-  return MOCK_HISTORY.filter((trade) => {
+   return historyRows.filter((trade) => {
    if (selectedStrategy !== 'All Strategies' && trade.strategy !== selectedStrategy) {
 	return false;
    }
@@ -67,7 +121,7 @@ export default function HistoryPage() {
    const haystack = `${trade.id} ${trade.asset} ${trade.type} ${trade.strategy} ${trade.time}`.toLowerCase();
    return haystack.includes(normalizedQuery);
   });
- }, [searchQuery, selectedRange, selectedStrategy]);
+ }, [historyRows, searchQuery, selectedRange, selectedStrategy]);
 
  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / pageSize));
 
@@ -156,8 +210,8 @@ export default function HistoryPage() {
  </span>
  <div className="w-1 h-4 bg-white/10 mx-2" />
  <div className="flex items-center gap-2">
- <div className="w-2 h-2 rounded-full bg-emerald-500" />
- <span className="text-xs font-bold text-white/40 uppercase">Synced</span>
+ <div className={cn('w-2 h-2 rounded-full', isFallbackData ? 'bg-amber-500' : 'bg-emerald-500')} />
+ <span className="text-xs font-bold text-white/40 uppercase">{isFetching ? 'Syncing' : isFallbackData ? 'Fallback' : 'Synced'}</span>
  </div>
  </div>
  <Button onClick={handleExport} className="h-14 px-8 bg-white text-black hover:bg-white/90 rounded-2xl font-semibold uppercase tracking-widest gap-3 shadow-[0_0_30px_rgba(255,255,255,0.1)]">

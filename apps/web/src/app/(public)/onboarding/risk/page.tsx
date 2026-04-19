@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { 
  ShieldCheck, 
  Target, 
@@ -18,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { toast } from 'sonner';
 
 const STEPS = [
  {
@@ -55,6 +57,7 @@ const STEPS = [
  import { usersApi } from '@/lib/api/users';
 
  export default function RiskOnboardingPage() {
+ const router = useRouter();
  const [currentStep, setCurrentStep] = useState(0);
  const [answers, setAnswers] = useState<Record<string, string>>({});
  const [isFinalizing, setIsFinalizing] = useState(false);
@@ -81,10 +84,15 @@ const STEPS = [
      riskProfileJson: answers,
      riskDnaScore: score
    });
-
-   window.location.href = '/dashboard';
+   toast.success('Risk DNA synchronized', {
+     description: 'Your profile has been applied. Redirecting to dashboard.',
+   });
+   router.push('/dashboard');
  } catch (error) {
    console.error('Failed to save risk DNA', error);
+   toast.error('Risk profile sync failed', {
+     description: 'Please retry in a few seconds.',
+   });
    setIsFinalizing(false);
  }
  }

@@ -26,7 +26,11 @@ export class AnalyticsController {
     return '1m';
   }
 
-  private async withCache<T>(key: string, ttlSeconds: number, producer: () => Promise<T>): Promise<T> {
+  private async withCache<T>(
+    key: string,
+    ttlSeconds: number,
+    producer: () => Promise<T>,
+  ): Promise<T> {
     const cached = await this.redisClient.get(key);
     if (cached) {
       return JSON.parse(cached) as T;
@@ -44,17 +48,16 @@ export class AnalyticsController {
     return this.withCache(
       `analytics:portfolio:${req.user.id}:${normalizedRange}`,
       30,
-      () => this.analyticsService.getPortfolioStats(req.user.id, normalizedRange),
+      () =>
+        this.analyticsService.getPortfolioStats(req.user.id, normalizedRange),
     );
   }
 
   @ApiOperation({ summary: 'Get monthly returns heatmap data' })
   @Get('monthly-returns')
   async getMonthlyReturns(@Req() req: any) {
-    return this.withCache(
-      `analytics:monthly-returns:${req.user.id}`,
-      300,
-      () => this.analyticsService.getMonthlyReturns(req.user.id),
+    return this.withCache(`analytics:monthly-returns:${req.user.id}`, 300, () =>
+      this.analyticsService.getMonthlyReturns(req.user.id),
     );
   }
 
@@ -65,29 +68,39 @@ export class AnalyticsController {
     return this.withCache(
       `analytics:strategy-comparison:${req.user.id}:${normalizedRange}`,
       120,
-      () => this.analyticsService.getStrategyComparison(req.user.id, normalizedRange),
+      () =>
+        this.analyticsService.getStrategyComparison(
+          req.user.id,
+          normalizedRange,
+        ),
     );
   }
 
-  @ApiOperation({ summary: 'Get portfolio risk analytics and drawdown profile' })
+  @ApiOperation({
+    summary: 'Get portfolio risk analytics and drawdown profile',
+  })
   @Get('risk')
   async getRisk(@Req() req: any, @Query('range') range?: string) {
     const normalizedRange = this.normalizeRange(range);
     return this.withCache(
       `analytics:risk:${req.user.id}:${normalizedRange}`,
       120,
-      () => this.analyticsService.getRiskAnalytics(req.user.id, normalizedRange),
+      () =>
+        this.analyticsService.getRiskAnalytics(req.user.id, normalizedRange),
     );
   }
 
-  @ApiOperation({ summary: 'Get trade distribution, duration, and symbol analytics' })
+  @ApiOperation({
+    summary: 'Get trade distribution, duration, and symbol analytics',
+  })
   @Get('trades')
   async getTrades(@Req() req: any, @Query('range') range?: string) {
     const normalizedRange = this.normalizeRange(range);
     return this.withCache(
       `analytics:trades:${req.user.id}:${normalizedRange}`,
       120,
-      () => this.analyticsService.getTradeAnalytics(req.user.id, normalizedRange),
+      () =>
+        this.analyticsService.getTradeAnalytics(req.user.id, normalizedRange),
     );
   }
 
@@ -102,13 +115,13 @@ export class AnalyticsController {
     );
   }
 
-  @ApiOperation({ summary: 'Get global intelligence snapshot and macro insights' })
+  @ApiOperation({
+    summary: 'Get global intelligence snapshot and macro insights',
+  })
   @Get('global')
   async getGlobal(@Req() req: any) {
-    return this.withCache(
-      `analytics:global:${req.user.id}`,
-      300,
-      () => this.analyticsService.getGlobalIntelligence(),
+    return this.withCache(`analytics:global:${req.user.id}`, 300, () =>
+      this.analyticsService.getGlobalIntelligence(),
     );
   }
 
@@ -116,11 +129,11 @@ export class AnalyticsController {
   @Get('leaderboard')
   async getLeaderboard(@Query('limit') limit?: string) {
     const parsedLimit = Number(limit ?? 10);
-    const safeLimit = Number.isFinite(parsedLimit) ? Math.min(Math.max(parsedLimit, 3), 50) : 10;
-    return this.withCache(
-      `analytics:leaderboard:${safeLimit}`,
-      60,
-      () => this.analyticsService.getLeaderboard(safeLimit),
+    const safeLimit = Number.isFinite(parsedLimit)
+      ? Math.min(Math.max(parsedLimit, 3), 50)
+      : 10;
+    return this.withCache(`analytics:leaderboard:${safeLimit}`, 60, () =>
+      this.analyticsService.getLeaderboard(safeLimit),
     );
   }
 }

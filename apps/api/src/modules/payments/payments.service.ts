@@ -35,7 +35,11 @@ export class PaymentsService {
       throw new BadRequestException('Missing STRIPE_WEBHOOK_SECRET');
     }
     try {
-      return this.stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+      return this.stripe.webhooks.constructEvent(
+        rawBody,
+        signature,
+        webhookSecret,
+      );
     } catch {
       throw new ForbiddenException('Invalid Stripe webhook signature');
     }
@@ -43,7 +47,13 @@ export class PaymentsService {
 
   async handleStripeEvent(event: any) {
     const idempotencyKey = `stripe:event:${event.id}`;
-    const lock = await this.redis.set(idempotencyKey, 'processing', 'EX', 86400, 'NX');
+    const lock = await this.redis.set(
+      idempotencyKey,
+      'processing',
+      'EX',
+      86400,
+      'NX',
+    );
     if (lock !== 'OK') {
       return { ok: true, duplicate: true };
     }
@@ -51,7 +61,7 @@ export class PaymentsService {
     try {
       switch (event.type) {
         case 'checkout.session.completed': {
-          const session = event.data.object as any;
+          const session = event.data.object;
           const metadata = session.metadata || {};
           if (metadata.userId && metadata.strategyId && metadata.planType) {
             await this.activateSubscription(
@@ -64,17 +74,22 @@ export class PaymentsService {
           break;
         }
         case 'invoice.payment_succeeded': {
-          const invoice = event.data.object as any;
+          const invoice = event.data.object;
           const stripeSubId =
-            typeof invoice.subscription === 'string' ? invoice.subscription : null;
+            typeof invoice.subscription === 'string'
+              ? invoice.subscription
+              : null;
           if (stripeSubId && invoice.amount_paid > 0) {
             await this.handleSubscriptionInvoicePaid(stripeSubId, invoice);
           }
           break;
         }
         case 'invoice.payment_failed': {
-          const invoice = event.data.object as any;
-          const stripeSubId = typeof invoice.subscription === 'string' ? invoice.subscription : null;
+          const invoice = event.data.object;
+          const stripeSubId =
+            typeof invoice.subscription === 'string'
+              ? invoice.subscription
+              : null;
           if (stripeSubId) {
             await this.prisma.userStrategySubscription.updateMany({
               where: { stripeSubId },
@@ -87,7 +102,7 @@ export class PaymentsService {
           break;
         }
         case 'customer.subscription.deleted': {
-          const stripeSub = event.data.object as any;
+          const stripeSub = event.data.object;
           await this.prisma.userStrategySubscription.updateMany({
             where: { stripeSubId: stripeSub.id },
             data: {
@@ -104,7 +119,7 @@ export class PaymentsService {
       await this.redis.set(idempotencyKey, 'processed', 'EX', 86400);
       return { ok: true };
     } catch (error) {
-      this.logger.error(`Stripe webhook failed for event ${event.id}`, error as any);
+      this.logger.error(`Stripe webhook failed for event ${event.id}`, error);
       throw error;
     }
   }
@@ -182,13 +197,18 @@ export class PaymentsService {
     }
 
     const currentPeriodEndUnix =
-      (stripeObject as any).current_period_end ||
-      ((stripeObject as any).subscription_details?.current_period_end as number | undefined);
+      stripeObject.current_period_end ||
+      (stripeObject.subscription_details?.current_period_end as
+        | number
+        | undefined);
     const expiresAt = currentPeriodEndUnix
       ? new Date(currentPeriodEndUnix * 1000)
       : planType === 'LIFETIME'
         ? null
-        : new Date(Date.now() + (planType === 'ANNUAL' ? 365 : 30) * 24 * 60 * 60 * 1000);
+        : new Date(
+            Date.now() +
+              (planType === 'ANNUAL' ? 365 : 30) * 24 * 60 * 60 * 1000,
+          );
 
     const paidAmount = Number(stripeObject.amount_total || 0) / 100;
 
@@ -201,7 +221,9 @@ export class PaymentsService {
           status: 'ACTIVE',
           planType,
           stripeSubId:
-            typeof stripeObject.subscription === 'string' ? stripeObject.subscription : null,
+            typeof stripeObject.subscription === 'string'
+              ? stripeObject.subscription
+              : null,
           subscribedAt: new Date(),
           expiresAt,
         },
@@ -209,7 +231,9 @@ export class PaymentsService {
           status: 'ACTIVE',
           planType,
           stripeSubId:
-            typeof stripeObject.subscription === 'string' ? stripeObject.subscription : undefined,
+            typeof stripeObject.subscription === 'string'
+              ? stripeObject.subscription
+              : undefined,
           subscribedAt: new Date(),
           expiresAt,
         },
@@ -259,11 +283,11 @@ export class PaymentsService {
 
   private getPeriodEndDate(stripeObject: any): Date | null {
     const unixPeriodEnd =
-      (stripeObject as any).current_period_end ||
-      ((stripeObject as any).subscription_details?.current_period_end as
+      stripeObject.current_period_end ||
+      (stripeObject.subscription_details?.current_period_end as
         | number
         | undefined) ||
-      (stripeObject as any).lines?.data?.[0]?.period?.end;
+      stripeObject.lines?.data?.[0]?.period?.end;
 
     return unixPeriodEnd ? new Date(unixPeriodEnd * 1000) : null;
   }
@@ -452,9 +476,9 @@ export class PaymentsService {
           idempotencyKey,
           metadataJson: metadata as any,
         },
-       });
-     } finally {
-       await this.redis.del(lockKey);
-     }
-   }
- }
+      });
+    } finally {
+      await this.redis.del(lockKey);
+    }
+  }
+}

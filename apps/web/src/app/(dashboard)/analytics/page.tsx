@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Area,
   AreaChart,
@@ -14,12 +14,15 @@ import {
 import { Card } from '@/components/ui/card';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import Link from 'next/link';
-import { ChevronRight, Sparkles, TrendingUp } from 'lucide-react';
+import { ChevronRight, RefreshCcw, Sparkles, TrendingUp } from 'lucide-react';
 import { demoPortfolio } from './_lib/demoData';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 const RANGE_OPTIONS: AnalyticsRange[] = ['1d', '1w', '1m', '3m', '1y', 'all'];
 
 export default function AnalyticsPage() {
+  const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('1m');
 
   const portfolioQuery = useQuery({
@@ -61,6 +64,19 @@ export default function AnalyticsPage() {
   const portfolio = portfolioQuery.data ?? demoPortfolio(range);
   const global = globalQuery.data;
 
+  React.useEffect(() => {
+    if (portfolioQuery.isError) {
+      toast.error('Portfolio analytics unavailable', {
+        description: 'Using fallback data until the analytics API recovers.',
+      });
+    }
+  }, [portfolioQuery.isError]);
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['analytics'] });
+    toast.success('Analytics refresh queued');
+  };
+
   return (
     <div className="space-y-6 pb-8">
       <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#09112b] via-[#0a1338] to-[#071327] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
@@ -79,6 +95,10 @@ export default function AnalyticsPage() {
             Global Terminal
             <ChevronRight className="h-4 w-4" />
           </Link>
+          <Button onClick={handleRefresh} variant="outline" className="inline-flex items-center gap-2 border-white/20 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 hover:bg-white/10">
+            <RefreshCcw className="h-4 w-4" />
+            Refresh
+          </Button>
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-2">

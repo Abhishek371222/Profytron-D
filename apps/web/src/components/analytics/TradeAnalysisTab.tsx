@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { 
  BarChart, 
  Bar, 
@@ -70,11 +70,13 @@ const itemVariants = {
  }
 };
 
-export default function TradeAnalysisTab() {
+function TradeAnalysisTabView() {
+ const reduceMotion = useReducedMotion();
+
  return (
  <motion.div 
  variants={containerVariants}
- initial="hidden"
+ initial={reduceMotion ? false : 'hidden'}
  animate="visible"
  className="space-y-12 pb-24"
  >
@@ -367,3 +369,5 @@ export default function TradeAnalysisTab() {
  </motion.div>
  );
 }
+
+export default React.memo(TradeAnalysisTabView);

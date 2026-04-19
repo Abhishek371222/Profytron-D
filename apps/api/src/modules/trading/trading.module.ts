@@ -18,4 +18,3 @@ import { AuthModule } from '../auth/auth.module';
   exports: [TradingService, TradingGateway, TradeProcessor],
 })
 export class TradingModule {}
-

@@ -8,6 +8,7 @@ const protectedRoutes = [
   '/analytics',
   '/ai-coach',
   '/wallet',
+  '/affiliate',
   '/settings',
   '/admin',
 ];

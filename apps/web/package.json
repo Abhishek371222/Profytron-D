@@ -6,7 +6,7 @@
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint --quiet"
   },
   "dependencies": {
     "@base-ui/react": "latest",
@@ -30,6 +30,7 @@
     "framer-motion": "^11.18.2",
     "gsap": "^3.14.2",
     "immer": "^11.1.4",
+    "lightweight-charts": "^5.1.0",
     "lucide-react": "latest",
     "motion": "^12.38.0",
     "msw": "^2.13.2",

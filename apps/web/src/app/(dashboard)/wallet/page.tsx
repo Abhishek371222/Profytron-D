@@ -11,6 +11,7 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { DepositModal } from '@/components/wallet/DepositModal';
 import { WithdrawSheet } from '@/components/wallet/WithdrawSheet';
 import { demoWalletBalance, demoWalletTransactions } from '@/lib/api/demoData';
+import { RefreshCcw } from 'lucide-react';
 
 type TxFilterType = 'ALL' | 'DEPOSIT' | 'WITHDRAWAL' | 'SUBSCRIPTION_PAYMENT';
 type TxFilterStatus = 'ALL' | 'PENDING' | 'CONFIRMED' | 'FAILED';
@@ -76,6 +77,24 @@ export default function WalletPage() {
     return (apiTxs && apiTxs.length > 0) ? apiTxs : demoWalletTransactions;
   }, [transactionsQuery.data]);
 
+  const hasLiveBalance = Boolean(balanceQuery.data);
+  const hasLiveTransactions = Boolean(transactionsQuery.data?.pages.some((page) => page.transactions.length > 0));
+  const isFallbackMode = !hasLiveBalance || !hasLiveTransactions;
+
+  React.useEffect(() => {
+    if (balanceQuery.isError || transactionsQuery.isError) {
+      toast.error('Wallet live feed unavailable', {
+        description: 'Showing fallback wallet data while services recover.',
+      });
+    }
+  }, [balanceQuery.isError, transactionsQuery.isError]);
+
+  const refreshWallet = () => {
+    queryClient.invalidateQueries({ queryKey: ['wallet-balance'] });
+    queryClient.invalidateQueries({ queryKey: ['wallet-transactions'] });
+    toast.success('Wallet refresh queued');
+  };
+
   const downloadStatement = async () => {
     try {
       const blob = await walletApi.getStatement(statementYear, statementMonth);
@@ -98,11 +117,19 @@ export default function WalletPage() {
           <p className="text-sm text-white/60">Ledger, deposits, withdrawals, and monthly statements.</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={refreshWallet} className="inline-flex items-center gap-2">
+            <RefreshCcw className="h-4 w-4" />
+            Refresh
+          </Button>
           <Button onClick={() => setIsDepositOpen(true)}>Deposit</Button>
           <Button variant="outline" onClick={() => setIsWithdrawOpen(true)}>
             Withdraw
           </Button>
         </div>
+      </div>
+
+      <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/70">
+        Data Mode: <span className={isFallbackMode ? 'text-amber-300' : 'text-emerald-300'}>{isFallbackMode ? 'Fallback' : 'Live'}</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -116,7 +143,7 @@ export default function WalletPage() {
         </Card>
         <Card className="p-4 bg-black/40 border-white/10">
           <p className="text-xs text-white/60">Reserved</p>
-          <p className="text-xl font-semibold text-amber-300">${Number((balanceQuery.data?.pendingIn ?? 0) + (balanceQuery.data?.pendingOut ?? 0) ?? demoWalletBalance.reservedBalance).toFixed(2)}</p>
+          <p className="text-xl font-semibold text-amber-300">${Number(hasLiveBalance ? (balanceQuery.data?.pendingIn ?? 0) + (balanceQuery.data?.pendingOut ?? 0) : demoWalletBalance.reservedBalance).toFixed(2)}</p>
         </Card>
         <Card className="p-4 bg-black/40 border-white/10">
           <p className="text-xs text-white/60">Currency</p>
@@ -186,12 +213,12 @@ export default function WalletPage() {
             <tbody>
               {transactions.map((tx) => (
                 <tr key={tx.id} className="border-b border-white/5">
-                  <td className="py-2">{new Date(tx.createdAt).toLocaleString()}</td>
+                  <td className="py-2">{new Date(('createdAt' in tx ? tx.createdAt : tx.timestamp) as string).toLocaleString()}</td>
                   <td className="py-2">{tx.type}</td>
                   <td className="py-2">{tx.status}</td>
-                  <td className="py-2">{tx.description || tx.reference || '-'}</td>
+                  <td className="py-2">{('description' in tx ? tx.description : undefined) || tx.reference || '-'}</td>
                   <td className="py-2 text-right">
-                    {tx.direction === 'OUT' ? '-' : '+'}INR {Number(tx.amount).toFixed(2)}
+                    {('direction' in tx && tx.direction === 'OUT') ? '-' : '+'}INR {Number(tx.amount).toFixed(2)}
                   </td>
                 </tr>
               ))}

@@ -1,7 +1,22 @@
-import { Controller, Get, Post, Body, UseGuards, Req, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  Param,
+} from '@nestjs/common';
 import { AIService } from './ai.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import type { Request } from 'express';
+
+type AuthenticatedRequest = Request & {
+  user: {
+    id: string;
+  };
+};
 
 @ApiTags('AI Coach')
 @ApiBearerAuth()
@@ -12,7 +27,10 @@ export class AIController {
 
   @ApiOperation({ summary: 'Get AI-driven explanation for one of your trades' })
   @Post('explain-trade/:tradeId')
-  async explainTradeById(@Req() req: any, @Param('tradeId') tradeId: string) {
+  async explainTradeById(
+    @Req() req: AuthenticatedRequest,
+    @Param('tradeId') tradeId: string,
+  ) {
     return this.aiService.explainTradeById(req.user.id, tradeId);
   }
 
@@ -24,13 +42,18 @@ export class AIController {
 
   @ApiOperation({ summary: 'Send a prompt to AI coach chat' })
   @Post('chat')
-  async chat(@Req() req: any, @Body() body: { message: string; context?: string }) {
+  async chat(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: { message: string; context?: string },
+  ) {
     return this.aiService.chat(req.user.id, body);
   }
 
-  @ApiOperation({ summary: 'Get personalized coaching report from recent behavior' })
+  @ApiOperation({
+    summary: 'Get personalized coaching report from recent behavior',
+  })
   @Get('coaching-report')
-  async getCoachingReport(@Req() req: any) {
+  async getCoachingReport(@Req() req: AuthenticatedRequest) {
     return this.aiService.getCoachingReport(req.user.id);
   }
 
