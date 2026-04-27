@@ -193,6 +193,7 @@ model BrokerAccount {
   serverName           String?
   isPaperTrading       Boolean    @default(false)
   isDefault            Boolean    @default(false)
+  isMasterSource       Boolean    @default(false)
   isActive             Boolean    @default(true)
   lastConnectedAt      DateTime?
   connectedAt          DateTime   @default(now())
@@ -265,9 +266,9 @@ model UserStrategySubscription {
   userId          String
   user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   strategyId      String
-  strategy        Strategy           @relation(fields: [strategyId], references: [id])
+  strategy        Strategy           @relation(fields: [strategyId], references: [id], onDelete: Cascade)
   brokerAccountId String?
-  brokerAccount   BrokerAccount?     @relation(fields: [brokerAccountId], references: [id])
+  brokerAccount   BrokerAccount?     @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
   status          SubscriptionStatus @default(ACTIVE)
   planType        String?
   stripeSubId     String?
@@ -276,6 +277,16 @@ model UserStrategySubscription {
   subscribedAt    DateTime           @default(now())
   expiresAt       DateTime?
   cancelledAt     DateTime?
+  riskOverrideEnabled Boolean        @default(false)
+  maxDrawdownPct      Float?
+  excludedSymbolsJson Json?
+  slippageBps         Float          @default(0)
+  executionPriority   Int            @default(0)
+  latencyLimitMs      Int?
+  lastLatencyMs       Int?
+  lastExecutionAt     DateTime?
+  riskPolicyJson      Json?
+  executionProfileJson Json?
 
   @@unique([userId, strategyId])
   @@index([userId, status])
@@ -305,6 +316,14 @@ model Trade {
   status          TradeStatus         @default(OPEN)
   openedAt        DateTime            @default(now())
   closedAt        DateTime?
+  requestedPrice  Float?
+  fillPrice       Float?
+  slippageBps     Float               @default(0)
+  executionLatencyMs Int?
+  icebergSliceIndex Int?
+  icebergSliceCount Int?
+  executionMode   String?
+  executionMetadataJson Json?
   aiExplanation   AITradeExplanation?
 
   @@index([userId, status])
@@ -347,6 +366,10 @@ model MarketplaceListing {
   totalRevenue  Float    @default(0)
   trialDays     Int      @default(7)
   maxCopies     Int      @default(500)
+  creatorSharePct Float  @default(0.8)
+  platformSharePct Float @default(0.2)
+  payoutEnabled  Boolean  @default(true)
+  lastPayoutAt   DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

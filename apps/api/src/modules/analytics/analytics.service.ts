@@ -512,12 +512,148 @@ export class AnalyticsService {
         volume: trade.volume,
         openPrice: trade.openPrice,
         closePrice: trade.closePrice,
+        requestedPrice: trade.requestedPrice,
+        fillPrice: trade.fillPrice,
+        slippageBps: trade.slippageBps,
+        executionLatencyMs: trade.executionLatencyMs,
+        executionMode: trade.executionMode,
         profit: trade.profit,
+        commission: trade.commission,
+        swap: trade.swap,
         status: trade.status,
         strategyName: trade.strategy?.name ?? null,
         openedAt: trade.openedAt,
         closedAt: trade.closedAt,
       })),
+    };
+  }
+
+  async getExecutionMetrics(userId: string, range: RangeKey = '3m') {
+    const start = this.rangeStart(range);
+    const trades = await this.prisma.trade.findMany({
+      where: {
+        userId,
+        openedAt: start ? { gte: start } : undefined,
+      },
+      orderBy: { openedAt: 'desc' },
+      select: {
+        executionLatencyMs: true,
+        slippageBps: true,
+        fillPrice: true,
+        requestedPrice: true,
+        openPrice: true,
+        symbol: true,
+        status: true,
+        openedAt: true,
+      },
+    });
+
+    const latencies = trades
+      .map((trade) => trade.executionLatencyMs ?? 0)
+      .filter((value) => value > 0);
+    const slippages = trades.map((trade) => trade.slippageBps ?? 0);
+
+    return {
+      range,
+      averageLatencyMs: this.round(this.mean(latencies)),
+      p95LatencyMs: this.round(this.percentile(latencies, 95)),
+      averageSlippageBps: this.round(this.mean(slippages), 4),
+      maxSlippageBps: this.round(Math.max(0, ...slippages), 4),
+      sampleSize: trades.length,
+      recentExecutions: trades.slice(0, 12).map((trade) => ({
+        symbol: trade.symbol,
+        status: trade.status,
+        openedAt: trade.openedAt,
+        latencyMs: trade.executionLatencyMs,
+        slippageBps: trade.slippageBps,
+        requestedPrice: trade.requestedPrice,
+        fillPrice: trade.fillPrice ?? trade.openPrice,
+      })),
+    };
+  }
+
+  async getTaxReport(userId: string, year: number) {
+    const start = new Date(Date.UTC(year, 0, 1));
+    const end = new Date(Date.UTC(year + 1, 0, 1));
+
+    const [trades, walletTransactions] = await Promise.all([
+      this.prisma.trade.findMany({
+        where: {
+          userId,
+          closedAt: {
+            gte: start,
+            lt: end,
+          },
+        },
+        orderBy: { closedAt: 'desc' },
+        select: {
+          id: true,
+          symbol: true,
+          direction: true,
+          profit: true,
+          commission: true,
+          swap: true,
+          requestedPrice: true,
+          fillPrice: true,
+          slippageBps: true,
+          executionLatencyMs: true,
+          openedAt: true,
+          closedAt: true,
+        },
+      }),
+      this.prisma.walletTransaction.findMany({
+        where: {
+          userId,
+          createdAt: {
+            gte: start,
+            lt: end,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          type: true,
+          direction: true,
+          amount: true,
+          status: true,
+          createdAt: true,
+          description: true,
+        },
+      }),
+    ]);
+
+    const realizedPnl = trades.reduce(
+      (sum, trade) => sum + (trade.profit ?? 0),
+      0,
+    );
+    const totalCommissions = trades.reduce(
+      (sum, trade) => sum + (trade.commission ?? 0),
+      0,
+    );
+    const totalSwap = trades.reduce((sum, trade) => sum + (trade.swap ?? 0), 0);
+    const netTradingResult = realizedPnl - totalCommissions - totalSwap;
+
+    return {
+      year,
+      period: {
+        start: start.toISOString(),
+        end: end.toISOString(),
+      },
+      summary: {
+        closedTrades: trades.length,
+        realizedPnl: this.round(realizedPnl),
+        commissions: this.round(totalCommissions),
+        swap: this.round(totalSwap),
+        netTradingResult: this.round(netTradingResult),
+        walletMovements: walletTransactions.length,
+      },
+      trades: trades.map((trade) => ({
+        ...trade,
+        profit: this.round(trade.profit ?? 0),
+        commission: this.round(trade.commission ?? 0),
+        swap: this.round(trade.swap ?? 0),
+      })),
+      walletTransactions,
     };
   }
 

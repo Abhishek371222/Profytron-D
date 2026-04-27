@@ -12,7 +12,7 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
     data: {
       object: {
         id: 'pi_1234567890',
-        amount: 5000, // $50.00
+        amount: 5000,
         amount_received: 5000,
         currency: 'usd',
         customer: 'cus_1234567890',
@@ -50,7 +50,7 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
               create: jest.fn(),
               findUnique: jest.fn(),
             },
-            subscription: {
+            userStrategySubscription: {
               create: jest.fn(),
               update: jest.fn(),
             },
@@ -92,29 +92,30 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
           type: 'DEPOSIT',
           description: `Stripe payment ${event.data.object.id}`,
           reference: event.data.object.id,
+          idempotencyKey: event.data.object.id,
+          balanceAfter: 50,
         },
       });
 
-      expect(transaction.amount).toBe(50); // $50
+      expect(transaction.amount).toBe(50);
       expect(transaction.status).toBe('CONFIRMED');
       expect(prismaService.walletTransaction.create).toHaveBeenCalled();
     });
 
     it('should update user subscription tier on payment', async () => {
       const userId = 'user-123';
-      const event = mockStripeEvent;
 
       (prismaService.user.update as jest.Mock).mockResolvedValue({
         id: userId,
-        subscriptionTier: 'PREMIUM',
+        subscriptionTier: 'PRO',
       });
 
       const updated = await prismaService.user.update({
         where: { id: userId },
-        data: { subscriptionTier: 'PREMIUM' },
+        data: { subscriptionTier: 'PRO' },
       });
 
-      expect(updated.subscriptionTier).toBe('PREMIUM');
+      expect(updated.subscriptionTier).toBe('PRO');
       expect(prismaService.user.update).toHaveBeenCalled();
     });
 
@@ -122,7 +123,6 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
       const event = mockStripeEvent;
       const userId = 'user-123';
 
-      // First payment
       (
         prismaService.walletTransaction.findUnique as jest.Mock
       ).mockResolvedValue(null);
@@ -136,11 +136,14 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
         data: {
           userId,
           amount: 50,
+          type: 'DEPOSIT',
+          direction: 'IN',
+          status: 'CONFIRMED',
           idempotencyKey: event.data.object.id,
+          balanceAfter: 50,
         },
       });
 
-      // Second payment attempt with same ID
       (
         prismaService.walletTransaction.findUnique as jest.Mock
       ).mockResolvedValue(txn1);
@@ -149,7 +152,7 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
         where: { idempotencyKey: event.data.object.id },
       });
 
-      expect(txn2.id).toBe(txn1.id); // Same transaction returned
+      expect(txn2?.id).toBe(txn1.id);
       expect(txn2).toEqual(txn1);
     });
   });
@@ -176,6 +179,7 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
         data: {
           eventType: 'PAYMENT_FAILED',
           userId: 'user-123',
+          triggeredBy: 'SYSTEM',
           detailsJson: {
             stripeEventId: failedEvent.id,
             error: 'Card declined',
@@ -200,69 +204,73 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
   describe('3. SUBSCRIPTION MANAGEMENT', () => {
     it('should activate subscription after payment', async () => {
       const userId = 'user-123';
-      const plan = 'PREMIUM_ANNUAL';
+      const plan = 'PRO_ANNUAL';
+      const strategyId = 'strategy-1';
 
-      (prismaService.subscription.create as jest.Mock).mockResolvedValue({
+      (
+        prismaService.userStrategySubscription.create as jest.Mock
+      ).mockResolvedValue({
         id: 'sub-1',
         userId,
-        status: 'active',
-        planId: plan,
-        currentPeriodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        strategyId,
+        status: 'ACTIVE',
       });
 
-      const subscription = await prismaService.subscription.create({
+      const subscription = await prismaService.userStrategySubscription.create({
         data: {
           userId,
-          status: 'active',
-          planId: plan,
+          strategyId,
+          status: 'ACTIVE',
+          planType: plan,
         },
       });
 
-      expect(subscription.status).toBe('active');
-      expect(subscription.planId).toBe(plan);
+      expect(subscription.status).toBe('ACTIVE');
+      expect(subscription.strategyId).toBe(strategyId);
     });
 
     it('should renew subscription on invoice.payment_succeeded', async () => {
       const subscriptionId = 'sub-123';
 
-      (prismaService.subscription.update as jest.Mock).mockResolvedValue({
+      (
+        prismaService.userStrategySubscription.update as jest.Mock
+      ).mockResolvedValue({
         id: subscriptionId,
-        status: 'active',
-        renewalCount: 2,
+        status: 'ACTIVE',
       });
 
-      const updated = await prismaService.subscription.update({
+      const updated = await prismaService.userStrategySubscription.update({
         where: { id: subscriptionId },
         data: {
-          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          renewalCount: { increment: 1 },
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
       });
 
-      expect(updated.status).toBe('active');
-      expect(prismaService.subscription.update).toHaveBeenCalled();
+      expect(updated.status).toBe('ACTIVE');
+      expect(prismaService.userStrategySubscription.update).toHaveBeenCalled();
     });
 
     it('should cancel subscription on customer.subscription.deleted', async () => {
       const subscriptionId = 'sub-123';
 
-      (prismaService.subscription.update as jest.Mock).mockResolvedValue({
+      (
+        prismaService.userStrategySubscription.update as jest.Mock
+      ).mockResolvedValue({
         id: subscriptionId,
-        status: 'canceled',
+        status: 'CANCELLED',
       });
 
-      const updated = await prismaService.subscription.update({
+      const updated = await prismaService.userStrategySubscription.update({
         where: { id: subscriptionId },
-        data: { status: 'canceled' },
+        data: { status: 'CANCELLED' },
       });
 
-      expect(updated.status).toBe('canceled');
+      expect(updated.status).toBe('CANCELLED');
     });
   });
 
   describe('4. WEBHOOK SIGNATURE VERIFICATION', () => {
     it('should verify Stripe webhook signature is valid', () => {
-      // Stripe signature format: t=timestamp,v1=signature
       const timestamp = Math.floor(Date.now() / 1000);
       const signature = 'v1=mock_signature_hash';
       const webhookSignature = `t=${timestamp},${signature}`;
@@ -281,8 +289,8 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
 
     it('should reject expired webhook signatures', () => {
       const currentTime = Math.floor(Date.now() / 1000);
-      const webhookTime = currentTime - 6 * 60; // 6 minutes ago
-      const maxAge = 5 * 60; // 5 minutes
+      const webhookTime = currentTime - 6 * 60;
+      const maxAge = 5 * 60;
 
       const isExpired = currentTime - webhookTime > maxAge;
 
@@ -310,6 +318,9 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
           direction: 'OUT',
           status: 'CONFIRMED',
           reference: originalTransactionId,
+          type: 'WITHDRAWAL',
+          idempotencyKey: `refund-${originalTransactionId}`,
+          balanceAfter: 0,
         },
       });
 

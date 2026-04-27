@@ -46,8 +46,13 @@ async function bootstrap() {
     );
   }
 
-  await app.listen(port);
-  console.log(`[Profytron] API is running on: http://localhost:${port}`);
-  console.log(`[Profytron] Documentation: http://localhost:${port}/api/docs`);
+  const host = process.env.API_HOST || '0.0.0.0';
+  const apiPublicUrl =
+    process.env.API_PUBLIC_URL ||
+    `http://${host === '0.0.0.0' ? 'api' : host}:${port}`;
+
+  await app.listen(port, host);
+  console.log(`[Profytron] API is running on: ${apiPublicUrl}`);
+  console.log(`[Profytron] Documentation: ${apiPublicUrl}/api/docs`);
 }
 bootstrap();

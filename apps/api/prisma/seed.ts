@@ -1,6 +1,6 @@
 import { PrismaClient, UserRole, KycStatus, SubscriptionTier, RiskLevel, StrategyCategory, VerificationStatus, TradeDirection, TradeStatus, SubscriptionStatus, TransactionType, TransactionDirection, TransactionStatus, AffiliateTier, AchievementTier, NotificationType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 const prisma = new PrismaClient();
 
@@ -42,7 +42,7 @@ async function main() {
       emailVerified: true,
       isActive: true,
       isSuspended: false,
-      referralCode: uuidv4(),
+      referralCode: randomUUID(),
       role: UserRole.USER,
       subscriptionTier: SubscriptionTier.PRO,
       kycStatus: KycStatus.VERIFIED,
@@ -67,7 +67,7 @@ async function main() {
       emailVerified: true,
       isActive: true,
       isSuspended: false,
-      referralCode: uuidv4(),
+      referralCode: randomUUID(),
       role: UserRole.ADMIN,
       subscriptionTier: SubscriptionTier.ELITE,
       kycStatus: KycStatus.VERIFIED

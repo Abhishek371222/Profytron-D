@@ -5,6 +5,7 @@ import { TradingController } from './trading.controller';
 import { TradingGateway } from './trading.gateway';
 import { TradeProcessor } from './trade.processor';
 import { AuthModule } from '../auth/auth.module';
+import { SubscriptionCleanupService } from './subscription-cleanup.service';
 
 @Module({
   imports: [
@@ -14,7 +15,17 @@ import { AuthModule } from '../auth/auth.module';
     }),
   ],
   controllers: [TradingController],
-  providers: [TradingService, TradingGateway, TradeProcessor],
-  exports: [TradingService, TradingGateway, TradeProcessor],
+  providers: [
+    TradingService,
+    TradingGateway,
+    TradeProcessor,
+    SubscriptionCleanupService,
+  ],
+  exports: [
+    TradingService,
+    TradingGateway,
+    TradeProcessor,
+    SubscriptionCleanupService,
+  ],
 })
 export class TradingModule {}

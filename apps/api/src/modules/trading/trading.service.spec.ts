@@ -23,6 +23,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
           useValue: {
             auditLog: {
               create: jest.fn(),
+              createMany: jest.fn(),
             },
             userStrategySubscription: {
               findMany: jest.fn(),
@@ -30,7 +31,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
             trade: {
               create: jest.fn(),
               update: jest.fn(),
-              findMany: jest.fn(),
+              findMany: jest.fn().mockResolvedValue([]),
             },
             walletTransaction: {
               create: jest.fn(),
@@ -69,9 +70,9 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
       (prismaService.auditLog.create as jest.Mock).mockResolvedValue({
         id: 'log-1',
       });
-      (
-        prismaService.userStrategySubscription.findMany as jest.Mock
-      ).mockResolvedValue([]);
+      (prismaService.userStrategySubscription.findMany as jest.Mock)
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
 
       const result = await tradingService.processSignal(
         signalData.strategyId,
@@ -87,6 +88,28 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
           triggeredBy: strategyId,
         }),
       });
+      expect(
+        prismaService.userStrategySubscription.findMany,
+      ).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          where: {
+            strategyId,
+            status: 'ACTIVE',
+            expiresAt: { gt: expect.any(Date) },
+          },
+          select: expect.objectContaining({
+            id: true,
+            userId: true,
+            executionPriority: true,
+            slippageBps: true,
+            riskOverrideEnabled: true,
+            maxDrawdownPct: true,
+            excludedSymbolsJson: true,
+            latencyLimitMs: true,
+          }),
+        }),
+      );
     });
 
     it('should notify all subscribed users of signal', async () => {
@@ -96,14 +119,90 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
       (prismaService.auditLog.create as jest.Mock).mockResolvedValue({
         id: 'log-1',
       });
-      (
-        prismaService.userStrategySubscription.findMany as jest.Mock
-      ).mockResolvedValue(subscribers);
+      (prismaService.userStrategySubscription.findMany as jest.Mock)
+        .mockResolvedValueOnce(subscribers)
+        .mockResolvedValueOnce([]);
 
       await tradingService.processSignal(strategyId, 'BUY', 'BTCUSD', 45000);
 
       // Should queue execution for each subscriber
       expect(mockQueue.add).toHaveBeenCalledTimes(2);
+    });
+
+    it('should audit users skipped due to expired subscription', async () => {
+      const strategyId = 'strat-123';
+
+      (prismaService.auditLog.create as jest.Mock).mockResolvedValue({
+        id: 'log-1',
+      });
+      (prismaService.auditLog.createMany as jest.Mock).mockResolvedValue({
+        count: 1,
+      });
+      (prismaService.userStrategySubscription.findMany as jest.Mock)
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([
+          {
+            userId: 'user-expired',
+            expiresAt: new Date(Date.now() - 60_000),
+          },
+        ]);
+
+      await tradingService.processSignal(strategyId, 'SELL', 'BTCUSD', 42000);
+
+      expect(prismaService.auditLog.createMany).toHaveBeenCalledWith({
+        data: [
+          expect.objectContaining({
+            eventType: 'TRADING_SIGNAL_SKIPPED_EXPIRED',
+            userId: 'user-expired',
+            triggeredBy: strategyId,
+          }),
+        ],
+      });
+    });
+
+    it('should skip users blocked by symbol exclusions', async () => {
+      const strategyId = 'strat-123';
+
+      (prismaService.auditLog.create as jest.Mock).mockResolvedValue({
+        id: 'log-1',
+      });
+      (prismaService.auditLog.createMany as jest.Mock).mockResolvedValue({
+        count: 1,
+      });
+      (prismaService.userStrategySubscription.findMany as jest.Mock)
+        .mockResolvedValueOnce([
+          {
+            id: 'sub-1',
+            userId: 'user-1',
+            executionPriority: 0,
+            slippageBps: 0,
+            riskOverrideEnabled: true,
+            maxDrawdownPct: null,
+            excludedSymbolsJson: ['BTCUSD'],
+            latencyLimitMs: null,
+          },
+        ])
+        .mockResolvedValueOnce([]);
+
+      const result = await tradingService.processSignal(
+        strategyId,
+        'BUY',
+        'BTCUSD',
+        45000,
+      );
+
+      expect(result.subscribersNotified).toBe(0);
+      expect(result.subscribersBlocked).toBe(1);
+      expect(mockQueue.add).not.toHaveBeenCalled();
+      expect(prismaService.auditLog.createMany).toHaveBeenCalledWith({
+        data: [
+          expect.objectContaining({
+            eventType: 'TRADING_SIGNAL_SKIPPED_RISK_LIMIT',
+            userId: 'user-1',
+            triggeredBy: strategyId,
+          }),
+        ],
+      });
     });
   });
 

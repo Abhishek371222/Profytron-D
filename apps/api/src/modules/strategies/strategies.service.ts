@@ -13,6 +13,8 @@ import {
   StrategiesQueryDto,
   ActivateStrategyDto,
   RunBacktestDto,
+  WalkForwardValidationDto,
+  SensitivityAnalysisDto,
 } from './dto/strategy.dto';
 import {
   Strategy,
@@ -382,6 +384,34 @@ export class StrategiesService {
     return this.executeBacktest(dto.configOverride, dto, userId, 'preview');
   }
 
+  async runWalkForwardValidation(
+    strategyId: string,
+    userId: string,
+    dto: WalkForwardValidationDto,
+  ) {
+    const strategy = await this.prisma.strategy.findUnique({
+      where: { id: strategyId },
+    });
+    if (!strategy) throw new NotFoundException();
+
+    const config = dto.configOverride || strategy.configJson;
+    return this.executeWalkForwardValidation(config, dto, userId, strategyId);
+  }
+
+  async runSensitivityAnalysis(
+    strategyId: string,
+    userId: string,
+    dto: SensitivityAnalysisDto,
+  ) {
+    const strategy = await this.prisma.strategy.findUnique({
+      where: { id: strategyId },
+    });
+    if (!strategy) throw new NotFoundException();
+
+    const config = dto.configOverride || strategy.configJson;
+    return this.executeSensitivityAnalysis(config, dto, userId, strategyId);
+  }
+
   private async executeBacktest(
     config: any,
     dto: RunBacktestDto,
@@ -417,6 +447,179 @@ export class StrategiesService {
     }
   }
 
+  private async executeWalkForwardValidation(
+    config: any,
+    dto: WalkForwardValidationDto,
+    userId: string,
+    cacheId: string,
+  ) {
+    const cacheKey = `walk-forward:${cacheId}:${this.hashObject(dto)}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+
+    const results: Array<any> = [];
+    const start = new Date(dto.startDate);
+    const end = new Date(dto.endDate);
+    const trainingWindowDays = Math.max(dto.trainingWindowDays ?? 90, 7);
+    const testWindowDays = Math.max(dto.testWindowDays ?? 30, 1);
+    const stepDays = Math.max(dto.stepDays ?? testWindowDays, 1);
+
+    for (let cursor = new Date(start); cursor < end; ) {
+      const trainingStart = new Date(cursor);
+      const trainingEnd = this.addDays(trainingStart, trainingWindowDays);
+      const testStart = new Date(trainingEnd);
+      const testEnd = this.addDays(testStart, testWindowDays);
+
+      if (testEnd > end) break;
+
+      const baseValue = this.getNestedValue(
+        config,
+        dto.parameterPath ?? 'riskMultiplier',
+      );
+      const candidateValues = this.buildCandidateValues(
+        baseValue,
+        dto.perturbationPct ?? 10,
+      );
+
+      const trainRuns = await Promise.all(
+        candidateValues.map(async (candidateValue) => {
+          const candidateConfig = this.setNestedValue(
+            this.clone(config ?? {}),
+            dto.parameterPath ?? 'riskMultiplier',
+            candidateValue,
+          );
+          const trainDto = {
+            ...dto,
+            startDate: trainingStart.toISOString(),
+            endDate: trainingEnd.toISOString(),
+          } as RunBacktestDto;
+          const metrics = await this.executeBacktest(
+            candidateConfig,
+            trainDto,
+            userId,
+            `${cacheId}:wf-train:${trainingStart.toISOString()}`,
+          );
+          return {
+            candidateValue,
+            candidateConfig,
+            metrics,
+          };
+        }),
+      );
+
+      trainRuns.sort((a, b) => {
+        const scoreA = this.scoreMetrics(a.metrics);
+        const scoreB = this.scoreMetrics(b.metrics);
+        return scoreB - scoreA;
+      });
+
+      const selected = trainRuns[0];
+      const testDto = {
+        ...dto,
+        startDate: testStart.toISOString(),
+        endDate: testEnd.toISOString(),
+      } as RunBacktestDto;
+      const testMetrics = await this.executeBacktest(
+        selected.candidateConfig,
+        testDto,
+        userId,
+        `${cacheId}:wf-test:${testStart.toISOString()}`,
+      );
+
+      results.push({
+        trainingWindow: {
+          start: trainingStart.toISOString(),
+          end: trainingEnd.toISOString(),
+        },
+        testWindow: {
+          start: testStart.toISOString(),
+          end: testEnd.toISOString(),
+        },
+        selectedParameterValue: selected.candidateValue,
+        trainingMetrics: selected.metrics,
+        testMetrics,
+      });
+
+      cursor = this.addDays(cursor, stepDays);
+    }
+
+    const summary = this.summarizeValidationResults(results);
+    const payload = {
+      mode: 'walk-forward',
+      parameterPath: dto.parameterPath ?? 'riskMultiplier',
+      results,
+      summary,
+    };
+
+    await this.redis.set(cacheKey, JSON.stringify(payload), 3600);
+    return payload;
+  }
+
+  private async executeSensitivityAnalysis(
+    config: any,
+    dto: SensitivityAnalysisDto,
+    userId: string,
+    cacheId: string,
+  ) {
+    const cacheKey = `sensitivity:${cacheId}:${this.hashObject(dto)}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+
+    const baseValue = this.getNestedValue(
+      config,
+      dto.parameterPath ?? 'riskMultiplier',
+    );
+    const candidateValues = this.buildCandidateValues(
+      baseValue,
+      dto.perturbationPct ?? 10,
+      dto.sampleSize ?? 5,
+    );
+
+    const runs = await Promise.all(
+      candidateValues.map(async (candidateValue) => {
+        const candidateConfig = this.setNestedValue(
+          this.clone(config ?? {}),
+          dto.parameterPath ?? 'riskMultiplier',
+          candidateValue,
+        );
+        const metrics = await this.executeBacktest(
+          candidateConfig,
+          dto,
+          userId,
+          `${cacheId}:sensitivity:${candidateValue}`,
+        );
+        return { candidateValue, metrics };
+      }),
+    );
+
+    const baselineScore = this.scoreMetrics(
+      runs.find((run) => run.candidateValue === baseValue)?.metrics ??
+        runs[Math.floor(runs.length / 2)]?.metrics,
+    );
+    const bestScore = Math.max(
+      ...runs.map((run) => this.scoreMetrics(run.metrics)),
+    );
+    const worstScore = Math.min(
+      ...runs.map((run) => this.scoreMetrics(run.metrics)),
+    );
+    const resilienceScore = Math.max(
+      0,
+      Math.min(100, 100 - Math.abs(bestScore - worstScore) * 10),
+    );
+
+    const payload = {
+      mode: 'sensitivity',
+      parameterPath: dto.parameterPath ?? 'riskMultiplier',
+      baselineValue: baseValue,
+      resilienceScore: this.round(resilienceScore),
+      baselineScore: this.round(baselineScore),
+      runs,
+    };
+
+    await this.redis.set(cacheKey, JSON.stringify(payload), 3600);
+    return payload;
+  }
+
   async publish(id: string, userId: string) {
     const strategy = await this.prisma.strategy.findUnique({ where: { id } });
     if (!strategy || strategy.creatorId !== userId)
@@ -438,6 +641,103 @@ export class StrategiesService {
       returns[monthKey] = (returns[monthKey] || 0) + p.netPnl;
     });
     return returns;
+  }
+
+  private summarizeValidationResults(results: Array<any>) {
+    if (results.length === 0) {
+      return {
+        windows: 0,
+        averageTestSharpe: 0,
+        averageTestPnl: 0,
+        averageTestWinRate: 0,
+      };
+    }
+
+    const average = (values: number[]) =>
+      values.reduce((sum, value) => sum + value, 0) / values.length;
+
+    return {
+      windows: results.length,
+      averageTestSharpe: this.round(
+        average(results.map((result) => this.scoreMetrics(result.testMetrics))),
+      ),
+      averageTestPnl: this.round(
+        average(
+          results.map((result) =>
+            this.metricValue(result.testMetrics, 'total_pnl'),
+          ),
+        ),
+      ),
+      averageTestWinRate: this.round(
+        average(
+          results.map((result) =>
+            this.metricValue(result.testMetrics, 'win_rate'),
+          ),
+        ),
+      ),
+    };
+  }
+
+  private metricValue(metrics: any, key: string) {
+    const value = metrics?.metrics?.[key] ?? metrics?.[key] ?? 0;
+    return Number(value) || 0;
+  }
+
+  private scoreMetrics(metrics: any) {
+    const sharpe = this.metricValue(metrics, 'sharpe_ratio');
+    const pnl = this.metricValue(metrics, 'total_pnl');
+    const drawdown = Math.abs(this.metricValue(metrics, 'max_drawdown'));
+    return sharpe * 10 + pnl / 1000 - drawdown / 10;
+  }
+
+  private buildCandidateValues(
+    baseValue: any,
+    perturbationPct: number,
+    sampleSize = 5,
+  ) {
+    const numericBase = Number(baseValue);
+    if (!Number.isFinite(numericBase)) {
+      return [baseValue];
+    }
+
+    const center = Math.max(1, sampleSize);
+    const step = perturbationPct / 100 / Math.max(center - 1, 1);
+    const values = Array.from({ length: center }, (_, index) => {
+      const offset = index - (center - 1) / 2;
+      const multiplier = 1 + offset * step;
+      return this.round(numericBase * multiplier, 6);
+    });
+    return [...new Set(values)];
+  }
+
+  private getNestedValue(obj: any, path: string) {
+    return path.split('.').reduce((acc, key) => acc?.[key], obj);
+  }
+
+  private setNestedValue(obj: any, path: string, value: any) {
+    const clone = this.clone(obj);
+    const keys = path.split('.');
+    let cursor = clone;
+    for (let index = 0; index < keys.length - 1; index += 1) {
+      const key = keys[index];
+      cursor[key] = cursor[key] ?? {};
+      cursor = cursor[key];
+    }
+    cursor[keys[keys.length - 1]] = value;
+    return clone;
+  }
+
+  private clone<T>(value: T): T {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  private addDays(date: Date, days: number) {
+    return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+  }
+
+  private round(value: number, precision = 2) {
+    const multiplier = 10 ** precision;
+    return Math.round(value * multiplier) / multiplier;
   }
 
   private hashObject(obj: any): string {

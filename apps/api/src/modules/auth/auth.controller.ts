@@ -49,10 +49,13 @@ export class AuthController {
     refreshToken: string,
     role?: string,
   ) {
+    const isSecure = process.env.NODE_ENV === 'production';
+    const sameSite: 'lax' | 'none' = isSecure ? 'none' : 'lax';
+
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isSecure,
+      sameSite,
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -60,8 +63,8 @@ export class AuthController {
     if (role) {
       res.cookie('user_role', role, {
         httpOnly: false,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: isSecure,
+        sameSite,
         path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
@@ -202,7 +205,10 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Handle Google OAuth2 Callback' })
-  @Redirect(process.env.FRONTEND_URL || 'http://localhost:3000/dashboard')
+  @Redirect(
+    process.env.FRONTEND_DASHBOARD_URL ||
+      `${process.env.FRONTEND_URL || 'https://app.profytron.example'}/dashboard`,
+  )
   async googleCallback(
     @Req()
     req: Request & {
@@ -222,8 +228,10 @@ export class AuthController {
       result.user?.role,
     );
     // Can optionally append access_token to redirect hash or handle differently via popup messaging
+    const frontendUrl =
+      process.env.FRONTEND_URL || 'https://app.profytron.example';
     return {
-      url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard?token=${result.accessToken}`,
+      url: `${frontendUrl}/dashboard?token=${result.accessToken}`,
     };
   }
 }

@@ -3,7 +3,16 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
+import {
+	BarChart,
+	Bar,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	ResponsiveContainer,
+	Tooltip,
+	Cell,
+} from 'recharts';
 import { 
  TrendingUp, 
  TrendingDown, 
@@ -37,12 +46,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { tradingApi } from '@/lib/api/trading';
 import { demoDashboardMetrics } from '@/lib/api/demoData';
 import { toast } from 'sonner';
-import { affiliatesApi, type AffiliateDashboardResponse } from '@/lib/api/affiliates';
 import { TradingSimulator } from '@/lib/simulation/TradingSimulator';
-import { Network as AffiliateNetwork, Users as AffiliateUsers, TrendingUp as AffiliateTrendingUp, Gift as AffiliateGift, ArrowRight as AffiliateArrowRight, Copy as AffiliateCopy, Send as AffiliateSend } from 'lucide-react';
 
 const EquityChart = dynamic(
-	() => import('@/components/charts/EquityChart').then((mod) => mod.EquityChart),
+	() => import('@/components/charts/LiveCandlesChart').then((mod) => mod.LiveCandlesChart),
 	{
 		ssr: false,
 		loading: () => <div className="h-[320px] w-full rounded-xl bg-white/5 animate-pulse" />,
@@ -110,7 +117,7 @@ function StatCard({ label, value, sub, icon: Icon, trend, sparkline: SparkData, 
  </div>
  </div>
 
- <div className="text-sm text-white/40 font-medium">
+ <div className="text-sm text-white/40 font-medium break-words leading-relaxed">
  {sub}
  </div>
 
@@ -267,12 +274,10 @@ function TradeRow({ trade, onExplain }: { trade: any; onExplain: (t: any) => voi
 // --- Main Page Component ---
 
 export default function DashboardPage() {
-	const router = useRouter();
  const queryClient = useQueryClient();
  const [mounted, setMounted] = React.useState(false);
 	const [chartRange, setChartRange] = React.useState<'1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL'>('1M');
  const [isExportingCsv, setIsExportingCsv] = React.useState(false);
-	const [affiliateShareState, setAffiliateShareState] = React.useState<'idle' | 'copied' | 'tracked'>('idle');
  const { 
  portfolioValue, 
  dailyChange, 
@@ -319,13 +324,15 @@ export default function DashboardPage() {
 	 staleTime: 30_000,
  });
 
-	const affiliateQuery = useQuery<AffiliateDashboardResponse>({
-		queryKey: ['affiliate-dashboard'],
-		queryFn: () => affiliatesApi.getDashboard(),
-		staleTime: 120_000,
-	});
-
  const hasLivePortfolio = Boolean(portfolioQuery.data?.equityCurve && portfolioQuery.data.equityCurve.length > 0);
+	const portfolioMetrics = portfolioQuery.data ?? demoDashboardMetrics;
+	const bestMonthValue = 'bestMonth' in portfolioMetrics ? portfolioMetrics.bestMonth : portfolioMetrics.monthlyReturn;
+	const performanceGraphData = [
+		{ label: 'Sharpe', display: portfolioMetrics.sharpeRatio.toFixed(2), score: Math.min((portfolioMetrics.sharpeRatio / 3) * 100, 100), color: '#22d3ee' },
+		{ label: 'Win Rate', display: `${portfolioMetrics.winRate.toFixed(1)}%`, score: Math.min(portfolioMetrics.winRate, 100), color: '#34d399' },
+		{ label: 'Best Month', display: `+${bestMonthValue.toFixed(1)}%`, score: Math.min(bestMonthValue * 6, 100), color: '#fbbf24' },
+		{ label: 'Drawdown', display: `${portfolioMetrics.maxDrawdown.toFixed(1)}%`, score: Math.max(100 - portfolioMetrics.maxDrawdown * 8, 0), color: '#fb7185' },
+	];
 
  React.useEffect(() => {
  	if (portfolioQuery.isError) {
@@ -339,41 +346,6 @@ export default function DashboardPage() {
  	queryClient.invalidateQueries({ queryKey: ['portfolio'] });
  	toast.success('Portfolio refresh queued');
  };
-
-	const affiliateData = affiliateQuery.data;
-	const affiliateReferralLink = affiliateData ? `${typeof window === 'undefined' ? '' : window.location.origin}/signup?ref=${affiliateData.referralCode}` : '';
-
-	const copyAffiliateLink = async () => {
-		if (!affiliateReferralLink) {
-			toast.error('Affiliate link not ready');
-			return;
-		}
-
-		await navigator.clipboard.writeText(affiliateReferralLink);
-		setAffiliateShareState('copied');
-		toast.success('Affiliate link copied');
-	};
-
-	const shareAffiliateLink = async () => {
-		if (!affiliateReferralLink || !affiliateData) {
-			toast.error('Affiliate link not ready');
-			return;
-		}
-
-		try {
-			const message = `Join Profytron with my referral link: ${affiliateReferralLink}`;
-			if (navigator.share) {
-				await navigator.share({ title: 'Profytron referral', text: message, url: affiliateReferralLink });
-			} else {
-				await navigator.clipboard.writeText(message);
-			}
-			await affiliatesApi.trackClick(affiliateData.referralCode);
-			setAffiliateShareState('tracked');
-			toast.success('Affiliate share tracked');
-		} catch {
-			toast.error('Could not share affiliate link');
-		}
-	};
 
  const killSwitchMutation = useMutation({
 	 mutationFn: () => tradingApi.emergencyStop(),
@@ -472,11 +444,11 @@ export default function DashboardPage() {
 	 };
 
  return (
- <div className={cn("space-y-6", !mounted &&"animate-pulse")} suppressHydrationWarning>
+ <div className={cn("space-y-4 sm:space-y-5 lg:space-y-6", !mounted &&"animate-pulse")} suppressHydrationWarning>
  {!mounted ? (
  <>
  <div className="h-100 bg-white/5 rounded-4xl" />
- <div className="grid grid-cols-4 gap-6">
+ <div className="auto-fit-grid">
  {[1,2,3,4].map(i => <div key={i} className="h-40 bg-white/5 rounded-3xl" />)}
  </div>
  </>
@@ -485,7 +457,7 @@ export default function DashboardPage() {
  <TradingSimulator />
 
  {/* Row 1: KPI Grid */}
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+ <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
  <StatCard 
  label="Portfolio Value"
  value={portfolioValue}
@@ -514,64 +486,102 @@ export default function DashboardPage() {
  </>
  )}
 
- {/* Row 2: Equity Chart */}
- <div className="card p-6">
- <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
- <div>
- <h2 className="text-xl font-bold font-display text-white tracking-tight">Institutional Performance Vector</h2>
- <p className="text-xs text-white/40 font-medium font-display uppercase tracking-widest mt-1">Real-time aggregate equity stream</p>
- <p className="text-[10px] text-white/40 font-semibold uppercase tracking-[0.2em] mt-1">
- Data Mode: <span className={hasLivePortfolio ? 'text-emerald-300' : 'text-amber-300'}>{hasLivePortfolio ? 'Live' : 'Fallback'}</span>
- </p>
- </div>
- 
- <div className="flex items-center gap-2">
- <Button variant="outline" size="sm" onClick={refreshPortfolio} className="h-8 px-3 text-white/70 border-white/20 bg-white/5 hover:bg-white/10 uppercase text-xs font-semibold">
- Refresh
- </Button>
- <div className="flex gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
- {(['1D', '1W', '1M', '3M', '1Y', 'ALL'] as const).map((range) => (
- <button
- key={range}
- onClick={() => setChartRange(range)}
- className={cn(
- 'px-3 py-1.5 text-xs rounded-md transition-colors',
- chartRange === range ? 'bg-indigo-500/30 text-indigo-200' : 'text-white/60 hover:bg-white/10',
- )}
- >
- {range}
- </button>
- ))}
- </div>
- </div>
- </div>
- 
- <div className="h-[320px] w-full min-h-[320px]">
- <EquityChart
-	 data={(portfolioQuery.data?.equityCurve && portfolioQuery.data.equityCurve.length > 0) ? portfolioQuery.data.equityCurve : demoDashboardMetrics.equityCurve}
-	 rangeLabel={chartRange}
-	 isLoading={portfolioQuery.isLoading}
- />
- </div>
- 
- <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
- {[
- { label: 'All-time High', value: `$${(portfolioQuery.data?.allTimeHigh ?? demoDashboardMetrics.equityCurve[demoDashboardMetrics.equityCurve.length - 1]?.equity).toLocaleString()}` },
- { label: 'Max Drawdown', value: `${portfolioQuery.data?.maxDrawdown ?? demoDashboardMetrics.maxDrawdown}%` },
- { label: 'Sharpe Ratio', value: `${portfolioQuery.data?.sharpeRatio ?? demoDashboardMetrics.sharpeRatio}` },
- { label: 'Best Month', value: `+${(portfolioQuery.data?.bestMonth ?? demoDashboardMetrics.monthlyReturn).toLocaleString()}%` }
- ].map((stat, i) => (
- <div key={i} className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl">
- <p className="text-xs font-bold text-white/40 uppercase tracking-widest">{stat.label}</p>
- <p className="text-sm font-semibold text-white font-mono mt-0.5">{stat.value}</p>
- </div>
- ))}
- </div>
- </div>
+	{/* Row 2: Market Structure + Performance Profile */}
+	<div className="grid grid-cols-1 gap-[var(--section-gap)] xl:grid-cols-[1.55fr_0.85fr]">
+	<div className="card relative overflow-hidden p-4 sm:p-5 lg:p-6">
+	<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(6,182,212,0.14),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(99,102,241,0.16),transparent_30%)]" />
+	<div className="relative flex flex-col gap-5">
+	<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+	<div className="max-w-2xl space-y-2">
+	<div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-cyan-200">
+	<Activity className="h-3.5 w-3.5" />
+	Market Structure
+	</div>
+	<h2 className="text-xl font-bold font-display text-white tracking-tight">Trading Chart</h2>
+	<p className="text-sm text-white/60">Live OHLC candles and volume for the selected symbol and timeframe.</p>
+	<p className="text-[11px] font-medium text-white/45">
+	Source: <span className={hasLivePortfolio ? 'text-emerald-300' : 'text-amber-300'}>{hasLivePortfolio ? 'Live' : 'Fallback'}</span>
+	</p>
+	</div>
+	
+	<div className="flex flex-wrap items-center gap-2 sm:justify-end w-full sm:w-auto">
+	<Button variant="outline" size="sm" onClick={refreshPortfolio} className="h-8 px-3 text-white/75 border-cyan-400/20 bg-cyan-400/5 hover:bg-cyan-400/10 uppercase text-xs font-semibold">
+	Refresh
+	</Button>
+	<div className="flex gap-1 rounded-lg border border-white/10 bg-black/25 p-1 overflow-x-auto max-w-full">
+	{(['1D', '1W', '1M', '3M', '1Y', 'ALL'] as const).map((range) => (
+	<button
+	key={range}
+	onClick={() => setChartRange(range)}
+	className={cn(
+	'px-3 py-1.5 text-xs rounded-md transition-colors',
+	chartRange === range ? 'bg-cyan-500/30 text-cyan-100' : 'text-white/55 hover:bg-white/10'
+	)}
+	>
+	{range}
+	</button>
+	))}
+	</div>
+	</div>
+	</div>
+
+	<div className="h-[var(--chart-h-lg)] w-full min-h-[260px] overflow-hidden rounded-2xl border border-white/8 bg-black/20">
+	<EquityChart
+		data={(portfolioQuery.data?.equityCurve && portfolioQuery.data.equityCurve.length > 0) ? portfolioQuery.data.equityCurve : demoDashboardMetrics.equityCurve}
+		rangeLabel={chartRange}
+	/>
+	</div>
+	</div>
+	</div>
+
+	<div className="card relative overflow-hidden p-4 sm:p-5 lg:p-6">
+	<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(245,158,11,0.12),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(244,63,94,0.1),transparent_28%)]" />
+	<div className="relative flex h-full flex-col gap-5">
+	<div className="space-y-2">
+	<div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-amber-200">
+	<Shield className="h-3.5 w-3.5" />
+	Performance Profile
+	</div>
+	<h3 className="text-lg font-bold text-white tracking-tight">Risk-adjusted performance</h3>
+	<p className="text-sm text-white/60">Sharpe ratio, win rate, drawdown, and best-month performance.</p>
+	</div>
+
+	<div className="h-[var(--chart-h-md)] w-full overflow-hidden rounded-2xl border border-white/8 bg-black/20 p-2">
+	<ResponsiveContainer width="100%" height="100%">
+	<BarChart data={performanceGraphData} layout="vertical" margin={{ top: 8, right: 24, bottom: 8, left: 10 }}>
+	<CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" horizontal={false} />
+	<XAxis type="number" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
+	<YAxis type="category" dataKey="label" tick={{ fill: 'rgba(255,255,255,0.55)', fontSize: 11, fontWeight: 800 }} axisLine={false} tickLine={false} width={76} />
+	<Tooltip
+		content={({ active, payload }) => {
+			if (!active || !payload?.length) return null;
+			const point = payload[0].payload as { label: string; display: string; score: number };
+			return (
+				<div className="rounded-2xl border border-white/10 bg-[#08080c]/95 px-4 py-3 shadow-[0_30px_60px_rgba(0,0,0,0.75)] backdrop-blur-2xl">
+					<p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-white/35">{point.label}</p>
+					<p className="mt-1 text-sm font-semibold text-white">{point.display}</p>
+					<p className="text-[10px] uppercase tracking-[0.22em] text-white/40">Normalized score {Math.round(point.score)} / 100</p>
+				</div>
+			);
+		}}
+	/>
+	<Bar dataKey="score" radius={[0, 12, 12, 0]}>
+		{performanceGraphData.map((entry) => (
+			<Cell key={entry.label} fill={entry.color} fillOpacity={0.9} />
+		))}
+	</Bar>
+	</BarChart>
+	</ResponsiveContainer>
+	</div>
+
+	
+	</div>
+	</div>
+	</div>
 
  {/* Row 3: Strategies + Risk */}
- <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
- <div className="lg:col-span-2 card p-6 overflow-hidden">
+ <div className="grid grid-cols-1 lg:grid-cols-3 gap-[var(--section-gap)]">
+ <div className="lg:col-span-2 card p-4 sm:p-5 lg:p-6 overflow-hidden">
  <div className="flex justify-between items-center mb-6">
  <h3 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
  <Target className="w-4 h-4 text-p" />
@@ -582,12 +592,12 @@ export default function DashboardPage() {
  </Link>
  </div>
  
- <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+ <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 scrollbar-hide">
  {activeStrategies.map((strat) => (
  <motion.div 
  key={strat.id}
  whileHover={{ y: -4 }}
- className="min-w-[280px] p-5 bg-white/5 border border-white/10 rounded-2xl relative group"
+ className="min-w-[260px] sm:min-w-[280px] p-4 sm:p-5 bg-white/5 border border-white/10 rounded-2xl relative group"
  >
  <div className="flex justify-between items-start mb-4">
  <div>
@@ -648,106 +658,14 @@ export default function DashboardPage() {
  </div>
  </div>
 
-			<div className="card p-6 overflow-hidden relative">
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.12),_transparent_35%),radial-gradient(circle_at_bottom_right,_rgba(16,185,129,0.12),_transparent_30%)] pointer-events-none" />
-				<div className="relative flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
-					<div className="space-y-3 max-w-2xl">
-						<div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/45">
-							<AffiliateNetwork className="h-3.5 w-3.5 text-p" />
-							Affiliate pulse
-						</div>
-						<h2 className="text-2xl font-bold font-display text-white tracking-tight">A compact affiliate widget keeps your referral engine visible on the dashboard.</h2>
-						<p className="text-sm text-white/55 max-w-xl">It stays in sync with the backend, shows your referral code and payout snapshot, and gives you direct copy/share actions without leaving the home page.</p>
-					</div>
 
-					<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 xl:min-w-[640px]">
-						{[
-							  { label: 'Clicks', value: affiliateQuery.data?.stats.clicks ?? 0, icon: AffiliateUsers },
-							  { label: 'Signups', value: affiliateQuery.data?.stats.signups ?? 0, icon: AffiliateGift },
-							  { label: 'Conversions', value: affiliateQuery.data?.stats.conversions ?? 0, icon: AffiliateTrendingUp },
-							  { label: 'Tier', value: affiliateQuery.data?.tier ?? 'STARTER', icon: AffiliateNetwork },
-						].map((item, index) => {
-							const Icon = item.icon;
-							return (
-								<div key={item.label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-									<div className="flex items-center justify-between gap-3 text-white/55">
-										<span className="text-[10px] font-semibold uppercase tracking-[0.22em]">{item.label}</span>
-										<Icon className="h-4 w-4 text-p" />
-									</div>
-									<div className="mt-3 text-xl font-semibold text-white">{item.value.toLocaleString ? item.value.toLocaleString() : item.value}</div>
-									<div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
-										<motion.div
-											className={cn('h-full rounded-full bg-gradient-to-r', index === 0 ? 'from-cyan-400 to-indigo-400' : index === 1 ? 'from-emerald-400 to-teal-400' : index === 2 ? 'from-amber-400 to-orange-400' : 'from-violet-400 to-fuchsia-400')}
-											initial={{ width: '18%' }}
-											animate={{ width: ['18%', '84%', '18%'] }}
-											transition={{ duration: 4 + index * 0.25, repeat: Infinity, ease: 'easeInOut' }}
-										/>
-									</div>
-								</div>
-							);
-						})}
-					</div>
-				</div>
-
-				<div className="relative mt-6 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-					<div className="rounded-3xl border border-white/8 bg-white/4 p-5">
-						<div className="flex items-start justify-between gap-3">
-							<div>
-								<p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/30">Referral code</p>
-								<p className="mt-2 text-2xl font-semibold text-white">{affiliateData?.referralCode ?? 'PROFYTRON-X7A9'}</p>
-								<p className="mt-2 text-sm text-white/50">{affiliateQuery.isLoading ? 'Loading live affiliate feed…' : 'Backend sync ready.'}</p>
-							</div>
-							<div className="rounded-2xl border border-white/8 bg-black/20 p-3 text-cyan-300">
-								<AffiliateCopy className="h-5 w-5" />
-							</div>
-						</div>
-
-						<div className="mt-4 grid gap-3 sm:grid-cols-3">
-							{[
-								{ label: 'Payout pending', value: affiliateData?.stats.pendingPayout ?? 0, tone: 'text-amber-300', format: true },
-								{ label: 'Commission rate', value: Math.round((affiliateData?.commissionRate ?? 0.35) * 100), tone: 'text-emerald-300', suffix: '%' },
-								{ label: 'Conversion rate', value: affiliateData?.stats.conversionRate ?? 0, tone: 'text-cyan-300', suffix: '%' },
-							].map((item) => (
-								<div key={item.label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
-									<p className="text-[10px] uppercase tracking-[0.22em] text-white/30">{item.label}</p>
-									<p className={cn('mt-2 text-xl font-semibold', item.tone)}>
-										{item.format ? `$${Number(item.value).toLocaleString(undefined, { maximumFractionDigits: 2 })}` : `${item.value}${item.suffix ?? ''}`}
-									</p>
-								</div>
-							))}
-						</div>
-					</div>
-
-					<div className="rounded-3xl border border-white/8 bg-white/4 p-5">
-						<p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/30">Quick actions</p>
-						<div className="mt-4 flex flex-col gap-3">
-							<Button onClick={copyAffiliateLink} variant="outline" className="justify-between border-white/15 bg-white/5 text-white hover:bg-white/10">
-								<span>Copy referral link</span>
-								<AffiliateCopy className="h-4 w-4" />
-							</Button>
-							<Button onClick={shareAffiliateLink} variant="outline" className="justify-between border-white/15 bg-white/5 text-white hover:bg-white/10">
-								<span>Share and track</span>
-								<AffiliateSend className="h-4 w-4" />
-							</Button>
-							<Button onClick={() => router.push('/affiliate/best')} className="justify-between rounded-2xl bg-white text-black hover:bg-white/90">
-								<span>Open best affiliates</span>
-								<AffiliateArrowRight className="h-4 w-4" />
-							</Button>
-						</div>
-
-						<div className="mt-4 flex items-center gap-2 rounded-2xl border border-white/8 bg-black/20 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">
-							{affiliateShareState === 'tracked' ? 'Share tracked in backend' : affiliateShareState === 'copied' ? 'Link copied locally' : 'Ready to copy or share'}
-						</div>
-					</div>
-				</div>
-			</div>
 
  {/* Row 4: Recent Trades */}
  <div className="card overflow-hidden">
- <div className="p-6 border-b border-white/5 flex justify-between items-center">
+ <div className="p-4 sm:p-5 lg:p-6 border-b border-white/5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
  <h2 className="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
  <Activity className="w-4 h-4 text-p" />
- Live Execution Feed
+ Execution Feed
  </h2>
  <div className="flex items-center gap-4">
  <Button
@@ -764,7 +682,7 @@ export default function DashboardPage() {
  </div>
  
  <div className="overflow-x-auto">
- <div className="min-w-250">
+ <div className="min-w-[920px] lg:min-w-full">
  <div className="grid grid-cols-7 px-6 py-3 border-b border-white/5 bg-white/1">
  {['Symbol', 'Type', 'Volume', 'Entry', 'Current P&L', 'Duration', 'Action'].map(head => (
  <span key={head} className="text-xs font-semibold text-white/30 uppercase tracking-[2px]">

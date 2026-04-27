@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import axios from 'axios';
+import { apiClient, unwrapApiResponse } from '../api/client';
 import { authApi } from '../api/auth';
-import { unwrapApiResponse } from '../api/client';
 
 const isMockApiEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_API === 'true';
 
@@ -79,15 +78,17 @@ export const useAuthStore = create<AuthState>()(
 
         try {
           // This call triggers the HTTP-only cookie automatically if credentials inclusion is true
-          const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL || '/api'}/auth/refresh`,
-            {},
-            { withCredentials: true }
-          );
+          const response = await apiClient.post(
+          '/auth/refresh',
+          {},
+          {
+            timeout: 10000,
+          },
+        );
           const data = unwrapApiResponse<{ accessToken: string }>(response.data);
           set({ accessToken: data.accessToken, isAuthenticated: true, isHydrating: false });
         } catch (error) {
-          // Boot failed silently if no session
+          // Boot failed silently if no session (or backend unavailable during startup).
           set({ user: null, accessToken: null, isAuthenticated: false, isHydrating: false });
         }
       },

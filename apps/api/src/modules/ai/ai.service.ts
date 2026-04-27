@@ -15,8 +15,7 @@ interface AIChatRequest {
 @Injectable()
 export class AIService {
   private readonly logger = new Logger(AIService.name);
-  private readonly baseUrl =
-    process.env.AI_SERVICE_URL || 'http://localhost:8000';
+  private readonly baseUrl = process.env.AI_SERVICE_URL || 'http://ai:8000';
 
   constructor(private readonly prisma: PrismaService) {}
 

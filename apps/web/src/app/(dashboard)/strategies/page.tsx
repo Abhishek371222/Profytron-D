@@ -373,6 +373,32 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
   const [isHovered, setIsHovered] = React.useState(false);
  const chartReset = React.useRef(0);
 
+ const toNumber = React.useCallback((value: unknown, fallback = 0) => {
+ const parsed = typeof value === 'number' ? value : Number(value);
+ return Number.isFinite(parsed) ? parsed : fallback;
+ }, []);
+
+ const winRate = toNumber(strategy?.returns, toNumber(strategy?.latestPerformance?.winRate));
+ const sharpeRatio = toNumber(strategy?.sharpe, toNumber(strategy?.latestPerformance?.sharpeRatio));
+ const maxDrawdown = toNumber(strategy?.drawdown, toNumber(strategy?.latestPerformance?.maxDrawdown));
+ const subscriberCount = toNumber(strategy?.subscribers, toNumber(strategy?.copiesCount));
+ const monthlyPrice = toNumber(strategy?.price, toNumber(strategy?.monthlyPrice));
+
+ const chartData = React.useMemo(() => {
+ return (strategy?.equityCurve || [0, 0, 0, 0]).map((point: any, i: number) => {
+ if (typeof point === 'number') {
+ return { v: point, i };
+ }
+ if (point && typeof point === 'object') {
+ return {
+ v: toNumber(point.value, toNumber(point.v, toNumber(point.equity))),
+ i,
+ };
+ }
+ return { v: 0, i };
+ });
+ }, [strategy?.equityCurve, toNumber]);
+
  // 3D Perspective Setup properties
  const mouseX = useMotionValue(0);
  const mouseY = useMotionValue(0);
@@ -431,17 +457,17 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  <div className="w-full lg:w-[200px] h-16 shrink-0 overflow-hidden relative">
  <div className="absolute inset-0 bg-linear-to-r from-[#050505] via-transparent to-[#050505] z-10 pointer-events-none" />
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
- <AreaChart data={(strategy.equityCurve || [0,0,0,0]).map((v: any, i: any) => ({ v: typeof v === 'number' ? v : v.value, i }))}>
+ <AreaChart data={chartData}>
  <defs>
  <linearGradient id={`grad_list_v2_${strategy.id}`} x1="0" y1="0" x2="0" y2="1">
- <stop offset="0%" stopColor={(strategy.latestPerformance?.maxDrawdown || 0) > 15 ?"#f43f5e" :"#10b981"} stopOpacity={0.4}/>
- <stop offset="100%" stopColor={(strategy.latestPerformance?.maxDrawdown || 0) > 15 ?"#f43f5e" :"#10b981"} stopOpacity={0}/>
+ <stop offset="0%" stopColor={maxDrawdown > 15 ?"#f43f5e" :"#10b981"} stopOpacity={0.4}/>
+ <stop offset="100%" stopColor={maxDrawdown > 15 ?"#f43f5e" :"#10b981"} stopOpacity={0}/>
  </linearGradient>
  </defs>
  <Area 
  type="monotone" 
  dataKey="v" 
- stroke={(strategy.latestPerformance?.maxDrawdown || 0) > 15 ?"#f43f5e" :"#10b981"} 
+ stroke={maxDrawdown > 15 ?"#f43f5e" :"#10b981"} 
  fillOpacity={1} 
  fill={`url(#grad_list_v2_${strategy.id})`} 
  strokeWidth={2}
@@ -454,11 +480,11 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 flex-1 w-full border-t border-white/5 lg:border-t-0 pt-4 lg:pt-0">
  <div className="flex flex-col">
  <span className="text-xs font-semibold text-white/30 uppercase tracking-widest">Returns</span>
- <span className="text-sm font-semibold font-jet-mono text-emerald-400">+{strategy.latestPerformance?.winRate || 0}%</span>
+ <span className="text-sm font-semibold font-jet-mono text-emerald-400">+{winRate}%</span>
  </div>
  <div className="flex flex-col">
  <span className="text-xs font-semibold text-white/30 uppercase tracking-widest">Sharpe</span>
- <span className="text-sm font-semibold font-jet-mono text-cyan-400">{strategy.latestPerformance?.sharpeRatio || 0}</span>
+ <span className="text-sm font-semibold font-jet-mono text-cyan-400">{sharpeRatio}</span>
  </div>
  <div className="flex flex-col">
  <span className="text-xs font-semibold text-white/30 uppercase tracking-widest">Network Nodes</span>
@@ -543,17 +569,17 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  <div className="h-32 -mx-6 mb-8 relative border-y border-white/5 bg-white/1">
  <div className="absolute inset-0 bg-[linear-gradient(0deg,transparent_23px,rgba(255,255,255,0.03)_24px)] bg-[length:100%_24px] pointer-events-none" />
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
- <AreaChart data={(strategy.equityCurve || [0,0,0,0]).map((v: any, i: any) => ({ v: typeof v === 'number' ? v : v.value, i }))} key={chartReset.current}>
+ <AreaChart data={chartData} key={chartReset.current}>
  <defs>
  <linearGradient id={`grad_cinematic_${strategy.id}`} x1="0" y1="0" x2="0" y2="1">
- <stop offset="0%" stopColor={(strategy.latestPerformance?.maxDrawdown || 0) > 15 ?"#f43f5e" :"#6366f1"} stopOpacity={0.3}/>
- <stop offset="100%" stopColor={(strategy.latestPerformance?.maxDrawdown || 0) > 15 ?"#f43f5e" :"#6366f1"} stopOpacity={0}/>
+ <stop offset="0%" stopColor={maxDrawdown > 15 ?"#f43f5e" :"#6366f1"} stopOpacity={0.3}/>
+ <stop offset="100%" stopColor={maxDrawdown > 15 ?"#f43f5e" :"#6366f1"} stopOpacity={0}/>
  </linearGradient>
  </defs>
  <Area 
  type="monotone" 
  dataKey="v" 
- stroke={(strategy.latestPerformance?.maxDrawdown || 0) > 15 ?"#f43f5e" :"#6366f1"} 
+ stroke={maxDrawdown > 15 ?"#f43f5e" :"#6366f1"} 
  fillOpacity={1} 
  fill={`url(#grad_cinematic_${strategy.id})`} 
  strokeWidth={2}
@@ -572,19 +598,19 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  <div className="grid grid-cols-2 gap-x-6 gap-y-5 mb-auto transform-gpu" style={{ transform:"translateZ(20px)" }}>
  <div className="flex flex-col border-l-2 pl-3 border-emerald-500/20">
  <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.2em] mb-1">Alpha Yield</span>
- <span className="text-lg font-semibold font-jet-mono text-emerald-400 -mt-1 drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]">+{strategy.returns}%</span>
+ <span className="text-lg font-semibold font-jet-mono text-emerald-400 -mt-1 drop-shadow-[0_0_8px_rgba(52,211,153,0.3)]">+{winRate}%</span>
  </div>
  <div className="flex flex-col border-l-2 pl-3 border-cyan-500/20">
  <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.2em] mb-1">Sharpe Ratio</span>
- <span className="text-lg font-semibold font-jet-mono text-cyan-400 -mt-1 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">{strategy.sharpe}</span>
+ <span className="text-lg font-semibold font-jet-mono text-cyan-400 -mt-1 drop-shadow-[0_0_8px_rgba(34,211,238,0.3)]">{sharpeRatio}</span>
  </div>
  <div className="flex flex-col border-l-2 pl-3 border-rose-500/20">
  <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.2em] mb-1">Max Drawdown</span>
- <span className="text-lg font-semibold font-jet-mono text-rose-400 -mt-1 drop-shadow-[0_0_8px_rgba(244,63,94,0.3)]">-{strategy.drawdown}%</span>
+ <span className="text-lg font-semibold font-jet-mono text-rose-400 -mt-1 drop-shadow-[0_0_8px_rgba(244,63,94,0.3)]">-{maxDrawdown}%</span>
  </div>
  <div className="flex flex-col border-l-2 pl-3 border-white/10">
  <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.2em] mb-1">Network Size</span>
- <span className="text-lg font-semibold font-jet-mono text-white -mt-1">{strategy.subscribers.toLocaleString()}</span>
+ <span className="text-lg font-semibold font-jet-mono text-white -mt-1">{subscriberCount.toLocaleString()}</span>
  </div>
  </div>
 
@@ -593,7 +619,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  <div className="flex flex-col">
  <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.2em] block mb-1">Access Tier</span>
  <span className="text-sm font-semibold font-jet-mono text-white">
- {strategy.price > 0 ? `$${strategy.price}/mo` : <span className="text-white/60">OPEN_SOURCE</span>}
+ {monthlyPrice > 0 ? `$${monthlyPrice}/mo` : <span className="text-white/60">OPEN_SOURCE</span>}
  </span>
  </div>
  <Button 

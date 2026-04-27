@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { updateSession } from '@/utils/supabase/middleware';
 
 const protectedRoutes = [
   '/dashboard',
@@ -14,6 +15,10 @@ const protectedRoutes = [
 ];
 
 export function proxy(request: NextRequest) {
+  return handleProxy(request);
+}
+
+async function handleProxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
   const referralCode = searchParams.get('ref') || searchParams.get('referral');
@@ -25,7 +30,7 @@ export function proxy(request: NextRequest) {
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
     });
-    return response;
+    return updateSession(request, response);
   }
 
   // Some auth providers can land on "/" with token/code params.
@@ -38,7 +43,7 @@ export function proxy(request: NextRequest) {
   ) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth/callback';
-    return NextResponse.redirect(url);
+    return updateSession(request, NextResponse.redirect(url));
   }
 
   const isProtected = protectedRoutes.some((route) =>
@@ -52,7 +57,7 @@ export function proxy(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
       url.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(url);
+      return updateSession(request, NextResponse.redirect(url));
     }
 
     if (pathname.startsWith('/admin')) {
@@ -60,12 +65,12 @@ export function proxy(request: NextRequest) {
       if (role !== 'ADMIN') {
         const url = request.nextUrl.clone();
         url.pathname = '/dashboard';
-        return NextResponse.redirect(url);
+        return updateSession(request, NextResponse.redirect(url));
       }
     }
   }
 
-  return NextResponse.next();
+  return updateSession(request, NextResponse.next());
 }
 
 export const config = {

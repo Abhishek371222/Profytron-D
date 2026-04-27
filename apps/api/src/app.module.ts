@@ -20,6 +20,37 @@ import { TradingModule } from './modules/trading/trading.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MarketModule } from './modules/market/market.module';
+import { getRedisConnectionUrl } from './config/redis.config';
+import { ScheduleModule } from '@nestjs/schedule';
+
+const parseRedisConfig = () => {
+  const redisUrl = getRedisConnectionUrl();
+
+  if (redisUrl) {
+    try {
+      const parsed = new URL(redisUrl);
+      return {
+        host: parsed.hostname,
+        port: Number(parsed.port || 6379),
+        username: parsed.username || 'default',
+        password: decodeURIComponent(
+          parsed.password || process.env.REDIS_PASSWORD || '',
+        ),
+        tls: parsed.protocol === 'rediss:' ? {} : undefined,
+      };
+    } catch {
+      // Fall back to host/port configuration when URL parsing fails.
+    }
+  }
+
+  return {
+    host: process.env.REDIS_HOST || 'redis',
+    port: Number(process.env.REDIS_PORT) || 6379,
+    username: 'default',
+    password: process.env.REDIS_PASSWORD,
+    tls: Number(process.env.REDIS_PORT) === 443 ? {} : undefined,
+  };
+};
 
 @Module({
   imports: [
@@ -31,11 +62,9 @@ import { MarketModule } from './modules/market/market.module';
           : ['.env.local', '.env'],
     }),
     BullModule.forRoot({
-      redis: {
-        host: process.env.REDIS_HOST || 'localhost',
-        port: Number(process.env.REDIS_PORT) || 6379,
-      },
+      redis: parseRedisConfig(),
     }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     UsersModule,

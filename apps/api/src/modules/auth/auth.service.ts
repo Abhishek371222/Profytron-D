@@ -12,7 +12,7 @@ import { RedisService } from './redis.service';
 import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Request } from 'express';
 import {
@@ -103,7 +103,7 @@ export class AuthService {
           passwordHash,
           fullName: dto.fullName,
           emailVerified: false,
-          referralCode: uuidv4(),
+          referralCode: randomUUID(),
         },
       });
     } catch (error) {
@@ -294,7 +294,7 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     if (user) {
-      const resetToken = uuidv4();
+      const resetToken = randomUUID();
       await this.redisService.set(`auth:reset:${resetToken}`, email, 3600);
       await this.emailService.sendPasswordResetEmail(email, resetToken);
     }
@@ -365,7 +365,7 @@ export class AuthService {
           avatarUrl,
           googleId: profile.googleId,
           emailVerified: true,
-          referralCode: uuidv4(),
+          referralCode: randomUUID(),
         },
       });
       this.logger.log(`New Google user created: ${user.id} (${user.email})`);
@@ -429,7 +429,7 @@ export class AuthService {
         avatarUrl: dto.avatarUrl || null,
         bio: dto.bio || null,
         emailVerified: true,
-        referralCode: uuidv4(),
+        referralCode: randomUUID(),
       },
       update: {
         fullName: fullName || undefined, // Update if we have a meaningful name
@@ -455,7 +455,7 @@ export class AuthService {
   }
 
   private async generateTokenPair(userId: string, email: string, role: string) {
-    const jti = uuidv4();
+    const jti = randomUUID();
     const accessExpiresIn = this.parseExpirySeconds(
       process.env.JWT_ACCESS_EXPIRES,
       3600,

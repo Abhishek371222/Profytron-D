@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Cpu, Workflow, Zap, Shield, ArrowRight } from "lucide-react";
 import { FadeUp } from "@/components/animations";
 import { Tilt } from "@/components/ui/Interactions";
-import Link from "next/link";
 
 export function FeaturesSection() {
   return (
@@ -280,7 +279,7 @@ export function FeaturesSection() {
                     multi-dimensional algorithms. Backtest instantly against 10
                     years of tick-level data.
                   </p>
-                  <Link
+                  <a
                     href="/strategies/builder"
                     className="group/btn relative inline-flex items-center justify-center w-fit gap-3 text-sm font-bold text-white px-8 py-4 rounded-xl transition-all"
                   >
@@ -290,7 +289,7 @@ export function FeaturesSection() {
                       Open Canvas 
                       <ArrowRight className="w-4 h-4 text-p group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all duration-300" />
                     </span>
-                  </Link>
+                  </a>
                 </div>
 
                 {/* Fake IDE Editor UI */}

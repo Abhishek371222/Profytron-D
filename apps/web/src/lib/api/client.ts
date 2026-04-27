@@ -58,41 +58,38 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
-    const tokenInStore = useAuthStore.getState().accessToken;
-    const requestToken = originalRequest?.headers?.Authorization;
-    const hasAuthContext = Boolean(tokenInStore || requestToken);
     const requestUrl = originalRequest?.url as string | undefined;
-    
-    // Check if the error is 401 and we haven't already retried
+
+    // Check if the error is 401 and we haven't already retried.
+    // We can still attempt session refresh when the client has no token in memory,
+    // because a valid HttpOnly refresh cookie may still exist for the user.
     if (
       error.response?.status === 401 &&
       !originalRequest?._retry &&
-      hasAuthContext &&
       !isAuthBootstrapEndpoint(requestUrl)
     ) {
       originalRequest._retry = true;
-      
+
       try {
-        const response = await axios.post(
-            `${apiClient.defaults.baseURL}/auth/refresh`,
-            {},
-            { withCredentials: true }
+        const response = await apiClient.post(
+          '/auth/refresh',
+          {},
+          { withCredentials: true },
         );
         const data = unwrapApiResponse<{ accessToken: string }>(response.data);
-        
-        // Update global auth store with new token to reflect in future requests
+
         useAuthStore.getState().setToken(data.accessToken);
-        
-        // Retry original request 
-        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+
+        originalRequest.headers = {
+          ...originalRequest.headers,
+          Authorization: `Bearer ${data.accessToken}`,
+        };
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // If backend is temporarily down, keep client auth state and avoid false "session expired" redirects.
         if (isNetworkUnavailableError(refreshError)) {
           return Promise.reject(refreshError);
         }
 
-        // Refresh genuinely failed (token/cookie invalid), clear auth and redirect to login.
         useAuthStore.getState().clearAuth();
         if (typeof window !== 'undefined') {
           const currentPath = window.location.pathname;
@@ -103,7 +100,7 @@ apiClient.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
-    
+
     return Promise.reject(error);
   }
 );

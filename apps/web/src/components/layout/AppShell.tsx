@@ -38,13 +38,36 @@ function BackgroundAmbiance() {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
- const { sidebarOpen } = useUIStore();
+ const { sidebarOpen, setSidebarOpen } = useUIStore();
  const pathname = usePathname();
  const [mounted, setMounted] = React.useState(false);
+ const [isMobile, setIsMobile] = React.useState(false);
 
  React.useEffect(() => {
  setMounted(true);
  }, []);
+
+ React.useEffect(() => {
+      if (typeof window === 'undefined') return;
+
+      const syncViewport = () => {
+           const mobile = window.innerWidth < 1024;
+           setIsMobile(mobile);
+           if (mobile) {
+                setSidebarOpen(false);
+           }
+      };
+
+      syncViewport();
+      window.addEventListener('resize', syncViewport);
+      return () => window.removeEventListener('resize', syncViewport);
+ }, [setSidebarOpen]);
+
+ React.useEffect(() => {
+      if (isMobile) {
+           setSidebarOpen(false);
+      }
+ }, [pathname, isMobile, setSidebarOpen]);
 
  const isBuilder = React.useMemo(() => {
  return pathname?.includes("/strategies/builder");
@@ -68,20 +91,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  {/* Animated background — client only, never SSR'd */}
  {mounted && <BackgroundAmbiance />}
 
+ {isMobile && sidebarOpen && (
+      <button
+           aria-label="Close sidebar"
+           onClick={() => setSidebarOpen(false)}
+           className="fixed inset-0 z-30 bg-black/55 backdrop-blur-[2px]"
+      />
+ )}
+
  <div
  className={cn(
-"transition-all duration-500 flex relative z-20",
- mounted && isBuilder
- ?"w-0 opacity-0 pointer-events-none overflow-hidden"
- :"w-auto"
+"transition-all duration-500 flex z-40",
+ isMobile
+      ? cn(
+                "fixed inset-y-0 left-0",
+                sidebarOpen ? "translate-x-0" : "-translate-x-full"
+           )
+      : "relative",
+ mounted && isBuilder ?"w-0 opacity-0 pointer-events-none overflow-hidden" :"w-auto"
  )}
  >
- <Sidebar />
+ <Sidebar mobile={isMobile} />
  </div>
 
  <main
  className={cn(
-"flex-1 flex flex-col h-screen overflow-hidden transition-all duration-300 relative z-20 w-full",
+"flex-1 min-w-0 flex flex-col h-screen overflow-hidden transition-all duration-300 relative z-20 w-full",
  isBuilder ?"p-0" :""
  )}
  >
@@ -98,7 +133,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
  <div
  className={cn(
-"flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar",
+"flex-1 min-w-0 overflow-y-auto overflow-x-hidden custom-scrollbar",
  mounted && isBuilder ?"p-0" :""
  )}
  >
@@ -112,7 +147,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  className={
  mounted && isBuilder
  ?"p-0 max-w-none w-full h-full"
- :"p-[var(--dashboard-p)] pb-12 max-w-[1800px] mx-auto w-full flex-col flex min-h-full"
+ :"p-[var(--dashboard-p)] pb-8 sm:pb-10 lg:pb-12 max-w-[1800px] mx-auto w-full min-w-0 flex-col flex min-h-full"
  }
  >
  {children}

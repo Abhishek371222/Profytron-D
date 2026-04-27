@@ -10,9 +10,6 @@ import { Request } from 'express';
 
 // Mock bcrypt
 jest.mock('bcrypt');
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-1234'),
-}));
 const mockedBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
 
 describe('AuthService (UNIT TESTS)', () => {
@@ -38,11 +35,11 @@ describe('AuthService (UNIT TESTS)', () => {
     const hashedPasswords = new Map<string, string>();
     mockedBcrypt.hash.mockImplementation(async (plain, rounds) => {
       const hash = `$2b$${rounds}$abcdefghijklmnopqrstuvwx`;
-      hashedPasswords.set(plain, hash);
+      hashedPasswords.set(plain as string, hash);
       return hash;
     });
     mockedBcrypt.compare.mockImplementation(async (plain, hashed) => {
-      return hashedPasswords.get(plain) === hashed;
+      return hashedPasswords.get(plain as string) === hashed;
     });
 
     const module: TestingModule = await Test.createTestingModule({
@@ -229,7 +226,7 @@ describe('AuthService (UNIT TESTS)', () => {
       const hashedPassword = '$2b$12$abcdefghijklmnopqrstuvwx';
 
       // Mock bcrypt.compare for this specific test
-      mockedBcrypt.compare.mockResolvedValueOnce(true);
+      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
         ...mockUser,
@@ -251,7 +248,7 @@ describe('AuthService (UNIT TESTS)', () => {
       } as Partial<Request> as Request;
 
       // Mock bcrypt.compare for this specific test
-      mockedBcrypt.compare.mockResolvedValueOnce(true);
+      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
         ...mockUser,
@@ -265,7 +262,7 @@ describe('AuthService (UNIT TESTS)', () => {
         expect.objectContaining({
           sub: mockUser.id,
           email: mockUser.email,
-          jti: 'mock-uuid-1234',
+          jti: expect.any(String),
         }),
         expect.any(Object),
       );

@@ -17,6 +17,8 @@ import {
   StrategiesQueryDto,
   ActivateStrategyDto,
   RunBacktestDto,
+  WalkForwardValidationDto,
+  SensitivityAnalysisDto,
 } from './dto/strategy.dto';
 import { Public, JwtAuthGuard } from '../auth/guards/auth.guard';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -102,6 +104,34 @@ export class StrategiesController {
   @ApiOperation({ summary: 'Run a backtest for a strategy config (unsaved)' })
   async previewBacktest(@Req() req: any, @Body() dto: RunBacktestDto) {
     return this.strategiesService.runBacktestPreview(req.user.userId, dto);
+  }
+
+  @Post(':id/backtest/walk-forward')
+  @ApiOperation({ summary: 'Run walk-forward validation for a strategy' })
+  async walkForwardValidation(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body() dto: WalkForwardValidationDto,
+  ) {
+    return this.strategiesService.runWalkForwardValidation(
+      id,
+      req.user.userId,
+      dto,
+    );
+  }
+
+  @Post(':id/backtest/sensitivity')
+  @ApiOperation({ summary: 'Run parameter sensitivity analysis' })
+  async sensitivityAnalysis(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body() dto: SensitivityAnalysisDto,
+  ) {
+    return this.strategiesService.runSensitivityAnalysis(
+      id,
+      req.user.userId,
+      dto,
+    );
   }
 
   @Post(':id/publish')

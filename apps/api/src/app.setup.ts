@@ -11,6 +11,15 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 export function configureApp(app: INestApplication) {
+  const allowedOrigins = (
+    process.env.CORS_ORIGIN ||
+    process.env.FRONTEND_URL ||
+    ''
+  )
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   app.use('/v1/webhooks/stripe', express.raw({ type: 'application/json' }));
   app.use('/v1/webhooks/razorpay', express.raw({ type: 'application/json' }));
   app.use('/v1/wallet/webhook', express.raw({ type: 'application/json' }));
@@ -29,11 +38,7 @@ export function configureApp(app: INestApplication) {
   );
   app.use(cookieParser());
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      process.env.FRONTEND_URL || 'http://localhost:3000',
-    ],
+    origin: allowedOrigins.length > 0 ? allowedOrigins : true,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],

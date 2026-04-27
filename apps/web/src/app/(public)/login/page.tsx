@@ -93,6 +93,15 @@ export default function LoginPage() {
 
  const handleSocialLogin = async (provider: 'google' | 'github') => {
  try {
+ if (provider === 'google') {
+ const backendOrigin =
+	 process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, '') || '';
+ window.location.href = backendOrigin
+	 ? `${backendOrigin}/v1/auth/google`
+	 : '/api/auth/google';
+ return;
+ }
+
  if (!window.location.origin) {
  throw new Error('Unable to determine redirect URL');
  }

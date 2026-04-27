@@ -18,6 +18,7 @@ import {
   MarketplaceQueryDto,
   ReplyReviewDto,
   SubscribeStrategyDto,
+  UpdateSubscriptionRiskDto,
 } from './dto/marketplace.dto';
 
 @ApiTags('Marketplace')
@@ -76,6 +77,36 @@ export class MarketplaceController {
     @Body() dto: SubscribeStrategyDto,
   ) {
     return this.marketplaceService.subscribe(strategyId, req.user.userId, dto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update risk overrides for an active subscription' })
+  @Patch(':strategyId/risk-overrides')
+  async updateRiskOverrides(
+    @Param('strategyId') strategyId: string,
+    @Req() req: any,
+    @Body() dto: UpdateSubscriptionRiskDto,
+  ) {
+    return this.marketplaceService.updateSubscriptionRiskControls(
+      strategyId,
+      req.user.userId,
+      dto,
+    );
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get risk overrides for an active subscription' })
+  @Get(':strategyId/risk-overrides')
+  async getRiskOverrides(
+    @Param('strategyId') strategyId: string,
+    @Req() req: any,
+  ) {
+    return this.marketplaceService.getSubscriptionRiskControls(
+      strategyId,
+      req.user.userId,
+    );
   }
 
   @Public()

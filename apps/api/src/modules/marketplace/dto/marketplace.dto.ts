@@ -5,6 +5,7 @@ import {
   IsInt,
   IsNumber,
   IsOptional,
+  IsArray,
   IsString,
   Max,
   Min,
@@ -122,6 +123,38 @@ export class SubscribeStrategyDto {
   @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   useTrial?: boolean;
+}
+
+export class UpdateSubscriptionRiskDto {
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  riskOverrideEnabled?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => Number(value))
+  maxDrawdownPct?: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  excludedSymbols?: string[];
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => Number(value))
+  slippageBps?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Transform(({ value }) => Number(value))
+  executionPriority?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Transform(({ value }) => Number(value))
+  latencyLimitMs?: number;
 }
 
 export class CreateReviewDto {

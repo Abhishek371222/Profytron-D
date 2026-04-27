@@ -52,15 +52,18 @@ describeIfApiInfra('Environment and runtime configuration', () => {
   });
 
   it('applies CORS headers through the shared app bootstrap', async () => {
+    const origin =
+      process.env.CORS_ORIGIN ||
+      process.env.FRONTEND_URL ||
+      'https://app-test.profytron.example';
+
     const response = await request(app.getHttpServer())
       .options('/health')
-      .set('Origin', 'http://localhost:3000')
+      .set('Origin', origin)
       .set('Access-Control-Request-Method', 'GET');
 
     expect([200, 204]).toContain(response.status);
-    expect(response.headers['access-control-allow-origin']).toBe(
-      'http://localhost:3000',
-    );
+    expect(response.headers['access-control-allow-origin']).toBe(origin);
   });
 
   it('applies helmet security headers', async () => {

@@ -33,7 +33,10 @@ export default function WalletPage() {
       return;
     }
 
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:4000';
+    const wsUrl =
+      process.env.NEXT_PUBLIC_WS_URL ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      'https://api.profytron.example';
     const socket: Socket = io(`${wsUrl}/trading`, {
       auth: { token },
       transports: ['websocket'],

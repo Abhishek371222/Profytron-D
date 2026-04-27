@@ -14,6 +14,7 @@ import {
 import { createClient } from '@supabase/supabase-js';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import type { Express } from 'express';
 
 @Injectable()
 export class UsersService {

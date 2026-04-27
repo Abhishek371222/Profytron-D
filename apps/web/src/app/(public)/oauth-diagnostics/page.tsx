@@ -14,6 +14,8 @@ type CheckResult = {
 };
 
 export default function OauthDiagnosticsPage() {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.profytron.example';
+
   const [checks, setChecks] = React.useState<CheckResult[]>([]);
   const [running, setRunning] = React.useState(false);
 
@@ -150,7 +152,7 @@ export default function OauthDiagnosticsPage() {
           <p>1. Enable Google provider in Supabase Auth providers.</p>
           <p>2. Configure Google OAuth credentials (client id and secret) in Supabase.</p>
           <p>3. Add redirect URIs in Google Cloud:</p>
-          <p className="pl-2">- http://localhost:3000/auth/callback</p>
+          <p className="pl-2">- {`${appUrl}/auth/callback`}</p>
           <p className="pl-2">- https://nghlhhsdtewrchdeyean.supabase.co/auth/v1/callback</p>
         </Card>
       </div>

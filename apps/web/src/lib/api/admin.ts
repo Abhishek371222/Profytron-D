@@ -54,6 +54,70 @@ export const adminApi = {
     return unwrap<any[]>(res.data) ?? [];
   },
 
+  async getStrategies() {
+    const res = await apiClient.get('/admin/strategies');
+    return unwrap<any[]>(res.data) ?? [];
+  },
+
+  async createStrategy(payload: {
+    creatorId: string;
+    name: string;
+    description: string;
+    category: string;
+    riskLevel: string;
+    configJson: unknown;
+    monthlyPrice?: number;
+    annualPrice?: number;
+    lifetimePrice?: number;
+    maxCopies?: number;
+    isFeatured?: boolean;
+    isPublished?: boolean;
+    isVerified?: boolean;
+    trialDays?: number;
+    creatorSharePct?: number;
+    platformSharePct?: number;
+    payoutEnabled?: boolean;
+  }) {
+    const res = await apiClient.post('/admin/strategies', payload);
+    return unwrap<any>(res.data);
+  },
+
+  async updateStrategy(
+    id: string,
+    payload: {
+      creatorId?: string;
+      name?: string;
+      description?: string;
+      category?: string;
+      riskLevel?: string;
+      configJson?: unknown;
+      monthlyPrice?: number;
+      annualPrice?: number;
+      lifetimePrice?: number;
+      maxCopies?: number;
+      isFeatured?: boolean;
+      isPublished?: boolean;
+      isVerified?: boolean;
+      trialDays?: number;
+      creatorSharePct?: number;
+      platformSharePct?: number;
+      payoutEnabled?: boolean;
+    },
+  ) {
+    const res = await apiClient.patch(`/admin/strategies/${id}`, payload);
+    return unwrap<any>(res.data);
+  },
+
+  async uploadStrategyPdf(formData: FormData) {
+    const res = await apiClient.post('/admin/strategies/pdf', formData);
+    return unwrap<any>(res.data);
+  },
+
+  async deleteStrategy(id: string) {
+    const res = await apiClient.delete(`/admin/strategies/${id}`);
+    return unwrap<any>(res.data);
+  },
+
   async handleVerification(id: string, approve: boolean, notes?: string) {
     const res = await apiClient.post(`/admin/verifications/${id}/handle`, { approve, notes });
     return unwrap<any>(res.data);
@@ -78,6 +142,34 @@ export const adminApi = {
 
   async getSystemMetrics() {
     const res = await apiClient.get('/admin/system/metrics');
+    return unwrap<any>(res.data);
+  },
+
+  async getBrokerAccounts() {
+    const res = await apiClient.get('/admin/broker-accounts');
+    return unwrap<any[]>(res.data) ?? [];
+  },
+
+  async setBrokerMasterSource(id: string, isMasterSource: boolean) {
+    const res = await apiClient.patch(`/admin/broker-accounts/${id}/master`, {
+      isMasterSource,
+    });
+    return unwrap<any>(res.data);
+  },
+
+  async broadcastMasterSignal(
+    accountId: string,
+    payload: {
+      strategyId: string;
+      signalType: string;
+      pair: string;
+      price: number;
+    },
+  ) {
+    const res = await apiClient.post(
+      `/admin/broker-accounts/${accountId}/broadcast`,
+      payload,
+    );
     return unwrap<any>(res.data);
   },
 

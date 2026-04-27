@@ -115,6 +115,32 @@ export class AnalyticsController {
     );
   }
 
+  @ApiOperation({ summary: 'Get execution latency and slippage metrics' })
+  @Get('execution')
+  async getExecutionMetrics(@Req() req: any, @Query('range') range?: string) {
+    const normalizedRange = this.normalizeRange(range);
+    return this.withCache(
+      `analytics:execution:${req.user.id}:${normalizedRange}`,
+      120,
+      () =>
+        this.analyticsService.getExecutionMetrics(req.user.id, normalizedRange),
+    );
+  }
+
+  @ApiOperation({ summary: 'Get tax-ready trading and wallet report' })
+  @Get('tax-report')
+  async getTaxReport(@Req() req: any, @Query('year') year?: string) {
+    const parsedYear = Number(year ?? new Date().getUTCFullYear());
+    const safeYear = Number.isFinite(parsedYear)
+      ? Math.min(Math.max(parsedYear, 2000), 2100)
+      : new Date().getUTCFullYear();
+    return this.withCache(
+      `analytics:tax-report:${req.user.id}:${safeYear}`,
+      600,
+      () => this.analyticsService.getTaxReport(req.user.id, safeYear),
+    );
+  }
+
   @ApiOperation({
     summary: 'Get global intelligence snapshot and macro insights',
   })

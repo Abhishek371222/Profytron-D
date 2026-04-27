@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Zap, Globe, MessageSquare, Mail, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -49,14 +48,14 @@ export function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24 mb-24">
           {/* Logo & Foundation */}
           <div className="lg:col-span-5">
-            <Link href="/" className="flex items-center gap-3 mb-8 group">
+            <a href="/" className="flex items-center gap-3 mb-8 group">
               <div className="w-10 h-10 bg-white/3 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-p/50 transition-all duration-500 shadow-inner group-hover:bg-p/10">
                 <Zap className="w-5 h-5 text-white/70 group-hover:text-p transition-colors" />
               </div>
               <span className="text-xl font-bold tracking-tight text-white group-hover:text-white/90 transition-colors">
                 PROFYTRON
               </span>
-            </Link>
+            </a>
             <p className="text-white/40 text-sm mb-10 leading-relaxed max-w-sm font-medium">
               Architecting the future of algorithmic wealth. Institutional
               power, refined for the frontier of finance.
@@ -68,7 +67,7 @@ export function Footer() {
                 { icon: Globe, href: '/', label: 'Website' },
                 { icon: Mail, href: 'mailto:hello@profytron.com', label: 'Email' },
               ].map(({ icon: Icon, href, label }) => (
-                <Link
+                <a
                   key={label}
                   href={href}
                   target={href.startsWith('http') ? '_blank' : undefined}
@@ -77,7 +76,7 @@ export function Footer() {
                   className="w-10 h-10 rounded-full bg-white/2 border border-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all duration-300"
                 >
                   <Icon className="w-4 h-4" />
-                </Link>
+                </a>
               ))}
             </div>
           </div>
@@ -92,12 +91,12 @@ export function Footer() {
                 <ul className="flex flex-col gap-4">
                   {links.map((link) => (
                     <li key={link.name}>
-                      <Link
+                      <a
                         href={link.href}
                         className="text-white/40 hover:text-white transition-colors text-sm font-medium inline-flex items-center"
                       >
                         {link.name}
-                      </Link>
+                      </a>
                     </li>
                   ))}
                 </ul>

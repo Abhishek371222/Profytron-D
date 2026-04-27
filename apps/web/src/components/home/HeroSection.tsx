@@ -13,7 +13,6 @@ import { ArrowRight, Play, Zap, Shield, Sparkles, Cpu, Terminal } from "lucide-r
 import { FadeUp } from "@/components/animations";
 import { Magnetic } from "@/components/ui/Interactions";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 
 // Lazy-load Three.js Globe — defers ~600KB of Three.js until AFTER hero text paints
 const ThreeGlobe = dynamic(
@@ -129,7 +128,7 @@ export function HeroSection() {
             <FadeUp delay={0.3}>
               <div className="flex flex-col sm:flex-row items-start gap-6 pt-2">
                 <Magnetic strength={0.35}>
-                  <Link href="/register">
+                  <a href="/register">
                     <motion.div
                       whileHover={{ scale: 1.02, y: -4 }}
                       whileTap={{ scale: 0.98 }}
@@ -149,11 +148,11 @@ export function HeroSection() {
                         </span>
                       </Button>
                     </motion.div>
-                  </Link>
+                  </a>
                 </Magnetic>
 
                 <Magnetic strength={0.2}>
-                  <Link href="/dashboard">
+                  <a href="/dashboard">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -167,7 +166,7 @@ export function HeroSection() {
                         View Platform Tour
                       </Button>
                     </motion.div>
-                  </Link>
+                  </a>
                 </Magnetic>
               </div>
             </FadeUp>

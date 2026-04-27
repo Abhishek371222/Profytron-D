@@ -3,6 +3,60 @@ import { Logger } from '@nestjs/common';
 
 const logger = new Logger('RedisConnection');
 
+const buildRedisUrlFromEnv = (): string => {
+  const redisUrl = process.env.REDIS_URL?.trim();
+  if (redisUrl) {
+    try {
+      const parsed = new URL(redisUrl);
+
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        const token =
+          process.env.UPSTASH_REDIS_REST_TOKEN?.trim() ||
+          process.env.REDIS_PASSWORD?.trim() ||
+          parsed.password;
+
+        if (!token) {
+          return `rediss://${parsed.hostname}:${parsed.port || '443'}`;
+        }
+
+        // Upstash Redis protocol uses 'default' username and the token as password
+        // Use the proper Redis protocol hostname (replace REST prefix if present)
+        const redisHostname = parsed.hostname.replace(
+          '.upstash.io',
+          '.upstash.io',
+        ); // Usually same hostname, but ensure it's rediss
+        return `rediss://default:${encodeURIComponent(token)}@${redisHostname}:${parsed.port || '443'}`;
+      }
+
+      return redisUrl;
+    } catch {
+      return redisUrl;
+    }
+  }
+
+  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL?.trim();
+  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  if (upstashUrl && upstashToken) {
+    try {
+      const parsed = new URL(upstashUrl);
+      return `rediss://default:${encodeURIComponent(upstashToken)}@${parsed.hostname}:${parsed.port || '443'}`;
+    } catch {
+      return `rediss://default:${encodeURIComponent(upstashToken)}@${upstashUrl.replace(/^https?:\/\//, '')}:443`;
+    }
+  }
+
+  const redisHost = process.env.REDIS_HOST?.trim() || 'redis';
+  const redisPort = Number(process.env.REDIS_PORT) || 6379;
+  const redisPassword = process.env.REDIS_PASSWORD?.trim();
+  if (redisPassword) {
+    return `redis://default:${encodeURIComponent(redisPassword)}@${redisHost}:${redisPort}`;
+  }
+
+  return `redis://${redisHost}:${redisPort}`;
+};
+
+export const getRedisConnectionUrl = (): string => buildRedisUrlFromEnv();
+
 const createMemoryRedisClient = (): IORedis => {
   const store = new Map<string, string>();
 
@@ -28,7 +82,7 @@ const createMemoryRedisClient = (): IORedis => {
 export const redisClient: IORedis =
   process.env.NODE_ENV === 'test' && process.env.API_TEST_WITH_INFRA !== 'true'
     ? createMemoryRedisClient()
-    : new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
+    : new Redis(buildRedisUrlFromEnv(), {
         maxRetriesPerRequest: null,
         retryStrategy(times) {
           const delay = Math.min(times * 50, 2000);

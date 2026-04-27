@@ -211,6 +211,8 @@ export class PaymentsService {
           );
 
     const paidAmount = Number(stripeObject.amount_total || 0) / 100;
+    const creatorShare = paidAmount * (listing.creatorSharePct ?? 0.8);
+    const platformShare = Math.max(0, paidAmount - creatorShare);
 
     await this.prisma.$transaction(async (tx) => {
       await tx.userStrategySubscription.upsert({
@@ -241,7 +243,10 @@ export class PaymentsService {
 
       await tx.marketplaceListing.update({
         where: { strategyId },
-        data: { totalRevenue: { increment: paidAmount } },
+        data: {
+          totalRevenue: { increment: paidAmount },
+          lastPayoutAt: new Date(),
+        },
       });
 
       await tx.strategy.update({
@@ -251,17 +256,36 @@ export class PaymentsService {
           totalRevenue: { increment: paidAmount },
         },
       });
+
+      await tx.auditLog.create({
+        data: {
+          eventType: 'MARKETPLACE_PAYOUT_RECORDED',
+          userId,
+          detailsJson: {
+            strategyId,
+            paidAmount,
+            creatorShare,
+            platformShare,
+            planType,
+            stripePaymentId: stripeObject.id,
+          },
+          triggeredBy: listing.strategy.creatorId,
+        },
+      });
     });
 
     if (paidAmount > 0) {
       await this.creditWallet(
         listing.strategy.creatorId,
-        paidAmount * 0.7,
+        creatorShare,
         'MARKETPLACE_SALE',
         {
           source: 'marketplace_sale',
           strategyId,
           buyerId: userId,
+          creatorSharePct: listing.creatorSharePct,
+          platformSharePct: listing.platformSharePct,
+          platformShare,
         },
         `creator_credit_${stripeObject.id}`,
       );

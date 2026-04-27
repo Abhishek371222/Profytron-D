@@ -3,12 +3,12 @@ import type { NextConfig } from "next";
 const backendApiOrigin =
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   process.env.BACKEND_API_ORIGIN ||
-  "http://localhost:4000";
+  "https://api.profytron.example";
 
 const nextConfig: NextConfig = {
   output: 'standalone',
   transpilePackages: ["lucide-react"],
-  reactCompiler: true,
+  reactCompiler: false,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   compress: true, // Enable gzip compression

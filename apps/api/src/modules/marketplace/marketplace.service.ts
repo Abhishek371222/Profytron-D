@@ -12,8 +12,9 @@ import {
   MarketplaceQueryDto,
   ReplyReviewDto,
   SubscribeStrategyDto,
+  UpdateSubscriptionRiskDto,
 } from './dto/marketplace.dto';
-import { SubscriptionStatus } from '@prisma/client';
+import { Prisma, SubscriptionStatus } from '@prisma/client';
 
 @Injectable()
 export class MarketplaceService {
@@ -346,6 +347,8 @@ export class MarketplaceService {
           status: 'ACTIVE',
           planType,
           subscribedAt: new Date(),
+          riskOverrideEnabled: false,
+          executionPriority: 0,
         },
         update: {
           status: 'ACTIVE',
@@ -369,6 +372,8 @@ export class MarketplaceService {
           planType,
           trialEndsAt,
           subscribedAt: new Date(),
+          riskOverrideEnabled: false,
+          executionPriority: 0,
         },
         update: {
           status: 'ACTIVE',
@@ -431,6 +436,100 @@ export class MarketplaceService {
     });
 
     return { checkoutUrl: session.url, requiresPayment: true };
+  }
+
+  async updateSubscriptionRiskControls(
+    strategyId: string,
+    userId: string,
+    dto: UpdateSubscriptionRiskDto,
+  ) {
+    const subscription = await this.prisma.userStrategySubscription.findUnique({
+      where: { userId_strategyId: { userId, strategyId } },
+    });
+
+    if (!subscription) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    const data: Prisma.UserStrategySubscriptionUpdateInput = {
+      riskOverrideEnabled:
+        dto.riskOverrideEnabled ?? subscription.riskOverrideEnabled,
+      maxDrawdownPct:
+        dto.maxDrawdownPct !== undefined
+          ? dto.maxDrawdownPct
+          : subscription.maxDrawdownPct,
+      slippageBps:
+        dto.slippageBps !== undefined
+          ? dto.slippageBps
+          : subscription.slippageBps,
+      executionPriority:
+        dto.executionPriority !== undefined
+          ? dto.executionPriority
+          : subscription.executionPriority,
+      latencyLimitMs:
+        dto.latencyLimitMs !== undefined
+          ? dto.latencyLimitMs
+          : subscription.latencyLimitMs,
+      riskPolicyJson: {
+        updatedAt: new Date().toISOString(),
+        source: 'subscription-risk-api',
+        maxDrawdownPct:
+          dto.maxDrawdownPct !== undefined
+            ? dto.maxDrawdownPct
+            : subscription.maxDrawdownPct,
+        excludedSymbols:
+          dto.excludedSymbols !== undefined
+            ? dto.excludedSymbols
+            : subscription.excludedSymbolsJson,
+        slippageBps:
+          dto.slippageBps !== undefined
+            ? dto.slippageBps
+            : subscription.slippageBps,
+        executionPriority:
+          dto.executionPriority !== undefined
+            ? dto.executionPriority
+            : subscription.executionPriority,
+        latencyLimitMs:
+          dto.latencyLimitMs !== undefined
+            ? dto.latencyLimitMs
+            : subscription.latencyLimitMs,
+      },
+    };
+
+    if (dto.excludedSymbols !== undefined) {
+      data.excludedSymbolsJson =
+        dto.excludedSymbols as unknown as Prisma.InputJsonValue;
+    }
+
+    return this.prisma.userStrategySubscription.update({
+      where: { id: subscription.id },
+      data,
+    });
+  }
+
+  async getSubscriptionRiskControls(strategyId: string, userId: string) {
+    const subscription = await this.prisma.userStrategySubscription.findUnique({
+      where: { userId_strategyId: { userId, strategyId } },
+      select: {
+        id: true,
+        status: true,
+        riskOverrideEnabled: true,
+        maxDrawdownPct: true,
+        excludedSymbolsJson: true,
+        slippageBps: true,
+        executionPriority: true,
+        latencyLimitMs: true,
+        lastLatencyMs: true,
+        lastExecutionAt: true,
+        riskPolicyJson: true,
+      },
+    });
+
+    if (!subscription) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    return subscription;
   }
 
   async getFeatured() {

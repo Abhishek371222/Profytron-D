@@ -135,3 +135,45 @@ export class RunBacktestDto {
   @IsOptional()
   configOverride?: any;
 }
+
+export class WalkForwardValidationDto extends RunBacktestDto {
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value))
+  trainingWindowDays?: number = 90;
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value))
+  testWindowDays?: number = 30;
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value))
+  stepDays?: number = 30;
+
+  @IsOptional()
+  @IsString()
+  parameterPath?: string = 'riskMultiplier';
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => Number(value))
+  perturbationPct?: number = 10;
+}
+
+export class SensitivityAnalysisDto extends RunBacktestDto {
+  @IsOptional()
+  @IsString()
+  parameterPath?: string = 'riskMultiplier';
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => Number(value))
+  perturbationPct?: number = 10;
+
+  @IsOptional()
+  @IsNumber()
+  @Transform(({ value }) => parseInt(value))
+  sampleSize?: number = 5;
+}

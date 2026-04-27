@@ -28,7 +28,7 @@ import {
   DeleteAccountDto,
 } from './dto/users.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
-import type { Request } from 'express';
+import type { Request, Express } from 'express';
 
 type AuthenticatedRequest = Request & {
   user: {

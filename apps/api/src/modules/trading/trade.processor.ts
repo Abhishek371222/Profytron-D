@@ -16,7 +16,22 @@ export class TradeProcessor {
 
   @Process('execute_trade')
   async handleTradeExecution(job: Job<any>) {
-    const { userId, signalId, strategyId, type, pair, price } = job.data;
+    const {
+      userId,
+      subscriptionId,
+      signalId,
+      strategyId,
+      type,
+      pair,
+      price,
+      requestedPrice,
+      queuedAt,
+      executionMode,
+      executionMetadataJson,
+      icebergSliceIndex,
+      icebergSliceCount,
+      slippageBps,
+    } = job.data;
     this.logger.log(`Executing trade for user ${userId} on ${pair}`);
 
     try {
@@ -34,6 +49,16 @@ export class TradeProcessor {
       const direction =
         type === 'BUY' ? TradeDirection.LONG : TradeDirection.SHORT;
 
+      const queuedTimestamp = queuedAt
+        ? new Date(queuedAt).getTime()
+        : Date.now();
+      const executionLatencyMs = Math.max(0, Date.now() - queuedTimestamp);
+      const adjustedFillPrice = this.calculateFillPrice(
+        direction,
+        price,
+        slippageBps ?? 0,
+      );
+
       // 3. Create Trade Record (Simulation)
       const trade = await this.prisma.trade.create({
         data: {
@@ -43,12 +68,35 @@ export class TradeProcessor {
           symbol: pair,
           direction,
           volume: 0.1, // Fixed lot for simulation
-          openPrice: price,
+          openPrice: adjustedFillPrice,
           status: TradeStatus.OPEN,
           openedAt: new Date(),
           isPaper: brokerAccount.isPaperTrading,
+          requestedPrice: requestedPrice ?? price,
+          fillPrice: adjustedFillPrice,
+          slippageBps: slippageBps ?? 0,
+          executionLatencyMs,
+          icebergSliceIndex: icebergSliceIndex ?? null,
+          icebergSliceCount: icebergSliceCount ?? null,
+          executionMode: executionMode ?? 'STREAMED',
+          executionMetadataJson: {
+            ...(executionMetadataJson ?? {}),
+            signalId,
+            subscriptionId: subscriptionId ?? null,
+            executionLatencyMs,
+          },
         },
       });
+
+      if (subscriptionId) {
+        await this.prisma.userStrategySubscription.update({
+          where: { id: subscriptionId },
+          data: {
+            lastLatencyMs: executionLatencyMs,
+            lastExecutionAt: new Date(),
+          },
+        });
+      }
 
       // 4. Notify Frontend
       this.gateway.sendToUser(userId, 'trade_opened', trade);
@@ -58,9 +106,10 @@ export class TradeProcessor {
       // 5. Automated "Close" after 10s for simulation purposes if it's paper
       if (brokerAccount.isPaperTrading) {
         setTimeout(async () => {
-          const closePrice = price * (1 + (Math.random() * 0.02 - 0.01)); // +/- 1%
+          const closePrice =
+            adjustedFillPrice * (1 + (Math.random() * 0.02 - 0.01)); // +/- 1%
           const profitValue =
-            (closePrice - price) *
+            (closePrice - adjustedFillPrice) *
             (direction === TradeDirection.LONG ? 1 : -1) *
             1000;
 
@@ -83,5 +132,14 @@ export class TradeProcessor {
     } catch (error) {
       this.logger.error(`Failed to execute trade: ${error.message}`);
     }
+  }
+
+  private calculateFillPrice(
+    direction: TradeDirection,
+    price: number,
+    slippageBps: number,
+  ) {
+    const slip = (Math.max(slippageBps, 0) / 10000) * price;
+    return direction === TradeDirection.LONG ? price + slip : price - slip;
   }
 }
