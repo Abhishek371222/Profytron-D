@@ -88,7 +88,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.verifyEmail(dto);
-    this.setSessionCookies(res, result.refreshTokenForCookie);
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+      result.user?.role,
+    );
     return { accessToken: result.accessToken, user: result.user };
   }
 
@@ -102,7 +106,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.login(dto, req);
-    this.setSessionCookies(res, result.refreshTokenForCookie);
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+      result.user?.role,
+    );
     return { accessToken: result.accessToken, user: result.user };
   }
 
