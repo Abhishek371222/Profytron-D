@@ -8,6 +8,7 @@ import {
   useMotionValue,
   useSpring,
 } from "framer-motion";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Zap, Shield, Sparkles, Cpu, Terminal } from "lucide-react";
 import { FadeUp } from "@/components/animations";
@@ -128,7 +129,7 @@ export function HeroSection() {
             <FadeUp delay={0.3}>
               <div className="flex flex-col sm:flex-row items-start gap-6 pt-2">
                 <Magnetic strength={0.35}>
-                  <a href="/register">
+                  <Link href="/register">
                     <motion.div
                       whileHover={{ scale: 1.02, y: -4 }}
                       whileTap={{ scale: 0.98 }}
@@ -148,11 +149,11 @@ export function HeroSection() {
                         </span>
                       </Button>
                     </motion.div>
-                  </a>
+                  </Link>
                 </Magnetic>
 
                 <Magnetic strength={0.2}>
-                  <a href="/dashboard">
+                  <Link href="/dashboard">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -166,7 +167,7 @@ export function HeroSection() {
                         View Platform Tour
                       </Button>
                     </motion.div>
-                  </a>
+                  </Link>
                 </Magnetic>
               </div>
             </FadeUp>

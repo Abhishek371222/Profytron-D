@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Terminal } from "lucide-react";
 import { FadeUp } from "@/components/animations";
@@ -38,7 +39,7 @@ export function CTABanner() {
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
-                <a href="/register" className="w-full sm:w-auto">
+                <Link href="/register" className="w-full sm:w-auto">
                   <Button
                     size="lg"
                     className="w-full sm:w-auto h-14 px-10 text-base bg-white hover:bg-gray-200 text-black rounded-full font-bold transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.1)] group"
@@ -48,8 +49,8 @@ export function CTABanner() {
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </Button>
-                </a>
-                <a href="/docs" className="w-full sm:w-auto">
+                </Link>
+                <Link href="/docs" className="w-full sm:w-auto">
                   <Button
                     size="lg"
                     variant="ghost"
@@ -57,7 +58,7 @@ export function CTABanner() {
                   >
                     Read Documentation
                   </Button>
-                </a>
+                </Link>
               </div>
             </FadeUp>
           </div>
