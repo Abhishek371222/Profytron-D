@@ -17,10 +17,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminService } from './admin.service';
 import { TradingService } from '../trading/trading.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { RiskLevel, StrategyCategory, UserRole } from '@prisma/client';
 
 @ApiTags('Admin')
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+@ApiResponse({ status: 429, description: 'Rate limit exceeded' })
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('admin')
@@ -36,6 +38,7 @@ export class AdminController {
     }
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get admin dashboard aggregate data' })
   @Get('dashboard')
   async getDashboard(@Req() req: any) {
@@ -43,6 +46,7 @@ export class AdminController {
     return this.adminService.getDashboard();
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get institutional dashboard metrics' })
   @Get('stats')
   async getStats(@Req() req: any) {
@@ -50,6 +54,7 @@ export class AdminController {
     return this.adminService.getSystemStats();
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'List all users for management' })
   @Get('users')
   async getUsers(@Req() req: any) {
@@ -57,6 +62,8 @@ export class AdminController {
     return this.adminService.getAllUsers();
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Get one user detail by id' })
   @Get('users/:id')
   async getUserById(@Req() req: any, @Param('id') id: string) {
@@ -64,6 +71,9 @@ export class AdminController {
     return this.adminService.getUserDetail(id);
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Suspend or activate user account' })
   @Patch('users/:id/status')
   async updateUserStatus(
@@ -75,6 +85,9 @@ export class AdminController {
     return this.adminService.updateUserStatus(id, isSuspended);
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Update user system role' })
   @Patch('users/:id/role')
   async updateUserRole(
@@ -86,6 +99,7 @@ export class AdminController {
     return this.adminService.updateUserRole(id, role);
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get strategy verification queue' })
   @Get('verifications')
   async getVerifications(@Req() req: any) {
@@ -93,6 +107,7 @@ export class AdminController {
     return this.adminService.getVerificationQueue();
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get all strategies for admin management' })
   @Get('strategies')
   async getStrategies(@Req() req: any) {
@@ -100,6 +115,8 @@ export class AdminController {
     return this.adminService.getStrategies();
   }
 
+  @ApiResponse({ status: 201, description: 'Created' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Create a strategy from admin panel' })
   @Post('strategies')
   async createStrategy(
@@ -152,6 +169,9 @@ export class AdminController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Update a strategy from admin panel' })
   @Patch('strategies/:id')
   async updateStrategy(
@@ -206,6 +226,8 @@ export class AdminController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Parse strategy PDF to auto-fill admin strategy data' })
   @Post('strategies/pdf')
   @UseInterceptors(FileInterceptor('file'))
@@ -220,6 +242,8 @@ export class AdminController {
     return this.adminService.parseStrategyPdf(file);
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Delete a strategy from admin panel' })
   @Delete('strategies/:id')
   async deleteStrategy(@Req() req: any, @Param('id') strategyId: string) {
@@ -227,6 +251,9 @@ export class AdminController {
     return this.adminService.deleteStrategy(strategyId);
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Approve or reject strategy verification' })
   @Post('verifications/:id/handle')
   async handleVerification(
@@ -239,6 +266,7 @@ export class AdminController {
     return this.adminService.handleVerification(id, approve, notes);
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get payments summary for admin billing console' })
   @Get('payments/overview')
   async getPaymentsOverview(@Req() req: any) {
@@ -246,6 +274,7 @@ export class AdminController {
     return this.adminService.getPaymentsOverview();
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get live system metrics for ops dashboard' })
   @Get('system/metrics')
   async getSystemMetrics(@Req() req: any) {
@@ -253,6 +282,7 @@ export class AdminController {
     return this.adminService.getSystemMetrics();
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({
     summary: 'List broker accounts for master copy-trade control',
   })
@@ -262,6 +292,8 @@ export class AdminController {
     return this.adminService.getBrokerAccounts();
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Mark broker account as a master source' })
   @Patch('broker-accounts/:id/master')
   async setBrokerMasterSource(
@@ -273,6 +305,8 @@ export class AdminController {
     return this.adminService.setBrokerMasterSource(id, isMasterSource);
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({
     summary: 'Broadcast a master-account signal to subscribed users',
   })

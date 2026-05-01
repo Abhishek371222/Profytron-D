@@ -505,4 +505,104 @@ export class PaymentsService {
       await this.redis.del(lockKey);
     }
   }
+
+  // NEW METHODS FOR PAYMENT MODELS
+  async createPaymentRecord(
+    userId: string,
+    amount: number,
+    method: string,
+    description?: string,
+  ) {
+    return this.prisma.payment.create({
+      data: {
+        userId,
+        amount,
+        method: method as any,
+        status: 'PENDING',
+        description,
+      },
+    });
+  }
+
+  async completePaymentRecord(
+    paymentId: string,
+    razorpayOrderId?: string,
+    razorpayPaymentId?: string,
+  ) {
+    return this.prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        status: 'COMPLETED',
+        razorpayOrderId,
+        razorpayPaymentId,
+        completedAt: new Date(),
+      },
+    });
+  }
+
+  async generateInvoice(paymentId: string) {
+    const payment = await this.prisma.payment.findUnique({ where: { id: paymentId } });
+    if (!payment) {
+      throw new BadRequestException('Payment not found');
+    }
+
+    const invoiceNumber = `INV-${Date.now()}`;
+    const tax = payment.amount * 0.18;
+    const total = payment.amount + tax;
+
+    return this.prisma.invoice.create({
+      data: {
+        userId: payment.userId,
+        paymentId,
+        invoiceNumber,
+        amount: payment.amount,
+        tax,
+        total,
+        currency: payment.currency,
+        description: payment.description,
+        items: [{ description: payment.description || 'Service', amount: payment.amount }],
+      },
+    });
+  }
+
+  async createSubscription(userId: string, planId: string, paymentId?: string) {
+    const plan = await this.prisma.subscriptionPlan.findUnique({ where: { id: planId } });
+    if (!plan) {
+      throw new BadRequestException('Plan not found');
+    }
+
+    const expiresAt = new Date();
+    expiresAt.setMonth(expiresAt.getMonth() + 1);
+
+    return this.prisma.userSubscription.create({
+      data: {
+        userId,
+        planId,
+        paymentId,
+        status: 'ACTIVE',
+        expiresAt,
+        nextBillingAt: expiresAt,
+      },
+    });
+  }
+
+  async getPaymentHistory(userId: string, limit = 10, skip = 0) {
+    const payments = await this.prisma.payment.findMany({
+      where: { userId },
+      include: { invoice: true },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      skip,
+    });
+
+    const total = await this.prisma.payment.count({ where: { userId } });
+    return { payments, total };
+  }
+
+  async getInvoices(userId: string) {
+    return this.prisma.invoice.findMany({
+      where: { userId },
+      orderBy: { issuedAt: 'desc' },
+    });
+  }
 }

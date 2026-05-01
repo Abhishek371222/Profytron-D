@@ -18,6 +18,7 @@ import {
   ApiBearerAuth,
   ApiConsumes,
   ApiBody,
+  ApiResponse,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
@@ -38,6 +39,8 @@ type AuthenticatedRequest = Request & {
 };
 
 @ApiTags('Users')
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+@ApiResponse({ status: 429, description: 'Rate limit exceeded' })
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('users')
@@ -45,12 +48,15 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('me')
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get current user profile' })
   async getMe(@Req() req: AuthenticatedRequest) {
     return this.usersService.findById(req.user.userId);
   }
 
   @Patch('me')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Update user profile' })
   async updateProfile(
     @Req() req: AuthenticatedRequest,
@@ -74,6 +80,8 @@ export class UsersController {
       },
     },
   })
+  @ApiResponse({ status: 201, description: 'Created' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Upload avatar to Supabase storage' })
   async uploadAvatar(
     @Req() req: AuthenticatedRequest,
@@ -86,6 +94,8 @@ export class UsersController {
   }
 
   @Patch('me/risk-profile')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Update Risk Profile (Onboarding Step 4)' })
   async updateRiskProfile(
     @Req() req: AuthenticatedRequest,
@@ -95,12 +105,15 @@ export class UsersController {
   }
 
   @Get('me/sessions')
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get active sessions' })
   async getSessions(@Req() req: AuthenticatedRequest) {
     return this.usersService.getSessions(req.user.userId);
   }
 
   @Delete('me/sessions/:id')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Revoke specific session' })
   async revokeSession(
     @Req() req: AuthenticatedRequest,
@@ -110,6 +123,7 @@ export class UsersController {
   }
 
   @Delete('me/sessions')
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Revoke all other sessions' })
   async revokeAllOtherSessions(@Req() req: AuthenticatedRequest) {
     // Current session ID passed from JWT payload
@@ -126,6 +140,8 @@ export class UsersController {
   }
 
   @Post('me/change-password')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Change password and revoke refresh tokens' })
   async changePassword(
     @Req() req: AuthenticatedRequest,
@@ -135,11 +151,48 @@ export class UsersController {
   }
 
   @Delete('me')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Delete account' })
   async deleteAccount(
     @Req() req: AuthenticatedRequest,
     @Body() dto: DeleteAccountDto,
   ) {
     return this.usersService.deleteAccount(req.user.userId, dto.confirmText);
+  }
+
+  // ──────────────────────────── KYC ────────────────────────────
+
+  @Get('me/kyc')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Get KYC verification status and documents' })
+  async getKycStatus(@Req() req: AuthenticatedRequest) {
+    return this.usersService.getKycStatus(req.user.userId);
+  }
+
+  @Post('me/kyc')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['docType', 'file'],
+      properties: {
+        docType: { type: 'string', enum: ['AADHAAR', 'PAN', 'PASSPORT', 'DRIVING_LICENSE'] },
+        file: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Document submitted for review' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({ summary: 'Submit KYC document for verification' })
+  async submitKyc(
+    @Req() req: AuthenticatedRequest,
+    @Body('docType') docType: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('Document file is required');
+    if (!docType) throw new BadRequestException('docType is required');
+    return this.usersService.submitKycDocument(req.user.userId, docType, file);
   }
 }

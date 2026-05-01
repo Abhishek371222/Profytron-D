@@ -1,14 +1,15 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
+import { RedisService } from '../redis.service';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor() {
+  constructor(private redisService: RedisService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
@@ -17,13 +18,22 @@ export class JwtRefreshStrategy extends PassportStrategy(
       ]),
       ignoreExpiration: false,
       secretOrKey:
-        process.env.JWT_REFRESH_SECRET ||
-        'profytron_v1_refresh_1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p',
+        process.env.JWT_REFRESH_SECRET ??
+        (() => {
+          throw new Error('JWT_REFRESH_SECRET env var is required');
+        })(),
       passReqToCallback: true,
     });
   }
 
   async validate(req: Request, payload: any) {
+    if (payload.jti) {
+      const isBlacklisted = await this.redisService.exists(
+        `auth:blacklist:${payload.jti}`,
+      );
+      if (isBlacklisted)
+        throw new UnauthorizedException('Refresh token has been revoked');
+    }
     const refreshToken = req.cookies?.refresh_token;
     return {
       id: payload.sub,

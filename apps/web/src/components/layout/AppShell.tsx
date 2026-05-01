@@ -4,6 +4,7 @@ import React from"react";
 import { Sidebar } from"./Sidebar";
 import { TopBar } from"./TopBar";
 import { GlobalCommandPalette } from"./GlobalCommandPalette";
+import { MobileBottomNav } from"./MobileBottomNav";
 import { useUIStore } from"@/lib/stores/useUIStore";
 import { cn } from"@/lib/utils";
 import { motion } from"framer-motion";
@@ -147,7 +148,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  className={
  mounted && isBuilder
  ?"p-0 max-w-none w-full h-full"
- :"p-[var(--dashboard-p)] pb-8 sm:pb-10 lg:pb-12 max-w-[1800px] mx-auto w-full min-w-0 flex-col flex min-h-full"
+ :"p-[var(--dashboard-p)] pb-24 sm:pb-10 lg:pb-12 max-w-[1800px] mx-auto w-full min-w-0 flex-col flex min-h-full"
  }
  >
  {children}
@@ -159,6 +160,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
  <div className="fixed top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/5 to-transparent z-[100] pointer-events-none" />
  <div className="fixed bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/5 to-transparent z-[100] pointer-events-none" />
       <GlobalCommandPalette />
+      <MobileBottomNav />
  </div>
  );
 }

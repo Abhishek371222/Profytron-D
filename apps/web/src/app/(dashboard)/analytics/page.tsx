@@ -15,7 +15,6 @@ import { Card } from '@/components/ui/card';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import Link from 'next/link';
 import { ChevronRight, RefreshCcw, Sparkles, TrendingUp } from 'lucide-react';
-import { demoPortfolio } from './_lib/demoData';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 
@@ -29,45 +28,51 @@ export default function AnalyticsPage() {
     queryKey: ['analytics', 'portfolio', range],
     queryFn: () => analyticsApi.getPortfolio(range),
     staleTime: 30_000,
+    refetchInterval: 15_000,
   });
 
   const monthlyQuery = useQuery({
     queryKey: ['analytics', 'monthly-returns'],
     queryFn: () => analyticsApi.getMonthlyReturns(),
     staleTime: 300_000,
+    refetchInterval: 60_000,
   });
 
   const strategyQuery = useQuery({
     queryKey: ['analytics', 'strategy-comparison', range],
     queryFn: () => analyticsApi.getStrategyComparison(range),
     staleTime: 120_000,
+    refetchInterval: 20_000,
   });
 
   const riskQuery = useQuery({
     queryKey: ['analytics', 'risk', range],
     queryFn: () => analyticsApi.getRisk(range),
     staleTime: 120_000,
+    refetchInterval: 20_000,
   });
 
   const tradeQuery = useQuery({
     queryKey: ['analytics', 'trades', range],
     queryFn: () => analyticsApi.getTrades(range),
     staleTime: 120_000,
+    refetchInterval: 20_000,
   });
 
   const globalQuery = useQuery({
     queryKey: ['analytics', 'global'],
     queryFn: () => analyticsApi.getGlobal(),
     staleTime: 300_000,
+    refetchInterval: 60_000,
   });
 
-  const portfolio = portfolioQuery.data ?? demoPortfolio(range);
+  const portfolio = portfolioQuery.data;
   const global = globalQuery.data;
 
   React.useEffect(() => {
     if (portfolioQuery.isError) {
       toast.error('Portfolio analytics unavailable', {
-        description: 'Using fallback data until the analytics API recovers.',
+        description: 'No synthetic fallback is used. Showing only real persisted trade analytics.',
       });
     }
   }, [portfolioQuery.isError]);
@@ -119,11 +124,17 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Total Profit" value={`$${portfolio.totalProfit.toLocaleString()}`} tone="profit" />
-        <MetricCard label="Win Rate" value={`${portfolio.winRate}%`} tone="neutral" />
-        <MetricCard label="Sharpe" value={`${portfolio.sharpeRatio}`} tone="neutral" />
-        <MetricCard label="Max Drawdown" value={`${portfolio.maxDrawdown}%`} tone="risk" />
+        <MetricCard label="Total Profit" value={portfolio ? `$${portfolio.totalProfit.toLocaleString()}` : 'No data'} tone="profit" />
+        <MetricCard label="Win Rate" value={portfolio ? `${portfolio.winRate}%` : 'No data'} tone="neutral" />
+        <MetricCard label="Sharpe" value={portfolio ? `${portfolio.sharpeRatio}` : 'No data'} tone="neutral" />
+        <MetricCard label="Max Drawdown" value={portfolio ? `${portfolio.maxDrawdown}%` : 'No data'} tone="risk" />
       </div>
+
+      {!portfolioQuery.isLoading && (!portfolio || portfolio.totalTrades === 0) ? (
+        <Card className="border-amber-300/30 bg-amber-300/5 p-4 text-sm text-amber-100">
+          Analytics are empty until closed trades exist in your account history. Connecting MT5 alone does not create these values.
+        </Card>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
         <Card className="border-white/10 bg-black/40 p-4">
@@ -131,12 +142,12 @@ export default function AnalyticsPage() {
             <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Equity Curve</h3>
             <span className="inline-flex items-center gap-1 rounded-full border border-emerald-300/30 bg-emerald-300/10 px-2.5 py-1 text-[11px] text-emerald-200">
               <TrendingUp className="h-3.5 w-3.5" />
-              +{portfolio.bestMonth}% Best Month
+              {portfolio ? `+${portfolio.bestMonth}% Best Month` : 'Awaiting closed trades'}
             </span>
           </div>
           <div className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={portfolio.equityCurve}>
+              <AreaChart data={portfolio?.equityCurve ?? []}>
                 <defs>
                   <linearGradient id="overviewFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.5} />
@@ -170,9 +181,9 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white/70">
-            <p>Regime: <span className="text-white">{global?.marketRegime.label ?? 'Risk-On Rotation'}</span></p>
-            <p className="mt-1">Confidence: <span className="text-white">{global?.marketRegime.confidence ?? 78}%</span></p>
-            <p className="mt-1">Data mode: <span className="text-cyan-200">{portfolioQuery.data ? 'Live' : 'Demo fallback'}</span></p>
+            <p>Regime: <span className="text-white">{global?.marketRegime.label ?? 'Unavailable'}</span></p>
+            <p className="mt-1">Confidence: <span className="text-white">{global?.marketRegime.confidence ?? 0}%</span></p>
+            <p className="mt-1">Data mode: <span className="text-cyan-200">{portfolioQuery.data ? 'Live' : 'No fallback'}</span></p>
           </div>
         </Card>
       </div>

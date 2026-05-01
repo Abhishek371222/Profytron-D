@@ -32,26 +32,6 @@ export const affiliateTierFilters = ['ALL', 'STARTER', 'PRO', 'ELITE'] as const;
 
 export const affiliateRegionFilters = ['ALL', 'APAC', 'EU', 'US', 'LATAM', 'UK', 'MENA'] as const;
 
-export const compactAffiliateWidget = {
-  title: 'Affiliate pulse',
-  subtitle: 'A quick read on your network and pending payout.',
-};
-
-export const demoAffiliateDashboard: AffiliateDashboardData = {
-  referralCode: 'PROFYTRON-X7A9',
-  tier: 'PRO',
-  commissionRate: 0.35,
-  stats: {
-    clicks: 18420,
-    signups: 1260,
-    conversions: 312,
-    conversionRate: 6.84,
-    totalEarned: 8640.5,
-    totalPaid: 4120.25,
-    pendingPayout: 4520.25,
-  },
-};
-
 export const affiliateLeaders: AffiliateLeader[] = [
   {
     rank: 1,
@@ -137,12 +117,4 @@ export const affiliateLeaders: AffiliateLeader[] = [
     color: 'from-teal-400/35 via-emerald-400/20 to-transparent',
     note: 'Emerging affiliate with fast network growth.',
   },
-];
-
-export const affiliateTreeNodes = [
-  { label: 'You', value: 'Root node', tone: 'text-white' },
-  { label: 'Warm leads', value: '42 active', tone: 'text-cyan-300' },
-  { label: 'Qualified signups', value: '18 this week', tone: 'text-emerald-300' },
-  { label: 'Paid conversions', value: '7 pending', tone: 'text-amber-300' },
-  { label: 'Elite referrals', value: '3 strategic', tone: 'text-violet-300' },
 ];

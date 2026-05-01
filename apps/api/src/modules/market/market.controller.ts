@@ -1,5 +1,5 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/guards/auth.guard';
 import {
   MarketService,
@@ -8,12 +8,15 @@ import {
 } from './market.service';
 
 @ApiTags('Market')
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+@ApiResponse({ status: 429, description: 'Rate limit exceeded' })
 @Controller('market')
 export class MarketController {
   constructor(private readonly marketService: MarketService) {}
 
   @Public()
   @Get('quote')
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get latest quote for a supported symbol' })
   @ApiQuery({ name: 'symbol', required: false, example: 'BTCUSDT' })
   getQuote(@Query('symbol') symbol?: string) {
@@ -23,6 +26,7 @@ export class MarketController {
 
   @Public()
   @Get('ohlc')
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get OHLCV candlestick data for charting' })
   @ApiQuery({ name: 'symbol', required: false, example: 'BTCUSDT' })
   @ApiQuery({ name: 'timeframe', required: false, example: '15m' })

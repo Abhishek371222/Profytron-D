@@ -22,12 +22,7 @@ export function TopBar() {
  const router = useRouter();
  const { user, logout } = useAuthStore();
  const { setCommandPaletteOpen, toggleSidebar } = useUIStore();
- const { data: currentUser } = useCurrentUser();
- const tickerItems = [
-   { symbol: 'BTC', price: '65,120.45', change: '2.4%', positive: true },
-   { symbol: 'ETH', price: '3,410.20', change: '0.8%', positive: false },
-   { symbol: 'SOL', price: '145.60', change: '5.2%', positive: true },
- ];
+  const { data: currentUser } = useCurrentUser();
 
  const resolvedUser = currentUser || user;
 
@@ -80,22 +75,7 @@ export function TopBar() {
  </button>
  </div>
 
- {/* Ticker Placeholder (Will be animated in simulator step) */}
- <div className="hidden lg:flex items-center gap-8 mx-8 overflow-hidden flex-1 justify-center">
- <div className="flex items-center gap-2 whitespace-nowrap">
- <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">Live Ticker</span>
- <div className="flex gap-4 animate-ticker">
- {tickerItems.map((item, index) => (
-   <span key={item.symbol} className="text-xs font-mono inline-flex items-center gap-1.5">
-     <span className="text-p">{item.symbol}</span>
-     <span>{item.price}</span>
-     <span className={item.positive ? 'text-success' : 'text-danger'}>{item.change}</span>
-     {index < tickerItems.length - 1 ? <span className="text-white/25">•</span> : null}
-   </span>
- ))}
- </div>
- </div>
- </div>
+  {/* Live ticker removed per design request; real-time market values shown elsewhere */}
 
  {/* Actions */}
  <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 shrink-0">

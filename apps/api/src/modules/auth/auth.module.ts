@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { TwoFaService } from './twofa.service';
 import { RedisModule } from './redis.module';
 import { EmailModule } from '../email/email.module';
 import { UsersModule } from '../users/users.module';
@@ -11,23 +12,25 @@ import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { GithubStrategy } from './strategies/github.strategy';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      // We will sign payload and set dynamically in auth.service, but this acts as default.
       secret:
-        process.env.JWT_ACCESS_SECRET ||
-        'profytron_v1_access_96e8b2c4d1a5f6b7c8d9e0f1a2b3c4d5',
+        process.env.JWT_ACCESS_SECRET ??
+        (() => {
+          throw new Error('JWT_ACCESS_SECRET env var is required');
+        })(),
       signOptions: { expiresIn: '1h' },
     }),
     RedisModule,
     EmailModule,
-    UsersModule, // Empty wrapper stub currently
+    UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtRefreshStrategy, GoogleStrategy],
-  exports: [AuthService, JwtModule, PassportModule],
+  providers: [AuthService, TwoFaService, JwtStrategy, JwtRefreshStrategy, GoogleStrategy, GithubStrategy],
+  exports: [AuthService, TwoFaService, JwtModule, PassportModule],
 })
 export class AuthModule {}

@@ -520,7 +520,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
  };
 
  const isBuilder = pathname?.includes('/strategies/builder');
- const isDemo = true; 
+ const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'; 
 
  const handleConnectBroker = async () => {
    setIsConnecting(true);

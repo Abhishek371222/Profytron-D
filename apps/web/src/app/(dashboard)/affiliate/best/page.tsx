@@ -10,7 +10,6 @@ import { cn } from '@/lib/utils';
 import { affiliateLeaders, affiliateRegionFilters, affiliateTierFilters } from '../_lib/affiliateData';
 import { AffiliateTreeScene } from '../_components/AffiliateTreeScene';
 import { affiliatesApi, type AffiliateDashboardResponse } from '@/lib/api/affiliates';
-import { demoAffiliateDashboard } from '../_lib/affiliateData';
 
 export default function BestAffiliatesPage() {
   const router = useRouter();
@@ -19,7 +18,9 @@ export default function BestAffiliatesPage() {
     queryFn: () => affiliatesApi.getDashboard(),
   });
   const leaders = affiliateLeaders.slice(0, 5);
-  const dashboard = dashboardQuery.data ?? demoAffiliateDashboard;
+  const dashboard = dashboardQuery.data;
+  const stats = dashboard?.stats;
+  const commissionRate = dashboard?.commissionRate ?? 0;
   const [activeTier, setActiveTier] = React.useState<(typeof affiliateTierFilters)[number]>('ALL');
   const [activeRegion, setActiveRegion] = React.useState<(typeof affiliateRegionFilters)[number]>('ALL');
 
@@ -76,9 +77,9 @@ export default function BestAffiliatesPage() {
 
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {[
-                { label: 'Top converters', value: '782+', tone: 'text-emerald-300', icon: Flame },
-                { label: 'Total earned', value: '$94.4K', tone: 'text-cyan-300', icon: Award },
-                { label: 'Network growth', value: '+12.8%', tone: 'text-amber-300', icon: Sparkles },
+                { label: 'Top converters', value: stats ? `${stats.conversions.toLocaleString()} conversions` : 'No data', tone: 'text-emerald-300', icon: Flame },
+                { label: 'Total earned', value: stats ? `$${stats.totalEarned.toLocaleString()}` : 'No data', tone: 'text-cyan-300', icon: Award },
+                { label: 'Network growth', value: dashboard ? `${Math.round(commissionRate * 100)}%` : 'No data', tone: 'text-amber-300', icon: Sparkles },
               ].map((item, index) => {
                 const Icon = item.icon;
                 return (
@@ -193,18 +194,18 @@ export default function BestAffiliatesPage() {
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-white/30">Referral code</p>
-                  <p className="mt-2 text-2xl font-semibold text-white">{dashboard.referralCode}</p>
+                  <p className="mt-2 text-2xl font-semibold text-white">{dashboard?.referralCode ?? '—'}</p>
                 </div>
                 <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-white/30">Commission rate</p>
-                  <p className="mt-2 text-2xl font-semibold text-emerald-300">{Math.round(dashboard.commissionRate * 100)}%</p>
+                  <p className="mt-2 text-2xl font-semibold text-emerald-300">{Math.round(commissionRate * 100)}%</p>
                 </div>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {[
-                  { label: 'Clicks', value: dashboard.stats.clicks, tone: 'text-cyan-300' },
-                  { label: 'Signups', value: dashboard.stats.signups, tone: 'text-emerald-300' },
-                  { label: 'Conversions', value: dashboard.stats.conversions, tone: 'text-amber-300' },
+                  { label: 'Clicks', value: stats?.clicks ?? 0, tone: 'text-cyan-300' },
+                  { label: 'Signups', value: stats?.signups ?? 0, tone: 'text-emerald-300' },
+                  { label: 'Conversions', value: stats?.conversions ?? 0, tone: 'text-amber-300' },
                 ].map((item) => (
                   <div key={item.label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-white/30">{item.label}</p>
@@ -220,11 +221,11 @@ export default function BestAffiliatesPage() {
               title="Top affiliate tree"
               subtitle="A live-style rank map that shows how the strongest performers are distributed across regions and funnel stages."
               nodes={[
-                { label: 'Top rank', value: '782 conversions', tone: 'text-emerald-300' },
-                { label: 'Elite branch', value: '2 active leaders', tone: 'text-cyan-300' },
-                { label: 'Growth branch', value: '3 fast movers', tone: 'text-amber-300' },
-                { label: 'Tier bridge', value: 'PRO to ELITE', tone: 'text-violet-300' },
-                { label: 'Momentum', value: 'Rising weekly', tone: 'text-sky-300' },
+                { label: 'Top rank', value: stats ? `${stats.conversions.toLocaleString()} conversions` : 'No data yet', tone: 'text-emerald-300' },
+                { label: 'Elite branch', value: dashboard ? `${dashboard.tier} tier` : 'No data', tone: 'text-cyan-300' },
+                { label: 'Growth branch', value: stats ? `${stats.signups.toLocaleString()} signups` : 'No data', tone: 'text-amber-300' },
+                { label: 'Payout pool', value: stats ? `$${stats.pendingPayout.toLocaleString()}` : 'No data', tone: 'text-violet-300' },
+                { label: 'Momentum', value: dashboard ? 'Live now' : 'No data', tone: 'text-sky-300' },
               ]}
               accentClassName="from-amber-400/16 via-fuchsia-400/10 to-transparent"
             />
@@ -232,8 +233,8 @@ export default function BestAffiliatesPage() {
             <div className="grid gap-3 md:grid-cols-3">
               {[
                 { label: 'API feed', value: dashboardQuery.isError ? 'Fallback' : 'Live', tone: dashboardQuery.isError ? 'text-amber-300' : 'text-emerald-300' },
-                { label: 'Payout pool', value: dashboard.stats.pendingPayout.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }), tone: 'text-white' },
-                { label: 'Tier', value: dashboard.tier, tone: 'text-cyan-200' },
+                { label: 'Payout pool', value: stats ? stats.pendingPayout.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }) : '—', tone: 'text-white' },
+                { label: 'Tier', value: dashboard?.tier ?? '—', tone: 'text-cyan-200' },
               ].map((item) => (
                 <motion.div
                   key={item.label}

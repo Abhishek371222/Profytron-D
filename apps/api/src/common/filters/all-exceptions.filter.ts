@@ -36,7 +36,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         typeof message === 'string'
           ? message
           : (message as any).message || message,
-      code: (message as any).error || 'INTERNAL_ERROR',
+      code: (message as any).code || (message as any).error || 'INTERNAL_ERROR',
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
     };

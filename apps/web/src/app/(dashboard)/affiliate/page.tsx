@@ -9,11 +9,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { affiliatesApi, type AffiliateDashboardResponse, type AffiliateRecordResponse } from '@/lib/api/affiliates';
 import { toast } from 'sonner';
-import {
-  affiliateTreeNodes,
-  demoAffiliateDashboard,
-  type AffiliateDashboardData,
-} from './_lib/affiliateData';
+import { type AffiliateDashboardData } from './_lib/affiliateData';
 import { AffiliateTreeScene } from './_components/AffiliateTreeScene';
 
 const formatCurrency = (value: number) =>
@@ -49,23 +45,28 @@ export default function AffiliatePage() {
     setOrigin(window.location.origin);
   }, []);
 
-  const data = dashboardQuery.data ?? demoAffiliateDashboard;
+  const data = dashboardQuery.data;
   const profile = profileQuery.data;
-  const stats = data.stats;
-  const referralCode = data.referralCode || profile?.referralCode || demoAffiliateDashboard.referralCode;
+  const stats = data?.stats;
+  const tier = data?.tier ?? profile?.tier;
+  const commissionRate = data?.commissionRate ?? profile?.commissionRate ?? 0;
+  const referralCode = data?.referralCode || profile?.referralCode || '';
   const referralLink = origin ? `${origin}/signup?ref=${referralCode}` : '';
   const isLoading = dashboardQuery.isLoading || profileQuery.isLoading;
-  const livePace = Math.max(0, Math.min(100, (stats.conversionRate / 10) * 100));
-  const ownMetrics = React.useMemo(() => [
-    { label: 'Referral tier', value: data.tier, tone: 'text-cyan-200' },
-    { label: 'Click quality', value: `${stats.conversionRate}%`, tone: 'text-emerald-200' },
-    { label: 'Open payout', value: formatCurrency(stats.pendingPayout), tone: 'text-amber-200' },
-  ], [data.tier, stats.conversionRate, stats.pendingPayout]);
+  const livePace = stats ? Math.max(0, Math.min(100, (stats.conversionRate / 10) * 100)) : 0;
+  const ownMetrics = React.useMemo(
+    () => [
+      { label: 'Referral tier', value: tier ?? '—', tone: 'text-cyan-200' },
+      { label: 'Click quality', value: stats ? `${stats.conversionRate}%` : '—', tone: 'text-emerald-200' },
+      { label: 'Open payout', value: stats ? formatCurrency(stats.pendingPayout) : '—', tone: 'text-amber-200' },
+    ],
+    [tier, stats],
+  );
 
   React.useEffect(() => {
     if (dashboardQuery.isError || profileQuery.isError) {
       toast.error('Affiliate dashboard unavailable', {
-        description: 'Showing cached affiliate metrics while the API recovers.',
+        description: 'Affiliate metrics are unavailable until the API recovers.',
       });
     }
   }, [dashboardQuery.isError, profileQuery.isError]);
@@ -209,12 +210,14 @@ export default function AffiliatePage() {
                 {metricCards.map((card, index) => {
                   const Icon = card.icon;
                   const value = card.key === 'clicks'
-                    ? stats.clicks
+                    ? stats?.clicks ?? '—'
                     : card.key === 'signups'
-                      ? stats.signups
+                      ? stats?.signups ?? '—'
                       : card.key === 'conversions'
-                        ? stats.conversions
-                        : `${stats.conversionRate}%`;
+                        ? stats?.conversions ?? '—'
+                        : stats?.conversionRate != null
+                          ? `${stats.conversionRate}%`
+                          : '—';
 
                   return (
                     <motion.div
@@ -282,11 +285,13 @@ export default function AffiliatePage() {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/30">Your referral code</p>
                   <div className="mt-2 flex items-center gap-3">
                     <h2 className="text-3xl font-semibold tracking-tight text-white">{referralCode}</h2>
-                    <span className={cn('rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em]', data.tier === 'ELITE' ? 'border-emerald-400/20 bg-emerald-500/10 text-emerald-300' : data.tier === 'PRO' ? 'border-cyan-400/20 bg-cyan-500/10 text-cyan-200' : 'border-white/10 bg-white/5 text-white/50')}>
-                      {data.tier}
+                    <span className={cn('rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em]', tier === 'ELITE' ? 'border-emerald-400/20 bg-emerald-500/10 text-emerald-300' : tier === 'PRO' ? 'border-cyan-400/20 bg-cyan-500/10 text-cyan-200' : 'border-white/10 bg-white/5 text-white/50')}>
+                      {tier ?? 'Unavailable'}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm text-white/55">{profile ? 'Live user record loaded from backend.' : 'Fallback metrics are active.'}</p>
+                  <p className="mt-2 text-sm text-white/55">
+                    {dashboardQuery.isLoading ? 'Loading affiliate metrics…' : profile ? 'Live user record loaded from backend.' : 'No affiliate analytics are available yet.'}
+                  </p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/20 p-3 text-white/55">
                   <WalletCards className="h-5 w-5 text-p" />
@@ -296,19 +301,19 @@ export default function AffiliatePage() {
               <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-white/30">Commission rate</p>
-                  <p className="mt-2 text-xl font-semibold text-white">{Math.round(data.commissionRate * 100)}%</p>
+                  <p className="mt-2 text-xl font-semibold text-white">{Math.round(commissionRate * 100)}%</p>
                 </div>
                 <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-white/30">Pending payout</p>
-                  <p className="mt-2 text-xl font-semibold text-amber-300">{formatCurrency(stats.pendingPayout)}</p>
+                  <p className="mt-2 text-xl font-semibold text-amber-300">{stats ? formatCurrency(stats.pendingPayout) : '—'}</p>
                 </div>
                 <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-white/30">Earned</p>
-                  <p className="mt-2 text-xl font-semibold text-emerald-300">{formatCurrency(stats.totalEarned)}</p>
+                  <p className="mt-2 text-xl font-semibold text-emerald-300">{stats ? formatCurrency(stats.totalEarned) : '—'}</p>
                 </div>
                 <div className="rounded-2xl border border-white/8 bg-black/20 p-4">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-white/30">Paid</p>
-                  <p className="mt-2 text-xl font-semibold text-sky-300">{formatCurrency(stats.totalPaid)}</p>
+                  <p className="mt-2 text-xl font-semibold text-sky-300">{stats ? formatCurrency(stats.totalPaid) : '—'}</p>
                 </div>
               </div>
             </div>
@@ -328,7 +333,13 @@ export default function AffiliatePage() {
                 <AffiliateTreeScene
                   title="Affiliate network"
                   subtitle="A moving tree that shows your referral flow from the root node down to active conversions."
-                  nodes={affiliateTreeNodes}
+                  nodes={stats ? [
+                    { label: 'You', value: 'Root node', tone: 'text-white' },
+                    { label: 'Clicks', value: `${stats.clicks.toLocaleString()} tracked`, tone: 'text-cyan-300' },
+                    { label: 'Signups', value: `${stats.signups.toLocaleString()} registered`, tone: 'text-emerald-300' },
+                    { label: 'Conversions', value: `${stats.conversions.toLocaleString()} closed`, tone: 'text-amber-300' },
+                    { label: 'Pending payout', value: formatCurrency(stats.pendingPayout), tone: 'text-violet-300' },
+                  ] : [{ label: 'Affiliate network', value: 'Waiting for referral activity', tone: 'text-white' }]}
                 />
               </div>
             </motion.div>
@@ -343,9 +354,9 @@ export default function AffiliatePage() {
               </div>
               <div className="mt-4 space-y-3">
                 {[
-                  { label: 'Traffic quality', value: stats.clicks, max: 22000, tone: 'from-cyan-400 to-cyan-200' },
-                  { label: 'Signup momentum', value: stats.signups, max: 1600, tone: 'from-emerald-400 to-emerald-200' },
-                  { label: 'Payout runway', value: stats.pendingPayout, max: 6000, tone: 'from-amber-400 to-orange-300' },
+                  { label: 'Traffic quality', value: stats?.clicks ?? 0, max: 22000, tone: 'from-cyan-400 to-cyan-200' },
+                  { label: 'Signup momentum', value: stats?.signups ?? 0, max: 1600, tone: 'from-emerald-400 to-emerald-200' },
+                  { label: 'Payout runway', value: stats?.pendingPayout ?? 0, max: 6000, tone: 'from-amber-400 to-orange-300' },
                 ].map((row) => (
                   <div key={row.label}>
                     <div className="mb-2 flex items-center justify-between gap-3 text-xs uppercase tracking-[0.22em] text-white/35">
@@ -373,9 +384,9 @@ export default function AffiliatePage() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/30">Compact widget</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {[
-                  { label: 'Referral code', value: referralCode },
-                  { label: 'Pending payout', value: formatCurrency(stats.pendingPayout) },
-                  { label: 'Tier', value: data.tier },
+                  { label: 'Referral code', value: referralCode || '—' },
+                  { label: 'Pending payout', value: stats ? formatCurrency(stats.pendingPayout) : '—' },
+                  { label: 'Tier', value: tier ?? '—' },
                 ].map((item, index) => (
                   <div key={item.label} className="rounded-2xl border border-white/8 bg-black/20 p-4">
                     <p className="text-[10px] uppercase tracking-[0.22em] text-white/30">{item.label}</p>
@@ -392,9 +403,9 @@ export default function AffiliatePage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {[
-          { label: 'Clicks', value: stats.clicks, tone: 'text-cyan-300' },
-          { label: 'Signups', value: stats.signups, tone: 'text-emerald-300' },
-          { label: 'Conversions', value: stats.conversions, tone: 'text-amber-300' },
+          { label: 'Clicks', value: stats?.clicks ?? 0, tone: 'text-cyan-300' },
+          { label: 'Signups', value: stats?.signups ?? 0, tone: 'text-emerald-300' },
+          { label: 'Conversions', value: stats?.conversions ?? 0, tone: 'text-amber-300' },
         ].map((item, index) => (
           <motion.div
             key={item.label}
