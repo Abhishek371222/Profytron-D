@@ -166,6 +166,45 @@ export class UsersService {
     return { success: true };
   }
 
+  async getKycStatus(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { kycStatus: true },
+    });
+    const documents = await this.prisma.kycDocument.findMany({
+      where: { userId },
+      orderBy: { submittedAt: 'desc' },
+    });
+    return { kycStatus: user?.kycStatus ?? 'NOT_STARTED', documents };
+  }
+
+  async submitKycDocument(userId: string, docType: string, file: Express.Multer.File) {
+    const fileExt = file.originalname.split('.').pop() || 'jpg';
+    const filePath = `kyc/${userId}/${docType}_${Date.now()}.${fileExt}`;
+
+    const { error } = await this.supabase.storage
+      .from('kyc-documents')
+      .upload(filePath, file.buffer, { contentType: file.mimetype, upsert: false });
+
+    if (error) {
+      this.logger.error(`KYC upload failed: ${error.message}`);
+      throw new BadRequestException('Failed to upload document');
+    }
+
+    const doc = await this.prisma.kycDocument.create({
+      data: { userId, docType, storagePath: filePath, status: 'PENDING' },
+    });
+
+    // Set user KYC status to PENDING if not already verified
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { kycStatus: 'PENDING' },
+    });
+
+    this.logger.log(`KYC document submitted for user ${userId}: ${docType}`);
+    return { success: true, documentId: doc.id, status: 'PENDING' };
+  }
+
   async deleteAccount(userId: string, confirmText: string) {
     if (confirmText !== 'DELETE') {
       throw new BadRequestException('Confirmation text must match "DELETE"');

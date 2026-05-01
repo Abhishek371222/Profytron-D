@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { Logger } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
 import * as net from 'node:net';
 import { AppModule } from './app.module';
@@ -39,10 +40,11 @@ async function bootstrap() {
   configureApp(app);
 
   const requestedPort = Number(process.env.API_PORT || 4000);
+  const logger = new Logger('Bootstrap');
   const port = await resolveApiPort(requestedPort);
   if (port !== requestedPort) {
-    console.warn(
-      `[Profytron] Port ${requestedPort} is busy, falling back to ${port}.`,
+    logger.warn(
+      `Port ${requestedPort} is busy, falling back to ${port}.`,
     );
   }
 
@@ -52,7 +54,7 @@ async function bootstrap() {
     `http://${host === '0.0.0.0' ? 'api' : host}:${port}`;
 
   await app.listen(port, host);
-  console.log(`[Profytron] API is running on: ${apiPublicUrl}`);
-  console.log(`[Profytron] Documentation: ${apiPublicUrl}/api/docs`);
+  logger.log(`API is running on: ${apiPublicUrl}`);
+  logger.log(`Documentation: ${apiPublicUrl}/api/docs`);
 }
 bootstrap();

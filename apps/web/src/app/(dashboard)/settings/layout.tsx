@@ -5,16 +5,17 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { 
- User, 
- Shield, 
- Bell, 
- Zap, 
- CreditCard, 
+import {
+ User,
+ Shield,
+ Bell,
+ Zap,
+ CreditCard,
  Key,
  ChevronRight,
  Settings,
- Cpu
+ Cpu,
+ MessageSquare,
 } from '@/components/ui/icons';
 import { Magnetic } from '@/components/ui/Interactions';
 
@@ -25,6 +26,7 @@ const navItems = [
  { name: 'Execution Engine', icon: Zap, href: '/settings/trading', desc: 'ALGORITHMIC PARAMETERS' },
  { name: 'Treasury & Tiers', icon: CreditCard, href: '/settings/billing', desc: 'LIQUIDITY & SUBSCRIPTIONS' },
  { name: 'Interface API', icon: Key, href: '/settings/api-keys', desc: 'NEURAL HANDSHAKES' },
+ { name: 'Support Center', icon: MessageSquare, href: '/settings/support', desc: 'TICKETS & ASSISTANCE' },
 ];
 
 export default function SettingsLayout({

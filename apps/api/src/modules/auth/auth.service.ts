@@ -1,9 +1,6 @@
 import {
   Injectable,
-  ConflictException,
-  UnauthorizedException,
-  ForbiddenException,
-  BadRequestException,
+  HttpStatus,
   Logger,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
@@ -21,6 +18,7 @@ import {
   VerifyEmailDto,
   SupabaseLoginDto,
 } from './dto/auth.dto';
+import { appError, ErrorCode } from '../../common/errors';
 
 @Injectable()
 export class AuthService {
@@ -92,7 +90,7 @@ export class AuthService {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    if (existing) throw new ConflictException('Email already registered');
+    if (existing) appError(HttpStatus.CONFLICT, 'Email already registered', ErrorCode.EMAIL_ALREADY_REGISTERED);
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
     let user;
@@ -111,7 +109,7 @@ export class AuthService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new ConflictException('Email already registered');
+        appError(HttpStatus.CONFLICT, 'Email already registered', ErrorCode.EMAIL_ALREADY_REGISTERED);
       }
       throw error;
     }
@@ -152,20 +150,23 @@ export class AuthService {
   async verifyEmail(dto: VerifyEmailDto) {
     const storedOtp = await this.redisService.get(`auth:otp:${dto.email}`);
     if (!storedOtp)
-      throw new BadRequestException('OTP expired. Request a new one.');
+      appError(HttpStatus.BAD_REQUEST, 'OTP expired. Request a new one.', ErrorCode.OTP_EXPIRED);
     if (storedOtp !== dto.otp)
-      throw new BadRequestException('Invalid verification code');
+      appError(HttpStatus.BAD_REQUEST, 'Invalid verification code', ErrorCode.OTP_INVALID);
 
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    if (!user) throw new BadRequestException('User not found');
+    if (!user) appError(HttpStatus.BAD_REQUEST, 'User not found', ErrorCode.USER_NOT_FOUND);
 
     await this.redisService.del(`auth:otp:${dto.email}`);
     const updatedUser = await this.prisma.user.update({
       where: { email: dto.email },
       data: { emailVerified: true },
     });
+
+    // Fire-and-forget welcome email
+    this.emailService.sendWelcomeEmail(updatedUser.email, updatedUser.fullName).catch(() => {});
 
     const tokens = await this.generateTokenPair(
       updatedUser.id,
@@ -202,13 +203,13 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (!user || !user.passwordHash)
-      throw new UnauthorizedException('Invalid credentials');
-    if (user.isSuspended) throw new ForbiddenException('Account suspended');
+      appError(HttpStatus.UNAUTHORIZED, 'Invalid credentials', ErrorCode.INVALID_CREDENTIALS);
+    if (user.isSuspended) appError(HttpStatus.FORBIDDEN, 'Account suspended', ErrorCode.ACCOUNT_SUSPENDED);
     if (!user.emailVerified)
-      throw new ForbiddenException('Please verify your email first');
+      appError(HttpStatus.FORBIDDEN, 'Please verify your email first', ErrorCode.EMAIL_NOT_VERIFIED);
 
     const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!isMatch) throw new UnauthorizedException('Invalid credentials');
+    if (!isMatch) appError(HttpStatus.UNAUTHORIZED, 'Invalid credentials', ErrorCode.INVALID_CREDENTIALS);
 
     const ip = req.ip || '0.0.0.0';
     const userAgent = req.headers['user-agent'] || 'Unknown';
@@ -258,10 +259,19 @@ export class AuthService {
       `auth:refresh:${userId}:default`,
     );
     if (!stored || stored !== refreshToken)
-      throw new UnauthorizedException('Invalid refresh session');
+      appError(HttpStatus.UNAUTHORIZED, 'Invalid refresh session', ErrorCode.INVALID_REFRESH_SESSION);
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new UnauthorizedException('User not found');
+    if (!user) appError(HttpStatus.UNAUTHORIZED, 'User not found', ErrorCode.USER_NOT_FOUND);
+
+    // Blacklist the consumed refresh token so it cannot be reused
+    if (jti) {
+      const refreshExpiry = this.parseExpirySeconds(
+        process.env.JWT_REFRESH_EXPIRES,
+        7 * 24 * 3600,
+      );
+      await this.redisService.set(`auth:blacklist:${jti}`, 'true', refreshExpiry);
+    }
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
     await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
@@ -306,10 +316,10 @@ export class AuthService {
 
   async resetPassword(token: string, newPassword: string) {
     const email = await this.redisService.get(`auth:reset:${token}`);
-    if (!email) throw new BadRequestException('Invalid or expired reset link');
+    if (!email) appError(HttpStatus.BAD_REQUEST, 'Invalid or expired reset link', ErrorCode.INVALID_RESET_LINK);
 
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user) throw new BadRequestException('User not found');
+    if (!user) appError(HttpStatus.BAD_REQUEST, 'User not found', ErrorCode.USER_NOT_FOUND);
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
     await this.prisma.user.update({ where: { email }, data: { passwordHash } });
@@ -403,14 +413,14 @@ export class AuthService {
       this.logger.error(
         `Supabase verification failed for ${dto.email}: ${error?.message}`,
       );
-      throw new UnauthorizedException('Invalid Supabase token');
+      appError(HttpStatus.UNAUTHORIZED, 'Invalid Supabase token', ErrorCode.SUPABASE_AUTH_FAILED);
     }
 
     if (data.user.email !== dto.email) {
       this.logger.error(
         `Email mismatch: Supabase=${data.user.email}, DTO=${dto.email}`,
       );
-      throw new UnauthorizedException('Email mismatch');
+      appError(HttpStatus.UNAUTHORIZED, 'Email mismatch', ErrorCode.EMAIL_MISMATCH);
     }
 
     // Ensure fullName has a meaningful default
@@ -469,21 +479,72 @@ export class AuthService {
       { sub: userId, email, role, jti },
       {
         expiresIn: accessExpiresIn,
-        secret:
-          process.env.JWT_ACCESS_SECRET ||
-          'profytron_v1_access_96e8b2c4d1a5f6b7c8d9e0f1a2b3c4d5',
+        secret: process.env.JWT_ACCESS_SECRET,
       },
     );
     const refreshToken = this.jwtService.sign(
       { sub: userId, jti },
       {
         expiresIn: refreshExpiresIn,
-        secret:
-          process.env.JWT_REFRESH_SECRET ||
-          'profytron_v1_refresh_1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p',
+        secret: process.env.JWT_REFRESH_SECRET,
       },
     );
     return { accessToken, refreshToken };
+  }
+
+  async sendMagicLink(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    // Always return success to prevent email enumeration
+    if (user && !user.isSuspended) {
+      const token = randomUUID();
+      await this.redisService.set(`auth:magic:${token}`, user.id, 900); // 15 min
+      const link = `${process.env.FRONTEND_URL}/auth/magic?token=${token}`;
+      await this.emailService.sendMagicLinkEmail(email, user.fullName, link);
+    }
+    return { success: true, message: 'If this email exists, a login link was sent' };
+  }
+
+  async verifyMagicLink(token: string) {
+    const userId = await this.redisService.get(`auth:magic:${token}`);
+    if (!userId) appError(HttpStatus.BAD_REQUEST, 'Invalid or expired magic link', ErrorCode.INVALID_RESET_LINK);
+
+    await this.redisService.del(`auth:magic:${token}`);
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) appError(HttpStatus.BAD_REQUEST, 'User not found', ErrorCode.USER_NOT_FOUND);
+    if (user.isSuspended) appError(HttpStatus.FORBIDDEN, 'Account suspended', ErrorCode.ACCOUNT_SUSPENDED);
+
+    await this.prisma.user.update({ where: { id: userId }, data: { emailVerified: true, lastLoginAt: new Date() } });
+
+    const tokens = await this.generateTokenPair(user.id, user.email, user.role);
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    return { accessToken: tokens.accessToken, user: this.sanitizeUser(user), refreshTokenForCookie: tokens.refreshToken };
+  }
+
+  async githubCallback(profile: { githubId: string; email: string; fullName: string; avatarUrl: string | null }) {
+    if (!profile.email) appError(HttpStatus.BAD_REQUEST, 'GitHub account has no public email. Enable email in GitHub settings.', ErrorCode.VALIDATION_ERROR);
+
+    let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email: profile.email,
+          fullName: profile.fullName || 'GitHub User',
+          avatarUrl: profile.avatarUrl,
+          emailVerified: true,
+          referralCode: randomUUID(),
+        },
+      });
+      this.logger.log(`New GitHub user created: ${user.id}`);
+    } else {
+      user = await this.prisma.user.update({
+        where: { id: user.id },
+        data: { avatarUrl: profile.avatarUrl || user.avatarUrl, emailVerified: true },
+      });
+    }
+
+    const tokens = await this.generateTokenPair(user.id, user.email, user.role);
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    return { accessToken: tokens.accessToken, user: this.sanitizeUser(user), refreshTokenForCookie: tokens.refreshToken };
   }
 
   public sanitizeUser(user: any) {

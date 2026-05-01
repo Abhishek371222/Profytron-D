@@ -5,7 +5,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
-import { demoRisk } from '../_lib/demoData';
 import { Button } from '@/components/ui/button';
 import { RefreshCcw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -20,14 +19,15 @@ export default function RiskAnalyticsPage() {
     queryKey: ['analytics', 'risk', range],
     queryFn: () => analyticsApi.getRisk(range),
     staleTime: 120_000,
+    refetchInterval: 20_000,
   });
 
-  const risk = riskQuery.data ?? demoRisk(range);
+  const risk = riskQuery.data;
 
   React.useEffect(() => {
     if (riskQuery.isError) {
       toast.error('Risk analytics unavailable', {
-        description: 'Showing fallback risk data until API recovers.',
+        description: 'No synthetic fallback is used. Risk values appear only after real closed trades exist.',
       });
     }
   }, [riskQuery.isError]);
@@ -72,7 +72,7 @@ export default function RiskAnalyticsPage() {
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Drawdown Curve</h3>
           <div className="h-[340px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={risk.drawdownCurve}>
+              <AreaChart data={risk?.drawdownCurve ?? []}>
                 <defs>
                   <linearGradient id="riskFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#fb7185" stopOpacity={0.45} />
@@ -87,17 +87,19 @@ export default function RiskAnalyticsPage() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          {!riskQuery.isLoading && !risk ? <p className="mt-3 text-xs text-white/60">No drawdown data yet.</p> : null}
         </Card>
 
         <Card className="border-white/10 bg-black/40 p-4">
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Core Risk Stats</h3>
           <div className="space-y-2">
-            <RiskRow label="VaR 95%" value={`$${risk.var95.toLocaleString()}`} />
-            <RiskRow label="Max Consec Losses" value={`${risk.maxConsecutiveLosses}`} />
-            <RiskRow label="Largest Loss" value={`$${risk.largestLoss.toLocaleString()}`} />
-            <RiskRow label="Best Single Win" value={`$${risk.bestSingleWin.toLocaleString()}`} />
-            <RiskRow label="Avg Risk/Reward" value={`${risk.avgRiskReward}`} />
-            <RiskRow label="Calmar Ratio" value={`${risk.calmarRatio}`} />
+            <RiskRow label="VaR 95%" value={risk ? `$${risk.var95.toLocaleString()}` : 'No data'} />
+            <RiskRow label="Max Consec Losses" value={risk ? `${risk.maxConsecutiveLosses}` : 'No data'} />
+            <RiskRow label="Largest Loss" value={risk ? `$${risk.largestLoss.toLocaleString()}` : 'No data'} />
+            <RiskRow label="Best Single Win" value={risk ? `$${risk.bestSingleWin.toLocaleString()}` : 'No data'} />
+            <RiskRow label="Avg Risk/Reward" value={risk ? `${risk.avgRiskReward}` : 'No data'} />
+            <RiskRow label="Calmar Ratio" value={risk ? `${risk.calmarRatio}` : 'No data'} />
+            {!risk ? <p className="text-xs text-white/60">No risk statistics yet.</p> : null}
           </div>
         </Card>
       </div>

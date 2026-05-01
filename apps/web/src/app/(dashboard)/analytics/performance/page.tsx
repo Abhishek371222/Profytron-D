@@ -18,7 +18,6 @@ import {
 } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
-import { demoMonthlyReturnsByRange, demoStrategy } from '../_lib/demoData';
 import { Button } from '@/components/ui/button';
 import { RefreshCcw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -42,18 +41,20 @@ export default function PerformanceAnalyticsPage() {
     queryKey: ['analytics', 'strategy-comparison', range],
     queryFn: () => analyticsApi.getStrategyComparison(range),
     staleTime: 120_000,
+    refetchInterval: 20_000,
   });
 
   const monthlyQuery = useQuery({
     queryKey: ['analytics', 'monthly-returns'],
     queryFn: () => analyticsApi.getMonthlyReturns(),
     staleTime: 300_000,
+    refetchInterval: 60_000,
   });
 
-  const strategy = strategyQuery.data ?? demoStrategy(range);
+  const strategy = strategyQuery.data;
   const strategyChartData = React.useMemo(
     () =>
-      strategy.strategies.map((item) => ({
+      (strategy?.strategies ?? []).map((item) => ({
         ...item,
         netPnlK: Number((item.netPnl / 1000).toFixed(2)),
       })),
@@ -62,7 +63,10 @@ export default function PerformanceAnalyticsPage() {
 
   const monthly = React.useMemo(() => {
     if (!monthlyQuery.data) {
-      return demoMonthlyReturnsByRange(range);
+      return {
+        months: [],
+        heatmap: [],
+      };
     }
 
     const monthLimit = MONTHS_BY_RANGE[range];
@@ -79,7 +83,7 @@ export default function PerformanceAnalyticsPage() {
   React.useEffect(() => {
     if (strategyQuery.isError || monthlyQuery.isError) {
       toast.error('Performance analytics unavailable', {
-        description: 'Showing fallback performance data until API recovers.',
+        description: 'No synthetic fallback is used. Performance appears only after real closed trades are stored.',
       });
     }
   }, [monthlyQuery.isError, strategyQuery.isError]);
@@ -155,6 +159,7 @@ export default function PerformanceAnalyticsPage() {
               </ComposedChart>
             </ResponsiveContainer>
           </div>
+          {strategyChartData.length === 0 ? <p className="mt-3 text-xs text-white/60">No strategy performance data yet. Values populate after trades close.</p> : null}
         </Card>
 
         <Card className="border-white/10 bg-black/40 p-4">
@@ -182,13 +187,14 @@ export default function PerformanceAnalyticsPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
+          {monthly.months.length === 0 ? <p className="mt-3 text-xs text-white/60">No monthly return data yet.</p> : null}
         </Card>
       </div>
 
       <Card className="border-white/10 bg-black/40 p-4">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Strategy Scorecard</h3>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {strategy.strategies.map((s) => (
+          {(strategy?.strategies ?? []).map((s) => (
             <div key={s.id} className="rounded-xl border border-white/10 bg-white/5 p-3">
               <p className="text-sm font-semibold text-white">{s.name}</p>
               <p className="mt-1 text-xs text-white/65">Trades: {s.trades}</p>
@@ -197,6 +203,7 @@ export default function PerformanceAnalyticsPage() {
               <p className="mt-1 text-xs text-rose-300">Drawdown: {s.maxDrawdown}%</p>
             </div>
           ))}
+          {!strategy?.strategies?.length ? <p className="text-sm text-white/60">No strategy scorecard data yet.</p> : null}
         </div>
       </Card>
     </div>

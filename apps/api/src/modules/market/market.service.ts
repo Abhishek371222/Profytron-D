@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 
 export type MarketSymbol = 'BTCUSDT' | 'EURUSD' | 'XAUUSD';
 export type MarketTimeframe = '1m' | '5m' | '15m' | '1h' | '4h' | '1d';
@@ -72,6 +72,8 @@ export class MarketService {
   private readonly twelveDataBaseUrl =
     process.env.TWELVE_DATA_BASE_URL?.trim() || 'https://api.twelvedata.com';
   private readonly twelveDataApiKey = process.env.TWELVE_DATA_API_KEY?.trim();
+  private readonly allowSyntheticFallback =
+    process.env.MARKET_ALLOW_SYNTHETIC_FALLBACK === 'true';
 
   async getQuote(symbol: MarketSymbol) {
     const response = await this.getOHLC(symbol, '1m', 2);
@@ -107,6 +109,12 @@ export class MarketService {
         source: 'twelve-data',
         serverTime: new Date().toISOString(),
       };
+    }
+
+    if (!this.allowSyntheticFallback) {
+      throw new ServiceUnavailableException(
+        'Live market data unavailable. Configure TWELVE_DATA_API_KEY or enable MARKET_ALLOW_SYNTHETIC_FALLBACK for non-production demos.',
+      );
     }
 
     return this.buildSyntheticOHLC(symbol, timeframe, safeLimit);

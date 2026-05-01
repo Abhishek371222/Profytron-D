@@ -13,7 +13,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { WalletService } from './wallet.service';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import type { Request } from 'express';
 import type { Response } from 'express';
 import { Public, JwtAuthGuard } from '../auth/guards/auth.guard';
@@ -30,6 +30,8 @@ interface RequestWithUser extends Request {
 }
 
 @ApiTags('Wallet')
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+@ApiResponse({ status: 429, description: 'Rate limit exceeded' })
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('wallet')
@@ -37,12 +39,14 @@ export class WalletController {
   constructor(private walletService: WalletService) {}
 
   @Get('balance')
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get current wallet balance' })
   async getBalance(@Req() req: RequestWithUser) {
     return this.walletService.getBalance(req.user.id);
   }
 
   @Get('transactions')
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get wallet transaction history' })
   async getTransactions(
     @Req() req: RequestWithUser,
@@ -53,6 +57,8 @@ export class WalletController {
   }
 
   @Post('deposit')
+  @ApiResponse({ status: 201, description: 'Created' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Initiate a stripe deposit' })
   async createDeposit(
     @Req() req: RequestWithUser,
@@ -62,6 +68,8 @@ export class WalletController {
   }
 
   @Post('withdraw')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Initiate a wallet withdrawal' })
   async withdraw(
     @Req() req: RequestWithUser,
@@ -71,6 +79,7 @@ export class WalletController {
   }
 
   @Get('statement/:year/:month')
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Generate monthly wallet statement PDF' })
   async getStatement(
     @Req() req: RequestWithUser,
@@ -92,6 +101,8 @@ export class WalletController {
   }
 
   @Get('transaction/:id')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Get transaction detail' })
   async getTransaction(@Req() req: RequestWithUser, @Param('id') id: string) {
     return this.walletService.getTransactionDetail(req.user.id, id);
@@ -99,6 +110,7 @@ export class WalletController {
 
   @Post('webhook')
   @Public()
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Stripe Webhook Handler' })
   async handleWebhook(
     @Req() req: Request,

@@ -37,10 +37,43 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
- title: "PROFYTRON | Ultimate Fintech Intelligence",
- description:
-   "Experience the next generation of algorithmic trading and institutional-grade portfolio management.",
- metadataBase: new URL("https://profytron.com"),
+  title: "PROFYTRON | Ultimate Fintech Intelligence",
+  description:
+    "Experience the next generation of algorithmic trading and institutional-grade portfolio management.",
+  metadataBase: new URL("https://profytron.com"),
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "Profytron",
+    statusBarStyle: "black-translucent",
+  },
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#050508" },
+    { media: "(prefers-color-scheme: light)", color: "#6366f1" },
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "Profytron",
+    title: "PROFYTRON | Ultimate Fintech Intelligence",
+    description:
+      "The world's most advanced algorithmic trading and copy trading platform.",
+    images: [{ url: "/images/hero-core.png", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PROFYTRON | Fintech Intelligence",
+    description: "Algorithmic trading, copy trading, and AI coaching.",
+    images: ["/images/hero-core.png"],
+  },
+  keywords: [
+    "forex trading",
+    "copy trading",
+    "algo trading",
+    "AI trading coach",
+    "XAUUSD",
+    "crypto trading",
+    "trading platform India",
+  ],
 };
 
 import QueryProvider from "@/components/providers/QueryProvider";

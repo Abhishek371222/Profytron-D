@@ -5,7 +5,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Card } from '@/components/ui/card';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
-import { demoTrades } from '../_lib/demoData';
 import { Button } from '@/components/ui/button';
 import { RefreshCcw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,12 +21,15 @@ export default function TradeAnalyticsPage() {
     staleTime: 120_000,
   });
 
-  const trade = tradeQuery.data ?? demoTrades(range);
+  const trade = tradeQuery.data;
+  const hasTradeData = Boolean(
+    trade?.distribution?.length || trade?.winLoss?.length || trade?.symbolPerformance?.length,
+  );
 
   React.useEffect(() => {
     if (tradeQuery.isError) {
       toast.error('Trade analytics unavailable', {
-        description: 'Showing fallback trade analytics data until API recovers.',
+        description: 'Trade analytics are unavailable until the API recovers.',
       });
     }
   }, [tradeQuery.isError]);
@@ -72,7 +74,7 @@ export default function TradeAnalyticsPage() {
           <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">P&L Distribution</h3>
           <div className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={trade.distribution}>
+              <BarChart data={trade?.distribution ?? []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
                 <XAxis dataKey="range" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }} />
                 <YAxis tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }} />
@@ -88,8 +90,8 @@ export default function TradeAnalyticsPage() {
           <div className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={trade.winLoss} dataKey="value" nameKey="name" outerRadius={110} label>
-                  {trade.winLoss.map((entry, idx) => (
+                <Pie data={trade?.winLoss ?? []} dataKey="value" nameKey="name" outerRadius={110} label>
+                  {(trade?.winLoss ?? []).map((entry, idx) => (
                     <Cell key={`${entry.name}-${idx}`} fill={idx === 0 ? '#34d399' : '#fb7185'} />
                   ))}
                 </Pie>
@@ -103,7 +105,7 @@ export default function TradeAnalyticsPage() {
       <Card className="border-white/10 bg-black/40 p-4">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Symbol Performance</h3>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {trade.symbolPerformance.map((item) => (
+          {(trade?.symbolPerformance ?? []).map((item) => (
             <div key={item.symbol} className="rounded-xl border border-white/10 bg-white/5 p-3">
               <p className="text-sm font-semibold text-white">{item.symbol}</p>
               <p className={`mt-1 text-sm font-semibold ${item.pnl >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
@@ -113,6 +115,9 @@ export default function TradeAnalyticsPage() {
             </div>
           ))}
         </div>
+        {!tradeQuery.isLoading && !hasTradeData ? (
+          <p className="mt-3 text-xs text-white/60">No trade analytics available yet. Values appear after closed trades are recorded.</p>
+        ) : null}
       </Card>
     </div>
   );

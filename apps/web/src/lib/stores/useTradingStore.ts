@@ -25,7 +25,7 @@ export interface Strategy {
  confidence: number;
 }
 
-interface TradingState {
+interface TradingData {
  portfolioValue: number;
  dailyChange: number;
  dailyChangePercent: number;
@@ -35,9 +35,10 @@ interface TradingState {
  activeTrades: Trade[];
  activeStrategies: Strategy[];
  isPaper: boolean;
- 
- // Actions
- updateSimulatedData: (data: Partial<TradingState>) => void;
+}
+
+interface TradingState extends TradingData {
+ updateSimulatedData: (data: Partial<TradingData>) => void;
  addTrade: (trade: Trade) => void;
  closeTrade: (id: string) => void;
  togglePaper: (val: boolean) => void;
@@ -81,14 +82,19 @@ export const useTradingStore = create<TradingState>((set) => ({
  activeStrategies: [
  { id: 'S1', name: 'MomentumApex', status: 'active', pnlToday: 842, winRate: 68, confidence: 85 },
  { id: 'S2', name: 'SentinelTrend', status: 'active', pnlToday: 1240, winRate: 72, confidence: 92 },
- { id: 'S3', name: 'DeltaNeutral', status: 'active', pnlToday: 420, winRate: 98, confidence: 78 },
  ],
  isPaper: true,
 
  updateSimulatedData: (data) => set((state) => ({ ...state, ...data })),
  addTrade: (trade) => set((state) => ({ activeTrades: [trade, ...state.activeTrades] })),
- closeTrade: (id) => set((state) => ({
- activeTrades: state.activeTrades.filter(t => t.id !== id)
- })),
+ closeTrade: (id) => set((state) => {
+   const trade = state.activeTrades.find((t) => t.id === id);
+   if (!trade) return state;
+   return {
+     activeTrades: state.activeTrades.filter((t) => t.id !== id),
+     realizedPnl: state.realizedPnl + trade.pnl,
+     unrealizedPnl: state.unrealizedPnl - trade.pnl,
+   };
+ }),
  togglePaper: (isPaper) => set({ isPaper }),
 }));

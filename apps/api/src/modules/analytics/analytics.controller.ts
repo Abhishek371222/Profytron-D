@@ -1,13 +1,15 @@
 import { Controller, Get, Inject, Query, Req, UseGuards } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { REDIS_CLIENT } from '../auth/redis.service';
 import Redis from 'ioredis';
 
 type RangeKey = '1d' | '1w' | '1m' | '3m' | '1y' | 'all';
 
 @ApiTags('Analytics')
+@ApiResponse({ status: 401, description: 'Unauthorized' })
+@ApiResponse({ status: 429, description: 'Rate limit exceeded' })
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('analytics')
@@ -41,6 +43,7 @@ export class AnalyticsController {
     return fresh;
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get main portfolio performance metrics' })
   @Get('portfolio')
   async getPortfolio(@Req() req: any, @Query('range') range?: string) {
@@ -53,6 +56,7 @@ export class AnalyticsController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get monthly returns heatmap data' })
   @Get('monthly-returns')
   async getMonthlyReturns(@Req() req: any) {
@@ -61,6 +65,7 @@ export class AnalyticsController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get strategy level performance and correlation' })
   @Get('strategy-comparison')
   async getStrategyComparison(@Req() req: any, @Query('range') range?: string) {
@@ -76,6 +81,7 @@ export class AnalyticsController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({
     summary: 'Get portfolio risk analytics and drawdown profile',
   })
@@ -90,6 +96,7 @@ export class AnalyticsController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({
     summary: 'Get trade distribution, duration, and symbol analytics',
   })
@@ -104,6 +111,7 @@ export class AnalyticsController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get trade rows for CSV export' })
   @Get('trades/export')
   async getTradesExport(@Req() req: any, @Query('range') range?: string) {
@@ -115,6 +123,7 @@ export class AnalyticsController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get execution latency and slippage metrics' })
   @Get('execution')
   async getExecutionMetrics(@Req() req: any, @Query('range') range?: string) {
@@ -127,6 +136,7 @@ export class AnalyticsController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get tax-ready trading and wallet report' })
   @Get('tax-report')
   async getTaxReport(@Req() req: any, @Query('year') year?: string) {
@@ -141,6 +151,7 @@ export class AnalyticsController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({
     summary: 'Get global intelligence snapshot and macro insights',
   })
@@ -151,6 +162,7 @@ export class AnalyticsController {
     );
   }
 
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get platform leaderboard' })
   @Get('leaderboard')
   async getLeaderboard(@Query('limit') limit?: string) {

@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { CountUp } from "@/components/animations";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useLiveMarketFeed } from '@/hooks/useLiveMarketFeed';
 
 const stats = [
   { label: "Cumulative Trading Volume", value: 4.8, suffix: "B+", prefix: "$" },
@@ -56,63 +56,24 @@ export function StatsSection() {
   );
 }
 
-// Simulated data for the LiveTicker
-const initialTrades = [
-  {
-    id: "1",
-    pair: "BTC/USDT",
-    type: "buy",
-    amount: "0.45",
-    price: "64,210.50",
-    time: "Just now",
-  },
-  {
-    id: "2",
-    pair: "ETH/USDT",
-    type: "sell",
-    amount: "12.2",
-    price: "3,450.20",
-    time: "2s ago",
-  },
-  {
-    id: "3",
-    pair: "SOL/USDT",
-    type: "buy",
-    amount: "145.0",
-    price: "142.15",
-    time: "5s ago",
-  },
-  {
-    id: "4",
-    pair: "BNB/USDT",
-    type: "buy",
-    amount: "25.5",
-    price: "580.40",
-    time: "8s ago",
-  },
-];
-
+// LiveTicker now fetches real tickers from the API and shows updated values.
 export function LiveTicker() {
-  const [trades, setTrades] = useState(initialTrades);
+  const { quotes, wsConnected } = useLiveMarketFeed(['BTCUSDT', 'EURUSD', 'XAUUSD']);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTrades((prev) => {
-        const newTrade = {
-          ...prev[prev.length - 1],
-          id: Math.random().toString(),
-          time: "Just now",
-          amount: (Math.random() * 5 + 0.1).toFixed(2),
-          price: (Math.random() * 60000 + 1000).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-          }),
-          type: Math.random() > 0.4 ? "buy" : "sell",
-        };
-        return [newTrade, ...prev.slice(0, 4)];
-      });
-    }, 2800);
-    return () => clearInterval(interval);
-  }, []);
+  const trades = Object.values(quotes)
+    .filter(Boolean)
+    .map((quote) => ({
+      id: quote!.symbol,
+      pair: quote!.symbol === 'BTCUSDT' ? 'BTC/USDT' : quote!.symbol === 'EURUSD' ? 'EUR/USD' : 'XAU/USD',
+      type: quote!.change24hPct >= 0 ? 'buy' : 'sell',
+      amount: 'LIVE',
+      price: quote!.price.toLocaleString(undefined, {
+        minimumFractionDigits: quote!.symbol === 'EURUSD' ? 5 : 2,
+        maximumFractionDigits: quote!.symbol === 'EURUSD' ? 6 : 2,
+      }),
+      time: 'now',
+      change: quote!.change24hPct,
+    }));
 
   return (
     <div className="flex flex-col items-center w-full relative z-20">
@@ -129,7 +90,7 @@ export function LiveTicker() {
             >
               <div className="w-2 h-2 rounded-full bg-p animate-pulse shadow-[0_0_10px_#6366f1]" />
               <span className="text-[10px] text-white/50 font-mono uppercase tracking-widest">
-                STREAMING LIVE MARKET DATA
+                {wsConnected ? 'STREAMING LIVE MARKET DATA (WS)' : 'LIVE MARKET DATA (REST)'}
               </span>
             </motion.div>
           </div>
@@ -159,10 +120,10 @@ export function LiveTicker() {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs text-white/20 font-semibold uppercase tracking-widest">
-                      {trade.amount} UNITS
+                      {trade.amount}
                     </span>
                     <span className="text-white font-mono text-sm font-bold tracking-tight">
-                      @ <span className="text-p">{trade.price}</span>
+                      @ <span className="text-p">{trade.price}</span> <span className={trade.change >= 0 ? 'text-emerald-300' : 'text-rose-300'}>{trade.change >= 0 ? '+' : ''}{trade.change.toFixed(2)}%</span>
                     </span>
                   </div>
                   <div className="w-px h-6 bg-white/5 mx-2" />

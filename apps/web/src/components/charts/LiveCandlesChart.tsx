@@ -48,25 +48,6 @@ const rangeToTimeframe = (rangeLabel: string): MarketTimeframe => {
 	}
 };
 
-const timeframeToSeconds = (timeframe: MarketTimeframe): number => {
-	switch (timeframe) {
-		case '1m':
-			return 60;
-		case '5m':
-			return 300;
-		case '15m':
-			return 900;
-		case '1h':
-			return 3600;
-		case '4h':
-			return 14400;
-		case '1d':
-			return 86400;
-		default:
-			return 900;
-	}
-};
-
 const symbolToPricePrecision = (symbol: MarketSymbol): number => {
 	if (symbol === 'EURUSD') return 6;
 	if (symbol === 'XAUUSD') return 2;
@@ -74,50 +55,6 @@ const symbolToPricePrecision = (symbol: MarketSymbol): number => {
 };
 
 const parseIsoToUnixTime = (iso: string): number => Math.floor(new Date(iso).getTime() / 1000);
-
-const seededNoise = (seed: number): number => {
-	const value = Math.sin(seed * 12.9898) * 43758.5453;
-	return value - Math.floor(value);
-};
-
-const toCandleDataFromEquity = (equityData: EquityPoint[], timeframe: MarketTimeframe): CandlePoint[] => {
-	if (!equityData.length) {
-		return [];
-	}
-
-	const bucketSeconds = timeframeToSeconds(timeframe);
-	const now = Math.floor(Date.now() / 1000);
-	const start = now - equityData.length * bucketSeconds;
-	const candles: CandlePoint[] = [];
-	let prevClose = equityData[0]?.equity ?? 10000;
-
-	for (let index = 0; index < equityData.length; index += 1) {
-		const point = equityData[index];
-		const baseline = point.equity;
-		const n1 = seededNoise(index + bucketSeconds);
-		const n2 = seededNoise(index * 1.37 + bucketSeconds * 2);
-		const bodySpread = Math.max(6, baseline * 0.0008);
-		const wickSpread = bodySpread * 1.5;
-		const open = prevClose + (n1 - 0.5) * bodySpread;
-		const close = baseline + (n2 - 0.5) * bodySpread;
-		const high = Math.max(open, close) + seededNoise(index + 91) * wickSpread;
-		const low = Math.min(open, close) - seededNoise(index + 187) * wickSpread;
-		const volume = Math.round(180 + seededNoise(index + 241) * 620);
-
-		candles.push({
-			time: start + index * bucketSeconds,
-			open,
-			high,
-			low,
-			close,
-			volume,
-		});
-
-		prevClose = close;
-	}
-
-	return candles;
-};
 
 const toCandleDataFromApi = (
 	candles: Array<{ time: string; open: number; high: number; low: number; close: number; volume: number }>,
@@ -137,7 +74,7 @@ type Size = { width: number; height: number };
 const formatValue = (value: number, precision: number) =>
 	value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: precision });
 
-export function LiveCandlesChart({ data, rangeLabel }: LiveCandlesChartProps) {
+export function LiveCandlesChart({ data: _data, rangeLabel }: LiveCandlesChartProps) {
 	const [mounted, setMounted] = React.useState(false);
 	const [symbol, setSymbol] = React.useState<MarketSymbol>('BTCUSDT');
 	const [timeframe, setTimeframe] = React.useState<MarketTimeframe>(rangeToTimeframe(rangeLabel));
@@ -177,10 +114,8 @@ export function LiveCandlesChart({ data, rangeLabel }: LiveCandlesChartProps) {
 		() => (marketQuery.data?.candles ? toCandleDataFromApi(marketQuery.data.candles) : []),
 		[marketQuery.data?.candles],
 	);
-
-	const fallbackCandles = React.useMemo(() => toCandleDataFromEquity(data, timeframe), [data, timeframe]);
-	const selectedCandles = apiCandles.length > 0 ? apiCandles : fallbackCandles;
-	const hasApiData = apiCandles.length > 0;
+	const selectedCandles = apiCandles;
+	const hasApiData = marketQuery.isSuccess && apiCandles.length > 0;
 
 	React.useEffect(() => {
 		if (selectedCandles.length >= 2) {
@@ -244,7 +179,7 @@ export function LiveCandlesChart({ data, rangeLabel }: LiveCandlesChartProps) {
 	return (
 		<div className="relative h-full w-full min-h-[360px] rounded-2xl border border-white/8 bg-black/20">
 			<div className="absolute left-3 top-3 z-10 flex items-center gap-2 rounded-xl border border-white/10 bg-black/45 px-3 py-2 backdrop-blur-sm">
-				<span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">{hasApiData ? 'Live API' : 'Fallback'}</span>
+				<span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/40">{hasApiData ? 'Live API' : 'Unavailable'}</span>
 				<span className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-white/65">{symbol}</span>
 				<span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/45">OHLC + Volume</span>
 				<span className="text-xs font-semibold text-white">{ticker ? formatValue(ticker.last, precision) : 'Loading'}</span>
@@ -347,8 +282,10 @@ export function LiveCandlesChart({ data, rangeLabel }: LiveCandlesChartProps) {
 						)}
 					</svg>
 				) : (
-					<div className="grid h-full place-items-center text-sm font-semibold text-white/70">
-						No candles available for this symbol/timeframe.
+					<div className="grid h-full place-items-center px-6 text-center text-sm font-semibold text-white/70">
+						{marketQuery.isLoading
+							? 'Loading live market candles...'
+							: 'Live market feed is unavailable for this symbol/timeframe. Connect provider keys and retry.'}
 					</div>
 				)}
 			</div>

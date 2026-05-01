@@ -4,7 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from './redis.service';
 import { EmailService } from '../email/email.service';
 import { JwtService } from '@nestjs/jwt';
-import { ConflictException, BadRequestException } from '@nestjs/common';
+import { HttpException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 
@@ -74,6 +74,7 @@ describe('AuthService (UNIT TESTS)', () => {
           provide: EmailService,
           useValue: {
             sendOtpEmail: jest.fn().mockResolvedValue(true),
+            sendWelcomeEmail: jest.fn().mockResolvedValue(true),
           },
         },
         {
@@ -127,9 +128,7 @@ describe('AuthService (UNIT TESTS)', () => {
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
 
-      await expect(authService.register(dto)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(authService.register(dto)).rejects.toThrow(HttpException);
     });
 
     it('should send OTP email during registration', async () => {
@@ -200,9 +199,7 @@ describe('AuthService (UNIT TESTS)', () => {
 
       (redisService.get as jest.Mock).mockResolvedValue('123456');
 
-      await expect(authService.verifyEmail(dto)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(authService.verifyEmail(dto)).rejects.toThrow(HttpException);
     });
 
     it('should reject expired OTP', async () => {
@@ -210,9 +207,7 @@ describe('AuthService (UNIT TESTS)', () => {
 
       (redisService.get as jest.Mock).mockResolvedValue(null);
 
-      await expect(authService.verifyEmail(dto)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(authService.verifyEmail(dto)).rejects.toThrow(HttpException);
     });
   });
 

@@ -1,10 +1,11 @@
 import { Body, Controller, Headers, HttpCode, Post, Req } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Public } from '../auth/guards/auth.guard';
 import { PaymentsService } from './payments.service';
 
 @ApiTags('Payments')
+@ApiResponse({ status: 429, description: 'Rate limit exceeded' })
 @Controller('webhooks')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
@@ -12,6 +13,7 @@ export class PaymentsController {
   @Public()
   @Post('stripe')
   @HttpCode(200)
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Stripe webhook endpoint' })
   async handleStripeWebhook(
     @Req() req: Request,
@@ -28,6 +30,7 @@ export class PaymentsController {
   @Public()
   @Post('razorpay')
   @HttpCode(200)
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Razorpay webhook endpoint' })
   async handleRazorpayWebhook(
     @Req() req: Request,
