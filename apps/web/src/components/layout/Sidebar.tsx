@@ -3,19 +3,23 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  BarChart3, 
-  LayoutDashboard, 
-  Library, 
-  Zap, 
-  ShoppingBag, 
-  History, 
-  ShieldCheck, 
+import {
+  BarChart3,
+  LayoutDashboard,
+  Library,
+  Zap,
+  ShoppingBag,
+  History,
+  ShieldCheck,
   Settings,
   ChevronLeft,
   Sparkles,
   Wallet,
   Network,
+  Trophy,
+  BookOpen,
+  Server,
+  Bell,
 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/useUIStore";
@@ -30,8 +34,11 @@ const navItems = [
   { name: "Strategy Library", icon: Library, href: "/strategies" },
   { name: "Strategy Builder", icon: Zap, href: "/strategies/builder" },
   { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
+  { name: "Trade Journal", icon: BookOpen, href: "/journal" },
   { name: "Trade History", icon: History, href: "/history" },
-  { name: "Risk DNA", icon: ShieldCheck, href: "/onboarding/risk" },
+  { name: "Leaderboard", icon: Trophy, href: "/leaderboard" },
+  { name: "Bot Infrastructure", icon: Server, href: "/bots" },
+  { name: "Notifications", icon: Bell, href: "/notifications" },
   { name: "Affiliate", icon: Network, href: "/affiliate" },
 ];
 
