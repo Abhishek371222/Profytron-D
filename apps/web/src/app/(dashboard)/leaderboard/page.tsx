@@ -16,7 +16,7 @@ const RANK_COLORS: Record<number, string> = {
   3: 'text-amber-600 bg-amber-600/10 border-amber-600/20',
 };
 
-const RANK_ICONS: Record<number, React.ElementType> = {
+const RANK_ICONS: Record<number, React.ComponentType<{ className?: string }>> = {
   1: Crown,
   2: Medal,
   3: Award,
@@ -24,10 +24,12 @@ const RANK_ICONS: Record<number, React.ElementType> = {
 
 function RankBadge({ rank }: { rank: number }) {
   const color = RANK_COLORS[rank] ?? 'text-white/30 bg-white/5 border-white/10';
-  const Icon = RANK_ICONS[rank];
   return (
     <div className={cn('w-9 h-9 rounded-xl border flex items-center justify-center shrink-0', color)}>
-      {Icon ? <Icon className="w-4 h-4" /> : <span className="text-xs font-bold">#{rank}</span>}
+      {rank === 1 && <Crown className="w-4 h-4" />}
+      {rank === 2 && <Medal className="w-4 h-4" />}
+      {rank === 3 && <Award className="w-4 h-4" />}
+      {!RANK_ICONS[rank] && <span className="text-xs font-bold">#{rank}</span>}
     </div>
   );
 }
@@ -77,7 +79,7 @@ function TraderRow({ entry, myRank }: { entry: LeaderboardEntry; myRank?: string
           <p className="text-sm font-bold text-emerald-400">{entry.winRate.toFixed(1)}%</p>
         </div>
         <div>
-          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-0.5">P&L</p>
+          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-0.5">Earnings</p>
           <p className={cn('text-sm font-bold', entry.totalPnl >= 0 ? 'text-emerald-400' : 'text-red-400')}>
             {entry.totalPnl >= 0 ? '+' : ''}${entry.totalPnl.toFixed(0)}
           </p>
@@ -170,7 +172,7 @@ export default function LeaderboardPage() {
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold text-white uppercase tracking-tight">Leaderboard</h2>
-          <p className="text-xs text-white/30 uppercase tracking-widest font-semibold">Top performers · Rankings · Elite strategies</p>
+          <p className="text-xs text-white/30 uppercase tracking-widest font-semibold">Best traders · Rankings · Top strategies</p>
         </div>
         <div className="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center">
           <Trophy className="w-5 h-5 text-yellow-400" />
@@ -224,7 +226,7 @@ export default function LeaderboardPage() {
           {strategies.length === 0 ? (
             <div className="py-16 text-center">
               <Star className="w-10 h-10 text-white/10 mx-auto mb-3" />
-              <p className="text-sm text-white/20 uppercase tracking-widest">No strategies ranked yet</p>
+              <p className="text-sm text-white/20 uppercase tracking-widest">No top strategies yet</p>
             </div>
           ) : (
             strategies.map((s) => <StrategyRow key={s.id} strategy={s} />)
@@ -236,7 +238,7 @@ export default function LeaderboardPage() {
           {entries.length === 0 ? (
             <div className="py-16 text-center">
               <Trophy className="w-10 h-10 text-white/10 mx-auto mb-3" />
-              <p className="text-sm text-white/20 uppercase tracking-widest">No rankings yet — start trading!</p>
+              <p className="text-sm text-white/20 uppercase tracking-widest">No one's ranked yet — Make your first trade!</p>
             </div>
           ) : (
             entries.map((entry) => (

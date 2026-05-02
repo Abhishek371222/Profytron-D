@@ -1,7 +1,20 @@
-import { Controller, Post, Get, Body, Req, UseGuards, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Req,
+  UseGuards,
+  Logger,
+} from '@nestjs/common';
 import { TelegramBotService } from './telegram-bot.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import type { Request } from 'express';
 
 type AuthRequest = Request & { user: { id: string } };
@@ -13,7 +26,9 @@ export class TelegramController {
 
   constructor(private readonly telegramService: TelegramBotService) {}
 
-  @ApiOperation({ summary: 'Telegram webhook — receives updates from Telegram' })
+  @ApiOperation({
+    summary: 'Telegram webhook — receives updates from Telegram',
+  })
   @ApiResponse({ status: 200, description: 'OK' })
   @Post('webhook')
   async webhook(@Body() update: any) {

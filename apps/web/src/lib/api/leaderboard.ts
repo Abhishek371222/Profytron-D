@@ -41,7 +41,10 @@ export const leaderboardApi = {
       .then((r) => r.data),
 
   topStrategies: (limit = 20) =>
-    apiClient.get<TopStrategy[]>('/leaderboard/strategies', { params: { limit } }).then((r) => r.data),
+    apiClient.get<TopStrategy[] | { data: TopStrategy[] }>('/leaderboard/strategies', { params: { limit } }).then((r) => {
+      const data = r.data;
+      return Array.isArray(data) ? data : (data as any)?.data ?? [];
+    }),
 
   myRank: () =>
     apiClient

@@ -1,5 +1,10 @@
 import { Controller, Get, Param, Query, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { LeaderboardService } from './leaderboard.service';
 import { Public, JwtAuthGuard } from '../auth/guards/auth.guard';
 
@@ -32,7 +37,9 @@ export class LeaderboardController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get top-performing verified strategies' })
   getTopStrategies(@Query('limit') limit?: string) {
-    return this.leaderboardService.getTopStrategies(limit ? parseInt(limit, 10) : 20);
+    return this.leaderboardService.getTopStrategies(
+      limit ? parseInt(limit, 10) : 20,
+    );
   }
 
   @Get('me')

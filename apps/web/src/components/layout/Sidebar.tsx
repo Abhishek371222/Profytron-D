@@ -34,10 +34,10 @@ const navItems = [
   { name: "Strategy Library", icon: Library, href: "/strategies" },
   { name: "Strategy Builder", icon: Zap, href: "/strategies/builder" },
   { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
-  { name: "Trade Journal", icon: BookOpen, href: "/journal" },
+  { name: "My Trades", icon: BookOpen, href: "/journal" },
   { name: "Trade History", icon: History, href: "/history" },
   { name: "Leaderboard", icon: Trophy, href: "/leaderboard" },
-  { name: "Bot Infrastructure", icon: Server, href: "/bots" },
+  { name: "Trading Bots", icon: Server, href: "/bots" },
   { name: "Notifications", icon: Bell, href: "/notifications" },
   { name: "Affiliate", icon: Network, href: "/affiliate" },
 ];

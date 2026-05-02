@@ -178,13 +178,20 @@ export class UsersService {
     return { kycStatus: user?.kycStatus ?? 'NOT_STARTED', documents };
   }
 
-  async submitKycDocument(userId: string, docType: string, file: Express.Multer.File) {
+  async submitKycDocument(
+    userId: string,
+    docType: string,
+    file: Express.Multer.File,
+  ) {
     const fileExt = file.originalname.split('.').pop() || 'jpg';
     const filePath = `kyc/${userId}/${docType}_${Date.now()}.${fileExt}`;
 
     const { error } = await this.supabase.storage
       .from('kyc-documents')
-      .upload(filePath, file.buffer, { contentType: file.mimetype, upsert: false });
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false,
+      });
 
     if (error) {
       this.logger.error(`KYC upload failed: ${error.message}`);

@@ -7,7 +7,12 @@ export class StrategyBuilderService {
 
   constructor(private prisma: PrismaService) {}
 
-  async createStrategy(userId: string, name: string, description: string, category: string) {
+  async createStrategy(
+    userId: string,
+    name: string,
+    description: string,
+    category: string,
+  ) {
     return this.prisma.strategyBuilder.create({
       data: {
         userId,
@@ -33,7 +38,13 @@ export class StrategyBuilderService {
     });
   }
 
-  async addNode(builderId: string, nodeType: string, config: any, label: string, position: any) {
+  async addNode(
+    builderId: string,
+    nodeType: string,
+    config: any,
+    label: string,
+    position: any,
+  ) {
     return this.prisma.strategyNode.create({
       data: {
         builderId,

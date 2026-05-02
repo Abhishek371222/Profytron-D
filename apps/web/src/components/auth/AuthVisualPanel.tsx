@@ -117,7 +117,7 @@ export const AuthVisualPanel = ({
  <div className="mt-12 space-y-4 text-center lg:text-left">
  <h2 className="text-4xl font-display font-bold text-white leading-tight">
  {type === 'login' ? (
- <>Institutional Intelligence <br /> <span className="text-p font-accent font-normal">at your fingertips.</span></>
+ <>Your Intelligence <br /> <span className="text-p font-accent font-normal">at your fingertips.</span></>
  ) : (
  <>The Future of Trading <br /> <span className="text-s font-accent font-normal">starts with you.</span></>
  )}
@@ -155,7 +155,7 @@ export const AuthVisualPanel = ({
  </div>
  <div className="space-y-1">
  <p className="text-sm text-slate-200 font-bold flex items-center gap-2">
- Trusted by Institutional Traders <Sparkles className="w-3 h-3 text-p" />
+ Trusted by Your Traders <Sparkles className="w-3 h-3 text-p" />
  </p>
  <p className="text-xs text-slate-500">Join a global network of algorithmic edge seekers.</p>
  </div>

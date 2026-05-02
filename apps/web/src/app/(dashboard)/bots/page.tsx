@@ -21,7 +21,7 @@ const PROVIDER_LABELS: Record<Provider, string> = {
   VULTR: 'Vultr',
 };
 
-const STATUS_CONFIG: Record<string, { color: string; icon: React.ElementType; label: string }> = {
+const STATUS_CONFIG: Record<string, { color: string; icon: React.ComponentType<{ className?: string }>; label: string }> = {
   RUNNING: { color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20', icon: CheckCircle, label: 'Running' },
   STOPPED: { color: 'text-white/30 bg-white/5 border-white/10', icon: Square, label: 'Stopped' },
   PROVISIONING: { color: 'text-blue-400 bg-blue-400/10 border-blue-400/20', icon: Loader2, label: 'Provisioning' },
@@ -30,10 +30,12 @@ const STATUS_CONFIG: Record<string, { color: string; icon: React.ElementType; la
 
 function StatusBadge({ status }: { status: string }) {
   const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.STOPPED;
-  const Icon = cfg.icon;
   return (
     <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border', cfg.color)}>
-      <Icon className={cn('w-3 h-3', status === 'PROVISIONING' && 'animate-spin')} />
+      {status === 'RUNNING' && <CheckCircle className="w-3 h-3" />}
+      {status === 'STOPPED' && <Square className="w-3 h-3" />}
+      {status === 'PROVISIONING' && <Loader2 className="w-3 h-3 animate-spin" />}
+      {status === 'ERROR' && <AlertCircle className="w-3 h-3" />}
       {cfg.label}
     </span>
   );
@@ -107,7 +109,7 @@ function VpsCard({ vps }: { vps: VpsAccount }) {
   });
 
   const isRunning = vps.status === 'RUNNING';
-  const runningBots = bots.filter((b) => b.status === 'RUNNING').length;
+  const runningBots = bots.filter((b: any) => b.status === 'RUNNING').length;
 
   return (
     <motion.div
@@ -201,9 +203,9 @@ function VpsCard({ vps }: { vps: VpsAccount }) {
               {botsLoading ? (
                 <div className="h-16 rounded-xl bg-white/3 animate-pulse" />
               ) : bots.length === 0 ? (
-                <p className="text-xs text-white/20 text-center py-4">No bots deployed on this VPS</p>
+                <p className="text-xs text-white/20 text-center py-4">No bots running on this VPS</p>
               ) : (
-                bots.map((bot) => (
+                bots.map((bot: any) => (
                   <BotRow
                     key={bot.id}
                     bot={bot}
@@ -327,14 +329,14 @@ export default function BotsPage() {
     queryFn: () => vpsApi.list(),
   });
 
-  const totalRunning = vpsList.filter((v) => v.status === 'RUNNING').length;
+  const totalRunning = vpsList.filter((v: any) => v.status === 'RUNNING').length;
 
   return (
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold text-white uppercase tracking-tight">Bot Infrastructure</h2>
-          <p className="text-xs text-white/30 uppercase tracking-widest font-semibold">VPS instances · Bot processes · Cloud hosting</p>
+          <h2 className="text-2xl font-semibold text-white uppercase tracking-tight">Trading Bots</h2>
+          <p className="text-xs text-white/30 uppercase tracking-widest font-semibold">Servers · Bot processes · Cloud Servers</p>
         </div>
         <button
           onClick={() => setShowProvision(true)}
@@ -356,7 +358,7 @@ export default function BotsPage() {
           <p className="text-[10px] text-white/30 uppercase tracking-widest mt-1">Running</p>
         </div>
         <div className="p-4 rounded-2xl bg-white/3 border border-white/8 text-center">
-          <p className="text-2xl font-bold text-white">${vpsList.reduce((sum, v) => sum + v.monthlyPrice, 0)}</p>
+          <p className="text-2xl font-bold text-white">${vpsList.reduce((sum: number, v: any) => sum + v.monthlyPrice, 0)}</p>
           <p className="text-[10px] text-white/30 uppercase tracking-widest mt-1">Monthly Cost</p>
         </div>
       </div>
@@ -374,7 +376,7 @@ export default function BotsPage() {
             <Server className="w-8 h-8 text-white/10" />
           </div>
           <div className="space-y-2">
-            <p className="text-sm text-white/30 uppercase tracking-widest font-semibold">No VPS instances</p>
+            <p className="text-sm text-white/30 uppercase tracking-widest font-semibold">No Servers</p>
             <p className="text-xs text-white/15">Provision a cloud server to host your trading bots 24/7</p>
           </div>
           <button
@@ -387,7 +389,7 @@ export default function BotsPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {vpsList.map((vps) => (
+          {vpsList.map((vps: any) => (
             <VpsCard key={vps.id} vps={vps} />
           ))}
         </div>

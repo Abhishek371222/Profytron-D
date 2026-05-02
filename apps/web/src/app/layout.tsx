@@ -77,6 +77,7 @@ export const metadata: Metadata = {
 };
 
 import QueryProvider from "@/components/providers/QueryProvider";
+import { ChatbotWidget } from "@/components/chatbot/ChatbotWidget";
 
 export default function RootLayout({
   children,
@@ -94,6 +95,7 @@ export default function RootLayout({
             <AuthProvider><TooltipProvider>{children}</TooltipProvider></AuthProvider>
           </MSWProvider>
         </QueryProvider>
+        <ChatbotWidget />
       </body>
     </html>
   );

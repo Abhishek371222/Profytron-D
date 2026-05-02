@@ -21,8 +21,8 @@ import { Magnetic } from '@/components/ui/Interactions';
 
 const navItems = [
  { name: 'Profile Identity', icon: User, href: '/settings/profile', desc: 'BIOMETRICS & CORE DATA' },
- { name: 'Quantum Security', icon: Shield, href: '/settings/security', desc: 'ENCRYPTION & ACCESS' },
- { name: 'Neural Alerts', icon: Bell, href: '/settings/notifications', desc: 'REAL-TIME SIGNALING' },
+ { name: 'Fast Security', icon: Shield, href: '/settings/security', desc: 'ENCRYPTION & ACCESS' },
+ { name: 'Notifications', icon: Bell, href: '/settings/notifications', desc: 'REAL-TIME SIGNALING' },
  { name: 'Execution Engine', icon: Zap, href: '/settings/trading', desc: 'ALGORITHMIC PARAMETERS' },
  { name: 'Treasury & Tiers', icon: CreditCard, href: '/settings/billing', desc: 'LIQUIDITY & SUBSCRIPTIONS' },
  { name: 'Interface API', icon: Key, href: '/settings/api-keys', desc: 'NEURAL HANDSHAKES' },
@@ -110,7 +110,7 @@ export default function SettingsLayout({
  </div>
  <div className="flex items-center gap-3">
  <Cpu className="w-3 h-3 text-white/20" />
- <span className="text-xs font-semibold text-white/10 uppercase tracking-[0.2em]">Quantum Core v4.28-Stable</span>
+ <span className="text-xs font-semibold text-white/10 uppercase tracking-[0.2em]">Fast Core v4.28-Stable</span>
  </div>
  </div>
  </div>

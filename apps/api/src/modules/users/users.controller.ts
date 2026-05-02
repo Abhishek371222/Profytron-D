@@ -171,14 +171,19 @@ export class UsersController {
   }
 
   @Post('me/kyc')
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
       required: ['docType', 'file'],
       properties: {
-        docType: { type: 'string', enum: ['AADHAAR', 'PAN', 'PASSPORT', 'DRIVING_LICENSE'] },
+        docType: {
+          type: 'string',
+          enum: ['AADHAAR', 'PAN', 'PASSPORT', 'DRIVING_LICENSE'],
+        },
         file: { type: 'string', format: 'binary' },
       },
     },

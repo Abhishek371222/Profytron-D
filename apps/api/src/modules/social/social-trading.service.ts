@@ -60,7 +60,12 @@ export class SocialTradingService {
     });
   }
 
-  async addComment(tradeId: string, userId: string, profileId: string, content: string) {
+  async addComment(
+    tradeId: string,
+    userId: string,
+    profileId: string,
+    content: string,
+  ) {
     return this.prisma.socialComment.create({
       data: { tradeId, userId, profileId, content },
     });
@@ -69,7 +74,9 @@ export class SocialTradingService {
   async getTradeComments(tradeId: string) {
     return this.prisma.socialComment.findMany({
       where: { tradeId },
-      include: { user: { select: { id: true, fullName: true, avatarUrl: true } } },
+      include: {
+        user: { select: { id: true, fullName: true, avatarUrl: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }

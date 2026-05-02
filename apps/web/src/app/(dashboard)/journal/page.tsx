@@ -128,8 +128,8 @@ function InsightsPanel({ userId }: { userId?: string }) {
     queryKey: ['journal-insights'],
     queryFn: () => journalApi.insights(),
   });
-  if (!data) return null;
-  const topEmotion = Object.entries(data.emotionalPatterns).sort(([, a], [, b]) => b - a)[0];
+  if (!data || !data.emotionalPatterns) return null;
+  const topEmotion = Object.entries(data.emotionalPatterns || {}).sort(([, a], [, b]) => b - a)[0];
   return (
     <div className="p-5 rounded-2xl bg-white/3 border border-white/8 space-y-4">
       <div className="flex items-center gap-2">
@@ -224,8 +224,8 @@ export default function JournalPage() {
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-2xl font-semibold text-white uppercase tracking-tight">Trade Journal</h2>
-          <p className="text-xs text-white/30 uppercase tracking-widest font-semibold">Emotions · Lessons · AI analysis</p>
+          <h2 className="text-2xl font-semibold text-white uppercase tracking-tight">My Trades</h2>
+          <p className="text-xs text-white/30 uppercase tracking-widest font-semibold">Track emotions · Learn lessons · Get AI insights</p>
         </div>
         <div className="w-10 h-10 rounded-xl bg-p/10 border border-p/20 flex items-center justify-center">
           <BookOpen className="w-5 h-5 text-p" />
@@ -248,11 +248,11 @@ export default function JournalPage() {
           ) : entries.length === 0 ? (
             <div className="py-16 text-center space-y-3">
               <BookOpen className="w-10 h-10 text-white/10 mx-auto" />
-              <p className="text-sm text-white/20 uppercase tracking-widest font-semibold">No journal entries yet</p>
+              <p className="text-sm text-white/20 uppercase tracking-widest font-semibold">No trades recorded yet</p>
               <p className="text-xs text-white/15">Journal entries are created from your trade history.</p>
             </div>
           ) : (
-            entries.map((entry) => (
+            entries.map((entry: any) => (
               <JournalCard
                 key={entry.id}
                 entry={entry}
@@ -268,7 +268,7 @@ export default function JournalPage() {
           {!selectedEntry ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center p-8">
               <BookOpen className="w-10 h-10 text-white/10" />
-              <p className="text-sm text-white/20 uppercase tracking-widest font-semibold">Select an entry to review</p>
+              <p className="text-sm text-white/20 uppercase tracking-widest font-semibold">Pick a trade to see details</p>
             </div>
           ) : (
             <>

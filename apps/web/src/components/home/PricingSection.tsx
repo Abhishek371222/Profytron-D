@@ -41,7 +41,7 @@ const plans = [
       "Production-grade execution path for active proprietary traders.",
     features: [
       "Unlimited Worker Processes",
-      "Premium Low-Latency Routing",
+      "Premium Low-Speed Routing",
       "Visual Strategy Builder IDE",
       "Risk Sentinel Enforcer",
       "24/7 Priority Engineering Chat",
@@ -56,7 +56,7 @@ const plans = [
     name: "Institution",
     price: { monthly: "Custom", yearly: "Custom" },
     description:
-      "Colocated bare metal for maximum throughput and zero latency.",
+      "Colocated bare metal for maximum throughput and zero Speed.",
     features: [
       "NY4/LD4 Hardware Colocation",
       "FIX/WebSocket Direct TCP",
@@ -258,7 +258,7 @@ export function PricingSection() {
             <p className="text-white/50 text-base leading-relaxed">
               For funds running high-frequency algorithms, we offer dedicated
               bare-metal clusters cross-connected directly to primary exchanges.
-              Sub-10 microsecond tick-to-trade latency guaranteed.
+              Sub-10 microsecond tick-to-trade Speed guaranteed.
             </p>
           </div>
 

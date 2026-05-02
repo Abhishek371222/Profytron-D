@@ -73,7 +73,12 @@ export class EmailService {
     email: string,
     name: string,
     data: {
-      alertType: 'TRADE_OPENED' | 'TRADE_CLOSED' | 'TP_HIT' | 'SL_HIT' | 'MARGIN_WARNING';
+      alertType:
+        | 'TRADE_OPENED'
+        | 'TRADE_CLOSED'
+        | 'TP_HIT'
+        | 'SL_HIT'
+        | 'MARGIN_WARNING';
       symbol: string;
       direction: string;
       price?: number;
@@ -88,10 +93,14 @@ export class EmailService {
       SL_HIT: { title: '🛑 Stop Loss Hit', color: '#f87171' },
       MARGIN_WARNING: { title: '⚠️ Margin Warning', color: '#fb923c' },
     };
-    const { title, color } = labels[data.alertType] ?? { title: data.alertType, color: '#6366f1' };
-    const pnlText = data.pnl !== undefined
-      ? `<p style="font-size:18px;font-weight:700;color:${data.pnl >= 0 ? '#4ade80' : '#f87171'};">P&L: ${data.pnl >= 0 ? '+' : ''}${data.pnl?.toFixed(2)} USD</p>`
-      : '';
+    const { title, color } = labels[data.alertType] ?? {
+      title: data.alertType,
+      color: '#6366f1',
+    };
+    const pnlText =
+      data.pnl !== undefined
+        ? `<p style="font-size:18px;font-weight:700;color:${data.pnl >= 0 ? '#4ade80' : '#f87171'};">P&L: ${data.pnl >= 0 ? '+' : ''}${data.pnl?.toFixed(2)} USD</p>`
+        : '';
 
     const html = `${BASE}
       <p style="font-size:18px;font-weight:700;color:${color};margin:0 0 8px;">${title}</p>
@@ -111,7 +120,12 @@ export class EmailService {
   async sendPaymentEmail(
     email: string,
     name: string,
-    data: { type: 'SUCCESS' | 'FAILED'; amount: number; currency?: string; description?: string },
+    data: {
+      type: 'SUCCESS' | 'FAILED';
+      amount: number;
+      currency?: string;
+      description?: string;
+    },
   ) {
     const success = data.type === 'SUCCESS';
     const html = `${BASE}
@@ -123,19 +137,36 @@ export class EmailService {
       </div>
       <a href="${process.env.FRONTEND_URL}/wallet" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;margin-top:20px;">View Wallet</a>
     ${FOOTER}`;
-    return this.send(email, `Profytron: Payment ${success ? 'Confirmed' : 'Failed'}`, html);
+    return this.send(
+      email,
+      `Profytron: Payment ${success ? 'Confirmed' : 'Failed'}`,
+      html,
+    );
   }
 
-  async sendSubscriptionExpiredEmail(email: string, name: string, strategyName: string) {
+  async sendSubscriptionExpiredEmail(
+    email: string,
+    name: string,
+    strategyName: string,
+  ) {
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Subscription Expired</p>
       <p style="color:#94a3b8;margin:0 0 20px;">Hi ${name || 'Trader'}, your subscription to <strong>${strategyName}</strong> has expired. Renew to continue copy trading.</p>
       <a href="${process.env.FRONTEND_URL}/marketplace" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">Renew Subscription</a>
     ${FOOTER}`;
-    return this.send(email, `Your Profytron subscription to ${strategyName} has expired`, html);
+    return this.send(
+      email,
+      `Your Profytron subscription to ${strategyName} has expired`,
+      html,
+    );
   }
 
-  async sendKycStatusEmail(email: string, name: string, status: 'VERIFIED' | 'REJECTED', notes?: string) {
+  async sendKycStatusEmail(
+    email: string,
+    name: string,
+    status: 'VERIFIED' | 'REJECTED',
+    notes?: string,
+  ) {
     const approved = status === 'VERIFIED';
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;color:${approved ? '#4ade80' : '#f87171'};margin:0 0 12px;">${approved ? '✅ KYC Verified' : '❌ KYC Rejected'}</p>
@@ -143,7 +174,11 @@ export class EmailService {
       ${notes ? `<div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:16px;margin-bottom:16px;"><p style="color:#94a3b8;margin:0;">${notes}</p></div>` : ''}
       <a href="${process.env.FRONTEND_URL}/settings/kyc" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${approved ? 'Go to Wallet' : 'Resubmit Documents'}</a>
     ${FOOTER}`;
-    return this.send(email, `Profytron KYC: ${approved ? 'Verified' : 'Action Required'}`, html);
+    return this.send(
+      email,
+      `Profytron KYC: ${approved ? 'Verified' : 'Action Required'}`,
+      html,
+    );
   }
 
   async sendNotificationEmail(
@@ -176,7 +211,9 @@ export class EmailService {
         });
         return true;
       } catch (err) {
-        this.logger.error(`Failed to send via Resend: ${(err as Error).message}`);
+        this.logger.error(
+          `Failed to send via Resend: ${(err as Error).message}`,
+        );
       }
     }
     this.logger.warn(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);

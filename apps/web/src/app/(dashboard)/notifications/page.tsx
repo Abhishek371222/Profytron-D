@@ -23,7 +23,7 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
-const TYPE_CONFIG: Record<string, { color: string; icon: React.ElementType; bg: string }> = {
+const TYPE_CONFIG: Record<string, { color: string; icon: React.ComponentType<{ className?: string }>; bg: string }> = {
   INFO: { color: 'text-blue-400', bg: 'bg-blue-400/10 border-blue-400/20', icon: Info },
   WARNING: { color: 'text-amber-400', bg: 'bg-amber-400/10 border-amber-400/20', icon: AlertTriangle },
   SUCCESS: { color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20', icon: CheckCircle },
@@ -38,7 +38,6 @@ function NotificationCard({
   onMarkRead: () => void;
 }) {
   const cfg = TYPE_CONFIG[notification.type] ?? TYPE_CONFIG.INFO;
-  const Icon = cfg.icon;
   const notifTimeAgo = timeAgo(notification.createdAt);
 
   return (
@@ -55,7 +54,10 @@ function NotificationCard({
       )}
     >
       <div className={cn('w-9 h-9 rounded-xl border flex items-center justify-center shrink-0', cfg.bg)}>
-        <Icon className={cn('w-4 h-4', cfg.color)} />
+        {notification.type === 'INFO' && <Info className={cn('w-4 h-4', cfg.color)} />}
+        {notification.type === 'WARNING' && <AlertTriangle className={cn('w-4 h-4', cfg.color)} />}
+        {notification.type === 'SUCCESS' && <CheckCircle className={cn('w-4 h-4', cfg.color)} />}
+        {notification.type === 'ERROR' && <XCircle className={cn('w-4 h-4', cfg.color)} />}
       </div>
 
       <div className="flex-1 min-w-0 space-y-1">

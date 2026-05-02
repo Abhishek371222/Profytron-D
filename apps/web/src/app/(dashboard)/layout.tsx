@@ -2,9 +2,8 @@
 
 import React from 'react';
 import { AppShell } from '@/components/layout/AppShell';
-import { useTradingStore } from '@/lib/stores/useTradingStore';
 import { cn } from '@/lib/utils';
-import { Info, X, ArrowRight, Zap, CheckCircle, Loader2, Search, Globe, ShieldCheck, Star, Building2, Heart, SlidersHorizontal, BadgeCheck, Crown } from 'lucide-react';
+import { X, ArrowRight, Zap, Loader2, Search, Globe, ShieldCheck, Star, Building2, Heart, SlidersHorizontal, BadgeCheck, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { brokerApi } from '@/lib/api/broker';
@@ -111,12 +110,12 @@ const BROKER_DIRECTORY: BrokerEntry[] = [
     displayName: 'Pepperstone',
     region: 'Global',
     platform: 'MT5 / cTrader',
-    execution: 'Low-latency',
+    execution: 'Low-Speed',
     minDeposit: '$0',
     spread: 'From 0.0 pips',
-    highlight: 'Low-latency execution',
+    highlight: 'Low-Speed execution',
     description: 'Well-known for fast execution and multiple platform support for forex trading.',
-    tags: ['Low latency', 'Multi-platform', 'Scalping'],
+    tags: ['Low Speed', 'Multi-platform', 'Scalping'],
     categories: ['MT5', 'ECN', 'STP'],
     accent: 'from-violet-400/20 via-fuchsia-400/10 to-transparent',
     integration: 'MT5',
@@ -354,7 +353,7 @@ const BROKER_DIRECTORY: BrokerEntry[] = [
     execution: 'Market execution',
     minDeposit: '$0',
     spread: 'Variable',
-    highlight: 'Institutional-grade presence',
+    highlight: 'Your-grade presence',
     description: 'Long-standing broker with broad market access and strong compliance footprint.',
     tags: ['Global', 'Established', 'Multi-market'],
     categories: ['MT5', 'DMA'],
@@ -385,10 +384,10 @@ const BROKER_DIRECTORY: BrokerEntry[] = [
     platform: 'SaxoTrader / MT5',
     execution: 'Market execution',
     minDeposit: 'Premium',
-    spread: 'Institutional',
+    spread: 'Your',
     highlight: 'Multi-asset premium access',
     description: 'Premium broker for multi-asset traders who want institutional-style tooling.',
-    tags: ['Premium', 'Multi-asset', 'Institutional'],
+    tags: ['Premium', 'Multi-asset', 'Your'],
     categories: ['MT5', 'DMA'],
     accent: 'from-cyan-300/20 via-indigo-400/10 to-transparent',
     integration: 'MT5',
@@ -397,7 +396,7 @@ const BROKER_DIRECTORY: BrokerEntry[] = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
  const pathname = usePathname();
- const [showDemoBanner, setShowDemoBanner] = React.useState(true);
+ const [showDemoBanner, setShowDemoBanner] = React.useState(false);
  const [showBrokerModal, setShowBrokerModal] = React.useState(false);
  const [mounted, setMounted] = React.useState(false);
  
@@ -413,8 +412,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
  const [isConnecting, setIsConnecting] = React.useState(false);
 
  React.useEffect(() => {
- setMounted(true);
+   setMounted(true);
  }, []);
+
+ React.useEffect(() => {
+   if (!mounted) return;
+   const dismissed = window.localStorage.getItem('profytron_mt5_banner_dismissed');
+   setShowDemoBanner(dismissed !== 'true');
+ }, [mounted]);
+
+ const handleDismissBanner = () => {
+   setShowDemoBanner(false);
+   if (mounted) window.localStorage.setItem('profytron_mt5_banner_dismissed', 'true');
+ };
 
  React.useEffect(() => {
    if (!mounted) return;
@@ -520,7 +530,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
  };
 
  const isBuilder = pathname?.includes('/strategies/builder');
- const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'; 
 
  const handleConnectBroker = async () => {
    setIsConnecting(true);
@@ -532,9 +541,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
        serverName,
      });
      markRecentBroker(selectedBroker.id);
-    toast.success(`${selectedBroker.name} connected securely`);
+     toast.success(`${selectedBroker.name} connected securely`);
      setShowBrokerModal(false);
      setShowDemoBanner(false);
+     if (mounted) window.localStorage.setItem('profytron_mt5_banner_dismissed', 'true');
    } catch (e: any) {
      toast.error('Broker connection failed', {
        description: e.response?.data?.message || 'Connection failed',
@@ -548,42 +558,55 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
  <AppShell>
  <div suppressHydrationWarning className={cn("relative flex flex-col", !isBuilder &&"gap-6")}>
  <AnimatePresence>
- {mounted && isDemo && showDemoBanner && !isBuilder && (
- <motion.div
- initial={{ height: 0, opacity: 0 }}
- animate={{ height: 'auto', opacity: 1 }}
- exit={{ height: 0, opacity: 0 }}
- className="overflow-hidden"
- >
- <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between group">
- <div className="flex items-center gap-3">
- <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
- <Info className="w-5 h-5 text-amber-500" />
- </div>
- <div>
- <h4 className="text-sm font-bold text-amber-500 uppercase tracking-widest">Demo Mode Active</h4>
- <p className="text-xs text-amber-500/70 font-medium">Simulated market data. No real capital at risk.</p>
- </div>
- </div>
- 
- <div className="flex items-center gap-6">
- <button 
-   onClick={() => setShowBrokerModal(true)}
-   className="flex items-center gap-2 text-xs font-semibold text-white hover:text-p transition-colors uppercase tracking-widest group/btn"
- >
- Connect real broker
- <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
- </button>
- <button 
- onClick={() => setShowDemoBanner(false)}
- className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 hover:bg-white/10 transition-colors"
- >
- <X className="w-4 h-4 text-white/40" />
- </button>
- </div>
- </div>
- </motion.div>
- )}
+   {mounted && showDemoBanner && !isBuilder && (
+     <motion.div
+       initial={{ height: 0, opacity: 0 }}
+       animate={{ height: 'auto', opacity: 1 }}
+       exit={{ height: 0, opacity: 0 }}
+       className="overflow-hidden"
+     >
+       <div className="relative overflow-hidden rounded-2xl border border-indigo-500/20 bg-[#07070f]">
+         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/10 via-violet-600/5 to-transparent pointer-events-none" />
+         <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-indigo-500 via-violet-500 to-indigo-500 rounded-l-2xl" />
+         <div className="relative flex items-center justify-between gap-4 px-5 py-3.5">
+           <div className="flex items-center gap-3.5 min-w-0">
+             <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center shrink-0">
+               <Zap className="w-4 h-4 text-indigo-400" />
+             </div>
+             <div className="min-w-0">
+               <div className="flex items-center gap-2.5 flex-wrap">
+                 <span className="text-xs font-bold text-white uppercase tracking-[0.2em]">Connect MT5 Account</span>
+                 <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-semibold text-indigo-300 uppercase tracking-widest">Live Trading</span>
+               </div>
+               <p className="text-[11px] text-white/35 font-medium mt-0.5 truncate">Link your MetaTrader&nbsp;5 broker account to enable live strategy execution and copy trading</p>
+             </div>
+           </div>
+           <div className="flex items-center gap-2.5 shrink-0">
+             <button
+               onClick={() => { setSelectedBrokerId('MT5'); setShowBrokerModal(true); }}
+               className="flex items-center gap-2 px-4 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white text-[11px] font-bold uppercase tracking-widest transition-colors"
+             >
+               <Zap className="w-3.5 h-3.5" />
+               Connect Now
+             </button>
+             <button
+               onClick={() => { setSelectedBrokerId('PAPER'); setShowBrokerModal(true); }}
+               className="flex items-center gap-2 px-4 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white text-[11px] font-semibold uppercase tracking-widest transition-colors"
+             >
+               Demo
+               <ArrowRight className="w-3 h-3" />
+             </button>
+             <button
+               onClick={handleDismissBanner}
+               className="w-8 h-8 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+             >
+               <X className="w-3.5 h-3.5 text-white/30" />
+             </button>
+           </div>
+         </div>
+       </div>
+     </motion.div>
+   )}
  </AnimatePresence>
 
  <AnimatePresence>

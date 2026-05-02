@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import pdfParse from 'pdf-parse';
 import {
@@ -341,11 +346,19 @@ export class AdminService {
       return undefined;
     };
 
-    const categories = ['TREND', 'SCALPING', 'RANGE', 'VOLATILITY', 'ARBITRAGE'];
+    const categories = [
+      'TREND',
+      'SCALPING',
+      'RANGE',
+      'VOLATILITY',
+      'ARBITRAGE',
+    ];
     const findCategory = (value?: string) => {
       const normalized = value?.trim().toUpperCase();
       if (!normalized) return undefined;
-      return categories.includes(normalized) ? (normalized as StrategyCategory) : undefined;
+      return categories.includes(normalized)
+        ? (normalized as StrategyCategory)
+        : undefined;
     };
 
     const riskText = extractField('Risk Level') ?? extractField('Risk');
@@ -366,16 +379,21 @@ export class AdminService {
 
     return {
       name:
-        extractField('Strategy Name') ?? extractField('Name') ?? file.originalname.replace(/\.pdf$/i, ''),
+        extractField('Strategy Name') ??
+        extractField('Name') ??
+        file.originalname.replace(/\.pdf$/i, ''),
       description:
-        extractField('Description') ?? rawText.split('\n').slice(0, 3).join(' ').trim(),
+        extractField('Description') ??
+        rawText.split('\n').slice(0, 3).join(' ').trim(),
       category: findCategory(extractField('Category')) ?? undefined,
       riskLevel: riskLevel ?? undefined,
       configJson: extractJson() ?? {},
       monthlyPrice: parseCurrency(extractField('Monthly Price')),
       annualPrice: parseCurrency(extractField('Annual Price')),
       lifetimePrice: parseCurrency(extractField('Lifetime Price')),
-      maxCopies: parseInteger(extractField('Max Copies')) ?? parseInteger(extractField('Copies')),
+      maxCopies:
+        parseInteger(extractField('Max Copies')) ??
+        parseInteger(extractField('Copies')),
       trialDays: parseInteger(extractField('Trial Days')),
       isFeatured: parseBoolean(extractField('Featured')),
       isPublished: parseBoolean(extractField('Published')),

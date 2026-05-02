@@ -17,13 +17,21 @@ export class FcmService implements OnModuleInit {
     if (projectId && clientEmail && privateKey) {
       if (!admin.apps.length) {
         admin.initializeApp({
-          credential: admin.credential.cert({ projectId, clientEmail, privateKey }),
+          credential: admin.credential.cert({
+            projectId,
+            clientEmail,
+            privateKey,
+          }),
         });
       }
       this.initialized = true;
-      this.logger.log('Firebase Admin initialized — FCM push notifications active');
+      this.logger.log(
+        'Firebase Admin initialized — FCM push notifications active',
+      );
     } else {
-      this.logger.warn('FIREBASE_CLIENT_EMAIL or FIREBASE_PRIVATE_KEY not set — FCM disabled');
+      this.logger.warn(
+        'FIREBASE_CLIENT_EMAIL or FIREBASE_PRIVATE_KEY not set — FCM disabled',
+      );
     }
   }
 
@@ -40,7 +48,12 @@ export class FcmService implements OnModuleInit {
     await this.prisma.userFcmToken.deleteMany({ where: { token } });
   }
 
-  async sendToUser(userId: string, title: string, body: string, data?: Record<string, string>) {
+  async sendToUser(
+    userId: string,
+    title: string,
+    body: string,
+    data?: Record<string, string>,
+  ) {
     if (!this.initialized) return;
 
     const tokens = await this.prisma.userFcmToken.findMany({
@@ -79,7 +92,9 @@ export class FcmService implements OnModuleInit {
         });
       }
     } catch (err) {
-      this.logger.error(`FCM send failed for user ${userId}: ${(err as Error).message}`);
+      this.logger.error(
+        `FCM send failed for user ${userId}: ${(err as Error).message}`,
+      );
     }
   }
 }

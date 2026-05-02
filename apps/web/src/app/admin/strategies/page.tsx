@@ -435,7 +435,7 @@ export default function AdminStrategiesPage() {
             <Input
               value={form.name}
               onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
-              placeholder="Institutional Momentum Pro"
+              placeholder="Your Momentum Pro"
               className="border-slate-800 bg-slate-950 text-white"
             />
           </Field>

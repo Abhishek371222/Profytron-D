@@ -22,7 +22,7 @@ export function SocialProofBar() {
         <div className="flex items-center justify-center gap-4 mb-14">
           <div className="h-px w-12 bg-linear-to-r from-transparent to-white/20" />
           <p className="text-center text-xs font-bold uppercase tracking-[0.4em] text-white/60 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-            Institutional Liquidity Connectivity
+            Your Liquidity Connectivity
           </p>
           <div className="h-px w-12 bg-gradient-to-l from-transparent to-white/20" />
         </div>

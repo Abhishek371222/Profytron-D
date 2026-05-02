@@ -51,17 +51,17 @@ const Switch = ({ checked, onChange, label, desc }: { checked: boolean; onChange
  </div>
 );
 
-export default function ExecutionProtocolPage() {
+export default function ExecutionSystemPage() {
  const [demoMode, setDemoMode] = React.useState(true);
  const [slippage, setSlippage] = React.useState([0.5]);
- const [latencyInducer, setLatencyInducer] = React.useState(false);
+ const [SpeedInducer, setSpeedInducer] = React.useState(false);
  const [autoScale, setAutoScale] = React.useState(false);
  const [isRefreshing, setIsRefreshing] = React.useState(false);
  const [heartbeatMs, setHeartbeatMs] = React.useState(500);
  const [nodes, setNodes] = React.useState([
-  { name: 'KRAKEN_MAIN_GATEWAY', status: 'SYNCHRONIZED', latency: '28ms', type: 'Primary' },
-  { name: 'BINANCE_NEURAL_LINK', status: 'STANDBY', latency: '42ms', type: 'Secondary' },
-  { name: 'METATRADER_V5_INST', status: 'LEGACY_SYNC', latency: '112ms', type: 'External' },
+  { name: 'KRAKEN_MAIN_GATEWAY', status: 'SYNCHRONIZED', Speed: '28ms', type: 'Primary' },
+  { name: 'BINANCE_NEURAL_LINK', status: 'STANDBY', Speed: '42ms', type: 'Secondary' },
+  { name: 'METATRADER_V5_INST', status: 'LEGACY_SYNC', Speed: '112ms', type: 'External' },
  ]);
  const healthyNodes = nodes.filter((node) => node.status === 'SYNCHRONIZED').length;
 
@@ -73,9 +73,9 @@ export default function ExecutionProtocolPage() {
   });
  };
 
- const handleLatencyInducerChange = (next: boolean) => {
-  setLatencyInducer(next);
-  toast.message(next ? 'Latency induction enabled' : 'Latency induction disabled');
+ const handleSpeedInducerChange = (next: boolean) => {
+  setSpeedInducer(next);
+  toast.message(next ? 'Speed induction enabled' : 'Speed induction disabled');
  };
 
  const handleAutoScaleChange = (next: boolean) => {
@@ -95,7 +95,7 @@ export default function ExecutionProtocolPage() {
   const name = `CUSTOM_NODE_${String(nodes.length + 1).padStart(2, '0')}`;
   setNodes((prev) => [
    ...prev,
-   { name, status: 'STANDBY', latency: '65ms', type: 'Custom' },
+   { name, status: 'STANDBY', Speed: '65ms', type: 'Custom' },
   ]);
   toast.success(`${name} linked`);
  };
@@ -205,9 +205,9 @@ export default function ExecutionProtocolPage() {
 
  <div className="space-y-6">
  <Switch 
- checked={latencyInducer} 
- onChange={handleLatencyInducerChange} 
- label="Latency Induction" 
+ checked={SpeedInducer} 
+ onChange={handleSpeedInducerChange} 
+ label="Speed Induction" 
  desc="Simulate institutional relay delays (40ms - 150ms)."
  />
  <Switch 
@@ -218,7 +218,7 @@ export default function ExecutionProtocolPage() {
  />
  <button onClick={cycleHeartbeat} className="p-8 rounded-4xl bg-white/2 border border-white/5 flex items-center justify-between group w-full text-left">
  <div className="space-y-1">
- <h4 className="text-sm font-semibold text-white uppercase tracking-widest group-hover:text-p transition-colors">Heartbeat Protocol</h4>
+ <h4 className="text-sm font-semibold text-white uppercase tracking-widest group-hover:text-p transition-colors">Heartbeat System</h4>
  <p className="text-xs text-white/20 font-semibold uppercase tracking-[0.2em]">Health check frequency for active nodes</p>
  </div>
  <div className="flex items-center gap-5">
@@ -266,8 +266,8 @@ export default function ExecutionProtocolPage() {
  </span>
  </div>
  <div className="flex flex-col">
- <span className="text-xs font-semibold text-white/10 uppercase tracking-widest">LATENCY</span>
- <span className="text-xs font-semibold text-white uppercase tracking-widest font-jet-mono">{node.latency}</span>
+ <span className="text-xs font-semibold text-white/10 uppercase tracking-widest">Speed</span>
+ <span className="text-xs font-semibold text-white uppercase tracking-widest font-jet-mono">{node.Speed}</span>
  </div>
  </div>
  </div>

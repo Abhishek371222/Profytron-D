@@ -29,22 +29,22 @@ const STEPS = [
  icon: Target,
  questions: [
  { id: 'amount', label: 'TARGET DEPLOYMENT VOLUME', options: ['<$10K', '$10K - $100K', '$100K - $1M', '$1M+'], weight: 1 },
- { id: 'source', label: 'LIQUIDITY ORIGIN', options: ['Personal Savings', 'Institutional Fund', 'Venture Capital', 'Treasury'], weight: 1 }
+ { id: 'source', label: 'LIQUIDITY ORIGIN', options: ['Personal Savings', 'Your Fund', 'Venture Capital', 'Treasury'], weight: 1 }
  ]
  },
  {
  id: 'aggressiveness',
  title: 'Neural Aggression',
- description: 'Calibrate the neural networks execution frequency and risk sensitivity.',
+ description: 'Calibrate the smart analysis execution frequency and risk sensitivity.',
  icon: Zap,
  questions: [
  { id: 'leverage', label: 'MAXIMAL LEVERAGE EXPOSURE', options: ['1x (Spot)', '3x - 5x', '10x - 20x', '50x+ (Hyper)'], weight: 3 },
- { id: 'drawdown', label: 'ADMITTED DRAWDOWN THRESHOLD', options: ['<2% Volatility', '5% Tactical', '15% Growth', '30%+ High Alpha'], weight: 3 }
+ { id: 'drawdown', label: 'ADMITTED DRAWDOWN THRESHOLD', options: ['<2% Price movement', '5% Tactical', '15% Growth', '30%+ High Alpha'], weight: 3 }
  ]
  },
  {
  id: 'security',
- title: 'Protocol Security',
+ title: 'System Security',
  description: 'Activate biometric lockdown and emergency liquidation protocols.',
  icon: Lock,
  questions: [
@@ -137,7 +137,7 @@ const STEPS = [
  {/* Progress Bar */}
  <div className="space-y-3">
  <div className="flex justify-between items-end text-xs font-semibold uppercase tracking-[0.4em] text-white/20">
- <span>Protocol Registration</span>
+ <span>System Registration</span>
  <span className="text-primary">{Math.round(progress)}% Complete</span>
  </div>
  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
@@ -210,7 +210,7 @@ const STEPS = [
  <div className="bg-white/5 border border-white/10 p-6 rounded-4xl space-y-4 max-w-sm mx-auto">
  <div className="flex items-center gap-3">
  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
- <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">System Protocols Engaged</span>
+ <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">System Systems Engaged</span>
  </div>
  <div className="flex items-center gap-3">
  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
@@ -226,7 +226,7 @@ const STEPS = [
  <div className="absolute bottom-10 flex items-center gap-10 opacity-20 text-xs font-semibold uppercase tracking-[0.5em]">
  <div className="flex items-center gap-3">
  <Cpu className="w-4 h-4" />
- Neural Guard V4
+ Safety Alert V4
  </div>
  <div className="flex items-center gap-3">
  <ShieldCheck className="w-4 h-4" />

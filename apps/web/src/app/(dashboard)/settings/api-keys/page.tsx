@@ -404,7 +404,7 @@ export default function APIKeysPage() {
  <div className="flex items-center justify-between px-6 py-4 border-t border-white/5 bg-white/1 flex-wrap gap-4">
  {[
  { label: 'Total Requests Today', val: '18,031', color: 'text-white' },
- { label: 'Avg Latency', val: '56ms', color: 'text-cyan-400' },
+ { label: 'Avg Speed', val: '56ms', color: 'text-cyan-400' },
  { label: 'Error Rate', val: '0.04%', color: 'text-emerald-400' },
  { label: 'Rate Limit Used', val: '43%', color: 'text-amber-400' },
  ].map(s => (

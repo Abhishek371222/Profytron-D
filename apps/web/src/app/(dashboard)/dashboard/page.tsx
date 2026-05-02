@@ -91,7 +91,7 @@ function Counter({ value, prefix ="", suffix ="", decimals = 2 }: { value: numbe
  );
 }
 
-function StatCard({ label, value, sub, icon: Icon, trend, sparkline: SparkData, loading = false }: any) {
+function StatCard({ label, value, sub, icon: Icon, trend, sparkline: SparkData, Loading = false }: any) {
  return (
  <motion.div 
  initial={{ opacity: 0, y: 20 }}
@@ -109,7 +109,7 @@ function StatCard({ label, value, sub, icon: Icon, trend, sparkline: SparkData, 
  
  <div className="flex flex-col mb-4">
  <h3 className="text-2xl font-semibold text-white font-mono tracking-tight">
- <Counter value={value} prefix={label.includes('VALUE') || label.includes('P&L') ?"$" :""} decimals={label.includes('RATE') ? 1 : 2} suffix={label.includes('RATE') ?"%" :""} />
+ <Counter value={value} prefix={label.includes('VALUE') || label.includes('Earnings') ?"$" :""} decimals={label.includes('RATE') ? 1 : 2} suffix={label.includes('RATE') ?"%" :""} />
  </h3>
  <div className={cn("flex items-center gap-1 mt-1 text-xs font-bold", trend > 0 ?"text-green-500" :"text-red-500")}>
  {trend > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
@@ -479,7 +479,7 @@ export default function DashboardPage() {
  label="Portfolio Value"
 	 value={Number.isFinite(effectivePortfolioValue) ? effectivePortfolioValue : portfolioValue}
 	 trend={Number.isFinite(effectiveDailyChangePercent) ? effectiveDailyChangePercent : dailyChangePercent}
-	 sub={`${dataFeedLabel} • BTC ${btcQuote ? btcQuote.price.toLocaleString(undefined, { maximumFractionDigits: 2 }) : 'loading'}`}
+	 sub={`${dataFeedLabel} • BTC ${btcQuote ? btcQuote.price.toLocaleString(undefined, { maximumFractionDigits: 2 }) : 'Loading'}`}
  />
  <StatCard 
  label="Active Strategies"
@@ -488,7 +488,7 @@ export default function DashboardPage() {
 	 sub={`Combined win rate: ${winRate.toFixed(1)}%`}
  />
  <StatCard 
- label="Today's P&L"
+ label="Today's Earnings"
 	 value={Number.isFinite(effectiveDailyChange) ? effectiveDailyChange : dailyChange}
 	 trend={Number.isFinite(effectiveDailyChangePercent) ? effectiveDailyChangePercent : dailyChangePercent}
  sub={`Realized: $${realizedPnl} | Unrealized: $${unrealizedPnl}`}
@@ -559,8 +559,8 @@ export default function DashboardPage() {
 	<Shield className="h-3.5 w-3.5" />
 	Performance Profile
 	</div>
-	<h3 className="text-lg font-bold text-white tracking-tight">Risk-adjusted performance</h3>
-	<p className="text-sm text-white/60">Sharpe ratio, win rate, drawdown, and best-month performance.</p>
+	<h3 className="text-lg font-bold text-white tracking-tight">Safe performance</h3>
+	<p className="text-sm text-white/60">Quality score, win rate, drawdown, and best-month performance.</p>
 	</div>
 
 	<div className="h-[var(--chart-h-md)] w-full overflow-hidden rounded-2xl border border-white/8 bg-black/20 p-2">
@@ -629,7 +629,7 @@ export default function DashboardPage() {
  
  <div className="space-y-4">
  <div className="flex justify-between items-baseline">
- <span className="text-xs font-bold text-white/40 uppercase">Daily P&L</span>
+ <span className="text-xs font-bold text-white/40 uppercase">Daily Earnings</span>
  <span className="text-lg font-semibold text-green-500 font-mono">+$842</span>
  </div>
  
@@ -701,7 +701,7 @@ export default function DashboardPage() {
  <div className="overflow-x-auto">
  <div className="min-w-[920px] lg:min-w-full">
  <div className="grid grid-cols-7 px-6 py-3 border-b border-white/5 bg-white/1">
- {['Symbol', 'Type', 'Volume', 'Entry', 'Current P&L', 'Duration', 'Action'].map(head => (
+ {['Symbol', 'Type', 'Volume', 'Entry', 'Current Earnings', 'Duration', 'Action'].map(head => (
  <span key={head} className="text-xs font-semibold text-white/30 uppercase tracking-[2px]">
  {head}
  </span>
@@ -741,7 +741,7 @@ export default function DashboardPage() {
  <div className="flex justify-between items-center mb-8">
  <h2 className="text-lg font-bold text-white uppercase tracking-widest flex items-center gap-3">
  <Brain className="w-5 h-5 text-p" />
- Neural Reasoning
+ Trading Tips
  </h2>
  <button 
  onClick={() => setSelectedTrade(null)}
@@ -811,10 +811,10 @@ export default function DashboardPage() {
  <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 space-y-3">
  <h4 className="text-xs font-bold text-amber-500 uppercase tracking-widest flex items-center gap-2">
  <Shield className="w-4 h-4" />
- Neural Guard: Risks Observed
+ Safety Alert: Risks Observed
  </h4>
  <ul className="space-y-2">
- <li className="text-sm text-amber-500/70 font-bold leading-normal">• Volatility expansion expected in 14m (Tier 1 Data)</li>
+ <li className="text-sm text-amber-500/70 font-bold leading-normal">• Price movement expansion expected in 14m (Tier 1 Data)</li>
  <li className="text-sm text-amber-500/70 font-bold leading-normal">• Counter-trend momentum strengthening locally</li>
  </ul>
  </div>

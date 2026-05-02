@@ -29,7 +29,10 @@ export class TelegramBotService {
 
     switch (command) {
       case '/start':
-        return this.sendMessage(msg.chat.id, '👋 Welcome to <b>Profytron Bot</b>!\n\nUse /help to see available commands.');
+        return this.sendMessage(
+          msg.chat.id,
+          '👋 Welcome to <b>Profytron Bot</b>!\n\nUse /help to see available commands.',
+        );
       case '/balance':
         return this.handleBalance(msg.chat.id, msg.from.id);
       case '/trades':
@@ -43,7 +46,10 @@ export class TelegramBotService {
       case '/help':
         return this.sendHelp(msg.chat.id);
       default:
-        return this.sendMessage(msg.chat.id, '❓ Unknown command. Use /help for available commands.');
+        return this.sendMessage(
+          msg.chat.id,
+          '❓ Unknown command. Use /help for available commands.',
+        );
     }
   }
 
@@ -63,10 +69,15 @@ export class TelegramBotService {
   private async handleBalance(chatId: number, telegramId: number) {
     const user = await this.findUserByTelegramId(telegramId);
     if (!user) {
-      return this.sendMessage(chatId, '⚠️ Account not linked. Please link your Telegram in the app settings.');
+      return this.sendMessage(
+        chatId,
+        '⚠️ Account not linked. Please link your Telegram in the app settings.',
+      );
     }
 
-    const wallet = await (this.prisma as any).wallet.findUnique({ where: { userId: user.id } });
+    const wallet = await (this.prisma as any).wallet.findUnique({
+      where: { userId: user.id },
+    });
     const balance = wallet?.balance ?? 0;
     const equity = wallet?.equity ?? balance;
 
@@ -77,7 +88,10 @@ export class TelegramBotService {
   private async handleTrades(chatId: number, telegramId: number) {
     const user = await this.findUserByTelegramId(telegramId);
     if (!user) {
-      return this.sendMessage(chatId, '⚠️ Account not linked. Please link your Telegram in the app settings.');
+      return this.sendMessage(
+        chatId,
+        '⚠️ Account not linked. Please link your Telegram in the app settings.',
+      );
     }
 
     const trades = await this.prisma.trade.findMany({
@@ -87,28 +101,48 @@ export class TelegramBotService {
     });
 
     if (!trades.length) {
-      return this.sendMessage(chatId, '📊 <b>Open Trades</b>\n\nNo open trades at this time.');
+      return this.sendMessage(
+        chatId,
+        '📊 <b>Open Trades</b>\n\nNo open trades at this time.',
+      );
     }
 
-    const lines = trades.map((t, i) =>
-      `${i + 1}. ${t.symbol} - ${t.direction}\n   Entry: ${t.openPrice}\n   P&L: ${t.profit !== null ? (t.profit >= 0 ? '+' : '') + t.profit.toFixed(2) : 'N/A'}`
+    const lines = trades.map(
+      (t, i) =>
+        `${i + 1}. ${t.symbol} - ${t.direction}\n   Entry: ${t.openPrice}\n   P&L: ${t.profit !== null ? (t.profit >= 0 ? '+' : '') + t.profit.toFixed(2) : 'N/A'}`,
     );
 
-    return this.sendMessage(chatId, `📊 <b>Open Trades</b>\n\n${lines.join('\n\n')}`);
+    return this.sendMessage(
+      chatId,
+      `📊 <b>Open Trades</b>\n\n${lines.join('\n\n')}`,
+    );
   }
 
-  private async handleCloseTrade(chatId: number, text: string, telegramId: number) {
+  private async handleCloseTrade(
+    chatId: number,
+    text: string,
+    telegramId: number,
+  ) {
     const user = await this.findUserByTelegramId(telegramId);
     if (!user) {
-      return this.sendMessage(chatId, '⚠️ Account not linked. Please link your Telegram in the app settings.');
+      return this.sendMessage(
+        chatId,
+        '⚠️ Account not linked. Please link your Telegram in the app settings.',
+      );
     }
 
     const parts = text.split(' ');
     if (parts.length < 2) {
-      return this.sendMessage(chatId, '❌ Usage: /close &lt;tradeId&gt;\nExample: /close abc123');
+      return this.sendMessage(
+        chatId,
+        '❌ Usage: /close &lt;tradeId&gt;\nExample: /close abc123',
+      );
     }
 
-    return this.sendMessage(chatId, '⚠️ Trade closure must be performed via the Profytron app for security reasons.');
+    return this.sendMessage(
+      chatId,
+      '⚠️ Trade closure must be performed via the Profytron app for security reasons.',
+    );
   }
 
   private async handleAlerts(chatId: number, telegramId: number) {
@@ -124,11 +158,17 @@ export class TelegramBotService {
     });
 
     if (!notifications.length) {
-      return this.sendMessage(chatId, '🔔 <b>Recent Alerts</b>\n\nNo unread alerts.');
+      return this.sendMessage(
+        chatId,
+        '🔔 <b>Recent Alerts</b>\n\nNo unread alerts.',
+      );
     }
 
     const lines = notifications.map((n) => `• ${n.title}: ${n.body}`);
-    return this.sendMessage(chatId, `🔔 <b>Recent Alerts</b>\n\n${lines.join('\n')}`);
+    return this.sendMessage(
+      chatId,
+      `🔔 <b>Recent Alerts</b>\n\n${lines.join('\n')}`,
+    );
   }
 
   private async handlePortfolio(chatId: number, telegramId: number) {
@@ -144,7 +184,9 @@ export class TelegramBotService {
 
     const totalPnl = trades.reduce((sum, t) => sum + (t.profit ?? 0), 0);
     const winning = trades.filter((t) => (t.profit ?? 0) > 0).length;
-    const winRate = trades.length ? ((winning / trades.length) * 100).toFixed(1) : '0.0';
+    const winRate = trades.length
+      ? ((winning / trades.length) * 100).toFixed(1)
+      : '0.0';
 
     const message = `📈 <b>Portfolio Summary</b>\n\nTotal P&L: ${totalPnl >= 0 ? '+' : ''}$${totalPnl.toFixed(2)}\nWin Rate: ${winRate}%\nTotal Trades: ${trades.length}`;
     return this.sendMessage(chatId, message);
@@ -167,7 +209,7 @@ export class TelegramBotService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: chatId, text, parse_mode: parseMode }),
       });
-      const data = await res.json() as any;
+      const data = await res.json();
       if (!data.ok) {
         this.logger.warn(`[TELEGRAM] API error: ${JSON.stringify(data)}`);
       }
@@ -198,13 +240,22 @@ export class TelegramBotService {
   }
 
   async sendTradeAlert(userId: string, trade: any) {
-    const pnlText = trade.profit !== undefined ? `\nP&L: ${trade.profit >= 0 ? '+' : ''}$${trade.profit}` : '';
+    const pnlText =
+      trade.profit !== undefined
+        ? `\nP&L: ${trade.profit >= 0 ? '+' : ''}$${trade.profit}`
+        : '';
     const message = `🚀 <b>Trade ${trade.status === 'CLOSED' ? 'Closed' : 'Opened'}</b>\n\nSymbol: ${trade.symbol}\nDirection: ${trade.direction}\nVolume: ${trade.volume}\nEntry: ${trade.openPrice}${pnlText}`;
     return this.sendAlertToUser(userId, 'Trade Alert', message);
   }
 
-  async registerTelegramUser(userId: string, telegramChatId: number, telegramUsername: string) {
-    this.logger.log(`[TELEGRAM] Registering user ${userId} with chat ${telegramChatId}`);
+  async registerTelegramUser(
+    userId: string,
+    telegramChatId: number,
+    telegramUsername: string,
+  ) {
+    this.logger.log(
+      `[TELEGRAM] Registering user ${userId} with chat ${telegramChatId}`,
+    );
 
     await this.prisma.auditLog.create({
       data: {
@@ -215,7 +266,10 @@ export class TelegramBotService {
       },
     });
 
-    await this.sendMessage(telegramChatId, `✅ <b>Account linked!</b>\n\nYour Profytron account is now connected. Use /help to see commands.`);
+    await this.sendMessage(
+      telegramChatId,
+      `✅ <b>Account linked!</b>\n\nYour Profytron account is now connected. Use /help to see commands.`,
+    );
     return { success: true };
   }
 }

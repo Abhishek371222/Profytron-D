@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation";
-
-export default function SignupAliasPage() {
-  redirect("/register");
-}
+export { default } from '../(public)/register/page';

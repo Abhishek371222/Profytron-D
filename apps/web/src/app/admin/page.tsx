@@ -129,25 +129,25 @@ export default function AdminDashboardPage() {
           title="Total Users"
           value={Number(kpis.totalUsers ?? 0).toLocaleString()}
           icon={<Users className="h-4 w-4" />}
-          loading={isLoading}
+          Loading={isLoading}
         />
         <MetricCard
           title="Total Trades"
           value={Number(kpis.totalTrades ?? 0).toLocaleString()}
           icon={<Activity className="h-4 w-4" />}
-          loading={isLoading}
+          Loading={isLoading}
         />
         <MetricCard
           title="Pending Reviews"
           value={Number(kpis.pendingVerifications ?? 0).toLocaleString()}
           icon={<ShieldAlert className="h-4 w-4" />}
-          loading={isLoading}
+          Loading={isLoading}
         />
         <MetricCard
           title="MRR"
           value={kpis.mrr ?? '$0.00'}
           icon={<DollarSign className="h-4 w-4" />}
-          loading={isLoading}
+          Loading={isLoading}
         />
       </div>
 
@@ -316,12 +316,12 @@ function MetricCard({
   title,
   value,
   icon,
-  loading,
+  Loading,
 }: {
   title: string;
   value: string;
   icon: ReactNode;
-  loading: boolean;
+  Loading: boolean;
 }) {
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
@@ -330,7 +330,7 @@ function MetricCard({
         {icon}
       </div>
       <div className="text-2xl font-semibold text-white">
-        {loading ? 'Loading...' : value}
+        {Loading ? 'Loading...' : value}
       </div>
     </div>
   );

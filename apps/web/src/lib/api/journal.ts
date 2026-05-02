@@ -38,7 +38,10 @@ export interface CreateJournalEntryPayload {
 
 export const journalApi = {
   list: (params?: { limit?: number; skip?: number }) =>
-    apiClient.get<JournalEntry[]>('/journal', { params }).then((r) => r.data),
+    apiClient.get<JournalEntry[] | { data: JournalEntry[] }>('/journal', { params }).then((r) => {
+      const data = r.data;
+      return Array.isArray(data) ? data : (data as any)?.data ?? [];
+    }),
 
   insights: () => apiClient.get<JournalInsights>('/journal/insights').then((r) => r.data),
 

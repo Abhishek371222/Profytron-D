@@ -28,58 +28,58 @@ import { toast } from 'sonner';
 
 // Mock Insights
 const INSIGHTS = [
-  { 
-    id: 1, 
-    type: 'good', 
-    icon: TrendingUp, 
-    title: 'Discipline Protocol', 
-    body: "Risk limits maintained for 14 consecutive daily cycles. Psychological stability verified.", 
-    color: 'text-emerald-400', 
+  {
+    id: 1,
+    type: 'good',
+    icon: TrendingUp,
+    title: 'Good Move',
+    body: "Risk management validated. 14 consecutive sessions with discipline maintained. Strong edge recognition active.",
+    color: 'text-emerald-400',
     glow: 'shadow-[0_0_20px_rgba(52,211,153,0.3)]'
   },
-  { 
-    id: 2, 
-    type: 'warning', 
-    icon: AlertTriangle, 
-    title: 'Behavioral Deviation', 
-    body: "Strategy hopping detected. 4 switches post-drawdown. Re-evaluating edge persistence.", 
-    tip: 'Observe 14-day quarantine for new strategies.',
-    color: 'text-amber-400', 
+  {
+    id: 2,
+    type: 'warning',
+    icon: AlertTriangle,
+    title: 'Strategy Variance',
+    body: "Trade size deviates from plan. 4 tactical overrides post-drawdown. Recommend consolidation period.",
+    tip: 'Stick to your framework for 14 days.',
+    color: 'text-amber-400',
     glow: 'shadow-[0_0_20px_rgba(251,191,36,0.3)]'
   },
-  { 
-    id: 3, 
-    type: 'danger', 
-    icon: AlertCircle, 
-    title: 'Capacity Overload', 
-    body: "23 manual overrides detected. Emotional friction level: HIGH (CRITICAL).", 
-    color: 'text-red-400', 
+  {
+    id: 3,
+    type: 'danger',
+    icon: AlertCircle,
+    title: 'Emotional Pressure',
+    body: "23 manual overrides detected. Psychological fatigue level elevated. Recovery window recommended.",
+    color: 'text-red-400',
     glow: 'shadow-[0_0_20px_rgba(248,113,113,0.3)]'
   },
-  { 
-    id: 4, 
-    type: 'info', 
-    icon: Activity, 
-    title: 'Alpha Window', 
-    body: "Neural efficiency peaks (84%) during 10:00–12:00 IST liquid windows.", 
-    color: 'text-indigo-400', 
+  {
+    id: 4,
+    type: 'info',
+    icon: Activity,
+    title: 'Good Window',
+    body: "Best performance recorded (84% win rate) between 10:00–12:00 IST. Maximum liquidity and accuracy during this window.",
+    color: 'text-indigo-400',
     glow: 'shadow-[0_0_20px_rgba(129,140,248,0.3)]'
   },
 ];
 
 const SUGGESTIONS = [
-  "Analyze current volatility exposure",
-  "Review my last drawdown cycle",
-  "Optimize my stop-loss placement",
-  "Check correlation with BTC/USD",
-  "Recalibrate strategy NeuralPro v2",
+  "Analyze current market exposure",
+  "Review last drawdown recovery",
+  "Optimize stop-loss strategy",
+  "Check portfolio correlation",
+  "Validate MomentumPro v2 setup",
 ];
 
 const INITIAL_MESSAGES = [
   {
     id: '1',
     role: 'ai',
-    text: "System Online. Greetings, Trader. Terminal integrity verified.\nPortfolio metrics: +$3,240 (Intraday). MomentumPro v4 showing high statistical resonance. Proceed with deep analysis?"
+    text: "All set. Hey there. Everything's working.\nPortfolio metrics: +$3,240 (Intraday). MomentumPro v4 showing high statistical resonance. Want me to analyze this?"
   }
 ];
 
@@ -102,8 +102,8 @@ export default function AICoachPage() {
       .then(setReport)
       .catch(() => {
         setReport(null);
-        toast.error('Coaching report unavailable', {
-          description: 'Using baseline tactical feed until report sync recovers.',
+        toast.error("Can't load report right now", {
+          description: 'Using basic info. Will try again in a moment.',
         });
       });
   }, []);
@@ -155,12 +155,12 @@ export default function AICoachPage() {
           
           <div className="space-y-2 relative z-10">
             <div className="flex items-center gap-3">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_15px_rgba(99,102,241,1)]" />
-              <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.6em]">Neural Engine v4.2</span>
+              <div className="w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 animate-pulse shadow-[0_0_15px_rgba(34,211,238,1)]" />
+              <span className="text-xs font-semibold text-white/40 uppercase tracking-[0.6em]">ProFytron AI v4.2</span>
             </div>
-            <h1 className="text-3xl font-semibold text-white uppercase tracking-tight leading-tight">Tactical Feed</h1>
-            <p className="text-sm text-white/55">Behavioral telemetry and risk-state diagnostics for your active cycle.</p>
-            <div className="h-px w-24 bg-primary/40" />
+            <h1 className="text-4xl font-bold text-white uppercase tracking-tight leading-tight">Trading Dashboard</h1>
+            <p className="text-sm text-white/60">Trading insights · Safety check · How you're doing</p>
+            <div className="h-1.5 w-32 bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 rounded-full" />
             {report ? (
               <p className="text-xs text-white/50 uppercase tracking-[0.2em]">
                 Win Rate: {report.winRate}% | Avg PnL: {report.avgPnl}
@@ -186,11 +186,11 @@ export default function AICoachPage() {
                 
                 <div className="flex gap-5">
                   <div className={cn(
-                    "flex h-12 w-12 items-center justify-center rounded-2xl border transition-all duration-700",
-                    "border-white/10 bg-white/5 outline-0 outline-white/15 group-hover:scale-110 group-hover:rotate-3 group-hover:outline-1",
+                    "flex h-12 w-12 items-center justify-center rounded-2xl border transition-all duration-700 shadow-lg",
+                    "border-white/20 bg-gradient-to-br from-white/10 to-white/5 group-hover:scale-125 group-hover:shadow-2xl",
                     insight.color
                   )}>
-                    <insight.icon className="w-6 h-6 drop-shadow-[0_0_8px_currentColor]" />
+                    <insight.icon className="w-6 h-6 drop-shadow-lg" />
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center justify-between">
@@ -206,7 +206,7 @@ export default function AICoachPage() {
                       <div className="mt-4 flex items-start gap-3 rounded-2xl border border-indigo-400/20 bg-indigo-500/10 p-3.5">
                         <Sparkles className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" />
                         <p className="text-[11px] text-indigo-300 font-semibold uppercase tracking-wider leading-relaxed">
-                          Core Suggestion: {insight.tip}
+                          Tip: {insight.tip}
                         </p>
                       </div>
                     )}
@@ -216,7 +216,7 @@ export default function AICoachPage() {
             ))}
           </div>
 
-          {/* Holographic Biometric ID */}
+          {/* Smart Profile ID */}
           <div className="relative mt-auto overflow-hidden rounded-[30px] border border-white/10 bg-black/45 p-6 shadow-2xl group">
             <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
             <div className="absolute top-0 left-0 w-full h-0.5 bg-primary/20 animate-scanline pointer-events-none" />
@@ -224,9 +224,9 @@ export default function AICoachPage() {
             <div className="relative z-10 mb-6 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Box className="w-4 h-4 text-primary animate-pulse" />
-                <span className="text-xs font-semibold text-primary uppercase tracking-[0.4em]">Biometric ID</span>
+                <span className="text-xs font-semibold text-primary uppercase tracking-[0.4em]">Profile ID</span>
               </div>
-              <span className="text-[10px] font-semibold text-white/20 font-mono tracking-widest">TRADER_VAL_8820</span>
+              <span className="text-[10px] font-semibold text-white/20 font-mono tracking-widest">User_8820</span>
             </div>
 
             <div className="relative z-10 flex items-center gap-6">
@@ -253,10 +253,10 @@ export default function AICoachPage() {
 
               <div className="flex-1 space-y-3">
                 <div className="space-y-1">
-                  <span className="text-sm font-semibold text-white uppercase tracking-widest">Neural Stability</span>
+                  <span className="text-sm font-bold text-white uppercase tracking-widest">Your Score</span>
                   <p className="text-xs text-emerald-400 font-bold uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
-                    Safe Zone reached
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_#10b981]" />
+                    Good Zone
                   </p>
                 </div>
                 
@@ -278,38 +278,38 @@ export default function AICoachPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 text-[9px] font-mono tracking-widest text-white/20 uppercase">
-              <span>Latency_Sync: Optimized</span>
-              <span>Enc: AES-256V4</span>
+            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 text-[9px] font-mono tracking-widest text-white/30 uppercase">
+              <span>Speed: 12ms</span>
+              <span>Security: AES-256</span>
             </div>
           </div>
         </div>
 
-        {/* System Status HUD */}
-        <div className="glass-ultra relative flex h-20 items-center justify-between overflow-hidden rounded-[24px] border border-white/10 px-6 group">
-          <div className="absolute inset-0 bg-linear-to-r from-emerald-500/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+        {/* Status HUD */}
+        <div className="glass-ultra relative flex h-20 items-center justify-between overflow-hidden rounded-[24px] border border-cyan-400/20 bg-gradient-to-r from-cyan-400/5 to-blue-500/5 px-6 group hover:border-cyan-400/40 transition-all">
+          <div className="absolute inset-0 bg-linear-to-r from-cyan-400/5 via-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="flex items-center gap-4 relative z-10">
-            <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">
-              <Cpu className="w-5 h-5 text-white/30" />
+            <div className="w-10 h-10 rounded-2xl bg-cyan-400/10 flex items-center justify-center border border-cyan-400/30 shadow-lg">
+              <Cpu className="w-5 h-5 text-cyan-400" />
             </div>
             <div className="flex flex-col">
-              <span className="text-[10px] font-semibold text-white/20 uppercase tracking-[0.4em]">Latency_Matrix</span>
-              <span className="text-sm font-semibold text-emerald-400 font-mono tracking-tight transition-all group-hover:translate-x-1">14ms QUANTUM</span>
+              <span className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.4em]">Speed</span>
+              <span className="text-sm font-bold text-cyan-400 font-mono tracking-tight transition-all group-hover:translate-x-1">12ms Fast</span>
             </div>
           </div>
           <div className="flex items-center gap-4 relative z-10 text-right">
             <div className="flex flex-col">
-              <span className="text-[10px] font-semibold text-white/20 uppercase tracking-[0.4em]">Neural_Load</span>
-              <span className="text-sm font-semibold text-indigo-400 font-mono tracking-tight transition-all group-hover:-translate-x-1">4.2% IDLE_CORE</span>
+              <span className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.4em]">Activity</span>
+              <span className="text-sm font-bold text-blue-400 font-mono tracking-tight transition-all group-hover:-translate-x-1">4.2% Good</span>
             </div>
-            <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">
-              <Activity className="w-5 h-5 text-indigo-400/50" />
+            <div className="w-10 h-10 rounded-2xl bg-blue-400/10 flex items-center justify-center border border-blue-400/30 shadow-lg">
+              <Activity className="w-5 h-5 text-blue-400" />
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* RIGHT PANEL: Holographic Communicator */}
+      {/* RIGHT PANEL: Smart Communicator */}
       <motion.div 
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -331,21 +331,21 @@ export default function AICoachPage() {
               <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-4 border-black z-20 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
             </div>
             <div className="flex flex-col gap-1">
-              <h2 className="text-xl xl:text-2xl font-semibold text-white uppercase tracking-tight">Intelligence Core</h2>
-              <div className="inline-flex items-center gap-3 px-3 py-1 rounded-xl bg-primary/10 border border-primary/20 w-fit">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Quant_Sync v8.2 Tactical</span>
+              <h2 className="text-xl xl:text-2xl font-bold text-white uppercase tracking-tight">AI Trading Coach</h2>
+              <div className="inline-flex items-center gap-3 px-3 py-1 rounded-xl bg-cyan-400/10 border border-cyan-400/30 w-fit">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.3em]">Insights v8.2</span>
               </div>
             </div>
           </div>
           
           <div className="flex items-center gap-4 xl:gap-6">
             <div className="hidden text-right xl:flex xl:flex-col">
-              <span className="text-[10px] font-semibold text-white/20 uppercase tracking-[0.4em]">Active Engine</span>
-              <span className="text-sm font-semibold text-white/50 font-jet-mono uppercase tracking-widest">Claude_3.5_Quantum</span>
+              <span className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.4em]">Using</span>
+              <span className="text-sm font-bold text-cyan-400 font-mono uppercase tracking-widest">Claude AI 4.5</span>
             </div>
-            <div className="w-px h-12 bg-white/5" />
-            <Button onClick={() => router.push('/history')} variant="ghost" size="icon" className="w-14 h-14 rounded-2xl bg-white/3 border border-white/10 hover:border-primary/40 hover:bg-primary/5 text-white/20 hover:text-primary transition-all duration-500 group">
+            <div className="w-px h-12 bg-gradient-to-b from-cyan-400/20 to-transparent" />
+            <Button onClick={() => router.push('/history')} variant="ghost" size="icon" className="w-14 h-14 rounded-2xl bg-cyan-400/5 border border-cyan-400/30 hover:border-cyan-400/60 hover:bg-cyan-400/10 text-cyan-400 hover:text-cyan-300 transition-all duration-500 group shadow-lg">
               <History className="w-6 h-6 group-hover:rotate-[-10deg] transition-transform" />
             </Button>
           </div>
@@ -380,9 +380,9 @@ export default function AICoachPage() {
                   
                   <div className={cn(
                     "relative rounded-[28px] p-5 text-[14px] xl:text-[15px] font-medium leading-[1.7] shadow-2xl transition-all duration-700",
-                    msg.role === 'ai' 
-                      ? "rounded-tl-none border border-white/10 bg-white/[0.03] text-white/85 hover:border-white/20 hover:bg-white/[0.05]" 
-                      : "rounded-tr-none border border-primary/40 bg-linear-to-br from-primary to-indigo-600 text-white hover:shadow-primary/20"
+                    msg.role === 'ai'
+                      ? "rounded-tl-none border border-cyan-400/30 bg-gradient-to-br from-cyan-400/5 to-blue-500/5 text-white/90 hover:border-cyan-400/50 hover:from-cyan-400/10 hover:to-blue-500/10 hover:shadow-cyan-400/10"
+                      : "rounded-tr-none border border-emerald-400/40 bg-linear-to-br from-emerald-500 to-emerald-600 text-white hover:shadow-emerald-400/20 shadow-emerald-500/20"
                   )}>
                     {msg.text.split('\n').map((line, i) => {
                       const parts = line.split(/(\$\d+(?:,\d+)*(?:\.\d+)?|\d+(?:\.\d+)?%?)/g);
@@ -392,8 +392,8 @@ export default function AICoachPage() {
                             if (part.match(/(\$\d+(?:,\d+)*(?:\.\d+)?|\d+(?:\.\d+)?%?)/)) {
                               return (
                                 <span key={j} className={cn(
-                                  "font-jet-mono font-bold tracking-tight mx-0.5 px-1.5 py-0.5 rounded-lg",
-                                  msg.role === 'ai' ? "text-primary bg-primary/5" : "text-white bg-black/20"
+                                  "font-mono font-bold tracking-tight mx-0.5 px-1.5 py-0.5 rounded-lg",
+                                  msg.role === 'ai' ? "text-cyan-400 bg-cyan-400/15" : "text-white bg-black/20"
                                 )}>
                                   {part}
                                 </span>
@@ -406,19 +406,19 @@ export default function AICoachPage() {
                     })}
                     
                     {msg.role === 'ai' && (
-                      <div className="absolute top-4 right-6 flex gap-1.5 opacity-20">
-                        <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
-                        <div className="w-1 h-1 rounded-full bg-primary animate-pulse delay-75" />
-                        <div className="w-1 h-1 rounded-full bg-primary animate-pulse delay-150" />
+                      <div className="absolute top-4 right-6 flex gap-1.5 opacity-30">
+                        <motion.div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                        <motion.div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse delay-75" />
+                        <motion.div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse delay-150" />
                       </div>
                     )}
                   </div>
                   
                   <span className={cn(
-                    "text-[10px] font-bold text-white/10 uppercase tracking-[0.5em] mt-4 block font-mono",
+                    "text-[10px] font-bold text-white/15 uppercase tracking-[0.5em] mt-4 block font-mono",
                     msg.role === 'user' ? "mr-4" : "ml-4"
                   )}>
-                    {msg.role === 'ai' ? 'PROTOCOL_TRANSMISSION_SECURED' : 'MANUAL_OVERRIDE_VERIFIED'}
+                    {msg.role === 'ai' ? 'AI Response' : 'You'}
                   </span>
                 </div>
               </motion.div>
@@ -430,21 +430,20 @@ export default function AICoachPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center gap-5 ml-20"
               >
-                <div className="flex gap-2 p-4 rounded-2xl bg-white/3 border border-white/10 shadow-inner">
+                <div className="flex gap-2 p-4 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 shadow-lg">
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
-                      animate={{ 
-                        scale: [1, 1.4, 1], 
-                        opacity: [0.3, 1, 0.3],
-                        backgroundColor: i === 1 ? ["#6366f1", "#818cf8", "#6366f1"] : "#6366f1"
+                      animate={{
+                        scale: [1, 1.5, 1],
+                        opacity: [0.4, 1, 0.4],
                       }}
                       transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.2 }}
-                      className="w-2 h-2 rounded-full bg-primary"
+                      className="w-2.5 h-2.5 rounded-full bg-gradient-to-b from-cyan-400 to-blue-500"
                     />
                   ))}
                 </div>
-                <span className="text-[10px] font-bold text-primary/40 uppercase tracking-[0.4em] animate-pulse">Neural_Synthesis_Active...</span>
+                <span className="text-[10px] font-bold text-cyan-400/60 uppercase tracking-[0.4em] animate-pulse">Thinking...</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -462,34 +461,34 @@ export default function AICoachPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.8 + (i * 0.1) }}
                 onClick={() => handleSend(s)}
-                className="whitespace-nowrap rounded-[18px] border border-white/10 bg-white/[0.03] px-5 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/50 transition-all hover:-translate-y-1 hover:border-primary/60 hover:text-white hover:shadow-[0_10px_30px_rgba(99,102,241,0.12)] active:translate-y-0"
+                className="whitespace-nowrap rounded-[18px] border border-cyan-400/20 bg-cyan-400/5 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-white/70 transition-all hover:-translate-y-1 hover:border-cyan-400/60 hover:text-cyan-400 hover:shadow-[0_10px_30px_rgba(34,211,238,0.15)] hover:bg-cyan-400/10 active:translate-y-0"
               >
                 {s}
               </motion.button>
             ))}
           </div>
 
-          <div className="relative group p-[2px] rounded-4xl overflow-hidden transition-all duration-700 focus-within:shadow-[0_0_50px_rgba(99,102,241,0.15)]">
-            <div className="absolute inset-0 bg-linear-to-r from-transparent via-primary/50 to-transparent group-focus-within:translate-x-full transition-transform duration-1500 ease-in-out -translate-x-full" />
-            
-            <div className="relative z-10 flex h-20 items-center rounded-[24px] border border-white/10 bg-white/[0.03] px-5 transition-all duration-500 group-focus-within:border-primary/40 group-focus-within:bg-white/[0.06] xl:h-24 xl:px-8">
-              <input 
+          <div className="relative group p-[2px] rounded-4xl overflow-hidden transition-all duration-700 focus-within:shadow-[0_0_50px_rgba(34,211,238,0.2)]">
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-cyan-400/50 to-transparent group-focus-within:translate-x-full transition-transform duration-1500 ease-in-out -translate-x-full" />
+
+            <div className="relative z-10 flex h-20 items-center rounded-[24px] border border-cyan-400/20 bg-cyan-400/5 px-5 transition-all duration-500 group-focus-within:border-cyan-400/50 group-focus-within:bg-cyan-400/10 xl:h-24 xl:px-8">
+              <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend(inputValue)}
-                placeholder="EXECUTE COMMAND OR QUERY CORE..."
-                className="flex-1 bg-transparent text-[13px] xl:text-[15px] font-semibold tracking-tight text-white uppercase outline-none placeholder:text-white/20"
+                placeholder="What do you want to know about your trading..."
+                className="flex-1 bg-transparent text-[13px] xl:text-[15px] font-semibold tracking-tight text-white uppercase outline-none placeholder:text-white/30"
               />
               <div className="flex items-center gap-4 xl:gap-8">
-                <span className="text-[10px] font-bold text-white/5 font-mono tracking-[0.3em] hidden xl:block uppercase">
-                  METADATA_LENGTH: {inputValue.length} {" // "} 500
+                <span className="text-[10px] font-bold text-white/10 font-mono tracking-[0.3em] hidden xl:block uppercase">
+                  {inputValue.length} / 500
                 </span>
                 <Magnetic strength={0.3}>
-                  <button 
+                  <button
                     onClick={() => handleSend(inputValue)}
                     disabled={!inputValue.trim()}
-                    className="w-14 h-14 rounded-3xl bg-primary hover:bg-indigo-500 disabled:opacity-20 disabled:hover:bg-primary flex items-center justify-center transition-all shadow-[0_0_30px_rgba(99,102,241,0.4)] active:scale-90 group/btn"
+                    className="w-14 h-14 rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 disabled:opacity-20 disabled:hover:from-cyan-400 disabled:hover:to-blue-500 flex items-center justify-center transition-all shadow-[0_0_30px_rgba(34,211,238,0.4)] active:scale-90 group/btn"
                   >
                     <Send className="w-6 h-6 text-white group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
                   </button>
@@ -498,8 +497,8 @@ export default function AICoachPage() {
             </div>
           </div>
           <div className="flex justify-center mt-6 gap-8">
-            <span className="text-[9px] font-bold text-white/5 uppercase tracking-[0.5em]">Neural_Link_Secured</span>
-            <span className="text-[9px] font-bold text-white/5 uppercase tracking-[0.5em]">Protocol_v8.42_Alpha</span>
+            <span className="text-[9px] font-bold text-white/10 uppercase tracking-[0.5em]">Secure</span>
+            <span className="text-[9px] font-bold text-white/10 uppercase tracking-[0.5em]">AI System v8.42</span>
           </div>
         </div>
       </motion.div>

@@ -226,7 +226,7 @@ export default function ResetPasswordPage() {
  </form>
 
  <motion.div variants={itemVariants} className="mt-12 text-center text-white/20 text-xs font-bold uppercase tracking-[0.2em]">
- Institutional Grade Security Active
+ Your Grade Security Active
  </motion.div>
  </div>
  </motion.div>

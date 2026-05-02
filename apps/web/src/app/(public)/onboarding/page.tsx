@@ -316,7 +316,7 @@ export default function OnboardingPage() {
 
  <div className="bg-bg-card/40 backdrop-blur-xl border border-white/5 px-6 py-3 rounded-full pointer-events-auto flex items-center gap-4 shadow-2xl">
  <Lock className="w-4 h-4 text-p" />
- <span className="text-xs font-bold text-white/40 uppercase tracking-[0.2em]">Institutional Access Level: 2</span>
+ <span className="text-xs font-bold text-white/40 uppercase tracking-[0.2em]">Your Access Level: 2</span>
  </div>
  </header>
 

@@ -26,7 +26,7 @@ const CATEGORY_CONFIG = {
     bg: 'bg-indigo-500/10', 
     border: 'border-indigo-500/20', 
     glow: 'shadow-indigo-500/20',
-    label: 'Analytical Protocol'
+    label: 'Analytical System'
   },
   condition: { 
     icon: Target, 
@@ -141,12 +141,12 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
             </div>
           </div>
 
-          {/* Telemetry HUD Area */}
+          {/* Data HUD Area */}
           <div className="mt-5 space-y-4">
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
                 <Terminal className="w-3.5 h-3.5 text-primary" />
-                <span className="text-[8px] font-bold uppercase tracking-[0.18em] text-white/30">Protocol Execution Flow</span>
+                <span className="text-[8px] font-bold uppercase tracking-[0.18em] text-white/30">System Execution Flow</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-px w-8 bg-linear-to-r from-transparent via-white/10 to-transparent" />
@@ -180,7 +180,7 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
                 <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 blur-3xl rounded-full transition-all group-hover/subcard:bg-primary/10" />
                 <div className="flex items-center gap-2">
                   <Activity className="w-3.5 h-3.5 text-white/10" />
-                  <span className="text-[8px] font-bold text-white/25 uppercase tracking-[0.12em]">Neural Latency</span>
+                  <span className="text-[8px] font-bold text-white/25 uppercase tracking-[0.12em]">Neural Speed</span>
                 </div>
                 <div className="flex items-end gap-1.5">
                   <span className="text-lg font-semibold text-white tracking-tighter">0.242</span>
@@ -208,7 +208,7 @@ export const FlowNode = memo(({ data, selected, id }: NodeProps<NodeData>) => {
           />
         </div>
 
-        {/* Secure Institutional Footer */}
+        {/* Secure Your Footer */}
         <div className="h-10 bg-white/2 border-t border-white/5 px-5 flex items-center justify-between opacity-35 group-hover:opacity-100 transition-all duration-1000">
           <div className="flex items-center gap-2.5">
             <ShieldCheck className="w-3.5 h-3.5 text-primary" />

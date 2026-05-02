@@ -1,7 +1,12 @@
 import { Controller, Get, Post, Param, UseGuards, Req } from '@nestjs/common';
 import { AffiliatesService } from './affiliates.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('Affiliates')
 @ApiResponse({ status: 401, description: 'Unauthorized' })

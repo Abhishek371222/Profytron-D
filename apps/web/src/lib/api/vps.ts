@@ -31,7 +31,10 @@ export interface CreateVpsPayload {
 }
 
 export const vpsApi = {
-  list: () => apiClient.get<VpsAccount[]>('/vps').then((r) => r.data),
+  list: () => apiClient.get<VpsAccount[] | { data: VpsAccount[] }>('/vps').then((r) => {
+    const data = r.data;
+    return Array.isArray(data) ? data : (data as any)?.data ?? [];
+  }),
 
   create: (payload: CreateVpsPayload) =>
     apiClient.post<VpsAccount>('/vps', payload).then((r) => r.data),
@@ -43,7 +46,10 @@ export const vpsApi = {
   remove: (id: string) => apiClient.delete(`/vps/${id}`).then((r) => r.data),
 
   getBots: (vpsId: string) =>
-    apiClient.get<BotInstance[]>(`/vps/${vpsId}/bots`).then((r) => r.data),
+    apiClient.get<BotInstance[] | { data: BotInstance[] }>(`/vps/${vpsId}/bots`).then((r) => {
+      const data = r.data;
+      return Array.isArray(data) ? data : (data as any)?.data ?? [];
+    }),
 
   deployBot: (vpsId: string, payload: { strategyId: string; name: string }) =>
     apiClient.post<BotInstance>(`/vps/${vpsId}/bots`, payload).then((r) => r.data),

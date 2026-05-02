@@ -10,7 +10,9 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 
 const wsAllowedOrigins = (
-  process.env.CORS_ORIGIN || process.env.FRONTEND_URL || ''
+  process.env.CORS_ORIGIN ||
+  process.env.FRONTEND_URL ||
+  ''
 )
   .split(',')
   .map((s) => s.trim())

@@ -7,7 +7,7 @@ import { useWebGLSupport } from '@/hooks/use-webgl';
 // Dynamically import the heavy WebGL component with no SSR
 const GlobeCanvas = dynamic(() => import('./GlobeCanvas'), { 
   ssr: false,
-  loading: () => null 
+  loading: () => null
 });
 
 // Fallback component for environments without WebGL
@@ -84,7 +84,7 @@ export function ThreeGlobe() {
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             className="w-12 h-12 border-2 border-p/20 border-t-p rounded-full"
           />
-          <p className="text-[10px] text-white/20 uppercase tracking-[0.3em] font-medium">Initializing Engine</p>
+          <p className="text-[10px] text-white/20 uppercase tracking-[0.3em] font-medium">Starting Engine</p>
         </div>
       )}
     </div>

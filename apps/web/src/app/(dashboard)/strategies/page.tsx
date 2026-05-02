@@ -351,7 +351,7 @@ export default function StrategiesPage() {
  setVerifiedOnly(false);
  }}
  >
- Reset Telemetry Filters
+ Reset Data Filters
  </Button>
  </motion.div>
  )}
@@ -491,7 +491,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  <span className="text-sm font-semibold font-jet-mono text-white">{(strategy.copiesCount || 0).toLocaleString()}</span>
  </div>
  <div className="flex flex-col">
- <span className="text-xs font-semibold text-white/30 uppercase tracking-widest">Access Protocol</span>
+ <span className="text-xs font-semibold text-white/30 uppercase tracking-widest">Access System</span>
  <span className="text-sm font-semibold font-jet-mono text-white">{(strategy.monthlyPrice || 0) > 0 ? `$${strategy.monthlyPrice}/mo` : 'OPEN'}</span>
  </div>
  </div>
@@ -565,7 +565,7 @@ function CinematicStrategyCard({ strategy, index, viewMode, onActivate }: any) {
  </h3>
  </div>
 
- {/* Cinematic Telemetry Chart */}
+ {/* Cinematic Data Chart */}
  <div className="h-32 -mx-6 mb-8 relative border-y border-white/5 bg-white/1">
  <div className="absolute inset-0 bg-[linear-gradient(0deg,transparent_23px,rgba(255,255,255,0.03)_24px)] bg-[length:100%_24px] pointer-events-none" />
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>

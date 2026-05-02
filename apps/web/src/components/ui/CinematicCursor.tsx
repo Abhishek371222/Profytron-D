@@ -53,6 +53,12 @@ export function CinematicCursor() {
   }, []);
 
   useEffect(() => {
+    const isChromium = /Chrome|Chromium/.test(navigator.userAgent) && !/Edg|OPR|Firefox/i.test(navigator.userAgent);
+    if (!isChromium) {
+      setIsTouchDevice(true);
+      return;
+    }
+
     const hasPointer = window.matchMedia('(pointer: fine)').matches;
     setIsTouchDevice(!hasPointer);
     if (!hasPointer) return;

@@ -30,7 +30,14 @@ import { GithubStrategy } from './strategies/github.strategy';
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, TwoFaService, JwtStrategy, JwtRefreshStrategy, GoogleStrategy, GithubStrategy],
+  providers: [
+    AuthService,
+    TwoFaService,
+    JwtStrategy,
+    JwtRefreshStrategy,
+    GoogleStrategy,
+    GithubStrategy,
+  ],
   exports: [AuthService, TwoFaService, JwtModule, PassportModule],
 })
 export class AuthModule {}

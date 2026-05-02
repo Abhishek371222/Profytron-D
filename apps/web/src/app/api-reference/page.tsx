@@ -50,7 +50,7 @@ export default function ApiReferencePage() {
             <div className="flex items-center gap-4 mt-6 text-xs font-mono text-white/40">
               <span className="px-3 py-1 rounded bg-white/4 border border-white/8">Base URL: api.profytron.com</span>
               <span className="px-3 py-1 rounded bg-white/4 border border-white/8">Version: v1</span>
-              <span className="px-3 py-1 rounded bg-white/4 border border-white/8">Protocol: HTTPS / WSS</span>
+              <span className="px-3 py-1 rounded bg-white/4 border border-white/8">System: HTTPS / WSS</span>
             </div>
           </motion.div>
         </div>
@@ -65,7 +65,7 @@ export default function ApiReferencePage() {
                 <Lock className="w-5 h-5 text-indigo-400" />
                 <h2 className="text-xl font-bold text-white">Authentication</h2>
               </div>
-              <p className="text-white/50 text-sm leading-relaxed mb-4">All authenticated endpoints require a Bearer token in the Authorization header. Tokens expire after <span className="text-white/70 font-mono">1h</span>. Use the refresh endpoint to obtain a new access token.</p>
+              <p className="text-white/50 text-sm leading-relaxed mb-4">All authenticated endpoints require a Bearer token in the Authorization header. Points expire after <span className="text-white/70 font-mono">1h</span>. Use the refresh endpoint to obtain a new access token.</p>
               <div className="space-y-2">
                 {[
                   { label: 'Access token TTL', val: '1 hour' },

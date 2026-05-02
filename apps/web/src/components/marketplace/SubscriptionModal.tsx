@@ -123,7 +123,7 @@ export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionMod
  <div className="p-6 rounded-3xl bg-white/2 border border-white/5 space-y-4">
  <h4 className="text-xs font-semibold text-white/40 uppercase tracking-widest">Included Premium Features</h4>
  <div className="grid grid-cols-2 gap-y-3 gap-x-6">
- {['Auto-Execution Enabled', 'Risk Shielding', '1ms Latency Proxy', '24/7 Monitoring'].map((f) => (
+ {['Auto-Execution Enabled', 'Safety Alerting', '1ms Speed Proxy', '24/7 Monitoring'].map((f) => (
  <div key={f} className="flex items-center gap-3">
  <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
  <Check className="w-3 h-3 text-emerald-400" />

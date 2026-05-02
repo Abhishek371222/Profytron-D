@@ -164,7 +164,7 @@ export default function SecuritySettingsPage() {
  </div>
  </div>
  <div className="space-y-3 group">
- <label className="text-xs font-semibold text-white/20 uppercase tracking-[0.5em] ml-1 group-focus-within:text-p transition-colors">New Quantum Key</label>
+ <label className="text-xs font-semibold text-white/20 uppercase tracking-[0.5em] ml-1 group-focus-within:text-p transition-colors">New Fast Key</label>
  <div className="relative">
  <input
  type="password"
@@ -397,7 +397,7 @@ export default function SecuritySettingsPage() {
  <div className="space-y-4">
  <div className="flex items-center gap-4">
  <AlertTriangle className="w-7 h-7 text-rose-500 animate-pulse" />
- <h4 className="text-xl font-semibold text-white uppercase tracking-tight">Decommission Protocol</h4>
+ <h4 className="text-xl font-semibold text-white uppercase tracking-tight">Decommission System</h4>
  </div>
  <p className="text-xs text-white/30 font-semibold uppercase tracking-[0.2em] leading-relaxed max-w-lg">
  This will permanently terminate your institutional access, purge all algorithmic signatures, and wipe your Risk DNA history. This action is irreversible.
@@ -437,7 +437,7 @@ export default function SecuritySettingsPage() {
  <Fingerprint className="w-4 h-4" />
  <span>Cryptographic Verification</span>
  </div>
- <h3 className="text-2xl font-semibold text-white uppercase tracking-tight">Enable 2FA Protocol</h3>
+ <h3 className="text-2xl font-semibold text-white uppercase tracking-tight">Enable 2FA System</h3>
  </div>
 
  <div className="relative z-10 space-y-6">

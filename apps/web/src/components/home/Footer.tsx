@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Zap, Globe, MessageSquare, Mail, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -17,7 +16,7 @@ const footerLinks = {
     { name: "Strategy Library", href: "/strategies" },
     { name: "Visual Builder", href: "/strategies/builder" },
     { name: "Marketplace", href: "/marketplace" },
-    { name: "Security Protocol", href: "/settings/security" },
+    { name: "Security System", href: "/settings/security" },
   ],
   Company: [
     { name: "About Us", href: "/about" },
@@ -49,17 +48,17 @@ export function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24 mb-24">
           {/* Logo & Foundation */}
           <div className="lg:col-span-5">
-            <Link href="/" className="flex items-center gap-3 mb-8 group">
+            <a href="/" className="flex items-center gap-3 mb-8 group">
               <div className="w-10 h-10 bg-white/3 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-p/50 transition-all duration-500 shadow-inner group-hover:bg-p/10">
                 <Zap className="w-5 h-5 text-white/70 group-hover:text-p transition-colors" />
               </div>
               <span className="text-xl font-bold tracking-tight text-white group-hover:text-white/90 transition-colors">
                 PROFYTRON
               </span>
-            </Link>
+            </a>
             <p className="text-white/40 text-sm mb-10 leading-relaxed max-w-sm font-medium">
-              Architecting the future of algorithmic wealth. Institutional
-              power, refined for the frontier of finance.
+              Building the of trading success. Your
+              power, refined for the trading future.
             </p>
             <div className="flex gap-3">
               {[
@@ -82,7 +81,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Institutional Navigation */}
+          {/* Your Navigation */}
           <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-12">
             {Object.entries(footerLinks).map(([title, links]) => (
               <div key={title} className="flex flex-col gap-6">
@@ -92,9 +91,12 @@ export function Footer() {
                 <ul className="flex flex-col gap-4">
                   {links.map((link) => (
                     <li key={link.name}>
-                      <Link href={link.href} className="text-white/40 hover:text-white transition-colors text-sm font-medium inline-flex items-center">
+                      <a
+                        href={link.href}
+                        className="text-white/40 hover:text-white transition-colors text-sm font-medium inline-flex items-center"
+                      >
                         {link.name}
-                      </Link>
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -103,19 +105,19 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Global Matrix Status Bar */}
+        {/* Global Status Bar */}
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 hidden sm:flex">
+          <div className="hidden sm:flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
               <span className="text-[11px] font-medium tracking-widest uppercase text-white/50">
-                All Systems Operational
+                System Status: Operational
               </span>
             </div>
           </div>
 
           <p className="text-[11px] text-white/30 tracking-widest uppercase font-medium">
-            © 2026 PROFYTRON_TECHNOLOGIES
+            © 2026 PROFYTRON
           </p>
 
           <p className="text-[11px] text-white/30 tracking-widest uppercase font-medium">

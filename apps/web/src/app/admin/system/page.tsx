@@ -64,17 +64,17 @@ export default function AdminSystemPage() {
         <InfoCard
           label="Active Users (24h)"
           value={String(metricsQuery.data?.activeUsers24h ?? 0)}
-          loading={metricsQuery.isLoading}
+          Loading={metricsQuery.isLoading}
         />
         <InfoCard
           label="New Users (7d)"
           value={String(metricsQuery.data?.newUsers7d ?? 0)}
-          loading={metricsQuery.isLoading}
+          Loading={metricsQuery.isLoading}
         />
         <InfoCard
           label="Pending KYC"
           value={String(metricsQuery.data?.pendingKyc ?? 0)}
-          loading={metricsQuery.isLoading}
+          Loading={metricsQuery.isLoading}
         />
       </div>
 
@@ -114,16 +114,16 @@ export default function AdminSystemPage() {
 function InfoCard({
   label,
   value,
-  loading,
+  Loading,
 }: {
   label: string;
   value: string;
-  loading: boolean;
+  Loading: boolean;
 }) {
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
       <div className="text-xs uppercase tracking-wide text-slate-400">{label}</div>
-      <div className="mt-2 text-2xl font-semibold text-white">{loading ? 'Loading...' : value}</div>
+      <div className="mt-2 text-2xl font-semibold text-white">{Loading ? 'Loading...' : value}</div>
     </div>
   );
 }

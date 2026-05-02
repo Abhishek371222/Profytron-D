@@ -13,13 +13,13 @@ type CheckResult = {
   details: string;
 };
 
-export default function OauthDiagnosticsPage() {
+export default function OauthAnalysisPage() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.profytron.example';
 
   const [checks, setChecks] = React.useState<CheckResult[]>([]);
   const [running, setRunning] = React.useState(false);
 
-  const runDiagnostics = async () => {
+  const runAnalysis = async () => {
     setRunning(true);
     const results: CheckResult[] = [];
 
@@ -98,7 +98,7 @@ export default function OauthDiagnosticsPage() {
     <main className="min-h-screen bg-bg-base p-6 text-white">
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
-          <h1 className="text-2xl font-semibold">OAuth Diagnostics</h1>
+          <h1 className="text-2xl font-semibold">OAuth Analysis</h1>
           <p className="mt-2 text-sm text-white/70">
             Run checks and validate Google OAuth setup for this environment.
           </p>
@@ -106,8 +106,8 @@ export default function OauthDiagnosticsPage() {
 
         <Card className="space-y-3 border-white/10 bg-black/40 p-4">
           <div className="flex flex-wrap gap-2">
-            <Button onClick={runDiagnostics} disabled={running}>
-              {running ? 'Running...' : 'Run Diagnostics'}
+            <Button onClick={runAnalysis} disabled={running}>
+              {running ? 'Running...' : 'Run Analysis'}
             </Button>
             <Button variant="outline" onClick={triggerGoogleOauth}>
               Test Google OAuth

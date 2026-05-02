@@ -171,7 +171,7 @@ export default function AnalyticsPage() {
               { href: '/analytics/performance', title: 'Performance Lab', desc: 'Compare strategy quality and monthly edge.' },
               { href: '/analytics/risk', title: 'Risk Radar', desc: 'Monitor drawdown and stress indicators.' },
               { href: '/analytics/trade', title: 'Trade Forensics', desc: 'Inspect distributions and symbol outcomes.' },
-              { href: '/analytics/global', title: 'Global Intelligence', desc: 'Track macro events and leaderboard flow.' },
+              { href: '/analytics/global', title: 'Smart Analysis', desc: 'Track macro events and leaderboard flow.' },
             ].map((item) => (
               <Link key={item.href} href={item.href} className="block rounded-xl border border-white/10 bg-white/5 p-3 transition hover:border-cyan-200/30 hover:bg-cyan-200/5">
                 <p className="text-sm font-semibold text-white">{item.title}</p>

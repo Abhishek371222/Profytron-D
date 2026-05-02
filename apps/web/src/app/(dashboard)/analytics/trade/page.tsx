@@ -71,7 +71,7 @@ export default function TradeAnalyticsPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="border-white/10 bg-black/40 p-4">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">P&L Distribution</h3>
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-white/70">Earnings Distribution</h3>
           <div className="h-[320px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={trade?.distribution ?? []}>

@@ -22,9 +22,18 @@ export class TwoFaService {
       where: { id: userId },
       select: { email: true, twoFactorEnabled: true },
     });
-    if (!user) appError(HttpStatus.NOT_FOUND, 'User not found', ErrorCode.USER_NOT_FOUND);
+    if (!user)
+      appError(
+        HttpStatus.NOT_FOUND,
+        'User not found',
+        ErrorCode.USER_NOT_FOUND,
+      );
     if (user.twoFactorEnabled) {
-      appError(HttpStatus.BAD_REQUEST, '2FA is already enabled', ErrorCode.VALIDATION_ERROR);
+      appError(
+        HttpStatus.BAD_REQUEST,
+        '2FA is already enabled',
+        ErrorCode.VALIDATION_ERROR,
+      );
     }
 
     const secret = this.totp.generateSecret();
@@ -49,11 +58,21 @@ export class TwoFaService {
       select: { twoFactorSecret: true, twoFactorEnabled: true },
     });
     if (!user?.twoFactorSecret) {
-      appError(HttpStatus.BAD_REQUEST, '2FA setup not initiated', ErrorCode.VALIDATION_ERROR);
+      appError(
+        HttpStatus.BAD_REQUEST,
+        '2FA setup not initiated',
+        ErrorCode.VALIDATION_ERROR,
+      );
     }
-    const isValid = await this.totp.verify(token, { secret: user.twoFactorSecret! });
+    const isValid = await this.totp.verify(token, {
+      secret: user.twoFactorSecret,
+    });
     if (!isValid) {
-      appError(HttpStatus.BAD_REQUEST, 'Invalid TOTP code', ErrorCode.OTP_INVALID);
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'Invalid TOTP code',
+        ErrorCode.OTP_INVALID,
+      );
     }
 
     const backupCodes = this.generateBackupCodes();
@@ -69,22 +88,40 @@ export class TwoFaService {
   async disable(userId: string, token: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { twoFactorSecret: true, twoFactorEnabled: true, twoFactorBackupCodes: true },
+      select: {
+        twoFactorSecret: true,
+        twoFactorEnabled: true,
+        twoFactorBackupCodes: true,
+      },
     });
     if (!user?.twoFactorEnabled) {
-      appError(HttpStatus.BAD_REQUEST, '2FA is not enabled', ErrorCode.VALIDATION_ERROR);
+      appError(
+        HttpStatus.BAD_REQUEST,
+        '2FA is not enabled',
+        ErrorCode.VALIDATION_ERROR,
+      );
     }
 
-    const valid = await this.totp.verify(token, { secret: user.twoFactorSecret! });
+    const valid = await this.totp.verify(token, {
+      secret: user.twoFactorSecret!,
+    });
     const backupCodes = (user.twoFactorBackupCodes as string[]) ?? [];
     const isBackup = backupCodes.includes(token);
     if (!valid && !isBackup) {
-      appError(HttpStatus.BAD_REQUEST, 'Invalid TOTP or backup code', ErrorCode.OTP_INVALID);
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'Invalid TOTP or backup code',
+        ErrorCode.OTP_INVALID,
+      );
     }
 
     await this.prisma.user.update({
       where: { id: userId },
-      data: { twoFactorEnabled: false, twoFactorSecret: undefined, twoFactorBackupCodes: undefined },
+      data: {
+        twoFactorEnabled: false,
+        twoFactorSecret: undefined,
+        twoFactorBackupCodes: undefined,
+      },
     });
 
     this.logger.log(`2FA disabled for user ${userId}`);
@@ -97,10 +134,18 @@ export class TwoFaService {
       select: { twoFactorSecret: true, twoFactorEnabled: true },
     });
     if (!user?.twoFactorEnabled) {
-      appError(HttpStatus.BAD_REQUEST, '2FA is not enabled', ErrorCode.VALIDATION_ERROR);
+      appError(
+        HttpStatus.BAD_REQUEST,
+        '2FA is not enabled',
+        ErrorCode.VALIDATION_ERROR,
+      );
     }
     if (!(await this.totp.verify(token, { secret: user.twoFactorSecret! }))) {
-      appError(HttpStatus.BAD_REQUEST, 'Invalid TOTP code', ErrorCode.OTP_INVALID);
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'Invalid TOTP code',
+        ErrorCode.OTP_INVALID,
+      );
     }
 
     const newBackupCodes = this.generateBackupCodes();
