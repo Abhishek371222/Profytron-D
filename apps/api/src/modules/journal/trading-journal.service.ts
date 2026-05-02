@@ -7,7 +7,12 @@ export class TradingJournalService {
 
   constructor(private prisma: PrismaService) {}
 
-  async createJournalEntry(userId: string, tradeId: string, emotions?: string, lessonLearned?: string) {
+  async createJournalEntry(
+    userId: string,
+    tradeId: string,
+    emotions?: string,
+    lessonLearned?: string,
+  ) {
     return this.prisma.tradeJournalEntry.create({
       data: {
         userId,
@@ -40,7 +45,9 @@ export class TradingJournalService {
   }
 
   async rateEntry(entryId: string, rating: number) {
-    return this.updateJournalEntry(entryId, { rating: Math.min(5, Math.max(1, rating)) });
+    return this.updateJournalEntry(entryId, {
+      rating: Math.min(5, Math.max(1, rating)),
+    });
   }
 
   // AI Analysis (Demo - will call OpenAI in production)
@@ -98,7 +105,10 @@ Action Items:
       emotionCounts[e] = (emotionCounts[e] || 0) + 1;
     });
 
-    const avgRating = entries.filter((e) => e.rating).reduce((sum, e) => sum + (e.rating || 0), 0) / entries.length || 0;
+    const avgRating =
+      entries
+        .filter((e) => e.rating)
+        .reduce((sum, e) => sum + (e.rating || 0), 0) / entries.length || 0;
 
     return {
       totalEntries: entries.length,

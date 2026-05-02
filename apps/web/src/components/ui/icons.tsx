@@ -105,6 +105,9 @@ import {
  FileJson,
  Unplug,
  Server,
+ Trophy,
+ BookOpen,
+ MemoryStick,
  type LucideIcon
 } from 'lucide-react';
 
@@ -247,7 +250,10 @@ export {
  FileText,
  FileJson,
  Unplug,
- Server
+ Server,
+ Trophy,
+ BookOpen,
+ MemoryStick,
 };
 
 export type { LucideIcon };

@@ -8,7 +8,13 @@ export class BrokerIntegrationService {
 
   constructor(private prisma: PrismaService) {}
 
-  async storeBrokerCredentials(userId: string, broker: string, apiKey: string, secretKey: string, passphrase?: string) {
+  async storeBrokerCredentials(
+    userId: string,
+    broker: string,
+    apiKey: string,
+    secretKey: string,
+    passphrase?: string,
+  ) {
     return this.prisma.brokerApiCredential.upsert({
       where: { userId_broker: { userId, broker: broker as any } },
       create: {
@@ -36,8 +42,16 @@ export class BrokerIntegrationService {
   }
 
   // BINANCE API INTEGRATION (Demo)
-  async executeBinanceTrade(credential: any, symbol: string, side: string, quantity: number, price?: number) {
-    this.logger.log(`[DEMO] Executing Binance trade: ${symbol} ${side} ${quantity} @ ${price}`);
+  async executeBinanceTrade(
+    credential: any,
+    symbol: string,
+    side: string,
+    quantity: number,
+    price?: number,
+  ) {
+    this.logger.log(
+      `[DEMO] Executing Binance trade: ${symbol} ${side} ${quantity} @ ${price}`,
+    );
     // In production, call Binance API with credential.apiKey and credential.secretKey
     return {
       orderId: `DEMO-${Date.now()}`,
@@ -51,7 +65,13 @@ export class BrokerIntegrationService {
   }
 
   // MT5 API INTEGRATION (Demo)
-  async executeMt5Trade(credential: any, symbol: string, side: string, volume: number, slippage = 0.5) {
+  async executeMt5Trade(
+    credential: any,
+    symbol: string,
+    side: string,
+    volume: number,
+    slippage = 0.5,
+  ) {
     this.logger.log(`[DEMO] Executing MT5 trade: ${symbol} ${side} ${volume}`);
     // In production, connect via MetaTrader 5 library
     return {
@@ -66,7 +86,12 @@ export class BrokerIntegrationService {
   }
 
   // BYBIT API INTEGRATION (Demo)
-  async executeBybitTrade(credential: any, symbol: string, side: string, qty: number) {
+  async executeBybitTrade(
+    credential: any,
+    symbol: string,
+    side: string,
+    qty: number,
+  ) {
     this.logger.log(`[DEMO] Executing Bybit trade: ${symbol} ${side} ${qty}`);
     return {
       orderId: `BYBIT-${Date.now()}`,
@@ -79,7 +104,12 @@ export class BrokerIntegrationService {
   }
 
   // KUCOIN API INTEGRATION (Demo)
-  async executeKuCoinTrade(credential: any, symbol: string, side: string, size: number) {
+  async executeKuCoinTrade(
+    credential: any,
+    symbol: string,
+    side: string,
+    size: number,
+  ) {
     this.logger.log(`[DEMO] Executing KuCoin trade: ${symbol} ${side} ${size}`);
     return {
       orderId: `KC-${Date.now()}`,

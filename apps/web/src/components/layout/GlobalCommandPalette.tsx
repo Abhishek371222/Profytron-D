@@ -21,7 +21,7 @@ export function GlobalCommandPalette() {
   const { commandPaletteOpen, setCommandPaletteOpen } = useUIStore();
   const [query, setQuery] = React.useState("");
   const [results, setResults] = React.useState<GlobalSearchItem[]>([]);
-  const [loading, setLoading] = React.useState(false);
+  const [Loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -93,7 +93,7 @@ export function GlobalCommandPalette() {
         </div>
 
         <div className="max-h-[420px] overflow-y-auto p-2">
-          {loading ? (
+          {Loading ? (
             <div className="p-6 text-center text-sm text-white/55">Searching...</div>
           ) : results.length === 0 ? (
             <div className="flex flex-col items-center gap-2 p-10 text-center">

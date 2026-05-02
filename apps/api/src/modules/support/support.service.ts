@@ -8,7 +8,12 @@ export class SupportService {
 
   constructor(private prisma: PrismaService) {}
 
-  async createTicket(userId: string, subject: string, description: string, category: string) {
+  async createTicket(
+    userId: string,
+    subject: string,
+    description: string,
+    category: string,
+  ) {
     return this.prisma.supportTicket.create({
       data: {
         userId,
@@ -35,13 +40,29 @@ export class SupportService {
   async getTicket(ticketId: string) {
     return this.prisma.supportTicket.findUnique({
       where: { id: ticketId },
-      include: { responses: { include: { user: { select: { fullName: true, avatarUrl: true } } } } },
+      include: {
+        responses: {
+          include: { user: { select: { fullName: true, avatarUrl: true } } },
+        },
+      },
     });
   }
 
-  async addResponse(ticketId: string, userId: string, message: string, isAdmin = false) {
-    const ticket = await this.prisma.supportTicket.findUnique({ where: { id: ticketId } });
-    if (!ticket) appError(HttpStatus.NOT_FOUND, 'Ticket not found', ErrorCode.VALIDATION_ERROR);
+  async addResponse(
+    ticketId: string,
+    userId: string,
+    message: string,
+    isAdmin = false,
+  ) {
+    const ticket = await this.prisma.supportTicket.findUnique({
+      where: { id: ticketId },
+    });
+    if (!ticket)
+      appError(
+        HttpStatus.NOT_FOUND,
+        'Ticket not found',
+        ErrorCode.VALIDATION_ERROR,
+      );
 
     return this.prisma.supportTicketResponse.create({
       data: { ticketId, userId, message, isAdmin },
@@ -50,10 +71,10 @@ export class SupportService {
 
   async updateTicketStatus(ticketId: string, status: string) {
     const statusMap: any = {
-      'OPEN': 'OPEN',
-      'IN_PROGRESS': 'IN_PROGRESS',
-      'RESOLVED': 'RESOLVED',
-      'CLOSED': 'CLOSED',
+      OPEN: 'OPEN',
+      IN_PROGRESS: 'IN_PROGRESS',
+      RESOLVED: 'RESOLVED',
+      CLOSED: 'CLOSED',
     };
 
     return this.prisma.supportTicket.update({

@@ -257,7 +257,7 @@ export default function OverviewTab() {
  <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">Variance_Alpha</span>
  </div>
  <div className="ml-auto text-right">
- <p className="text-xs text-white/10 font-semibold uppercase tracking-[0.4em]">Total_P&L</p>
+ <p className="text-xs text-white/10 font-semibold uppercase tracking-[0.4em]">Total_Earnings</p>
  <p className="text-lg font-semibold text-emerald-400 tracking-tight">+$20,400 <span className="text-xs text-emerald-400/50 uppercase tracking-widest">+20.4%</span></p>
  </div>
  </div>
@@ -276,7 +276,7 @@ export default function OverviewTab() {
  <h4 className="text-lg font-semibold text-white uppercase tracking-tight">Neural_Yield_Map</h4>
  </div>
  <p className="text-xs text-white/20 font-semibold uppercase tracking-[0.3em] mt-3 leading-loose">
- Monthly P&L distribution heatmap
+ Monthly Earnings distribution heatmap
  </p>
  </div>
  <div className="space-y-6 flex-1 relative z-10">
@@ -297,7 +297,7 @@ export default function OverviewTab() {
  <div className="mt-6 flex items-center justify-between border-t border-white/5 pt-5 relative z-10">
  <div className="flex items-center gap-3">
  <div className="w-3 h-3 rounded bg-red-500/80 shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
- <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">Drawdown</span>
+ <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">Losing period</span>
  </div>
  <div className="flex items-center gap-3">
  <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">Alpha</span>
@@ -334,7 +334,7 @@ export default function OverviewTab() {
  {[
  { label: 'Alpha_Efficiency', val: 94, color: 'bg-emerald-500' },
  { label: 'Regime_Stability', val: 78, color: 'bg-cyan-500' },
- { label: 'Drawdown_Shield', val: 86, color: 'bg-p' },
+ { label: 'Losing period_Shield', val: 86, color: 'bg-p' },
  ].map((bar) => (
  <div key={bar.label} className="space-y-2">
  <div className="flex items-center justify-between">

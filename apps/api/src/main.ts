@@ -43,9 +43,7 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const port = await resolveApiPort(requestedPort);
   if (port !== requestedPort) {
-    logger.warn(
-      `Port ${requestedPort} is busy, falling back to ${port}.`,
-    );
+    logger.warn(`Port ${requestedPort} is busy, falling back to ${port}.`);
   }
 
   const host = process.env.API_HOST || '0.0.0.0';

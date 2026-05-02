@@ -13,7 +13,7 @@ const steps = [
   },
   {
     title: "Neural Profiling",
-    description: "Our core engine ingests your risk tolerance, capital constraints, and latency requirements to build a unique trading fingerprint.",
+    description: "Our core engine ingests your risk tolerance, capital constraints, and Speed requirements to build a unique trading fingerprint.",
     icon: BrainCircuit,
     badge: "Layer_02",
   },

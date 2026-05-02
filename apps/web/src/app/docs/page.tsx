@@ -12,7 +12,7 @@ const quickstart = [
 ];
 
 const guides = [
-  { icon: Zap, title: 'Zero-Latency Routing', href: '#', desc: 'How the execution pipe works and how to optimize for minimum slippage.' },
+  { icon: Zap, title: 'Zero-Speed Routing', href: '#', desc: 'How the execution pipe works and how to optimize for minimum slippage.' },
   { icon: Cpu, title: 'Signal Core AI Integration', href: '#', desc: 'Connecting your strategies to real-time AI signal streams.' },
   { icon: Shield, title: 'Risk Guard Configuration', href: '#', desc: 'Setting drawdown limits, kill-switches, and position size rules.' },
   { icon: Activity, title: 'Backtesting Engine', href: '#', desc: 'Running tick-level backtests with 10 years of historical market data.' },

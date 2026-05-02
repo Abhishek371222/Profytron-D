@@ -28,8 +28,8 @@ export default function GlobalAnalyticsPage() {
 
   React.useEffect(() => {
     if (globalQuery.isError || leaderboardQuery.isError) {
-      toast.error('Global intelligence feed unavailable', {
-        description: 'Global intelligence is unavailable until the API recovers.',
+      toast.error('Smart Analysis feed unavailable', {
+        description: 'Smart Analysis is unavailable until the API recovers.',
       });
     }
   }, [globalQuery.isError, leaderboardQuery.isError]);
@@ -46,7 +46,7 @@ export default function GlobalAnalyticsPage() {
         <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-[#0e1f30] via-[#0b1a2e] to-[#16112a] p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold text-white">Global Intelligence</h1>
+              <h1 className="text-2xl font-semibold text-white">Smart Analysis</h1>
               <p className="mt-2 text-sm text-white/70">Macro signals, sector rotation, and leaderboard dynamics powered by actual analytics data.</p>
             </div>
             <Button onClick={refreshData} variant="outline" className="inline-flex items-center gap-2 border-white/20 bg-white/5 text-xs font-semibold uppercase tracking-[0.18em] text-white/80 hover:bg-white/10">

@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 const NOTIF_CHANNELS = [
  { id: 'ch_app', icon: Smartphone, label: 'Platform HUD', desc: 'In-app terminal overlays', active: true },
  { id: 'ch_mail', icon: Mail, label: 'Neural Relay (Email)', desc: 'Periodic protocol summaries', active: true },
- { id: 'ch_tg', icon: MessageSquare, label: 'Quantum Telegram', desc: 'Encrypted instant signaling', active: false },
+ { id: 'ch_tg', icon: MessageSquare, label: 'Fast Telegram', desc: 'Encrypted instant signaling', active: false },
 ];
 
 const NOTIF_TYPES = [
@@ -159,7 +159,7 @@ export default function NotificationsPage() {
  <Bell className="w-7 h-7 text-p animate-pulse" />
  </div>
  <div className="space-y-1">
- <h3 className="text-3xl font-semibold text-white uppercase tracking-tight">Neural Alerts</h3>
+ <h3 className="text-3xl font-semibold text-white uppercase tracking-tight">Notifications</h3>
  <p className="text-xs text-p/60 font-semibold uppercase tracking-[0.3em]">Configure real-time telemetry relay channels</p>
  </div>
  </div>
@@ -294,7 +294,7 @@ export default function NotificationsPage() {
  <div className="absolute top-0 right-0 w-96 h-96 bg-p/5 rounded-full blur-[120px] -mr-48 -mt-48" />
  <div className="flex flex-col lg:flex-row items-center justify-between gap-12 relative z-10">
  <div className="space-y-4">
- <h5 className="text-xl font-semibold text-white uppercase tracking-tight">Auditory Feedback Protocol</h5>
+ <h5 className="text-xl font-semibold text-white uppercase tracking-tight">Auditory Feedback System</h5>
  <p className="text-xs text-white/30 font-semibold uppercase tracking-[0.2em] leading-relaxed max-w-lg">
  High-fidelity synthesized audio cues for critical market events. Designed for situational awareness without cognitive fatigue.
  </p>

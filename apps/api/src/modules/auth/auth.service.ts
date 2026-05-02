@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, HttpStatus, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from './redis.service';
@@ -90,7 +86,12 @@ export class AuthService {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    if (existing) appError(HttpStatus.CONFLICT, 'Email already registered', ErrorCode.EMAIL_ALREADY_REGISTERED);
+    if (existing)
+      appError(
+        HttpStatus.CONFLICT,
+        'Email already registered',
+        ErrorCode.EMAIL_ALREADY_REGISTERED,
+      );
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
     let user;
@@ -109,7 +110,11 @@ export class AuthService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        appError(HttpStatus.CONFLICT, 'Email already registered', ErrorCode.EMAIL_ALREADY_REGISTERED);
+        appError(
+          HttpStatus.CONFLICT,
+          'Email already registered',
+          ErrorCode.EMAIL_ALREADY_REGISTERED,
+        );
       }
       throw error;
     }
@@ -150,14 +155,27 @@ export class AuthService {
   async verifyEmail(dto: VerifyEmailDto) {
     const storedOtp = await this.redisService.get(`auth:otp:${dto.email}`);
     if (!storedOtp)
-      appError(HttpStatus.BAD_REQUEST, 'OTP expired. Request a new one.', ErrorCode.OTP_EXPIRED);
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'OTP expired. Request a new one.',
+        ErrorCode.OTP_EXPIRED,
+      );
     if (storedOtp !== dto.otp)
-      appError(HttpStatus.BAD_REQUEST, 'Invalid verification code', ErrorCode.OTP_INVALID);
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'Invalid verification code',
+        ErrorCode.OTP_INVALID,
+      );
 
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    if (!user) appError(HttpStatus.BAD_REQUEST, 'User not found', ErrorCode.USER_NOT_FOUND);
+    if (!user)
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'User not found',
+        ErrorCode.USER_NOT_FOUND,
+      );
 
     await this.redisService.del(`auth:otp:${dto.email}`);
     const updatedUser = await this.prisma.user.update({
@@ -166,7 +184,9 @@ export class AuthService {
     });
 
     // Fire-and-forget welcome email
-    this.emailService.sendWelcomeEmail(updatedUser.email, updatedUser.fullName).catch(() => {});
+    this.emailService
+      .sendWelcomeEmail(updatedUser.email, updatedUser.fullName)
+      .catch(() => {});
 
     const tokens = await this.generateTokenPair(
       updatedUser.id,
@@ -203,13 +223,31 @@ export class AuthService {
       where: { email: dto.email },
     });
     if (!user || !user.passwordHash)
-      appError(HttpStatus.UNAUTHORIZED, 'Invalid credentials', ErrorCode.INVALID_CREDENTIALS);
-    if (user.isSuspended) appError(HttpStatus.FORBIDDEN, 'Account suspended', ErrorCode.ACCOUNT_SUSPENDED);
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Invalid credentials',
+        ErrorCode.INVALID_CREDENTIALS,
+      );
+    if (user.isSuspended)
+      appError(
+        HttpStatus.FORBIDDEN,
+        'Account suspended',
+        ErrorCode.ACCOUNT_SUSPENDED,
+      );
     if (!user.emailVerified)
-      appError(HttpStatus.FORBIDDEN, 'Please verify your email first', ErrorCode.EMAIL_NOT_VERIFIED);
+      appError(
+        HttpStatus.FORBIDDEN,
+        'Please verify your email first',
+        ErrorCode.EMAIL_NOT_VERIFIED,
+      );
 
     const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!isMatch) appError(HttpStatus.UNAUTHORIZED, 'Invalid credentials', ErrorCode.INVALID_CREDENTIALS);
+    if (!isMatch)
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Invalid credentials',
+        ErrorCode.INVALID_CREDENTIALS,
+      );
 
     const ip = req.ip || '0.0.0.0';
     const userAgent = req.headers['user-agent'] || 'Unknown';
@@ -259,10 +297,19 @@ export class AuthService {
       `auth:refresh:${userId}:default`,
     );
     if (!stored || stored !== refreshToken)
-      appError(HttpStatus.UNAUTHORIZED, 'Invalid refresh session', ErrorCode.INVALID_REFRESH_SESSION);
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Invalid refresh session',
+        ErrorCode.INVALID_REFRESH_SESSION,
+      );
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) appError(HttpStatus.UNAUTHORIZED, 'User not found', ErrorCode.USER_NOT_FOUND);
+    if (!user)
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'User not found',
+        ErrorCode.USER_NOT_FOUND,
+      );
 
     // Blacklist the consumed refresh token so it cannot be reused
     if (jti) {
@@ -270,7 +317,11 @@ export class AuthService {
         process.env.JWT_REFRESH_EXPIRES,
         7 * 24 * 3600,
       );
-      await this.redisService.set(`auth:blacklist:${jti}`, 'true', refreshExpiry);
+      await this.redisService.set(
+        `auth:blacklist:${jti}`,
+        'true',
+        refreshExpiry,
+      );
     }
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
@@ -316,10 +367,20 @@ export class AuthService {
 
   async resetPassword(token: string, newPassword: string) {
     const email = await this.redisService.get(`auth:reset:${token}`);
-    if (!email) appError(HttpStatus.BAD_REQUEST, 'Invalid or expired reset link', ErrorCode.INVALID_RESET_LINK);
+    if (!email)
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'Invalid or expired reset link',
+        ErrorCode.INVALID_RESET_LINK,
+      );
 
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user) appError(HttpStatus.BAD_REQUEST, 'User not found', ErrorCode.USER_NOT_FOUND);
+    if (!user)
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'User not found',
+        ErrorCode.USER_NOT_FOUND,
+      );
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
     await this.prisma.user.update({ where: { email }, data: { passwordHash } });
@@ -355,6 +416,13 @@ export class AuthService {
   }
 
   async googleCallback(profile: any) {
+    if (!profile.email)
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'Google account has no public email. Choose an account that shares an email address.',
+        ErrorCode.VALIDATION_ERROR,
+      );
+
     const fullName =
       profile.fullName?.trim() || profile.name?.trim() || 'Google User';
     const avatarUrl = profile.avatarUrl || profile.picture || null;
@@ -363,36 +431,25 @@ export class AuthService {
       `Google OAuth callback for ${profile.email}. Profile: fullName="${fullName}", hasAvatar=${!!avatarUrl}`,
     );
 
-    let user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.upsert({
       where: { email: profile.email },
+      create: {
+        email: profile.email,
+        fullName,
+        avatarUrl,
+        googleId: profile.googleId ?? null,
+        emailVerified: true,
+        referralCode: randomUUID(),
+      },
+      update: {
+        fullName: fullName || undefined,
+        avatarUrl: avatarUrl || undefined,
+        googleId: profile.googleId ?? undefined,
+        emailVerified: true,
+      },
     });
 
-    if (!user) {
-      user = await this.prisma.user.create({
-        data: {
-          email: profile.email,
-          fullName,
-          avatarUrl,
-          googleId: profile.googleId,
-          emailVerified: true,
-          referralCode: randomUUID(),
-        },
-      });
-      this.logger.log(`New Google user created: ${user.id} (${user.email})`);
-    } else {
-      // Update existing user with latest profile info if available
-      user = await this.prisma.user.update({
-        where: { id: user.id },
-        data: {
-          fullName: fullName || user.fullName,
-          avatarUrl: avatarUrl || user.avatarUrl,
-          emailVerified: true,
-        },
-      });
-      this.logger.log(
-        `Existing Google user updated: ${user.id} (${user.email})`,
-      );
-    }
+    this.logger.log(`Google user synced: ${user.id} (${user.email})`);
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
     await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
@@ -413,14 +470,22 @@ export class AuthService {
       this.logger.error(
         `Supabase verification failed for ${dto.email}: ${error?.message}`,
       );
-      appError(HttpStatus.UNAUTHORIZED, 'Invalid Supabase token', ErrorCode.SUPABASE_AUTH_FAILED);
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Invalid Supabase token',
+        ErrorCode.SUPABASE_AUTH_FAILED,
+      );
     }
 
     if (data.user.email !== dto.email) {
       this.logger.error(
         `Email mismatch: Supabase=${data.user.email}, DTO=${dto.email}`,
       );
-      appError(HttpStatus.UNAUTHORIZED, 'Email mismatch', ErrorCode.EMAIL_MISMATCH);
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Email mismatch',
+        ErrorCode.EMAIL_MISMATCH,
+      );
     }
 
     // Ensure fullName has a meaningful default
@@ -501,29 +566,66 @@ export class AuthService {
       const link = `${process.env.FRONTEND_URL}/auth/magic?token=${token}`;
       await this.emailService.sendMagicLinkEmail(email, user.fullName, link);
     }
-    return { success: true, message: 'If this email exists, a login link was sent' };
+    return {
+      success: true,
+      message: 'If this email exists, a login link was sent',
+    };
   }
 
   async verifyMagicLink(token: string) {
     const userId = await this.redisService.get(`auth:magic:${token}`);
-    if (!userId) appError(HttpStatus.BAD_REQUEST, 'Invalid or expired magic link', ErrorCode.INVALID_RESET_LINK);
+    if (!userId)
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'Invalid or expired magic link',
+        ErrorCode.INVALID_RESET_LINK,
+      );
 
     await this.redisService.del(`auth:magic:${token}`);
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) appError(HttpStatus.BAD_REQUEST, 'User not found', ErrorCode.USER_NOT_FOUND);
-    if (user.isSuspended) appError(HttpStatus.FORBIDDEN, 'Account suspended', ErrorCode.ACCOUNT_SUSPENDED);
+    if (!user)
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'User not found',
+        ErrorCode.USER_NOT_FOUND,
+      );
+    if (user.isSuspended)
+      appError(
+        HttpStatus.FORBIDDEN,
+        'Account suspended',
+        ErrorCode.ACCOUNT_SUSPENDED,
+      );
 
-    await this.prisma.user.update({ where: { id: userId }, data: { emailVerified: true, lastLoginAt: new Date() } });
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { emailVerified: true, lastLoginAt: new Date() },
+    });
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
     await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
-    return { accessToken: tokens.accessToken, user: this.sanitizeUser(user), refreshTokenForCookie: tokens.refreshToken };
+    return {
+      accessToken: tokens.accessToken,
+      user: this.sanitizeUser(user),
+      refreshTokenForCookie: tokens.refreshToken,
+    };
   }
 
-  async githubCallback(profile: { githubId: string; email: string; fullName: string; avatarUrl: string | null }) {
-    if (!profile.email) appError(HttpStatus.BAD_REQUEST, 'GitHub account has no public email. Enable email in GitHub settings.', ErrorCode.VALIDATION_ERROR);
+  async githubCallback(profile: {
+    githubId: string;
+    email: string;
+    fullName: string;
+    avatarUrl: string | null;
+  }) {
+    if (!profile.email)
+      appError(
+        HttpStatus.BAD_REQUEST,
+        'GitHub account has no public email. Enable email in GitHub settings.',
+        ErrorCode.VALIDATION_ERROR,
+      );
 
-    let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
+    let user = await this.prisma.user.findUnique({
+      where: { email: profile.email },
+    });
     if (!user) {
       user = await this.prisma.user.create({
         data: {
@@ -538,13 +640,20 @@ export class AuthService {
     } else {
       user = await this.prisma.user.update({
         where: { id: user.id },
-        data: { avatarUrl: profile.avatarUrl || user.avatarUrl, emailVerified: true },
+        data: {
+          avatarUrl: profile.avatarUrl || user.avatarUrl,
+          emailVerified: true,
+        },
       });
     }
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
     await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
-    return { accessToken: tokens.accessToken, user: this.sanitizeUser(user), refreshTokenForCookie: tokens.refreshToken };
+    return {
+      accessToken: tokens.accessToken,
+      user: this.sanitizeUser(user),
+      refreshTokenForCookie: tokens.refreshToken,
+    };
   }
 
   public sanitizeUser(user: any) {

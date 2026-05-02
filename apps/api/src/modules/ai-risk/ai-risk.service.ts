@@ -72,7 +72,9 @@ export class AiRiskService {
 
     const exceeded = await this.checkDailyLossLimit(userId);
     if (exceeded) {
-      this.logger.warn(`Daily loss limit exceeded for user ${userId}, stopping trades`);
+      this.logger.warn(
+        `Daily loss limit exceeded for user ${userId}, stopping trades`,
+      );
       return true;
     }
 
@@ -109,9 +111,20 @@ export class AiRiskService {
 
     const totalPnl = trades.reduce((sum, t) => sum + (t.profit || 0), 0);
     const winningTrades = trades.filter((t) => (t.profit || 0) > 0);
-    const winRate = trades.length > 0 ? (winningTrades.length / trades.length) * 100 : 0;
-    const avgWin = winningTrades.length > 0 ? winningTrades.reduce((sum, t) => sum + (t.profit || 0), 0) / winningTrades.length : 0;
-    const avgLoss = trades.length - winningTrades.length > 0 ? trades.filter((t) => (t.profit || 0) < 0).reduce((sum, t) => sum + Math.abs(t.profit || 0), 0) / (trades.length - winningTrades.length) : 0;
+    const winRate =
+      trades.length > 0 ? (winningTrades.length / trades.length) * 100 : 0;
+    const avgWin =
+      winningTrades.length > 0
+        ? winningTrades.reduce((sum, t) => sum + (t.profit || 0), 0) /
+          winningTrades.length
+        : 0;
+    const avgLoss =
+      trades.length - winningTrades.length > 0
+        ? trades
+            .filter((t) => (t.profit || 0) < 0)
+            .reduce((sum, t) => sum + Math.abs(t.profit || 0), 0) /
+          (trades.length - winningTrades.length)
+        : 0;
 
     return {
       totalTrades: trades.length,

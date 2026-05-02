@@ -116,7 +116,10 @@ export class AuthController {
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @ApiResponse({ status: 200, description: 'Authenticated — tokens issued' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  @ApiResponse({ status: 403, description: 'Account suspended or email unverified' })
+  @ApiResponse({
+    status: 403,
+    description: 'Account suspended or email unverified',
+  })
   @ApiOperation({ summary: 'Authenticate a user' })
   async login(
     @Body() dto: LoginDto,
@@ -254,7 +257,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.verifyMagicLink(token);
-    this.setSessionCookies(res, result.refreshTokenForCookie, result.user?.role);
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+      result.user?.role,
+    );
     return { accessToken: result.accessToken, user: result.user };
   }
 
@@ -272,10 +279,16 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('2fa/verify-setup')
   @HttpCode(HttpStatus.OK)
-  @ApiResponse({ status: 200, description: '2FA enabled, backup codes returned' })
+  @ApiResponse({
+    status: 200,
+    description: '2FA enabled, backup codes returned',
+  })
   @ApiResponse({ status: 400, description: 'Invalid TOTP code' })
   @ApiOperation({ summary: 'Confirm TOTP code to enable 2FA' })
-  async verify2faSetup(@Req() req: AuthenticatedRequest, @Body('token') token: string) {
+  async verify2faSetup(
+    @Req() req: AuthenticatedRequest,
+    @Body('token') token: string,
+  ) {
     return this.twoFaService.verifyAndEnable(req.user.userId, token);
   }
 
@@ -285,7 +298,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: '2FA disabled' })
   @ApiResponse({ status: 400, description: 'Invalid TOTP or backup code' })
   @ApiOperation({ summary: 'Disable 2FA with current TOTP or backup code' })
-  async disable2fa(@Req() req: AuthenticatedRequest, @Body('token') token: string) {
+  async disable2fa(
+    @Req() req: AuthenticatedRequest,
+    @Body('token') token: string,
+  ) {
     return this.twoFaService.disable(req.user.userId, token);
   }
 
@@ -294,7 +310,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'New backup codes generated' })
   @ApiOperation({ summary: 'Regenerate 2FA backup codes' })
-  async regenerateBackupCodes(@Req() req: AuthenticatedRequest, @Body('token') token: string) {
+  async regenerateBackupCodes(
+    @Req() req: AuthenticatedRequest,
+    @Body('token') token: string,
+  ) {
     return this.twoFaService.regenerateBackupCodes(req.user.userId, token);
   }
 
@@ -317,8 +336,13 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.githubCallback(req.user);
-    this.setSessionCookies(res, result.refreshTokenForCookie, result.user?.role);
-    const frontendUrl = process.env.FRONTEND_URL || 'https://app.profytron.example';
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+      result.user?.role,
+    );
+    const frontendUrl =
+      process.env.FRONTEND_URL || 'https://app.profytron.example';
     res.redirect(`${frontendUrl}/dashboard?token=${result.accessToken}`);
   }
 

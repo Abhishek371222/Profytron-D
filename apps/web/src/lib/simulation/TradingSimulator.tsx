@@ -18,7 +18,7 @@ export function TradingSimulator() {
  const newPortfolioValue = portfolioValue + drift;
  const newDailyChange = dailyChange + drift;
  
- // Update trades P&L
+ // Update trades Earnings
  const updatedTrades = activeTrades.map(trade => {
  const pnlChange = (Math.random() - 0.48) * 5;
  return {
@@ -29,7 +29,7 @@ export function TradingSimulator() {
  };
  });
 
- // Update unrealized P&L sum
+ // Update unrealized Earnings sum
  const newUnrealized = updatedTrades.reduce((acc, t) => acc + t.pnl, 0);
 
  updateSimulatedData({

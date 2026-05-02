@@ -15,7 +15,7 @@ import { notificationsApi, type NotificationItem } from '@/lib/api/notifications
 export function NotificationDropdown() {
   const [items, setItems] = React.useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
-  const [loading, setLoading] = React.useState(true);
+  const [Loading, setLoading] = React.useState(true);
 
   const load = React.useCallback(async () => {
     try {
@@ -67,7 +67,7 @@ export function NotificationDropdown() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="max-h-80 overflow-auto">
-          {loading ? (
+          {Loading ? (
             <div className="px-3 py-6 text-xs text-slate-500">Loading...</div>
           ) : items.length === 0 ? (
             <div className="px-3 py-6 text-xs text-slate-500">No notifications.</div>

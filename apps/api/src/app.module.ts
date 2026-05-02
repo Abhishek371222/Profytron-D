@@ -108,9 +108,6 @@ const parseRedisConfig = () => {
     BrokerIntegrationModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    { provide: APP_GUARD, useClass: AppThrottlerGuard },
-  ],
+  providers: [AppService, { provide: APP_GUARD, useClass: AppThrottlerGuard }],
 })
 export class AppModule {}

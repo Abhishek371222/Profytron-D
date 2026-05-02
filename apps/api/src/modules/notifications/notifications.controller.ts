@@ -12,7 +12,12 @@ import {
 import { NotificationsService } from './notifications.service';
 import { FcmService } from './fcm.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('Notifications')
 @ApiResponse({ status: 401, description: 'Unauthorized' })

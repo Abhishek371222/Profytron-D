@@ -22,12 +22,12 @@ import { toast } from 'sonner';
 
 const MOCK_HISTORY = [
  { id: '1', asset: 'EUR/USD', type: 'Long', amount: '2.5', entry: '1.08420', exit: '1.08950', pnl: 1325.50, status: 'Closed', time: '2026-04-10 14:22', strategy: 'MomentumApex v2' },
- { id: '2', asset: 'BTC/USDT', type: 'Short', amount: '0.15', entry: '64,250', exit: '63,120', pnl: 485.20, status: 'Closed', time: '2026-04-10 12:45', strategy: 'Neural Scalp' },
+ { id: '2', asset: 'BTC/USDT', type: 'Short', amount: '0.15', entry: '64,250', exit: '63,120', pnl: 485.20, status: 'Closed', time: '2026-04-10 12:45', strategy: 'Scalp Pro' },
  { id: '3', asset: 'ETH/USDT', type: 'Long', amount: '4.2', entry: '3,450', exit: '3,410', pnl: -168.00, status: 'Closed', time: '2026-04-10 11:15', strategy: 'Deltra Trend' },
- { id: '4', asset: 'GBP/JPY', type: 'Long', amount: '1.8', entry: '191.45', exit: '192.10', pnl: 842.15, status: 'Closed', time: '2026-04-10 09:30', strategy: 'Institutional VWAP' },
+ { id: '4', asset: 'GBP/JPY', type: 'Long', amount: '1.8', entry: '191.45', exit: '192.10', pnl: 842.15, status: 'Closed', time: '2026-04-10 09:30', strategy: 'Your VWAP' },
  { id: '5', asset: 'GOLD', type: 'Short', amount: '10', entry: '2,345', exit: '2,352', pnl: -320.00, status: 'Closed', time: '2026-04-09 18:20', strategy: 'Metal Guard' },
  { id: '6', asset: 'USD/JPY', type: 'Long', amount: '3.0', entry: '151.20', exit: '151.85', pnl: 650.40, status: 'Closed', time: '2026-04-09 16:45', strategy: 'MomentumApex v1' },
- { id: '7', asset: 'SOL/USDT', type: 'Long', amount: '50', entry: '174.20', exit: '182.10', pnl: 395.00, status: 'Closed', time: '2026-04-09 14:10', strategy: 'Neural Scalp' },
+ { id: '7', asset: 'SOL/USDT', type: 'Long', amount: '50', entry: '174.20', exit: '182.10', pnl: 395.00, status: 'Closed', time: '2026-04-09 14:10', strategy: 'Scalp Pro' },
 ];
 
 const mapRangeToAnalytics = (range: 'ALL' | '7D' | '30D' | '90D'): AnalyticsRange => {
@@ -204,7 +204,7 @@ export default function HistoryPage() {
 
  <div className="flex items-center gap-4">
  <div className="h-14 flex items-center gap-3 glass-strong px-6 rounded-2xl border border-white/5">
- <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Aggregate P&L</span>
+ <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Aggregate Earnings</span>
  <span className={cn("text-xl font-semibold font-mono tracking-tight", aggregatePnl >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
  {aggregatePnl >= 0 ? '+' : '-'}${Math.abs(aggregatePnl).toLocaleString(undefined, { maximumFractionDigits: 2 })}
  </span>
@@ -261,7 +261,7 @@ export default function HistoryPage() {
  <table className="w-full border-collapse">
  <thead>
  <tr className="border-b border-white/5 bg-white/1">
- {['Execution_ID', 'Asset_Token', 'Logic_Protocol', 'Type', 'Volume', 'Performance', 'Timestamp', 'Status'].map((head) => (
+ {['Execution_ID', 'Asset_Token', 'Logic_System', 'Type', 'Volume', 'Performance', 'Timestamp', 'Status'].map((head) => (
  <th key={head} className="px-8 py-6 text-left text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">
  {head}
  </th>

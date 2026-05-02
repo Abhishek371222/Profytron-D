@@ -8,7 +8,7 @@ import {
   BarChart3,
   Sparkles,
   Wallet,
-  ShoppingBag,
+  Bell,
 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -18,7 +18,7 @@ const bottomNavItems = [
   { name: "Analytics", icon: BarChart3, href: "/analytics" },
   { name: "AI", icon: Sparkles, href: "/ai-coach" },
   { name: "Wallet", icon: Wallet, href: "/wallet" },
-  { name: "Market", icon: ShoppingBag, href: "/marketplace" },
+  { name: "Alerts", icon: Bell, href: "/notifications" },
 ];
 
 export function MobileBottomNav() {

@@ -8,7 +8,9 @@ export class VpsService {
   constructor(private prisma: PrismaService) {}
 
   async createVpsAccount(userId: string, provider: string, config: any) {
-    this.logger.log(`[DEMO] Creating VPS account on ${provider} for user ${userId}`);
+    this.logger.log(
+      `[DEMO] Creating VPS account on ${provider} for user ${userId}`,
+    );
 
     return this.prisma.vpsAccount.create({
       data: {
@@ -63,7 +65,11 @@ export class VpsService {
     this.logger.log(`[DEMO] Starting bot instance: ${botId}`);
     return this.prisma.botInstance.update({
       where: { id: botId },
-      data: { status: 'RUNNING', startedAt: new Date(), processPid: Math.floor(Math.random() * 100000) },
+      data: {
+        status: 'RUNNING',
+        startedAt: new Date(),
+        processPid: Math.floor(Math.random() * 100000),
+      },
     });
   }
 

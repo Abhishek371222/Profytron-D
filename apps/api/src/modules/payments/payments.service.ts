@@ -541,7 +541,9 @@ export class PaymentsService {
   }
 
   async generateInvoice(paymentId: string) {
-    const payment = await this.prisma.payment.findUnique({ where: { id: paymentId } });
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: paymentId },
+    });
     if (!payment) {
       throw new BadRequestException('Payment not found');
     }
@@ -560,13 +562,20 @@ export class PaymentsService {
         total,
         currency: payment.currency,
         description: payment.description,
-        items: [{ description: payment.description || 'Service', amount: payment.amount }],
+        items: [
+          {
+            description: payment.description || 'Service',
+            amount: payment.amount,
+          },
+        ],
       },
     });
   }
 
   async createSubscription(userId: string, planId: string, paymentId?: string) {
-    const plan = await this.prisma.subscriptionPlan.findUnique({ where: { id: planId } });
+    const plan = await this.prisma.subscriptionPlan.findUnique({
+      where: { id: planId },
+    });
     if (!plan) {
       throw new BadRequestException('Plan not found');
     }

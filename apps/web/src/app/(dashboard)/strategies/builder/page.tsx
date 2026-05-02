@@ -414,7 +414,7 @@ export default function StrategyBuilderPage() {
                   </div>
 
                   <div className="text-center space-y-3 relative z-10">
-                    <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.3em]">System_Telemetry</h4>
+                    <h4 className="text-[10px] font-bold text-white uppercase tracking-[0.3em]">System Data</h4>
                     <p className="text-[9px] text-white/30 font-bold uppercase tracking-[0.2em]">Validation_Chain: <span className="text-emerald-500/70 underline decoration-dotted">OK</span></p>
                   </div>
 

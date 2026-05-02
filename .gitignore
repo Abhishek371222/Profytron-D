@@ -58,3 +58,4 @@ apps/api/prisma/*.db-journal
 tmp/
 temp/
 *.tmp
+.turbo/cache/*.tar.zst

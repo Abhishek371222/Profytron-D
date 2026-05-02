@@ -96,7 +96,7 @@ export default function NodeLibrary() {
  <Cpu className="w-4 h-4 text-p" />
  <h3 className="text-[11px] font-semibold text-white uppercase tracking-[0.3em]">Hardware_Inventory</h3>
  </div>
- <span className="text-[10px] text-white/20 font-semibold uppercase tracking-[0.2em]">Fabrication_Protocol_v4.2</span>
+ <span className="text-[10px] text-white/20 font-semibold uppercase tracking-[0.2em]">Fabrication_System v4.2</span>
  </div>
  <div className="flex items-center gap-2">
  <div className="w-2 h-2 rounded-full bg-p animate-ping opacity-40" />

@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Terminal } from "lucide-react";
 import { FadeUp } from "@/components/animations";
@@ -22,7 +21,7 @@ export function CTABanner() {
             <FadeUp>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/3 border border-white/8 text-white/60 text-[11px] font-medium tracking-widest uppercase mb-8 backdrop-blur-md">
                 <Terminal className="w-3 h-3 text-p" />
-                Initialize_System
+                Starting up
               </div>
 
               <h2 className="text-5xl md:text-7xl font-bold mb-8 tracking-tight text-white m-0 leading-[1.1]">
@@ -35,11 +34,11 @@ export function CTABanner() {
               <p className="text-lg md:text-xl text-white/40 mb-12 leading-relaxed font-medium">
                 Join the fastest-growing network of quantitative developers.
                 Build your strategy, deploy to our nodes, and execute with zero
-                latency.
+                Speed.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
-                <Link href="/register" className="w-full sm:w-auto">
+                <a href="/register" className="w-full sm:w-auto">
                   <Button
                     size="lg"
                     className="w-full sm:w-auto h-14 px-10 text-base bg-white hover:bg-gray-200 text-black rounded-full font-bold transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.1)] group"
@@ -49,8 +48,8 @@ export function CTABanner() {
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </Button>
-                </Link>
-                <Link href="/docs" className="w-full sm:w-auto">
+                </a>
+                <a href="/docs" className="w-full sm:w-auto">
                   <Button
                     size="lg"
                     variant="ghost"
@@ -58,7 +57,7 @@ export function CTABanner() {
                   >
                     Read Documentation
                   </Button>
-                </Link>
+                </a>
               </div>
             </FadeUp>
           </div>

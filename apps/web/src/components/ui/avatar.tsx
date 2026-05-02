@@ -4,8 +4,8 @@ import * as React from"react";
 import { cn } from"@/lib/utils";
 
 const AvatarContext = React.createContext<{
- status:"idle" |"loading" |"loaded" |"error";
- setStatus: (status:"idle" |"loading" |"loaded" |"error") => void;
+ status:"idle" |"Loading" |"loaded" |"error";
+ setStatus: (status:"idle" |"Loading" |"loaded" |"error") => void;
 }>({
  status:"idle",
  setStatus: () => {},
@@ -18,7 +18,7 @@ function Avatar({
 }: React.HTMLAttributes<HTMLDivElement> & {
  size?:"default" |"sm" |"lg";
 }) {
- const [status, setStatus] = React.useState<"idle" |"loading" |"loaded" |"error">("idle");
+ const [status, setStatus] = React.useState<"idle" |"Loading" |"loaded" |"error">("idle");
 
  return (
  <AvatarContext.Provider value={{ status, setStatus }}>

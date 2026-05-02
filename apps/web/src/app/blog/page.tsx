@@ -80,17 +80,17 @@ The current approach uses logit-to-score conversion — extracting continuous, r
 
 This is a much richer signal that integrates naturally with traditional quantitative frameworks.
 
-## The Real Bottleneck: Latency
+## The Real Bottleneck: Speed
 
 The honest limitation of LLMs in trading is speed. Generating a high-quality inference from a frontier model takes time — often hundreds of milliseconds, sometimes seconds. For strategies operating on minute-bars or longer, this is fine. For anything that needs to react to a news event within ten seconds of publication, today's LLM inference pipelines are often too slow.
 
-The current solution is a two-layer approach: smaller, specialized models handle the high-frequency, low-latency signal generation, while larger models run in parallel for longer-horizon contextual analysis. The outputs are fused at the strategy level.
+The current solution is a two-layer approach: smaller, specialized models handle the high-frequency, low-Speed signal generation, while larger models run in parallel for longer-horizon contextual analysis. The outputs are fused at the strategy level.
 
 ## Where Signal Core AI Fits
 
 Signal Core AI is built around this hybrid architecture. Lightweight domain-specific models handle real-time event classification and sentiment scoring across news and social feeds, with inference latencies measured in single-digit milliseconds for most signal types. Larger contextual models run on longer cycles and inform the macro regime layer that all strategies share.
 
-The result is that strategies deployed on Profytron have access to real-time textual signal data without paying a latency penalty that would make the signals arrive after the market has already moved.
+The result is that strategies deployed on Profytron have access to real-time textual signal data without paying a Speed penalty that would make the signals arrive after the market has already moved.
 
 ## Where LLMs Still Fall Short
 
@@ -113,13 +113,13 @@ The industry is making progress on explainable AI for financial models, but it's
 
 Equinix NY4 in Secaucus, New Jersey, and LD4 in Slough, UK, are the two most critical data centers for global electronic trading. NY4 is cross-connected to NYSE, NASDAQ, CBOE, major dark pools, and the primary Forex ECNs. LD4 hosts the London Stock Exchange, ICE, Euronext, and virtually every major European venue.
 
-Being inside these buildings — with your server physically cross-connected via short copper or fiber runs to the exchange matching engines — eliminates a class of latency that you simply cannot buy your way out of from outside. The speed of light is not negotiable.
+Being inside these buildings — with your server physically cross-connected via short copper or fiber runs to the exchange matching engines — eliminates a class of Speed that you simply cannot buy your way out of from outside. The speed of light is not negotiable.
 
 ## What Colocation Still Buys You
 
 The honest answer in 2026 is that raw speed is table stakes, not a differentiator. The top-tier HFT firms — those running at the sub-microsecond level with FPGA-accelerated order routing — have largely commoditized the "fastest pipe" advantage among themselves.
 
-What colocation still meaningfully provides for non-HFT algorithmic traders is **consistency**. The variance in execution latency from inside NY4 versus a cloud VPS in the same region is stark. From inside NY4, your tick-to-trade latency is measured in low double-digit microseconds, and it's consistent. From a cloud instance — even a well-optimized one — you see occasional spikes of tens of milliseconds that happen at the worst possible times: during news events, when the market is moving fastest.
+What colocation still meaningfully provides for non-HFT algorithmic traders is **consistency**. The variance in execution Speed from inside NY4 versus a cloud VPS in the same region is stark. From inside NY4, your tick-to-trade Speed is measured in low double-digit microseconds, and it's consistent. From a cloud instance — even a well-optimized one — you see occasional spikes of tens of milliseconds that happen at the worst possible times: during news events, when the market is moving fastest.
 
 That variance eats into alpha in ways that don't show up in backtests, which typically assume deterministic execution.
 
@@ -131,9 +131,9 @@ Most algorithmic traders don't need FPGA. But for market-making strategies or an
 
 ## What Our Infrastructure Looks Like
 
-Profytron's NY4 and LD4 nodes run on dedicated bare-metal, cross-connected directly to the primary matching engines. Strategies on our Institution tier get direct FIX and WebSocket TCP sessions, no shared infrastructure, and guaranteed latency SLAs.
+Profytron's NY4 and LD4 nodes run on dedicated bare-metal, cross-connected directly to the primary matching engines. Strategies on our Institution tier get direct FIX and WebSocket TCP sessions, no shared infrastructure, and guaranteed Speed SLAs.
 
-For Alpha Desk subscribers, we route through our low-latency infrastructure layer, which provides the consistency advantage without the full bare-metal commitment. Most strategies at this tier see round-trip execution at a level that would have been considered competitive HFT infrastructure five years ago.
+For Alpha Desk subscribers, we route through our low-Speed infrastructure layer, which provides the consistency advantage without the full bare-metal commitment. Most strategies at this tier see round-trip execution at a level that would have been considered competitive HFT infrastructure five years ago.
 
 ## The Honest Takeaway
 

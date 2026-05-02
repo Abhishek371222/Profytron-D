@@ -21,7 +21,7 @@ const values = [
   },
   {
     icon: Shield,
-    title: "Institutional Integrity",
+    title: "Your Integrity",
     desc: "Military-grade infrastructure meets transparent governance. Your capital operates under the same safeguards as sovereign wealth funds.",
   },
   {
@@ -174,14 +174,14 @@ export default function AboutPage() {
               Global_Network
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-8">
-              A Borderless<br />Institutional Mind
+              A Borderless<br />Your Mind
             </h2>
             <p className="text-lg text-white/40 leading-relaxed mb-12 max-w-2xl mx-auto italic">
               "We operate at the intersection of quantitative intelligence and high-frequency infrastructure, managed by a collective of architects who believe in the democratization of institutional-grade tools."
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
-                { label: 'Latency', value: '< 1ms' },
+                { label: 'Speed', value: '< 1ms' },
                 { label: 'Nodes', value: 'Global' },
                 { label: 'Integrity', value: 'AES-256' },
                 { label: 'Uptime', value: '99.9%' },

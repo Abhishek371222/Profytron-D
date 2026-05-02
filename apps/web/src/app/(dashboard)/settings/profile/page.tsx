@@ -91,7 +91,7 @@ export default function ProfileSettingsPage() {
 
   const [demoMode, setDemoMode] = React.useState(false);
   const [volatilitySync, setVolatilitySync] = React.useState(true);
-  const [latencySim, setLatencySim] = React.useState(false);
+  const [SpeedSim, setSpeedSim] = React.useState(false);
   const [injectionPower, setInjectionPower] = React.useState(2.4);
 
   const handleDemoModeChange = (next: boolean) => {
@@ -101,11 +101,11 @@ export default function ProfileSettingsPage() {
 
   const handleVolatilitySyncChange = (next: boolean) => {
     setVolatilitySync(next);
-    toast.message(next ? 'Volatility pulse enabled' : 'Volatility pulse disabled');
+    toast.message(next ? 'Price movement pulse enabled' : 'Price movement pulse disabled');
   };
 
-  const handleLatencySimChange = (next: boolean) => {
-    setLatencySim(next);
+  const handleSpeedSimChange = (next: boolean) => {
+    setSpeedSim(next);
     toast.message(next ? 'Signal delay enabled' : 'Signal delay disabled');
   };
 
@@ -168,7 +168,7 @@ export default function ProfileSettingsPage() {
               onChange={handleAvatarUpload} 
               accept="image/*"
             />
-            {/* Holographic Back Glow */}
+            {/* Smart Back Glow */}
             <div className="absolute -inset-10 bg-primary/10 rounded-full blur-[80px] opacity-0 group-hover/identity:opacity-100 transition-opacity duration-1000 animate-pulse" />
             
             <div className="w-56 h-56 rounded-full p-[2px] bg-linear-to-tr from-primary via-indigo-500 to-cyan-400 relative overflow-hidden shadow-2xl">
@@ -209,7 +209,7 @@ export default function ProfileSettingsPage() {
                 <h3 className="text-3xl xl:text-4xl 2xl:text-5xl font-semibold text-white uppercase tracking-tighter leading-none break-words">{fullName || 'Network Operative'}</h3>
                 <div className="px-4 py-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2.5 shadow-lg">
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Neural_Verified</span>
+                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Neural verified</span>
                 </div>
               </div>
               <p className="text-[11px] text-white/20 font-bold uppercase tracking-[0.6em] font-mono">NODE_HASH: PX_{user?.id?.substring(0,8)}</p>
@@ -256,13 +256,13 @@ export default function ProfileSettingsPage() {
             />
             <Switch 
               checked={volatilitySync} 
-              onChange={handleVolatilitySyncChange} 
-              label="Volatility Pulse" 
+              onChange={handleVolatilitySyncChange}
+              label="Price movement Pulse" 
               desc="Inject high-fidelity market stress vectors" 
             />
             <Switch 
-              checked={latencySim} 
-              onChange={handleLatencySimChange} 
+              checked={SpeedSim} 
+              onChange={handleSpeedSimChange} 
               label="Signal Delay" 
               desc="Induce institutional relay lag [60ms - 240ms]" 
             />
@@ -310,7 +310,7 @@ export default function ProfileSettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <h5 className="text-xl font-semibold text-amber-500 uppercase tracking-tight">Virtualization_Active</h5>
-                    <p className="text-[11px] text-white/40 font-bold uppercase tracking-[0.4em] leading-[1.8]">Core Protocol redirected to shadow subnet. All executions are simulated. Financial impacts are virtual. High-fidelity verification layer is ENABLED.</p>
+                    <p className="text-[11px] text-white/40 font-bold uppercase tracking-[0.4em] leading-[1.8]">Core System redirected to shadow subnet. All executions are simulated. Financial impacts are virtual. High-fidelity verification layer is ENABLED.</p>
                   </div>
                 </div>
               </motion.div>
@@ -382,7 +382,7 @@ export default function ProfileSettingsPage() {
             <div className="w-5 h-5 rounded-full bg-primary/20 animate-pulse relative">
               <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-20" />
             </div>
-            <p className="text-[11px] font-bold text-white/10 uppercase tracking-[0.4em] group-hover/status:text-white/30 transition-colors break-all">Protocol_Status: AES:L2_ENCRYPTED_ID_STABLE</p>
+            <p className="text-[11px] font-bold text-white/10 uppercase tracking-[0.4em] group-hover/status:text-white/30 transition-colors break-all">System Status: AES:L2 secure_ID_STABLE</p>
           </div>
           
           <div className="flex items-center gap-16">
@@ -455,10 +455,10 @@ export default function ProfileSettingsPage() {
 
           <div className="space-y-10 relative z-10 pt-4">
             {[
-              { label: '2FA Protocol', icon: Shield, color: 'text-primary', active: true },
+              { label: '2FA System', icon: Shield, color: 'text-primary', active: true },
               { label: 'Pulse Node Sync', icon: Activity, color: 'text-indigo-400', active: true },
               { label: 'System Verify', icon: Box, color: 'text-cyan-400', active: true },
-              { label: 'Quantum Relay', icon: Cpu, color: 'text-amber-500', active: false, label2: 'PENDING_MOD' },
+              { label: 'Fast Relay', icon: Cpu, color: 'text-amber-500', active: false, label2: 'PENDING_MOD' },
             ].map((item, i) => (
               <div key={i} className="flex items-center justify-between group/row">
                 <div className="flex items-center gap-6">
@@ -492,7 +492,7 @@ export default function ProfileSettingsPage() {
             <h5 className="text-[11px] font-bold text-white/20 uppercase tracking-[0.6em]">Neural AI Directive</h5>
           </div>
           <p className="text-[15px] text-white/40 leading-relaxed font-medium">
-            "Your profile integrity is currently rated as Institutional Grade. We recommend rotating your Quantum Relay nodes to bypass emerging latency vectors in the AP-South-1 region."
+            "Your profile integrity is currently rated as Your Grade. We recommend rotating your Fast Relay nodes to bypass emerging Speed vectors in the AP-South-1 region."
           </p>
           <div className="pt-6 border-t border-white/5">
             <span className="text-[10px] font-bold text-primary/30 uppercase tracking-[0.4em] font-mono">ADVICE_LOG_ID: PX_771092</span>

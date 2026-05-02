@@ -89,7 +89,7 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                     <Terminal className="w-4 h-4" />
                     <span>Node Deployment Sequence Initiated</span>
                   </div>
-                  <h2 className="text-3xl font-semibold text-white uppercase tracking-tight">Review Telemetry</h2>
+                  <h2 className="text-3xl font-semibold text-white uppercase tracking-tight">Review Data</h2>
                 </div>
 
                 <div className="p-6 rounded-3xl bg-black/60 border border-white/5 space-y-6 backdrop-blur-xl relative overflow-hidden group">
@@ -214,7 +214,7 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 text-rose-400 font-jet-mono text-xs uppercase tracking-[0.3em] font-semibold animate-pulse">
                     <Fingerprint className="w-4 h-4" />
-                    <span>Awaiting Biometric Confirmation</span>
+                    <span>Awaiting Profile Confirmation</span>
                   </div>
                   <h2 className="text-3xl font-semibold text-white uppercase tracking-tight">Finalize Deployment</h2>
                 </div>

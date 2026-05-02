@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { Cpu, Workflow, Zap, Shield, ArrowRight } from "lucide-react";
 import { FadeUp } from "@/components/animations";
 import { Tilt } from "@/components/ui/Interactions";
@@ -23,7 +22,7 @@ export function FeaturesSection() {
           <FadeUp>
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/3 border border-white/10 text-white/70 text-[10px] font-bold uppercase tracking-[0.4em] mb-8 shadow-inner">
               <Cpu className="w-4 h-4 text-p animate-pulse" />
-              <span>Core_Architecture</span>
+              <span>Features</span>
             </div>
             <h2 className="text-5xl md:text-7xl font-bold mb-8 leading-[1.1] tracking-[-0.02em] text-white">
               Built for{" "}
@@ -38,7 +37,7 @@ export function FeaturesSection() {
             <p className="text-white/40 text-xl leading-relaxed font-medium">
               We abstracted the complexity of high-frequency trading
               infrastructure into a single, intuitive interface powered by
-              neural networks.
+              smart analysis.
             </p>
           </FadeUp>
         </div>
@@ -51,11 +50,11 @@ export function FeaturesSection() {
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-p/5 blur-[120px] rounded-full group-hover:bg-p/10 transition-all duration-700 pointer-events-none" />
 
                 {/* Visual Graph Wrapper */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-full md:w-[60%] h-full opacity-20 md:opacity-100 flex items-center justify-end pr-10 pointer-events-none overflow-hidden hidden sm:flex">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-full md:w-[60%] h-full opacity-20 md:opacity-100 pointer-events-none overflow-hidden hidden sm:flex items-center justify-end pr-10">
                   <div className="relative w-[350px] h-[350px]">
                     <div className="absolute top-1/4 left-10 w-3 h-3 bg-p rounded-full shadow-[0_0_15px_#6366f1] animate-ping" />
                     <div className="absolute top-[80%] left-[30%] w-2 h-2 bg-p/50 rounded-full shadow-[0_0_10px_#6366f1]" />
-                    <div className="absolute top-1/2 right-[20%] w-4 h-4 bg-white/80 rounded-full shadow-[0_0_20px_#ffffff]" />
+                    <div className="absolute top-1/2 right-[20%] w-4 h-4 -translate-x-1/2 -translate-y-1/2 bg-white/80 rounded-full shadow-[0_0_20px_#ffffff]" />
 
                     <svg
                       className="absolute inset-0 w-full h-full"
@@ -99,15 +98,16 @@ export function FeaturesSection() {
 
                     <motion.div
                       animate={{
-                        x: [0, 240],
-                        y: [60, 150],
-                        opacity: [0, 1, 0],
-                        scale: [0.8, 1.2, 0.8],
+                        x: [0, 120, 240, 200, 0],
+                        y: [60, 100, 150, 120, 60],
+                        opacity: [0, 0.8, 1, 0.8, 0],
+                        scale: [0.8, 1, 1.2, 1, 0.8],
                       }}
                       transition={{
-                        duration: 1.5,
+                        duration: 3,
                         repeat: Infinity,
-                        ease: "easeInOut",
+                        ease: [0.4, 0.0, 0.2, 1],
+                        times: [0, 0.25, 0.5, 0.75, 1],
                       }}
                       className="absolute top-4 left-10 w-2 h-2 bg-white rounded-full shadow-[0_0_15px_#ffffff]"
                     />
@@ -119,7 +119,7 @@ export function FeaturesSection() {
                     <Zap className="w-8 h-8 text-white/80" />
                   </div>
                   <h3 className="text-3xl font-bold text-white mb-4 tracking-tight">
-                    Zero-Latency Routing
+                    Zero-Speed Routing
                   </h3>
                   <p className="text-lg text-white/50 leading-relaxed font-medium mb-12">
                     Colocated servers in NY4 and LD4 execute algorithmic trades
@@ -222,7 +222,7 @@ export function FeaturesSection() {
           </div>
 
 
-          {/* Card 3: Sentinel Risk Guard */}
+          {/* Card 3: Safety Check */}
           <div className="col-span-1 md:col-span-4 group">
             <Tilt maxRotation={4}>
               <motion.div className="relative p-10 md:p-12 rounded-4xl border border-white/5 bg-[#111] hover:bg-[#151515] transition-colors duration-500 h-[480px] flex flex-col justify-between overflow-hidden shadow-2xl w-full group">
@@ -233,7 +233,7 @@ export function FeaturesSection() {
                     <Shield className="w-7 h-7 text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]" />
                   </div>
                   <h3 className="text-3xl font-bold text-white mb-4 tracking-tight">
-                    Sentinel Risk Guard
+                    Safety Check
                   </h3>
                   <p className="text-base text-white/50 leading-relaxed font-medium">
                     Automated circuit breakers instantly halt execution during
@@ -243,7 +243,7 @@ export function FeaturesSection() {
 
                 <div className="relative z-10 mt-8 bg-black/60 border border-white/10 rounded-2xl p-5 flex flex-col gap-4">
                   <div className="flex justify-between text-[11px] font-mono uppercase text-white/40">
-                    <span>Drawdown Limit</span>
+                    <span>Losing period Limit</span>
                     <span className="text-cyan-400">0.5%</span>
                   </div>
                   <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden relative">
@@ -280,7 +280,7 @@ export function FeaturesSection() {
                     multi-dimensional algorithms. Backtest instantly against 10
                     years of tick-level data.
                   </p>
-                  <Link
+                  <a
                     href="/strategies/builder"
                     className="group/btn relative inline-flex items-center justify-center w-fit gap-3 text-sm font-bold text-white px-8 py-4 rounded-xl transition-all"
                   >
@@ -290,7 +290,7 @@ export function FeaturesSection() {
                       Open Canvas 
                       <ArrowRight className="w-4 h-4 text-p group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all duration-300" />
                     </span>
-                  </Link>
+                  </a>
                 </div>
 
                 {/* Fake IDE Editor UI */}

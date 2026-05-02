@@ -129,7 +129,7 @@ export default function OAuthTestPage() {
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">OAuth Diagnostics</h1>
+            <h1 className="text-4xl font-bold text-white mb-2">OAuth Analysis</h1>
             <p className="text-white/60">Test your OAuth configuration and debug authentication issues</p>
           </div>
 

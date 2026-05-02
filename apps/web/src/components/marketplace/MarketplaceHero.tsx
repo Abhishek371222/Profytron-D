@@ -69,7 +69,7 @@ export function MarketplaceHero() {
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
  {[
  { id: 1, rotate: -8, x: -40, z: 10, name: 'Neural Alpha', ret: '+124%', price: '₹2,499' },
- { id: 2, rotate: 0, x: 0, z: 20, name: 'Quantum Arb', ret: '+42%', price: 'FREE' },
+ { id: 2, rotate: 0, x: 0, z: 20, name: 'Fast Arb', ret: '+42%', price: 'FREE' },
  { id: 3, rotate: 8, x: 40, z: 10, name: 'Gamma Sniper', ret: '+412%', price: '₹5,499' }
  ].map((card) => (
  <motion.div

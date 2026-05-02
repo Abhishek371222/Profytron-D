@@ -80,7 +80,7 @@ interface Item {
 export const FloatingCards = ({ type = 'strategies' }: { type?: 'strategies' | 'achievements' }) => {
  const strategyItems: Item[] = [
  { title:"Neural Nexus", value:"+124.5% APR", winRate: 68, icon: Zap, angle: -8, opacity: 0.3, yOffset: -12, duration: 3 },
- { title:"Quantum Arb", value:"+42.8% APR", winRate: 94, icon: TrendingUp, angle: 8, opacity: 0.6, yOffset: -16, duration: 4, delay: 0.5 },
+ { title:"Fast Arb", value:"+42.8% APR", winRate: 94, icon: TrendingUp, angle: 8, opacity: 0.6, yOffset: -16, duration: 4, delay: 0.5 },
  { title:"Black Swan", value:"+12.4% APR", winRate: 99, icon: Shield, angle: 0, opacity: 1, yOffset: -8, duration: 5, delay: 1 },
  ];
 

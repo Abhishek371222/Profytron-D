@@ -20,7 +20,10 @@ export class AIService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  private async callOpenAI(systemPrompt: string, userPrompt: string): Promise<string> {
+  private async callOpenAI(
+    systemPrompt: string,
+    userPrompt: string,
+  ): Promise<string> {
     const apiKey = process.env.OPENROUTER_API_KEY || this.openaiApiKey;
     if (!apiKey) {
       throw new Error('No AI API key configured');
@@ -60,16 +63,24 @@ export class AIService {
 
   async explainTrade(tradeData: any) {
     try {
-      this.logger.log(`Requesting AI explanation for trade on ${tradeData.asset}`);
-      const response = await axios.post(`${this.baseUrl}/ai/explain-trade`, {
-        asset: tradeData.asset,
-        type: tradeData.type,
-        entry: tradeData.entry,
-        reason: tradeData.reason,
-      }, { timeout: 10000 });
+      this.logger.log(
+        `Requesting AI explanation for trade on ${tradeData.asset}`,
+      );
+      const response = await axios.post(
+        `${this.baseUrl}/ai/explain-trade`,
+        {
+          asset: tradeData.asset,
+          type: tradeData.type,
+          entry: tradeData.entry,
+          reason: tradeData.reason,
+        },
+        { timeout: 10000 },
+      );
       return response.data;
     } catch {
-      this.logger.warn('External AI service unavailable — falling back to OpenAI');
+      this.logger.warn(
+        'External AI service unavailable — falling back to OpenAI',
+      );
       return this.explainTradeOpenAI(tradeData);
     }
   }
@@ -184,19 +195,29 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
     });
 
     try {
-      const response = await axios.post(`${this.baseUrl}/ai/chat`, {
-        message: payload.message,
-        context: payload.context,
-        recentTrades,
-      }, { timeout: 10000 });
+      const response = await axios.post(
+        `${this.baseUrl}/ai/chat`,
+        {
+          message: payload.message,
+          context: payload.context,
+          recentTrades,
+        },
+        { timeout: 10000 },
+      );
       return response.data;
     } catch {
-      this.logger.warn('External AI service unavailable — falling back to OpenAI for chat');
+      this.logger.warn(
+        'External AI service unavailable — falling back to OpenAI for chat',
+      );
       return this.chatOpenAI(userId, payload, recentTrades);
     }
   }
 
-  private async chatOpenAI(userId: string, payload: AIChatRequest, recentTrades: any[]) {
+  private async chatOpenAI(
+    userId: string,
+    payload: AIChatRequest,
+    recentTrades: any[],
+  ) {
     try {
       const systemPrompt = `You are Profytron AI Coach — an expert trading psychology coach and market analyst.
 You help traders improve performance, manage risk, and master their psychology.
@@ -228,10 +249,13 @@ Recent context about the user's trades is provided below.`;
 
     const pnl = trades.map((t) => t.profit ?? 0);
     const winningTrades = pnl.filter((v) => v > 0).length;
-    const avgPnl = pnl.length ? pnl.reduce((acc, v) => acc + v, 0) / pnl.length : 0;
+    const avgPnl = pnl.length
+      ? pnl.reduce((acc, v) => acc + v, 0) / pnl.length
+      : 0;
 
     const behaviorFlags: string[] = [];
-    if (pnl.filter((v) => v < 0).length >= 5) behaviorFlags.push('Loss streak detected');
+    if (pnl.filter((v) => v < 0).length >= 5)
+      behaviorFlags.push('Loss streak detected');
     if (avgPnl < 0) behaviorFlags.push('Negative expectancy in recent sample');
 
     let aiSuggestions: string[] | null = null;
@@ -250,7 +274,9 @@ Recent context about the user's trades is provided below.`;
 
     return {
       sampleSize: trades.length,
-      winRate: trades.length ? Number(((winningTrades / trades.length) * 100).toFixed(1)) : 0,
+      winRate: trades.length
+        ? Number(((winningTrades / trades.length) * 100).toFixed(1))
+        : 0,
       avgPnl: Number(avgPnl.toFixed(2)),
       behaviorFlags,
       suggestions: aiSuggestions ?? [
@@ -263,12 +289,18 @@ Recent context about the user's trades is provided below.`;
 
   async getMarketRegime(symbol?: string) {
     try {
-      const response = await axios.post(`${this.baseUrl}/ai/market-regime`, {
-        symbol: symbol || 'BTCUSDT',
-      }, { timeout: 8000 });
+      const response = await axios.post(
+        `${this.baseUrl}/ai/market-regime`,
+        {
+          symbol: symbol || 'BTCUSDT',
+        },
+        { timeout: 8000 },
+      );
       return response.data;
     } catch {
-      this.logger.warn('External AI service unavailable — returning cached market regime');
+      this.logger.warn(
+        'External AI service unavailable — returning cached market regime',
+      );
       return {
         regime: 'UNKNOWN',
         adx: 0,

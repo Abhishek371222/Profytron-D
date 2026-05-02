@@ -13,7 +13,7 @@ interface ComingSoonProps {
 
 const ComingSoon: React.FC<ComingSoonProps> = ({ 
  title ="Module Intercepted", 
- description ="Protocol under development by Quant Core Team",
+ description ="System under development by Quant Core Team",
  className
 }) => (
  <div className={cn("h-[500px] flex flex-col items-center justify-center space-y-10 text-center relative overflow-hidden", className)}>

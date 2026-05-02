@@ -8,7 +8,7 @@ import { FadeUp, StaggerList } from "@/components/animations";
 const testimonials = [
   {
     quote:
-      "PROFYTRON has completely transformed how our proprietary desk handles high-frequency execution. The latency is incomparable.",
+      "PROFYTRON has completely transformed how our proprietary desk handles high-frequency execution. The Speed is incomparable.",
     author: "Jameson Vane",
     role: "Chief Strategy Officer",
     company: "Vanguard Alpha",

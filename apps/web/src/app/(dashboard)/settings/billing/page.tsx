@@ -24,8 +24,8 @@ import { toast } from 'sonner';
 
 const TIERS = [
  { name: 'Core Base', price: 'FREE', desc: 'Standard data relay & manual execution', active: false },
- { name: 'Apex Prime', price: '₹4,999/mo', desc: 'High-frequency neural nodes & advanced telemetry', active: true },
- { name: 'Quantum Legacy', price: '₹14,999/mo', desc: 'Custom colocation & institutional deep-liquidity access', active: false },
+ { name: 'Apex Prime', price: '₹4,999/mo', desc: 'High-frequency advanced analytics & advanced telemetry', active: true },
+ { name: 'Fast Legacy', price: '₹14,999/mo', desc: 'Custom colocation & institutional deep-liquidity access', active: false },
 ];
 
 const INVOICES = [
@@ -74,7 +74,7 @@ export default function BillingPage() {
  </div>
  <div className="space-y-1">
  <h3 className="text-3xl font-semibold text-white uppercase tracking-tight">Treasury & Tiers</h3>
- <p className="text-xs text-p/60 font-semibold uppercase tracking-[0.3em]">Protocol subscription and resource allocation</p>
+ <p className="text-xs text-p/60 font-semibold uppercase tracking-[0.3em]">System subscription and resource allocation</p>
  </div>
  </div>
 
@@ -157,7 +157,7 @@ export default function BillingPage() {
  <code className="text-2xl text-white font-jet-mono tracking-widest block">•••• •••• •••• 8492</code>
  <div className="flex justify-between items-end">
  <div className="space-y-1">
- <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">Institutional ID</span>
+ <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">Your ID</span>
  <span className="text-sm font-semibold text-white uppercase tracking-widest">ARJUN KHANNA</span>
  </div>
  <div className="space-y-1 text-right">
@@ -175,7 +175,7 @@ export default function BillingPage() {
  </div>
  <div className="space-y-2 text-center text-syne">
  <span className="text-sm font-semibold text-white/20 uppercase tracking-[0.5em] group-hover:text-white transition-colors block">Link New Oracle</span>
- <p className="text-xs text-white/10 font-semibold uppercase tracking-[0.2em]">Institutional Bank or Crypto-Custodian</p>
+ <p className="text-xs text-white/10 font-semibold uppercase tracking-[0.2em]">Your Bank or Crypto-Custodian</p>
  </div>
  </button>
  </div>

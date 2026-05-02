@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
@@ -22,9 +22,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     const { id, emails, displayName, photos } = profile;
+    const email = emails?.[0]?.value;
+
+    if (!email) {
+      done(new UnauthorizedException('Google account has no public email'), false);
+      return;
+    }
+
     const user = {
       googleId: id,
-      email: emails[0].value,
+      email,
       fullName: displayName,
       avatarUrl: photos[0]?.value,
       accessToken,

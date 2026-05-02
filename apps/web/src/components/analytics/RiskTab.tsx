@@ -70,7 +70,7 @@ export default function RiskTab() {
  animate="visible"
  className="space-y-10 pb-20"
  >
- {/* ── Top Row: Gauge + Drawdown Chart ── */}
+ {/* ── Top Row: Gauge + Losing period Chart ── */}
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
  {/* VaR Gauge */}
  <motion.div variants={itemVariants}>
@@ -166,7 +166,7 @@ export default function RiskTab() {
  </Card>
  </motion.div>
 
- {/* Drawdown Chart */}
+ {/* Losing period Chart */}
  <motion.div variants={itemVariants} className="lg:col-span-2">
  <Card className="p-10 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[40px]">
  <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-red-500/50 to-transparent" />

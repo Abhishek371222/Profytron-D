@@ -21,7 +21,12 @@ import {
   SensitivityAnalysisDto,
 } from './dto/strategy.dto';
 import { Public, JwtAuthGuard } from '../auth/guards/auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 @ApiTags('Strategies')
 @ApiResponse({ status: 401, description: 'Unauthorized' })

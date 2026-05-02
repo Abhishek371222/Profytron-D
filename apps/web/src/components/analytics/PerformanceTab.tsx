@@ -253,7 +253,7 @@ export default function PerformanceTab() {
  <h4 className="text-lg font-semibold text-white uppercase tracking-tight">Temporal_Gate_Density</h4>
  </div>
  <p className="text-xs text-white/20 font-semibold uppercase tracking-[0.3em] mt-3">
- P&L heat across 7-day × 24-hour session matrix
+ Earnings heat across 7-day × 24-hour session matrix
  </p>
  </div>
  <div className="flex flex-col gap-2 flex-1 relative z-10 overflow-hidden">

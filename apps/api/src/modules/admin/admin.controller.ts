@@ -17,7 +17,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminService } from './admin.service';
 import { TradingService } from '../trading/trading.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { RiskLevel, StrategyCategory, UserRole } from '@prisma/client';
 
 @ApiTags('Admin')
@@ -228,10 +233,15 @@ export class AdminController {
 
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiOperation({ summary: 'Parse strategy PDF to auto-fill admin strategy data' })
+  @ApiOperation({
+    summary: 'Parse strategy PDF to auto-fill admin strategy data',
+  })
   @Post('strategies/pdf')
   @UseInterceptors(FileInterceptor('file'))
-  async parseStrategyPdf(@Req() req: any, @UploadedFile() file: Express.Multer.File) {
+  async parseStrategyPdf(
+    @Req() req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     this.assertAdmin(req);
     if (!file) {
       throw new BadRequestException('Uploaded file is required');

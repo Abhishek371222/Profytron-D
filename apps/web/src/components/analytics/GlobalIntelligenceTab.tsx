@@ -25,7 +25,7 @@ const categories = [
  { id: 'trend', label: 'Trend Follower', val: 78, color: 'bg-indigo-500', trend: '+12%', desc: 'MOMENTUM CORE' },
  { id: 'range', label: 'Mean Reversion', val: 45, color: 'bg-cyan-500', trend: '-2%', desc: 'STASIS VECTOR' },
  { id: 'scalping', label: 'High Frequency', val: 92, color: 'bg-emerald-500', trend: '+24%', desc: 'HFT LIQUIDITY' },
- { id: 'vol', label: 'Volatility Arb', val: 64, color: 'bg-amber-500', trend: '+8%', desc: 'GAMMA SHARP' },
+ { id: 'vol', label: 'Price movement Arb', val: 64, color: 'bg-amber-500', trend: '+8%', desc: 'GAMMA SHARP' },
 ];
 
 const traders = [
@@ -76,7 +76,7 @@ const WorldMap = () => (
  </div>
  <div>
  <h4 className="text-sm font-semibold text-white uppercase tracking-[0.5em]">Global Network Intel</h4>
- <p className="text-xs text-white/20 font-bold uppercase tracking-[0.3em] mt-1">Satellite Hub Synchronization Protocol v2.4</p>
+ <p className="text-xs text-white/20 font-bold uppercase tracking-[0.3em] mt-1">Satellite Hub Synchronization System v2.4</p>
  </div>
  </div>
  </div>
@@ -125,7 +125,7 @@ const WorldMap = () => (
  <span className="text-sm font-semibold text-white font-jet-mono">1,248</span>
  </div>
  <div className="flex flex-col">
- <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Latency</span>
+ <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Speed</span>
  <span className="text-sm font-semibold text-emerald-400 font-jet-mono">4.2ms</span>
  </div>
  </div>
@@ -139,7 +139,7 @@ const WorldMap = () => (
  <div className="flex items-center gap-8 bg-black/60 p-4 rounded-3xl border border-white/5 backdrop-blur-3xl">
  <div className="flex items-center gap-3">
  <div className="w-2 h-2 rounded-full bg-p shadow-[0_0_10px_#6366f1]" />
- <span className="text-xs font-semibold text-white/40 uppercase tracking-[0.2em]">Institutional Core</span>
+ <span className="text-xs font-semibold text-white/40 uppercase tracking-[0.2em]">Your Core</span>
  </div>
  <div className="w-[1px] h-3 bg-white/10" />
  <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export default function GlobalIntelligenceTab() {
  className="space-y-(--section-gap) pb-24"
  >
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
- {/* Institutional Alpha Momentum hardware matrix */}
+ {/* Your Alpha Momentum hardware matrix */}
  <motion.div variants={itemVariants} className="lg:col-span-1">
  <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] space-y-16 h-full relative overflow-hidden group rounded-[40px]">
  <div className="absolute top-0 left-0 w-full h-0.75 bg-linear-to-r from-transparent via-p to-transparent opacity-60 animate-scanline" />
@@ -238,7 +238,7 @@ export default function GlobalIntelligenceTab() {
  <WorldMap />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
- {/* Institutional Intelligence Hub Feed */}
+ {/* Your Intelligence Hub Feed */}
  <motion.div variants={itemVariants}>
  <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full group relative overflow-hidden rounded-[40px]">
  <div className="absolute top-0 right-0 w-48 h-48 bg-p/5 rounded-full blur-[80px] -mr-24 -mt-24 opacity-60" />
@@ -279,7 +279,7 @@ export default function GlobalIntelligenceTab() {
  </Card>
  </motion.div>
 
- {/* Institutional Alpha Command Leaderboard */}
+ {/* Your Alpha Command Leaderboard */}
  <motion.div variants={itemVariants}>
  <Card className="p-(--card-p) border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full group relative overflow-hidden rounded-[40px]">
  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[100px] -mr-32 -mt-32 opacity-60" />
@@ -312,7 +312,7 @@ export default function GlobalIntelligenceTab() {
  </div>
  <div className="flex flex-col items-end gap-1">
  <span className="text-2xl font-semibold text-emerald-400 tracking-tight group-hover/leader:scale-125 transition-transform duration-700">{t.return}</span>
- <span className="text-xs font-semibold text-white/10 uppercase tracking-[0.2em]">MONTHLY_P&L</span>
+ <span className="text-xs font-semibold text-white/10 uppercase tracking-[0.2em]">MONTHLY_Earnings</span>
  </div>
  </div>
  ))}

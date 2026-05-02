@@ -86,7 +86,7 @@ export default function StrategyDetailPage() {
       <div className="flex-1 flex items-center justify-center bg-[#030303]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-2 border-p border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-jet-mono text-white/20 uppercase tracking-[0.4em]">Synching Node Telemetry...</span>
+          <span className="text-xs font-jet-mono text-white/20 uppercase tracking-[0.4em]">Synching Node Data...</span>
         </div>
       </div>
     );
@@ -175,8 +175,8 @@ export default function StrategyDetailPage() {
             <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-p/50 to-transparent" />
             <div className="flex items-center justify-between mb-10">
               <div className="space-y-1">
-                <h3 className="text-xl font-semibold uppercase tracking-tight">Equity Curve Telemetry</h3>
-                <p className="text-xs text-white/20 font-jet-mono uppercase tracking-[0.2em]">P&L Performance over 365 Days</p>
+                <h3 className="text-xl font-semibold uppercase tracking-tight">Equity Curve Data</h3>
+                <p className="text-xs text-white/20 font-jet-mono uppercase tracking-[0.2em]">Earnings Performance over 365 Days</p>
               </div>
               <div className="flex items-center gap-2 p-1 bg-white/3 border border-white/5 rounded-xl">
                 {['1M', '3M', '1Y', 'ALL'].map(range => (
@@ -275,7 +275,7 @@ export default function StrategyDetailPage() {
                   <div className="space-y-6">
                     <h4 className="text-xs font-bold text-p uppercase tracking-[0.3em]">Stability Metrics</h4>
                     <div className="p-6 rounded-2xl bg-white/2 border border-white/5 space-y-8">
-                       <MetricLine label="Avg. Monthly P&L" value="+4.82%" />
+                       <MetricLine label="Avg. Monthly Earnings" value="+4.82%" />
                        <MetricLine label="Profit Factor" value="2.14" />
                        <MetricLine label="Avg. Win Duration" value="1.4 days" />
                        <MetricLine label="Risk Reward Ratio" value="1:2.4" />
@@ -326,7 +326,7 @@ export default function StrategyDetailPage() {
                         </div>
                      </div>
                      <div>
-                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] block mb-4">Security Protocol</span>
+                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] block mb-4">Security System</span>
                         <div className="flex items-center gap-2 text-emerald-400">
                            <Lock className="w-4 h-4" />
                            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400/80">End-to-End Encrypted Strategy Gate</span>

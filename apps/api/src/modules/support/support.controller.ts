@@ -11,7 +11,12 @@ import {
 } from '@nestjs/common';
 import { SupportService } from './support.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import type { Request } from 'express';
 
 type AuthRequest = Request & { user: { id: string; role?: string } };
@@ -62,8 +67,14 @@ export class SupportController {
     @Param('id') id: string,
     @Body() body: { message: string },
   ) {
-    const isAdmin = req.user.role === 'ADMIN' || req.user.role === 'SUPER_ADMIN';
-    return this.supportService.addResponse(id, req.user.id, body.message, isAdmin);
+    const isAdmin =
+      req.user.role === 'ADMIN' || req.user.role === 'SUPER_ADMIN';
+    return this.supportService.addResponse(
+      id,
+      req.user.id,
+      body.message,
+      isAdmin,
+    );
   }
 
   @ApiOperation({ summary: 'Update ticket status (admin)' })

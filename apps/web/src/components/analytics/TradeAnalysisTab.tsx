@@ -81,7 +81,7 @@ function TradeAnalysisTabView() {
  className="space-y-12 pb-24"
  >
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
- {/* Institutional Outcome hardware distribution */}
+ {/* Your Outcome hardware distribution */}
  <motion.div variants={itemVariants}>
  <Card className="p-12 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden group rounded-[48px]">
  <div className="absolute top-0 left-0 w-full h-0.75 bg-linear-to-r from-transparent via-white/40 to-transparent animate-scanline" />
@@ -94,7 +94,7 @@ function TradeAnalysisTabView() {
  </div>
  <h4 className="text-2xl font-semibold text-white uppercase tracking-tight leading-tight">Outcome_Lattice_Dist</h4>
  </div>
- <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Trade frequency mapped across institutional P&L corridors.</p>
+ <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Trade frequency mapped across institutional Earnings corridors.</p>
  </div>
  
  <div className="h-100 w-full relative z-10">
@@ -146,7 +146,7 @@ function TradeAnalysisTabView() {
  </Card>
  </motion.div>
 
- {/* Institutional Execution hardware core */}
+ {/* Your Execution hardware core */}
  <motion.div variants={itemVariants}>
  <Card className="p-12 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center relative overflow-hidden rounded-[48px] group/core">
  <div className="absolute top-0 right-0 w-full h-0.75 bg-linear-to-r from-transparent via-emerald-500/40 to-transparent animate-scanline" />
@@ -200,7 +200,7 @@ function TradeAnalysisTabView() {
  </PieChart>
  </ResponsiveContainer>
  
- {/* Central Holographic Hardware Readout */}
+ {/* Central Smart Hardware Readout */}
  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
  <motion.div 
  initial={{ scale: 0.8, opacity: 0 }}

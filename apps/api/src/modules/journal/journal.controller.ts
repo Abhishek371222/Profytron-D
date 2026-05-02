@@ -9,7 +9,12 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { TradingJournalService } from './trading-journal.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -49,7 +54,8 @@ export class JournalController {
   @ApiResponse({ status: 201, description: 'Created' })
   createEntry(
     @Req() req: any,
-    @Body() body: { tradeId: string; emotions?: string; lessonLearned?: string },
+    @Body()
+    body: { tradeId: string; emotions?: string; lessonLearned?: string },
   ) {
     return this.journalService.createJournalEntry(
       req.user.id,

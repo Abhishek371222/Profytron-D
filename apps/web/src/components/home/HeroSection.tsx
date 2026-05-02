@@ -8,7 +8,6 @@ import {
   useMotionValue,
   useSpring,
 } from "framer-motion";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Zap, Shield, Sparkles, Cpu, Terminal } from "lucide-react";
 import { FadeUp } from "@/components/animations";
@@ -70,7 +69,7 @@ export function HeroSection() {
           className="absolute top-1/2 left-1/3 w-[500px] h-[500px] bg-cyan-500/8 rounded-full blur-[150px] opacity-20"
         />
 
-        {/* Holographic Layering */}
+        {/* Smart Layering */}
         <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-15 brightness-75 contrast-125" />
         <div className="absolute inset-0 panel-grid opacity-[0.08]" />
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-[1]" />
@@ -92,7 +91,7 @@ export function HeroSection() {
               <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/3 border border-white/8 text-white/70 text-[10px] font-bold tracking-[0.4em] uppercase backdrop-blur-md relative group overflow-hidden">
                 <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 <Terminal className="w-3 h-3 text-p" />
-                <span>v5.0_Kernel_Ready</span>
+                <span>Ready to go</span>
               </div>
             </FadeUp>
 
@@ -118,7 +117,7 @@ export function HeroSection() {
                 <FadeUp delay={0.2}>
                   <p className="text-lg md:text-xl text-white/60 leading-relaxed max-w-2xl font-medium tracking-tight">
                     Deploy, monitor, and optimize algorithmic portfolios with a
-                    clearer control surface, lower latency execution, and
+                    clearer control surface, lower Speed execution, and
                     real-time intelligence that remains legible under pressure.
                   </p>
                 </FadeUp>
@@ -129,7 +128,7 @@ export function HeroSection() {
             <FadeUp delay={0.3}>
               <div className="flex flex-col sm:flex-row items-start gap-6 pt-2">
                 <Magnetic strength={0.35}>
-                  <Link href="/register">
+                  <a href="/register">
                     <motion.div
                       whileHover={{ scale: 1.02, y: -4 }}
                       whileTap={{ scale: 0.98 }}
@@ -139,7 +138,7 @@ export function HeroSection() {
                         className="h-14 px-8 text-base bg-white hover:bg-gray-100 text-black rounded-full group shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-all duration-500 font-bold tracking-wide border-0"
                       >
                         <span className="relative z-10 flex items-center gap-3">
-                          Start Trading Workspace
+                          Make your first trade Workspace
                           <motion.div
                             animate={{ x: [0, 4, 0] }}
                             transition={{ duration: 2, repeat: Infinity }}
@@ -149,11 +148,11 @@ export function HeroSection() {
                         </span>
                       </Button>
                     </motion.div>
-                  </Link>
+                  </a>
                 </Magnetic>
 
                 <Magnetic strength={0.2}>
-                  <Link href="/dashboard">
+                  <a href="/dashboard">
                     <motion.div
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -167,7 +166,7 @@ export function HeroSection() {
                         View Platform Tour
                       </Button>
                     </motion.div>
-                  </Link>
+                  </a>
                 </Magnetic>
               </div>
             </FadeUp>
@@ -182,7 +181,7 @@ export function HeroSection() {
                     val: "MIL-GRADE",
                   },
                   {
-                    label: "Latency",
+                    label: "Speed",
                     icon: Zap,
                     val: "<42ms",
                   },

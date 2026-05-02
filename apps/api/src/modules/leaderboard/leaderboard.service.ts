@@ -15,7 +15,15 @@ export class LeaderboardService {
       orderBy: { rank: 'asc' },
       take: limit,
       include: {
-        user: { select: { id: true, fullName: true, username: true, avatarUrl: true, country: true } },
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            username: true,
+            avatarUrl: true,
+            country: true,
+          },
+        },
       },
     });
 
@@ -33,7 +41,15 @@ export class LeaderboardService {
       orderBy: { rank: 'asc' },
       take: limit,
       include: {
-        user: { select: { id: true, fullName: true, username: true, avatarUrl: true, country: true } },
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            username: true,
+            avatarUrl: true,
+            country: true,
+          },
+        },
       },
     });
 
@@ -49,7 +65,9 @@ export class LeaderboardService {
     const strategies = await this.prisma.strategy.findMany({
       where: { isPublished: true, isVerified: true, deletedAt: null },
       include: {
-        creator: { select: { id: true, fullName: true, username: true, avatarUrl: true } },
+        creator: {
+          select: { id: true, fullName: true, username: true, avatarUrl: true },
+        },
         performance: {
           orderBy: { date: 'desc' },
           take: 1,
@@ -121,7 +139,13 @@ export class LeaderboardService {
         const winRate = total > 0 ? (winCount / total) * 100 : 0;
         const totalPnl = r._sum.profit ?? 0;
         const score = winRate * 0.4 + Math.min(totalPnl / 100, 60);
-        return { userId: r.userId, winRate, totalPnl, totalTrades: total, score };
+        return {
+          userId: r.userId,
+          winRate,
+          totalPnl,
+          totalTrades: total,
+          score,
+        };
       })
       .sort((a, b) => b.score - a.score);
 
