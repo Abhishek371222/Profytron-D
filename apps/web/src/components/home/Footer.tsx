@@ -1,5 +1,6 @@
 import { Zap, Globe, MessageSquare, Mail, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
@@ -48,14 +49,14 @@ export function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 md:gap-24 mb-24">
           {/* Logo & Foundation */}
           <div className="lg:col-span-5">
-            <a href="/" className="flex items-center gap-3 mb-8 group">
+            <Link href="/" className="flex items-center gap-3 mb-8 group">
               <div className="w-10 h-10 bg-white/3 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-p/50 transition-all duration-500 shadow-inner group-hover:bg-p/10">
                 <Zap className="w-5 h-5 text-white/70 group-hover:text-p transition-colors" />
               </div>
               <span className="text-xl font-bold tracking-tight text-white group-hover:text-white/90 transition-colors">
                 PROFYTRON
               </span>
-            </a>
+            </Link>
             <p className="text-white/40 text-sm mb-10 leading-relaxed max-w-sm font-medium">
               Building the of trading success. Your
               power, refined for the trading future.
@@ -91,12 +92,21 @@ export function Footer() {
                 <ul className="flex flex-col gap-4">
                   {links.map((link) => (
                     <li key={link.name}>
-                      <a
-                        href={link.href}
-                        className="text-white/40 hover:text-white transition-colors text-sm font-medium inline-flex items-center"
-                      >
-                        {link.name}
-                      </a>
+                      {link.href.startsWith('http') || link.href.startsWith('#') ? (
+                        <a
+                          href={link.href}
+                          className="text-white/40 hover:text-white transition-colors text-sm font-medium inline-flex items-center"
+                        >
+                          {link.name}
+                        </a>
+                      ) : (
+                        <Link
+                          href={link.href}
+                          className="text-white/40 hover:text-white transition-colors text-sm font-medium inline-flex items-center"
+                        >
+                          {link.name}
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
