@@ -139,11 +139,20 @@ export function LiveCandlesChart({ data: _data, rangeLabel }: LiveCandlesChartPr
 
 	const bounds = React.useMemo(() => {
 		if (!selectedCandles.length) return null;
-		const highs = selectedCandles.map((item) => item.high);
-		const lows = selectedCandles.map((item) => item.low);
-		const volumeMax = Math.max(...selectedCandles.map((item) => item.volume), 1);
-		const minPrice = Math.min(...lows);
-		const maxPrice = Math.max(...highs);
+
+		// ⚡ Bolt Optimization: Single-pass O(N) calculation to prevent intermediate array allocations
+		// and avoid Maximum call stack size exceeded on large datasets when using spread operators.
+		let minPrice = Infinity;
+		let maxPrice = -Infinity;
+		let volumeMax = 1;
+
+		for (let i = 0; i < selectedCandles.length; i++) {
+			const item = selectedCandles[i];
+			if (item.low < minPrice) minPrice = item.low;
+			if (item.high > maxPrice) maxPrice = item.high;
+			if (item.volume > volumeMax) volumeMax = item.volume;
+		}
+
 		const padding = Math.max((maxPrice - minPrice) * 0.08, symbol === 'EURUSD' ? 0.0002 : 10);
 		return {
 			minPrice: minPrice - padding,

@@ -1,0 +1,3 @@
+## 2024-05-19 - [O(N) anti-pattern in charting components]
+**Learning:** Spread operators with `Math.max(...array)` combined with `array.map()` can create severe performance bottlenecks and "Maximum call stack size exceeded" errors for large charting datasets. It causes multiple O(N) iterations and unnecessary memory allocations.
+**Action:** Use a single-pass O(N) `for` loop to compute multiple aggregates simultaneously (min, max, volume) and avoid intermediate array allocations.

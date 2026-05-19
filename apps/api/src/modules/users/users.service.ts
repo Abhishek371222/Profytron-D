@@ -38,7 +38,7 @@ export class UsersService {
   async findById(id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (user) {
-      delete (user as any).passwordHash;
+      delete user.passwordHash;
     }
     return user;
   }
@@ -63,7 +63,7 @@ export class UsersService {
       },
     });
 
-    delete (user as any).passwordHash;
+    delete user.passwordHash;
     return user;
   }
 
@@ -104,7 +104,7 @@ export class UsersService {
         onboardingCompleted: true,
       },
     });
-    delete (user as any).passwordHash;
+    delete user.passwordHash;
     return user;
   }
 

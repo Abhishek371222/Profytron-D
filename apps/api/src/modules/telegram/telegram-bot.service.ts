@@ -231,7 +231,7 @@ export class TelegramBotService {
       return { sent: false };
     }
 
-    const details = log.detailsJson as any;
+    const details = log.detailsJson;
     const chatId = details?.telegramChatId;
     if (!chatId) return { sent: false };
 

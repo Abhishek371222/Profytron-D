@@ -77,7 +77,7 @@ export class BrokerService {
       });
 
       // 6. Return without credentials
-      delete (account as any).credentialsEncrypted;
+      delete account.credentialsEncrypted;
       return account;
     } catch (e) {
       this.logger.error(
@@ -93,7 +93,7 @@ export class BrokerService {
       orderBy: { connectedAt: 'desc' },
     });
     return accounts.map((acc) => {
-      delete (acc as any).credentialsEncrypted;
+      delete acc.credentialsEncrypted;
       return acc;
     });
   }
