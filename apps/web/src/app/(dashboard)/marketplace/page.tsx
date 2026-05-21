@@ -13,7 +13,6 @@ import { SubscribeModal } from '@/components/marketplace/SubscribeModal';
 import { cn } from '@/lib/utils';
 import { marketplaceApi } from '@/lib/api/marketplace';
 import { Button } from '@/components/ui/button';
-import { demoFeaturedMarketplace, demoMarketplaceItems } from '@/lib/api/demoData';
 import { toast } from 'sonner';
 
 export default function MarketplacePage() {
@@ -26,7 +25,7 @@ export default function MarketplacePage() {
  const [sortBy, setSortBy] = React.useState<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'>((searchParams.get('sort') as any) || 'trending');
  const sortOrder: Array<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'> = ['trending', 'top-rated', 'newest', 'performance', 'subscribers', 'price'];
  const [filters, setFilters] = React.useState({
-  priceMax: Number(searchParams.get('priceMax') || 5000),
+  priceMax: Number(searchParams.get('priceMax') || 0),
   selectedRisks: searchParams.get('riskLevel') ? [searchParams.get('riskLevel')!.toLowerCase()] : [],
 	selectedAssets: (searchParams.get('assets') || '')
 	 .split(',')
@@ -81,9 +80,7 @@ export default function MarketplacePage() {
  });
 
  const mappedStrategies = React.useMemo(() => {
-	const items = (marketplaceQuery.data?.pages.flatMap((page) => page.items) && marketplaceQuery.data.pages.flatMap((page) => page.items).length > 0) 
-		? marketplaceQuery.data.pages.flatMap((page) => page.items) 
-		: demoMarketplaceItems;
+	const items = marketplaceQuery.data?.pages.flatMap((page) => page.items) ?? [];
 	const defaultAssets = ['Forex', 'Crypto', 'Indices', 'Commodities'];
 	const defaultTimeframes = ['M1', 'M5', 'M15', 'H1', 'H4', 'D1'];
 	const getStableIndex = (seed: string, length: number) => {
@@ -122,7 +119,7 @@ export default function MarketplacePage() {
 		if (filters.selectedRisks.length > 0 && !filters.selectedRisks.includes(String(strategy.risk).toLowerCase())) return false;
 		if (filters.selectedAssets.length > 0 && !filters.selectedAssets.includes(strategy.assetClass)) return false;
 		if (filters.selectedTimeframes.length > 0 && !filters.selectedTimeframes.includes(strategy.timeframe)) return false;
-		if (strategy.price > filters.priceMax) return false;
+		if (filters.priceMax > 0 && strategy.price > filters.priceMax) return false;
 		if (normalizedQuery) {
 			const target = `${strategy.name} ${strategy.creator} ${strategy.category} ${strategy.assetClass} ${strategy.timeframe}`.toLowerCase();
 			if (!target.includes(normalizedQuery)) return false;
@@ -175,7 +172,7 @@ export default function MarketplacePage() {
  }, []);
 
  const featuredStrategies = React.useMemo(() => {
-	const featured = featuredQuery.data || demoFeaturedMarketplace.items;
+	const featured = featuredQuery.data ?? [];
 	return featured.map((item: any) => ({
 	 id: item.strategyId,
 	 name: item.strategy.name,
@@ -202,7 +199,7 @@ export default function MarketplacePage() {
  React.useEffect(() => {
   if (marketplaceQuery.isError) {
    toast.error('Marketplace feed unavailable', {
-	description: 'Showing fallback catalog data while the API recovers.',
+	description: 'Unable to load strategies. Please try again.',
    });
   }
  }, [marketplaceQuery.isError]);
@@ -210,7 +207,7 @@ export default function MarketplacePage() {
  React.useEffect(() => {
   if (featuredQuery.isError) {
    toast.error('Featured feed unavailable', {
-	description: 'Showing curated fallback featured strategies.',
+	description: 'Unable to load featured strategies. Please try again.',
    });
   }
  }, [featuredQuery.isError]);
@@ -219,7 +216,7 @@ export default function MarketplacePage() {
   setSearchQuery('');
   setSortBy('trending');
   setFilters({
-   priceMax: 5000,
+   priceMax: 0,
    selectedRisks: [],
    selectedAssets: [],
    selectedTimeframes: [],

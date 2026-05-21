@@ -5,7 +5,7 @@ import { RedisService } from './redis.service';
 import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { randomUUID } from 'crypto';
+import { randomUUID, randomInt } from 'crypto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Request } from 'express';
 import {
@@ -119,7 +119,9 @@ export class AuthService {
       throw error;
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // randomInt(min, max) is cryptographically secure (CSPRNG via OpenSSL).
+    // Math.random() is NOT suitable for security-sensitive tokens.
+    const otp = randomInt(100000, 1000000).toString();
     await this.redisService.set(`auth:otp:${dto.email}`, otp, 600);
     await this.emailService.sendOtpEmail(dto.email, otp);
 
@@ -335,7 +337,16 @@ export class AuthService {
 
   async logout(userId: string, jti: string) {
     await this.redisService.del(`auth:refresh:${userId}:default`);
-    if (jti) await this.redisService.set(`auth:blacklist:${jti}`, 'true', 3600);
+    if (jti) {
+      // Blacklist the access token JTI for its remaining lifetime so it cannot
+      // be used after logout. Use the configured expiry so the blacklist entry
+      // does not outlive the token (wasted memory) or expire before it (gap).
+      const accessExpiry = this.parseExpirySeconds(
+        process.env.JWT_ACCESS_EXPIRES,
+        3600,
+      );
+      await this.redisService.set(`auth:blacklist:${jti}`, 'true', accessExpiry);
+    }
 
     await this.prisma.userSession.deleteMany({
       where: { userId, deviceId: 'default' },
@@ -409,7 +420,7 @@ export class AuthService {
         message: 'Please wait before requesting a new code',
       }; // Throttle logic simplified
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = randomInt(100000, 1000000).toString();
     await this.redisService.set(`auth:otp:${email}`, otp, 600);
     await this.emailService.sendOtpEmail(email, otp);
     return { success: true };

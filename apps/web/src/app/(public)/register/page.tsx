@@ -109,16 +109,14 @@ export default function RegisterPage() {
 		}
 		
 		const redirectUrl = `${window.location.origin}/auth/callback`;
-		console.log(`[${provider.toUpperCase()}] Initiating OAuth flow...`);
-		console.log(`[${provider.toUpperCase()}] Redirect URL: ${redirectUrl}`);
-		
+
 		const { error } = await supabase.auth.signInWithOAuth({
 			provider,
 			options: {
 				redirectTo: redirectUrl,
 			},
 		});
-		
+
 		if (error) {
 			console.error(`[${provider.toUpperCase()}] OAuth error:`, error);
 			toast.error(`Unable to sign up with ${provider}`, {
@@ -126,8 +124,6 @@ export default function RegisterPage() {
 			});
 			throw error;
 		}
-		
-		console.log(`[${provider.toUpperCase()}] OAuth flow initiated successfully`);
    } catch (error) {
      const message = error instanceof Error ? error.message : String(error);
      console.error(`[${provider.toUpperCase()}] Signup failed:`, message);

@@ -28,6 +28,7 @@ export class AppController {
       database: Array.isArray(databaseResult) ? 'connected' : 'connected',
       redis: redisConnected ? 'connected' : 'degraded',
       timestamp: new Date().toISOString(),
+      version: process.env.npm_package_version ?? 'unknown',
     };
   }
 }

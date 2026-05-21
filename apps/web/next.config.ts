@@ -24,18 +24,23 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // Strip console.* calls in production builds for smaller bundle + no leaking
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production'
+      ? { exclude: ['error', 'warn'] }
+      : false,
+  },
+
   images: {
     // Serve modern formats automatically
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400, // Cache images for 24h
 
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "api.dicebear.com",
-        port: "",
-        pathname: "/**",
-      },
+      { protocol: "https", hostname: "api.dicebear.com", port: "", pathname: "/**" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com", port: "", pathname: "/**" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com", port: "", pathname: "/**" },
+      { protocol: "https", hostname: "*.supabase.co", port: "", pathname: "/storage/**" },
     ],
   },
 

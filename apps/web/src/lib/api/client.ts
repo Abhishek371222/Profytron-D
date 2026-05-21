@@ -33,7 +33,9 @@ const isNetworkUnavailableError = (error: unknown): boolean => {
 export const apiClient = axios.create({
   // Use same-origin /api so Next.js rewrites to backend /v1 in dev.
   baseURL: apiBaseURL,
-  timeout: 15000,
+  // 30 s is generous enough for trading order endpoints while still catching
+  // genuinely hung connections (e.g. broker relay timeouts).
+  timeout: 30000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

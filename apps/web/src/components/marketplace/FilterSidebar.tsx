@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -83,7 +83,7 @@ export function FilterSidebar({ isOpen, onClose, value, onChange, onApply, onSav
  <div className="space-y-4">
  <div className="flex items-center justify-between">
  <h4 className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.14em]">Monthly Fee</h4>
- <span className="text-[11px] font-semibold text-white font-mono">₹0 - ₹{price.toLocaleString()}</span>
+ <span className="text-[11px] font-semibold text-white font-mono">{price === 0 ? 'All prices' : `₹0 - ₹${price.toLocaleString()}`}</span>
  </div>
  <div className="relative pt-2">
  <input 
@@ -219,7 +219,7 @@ export function FilterSidebar({ isOpen, onClose, value, onChange, onApply, onSav
  </button>
  <button 
  onClick={() => {
- onChange({ ...value, selectedRisks: [], selectedAssets: [], selectedTimeframes: [], verifiedOnly: false, priceMax: 5000 });
+ onChange({ ...value, selectedRisks: [], selectedAssets: [], selectedTimeframes: [], verifiedOnly: false, priceMax: 0 });
  }}
  className="w-full text-[10px] font-semibold text-red-400/50 hover:text-red-400 uppercase tracking-[0.14em] transition-colors py-1"
  >

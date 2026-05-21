@@ -8,7 +8,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  Redirect,
   UnauthorizedException,
   Query,
 } from '@nestjs/common';
@@ -94,6 +93,7 @@ export class AuthController {
   @Public()
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @ApiResponse({ status: 200, description: 'Email verified — tokens issued' })
   @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
   @ApiOperation({ summary: 'Verify email registration OTP' })
@@ -138,6 +138,7 @@ export class AuthController {
   @Public()
   @Post('supabase')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @ApiResponse({ status: 200, description: 'Synchronized — tokens issued' })
   @ApiResponse({ status: 401, description: 'Invalid Supabase token' })
   @ApiOperation({
@@ -217,6 +218,7 @@ export class AuthController {
   @Public()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 900000, limit: 5 } })
   @ApiResponse({ status: 200, description: 'Password reset successfully' })
   @ApiResponse({ status: 400, description: 'Invalid or expired reset token' })
   @ApiOperation({ summary: 'Reset password via email token' })
@@ -249,6 +251,7 @@ export class AuthController {
   @Public()
   @Get('magic-link/verify')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @ApiResponse({ status: 200, description: 'Authenticated — tokens issued' })
   @ApiResponse({ status: 400, description: 'Invalid or expired link' })
   @ApiOperation({ summary: 'Verify magic link token and authenticate' })
@@ -343,7 +346,18 @@ export class AuthController {
     );
     const frontendUrl =
       process.env.FRONTEND_URL || 'https://app.profytron.example';
-    res.redirect(`${frontendUrl}/dashboard?token=${result.accessToken}`);
+    // SECURITY: Access token is stored in a short-lived session cookie so the
+    // frontend can retrieve it via /auth/refresh immediately after redirect.
+    // Do NOT append the token as a URL query param — it leaks into browser
+    // history, server access logs, and Referer headers.
+    res.cookie('oauth_access_token', result.accessToken, {
+      httpOnly: false, // Frontend JS must read this once to bootstrap state
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
+      maxAge: 60 * 1000, // 60-second TTL — frontend consumes and discards it
+    });
+    res.redirect(`${frontendUrl}/dashboard`);
   }
 
   // ──────────────────────────── GOOGLE OAuth ────────────────────────────
@@ -360,12 +374,8 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
-  @ApiResponse({ status: 302, description: 'Redirect to dashboard with token' })
+  @ApiResponse({ status: 302, description: 'Redirect to dashboard' })
   @ApiOperation({ summary: 'Handle Google OAuth2 Callback' })
-  @Redirect(
-    process.env.FRONTEND_DASHBOARD_URL ||
-      `${process.env.FRONTEND_URL || 'https://app.profytron.example'}/dashboard`,
-  )
   async googleCallback(
     @Req()
     req: Request & {
@@ -384,11 +394,21 @@ export class AuthController {
       result.refreshTokenForCookie,
       result.user?.role,
     );
-    // Can optionally append access_token to redirect hash or handle differently via popup messaging
+    // SECURITY: Access token is stored in a short-lived session cookie so the
+    // frontend can retrieve it immediately after redirect.
+    // Do NOT append the token as a URL query param — it leaks into browser
+    // history, server access logs, and Referer headers.
+    res.cookie('oauth_access_token', result.accessToken, {
+      httpOnly: false, // Frontend JS must read this once to bootstrap state
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
+      maxAge: 60 * 1000, // 60-second TTL — frontend consumes and discards it
+    });
     const frontendUrl =
       process.env.FRONTEND_URL || 'https://app.profytron.example';
-    return {
-      url: `${frontendUrl}/dashboard?token=${result.accessToken}`,
-    };
+    res.redirect(
+      process.env.FRONTEND_DASHBOARD_URL || `${frontendUrl}/dashboard`,
+    );
   }
 }

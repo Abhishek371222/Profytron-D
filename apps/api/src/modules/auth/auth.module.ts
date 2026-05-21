@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TwoFaService } from './twofa.service';
@@ -17,13 +18,13 @@ import { GithubStrategy } from './strategies/github.strategy';
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret:
-        process.env.JWT_ACCESS_SECRET ??
-        (() => {
-          throw new Error('JWT_ACCESS_SECRET env var is required');
-        })(),
-      signOptions: { expiresIn: '1h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.getOrThrow<string>('JWT_ACCESS_SECRET'),
+        signOptions: { expiresIn: '1h' },
+      }),
     }),
     RedisModule,
     EmailModule,

@@ -20,15 +20,6 @@ import { cn } from '@/lib/utils';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { toast } from 'sonner';
 
-const MOCK_HISTORY = [
- { id: '1', asset: 'EUR/USD', type: 'Long', amount: '2.5', entry: '1.08420', exit: '1.08950', pnl: 1325.50, status: 'Closed', time: '2026-04-10 14:22', strategy: 'MomentumApex v2' },
- { id: '2', asset: 'BTC/USDT', type: 'Short', amount: '0.15', entry: '64,250', exit: '63,120', pnl: 485.20, status: 'Closed', time: '2026-04-10 12:45', strategy: 'Scalp Pro' },
- { id: '3', asset: 'ETH/USDT', type: 'Long', amount: '4.2', entry: '3,450', exit: '3,410', pnl: -168.00, status: 'Closed', time: '2026-04-10 11:15', strategy: 'Deltra Trend' },
- { id: '4', asset: 'GBP/JPY', type: 'Long', amount: '1.8', entry: '191.45', exit: '192.10', pnl: 842.15, status: 'Closed', time: '2026-04-10 09:30', strategy: 'Your VWAP' },
- { id: '5', asset: 'GOLD', type: 'Short', amount: '10', entry: '2,345', exit: '2,352', pnl: -320.00, status: 'Closed', time: '2026-04-09 18:20', strategy: 'Metal Guard' },
- { id: '6', asset: 'USD/JPY', type: 'Long', amount: '3.0', entry: '151.20', exit: '151.85', pnl: 650.40, status: 'Closed', time: '2026-04-09 16:45', strategy: 'MomentumApex v1' },
- { id: '7', asset: 'SOL/USDT', type: 'Long', amount: '50', entry: '174.20', exit: '182.10', pnl: 395.00, status: 'Closed', time: '2026-04-09 14:10', strategy: 'Scalp Pro' },
-];
 
 const mapRangeToAnalytics = (range: 'ALL' | '7D' | '30D' | '90D'): AnalyticsRange => {
  if (range === '7D') return '1w';
@@ -59,6 +50,7 @@ export default function HistoryPage() {
  const {
   data: liveHistory,
   isFetching,
+  isLoading,
   isError,
  } = useQuery({
   queryKey: ['history-export', selectedRange],
@@ -79,13 +71,12 @@ export default function HistoryPage() {
   },
  });
 
- const historyRows = liveHistory && liveHistory.length > 0 ? liveHistory : MOCK_HISTORY;
- const isFallbackData = !liveHistory || liveHistory.length === 0;
+ const historyRows = liveHistory ?? [];
 
  React.useEffect(() => {
   if (isError) {
    toast.error('Live history unavailable', {
-    description: 'Showing local fallback data until API sync recovers.',
+    description: 'Could not fetch trade history from the server.',
    });
   }
  }, [isError]);
@@ -97,7 +88,7 @@ export default function HistoryPage() {
 
  const filteredHistory = useMemo(() => {
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const now = new Date('2026-04-10T23:59:59');
+  const now = new Date();
 
    return historyRows.filter((trade) => {
    if (selectedStrategy !== 'All Strategies' && trade.strategy !== selectedStrategy) {
@@ -210,8 +201,8 @@ export default function HistoryPage() {
  </span>
  <div className="w-1 h-4 bg-white/10 mx-2" />
  <div className="flex items-center gap-2">
- <div className={cn('w-2 h-2 rounded-full', isFallbackData ? 'bg-amber-500' : 'bg-emerald-500')} />
- <span className="text-xs font-bold text-white/40 uppercase">{isFetching ? 'Syncing' : isFallbackData ? 'Fallback' : 'Synced'}</span>
+ <div className={cn('w-2 h-2 rounded-full', isFetching ? 'bg-amber-500' : 'bg-emerald-500')} />
+ <span className="text-xs font-bold text-white/40 uppercase">{isFetching ? 'Syncing' : 'Synced'}</span>
  </div>
  </div>
  <Button onClick={handleExport} className="h-14 px-8 bg-white text-black hover:bg-white/90 rounded-2xl font-semibold uppercase tracking-widest gap-3 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
@@ -269,8 +260,18 @@ export default function HistoryPage() {
  </tr>
  </thead>
  <tbody className="divide-y divide-white/3">
- {pagedHistory.map((trade, i) => (
- <motion.tr 
+ {isLoading ? (
+  Array.from({ length: pageSize }).map((_, i) => (
+   <tr key={i} className="animate-pulse">
+    {Array.from({ length: 8 }).map((__, j) => (
+     <td key={j} className="px-8 py-6">
+      <div className="h-4 rounded bg-white/5" />
+     </td>
+    ))}
+   </tr>
+  ))
+ ) : pagedHistory.map((trade, i) => (
+ <motion.tr
  key={trade.id}
  initial={{ opacity: 0, y: 10 }}
  animate={{ opacity: 1, y: 0 }}
@@ -335,8 +336,8 @@ export default function HistoryPage() {
  </table>
  </div>
 
- {/* Empty State Mock */}
- {filteredHistory.length === 0 && (
+ {/* Empty State */}
+ {!isLoading && filteredHistory.length === 0 && (
  <div className="py-32 flex flex-col items-center justify-center space-y-6">
  <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center animate-pulse">
  <Brain className="w-10 h-10 text-white/10" />

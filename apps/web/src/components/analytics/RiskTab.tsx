@@ -25,7 +25,7 @@ const drawdownData = [
 ];
 
 const riskMetrics = [
- { label: 'VaR 95%', val: '$8,240', sub: 'DAILY VALUE AT RISK', icon: Shield, color: 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20' },
+ { label: 'VaR 95%', val: '$8,240', sub: 'DAILY VALUE AT RISK', icon: Shield , color : 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20' },
  { label: 'Max Consec Losses', val: '4', sub: 'HISTORICAL PEAK', icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
  { label: 'Largest Loss', val: '-$3,120', sub: 'NOV 12 LIQUIDITY EVENT', icon: TrendingDown, color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
  { label: 'Best Single Win', val: '+$5,840', sub: 'DEC 05 VOL BREAKOUT', icon: ShieldCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },

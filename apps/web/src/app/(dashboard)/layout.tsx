@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { AppShell } from '@/components/layout/AppShell';
 import { cn } from '@/lib/utils';
 import { X, ArrowRight, Zap, Loader2, Search, Globe, ShieldCheck, Star, Building2, Heart, SlidersHorizontal, BadgeCheck, Crown } from 'lucide-react';
@@ -997,7 +997,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   )}
  </AnimatePresence>
  
- {children}
+ <Suspense
+   fallback={
+     <div className="flex-1 flex flex-col gap-4 animate-pulse" aria-busy="true">
+       <div className="h-8 w-64 rounded-xl bg-white/[0.03] border border-white/[0.05]" />
+       <div className="h-48 rounded-2xl bg-white/[0.02] border border-white/[0.04]" />
+       <div className="grid grid-cols-3 gap-4">
+         {Array.from({ length: 3 }).map((_, i) => (
+           <div key={i} className="h-28 rounded-2xl bg-white/[0.02] border border-white/[0.04]" />
+         ))}
+       </div>
+     </div>
+   }
+ >
+   {children}
+ </Suspense>
  </div>
  </AppShell>
  );

@@ -6,11 +6,16 @@ import {
 } from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../auth/redis.service';
 
 interface AIChatRequest {
   message: string;
   context?: string;
 }
+
+/** TTL constants (seconds) */
+const TTL_AI_RESPONSE = 5 * 60; // 5 minutes — same prompt/context can be reused briefly
+const TTL_COACHING_REPORT = 2 * 60; // 2 minutes — aggregate stats change slowly
 
 @Injectable()
 export class AIService {
@@ -18,7 +23,22 @@ export class AIService {
   private readonly baseUrl = process.env.AI_SERVICE_URL || 'http://ai:8000';
   private readonly openaiApiKey = process.env.OPENAI_API_KEY || '';
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+  ) {}
+
+  private sanitizeAIResponse(text: string): string {
+    const sanitized = text
+      .replace(/\bI (predict|forecast)\b/gi, 'data suggests')
+      .replace(/\b(guaranteed?|certain) profit\b/gi, 'potential outcome')
+      .replace(/\b100% (sure|certain|confident)\b/gi, 'worth considering');
+
+    return (
+      sanitized +
+      '\n\n⚠️ Educational analysis only — not financial advice. Trading involves significant risk of loss.'
+    );
+  }
 
   private async callOpenAI(
     systemPrompt: string,
@@ -34,6 +54,7 @@ export class AIService {
       ? 'https://openrouter.ai/api/v1/chat/completions'
       : 'https://api.openai.com/v1/chat/completions';
 
+    const start = Date.now();
     const response = await axios.post(
       baseUrl,
       {
@@ -57,6 +78,7 @@ export class AIService {
         timeout: 20000,
       },
     );
+    this.logger.log(`OpenAI request completed in ${Date.now() - start}ms`);
 
     return response.data.choices[0]?.message?.content || '';
   }
@@ -106,7 +128,7 @@ ${tradeData.profit !== undefined ? `P&L: ${tradeData.profit}` : ''}
 Strategy: ${tradeData.reason || 'Manual entry'}`;
 
       const explanation = await this.callOpenAI(systemPrompt, userPrompt);
-      return { explanation, source: 'openai' };
+      return { explanation: this.sanitizeAIResponse(explanation), source: 'openai' };
     } catch (err: any) {
       this.logger.error(`OpenAI fallback failed: ${err.message}`);
       throw new BadRequestException('AI Coach currently unavailable');
@@ -114,6 +136,9 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
   }
 
   async explainTradeById(userId: string, tradeId: string) {
+    // Return cached explanation for closed trades (they won't change)
+    const cacheKey = `ai:trade-explain:${tradeId}`;
+
     const trade = await this.prisma.trade.findFirst({
       where: { id: tradeId, userId },
       include: {
@@ -123,6 +148,19 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
 
     if (!trade) {
       throw new NotFoundException('Trade not found');
+    }
+
+    // Only cache closed trades — open trade state changes continuously
+    if (trade.status === 'CLOSED') {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        this.logger.log(`Cache hit: trade explanation for ${tradeId}`);
+        return JSON.parse(cached) as {
+          tradeId: string;
+          symbol: string;
+          explanation: unknown;
+        };
+      }
     }
 
     const promptPayload = {
@@ -136,7 +174,11 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
       status: trade.status,
     };
 
+    const start = Date.now();
     const ai = await this.explainTrade(promptPayload);
+    this.logger.log(
+      `AI trade explanation for ${tradeId} completed in ${Date.now() - start}ms`,
+    );
 
     const summary =
       typeof ai === 'string'
@@ -179,11 +221,17 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
       },
     });
 
-    return {
+    const result = {
       tradeId: trade.id,
       symbol: trade.symbol,
       explanation: ai,
     };
+
+    if (trade.status === 'CLOSED') {
+      await this.redis.set(cacheKey, JSON.stringify(result), TTL_AI_RESPONSE);
+    }
+
+    return result;
   }
 
   async chat(userId: string, payload: AIChatRequest) {
@@ -232,7 +280,7 @@ Recent context about the user's trades is provided below.`;
       const userPrompt = `${payload.context ? `Context: ${payload.context}\n` : ''}${tradesContext}\n\nUser question: ${payload.message}`;
 
       const reply = await this.callOpenAI(systemPrompt, userPrompt);
-      return { reply, source: 'openai' };
+      return { reply: this.sanitizeAIResponse(reply), source: 'openai' };
     } catch (err: any) {
       this.logger.error(`OpenAI chat fallback failed: ${err.message}`);
       throw new BadRequestException('AI chat currently unavailable');
@@ -240,6 +288,13 @@ Recent context about the user's trades is provided below.`;
   }
 
   async getCoachingReport(userId: string) {
+    const cacheKey = `ai:coaching-report:${userId}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.log(`Cache hit: coaching report for user ${userId}`);
+      return JSON.parse(cached);
+    }
+
     const trades = await this.prisma.trade.findMany({
       where: { userId },
       orderBy: { openedAt: 'desc' },
@@ -272,40 +327,61 @@ Recent context about the user's trades is provided below.`;
       }
     }
 
-    return {
+    const report = {
       sampleSize: trades.length,
       winRate: trades.length
         ? Number(((winningTrades / trades.length) * 100).toFixed(1))
         : 0,
       avgPnl: Number(avgPnl.toFixed(2)),
       behaviorFlags,
+      disclaimer:
+        'Educational analysis only — not financial advice. Trading involves significant risk of loss.',
       suggestions: aiSuggestions ?? [
         'Reduce position size after 2 consecutive losses',
         'Avoid new entries outside your highest win-rate session',
         'Review stop loss placement for the last 10 losing trades',
       ],
     };
+
+    await this.redis.set(cacheKey, JSON.stringify(report), TTL_COACHING_REPORT);
+    return report;
   }
 
   async getMarketRegime(symbol?: string) {
+    const resolvedSymbol = symbol || 'BTCUSDT';
+    const cacheKey = `ai:market-regime:${resolvedSymbol}`;
+
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.log(`Cache hit: market regime for ${resolvedSymbol}`);
+      return JSON.parse(cached);
+    }
+
     try {
+      const start = Date.now();
       const response = await axios.post(
         `${this.baseUrl}/ai/market-regime`,
-        {
-          symbol: symbol || 'BTCUSDT',
-        },
+        { symbol: resolvedSymbol },
         { timeout: 8000 },
+      );
+      this.logger.log(
+        `Market regime fetch for ${resolvedSymbol} completed in ${Date.now() - start}ms`,
+      );
+      await this.redis.set(
+        cacheKey,
+        JSON.stringify(response.data),
+        TTL_AI_RESPONSE,
       );
       return response.data;
     } catch {
       this.logger.warn(
-        'External AI service unavailable — returning cached market regime',
+        'External AI service unavailable — returning fallback market regime',
       );
       return {
         regime: 'UNKNOWN',
         adx: 0,
         atr_volatility: 'LOW',
-        symbol: symbol || 'BTCUSDT',
+        symbol: resolvedSymbol,
         timestamp: new Date().toISOString(),
       };
     }

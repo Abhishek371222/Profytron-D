@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -35,6 +35,7 @@ import { PreferencesModule } from './modules/preferences/preferences.module';
 import { JournalModule } from './modules/journal/journal.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { BrokerIntegrationModule } from './modules/broker/broker-integration.module';
+import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 
 const parseRedisConfig = () => {
   const redisUrl = getRedisConnectionUrl();
@@ -108,6 +109,10 @@ const parseRedisConfig = () => {
     BrokerIntegrationModule,
   ],
   controllers: [AppController],
-  providers: [AppService, { provide: APP_GUARD, useClass: AppThrottlerGuard }],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: AppThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+  ],
 })
 export class AppModule {}

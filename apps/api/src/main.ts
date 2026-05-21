@@ -20,6 +20,12 @@ async function isPortInUse(port: number): Promise<boolean> {
 }
 
 async function resolveApiPort(requestedPort: number): Promise<number> {
+  // In production, never silently move to a different port — fail fast so the
+  // container orchestrator knows the pod failed to bind and can reschedule it.
+  if (process.env.NODE_ENV === 'production') {
+    return requestedPort;
+  }
+
   const maxPortChecks = 20;
   let port = requestedPort;
   for (let i = 0; i < maxPortChecks; i += 1) {
@@ -39,8 +45,21 @@ async function bootstrap() {
 
   configureApp(app);
 
+  // ─── Graceful shutdown ────────────────────────────────────────────────────
+  // enableShutdownHooks() causes NestJS to listen for SIGTERM / SIGINT and
+  // call onModuleDestroy() / beforeApplicationShutdown() on providers.
+  // This lets Prisma, Redis, and Bull flush in-flight work before the process
+  // exits, preventing data loss during rolling restarts or container eviction.
+  app.enableShutdownHooks();
+
   const requestedPort = Number(process.env.API_PORT || 4000);
   const logger = new Logger('Bootstrap');
+
+  if (Number.isNaN(requestedPort) || requestedPort < 1 || requestedPort > 65535) {
+    logger.error(`Invalid API_PORT value: "${process.env.API_PORT}". Exiting.`);
+    process.exit(1);
+  }
+
   const port = await resolveApiPort(requestedPort);
   if (port !== requestedPort) {
     logger.warn(`Port ${requestedPort} is busy, falling back to ${port}.`);
@@ -53,6 +72,10 @@ async function bootstrap() {
 
   await app.listen(port, host);
   logger.log(`API is running on: ${apiPublicUrl}`);
-  logger.log(`Documentation: ${apiPublicUrl}/api/docs`);
+
+  // Only log Swagger URL in non-production to avoid advertising the docs path
+  if (process.env.NODE_ENV !== 'production') {
+    logger.log(`Documentation: ${apiPublicUrl}/api/docs`);
+  }
 }
 bootstrap();

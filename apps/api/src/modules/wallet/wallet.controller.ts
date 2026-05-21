@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Get,
   Post,
@@ -12,6 +13,7 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { WalletService } from './wallet.service';
 import {
   ApiTags,
@@ -61,6 +63,7 @@ export class WalletController {
     return this.walletService.getTransactions(req.user.id, query);
   }
 
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post('deposit')
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -72,6 +75,7 @@ export class WalletController {
     return this.walletService.initiateDeposit(req.user.id, dto);
   }
 
+  @Throttle({ default: { ttl: 60000, limit: 3 } })
   @Post('withdraw')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -85,6 +89,7 @@ export class WalletController {
 
   @Get('statement/:year/:month')
   @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Generate monthly wallet statement PDF' })
   async getStatement(
     @Req() req: RequestWithUser,
@@ -92,6 +97,16 @@ export class WalletController {
     @Param('month', ParseIntPipe) month: number,
     @Res({ passthrough: true }) res: Response,
   ) {
+    const currentYear = new Date().getFullYear();
+    if (year < 2020 || year > currentYear) {
+      throw new BadRequestException(
+        `year must be between 2020 and ${currentYear}`,
+      );
+    }
+    if (month < 1 || month > 12) {
+      throw new BadRequestException('month must be between 1 and 12');
+    }
+
     const data = await this.walletService.generateStatement(
       req.user.id,
       year,
@@ -116,11 +131,16 @@ export class WalletController {
   @Post('webhook')
   @Public()
   @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Stripe Webhook Handler' })
   async handleWebhook(
     @Req() req: Request,
     @Headers('stripe-signature') sig: string,
   ) {
+    if (!sig) {
+      throw new BadRequestException('Missing stripe-signature header');
+    }
+
     const rawBody = Buffer.isBuffer(req.body)
       ? req.body
       : Buffer.from(JSON.stringify(req.body || {}));

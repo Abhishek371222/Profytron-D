@@ -7,6 +7,7 @@ import {
   Req,
   Param,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AIService } from './ai.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
@@ -32,6 +33,7 @@ type AuthenticatedRequest = Request & {
 export class AIController {
   constructor(private readonly aiService: AIService) {}
 
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Get AI-driven explanation for one of your trades' })
@@ -51,6 +53,7 @@ export class AIController {
     return this.aiService.explainTrade(tradeData);
   }
 
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Send a prompt to AI coach chat' })

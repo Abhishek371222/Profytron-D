@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_qCp9e8uHjayl@ep-raspy-band-amyiq5v9-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require\" DIRECT_URL=\"postgresql://neondb_owner:npg_qCp9e8uHjayl@ep-raspy-band-amyiq5v9.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require\" npx prisma db push --accept-data-loss)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_qCp9e8uHjayl@ep-raspy-band-amyiq5v9-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require\" DIRECT_URL=\"postgresql://neondb_owner:npg_qCp9e8uHjayl@ep-raspy-band-amyiq5v9.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require\" npx prisma migrate resolve --applied 20260410211446_init)",
+      "Bash(npx prisma *)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_qCp9e8uHjayl@ep-raspy-band-amyiq5v9-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require\" DIRECT_URL=\"postgresql://neondb_owner:npg_qCp9e8uHjayl@ep-raspy-band-amyiq5v9.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require\" npx prisma migrate resolve --applied 20260415103000_schema_drift_guards)",
+      "Bash(npm run *)",
+      "Bash(echo \"API PID: $!\")",
+      "Bash(echo \"Web PID: $!\")",
+      "Bash(pkill -f \"nest start\")",
+      "Bash(echo \"API restarted, PID: $!\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4000/health)",
+      "Bash(npx tsc *)",
+      "Read(//c/Users/abhis/Downloads/profytron-video/**)",
+      "Bash(npm install *)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\abhis\\\\Downloads\\\\profytron-video\\\\out\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3333)",
+      "Bash(Select-String -Pattern \"\\\\.md$\")",
+      "Bash(Measure-Object)",
+      "Bash(Select-Object Count)",
+      "Bash(Get-ChildItem \"C:\\\\Users\\\\abhis\\\\Downloads\\\\Profytron-build1\\\\agency-agents\" -Recurse -Filter \"*.md\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\abhis\\Downloads\\profytron-video"
+    ]
+  }
+}

@@ -1,7 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../auth/redis.service';
 
 type RangeKey = '1d' | '1w' | '1m' | '3m' | '1y' | 'all';
+
+/** Cache TTL in seconds — analytics aggregations are expensive but tolerate slight staleness */
+const TTL_ANALYTICS = 2 * 60; // 2 minutes
+const TTL_LEADERBOARD = 60; // 1 minute — leaderboard changes frequently
 
 interface ClosedTradeRow {
   id: string;
@@ -22,7 +27,12 @@ interface ClosedTradeRow {
 
 @Injectable()
 export class AnalyticsService {
-  constructor(private prisma: PrismaService) {}
+  private readonly logger = new Logger(AnalyticsService.name);
+
+  constructor(
+    private prisma: PrismaService,
+    private readonly redis: RedisService,
+  ) {}
 
   private readonly baseEquity = 100_000;
 
@@ -158,6 +168,13 @@ export class AnalyticsService {
   }
 
   async getPortfolioStats(userId: string, range: RangeKey = '1m') {
+    const cacheKey = `analytics:portfolio:${userId}:${range}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(`Cache hit: portfolio stats ${userId}/${range}`);
+      return JSON.parse(cached);
+    }
+
     const trades = await this.getClosedTrades(userId, range);
 
     if (trades.length === 0) {
@@ -214,7 +231,7 @@ export class AnalyticsService {
       0,
     );
 
-    return {
+    const stats = {
       range,
       totalProfit: this.round(totalProfit),
       winRate: this.round(winRate),
@@ -229,6 +246,9 @@ export class AnalyticsService {
       bestMonth: this.round(bestMonth),
       equityCurve,
     };
+
+    await this.redis.set(cacheKey, JSON.stringify(stats), TTL_ANALYTICS);
+    return stats;
   }
 
   async getMonthlyReturns(userId: string) {
@@ -298,6 +318,13 @@ export class AnalyticsService {
   }
 
   async getStrategyComparison(userId: string, range: RangeKey = '3m') {
+    const cacheKey = `analytics:strategy-comparison:${userId}:${range}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(`Cache hit: strategy comparison ${userId}/${range}`);
+      return JSON.parse(cached);
+    }
+
     const trades = await this.getClosedTrades(userId, range);
     const groups = new Map<string, { name: string; pnl: number[] }>();
 
@@ -334,7 +361,7 @@ export class AnalyticsService {
 
     strategies.sort((a, b) => b.netPnl - a.netPnl);
 
-    return {
+    const comparison = {
       range,
       strategies,
       correlation: strategies.map((row) =>
@@ -359,9 +386,23 @@ export class AnalyticsService {
         }),
       ),
     };
+
+    await this.redis.set(
+      cacheKey,
+      JSON.stringify(comparison),
+      TTL_ANALYTICS,
+    );
+    return comparison;
   }
 
   async getRiskAnalytics(userId: string, range: RangeKey = '3m') {
+    const cacheKey = `analytics:risk:${userId}:${range}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(`Cache hit: risk analytics ${userId}/${range}`);
+      return JSON.parse(cached);
+    }
+
     const trades = await this.getClosedTrades(userId, range);
     const pnl = trades.map((t) => t.profit ?? 0);
     const curve = this.buildEquityCurve(trades);
@@ -379,7 +420,7 @@ export class AnalyticsService {
 
     const var95 = Math.abs(this.percentile(pnl, 5));
 
-    return {
+    const riskAnalytics = {
       range,
       var95: this.round(var95),
       maxConsecutiveLosses: this.computeMaxConsecutiveLosses(pnl),
@@ -409,9 +450,23 @@ export class AnalyticsService {
         };
       }),
     };
+
+    await this.redis.set(
+      cacheKey,
+      JSON.stringify(riskAnalytics),
+      TTL_ANALYTICS,
+    );
+    return riskAnalytics;
   }
 
   async getTradeAnalytics(userId: string, range: RangeKey = '3m') {
+    const cacheKey = `analytics:trades:${userId}:${range}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(`Cache hit: trade analytics ${userId}/${range}`);
+      return JSON.parse(cached);
+    }
+
     const trades = await this.getClosedTrades(userId, range);
     const pnl = trades.map((t) => t.profit ?? 0);
 
@@ -469,7 +524,7 @@ export class AnalyticsService {
     const wins = pnl.filter((v) => v > 0).length;
     const losses = pnl.filter((v) => v <= 0).length;
 
-    return {
+    const tradeAnalytics = {
       range,
       distribution: distribution.map(({ range: label, count }) => ({
         range: label,
@@ -482,6 +537,13 @@ export class AnalyticsService {
         { name: 'Losses', value: losses },
       ],
     };
+
+    await this.redis.set(
+      cacheKey,
+      JSON.stringify(tradeAnalytics),
+      TTL_ANALYTICS,
+    );
+    return tradeAnalytics;
   }
 
   async getTradeExport(userId: string, range: RangeKey = '3m') {
@@ -710,6 +772,13 @@ export class AnalyticsService {
   }
 
   async getLeaderboard(limit = 10) {
+    const cacheKey = `analytics:leaderboard:${limit}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(`Cache hit: leaderboard limit=${limit}`);
+      return JSON.parse(cached);
+    }
+
     const grouped = await this.prisma.trade.groupBy({
       by: ['userId'],
       where: { status: 'CLOSED' },
@@ -739,9 +808,16 @@ export class AnalyticsService {
       };
     });
 
-    return {
+    const leaderboard = {
       rows,
       limit,
     };
+
+    await this.redis.set(
+      cacheKey,
+      JSON.stringify(leaderboard),
+      TTL_LEADERBOARD,
+    );
+    return leaderboard;
   }
 }

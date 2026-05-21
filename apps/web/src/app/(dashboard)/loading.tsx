@@ -1,67 +1,71 @@
 import React from 'react';
 
+function Shimmer({ className }: { className?: string }) {
+  return (
+    <div
+      className={`relative overflow-hidden bg-white/[0.04] before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/[0.06] before:to-transparent ${className ?? ''}`}
+    />
+  );
+}
+
 export default function DashboardLoading() {
- return (
- <div className="p-8 space-y-10 animate-pulse">
- {/* Header Skeleton */}
- <div className="flex justify-between items-end">
- <div className="space-y-3">
- <div className="h-4 w-32 bg-white/5 rounded-full" />
- <div className="h-10 w-64 bg-white/5 rounded-2xl" />
- </div>
- <div className="flex gap-4">
- <div className="h-12 w-32 bg-white/5 rounded-xl" />
- <div className="h-12 w-32 bg-white/5 rounded-xl" />
- </div>
- </div>
+  return (
+    <div className="space-y-5 pb-10 animate-in fade-in duration-300">
+      {/* Header skeleton */}
+      <div className="rounded-[26px] border border-white/[0.06] bg-white/[0.015] p-5 md:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <Shimmer className="w-10 h-10 rounded-2xl shrink-0" />
+            <div className="space-y-2">
+              <Shimmer className="h-7 w-48 rounded-xl" />
+              <Shimmer className="h-4 w-72 rounded-lg" />
+            </div>
+          </div>
+          <Shimmer className="h-9 w-24 rounded-xl shrink-0" />
+        </div>
+        <div className="mt-4 flex gap-2">
+          {['w-10', 'w-12', 'w-12', 'w-14', 'w-10', 'w-10'].map((w, i) => (
+            <Shimmer key={i} className={`h-8 ${w} rounded-xl`} />
+          ))}
+        </div>
+      </div>
 
- {/* Stats Grid Skeleton */}
- <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
- {[1, 2, 3, 4].map((i) => (
- <div key={i} className="h-40 rounded-4xl bg-white/5 border border-white/10 p-6 flex flex-col justify-between">
- <div className="h-3 w-20 bg-white/10 rounded-full" />
- <div className="h-8 w-32 bg-white/10 rounded-xl" />
- <div className="h-3 w-24 bg-white/10 rounded-full" />
- </div>
- ))}
- </div>
+      {/* KPI cards skeleton */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="rounded-[22px] border border-white/[0.06] bg-white/[0.015] p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <Shimmer className="h-3 w-20 rounded-lg" />
+              <Shimmer className="w-8 h-8 rounded-xl" />
+            </div>
+            <Shimmer className="h-8 w-28 rounded-xl" />
+            <Shimmer className="h-1 w-full rounded-full" />
+          </div>
+        ))}
+      </div>
 
- {/* Main Content Area Skeleton */}
- <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
- <div className="lg:col-span-2 h-[500px] rounded-4xl bg-white/5 border border-white/10 p-8">
- <div className="flex justify-between mb-10">
- <div className="h-6 w-48 bg-white/10 rounded-xl" />
- <div className="h-10 w-32 bg-white/10 rounded-xl" />
- </div>
- <div className="space-y-4">
- {[1, 2, 3, 4, 5].map(i => (
- <div key={i} className="h-14 w-full bg-white/3 rounded-2xl flex items-center px-4 gap-4">
- <div className="w-8 h-8 rounded-lg bg-white/5" />
- <div className="h-4 flex-1 bg-white/10 rounded-full" />
- <div className="h-4 w-32 bg-white/10 rounded-full" />
- </div>
- ))}
- </div>
- </div>
- 
- <div className="lg:col-span-1 h-[500px] rounded-4xl bg-white/5 border border-white/10 p-8 flex flex-col justify-between">
- <div className="h-6 w-32 bg-white/10 rounded-xl" />
- <div className="flex-1 flex items-center justify-center">
- <div className="w-48 h-48 rounded-full border-8 border-white/5 flex flex-col items-center justify-center gap-3">
- <div className="h-8 w-16 bg-white/10 rounded-xl" />
- <div className="h-2 w-12 bg-white/10 rounded-full" />
- </div>
- </div>
- <div className="space-y-4">
- <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
- <div className="h-full w-2/3 bg-white/10" />
- </div>
- <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
- <div className="h-full w-1/3 bg-white/10" />
- </div>
- </div>
- </div>
- </div>
- </div>
- );
+      {/* Chart area skeleton */}
+      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+        <div className="rounded-[22px] border border-white/[0.06] bg-white/[0.015] p-5 space-y-4">
+          <div className="space-y-1.5">
+            <Shimmer className="h-3 w-24 rounded-lg" />
+            <Shimmer className="h-5 w-40 rounded-xl" />
+          </div>
+          <Shimmer className="h-[280px] w-full rounded-xl" />
+        </div>
+        <div className="rounded-[22px] border border-white/[0.06] bg-white/[0.015] p-5 space-y-3">
+          <div className="space-y-1.5">
+            <Shimmer className="h-3 w-24 rounded-lg" />
+            <Shimmer className="h-5 w-36 rounded-xl" />
+          </div>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-between p-3 rounded-[14px] border border-white/[0.04]">
+              <Shimmer className="h-3 w-28 rounded-lg" />
+              <Shimmer className="h-4 w-16 rounded-lg" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }

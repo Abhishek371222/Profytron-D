@@ -1,7 +1,9 @@
-'use client';
+ 'use client';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
 import { ArrowRight, Mail, MessageSquare } from 'lucide-react';
+import JoinWaitlistModal from '@/components/community/JoinWaitlistModal';
 
 // Instagram SVG (inline — not available in all lucide-react versions)
 const InstagramIcon = ({ className }: { className?: string }) => (
@@ -13,6 +15,8 @@ const InstagramIcon = ({ className }: { className?: string }) => (
 );
 
 export default function CommunityPage() {
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+
   return (
     <PublicPageLayout>
       {/* Hero */}
@@ -80,8 +84,20 @@ export default function CommunityPage() {
                     Our Discord server is being set up. Join the waitlist via email and we'll notify you the moment it launches.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 mt-6 text-sm font-semibold text-white/20 cursor-not-allowed">
-                  Server launching soon
+                <div className="flex items-center gap-2 mt-6 text-sm font-semibold">
+                  <a
+                    href="#"
+                    onClick={(e) => { e.preventDefault(); setIsWaitlistOpen(true); }}
+                    className="inline-flex items-center gap-3 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(99,102,241,0.15)]"
+                  >
+                    Join Waitlist
+                  </a>
+                  <a
+                    href="https://discord.gg/replace-this"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm text-white/40 underline ml-3"
+                  >Open Discord</a>
                 </div>
               </div>
             </motion.div>
@@ -123,6 +139,8 @@ export default function CommunityPage() {
           </div>
         </div>
       </section>
+
+      <JoinWaitlistModal open={isWaitlistOpen} onOpenChange={setIsWaitlistOpen} />
 
       {/* Why join early */}
       <section className="py-20 border-t border-white/5 bg-black/20">
@@ -185,3 +203,4 @@ export default function CommunityPage() {
     </PublicPageLayout>
   );
 }
+

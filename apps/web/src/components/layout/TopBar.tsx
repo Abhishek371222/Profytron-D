@@ -39,7 +39,7 @@ export function TopBar() {
  const displayAvatar =
    resolvedUser?.avatarUrl ||
    resolvedUser?.avatar ||
-   'https://api.dicebear.com/7.x/avataaars/svg?seed=Operative';
+   `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName)}`;
 
  const handleLogout = async () => {
    await logout();

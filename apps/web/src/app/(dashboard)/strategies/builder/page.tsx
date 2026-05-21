@@ -43,24 +43,8 @@ const nodeTypes = {
   custom: FlowNode,
 };
 
-const initialNodes: Node[] = [
-  {
-    id: '1',
-    type: 'custom',
-    position: { x: 250, y: 150 },
-    data: { label: 'RSI Oscillator', category: 'indicator' },
-  },
-  {
-    id: '2',
-    type: 'custom',
-    position: { x: 850, y: 150 },
-    data: { label: 'Market Ingress', category: 'action' },
-  },
-];
-
-const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2', animated: true, style: { stroke: '#6366f1', strokeWidth: 4, filter: 'drop-shadow(0 0 10px #6366f1)' } },
-];
+const initialNodes: Node[] = [];
+const initialEdges: Edge[] = [];
 
 let id = 0;
 const getId = () => `node_nvx_${id++}`;
@@ -98,11 +82,18 @@ export default function StrategyBuilderPage() {
       const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
       const typeStr = event.dataTransfer.getData('application/reactflow');
 
-      if (!typeStr || !reactFlowBounds) return;
+      if (!typeStr || !reactFlowBounds || !reactFlowInstance) return;
 
-      const { nodeType, label, category } = JSON.parse(typeStr);
+      let parsed: { nodeType?: string; label?: string; category?: string };
+      try {
+        parsed = JSON.parse(typeStr) as typeof parsed;
+      } catch {
+        return;
+      }
 
-      if (typeof nodeType === 'undefined' || !nodeType) return;
+      const { nodeType, label, category } = parsed;
+
+      if (!nodeType) return;
 
       const position = reactFlowInstance.project({
         x: event.clientX - reactFlowBounds.left,
@@ -113,7 +104,7 @@ export default function StrategyBuilderPage() {
         id: getId(),
         type: nodeType,
         position,
-        data: { label: `${label}`, category },
+        data: { label: `${label ?? nodeType}`, category },
       };
 
       setNodes((nds) => nds.concat(newNode));
@@ -363,6 +354,21 @@ export default function StrategyBuilderPage() {
             <div className="absolute bottom-0 left-0 w-full h-48 bg-linear-to-t from-[#050508] to-transparent opacity-90" />
             <div className="absolute left-0 top-0 h-full w-24 bg-linear-to-r from-black/20 to-transparent" />
           </div>
+
+          {/* Empty canvas hint */}
+          {nodes.length === 0 && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none">
+              <div className="flex flex-col items-center gap-4 opacity-40">
+                <div className="w-20 h-20 rounded-3xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center">
+                  <Box className="w-10 h-10 text-white/20" />
+                </div>
+                <div className="text-center space-y-1">
+                  <p className="text-sm font-bold text-white/30 uppercase tracking-[0.3em]">Canvas Empty</p>
+                  <p className="text-xs text-white/15">Drag nodes from the library to build your strategy</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <ReactFlowProvider>
             <ReactFlow

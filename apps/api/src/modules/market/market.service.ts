@@ -1,4 +1,5 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { RedisService } from '../auth/redis.service';
 
 export type MarketSymbol = 'BTCUSDT' | 'EURUSD' | 'XAUUSD';
 export type MarketTimeframe = '1m' | '5m' | '15m' | '1h' | '4h' | '1d';
@@ -57,8 +58,14 @@ const twelveDataIntervalMap: Record<MarketTimeframe, string> = {
   '1d': '1day',
 };
 
+/** TTL constants (seconds) */
+const TTL_QUOTE = 30; // price quotes — refresh every 30 s
+const TTL_OHLC_SHORT = 30; // 1m/5m/15m candles — short TTL, data changes fast
+const TTL_OHLC_LONG = 5 * 60; // 1h/4h/1d candles — slower cadence, cache 5 min
+
 @Injectable()
 export class MarketService {
+  private readonly logger = new Logger(MarketService.name);
   readonly supportedSymbols: MarketSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'];
   readonly supportedTimeframes: MarketTimeframe[] = [
     '1m',
@@ -73,9 +80,18 @@ export class MarketService {
     process.env.TWELVE_DATA_BASE_URL?.trim() || 'https://api.twelvedata.com';
   private readonly twelveDataApiKey = process.env.TWELVE_DATA_API_KEY?.trim();
   private readonly allowSyntheticFallback =
-    process.env.MARKET_ALLOW_SYNTHETIC_FALLBACK === 'true';
+    process.env.MARKET_ALLOW_SYNTHETIC_FALLBACK !== 'false';
+
+  constructor(private readonly redis: RedisService) {}
 
   async getQuote(symbol: MarketSymbol) {
+    const cacheKey = `market:quote:${symbol}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(`Cache hit: quote for ${symbol}`);
+      return JSON.parse(cached);
+    }
+
     const response = await this.getOHLC(symbol, '1m', 2);
     const candles = response.candles;
     const previous = candles[candles.length - 2];
@@ -84,24 +100,41 @@ export class MarketService {
       (((latest.close - previous.close) / previous.close) * 100).toFixed(4),
     );
 
-    return {
+    const quote = {
       symbol,
       price: latest.close,
       change24hPct,
       timestamp: new Date().toISOString(),
       source: response.source,
     };
+
+    await this.redis.set(cacheKey, JSON.stringify(quote), TTL_QUOTE);
+    return quote;
   }
 
   async getOHLC(symbol: MarketSymbol, timeframe: MarketTimeframe, limit = 220) {
     const safeLimit = Math.max(20, Math.min(500, Math.floor(limit || 220)));
+
+    // Use shorter TTL for high-frequency timeframes
+    const isShortTimeframe = ['1m', '5m', '15m'].includes(timeframe);
+    const ttl = isShortTimeframe ? TTL_OHLC_SHORT : TTL_OHLC_LONG;
+    const cacheKey = `market:ohlc:${symbol}:${timeframe}:${safeLimit}`;
+
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(
+        `Cache hit: OHLC ${symbol}/${timeframe}/${safeLimit}`,
+      );
+      return JSON.parse(cached);
+    }
+
     const liveCandles = await this.fetchTwelveDataOHLC(
       symbol,
       timeframe,
       safeLimit,
     );
     if (liveCandles.length > 0) {
-      return {
+      const result = {
         symbol,
         timeframe,
         limit: safeLimit,
@@ -109,6 +142,8 @@ export class MarketService {
         source: 'twelve-data',
         serverTime: new Date().toISOString(),
       };
+      await this.redis.set(cacheKey, JSON.stringify(result), ttl);
+      return result;
     }
 
     if (!this.allowSyntheticFallback) {
@@ -117,7 +152,10 @@ export class MarketService {
       );
     }
 
-    return this.buildSyntheticOHLC(symbol, timeframe, safeLimit);
+    const syntheticResult = this.buildSyntheticOHLC(symbol, timeframe, safeLimit);
+    // Cache synthetic data with the same TTL to avoid re-generating on every request
+    await this.redis.set(cacheKey, JSON.stringify(syntheticResult), ttl);
+    return syntheticResult;
   }
 
   private async fetchTwelveDataOHLC(

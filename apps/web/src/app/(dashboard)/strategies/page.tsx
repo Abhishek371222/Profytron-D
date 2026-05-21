@@ -24,7 +24,6 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useMotionTemplate } from 'framer-motion';
 import { StrategyActivationModal } from '@/components/strategies/StrategyActivationModal';
-import { demoStrategies, demoMyStrategies } from '@/lib/api/demoData';
 
 const CATEGORIES = ['ALL', 'TREND', 'RANGE', 'SCALPING', 'VOLATILITY', 'ARBITRAGE'];
 const RISK_COLORS = {
@@ -137,9 +136,8 @@ export default function StrategiesPage() {
     return filtered;
   };
 
-  // Use demo data by default with fallback to API data when available
-  const libraryStrategies = libraryData?.strategies && libraryData.strategies.length > 0 ? libraryData.strategies : demoStrategies;
-  const myStrategyList = myStrategies && myStrategies.length > 0 ? myStrategies : demoMyStrategies;
+  const libraryStrategies = libraryData?.strategies ?? [];
+  const myStrategyList = myStrategies ?? [];
 
   const displayedStrategies = activeTab === 'library' 
     ? getFilteredStrategies(libraryStrategies, selectedCategory, searchQuery, sortBy, verifiedOnly)

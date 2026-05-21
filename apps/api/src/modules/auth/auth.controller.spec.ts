@@ -1,5 +1,6 @@
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { TwoFaService } from './twofa.service';
 
 describe('AuthController', () => {
   const authService = {
@@ -7,11 +8,13 @@ describe('AuthController', () => {
     login: jest.fn(),
   } as unknown as jest.Mocked<AuthService>;
 
+  const twoFaService = {} as jest.Mocked<TwoFaService>;
+
   let controller: AuthController;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    controller = new AuthController(authService);
+    controller = new AuthController(authService, twoFaService);
   });
 
   it('sets the user_role cookie on email/password login', async () => {

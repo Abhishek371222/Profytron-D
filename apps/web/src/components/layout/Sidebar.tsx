@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
@@ -25,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/useUIStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
 
 const navItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
@@ -43,8 +45,10 @@ const navItems = [
 ];
 
 export function Sidebar({ mobile = false }: { mobile?: boolean }) {
+  const router = useRouter();
   const pathname = usePathname();
   const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { logout, isAuthenticated } = useAuthStore();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -53,6 +57,18 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
 
   const { data: user, isLoading } = useCurrentUser();
   const expanded = mobile ? true : sidebarOpen;
+
+  const handleBrandClick = async (
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => {
+    event.preventDefault();
+
+    if (isAuthenticated) {
+      await logout();
+    }
+
+    router.replace('/');
+  };
 
   return (
     <motion.aside
@@ -65,7 +81,12 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
       suppressHydrationWarning
     >
       {/* Logo */}
-      <div className="flex items-center justify-between h-20 px-6">
+      <Link
+        href="/"
+        onClick={handleBrandClick}
+        className="flex items-center justify-between h-20 px-6 w-full text-left cursor-pointer"
+        aria-label="Profytron Home"
+      >
         <AnimatePresence>
           {expanded && (
             <motion.div
@@ -89,7 +110,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
             <BarChart3 className="text-p w-5 h-5" />
           </div>
         )}
-      </div>
+      </Link>
 
       {/* Navigation */}
       <nav className="flex-1 px-3 space-y-1 py-4 overflow-y-auto overflow-x-hidden">
