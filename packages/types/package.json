@@ -1,0 +1,7 @@
+{
+  "name": "@profytron/types",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/api.ts",
+  "types": "./src/api.ts"
+}

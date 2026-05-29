@@ -1,0 +1,32 @@
+# Ready-to-run Caddy config for Profytron
+# Replace app.profytron.com and api.profytron.com with your real domains.
+# Caddy will auto-manage TLS certificates.
+
+{
+    email admin@profytron.com
+}
+
+app.profytron.com {
+    encode zstd gzip
+
+    @static {
+        path /_next/static/*
+    }
+    header @static Cache-Control "public, max-age=2592000, immutable"
+
+    reverse_proxy 127.0.0.1:3000 {
+        header_up Host {host}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}
+
+api.profytron.com {
+    encode zstd gzip
+
+    reverse_proxy 127.0.0.1:4000 {
+        header_up Host {host}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}

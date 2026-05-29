@@ -1,0 +1,954 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ENUMS
+enum MarketRegime {
+  TRENDING
+  RANGING
+  VOLATILE
+  UNKNOWN
+}
+
+enum UserRole {
+  USER
+  CREATOR
+  ADMIN
+}
+
+enum KycStatus {
+  NOT_STARTED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  ELITE
+  INSTITUTIONAL
+}
+
+enum BrokerName {
+  PAPER
+  MT4
+  MT5
+  BINANCE
+  BYBIT
+  KUCOIN
+  INTERACTIVE_BROKERS
+}
+
+enum StrategyCategory {
+  TREND
+  SCALPING
+  RANGE
+  VOLATILITY
+  ARBITRAGE
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  EXPERT
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  CANCELLED
+  EXPIRED
+  PAUSED
+}
+
+enum TradeDirection {
+  LONG
+  SHORT
+}
+
+enum TradeStatus {
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  SUBSCRIPTION_PAYMENT
+  TRADING_PNL
+  COMMISSION
+  MARKETPLACE_SALE
+}
+
+enum TransactionDirection {
+  IN
+  OUT
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
+enum AffiliateTier {
+  STARTER
+  PRO
+  ELITE
+}
+
+enum AchievementTier {
+  BRONZE
+  SILVER
+  GOLD
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  SUCCESS
+  ERROR
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  UPI
+  CARD
+  NETBANKING
+  WALLET
+  CRYPTO
+  STRIPE
+  PAYPAL
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum SupportTicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum StrategyNodeType {
+  ENTRY
+  EXIT
+  INDICATOR
+  CONDITION
+  ACTION
+}
+
+enum VpsProvider {
+  AWS
+  DIGITALOCEAN
+  LINODE
+  VULTR
+  CUSTOM
+}
+
+enum BotStatus {
+  RUNNING
+  STOPPED
+  ERROR
+  PAUSED
+}
+
+// MODELS
+model User {
+  id                  String           @id @default(uuid())
+  email               String           @unique
+  passwordHash        String?
+  fullName            String
+  username            String?          @unique
+  avatarUrl           String?
+  bio                 String?
+  country             String           @default("IN")
+  timezone            String           @default("Asia/Kolkata")
+  role                UserRole         @default(USER)
+  kycStatus           KycStatus        @default(NOT_STARTED)
+  subscriptionTier    SubscriptionTier @default(FREE)
+  riskProfileJson     Json?
+  riskDnaScore        Float?
+  referralCode        String           @unique @default(uuid())
+  googleId            String?          @unique
+  emailVerified       Boolean          @default(false)
+  isActive            Boolean          @default(true)
+  isSuspended         Boolean          @default(false)
+  onboardingCompleted Boolean          @default(false)
+  lastLoginAt         DateTime?
+  deletedAt           DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  brokerAccounts     BrokerAccount[]
+  createdStrategies  Strategy[]                 @relation("CreatedStrategies")
+  subscriptions      UserStrategySubscription[]
+  trades             Trade[]
+  walletTransactions WalletTransaction[]
+  achievements       UserAchievement[]
+  notifications      Notification[]
+  affiliateRecord    Affiliate?                 @relation("UserAffiliate")
+  referrals          Affiliate[]                @relation("ReferrerAffiliate")
+  reviews            StrategyReview[]
+  auditLogs          AuditLog[]
+  kycDocuments       KycDocument[]
+  sessions           UserSession[]
+  fcmTokens          UserFcmToken[]
+  leaderboardEntries LeaderboardEntry[]
+
+  twoFactorEnabled     Boolean  @default(false)
+  twoFactorSecret      String?
+  twoFactorBackupCodes Json?
+
+  payments              Payment[]
+  invoices              Invoice[]
+  paidSubscriptions     UserSubscription[]
+  traderProfile         TraderProfile?
+  socialComments        SocialComment[]
+  supportTickets        SupportTicket[]
+  supportResponses      SupportTicketResponse[]
+  strategyBuilders      StrategyBuilder[]
+  vpsAccounts           VpsAccount[]
+  aiRiskPolicy          AiRiskPolicy?
+  userPreferences       UserPreference?
+  brokerCredentials     BrokerApiCredential[]
+  tradeJournalEntries   TradeJournalEntry[]
+
+  @@index([email])
+  @@index([referralCode])
+}
+
+model UserSession {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceId     String
+  deviceName   String?
+  browser      String?
+  ipAddress    String?
+  country      String?
+  lastActiveAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([deviceId])
+}
+
+model BrokerAccount {
+  id                   String     @id @default(uuid())
+  userId               String
+  user                 User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brokerName           BrokerName
+  accountNumberLast4   String
+  credentialsEncrypted String
+  serverName           String?
+  isPaperTrading       Boolean    @default(false)
+  isDefault            Boolean    @default(false)
+  isMasterSource       Boolean    @default(false)
+  isActive             Boolean    @default(true)
+  lastConnectedAt      DateTime?
+  connectedAt          DateTime   @default(now())
+  createdAt            DateTime   @default(now())
+
+  subscriptions UserStrategySubscription[]
+  trades        Trade[]
+
+  @@index([userId])
+}
+
+model Strategy {
+  id                 String             @id @default(uuid())
+  creatorId          String
+  creator            User               @relation("CreatedStrategies", fields: [creatorId], references: [id])
+  name               String
+  description        String             @db.Text
+  category           StrategyCategory
+  riskLevel          RiskLevel
+  configJson         Json
+  isPublished        Boolean            @default(false)
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+  isVerified         Boolean            @default(false)
+  biasCheckJson      Json?
+  monthlyPrice       Float?
+  annualPrice        Float?
+  lifetimePrice      Float?
+  maxCopies          Int                @default(500)
+  copiesCount        Int                @default(0)
+  totalRevenue       Float              @default(0)
+  isFeatured         Boolean            @default(false)
+  deletedAt          DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  performance    StrategyPerformance[]
+  subscriptions  UserStrategySubscription[]
+  trades         Trade[]
+  listing        MarketplaceListing?
+  reviews        StrategyReview[]
+  aiExplanations AITradeExplanation[]
+
+  @@index([creatorId])
+  @@index([category])
+  @@index([isPublished, isVerified])
+}
+
+model StrategyPerformance {
+  id            String   @id @default(uuid())
+  strategyId    String
+  strategy      Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  date          DateTime @db.Date
+  winRate       Float
+  drawdown      Float
+  maxDrawdown   Float
+  sharpeRatio   Float
+  sortinoRatio  Float?
+  totalTrades   Int
+  winningTrades Int
+  netPnl        Float
+  equityCurve   Json
+  createdAt     DateTime @default(now())
+
+  @@unique([strategyId, date])
+  @@index([strategyId, date])
+}
+
+model UserStrategySubscription {
+  id              String             @id @default(uuid())
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategyId      String
+  strategy        Strategy           @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  brokerAccountId String?
+  brokerAccount   BrokerAccount?     @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
+  status          SubscriptionStatus @default(ACTIVE)
+  planType        String?
+  stripeSubId     String?
+  stripeItemId    String?
+  trialEndsAt     DateTime?
+  subscribedAt    DateTime           @default(now())
+  expiresAt       DateTime?
+  cancelledAt     DateTime?
+  riskOverrideEnabled Boolean        @default(false)
+  maxDrawdownPct      Float?
+  excludedSymbolsJson Json?
+  slippageBps         Float          @default(0)
+  executionPriority   Int            @default(0)
+  latencyLimitMs      Int?
+  lastLatencyMs       Int?
+  lastExecutionAt     DateTime?
+  riskPolicyJson      Json?
+  executionProfileJson Json?
+  lotMultiplier       Float          @default(1.0)
+
+  @@unique([userId, strategyId])
+  @@index([userId, status])
+  @@index([strategyId])
+}
+
+model Trade {
+  id              String              @id @default(uuid())
+  userId          String
+  user            User                @relation(fields: [userId], references: [id])
+  strategyId      String?
+  strategy        Strategy?           @relation(fields: [strategyId], references: [id])
+  brokerAccountId String?
+  brokerAccount   BrokerAccount?      @relation(fields: [brokerAccountId], references: [id])
+  brokerTicket    String?
+  symbol          String
+  direction       TradeDirection
+  volume          Float
+  openPrice       Float
+  closePrice      Float?
+  stopLoss        Float?
+  takeProfit      Float?
+  profit          Float?
+  commission      Float               @default(0)
+  swap            Float               @default(0)
+  isPaper         Boolean             @default(false)
+  status          TradeStatus         @default(OPEN)
+  openedAt        DateTime            @default(now())
+  closedAt        DateTime?
+  requestedPrice  Float?
+  fillPrice       Float?
+  slippageBps     Float               @default(0)
+  executionLatencyMs Int?
+  icebergSliceIndex Int?
+  icebergSliceCount Int?
+  executionMode   String?
+  executionMetadataJson Json?
+  aiExplanation   AITradeExplanation?
+  socialComments  SocialComment[]
+  journalEntry    TradeJournalEntry?
+
+  @@index([userId, status])
+  @@index([strategyId])
+  @@index([symbol])
+  @@index([openedAt])
+}
+
+model WalletTransaction {
+  id              String               @id @default(uuid())
+  userId          String
+  user            User                 @relation(fields: [userId], references: [id])
+  type            TransactionType
+  direction       TransactionDirection
+  amount          Float
+  balanceAfter    Float
+  status          TransactionStatus    @default(PENDING)
+  reference       String?
+  idempotencyKey  String               @unique
+  description     String?
+  metadataJson    Json?
+  stripePaymentId String?
+  razorpayOrderId String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@index([idempotencyKey])
+}
+
+model MarketplaceListing {
+  id            String   @id @default(uuid())
+  strategyId    String   @unique
+  strategy      Strategy @relation(fields: [strategyId], references: [id])
+  monthlyPrice  Float
+  annualPrice   Float
+  lifetimePrice Float
+  isFeatured    Boolean  @default(false)
+  totalRevenue  Float    @default(0)
+  trialDays     Int      @default(7)
+  maxCopies     Int      @default(500)
+  creatorSharePct Float  @default(0.8)
+  platformSharePct Float @default(0.2)
+  payoutEnabled  Boolean  @default(true)
+  lastPayoutAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([isFeatured])
+}
+
+model Affiliate {
+  id              String        @id @default(uuid())
+  userId          String        @unique
+  user            User          @relation("UserAffiliate", fields: [userId], references: [id])
+  referrerId      String?
+  referrer        User?         @relation("ReferrerAffiliate", fields: [referrerId], references: [id])
+  tier            AffiliateTier @default(STARTER)
+  commissionRate  Float         @default(0.30)
+  totalEarned     Float         @default(0)
+  totalPaid       Float         @default(0)
+  clickCount      Int           @default(0)
+  signupCount     Int           @default(0)
+  conversionCount Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([referrerId])
+}
+
+model UserAchievement {
+  id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementKey String
+  tier           AchievementTier
+  unlockedAt     DateTime        @default(now())
+  metadataJson   Json?
+
+  @@unique([userId, achievementKey])
+  @@index([userId])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  actionUrl String?
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+}
+
+model StrategyReview {
+  id           String   @id @default(uuid())
+  strategyId   String
+  strategy     Strategy @relation(fields: [strategyId], references: [id])
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  rating       Int      @db.SmallInt
+  reviewText   String   @db.Text
+  creatorReply String?  @db.Text
+  isVisible    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([strategyId, userId])
+  @@index([strategyId])
+}
+
+model AITradeExplanation {
+  id              String    @id @default(uuid())
+  tradeId         String    @unique
+  trade           Trade     @relation(fields: [tradeId], references: [id])
+  strategyId      String?
+  strategy        Strategy? @relation(fields: [strategyId], references: [id])
+  summary         String
+  confidenceScore Int
+  riskFactorsJson Json
+  keyLevelsJson   Json
+  createdAt       DateTime  @default(now())
+}
+
+model KycDocument {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  docType     String
+  status      KycStatus @default(PENDING)
+  storagePath String
+  onfidoId    String?
+  notes       String?
+  submittedAt DateTime  @default(now())
+  reviewedAt  DateTime?
+
+  @@index([userId])
+}
+
+model UserFcmToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  platform  String   @default("web")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model LeaderboardEntry {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  period       String
+  rank         Int
+  winRate      Float    @default(0)
+  totalPnl     Float    @default(0)
+  sharpeRatio  Float    @default(0)
+  totalTrades  Int      @default(0)
+  profitFactor Float    @default(0)
+  maxDrawdown  Float    @default(0)
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, period])
+  @@index([period, rank])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  eventType   String
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  detailsJson Json
+  triggeredBy String
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([eventType])
+}
+
+// ===== PAYMENT SYSTEM =====
+model Payment {
+  id                String        @id @default(uuid())
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount            Float
+  currency          String        @default("INR")
+  method            PaymentMethod
+  status            PaymentStatus @default(PENDING)
+  razorpayOrderId   String?       @unique
+  razorpayPaymentId String?       @unique
+  stripePaymentId   String?       @unique
+  description       String?
+  metadataJson      Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  completedAt       DateTime?
+
+  invoice   Invoice?
+  subscription UserSubscription?
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+}
+
+model Invoice {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentId        String   @unique
+  payment          Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  invoiceNumber    String   @unique
+  amount           Float
+  tax              Float    @default(0)
+  total            Float
+  currency         String   @default("INR")
+  description      String?
+  items            Json
+  pdfUrl           String?
+  downloadedCount  Int      @default(0)
+  issuedAt         DateTime @default(now())
+  dueAt            DateTime?
+
+  @@index([userId, issuedAt])
+  @@index([invoiceNumber])
+}
+
+model SubscriptionPlan {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  description     String?  @db.Text
+  monthlyPrice    Float
+  annualPrice     Float?
+  features        Json
+  maxStrategies   Int      @default(10)
+  maxCopyTrades   Int      @default(50)
+  prioritySupport Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  subscriptions UserSubscription[]
+
+  @@index([name])
+}
+
+model UserSubscription {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId         String
+  plan           SubscriptionPlan @relation(fields: [planId], references: [id])
+  paymentId      String?  @unique
+  payment        Payment? @relation(fields: [paymentId], references: [id])
+  status         SubscriptionStatus @default(ACTIVE)
+  billingCycle   String   @default("MONTHLY")
+  autoRenewal    Boolean  @default(true)
+  razorpaySubId  String?  @unique
+  subscribedAt   DateTime @default(now())
+  expiresAt      DateTime
+  cancelledAt    DateTime?
+  nextBillingAt  DateTime?
+
+  @@unique([userId, planId])
+  @@index([status, expiresAt])
+}
+
+// ===== SOCIAL TRADING =====
+model TraderProfile {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio               String?  @db.Text
+  headline          String?
+  followers         Int      @default(0)
+  following         Int      @default(0)
+  totalTrades       Int      @default(0)
+  winRate           Float    @default(0)
+  avgRr             Float    @default(0)
+  totalPnl          Float    @default(0)
+  monthlyReturn     Float    @default(0)
+  badges            Json     @default("[]")
+  isVerified        Boolean  @default(false)
+  verifiedPnlProof  String?
+  socialLinks       Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  comments   SocialComment[]
+  followers2 SocialFollow[] @relation("Followers")
+  following2 SocialFollow[] @relation("Following")
+
+  @@index([userId])
+  @@index([isVerified, totalPnl])
+}
+
+model SocialComment {
+  id          String   @id @default(uuid())
+  tradeId     String
+  trade       Trade    @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profileId   String
+  profile     TraderProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  content     String   @db.Text
+  likes       Int      @default(0)
+  replyToId   String?
+  replyTo     SocialComment? @relation("Replies", fields: [replyToId], references: [id], onDelete: Cascade)
+  replies     SocialComment[] @relation("Replies")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tradeId])
+  @@index([userId])
+  @@index([profileId])
+}
+
+model SocialFollow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    TraderProfile @relation("Following", fields: [followerId], references: [userId], onDelete: Cascade)
+  followingId String
+  following   TraderProfile @relation("Followers", fields: [followingId], references: [userId], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// ===== SUPPORT SYSTEM =====
+model SupportTicket {
+  id            String                  @id @default(uuid())
+  userId        String
+  user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject       String
+  description   String                  @db.Text
+  status        SupportTicketStatus     @default(OPEN)
+  priority      SupportTicketPriority   @default(MEDIUM)
+  category      String
+  assignedToId  String?
+  responses     SupportTicketResponse[]
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+  resolvedAt    DateTime?
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+}
+
+model SupportTicketResponse {
+  id        String   @id @default(uuid())
+  ticketId  String
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String   @db.Text
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([ticketId])
+  @@index([userId])
+}
+
+// ===== STRATEGY BUILDER =====
+model StrategyBuilder {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?  @db.Text
+  category    StrategyCategory
+  nodes       StrategyNode[]
+  edges       StrategyEdge[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model StrategyNode {
+  id          String           @id @default(uuid())
+  builderId   String
+  builder     StrategyBuilder  @relation(fields: [builderId], references: [id], onDelete: Cascade)
+  nodeType    StrategyNodeType
+  position    Json
+  config      Json
+  label       String
+  createdAt   DateTime @default(now())
+
+  edgesFrom StrategyEdge[] @relation("FromNode")
+  edgesTo   StrategyEdge[] @relation("ToNode")
+
+  @@index([builderId])
+}
+
+model StrategyEdge {
+  id       String   @id @default(uuid())
+  builderId String
+  builder  StrategyBuilder @relation(fields: [builderId], references: [id], onDelete: Cascade)
+  fromNodeId String
+  fromNode StrategyNode @relation("FromNode", fields: [fromNodeId], references: [id], onDelete: Cascade)
+  toNodeId String
+  toNode   StrategyNode @relation("ToNode", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+  @@index([builderId])
+  @@index([fromNodeId])
+  @@index([toNodeId])
+}
+
+// ===== VPS & BOT HOSTING =====
+model VpsAccount {
+  id             String      @id @default(uuid())
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider       VpsProvider
+  instanceId     String
+  hostname       String?
+  status         BotStatus   @default(STOPPED)
+  cpuCores       Int         @default(2)
+  memoryGb       Int         @default(4)
+  ipAddress      String?
+  sshKey         String?
+  credential     String?
+  monthlyPrice   Float
+  accessToken    String?
+  metadataJson   Json?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  botInstances   BotInstance[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model BotInstance {
+  id            String   @id @default(uuid())
+  vpsId         String
+  vps           VpsAccount @relation(fields: [vpsId], references: [id], onDelete: Cascade)
+  strategyId    String?
+  name          String
+  status        BotStatus @default(STOPPED)
+  logPath       String?
+  processPid    Int?
+  startedAt     DateTime?
+  stoppedAt     DateTime?
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([vpsId])
+}
+
+// ===== AI RISK ENGINE =====
+model AiRiskPolicy {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  maxDailyLossUsd   Float?
+  maxDailyLossPct   Float?
+  maxDrawdownPct    Float?
+  autoStopAfterLoss Boolean  @default(false)
+  autoStopAfterWin  Boolean  @default(false)
+  riskPerTradePct   Float    @default(1.0)
+  maxOpenTrades     Int      @default(10)
+  minWinRate        Float?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ===== LANGUAGE & PREFERENCES =====
+model UserPreference {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language      String   @default("en")
+  theme         String   @default("dark")
+  timezone      String   @default("Asia/Kolkata")
+  emailNotifications Boolean @default(true)
+  pushNotifications  Boolean @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ===== BROKER INTEGRATION DATA =====
+model BrokerApiCredential {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  broker        BrokerName
+  apiKey        String
+  secretKey     String
+  passphrase    String?
+  testnet       Boolean  @default(true)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, broker])
+  @@index([userId])
+}
+
+// ===== TRADING JOURNAL ENTRIES =====
+model TradeJournalEntry {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tradeId         String?  @unique
+  trade           Trade?   @relation(fields: [tradeId], references: [id])
+  emotions        String?
+  lessonLearned   String?  @db.Text
+  screenshotUrl   String?
+  aiAnalysis      String?  @db.Text
+  rating          Int?     @db.SmallInt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+// ===== WEBHOOK EVENTS =====
+model WebhookEvent {
+  id            String   @id @default(uuid())
+  eventType     String
+  userId        String?
+  payload       Json
+  delivered     Boolean  @default(false)
+  deliveredAt   DateTime?
+  retryCount    Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  @@index([eventType])
+  @@index([delivered])
+}

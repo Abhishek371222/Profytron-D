@@ -1,0 +1,2 @@
+-- DO NOT RUN: destructive diff against legacy database.
+-- Use `pnpm db:sync` (tools/apply-safe-schema-sync.mjs) instead.

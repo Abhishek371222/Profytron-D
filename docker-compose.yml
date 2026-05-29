@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: profytron-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: profytron_local
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgress_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - profytron-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: profytron-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+    networks:
+      - profytron-network
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: profytron-redis-commander
+    ports:
+      - "8081:8081"
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    depends_on:
+      - redis
+    networks:
+      - profytron-network
+
+  bull-board:
+    image: deadly0/bull-board:latest
+    container_name: profytron-bull-board
+    ports:
+      - "3002:3000"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    depends_on:
+      - redis
+    networks:
+      - profytron-network
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  profytron-network:
+    driver: bridge

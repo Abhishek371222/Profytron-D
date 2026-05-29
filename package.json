@@ -1,0 +1,33 @@
+{
+  "name": "profytron-monorepo",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev:web": "pnpm --filter profytron dev",
+    "dev:api": "pnpm --filter api start:dev",
+    "dev:api:trace": "pnpm --filter api start:dev:trace",
+    "dev:api:stable": "node tools/api-dev-supervisor.mjs",
+    "diagnose:api:crash": "node tools/api-crash-report.mjs",
+    "dev:ai": "cd services/ai && python main.py",
+    "dev:backtest": "cd services/backtest && python main.py",
+    "dev:all": "concurrently \"pnpm dev:web\" \"pnpm dev:api\"",
+    "dev:full": "concurrently \"pnpm dev:web\" \"pnpm dev:api\" \"pnpm dev:ai\" \"pnpm dev:backtest\"",
+    "db:sync": "node tools/apply-safe-schema-sync.cjs",
+    "db:migrate": "pnpm --filter api exec prisma migrate dev",
+    "db:seed": "pnpm --filter api exec prisma db seed",
+    "db:studio": "pnpm --filter api exec prisma studio",
+    "db:reset": "pnpm --filter api exec prisma migrate reset --force && pnpm db:seed",
+    "build": "turbo build --concurrency=1",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prettier": "^3.2.5",
+    "turbo": "latest",
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "stripe": "^22.0.1"
+  }
+}

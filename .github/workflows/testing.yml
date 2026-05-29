@@ -1,0 +1,86 @@
+name: Profytron CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  web-quality:
+    name: Web — Type check, lint, build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Type check web
+      run: pnpm --dir apps/web exec tsc --noEmit
+
+    - name: Lint web
+      run: pnpm --dir apps/web lint
+
+    - name: Build web
+      run: pnpm --dir apps/web build
+
+  api-quality:
+    name: API — Type check, lint, test
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Type check API
+      run: pnpm --dir apps/api exec tsc --noEmit -p tsconfig.build.json
+
+    - name: Lint API
+      run: pnpm --dir apps/api lint
+
+    - name: Run API unit tests
+      run: pnpm --dir apps/api test --passWithNoTests
+
+  dependency-audit:
+    name: Dependency vulnerability audit
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Audit dependencies
+      run: pnpm audit --audit-level=high

@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+.build/
+.next/
+out/
+
+# Local infra service data (Postgres / Redis dumps)
+.local-services/
+.local-services/**
+
+# Claude Code local settings — contains shell history that may include secrets
+.claude/settings.local.json
+
+# Environment files (NEVER commit these)
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+.env.*.local
+apps/api/.env
+apps/api/.env.*
+apps/api/.env.test
+apps/web/.env
+apps/web/.env.*
+apps/web/.env.local
+# local.env.example is a developer convenience file — contains real credentials
+local.env.example
+
+# Exception: Keep example files
+!apps/api/.env.example
+!apps/web/.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test outputs
+coverage/
+.nyc_output/
+test-results/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Prisma
+apps/api/prisma/*.db
+apps/api/prisma/*.db-journal
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+.turbo/cache/*.tar.zst
