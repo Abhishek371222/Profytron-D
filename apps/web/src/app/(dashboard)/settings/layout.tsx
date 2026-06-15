@@ -2,136 +2,51 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
 import {
- User,
- Shield,
- Bell,
- Zap,
- CreditCard,
- Key,
- ChevronRight,
- Settings,
- Cpu,
- MessageSquare,
+  User,
+  Shield,
+  Bell,
+  Zap,
+  CreditCard,
+  Key,
+  MessageSquare,
+  Settings,
 } from '@/components/ui/icons';
-import { Magnetic } from '@/components/ui/Interactions';
+import {
+  DashboardPage,
+  DashboardBreadcrumbs,
+  DashboardPageHeader,
+  DashboardSubNav,
+  DashboardCard,
+} from '@/components/dashboard/DashboardPrimitives';
 
 const navItems = [
- { name: 'Profile Identity', icon: User, href: '/settings/profile', desc: 'BIOMETRICS & CORE DATA' },
- { name: 'Fast Security', icon: Shield, href: '/settings/security', desc: 'ENCRYPTION & ACCESS' },
- { name: 'Notifications', icon: Bell, href: '/settings/notifications', desc: 'REAL-TIME SIGNALING' },
- { name: 'Execution Engine', icon: Zap, href: '/settings/trading', desc: 'ALGORITHMIC PARAMETERS' },
- { name: 'Treasury & Tiers', icon: CreditCard, href: '/settings/billing', desc: 'LIQUIDITY & SUBSCRIPTIONS' },
- { name: 'Interface API', icon: Key, href: '/settings/api-keys', desc: 'NEURAL HANDSHAKES' },
- { name: 'Support Center', icon: MessageSquare, href: '/settings/support', desc: 'TICKETS & ASSISTANCE' },
+  { name: 'Profile', icon: User, href: '/settings/profile' },
+  { name: 'Security', icon: Shield, href: '/settings/security' },
+  { name: 'Notifications', icon: Bell, href: '/settings/notifications' },
+  { name: 'Trading', icon: Zap, href: '/settings/trading' },
+  { name: 'Billing', icon: CreditCard, href: '/settings/billing' },
+  { name: 'API Keys', icon: Key, href: '/settings/api-keys' },
+  { name: 'Support', icon: MessageSquare, href: '/settings/support' },
 ];
 
-export default function SettingsLayout({
- children,
-}: {
- children: React.ReactNode;
-}) {
- const pathname = usePathname();
+export default function SettingsLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
 
- return (
- <div className="space-y-10 pb-20">
- {/* Settings Header */}
- <div className="space-y-2">
- <div className="flex items-center gap-2">
- <Settings className="w-4 h-4 text-primary animate-spin-slow" />
- <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.5em]">Central Command</span>
- </div>
- <h1 className="text-4xl font-semibold text-white uppercase tracking-tight">System Config</h1>
- </div>
+  return (
+    <DashboardPage>
+      <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Settings' }]} />
 
- <div className="flex flex-col lg:flex-row gap-6 xl:gap-8 items-start">
- {/* FLUID NAVIGATION SIDEBAR */}
- <div className="w-full lg:w-[250px] xl:w-[280px] 2xl:w-[320px] shrink-0 space-y-3">
- {navItems.map((item, idx) => {
- const isActive = pathname === item.href;
- return (
- <Magnetic key={item.href} strength={0.1}>
- <Link
- href={item.href}
- className={cn(
-"flex items-center gap-3 xl:gap-4 p-3.5 xl:p-4.5 rounded-[22px] xl:rounded-[26px] transition-all relative group overflow-hidden border",
- isActive 
- ?"glass-ultra border-primary/20 shadow-[0_0_40px_rgba(99,102,241,0.15)] bg-primary/5" 
- :"bg-white/2 border-white/5 hover:border-white/10 hover:bg-white/4"
- )}
- >
- <div className={cn(
-"w-10 h-10 xl:w-12 xl:h-12 rounded-2xl flex items-center justify-center transition-all duration-500",
- isActive ?"bg-primary text-white shadow-[0_0_20px_rgba(99,102,241,0.5)]" :"bg-white/5 text-white/10 group-hover:text-white/30"
- )}>
- <item.icon className="w-5 h-5 xl:w-6 xl:h-6" />
- </div>
- <div className="flex flex-col flex-1">
- <span className={cn(
-"text-[11px] xl:text-[13px] 2xl:text-[14px] font-semibold uppercase tracking-wider transition-colors",
- isActive ?"text-white" :"text-white/30 group-hover:text-white/50"
- )}>{item.name}</span>
- <span className="text-xs font-bold text-white/10 uppercase tracking-[0.2em] mt-1">
- {item.desc}
- </span>
- </div>
- 
- {isActive && (
- <motion.div 
- layoutId="activeDot"
- className="absolute right-6 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(99,102,241,1)]"
- />
- )}
- 
- {/* Scanline effect on hover/active */}
- {(isActive || pathname === item.href) && (
- <div className="absolute inset-0 pointer-events-none opacity-[0.03] animate-scanline bg-gradient-to-b from-transparent via-white to-transparent h-[200%]" />
- )}
- </Link>
- </Magnetic>
- );
- })}
- 
- {/* System Health Module (Sidebar Bottom) */}
- <div className="mt-8 p-6 rounded-[28px] border border-white/5 bg-white/1 space-y-4">
- <div className="flex items-center justify-between">
- <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Interface Stability</span>
- <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">Nominal</span>
- </div>
- <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
- <motion.div 
- initial={{ width: 0 }}
- animate={{ width: '98%' }}
- className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" 
- />
- </div>
- <div className="flex items-center gap-3">
- <Cpu className="w-3 h-3 text-white/20" />
- <span className="text-xs font-semibold text-white/10 uppercase tracking-[0.2em]">Fast Core v4.28-Stable</span>
- </div>
- </div>
- </div>
+      <DashboardPageHeader
+        title="Settings"
+        description="Manage your profile, security, billing, and platform preferences."
+        icon={Settings}
+      />
 
- {/* PREMIUM CONTENT AREA */}
- <div className="flex-1 w-full min-w-0 relative group">
- <div className="absolute -inset-1 bg-linear-to-tr from-primary/10 via-transparent to-indigo-500/10 rounded-[42px] blur-2xl opacity-50 group-hover:opacity-70 transition-opacity" />
- <motion.div
- key={pathname}
- initial={{ opacity: 0, y: 15, scale: 0.99 }}
- animate={{ opacity: 1, y: 0, scale: 1 }}
- transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
- className="bg-bg-base/40 glass-ultra border border-white/5 rounded-[30px] xl:rounded-[36px] 2xl:rounded-[40px] p-5 sm:p-7 xl:p-8 2xl:p-10 shadow-2xl relative z-10 min-h-150 overflow-hidden"
- >
- {/* Visual Accent */}
- <div className="absolute top-0 right-0 w-[400px] h-100 bg-primary/5 blur-[120px] rounded-full pointer-events-none -mr-20 -mt-20 -z-10" />
- 
- {children}
- </motion.div>
- </div>
- </div>
- </div>
- );
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
+        <DashboardSubNav items={navItems} pathname={pathname ?? ''} />
+        <DashboardCard className="flex-1 w-full min-w-0 p-5 sm:p-6 lg:p-8">{children}</DashboardCard>
+      </div>
+    </DashboardPage>
+  );
 }

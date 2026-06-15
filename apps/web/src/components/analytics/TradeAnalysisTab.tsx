@@ -83,18 +83,18 @@ function TradeAnalysisTabView() {
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
  {/* Your Outcome hardware distribution */}
  <motion.div variants={itemVariants}>
- <Card className="p-12 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden group rounded-[48px]">
+ <Card className="p-12 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden group rounded-[48px]">
  <div className="absolute top-0 left-0 w-full h-0.75 bg-linear-to-r from-transparent via-white/40 to-transparent animate-scanline" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
  <div className="space-y-4 mb-16 relative z-10">
  <div className="flex items-center gap-5">
- <div className="w-12 h-12 rounded-[18px] bg-white/5 border-2 border-white/10 flex items-center justify-center">
- <Layers className="w-6 h-6 text-white/40" />
+ <div className="w-12 h-12 rounded-[18px] bg-foreground/5 border-2 border-border flex items-center justify-center">
+ <Layers className="w-6 h-6 text-foreground/40" />
  </div>
- <h4 className="text-2xl font-semibold text-white uppercase tracking-tight leading-tight">Outcome_Lattice_Dist</h4>
+ <h4 className="text-2xl font-semibold text-foreground uppercase tracking-tight leading-tight">Outcome_Lattice_Dist</h4>
  </div>
- <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Trade frequency mapped across institutional Earnings corridors.</p>
+ <p className="text-sm text-foreground/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Trade frequency mapped across institutional Earnings corridors.</p>
  </div>
  
  <div className="h-100 w-full relative z-10">
@@ -148,22 +148,22 @@ function TradeAnalysisTabView() {
 
  {/* Your Execution hardware core */}
  <motion.div variants={itemVariants}>
- <Card className="p-12 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center relative overflow-hidden rounded-[48px] group/core">
- <div className="absolute top-0 right-0 w-full h-0.75 bg-linear-to-r from-transparent via-emerald-500/40 to-transparent animate-scanline" />
+ <Card className="p-12 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center relative overflow-hidden rounded-[48px] group/core">
+ <div className="absolute top-0 right-0 w-full h-0.75 bg-linear-to-r from-transparent via-chart-3/40 to-transparent animate-scanline" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
  <div className="absolute top-12 left-12 space-y-4 z-20 w-full">
  <div className="flex items-center gap-5">
- <div className="w-12 h-12 rounded-[18px] bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center">
- <Activity className="w-6 h-6 text-emerald-400" />
+ <div className="w-12 h-12 rounded-[18px] bg-chart-3/10 border-2 border-chart-3/20 flex items-center justify-center">
+ <Activity className="w-6 h-6 text-chart-3" />
  </div>
- <h4 className="text-2xl font-semibold text-white uppercase tracking-tight leading-tight">Execution_Core_Efficiency</h4>
+ <h4 className="text-2xl font-semibold text-foreground uppercase tracking-tight leading-tight">Execution_Core_Efficiency</h4>
  </div>
- <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Real-time volume-weighted win/loss kernel telemetry.</p>
+ <p className="text-sm text-foreground/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Real-time volume-weighted win/loss kernel telemetry.</p>
  </div>
  
  <div className="h-105 w-full relative mt-12 group/donut">
- <div className="absolute inset-0 bg-linear-to-r from-emerald-500/5 to-transparent rounded-full blur-[120px] opacity-0 group-hover/core:opacity-100 transition-opacity duration-1000" />
+ <div className="absolute inset-0 bg-linear-to-r from-chart-3/5 to-transparent rounded-full blur-[120px] opacity-0 group-hover/core:opacity-100 transition-opacity duration-1000" />
  
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <PieChart>
@@ -208,12 +208,12 @@ function TradeAnalysisTabView() {
  transition={{ duration: 1.5, delay: 0.5, type: 'spring' }}
  className="flex flex-col items-center"
  >
- <span className="text-8xl font-semibold text-white tracking-tight leading-tight shadow-[0_0_20px_rgba(255,255,255,0.2)]">72<span className="text-3xl text-white/30 ml-1">%</span></span>
- <span className="text-sm font-semibold text-white/20 uppercase tracking-[0.6em] mt-6">CORE_WIN_RATIO</span>
+ <span className="text-8xl font-semibold text-foreground tracking-tight leading-tight shadow-[0_0_20px_rgba(255,255,255,0.2)]">72<span className="text-3xl text-foreground/30 ml-1">%</span></span>
+ <span className="text-sm font-semibold text-foreground/20 uppercase tracking-[0.6em] mt-6">CORE_WIN_RATIO</span>
  <div className="mt-8 flex flex-col items-center">
- <div className="w-16 h-px bg-white/10 mb-4" />
- <div className="px-5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
- <span className="text-xs font-semibold text-emerald-400 uppercase tracking-[0.3em]">ALPHA_OPTIMIZED_STATE</span>
+ <div className="w-16 h-px bg-foreground/10 mb-4" />
+ <div className="px-5 py-1.5 rounded-full bg-chart-3/10 border border-chart-3/20">
+ <span className="text-xs font-semibold text-chart-3 uppercase tracking-[0.3em]">ALPHA_OPTIMIZED_STATE</span>
  </div>
  </div>
  </motion.div>
@@ -223,21 +223,21 @@ function TradeAnalysisTabView() {
  <div className="flex justify-center gap-20 mt-10 relative z-20 w-full px-12">
  <div className="flex flex-col items-center gap-4 group/win">
  <div className="flex items-center gap-4">
- <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border-2 border-emerald-500/20 flex items-center justify-center group-hover/win:rotate-12 transition-transform">
- <ArrowUpRight className="w-5 h-5 text-emerald-400" />
+ <div className="w-10 h-10 rounded-xl bg-chart-3/10 border-2 border-chart-3/20 flex items-center justify-center group-hover/win:rotate-12 transition-transform">
+ <ArrowUpRight className="w-5 h-5 text-chart-3" />
  </div>
- <span className="text-4xl font-semibold text-white tracking-tight">185</span>
+ <span className="text-4xl font-semibold text-foreground tracking-tight">185</span>
  </div>
- <span className="text-sm font-semibold text-white/20 uppercase tracking-[0.4em]">INSTITUTIONAL_WINS</span>
+ <span className="text-sm font-semibold text-foreground/20 uppercase tracking-[0.4em]">INSTITUTIONAL_WINS</span>
  </div>
  <div className="flex flex-col items-center gap-4 group/loss">
  <div className="flex items-center gap-4">
  <div className="w-10 h-10 rounded-xl bg-red-500/10 border-2 border-red-500/20 flex items-center justify-center group-hover/loss:-rotate-12 transition-transform">
  <ArrowDownRight className="w-5 h-5 text-red-500" />
  </div>
- <span className="text-4xl font-semibold text-white tracking-tight">72</span>
+ <span className="text-4xl font-semibold text-foreground tracking-tight">72</span>
  </div>
- <span className="text-sm font-semibold text-white/20 uppercase tracking-[0.4em]">MARKET_FRICTION</span>
+ <span className="text-sm font-semibold text-foreground/20 uppercase tracking-[0.4em]">MARKET_FRICTION</span>
  </div>
  </div>
  </Card>
@@ -247,18 +247,18 @@ function TradeAnalysisTabView() {
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
  {/* Hardware Symbol Performance matrix */}
  <motion.div variants={itemVariants}>
- <Card className="p-12 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[48px]">
- <div className="absolute top-0 right-0 w-full h-0.75 bg-linear-to-r from-transparent via-cyan-500/40 to-transparent animate-scanline" />
+ <Card className="p-12 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[48px]">
+ <div className="absolute top-0 right-0 w-full h-0.75 bg-linear-to-r from-transparent via-chart-5/40 to-transparent animate-scanline" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
  <div className="space-y-4 mb-16 relative z-10">
  <div className="flex items-center gap-5">
- <div className="w-12 h-12 rounded-[18px] bg-cyan-500/10 border-2 border-cyan-500/20 flex items-center justify-center">
- <TrendingUp className="w-6 h-6 text-cyan-400" />
+ <div className="w-12 h-12 rounded-[18px] bg-chart-5/10 border-2 border-chart-5/20 flex items-center justify-center">
+ <TrendingUp className="w-6 h-6 text-chart-5" />
  </div>
- <h4 className="text-2xl font-semibold text-white uppercase tracking-tight leading-tight">Asset_Alpha_Kernel</h4>
+ <h4 className="text-2xl font-semibold text-foreground uppercase tracking-tight leading-tight">Asset_Alpha_Kernel</h4>
  </div>
- <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Recursive attribution matrix by primary instrument class.</p>
+ <p className="text-sm text-foreground/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Recursive attribution matrix by primary instrument class.</p>
  </div>
 
  <div className="space-y-10 relative z-10">
@@ -266,22 +266,22 @@ function TradeAnalysisTabView() {
  <div key={item.symbol} className="space-y-4 group/item">
  <div className="flex items-end justify-between px-2">
  <div className="flex flex-col gap-1">
- <span className="text-lg font-semibold text-white tracking-widest uppercase group-hover/item:text-cyan-400 transition-all leading-tight">{item.symbol}</span>
- <span className="text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">{item.trades}_EXECUTIONS_SYNCED</span>
+ <span className="text-lg font-semibold text-foreground tracking-widest uppercase group-hover/item:text-chart-5 transition-all leading-tight">{item.symbol}</span>
+ <span className="text-xs font-semibold text-foreground/20 uppercase tracking-[0.3em]">{item.trades}_EXECUTIONS_SYNCED</span>
  </div>
  <div className="flex flex-col items-end gap-1">
- <span className={cn("text-2xl font-semibold tracking-tight leading-tight shadow-sm", item.pnl > 0 ?"text-emerald-400" :"text-red-400")}>
+ <span className={cn("text-2xl font-semibold tracking-tight leading-tight shadow-sm", item.pnl > 0 ?"text-chart-3" :"text-red-400")}>
  {item.pnl > 0 ? '+' : ''}${item.pnl.toLocaleString()}
  </span>
- <div className="h-0.5 w-12 bg-white/5" />
+ <div className="h-0.5 w-12 bg-foreground/5" />
  </div>
  </div>
- <div className="h-3 rounded-full bg-white/2 overflow-hidden border-2 border-white/5 relative">
+ <div className="h-3 rounded-full bg-foreground/2 overflow-hidden border-2 border-border relative">
  <motion.div 
  initial={{ width: 0 }}
  animate={{ width: `${Math.abs(item.pnl) / 450}%` }}
  transition={{ duration: 2, delay: idx * 0.15, ease: [0.22, 1, 0.36, 1] }}
- className={cn("h-full rounded-full relative", item.pnl > 0 ?"bg-linear-to-r from-emerald-600 to-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.5)]" :"bg-linear-to-r from-red-600 to-red-400 shadow-[0_0_20px_rgba(239,68,68,0.5)]")}
+ className={cn("h-full rounded-full relative", item.pnl > 0 ?"bg-linear-to-r from-chart-3 to-chart-3 shadow-[0_0_20px_rgba(16,185,129,0.5)]" :"bg-linear-to-r from-red-600 to-red-400 shadow-[0_0_20px_rgba(239,68,68,0.5)]")}
  >
  <div className="absolute inset-0 bg-scanlines opacity-20" />
  </motion.div>
@@ -294,18 +294,18 @@ function TradeAnalysisTabView() {
 
  {/* Temporal Holding Duration Intelligence */}
  <motion.div variants={itemVariants}>
- <Card className="p-12 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden rounded-[48px] group/temp">
- <div className="absolute top-0 right-0 w-64 h-64 bg-p/5 rounded-full blur-[120px] -mr-32 -mt-32 opacity-0 group-hover/temp:opacity-100 transition-opacity duration-1000" />
+ <Card className="p-12 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden rounded-[48px] group/temp">
+ <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[120px] -mr-32 -mt-32 opacity-0 group-hover/temp:opacity-100 transition-opacity duration-1000" />
  <div className="absolute inset-0 bg-scanlines opacity-[0.03] pointer-events-none" />
  
  <div className="space-y-4 mb-20 relative z-10">
  <div className="flex items-center gap-5">
- <div className="w-12 h-12 rounded-[18px] bg-indigo-500/10 border-2 border-indigo-500/20 flex items-center justify-center">
- <Clock className="w-6 h-6 text-indigo-400" />
+ <div className="w-12 h-12 rounded-[18px] bg-primary/10 border-2 border-primary/20 flex items-center justify-center">
+ <Clock className="w-6 h-6 text-primary" />
  </div>
- <h4 className="text-2xl font-semibold text-white uppercase tracking-tight leading-tight">Temporal_Holding_Profile</h4>
+ <h4 className="text-2xl font-semibold text-foreground uppercase tracking-tight leading-tight">Temporal_Holding_Profile</h4>
  </div>
- <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Heuristic holding period density distribution by epoch.</p>
+ <p className="text-sm text-foreground/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Heuristic holding period density distribution by epoch.</p>
  </div>
 
  <div className="h-95 w-full relative z-10">
@@ -349,18 +349,18 @@ function TradeAnalysisTabView() {
  </ResponsiveContainer>
  </div>
  
- <div className="mt-14 flex items-center justify-between border-t-2 border-white/5 pt-10 relative z-10">
+ <div className="mt-14 flex items-center justify-between border-t-2 border-border pt-10 relative z-10">
  <div className="flex items-center gap-4 group/l1">
- <div className="w-4 h-4 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] group-hover:scale-125 transition-transform" />
- <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.3em]">EPOCH_SCALP</span>
+ <div className="w-4 h-4 rounded-full bg-primary shadow-[0_0_10px_rgba(99,102,241,0.5)] group-hover:scale-125 transition-transform" />
+ <span className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.3em]">EPOCH_SCALP</span>
  </div>
  <div className="flex items-center gap-4 group/l2">
- <div className="w-4 h-4 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.5)] group-hover:scale-125 transition-transform" />
- <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.3em]">INTRADAY_LENS</span>
+ <div className="w-4 h-4 rounded-full bg-chart-5 shadow-[0_0_10px_rgba(6,182,212,0.5)] group-hover:scale-125 transition-transform" />
+ <span className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.3em]">INTRADAY_LENS</span>
  </div>
  <div className="flex items-center gap-4 group/l3">
- <div className="w-4 h-4 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)] group-hover:scale-125 transition-transform" />
- <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.3em]">LONG_EPOCH_SWING</span>
+ <div className="w-4 h-4 rounded-full bg-chart-4 shadow-[0_0_10px_rgba(245,158,11,0.5)] group-hover:scale-125 transition-transform" />
+ <span className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.3em]">LONG_EPOCH_SWING</span>
  </div>
  </div>
  </Card>

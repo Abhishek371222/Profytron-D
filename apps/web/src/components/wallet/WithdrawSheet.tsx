@@ -4,7 +4,6 @@ import React from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { walletApi } from '@/lib/api/wallet';
-import axios from 'axios';
 import {
   Sheet,
   SheetContent,
@@ -87,41 +86,41 @@ export function WithdrawSheet({
 
   return (
     <Sheet open={open} onOpenChange={(next) => (next ? onOpenChange(true) : reset())}>
-      <SheetContent side="right" className="w-[420px] bg-[#0b0b0f] border border-white/10 text-white">
+      <SheetContent side="right" className="w-[420px] bg-card border-l border-[var(--card-border)] text-foreground">
         <SheetHeader>
-          <SheetTitle>Withdraw Funds</SheetTitle>
-          <SheetDescription>Step {step} of 3</SheetDescription>
+          <SheetTitle className="text-xl font-bold">Withdraw Funds</SheetTitle>
+          <SheetDescription className="text-muted-foreground">Step {step} of 3</SheetDescription>
         </SheetHeader>
 
         {step === 1 && (
           <div className="mt-6 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm text-white/70">Amount (min 500)</label>
+              <label className="text-sm font-medium text-foreground">Amount (min 500)</label>
               <input
                 type="number"
                 min="500"
                 step="0.01"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                className="w-full rounded-xl border border-[var(--card-border)] bg-card px-3 py-2.5 text-sm outline-none focus:border-primary/40"
               />
-              <p className="text-xs text-white/50">Available: INR {availableBalance.toFixed(2)}</p>
+              <p className="text-xs text-muted-foreground">Available: ₹{availableBalance.toFixed(2)}</p>
               {!isWithinBalance && amount ? (
-                <p className="text-xs text-red-400">Amount exceeds available balance</p>
+                <p className="text-xs text-destructive">Amount exceeds available balance</p>
               ) : null}
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm text-white/70">Bank Account</label>
+              <label className="text-sm font-medium text-foreground">Bank Account</label>
               <input
                 value={bankAccount}
                 onChange={(e) => setBankAccount(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                className="w-full rounded-xl border border-[var(--card-border)] bg-card px-3 py-2.5 text-sm outline-none focus:border-primary/40"
               />
             </div>
 
             <Button
-              className="w-full"
+              className="w-full rounded-xl"
               disabled={!isAmountValid || !isWithinBalance || !bankAccount.trim() || isSendingOtp}
               onClick={async () => {
                 await handleSendOtp();
@@ -135,10 +134,10 @@ export function WithdrawSheet({
 
         {step === 2 && (
           <div className="mt-6 space-y-4">
-            <p className="text-sm text-white/60">An OTP has been sent to your registered email. Enter it below to confirm the withdrawal.</p>
+            <p className="text-sm text-muted-foreground">An OTP has been sent to your registered email. Enter it below to confirm the withdrawal.</p>
             <Button
               variant="ghost"
-              className="w-full border border-white/10 text-white/70 text-sm"
+              className="w-full border border-[var(--card-border)] text-muted-foreground text-sm rounded-xl"
               disabled={isSendingOtp}
               onClick={handleSendOtp}
             >
@@ -147,12 +146,12 @@ export function WithdrawSheet({
             <input
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 tracking-[0.4em] text-center text-lg"
+              className="w-full rounded-xl border border-[var(--card-border)] bg-card px-3 py-2.5 tracking-[0.4em] text-center text-lg outline-none focus:border-primary/40"
               placeholder="• • • • • •"
               maxLength={6}
             />
             <Button
-              className="w-full"
+              className="w-full rounded-xl"
               disabled={otp.length !== 6 || withdrawMutation.isPending}
               onClick={submitWithdrawal}
             >
@@ -163,8 +162,8 @@ export function WithdrawSheet({
 
         {step === 3 && (
           <div className="mt-6 space-y-4 text-center">
-            <p className="text-emerald-400 font-semibold">Withdrawal queued successfully.</p>
-            <Button className="w-full" onClick={reset}>
+            <p className="text-chart-3 font-semibold">Withdrawal queued successfully.</p>
+            <Button className="w-full rounded-xl" onClick={reset}>
               Done
             </Button>
           </div>

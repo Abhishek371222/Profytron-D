@@ -1,386 +1,325 @@
 'use client';
 
-import React from 'react';
-import { AnimatePresence } from 'framer-motion';
-import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import React, { Suspense } from 'react';
+import Link from 'next/link';
+import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown, ChevronRight } from 'lucide-react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero';
 import { FeaturedRow } from '@/components/marketplace/FeaturedRow';
 import { FilterSidebar } from '@/components/marketplace/FilterSidebar';
 import { MarketplaceCard } from '@/components/marketplace/MarketplaceCard';
+import { MarketplaceStrategyTable } from '@/components/marketplace/MarketplaceStrategyTable';
 import { SubscribeModal } from '@/components/marketplace/SubscribeModal';
+import { MarketplaceSkeleton } from '@/components/skeletons/MarketplaceSkeleton';
 import { cn } from '@/lib/utils';
 import { marketplaceApi } from '@/lib/api/marketplace';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { formatBotName } from '@/lib/bot-labels';
+
+function useDebouncedValue<T>(value: T, delay = 350): T {
+  const [debounced, setDebounced] = React.useState(value);
+  React.useEffect(() => {
+    const t = window.setTimeout(() => setDebounced(value), delay);
+    return () => window.clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+function MarketplacePageInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isFilterOpen, setIsFilterOpen] = React.useState(true);
+  const [viewType, setViewType] = React.useState<'grid' | 'list'>('list');
+  const [selectedStrategy, setSelectedStrategy] = React.useState<Record<string, unknown> | null>(null);
+
+  const openSubscribe = (strategy: unknown) => setSelectedStrategy(strategy as Record<string, unknown>);
+  const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
+  const [sortBy, setSortBy] = React.useState<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'>(
+    (searchParams.get('sort') as 'trending') || 'trending',
+  );
+  const sortOrder: Array<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'> = [
+    'trending', 'top-rated', 'newest', 'performance', 'subscribers', 'price',
+  ];
+  const [filters, setFilters] = React.useState({
+    priceMax: Number(searchParams.get('priceMax') || 0),
+    selectedRisks: searchParams.get('riskLevel') ? [searchParams.get('riskLevel')!.toLowerCase()] : [] as string[],
+    selectedAssets: (searchParams.get('assets') || '').split(',').map((v) => v.trim()).filter(Boolean),
+    selectedTimeframes: (searchParams.get('tfs') || '').split(',').map((v) => v.trim().toUpperCase()).filter(Boolean),
+    verifiedOnly: searchParams.get('verified') === 'true',
+  });
+
+  const lastUrlSync = React.useRef<string | null>(searchParams.toString() || '');
+  const debouncedSearch = useDebouncedValue(searchQuery);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set('q', debouncedSearch);
+    params.set('sort', sortBy);
+    if (filters.verifiedOnly) params.set('verified', 'true');
+    if (filters.selectedRisks[0]) params.set('riskLevel', filters.selectedRisks[0].toUpperCase());
+    if (filters.selectedAssets.length) params.set('assets', filters.selectedAssets.join(','));
+    if (filters.selectedTimeframes.length) params.set('tfs', filters.selectedTimeframes.join(','));
+    if (filters.priceMax > 0) params.set('priceMax', String(filters.priceMax));
+
+    const next = params.toString();
+    if (next === lastUrlSync.current) return;
+    lastUrlSync.current = next;
+    router.replace(next ? `/marketplace?${next}` : '/marketplace', { scroll: false });
+  }, [debouncedSearch, sortBy, filters, router]);
+
+  const featuredQuery = useQuery({
+    queryKey: ['marketplace-featured'],
+    queryFn: () => marketplaceApi.getFeatured(),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+
+  const marketplaceQuery = useInfiniteQuery({
+    queryKey: ['marketplace', debouncedSearch, sortBy, filters],
+    queryFn: ({ pageParam }) =>
+      marketplaceApi.getMarketplace({
+        limit: 20,
+        cursor: pageParam || undefined,
+        sort: sortBy,
+        q: debouncedSearch || undefined,
+        verified: filters.verifiedOnly || undefined,
+        riskLevel: filters.selectedRisks[0]?.toUpperCase(),
+        priceMax: filters.priceMax || undefined,
+      }),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+
+  const mappedStrategies = React.useMemo(() => {
+    const items = marketplaceQuery.data?.pages.flatMap((page) => page.items) ?? [];
+    const defaultAssets = ['Forex', 'Crypto', 'Indices', 'Commodities'];
+    const defaultTimeframes = ['M1', 'M5', 'M15', 'H1', 'H4', 'D1'];
+    const hash = (seed: string, len: number) => {
+      let h = 0;
+      for (let i = 0; i < seed.length; i += 1) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+      return h % len;
+    };
+
+    return items.map((item: Record<string, unknown>) => {
+      const strategy = item.strategy as Record<string, unknown>;
+      const perf = (strategy.performance as Record<string, unknown>[])?.[0] ?? {};
+      return {
+        id: String(item.strategyId),
+        name: formatBotName(String(strategy.name)),
+        category: String(strategy.category),
+        creator: (strategy.creator as { fullName?: string })?.fullName || 'Unknown',
+        verified: Boolean(strategy.isVerified),
+        assetClass: String(strategy.assetClass || defaultAssets[hash(String(item.strategyId), defaultAssets.length)]),
+        timeframe: String(strategy.timeframe || defaultTimeframes[hash(`tf-${item.strategyId}`, defaultTimeframes.length)]).toUpperCase(),
+        price: Number(item.monthlyPrice || 0),
+        monthlyPrice: Number(item.monthlyPrice || 0),
+        subscribers: Number(strategy.copiesCount || 0),
+        returns: Number(perf.winRate || 0),
+        risk: String(strategy.riskLevel || 'Medium'),
+        sharpe: Number(perf.sharpeRatio || 0),
+        drawdown: Number(perf.maxDrawdown || 0),
+      };
+    });
+  }, [marketplaceQuery.data]);
+
+  const strategies = React.useMemo(() => {
+    const normalizedQuery = debouncedSearch.trim().toLowerCase();
+    const filtered = mappedStrategies.filter((s) => {
+      if (filters.verifiedOnly && !s.verified) return false;
+      if (filters.selectedRisks.length && !filters.selectedRisks.includes(s.risk.toLowerCase())) return false;
+      if (filters.selectedAssets.length && !filters.selectedAssets.includes(s.assetClass)) return false;
+      if (filters.selectedTimeframes.length && !filters.selectedTimeframes.includes(s.timeframe)) return false;
+      if (filters.priceMax > 0 && s.price > filters.priceMax) return false;
+      if (normalizedQuery) {
+        const target = `${s.name} ${s.creator} ${s.category}`.toLowerCase();
+        if (!target.includes(normalizedQuery)) return false;
+      }
+      return true;
+    });
+
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'price': return a.price - b.price;
+        case 'performance': return b.returns - a.returns;
+        case 'subscribers': return b.subscribers - a.subscribers;
+        case 'top-rated': return b.sharpe - a.sharpe;
+        case 'newest': return String(b.id).localeCompare(String(a.id));
+        default: return b.subscribers * 0.6 + b.returns * 10 - (a.subscribers * 0.6 + a.returns * 10);
+      }
+    });
+  }, [filters, mappedStrategies, debouncedSearch, sortBy]);
+
+  const heroStats = React.useMemo(() => {
+    const creators = new Set(mappedStrategies.filter((s) => s.verified).map((s) => s.creator));
+    return {
+      totalStrategies: marketplaceQuery.data?.pages[0]?.total ?? mappedStrategies.length,
+      totalSubscribers: mappedStrategies.reduce((sum, s) => sum + s.subscribers, 0),
+      verifiedCreators: creators.size,
+    };
+  }, [mappedStrategies, marketplaceQuery.data]);
+
+  const featuredStrategies = React.useMemo(() => {
+    return (featuredQuery.data ?? []).map((item: Record<string, unknown>) => {
+      const strategy = item.strategy as Record<string, unknown>;
+      const perf = (strategy.performance as Record<string, unknown>[])?.[0] ?? {};
+      const winRate = Number(perf.winRate || 0);
+      return {
+        id: String(item.strategyId),
+        name: formatBotName(String(strategy.name)),
+        returns: `+${winRate.toFixed(1)}%`,
+        subscribers: `${Number(strategy.copiesCount || 0).toLocaleString()} traders`,
+        creator: (strategy.creator as { fullName?: string })?.fullName || 'Unknown',
+        category: String(strategy.category),
+        verified: Boolean(strategy.isVerified),
+        price: Number(item.monthlyPrice || 0),
+        monthlyPrice: Number(item.monthlyPrice || 0),
+        sharpe: Number(perf.sharpeRatio || 0),
+        maxDrawdown: Number(perf.maxDrawdown || 0),
+        returnsValue: winRate,
+        subscribersValue: Number(strategy.copiesCount || 0),
+        chartData: Array.from({ length: 10 }, (_, i) => ({ val: 10 + winRate * 0.4 + Math.sin(i) * 8 + i * 2 })),
+      };
+    });
+  }, [featuredQuery.data]);
+
+  const savePreset = () => {
+    localStorage.setItem('marketplace-filters-preset', JSON.stringify(filters));
+    toast.success('Filter preset saved');
+  };
+
+  React.useEffect(() => {
+    const preset = localStorage.getItem('marketplace-filters-preset');
+    if (!preset) return;
+    try {
+      const parsed = JSON.parse(preset);
+      setFilters((c) => ({ ...c, ...parsed }));
+    } catch { /* ignore */ }
+  }, []);
+
+  const resetFilters = () => {
+    setSearchQuery('');
+    setSortBy('trending');
+    setFilters({ priceMax: 0, selectedRisks: [], selectedAssets: [], selectedTimeframes: [], verifiedOnly: false });
+  };
+
+  const isLoading = marketplaceQuery.isLoading && !marketplaceQuery.data;
+  const sortLabel = sortBy.replace('-', ' ');
+
+  return (
+    <main className="flex-1 flex flex-col min-h-0 bg-[#F8F9FE]">
+      <div className="px-5 md:px-6 pt-4 pb-0">
+        <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
+          <Link href="/dashboard" className="hover:underline">Dashboard</Link>
+          <ChevronRight className="h-3 w-3 text-muted-foreground" />
+          <span className="text-foreground">Marketplace</span>
+        </div>
+      </div>
+
+      <MarketplaceHero {...heroStats} />
+
+      <div className="flex-1 flex min-h-0 overflow-hidden">
+        <FilterSidebar
+          isOpen={isFilterOpen}
+          onClose={() => setIsFilterOpen(false)}
+          value={filters}
+          onChange={setFilters}
+          onApply={() => marketplaceQuery.refetch()}
+          onSavePreset={savePreset}
+        />
+
+        <div className="flex-1 overflow-y-auto min-h-0 pb-10">
+          <FeaturedRow strategies={featuredStrategies} onSubscribe={openSubscribe} />
+
+          <div className="px-5 md:px-6 mt-6 space-y-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold text-foreground">All Strategies</h2>
+                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold">
+                    {strategies.length} results
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search strategies..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-9 w-52 md:w-64 rounded-xl border border-[var(--card-border)] bg-card pl-9 pr-3 text-sm outline-none focus:border-primary/40"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSortBy(sortOrder[(sortOrder.indexOf(sortBy) + 1) % sortOrder.length])}
+                  className="h-9 px-3 rounded-xl border border-[var(--card-border)] bg-card flex items-center gap-2 text-xs font-semibold text-muted-foreground capitalize"
+                >
+                  {sortLabel}
+                  <ChevronDown className="h-3.5 w-3.5" />
+                </button>
+                <div className="flex p-0.5 rounded-xl border border-[var(--card-border)] bg-muted0">
+                  <button type="button" onClick={() => setViewType('grid')} className={cn('p-1.5 rounded-lg', viewType === 'grid' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground')} aria-label="Grid">
+                    <LayoutGrid className="h-4 w-4" />
+                  </button>
+                  <button type="button" onClick={() => setViewType('list')} className={cn('p-1.5 rounded-lg', viewType === 'list' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground')} aria-label="List">
+                    <List className="h-4 w-4" />
+                  </button>
+                </div>
+                <button type="button" onClick={() => setIsFilterOpen(!isFilterOpen)} className="lg:hidden h-9 w-9 rounded-xl border border-[var(--card-border)] bg-card flex items-center justify-center text-muted-foreground">
+                  <SlidersHorizontal className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="dashboard-card h-64 animate-pulse bg-muted/40" />
+                ))}
+              </div>
+            ) : viewType === 'list' ? (
+              <MarketplaceStrategyTable strategies={strategies} onSubscribe={openSubscribe} />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {strategies.map((s) => (
+                  <MarketplaceCard key={s.id} strategy={s} onSubscribe={openSubscribe} />
+                ))}
+              </div>
+            )}
+
+            {!isLoading && strategies.length === 0 && (
+              <div className="dashboard-card p-8 text-center">
+                <p className="text-sm font-semibold text-foreground">No strategies match your filters.</p>
+                <Button variant="outline" className="mt-4 rounded-xl" onClick={resetFilters}>Reset Filters</Button>
+              </div>
+            )}
+
+            {marketplaceQuery.hasNextPage && (
+              <div className="flex justify-center pt-4">
+                <Button variant="outline" className="rounded-xl" onClick={() => marketplaceQuery.fetchNextPage()} disabled={marketplaceQuery.isFetchingNextPage}>
+                  {marketplaceQuery.isFetchingNextPage ? 'Loading…' : 'Load more'}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <SubscribeModal strategy={selectedStrategy} isOpen={!!selectedStrategy} onClose={() => setSelectedStrategy(null)} />
+    </main>
+  );
+}
 
 export default function MarketplacePage() {
- const router = useRouter();
- const searchParams = useSearchParams();
- const [isFilterOpen, setIsFilterOpen] = React.useState(true);
- const [viewType, setViewType] = React.useState<'grid' | 'list'>('grid');
- const [selectedStrategy, setSelectedStrategy] = React.useState<any>(null);
- const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
- const [sortBy, setSortBy] = React.useState<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'>((searchParams.get('sort') as any) || 'trending');
- const sortOrder: Array<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'> = ['trending', 'top-rated', 'newest', 'performance', 'subscribers', 'price'];
- const [filters, setFilters] = React.useState({
-  priceMax: Number(searchParams.get('priceMax') || 0),
-  selectedRisks: searchParams.get('riskLevel') ? [searchParams.get('riskLevel')!.toLowerCase()] : [],
-	selectedAssets: (searchParams.get('assets') || '')
-	 .split(',')
-	 .map((value) => value.trim())
-	 .filter(Boolean),
-	selectedTimeframes: (searchParams.get('tfs') || '')
-	 .split(',')
-	 .map((value) => value.trim().toUpperCase())
-	 .filter(Boolean),
-  verifiedOnly: searchParams.get('verified') === 'true',
- });
-
- React.useEffect(() => {
-	const params = new URLSearchParams(searchParams.toString());
-	if (searchQuery) {
-	 params.set('q', searchQuery);
-	} else {
-	 params.delete('q');
-	}
-	params.set('sort', sortBy);
-	if (filters.verifiedOnly) params.set('verified', 'true');
-	else params.delete('verified');
-	if (filters.selectedRisks[0]) params.set('riskLevel', filters.selectedRisks[0].toUpperCase());
-	else params.delete('riskLevel');
-	if (filters.selectedAssets.length > 0) params.set('assets', filters.selectedAssets.join(','));
-	else params.delete('assets');
-	if (filters.selectedTimeframes.length > 0) params.set('tfs', filters.selectedTimeframes.join(','));
-	else params.delete('tfs');
-	params.set('priceMax', String(filters.priceMax));
-	router.replace(`/marketplace?${params.toString()}`);
- }, [searchQuery, sortBy, filters, router, searchParams]);
-
- const featuredQuery = useQuery({
-	queryKey: ['marketplace-featured'],
-	queryFn: () => marketplaceApi.getFeatured(),
- });
-
- const marketplaceQuery = useInfiniteQuery({
-	queryKey: ['marketplace', searchQuery, sortBy, filters],
-	queryFn: ({ pageParam }) =>
-	 marketplaceApi.getMarketplace({
-		limit: 12,
-		cursor: pageParam || undefined,
-		sort: sortBy,
-		q: searchQuery || undefined,
-		verified: filters.verifiedOnly || undefined,
-		riskLevel: filters.selectedRisks[0]?.toUpperCase(),
-		priceMax: filters.priceMax,
-	 }),
-	initialPageParam: null as string | null,
-	getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
- });
-
- const mappedStrategies = React.useMemo(() => {
-	const items = marketplaceQuery.data?.pages.flatMap((page) => page.items) ?? [];
-	const defaultAssets = ['Forex', 'Crypto', 'Indices', 'Commodities'];
-	const defaultTimeframes = ['M1', 'M5', 'M15', 'H1', 'H4', 'D1'];
-	const getStableIndex = (seed: string, length: number) => {
-		let hash = 0;
-		for (let i = 0; i < seed.length; i += 1) {
-			hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-		}
-		return hash % length;
-	};
-
-	return items
-	 .map((item: any) => ({
-		id: item.strategyId,
-		name: item.strategy.name,
-		category: item.strategy.category,
-		creator: item.strategy.creator?.fullName || 'Unknown',
-		verified: item.strategy.isVerified,
-		assetClass: item.strategy.assetClass || defaultAssets[getStableIndex(String(item.strategyId), defaultAssets.length)],
-		timeframe: (item.strategy.timeframe || defaultTimeframes[getStableIndex(`tf-${item.strategyId}`, defaultTimeframes.length)]).toUpperCase(),
-		price: Number(item.monthlyPrice || 0),
-		monthlyPrice: Number(item.monthlyPrice || 0),
-		annualPrice: Number(item.annualPrice || item.monthlyPrice || 0),
-		lifetimePrice: Number(item.lifetimePrice || item.monthlyPrice || 0),
-		trialDays: item.trialDays,
-		subscribers: Number(item.strategy.copiesCount || 0),
-		returns: Number(item.strategy.performance?.[0]?.winRate || 0),
-		risk: item.strategy.riskLevel || 'Medium',
-		sharpe: Number(item.strategy.performance?.[0]?.sharpeRatio || 0),
-	 }));
- }, [marketplaceQuery.data]);
-
- const strategies = React.useMemo(() => {
-	const normalizedQuery = searchQuery.trim().toLowerCase();
-	const filtered = mappedStrategies.filter((strategy) => {
-		if (filters.verifiedOnly && !strategy.verified) return false;
-		if (filters.selectedRisks.length > 0 && !filters.selectedRisks.includes(String(strategy.risk).toLowerCase())) return false;
-		if (filters.selectedAssets.length > 0 && !filters.selectedAssets.includes(strategy.assetClass)) return false;
-		if (filters.selectedTimeframes.length > 0 && !filters.selectedTimeframes.includes(strategy.timeframe)) return false;
-		if (filters.priceMax > 0 && strategy.price > filters.priceMax) return false;
-		if (normalizedQuery) {
-			const target = `${strategy.name} ${strategy.creator} ${strategy.category} ${strategy.assetClass} ${strategy.timeframe}`.toLowerCase();
-			if (!target.includes(normalizedQuery)) return false;
-		}
-		return true;
-	});
-
-	const withScore = filtered.map((strategy) => ({
-		...strategy,
-		trendingScore: strategy.subscribers * 0.6 + strategy.returns * 10 + strategy.sharpe * 100,
-	}));
-
-	return withScore.sort((a, b) => {
-		switch (sortBy) {
-			case 'price':
-				return a.price - b.price;
-			case 'performance':
-				return b.returns - a.returns;
-			case 'subscribers':
-				return b.subscribers - a.subscribers;
-			case 'top-rated':
-				return b.sharpe - a.sharpe;
-			case 'newest':
-				return String(b.id).localeCompare(String(a.id));
-			case 'trending':
-			default:
-				return b.trendingScore - a.trendingScore;
-		}
-	});
- }, [filters, mappedStrategies, searchQuery, sortBy]);
-
- const savePreset = React.useCallback(() => {
-  localStorage.setItem('marketplace-filters-preset', JSON.stringify(filters));
- }, [filters]);
-
- React.useEffect(() => {
-  const preset = localStorage.getItem('marketplace-filters-preset');
-  if (!preset) return;
-  try {
-	 const parsed = JSON.parse(preset);
-	 setFilters((current) => ({
-		...current,
-		...parsed,
-		selectedAssets: Array.isArray(parsed?.selectedAssets) ? parsed.selectedAssets : current.selectedAssets,
-		selectedTimeframes: Array.isArray(parsed?.selectedTimeframes) ? parsed.selectedTimeframes : current.selectedTimeframes,
-	 }));
-  } catch {
-   // ignore malformed value
-  }
- }, []);
-
- const featuredStrategies = React.useMemo(() => {
-	const featured = featuredQuery.data ?? [];
-	return featured.map((item: any) => ({
-	 id: item.strategyId,
-	 name: item.strategy.name,
-	 returns: `+${Number(item.strategy.performance?.[0]?.winRate || 0).toFixed(1)}%`,
-	 subscribers: `${item.strategy.copiesCount} traders`,
-	 creator: item.strategy.creator?.fullName || 'Unknown',
-	 category: item.strategy.category,
-	 verified: item.strategy.isVerified,
-	 price: Number(item.monthlyPrice || 0),
-	 monthlyPrice: Number(item.monthlyPrice || 0),
-	 annualPrice: Number(item.annualPrice || item.monthlyPrice || 0),
-	 lifetimePrice: Number(item.lifetimePrice || item.monthlyPrice || 0),
-	 trialDays: Number(item.trialDays || 0),
-	 risk: item.strategy.riskLevel || 'Medium',
-	 sharpe: Number(item.strategy.performance?.[0]?.sharpeRatio || 0),
-	 returnsValue: Number(item.strategy.performance?.[0]?.winRate || 0),
-	 subscribersValue: Number(item.strategy.copiesCount || 0),
-	 chartData: [{ val: 10 }, { val: 15 }, { val: 20 }, { val: 18 }, { val: 24 }, { val: 30 }],
-	}));
- }, [featuredQuery.data]);
-
- const sortLabel = sortBy.replace('-', ' ');
-
- React.useEffect(() => {
-  if (marketplaceQuery.isError) {
-   toast.error('Marketplace feed unavailable', {
-	description: 'Unable to load strategies. Please try again.',
-   });
-  }
- }, [marketplaceQuery.isError]);
-
- React.useEffect(() => {
-  if (featuredQuery.isError) {
-   toast.error('Featured feed unavailable', {
-	description: 'Unable to load featured strategies. Please try again.',
-   });
-  }
- }, [featuredQuery.isError]);
-
- const resetFilters = () => {
-  setSearchQuery('');
-  setSortBy('trending');
-  setFilters({
-   priceMax: 0,
-   selectedRisks: [],
-   selectedAssets: [],
-   selectedTimeframes: [],
-   verifiedOnly: false,
-  });
-  toast.success('Marketplace filters reset');
- };
-
- return (
- <main className="flex-1 flex flex-col h-full bg-[#050508] overflow-hidden">
- <MarketplaceHero />
- 
- <div className="flex-1 flex overflow-hidden">
- {/* Sidebar */}
- <FilterSidebar
-  isOpen={isFilterOpen}
-  onClose={() => setIsFilterOpen(false)}
-  value={filters}
-  onChange={setFilters}
-  onApply={() => marketplaceQuery.refetch()}
-  onSavePreset={savePreset}
- />
-
- {/* Main Content Area */}
- <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar pb-14">
- <FeaturedRow
-  strategies={featuredStrategies}
-  onSubscribe={(strategy) => setSelectedStrategy(strategy)}
- />
-
- <div className="px-5 md:px-8 mt-7 space-y-6">
- {/* Toolbar */}
- <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
- <div className="flex flex-col">
- <div className="flex items-center gap-3">
- <h2 className="text-xl font-bold text-white">All Strategies</h2>
- <div className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-white/40 uppercase">
- {strategies.length} results
- </div>
- </div>
- <p className="text-xs text-white/20 font-bold uppercase tracking-widest mt-1">Live marketplace feed</p>
- </div>
-
- <div className="flex items-center gap-2.5 flex-wrap lg:flex-nowrap">
- {/* Search */}
- <div className="relative group">
- <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-p transition-colors" />
- <input 
- type="text"
- placeholder="Search nexus..."
- value={searchQuery}
- onChange={(e) => setSearchQuery(e.target.value)}
- className="h-10 w-56 md:w-64 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 text-xs text-white placeholder:text-white/20 outline-none focus:border-p/30 focus:ring-1 focus:ring-p/20 transition-all font-dm-sans"
- />
- </div>
-
- <div className="h-8 w-px bg-white/10 mx-1 hidden md:block" />
-
- {/* Sort */}
- <button
- className="h-10 px-3.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5 hover:bg-white/10 transition-colors"
- onClick={() => {
-  const idx = sortOrder.indexOf(sortBy);
-  setSortBy(sortOrder[(idx + 1) % sortOrder.length]);
- }}
- >
- <span className="text-xs font-semibold text-white/55 uppercase tracking-[0.18em]">{sortLabel}</span>
- <ChevronDown className="w-3 h-3 text-white/20" />
- </button>
-
- {/* Grid Toggle */}
- <div className="flex p-1 rounded-xl bg-white/5 border border-white/10">
- <button 
- onClick={() => setViewType('grid')}
- className={cn(
-"p-1.5 rounded-lg transition-all",
- viewType === 'grid' ?"bg-white/10 text-white shadow-lg" :"text-white/20 hover:text-white/40"
- )}
- >
- <LayoutGrid className="w-4 h-4" />
- </button>
- <button 
- onClick={() => setViewType('list')}
- className={cn(
-"p-1.5 rounded-lg transition-all",
- viewType === 'list' ?"bg-white/10 text-white shadow-lg" :"text-white/20 hover:text-white/40"
- )}
- >
- <List className="w-4 h-4" />
- </button>
- </div>
-
- <button 
- onClick={() => setIsFilterOpen(!isFilterOpen)}
- className={cn(
-"h-11 w-11 flex items-center justify-center rounded-xl border transition-all lg:hidden",
- isFilterOpen ?"bg-p/10 border-p/50 text-p" :"bg-white/5 border-white/5 text-white/40"
- )}
- >
- <SlidersHorizontal className="w-4 h-4" />
- </button>
- </div>
- </div>
-
- {/* Strategy Grid */}
- <div className={cn(
-"grid gap-4 md:gap-6 transition-all duration-500",
- viewType === 'grid' 
- ?"grid-cols-1 md:grid-cols-2 xl:grid-cols-3" 
- :"grid-cols-1"
- )}>
- <AnimatePresence mode="popLayout">
- {marketplaceQuery.isLoading ? (
- Array.from({ length: 6 }).map((_, i) => (
- <div key={i} className="h-80 rounded-[28px] shimmer bg-white/[0.025] border border-white/[0.06]" style={{ animationDelay: `${i * 90}ms` }} />
- ))
- ) : (
- strategies.map((strategy) => (
- <MarketplaceCard 
- key={strategy.id} 
- strategy={strategy} 
- onSubscribe={(s) => setSelectedStrategy(s)}
- />
- ))
- )}
- </AnimatePresence>
- </div>
-
- {strategies.length === 0 && !marketplaceQuery.isLoading && (
-  <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6 text-center">
-   <p className="text-sm font-semibold text-white">No strategies match the current filters.</p>
-   <p className="mt-1 text-xs text-white/60">Try broadening your criteria or reset to defaults.</p>
-   <Button
-	onClick={resetFilters}
-	variant="outline"
-	className="mt-4 border-white/20 bg-white/5 text-white hover:bg-white/10"
-   >
-	Reset Filters
-   </Button>
-  </div>
- )}
-
- {marketplaceQuery.hasNextPage && (
-  <div className="mt-8 flex justify-center">
-   <Button
-	variant="outline"
-	className="border-white/20 bg-white/5 text-white hover:bg-white/10"
-	onClick={() => marketplaceQuery.fetchNextPage()}
-	disabled={marketplaceQuery.isFetchingNextPage}
-   >
-	{marketplaceQuery.isFetchingNextPage ? 'Loading...' : 'Load more'}
-   </Button>
-  </div>
- )}
- </div>
- </div>
- </div>
-
- {/* Subscription Modal */}
- <SubscribeModal 
- strategy={selectedStrategy}
- isOpen={!!selectedStrategy}
- onClose={() => setSelectedStrategy(null)}
- />
- </main>
- );
+  return (
+    <Suspense fallback={<MarketplaceSkeleton />}>
+      <MarketplacePageInner />
+    </Suspense>
+  );
 }

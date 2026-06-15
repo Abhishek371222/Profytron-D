@@ -34,30 +34,30 @@ const StrategyCard = ({ title, value, winRate, icon: Icon, angle, opacity, yOffs
  delay 
  }
  }}
- className="absolute w-64 glass p-4 rounded-2xl border-white/5 shadow-2xl backdrop-blur-xl"
+ className="absolute w-64 glass p-4 rounded-2xl border-border shadow-2xl backdrop-blur-xl"
  style={{ rotate: `${angle}deg` }}
  >
  <div className="flex items-center gap-3 mb-3">
- <div className="w-8 h-8 rounded-lg bg-p/20 flex items-center justify-center text-p">
+ <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
  <Icon className="w-4 h-4" />
  </div>
  <div>
- <h4 className="text-sm font-bold text-white/40 uppercase tracking-widest">{title}</h4>
- <p className="text-sm font-bold text-white tracking-tight">{value}</p>
+ <h4 className="text-sm font-bold text-foreground/40 uppercase tracking-widest">{title}</h4>
+ <p className="text-sm font-bold text-foreground tracking-tight">{value}</p>
  </div>
  </div>
  
  <div className="space-y-1.5">
- <div className="flex justify-between text-xs text-white/60">
+ <div className="flex justify-between text-xs text-foreground/60">
  <span>Win Rate</span>
- <span className="text-p font-bold">{winRate}%</span>
+ <span className="text-primary font-bold">{winRate}%</span>
  </div>
- <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+ <div className="h-1.5 w-full bg-foreground/5 rounded-full overflow-hidden">
  <motion.div 
  initial={{ width: 0 }}
  animate={{ width: `${winRate}%` }}
  transition={{ duration: 1.5, delay: 0.5 + delay }}
- className="h-full bg-linear-to-r from-p to-s"
+ className="h-full bg-linear-to-r from-primary to-s"
  />
  </div>
  </div>

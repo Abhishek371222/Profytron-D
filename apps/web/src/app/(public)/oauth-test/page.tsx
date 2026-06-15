@@ -126,21 +126,21 @@ export default function OAuthTestPage() {
   return (
     <div className="min-h-screen bg-bg-base p-6">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+        <div className="bg-foreground/5 border border-border rounded-2xl p-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">OAuth Analysis</h1>
-            <p className="text-white/60">Test your OAuth configuration and debug authentication issues</p>
+            <h1 className="text-4xl font-bold text-foreground mb-2">OAuth Analysis</h1>
+            <p className="text-foreground/60">Test your OAuth configuration and debug authentication issues</p>
           </div>
 
           {/* Session Status */}
           {sessionInfo && (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl mb-8">
+            <div className="bg-chart-3/10 border border-chart-3/30 p-4 rounded-xl mb-8">
               <div className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-emerald-500 mt-1 flex-shrink-0" />
+                <Check className="w-5 h-5 text-chart-3 mt-1 flex-shrink-0" />
                 <div>
-                  <p className="text-emerald-400 font-semibold mb-1">✅ User Authenticated</p>
-                  <p className="text-emerald-300/80 text-sm">Email: {sessionInfo.email}</p>
+                  <p className="text-chart-3 font-semibold mb-1">✅ User Authenticated</p>
+                  <p className="text-chart-3/80 text-sm">Email: {sessionInfo.email}</p>
                 </div>
               </div>
             </div>
@@ -149,56 +149,56 @@ export default function OAuthTestPage() {
           {/* Configuration Display */}
           <div className="space-y-6 mb-8">
             {/* Supabase URL */}
-            <div className="bg-white/3 rounded-xl p-4 border border-white/5">
-              <label className="text-xs font-bold text-white/40 uppercase tracking-widest mb-2 block">
+            <div className="bg-foreground/3 rounded-xl p-4 border border-border">
+              <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-2 block">
                 Supabase URL
               </label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-xs text-white/70 break-all bg-black/30 p-3 rounded border border-white/5">
+                <code className="flex-1 text-xs text-foreground/70 break-all bg-black/30 p-3 rounded border border-border">
                   {supabaseUrl}
                 </code>
                 <button
                   onClick={() => copyToClipboard(supabaseUrl, 'url')}
-                  className="p-2 hover:bg-white/10 rounded transition-colors flex-shrink-0"
+                  className="p-2 hover:bg-foreground/10 rounded transition-colors flex-shrink-0"
                 >
-                  {copied === 'url' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-white/40" />}
+                  {copied === 'url' ? <Check className="w-4 h-4 text-chart-3" /> : <Copy className="w-4 h-4 text-foreground/40" />}
                 </button>
               </div>
             </div>
 
             {/* Redirect URL */}
-            <div className="bg-white/3 rounded-xl p-4 border border-white/5">
-              <label className="text-xs font-bold text-white/40 uppercase tracking-widest mb-2 block">
+            <div className="bg-foreground/3 rounded-xl p-4 border border-border">
+              <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-2 block">
                 Redirect URL (for OAuth config)
               </label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-xs text-white/70 break-all bg-black/30 p-3 rounded border border-white/5">
+                <code className="flex-1 text-xs text-foreground/70 break-all bg-black/30 p-3 rounded border border-border">
                   {redirectUrl}
                 </code>
                 <button
                   onClick={() => copyToClipboard(redirectUrl, 'url')}
-                  className="p-2 hover:bg-white/10 rounded transition-colors flex-shrink-0"
+                  className="p-2 hover:bg-foreground/10 rounded transition-colors flex-shrink-0"
                 >
-                  {copied === 'url' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-white/40" />}
+                  {copied === 'url' ? <Check className="w-4 h-4 text-chart-3" /> : <Copy className="w-4 h-4 text-foreground/40" />}
                 </button>
               </div>
-              <p className="text-xs text-white/40 mt-2">👆 Copy this URL and add it to both Supabase and Google Cloud Console</p>
+              <p className="text-xs text-foreground/40 mt-2">👆 Copy this URL and add it to both Supabase and Google Cloud Console</p>
             </div>
 
             {/* Supabase Key (masked) */}
-            <div className="bg-white/3 rounded-xl p-4 border border-white/5">
-              <label className="text-xs font-bold text-white/40 uppercase tracking-widest mb-2 block">
+            <div className="bg-foreground/3 rounded-xl p-4 border border-border">
+              <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-2 block">
                 Supabase Anon Key
               </label>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-xs text-white/70 break-all bg-black/30 p-3 rounded border border-white/5">
+                <code className="flex-1 text-xs text-foreground/70 break-all bg-black/30 p-3 rounded border border-border">
                   {supabaseKey.substring(0, 20)}...{supabaseKey.substring(supabaseKey.length - 20)}
                 </code>
                 <button
                   onClick={() => copyToClipboard(supabaseKey, 'key')}
-                  className="p-2 hover:bg-white/10 rounded transition-colors flex-shrink-0"
+                  className="p-2 hover:bg-foreground/10 rounded transition-colors flex-shrink-0"
                 >
-                  {copied === 'key' ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-white/40" />}
+                  {copied === 'key' ? <Check className="w-4 h-4 text-chart-3" /> : <Copy className="w-4 h-4 text-foreground/40" />}
                 </button>
               </div>
             </div>
@@ -208,30 +208,30 @@ export default function OAuthTestPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <Button
               onClick={testSupabaseConnection}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl"
+              className="bg-primary hover:bg-primary text-foreground font-semibold py-3 rounded-xl"
             >
               Test Supabase Connection
             </Button>
             <Button
               onClick={testGoogleOAuth}
-              className="bg-white hover:bg-gray-100 text-black font-semibold py-3 rounded-xl"
+              className="bg-white hover:bg-gray-100 text-primary-foreground font-semibold py-3 rounded-xl"
             >
               Test Google OAuth
             </Button>
             <Button
               onClick={testGitHubOAuth}
-              className="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-3 rounded-xl"
+              className="bg-gray-800 hover:bg-gray-700 text-foreground font-semibold py-3 rounded-xl"
             >
               Test GitHub OAuth
             </Button>
           </div>
 
           {/* Info Box */}
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-8 flex gap-3">
-            <AlertCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-            <div className="text-sm text-blue-300">
+          <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-8 flex gap-3">
+            <AlertCircle className="w-5 h-5 text-chart-5 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-chart-5">
               <p className="font-semibold mb-1">Before testing:</p>
-              <ol className="list-decimal list-inside space-y-1 text-blue-300/80">
+              <ol className="list-decimal list-inside space-y-1 text-chart-5/80">
                 <li>Copy the <strong>Redirect URL</strong> above</li>
                 <li>Add it to Supabase: Authentication → Providers → Google → Authorized redirect URIs</li>
                 <li>Add it to Google Cloud: APIs & Services → Credentials → OAuth Client ID → Authorized redirect URIs</li>
@@ -242,17 +242,17 @@ export default function OAuthTestPage() {
           </div>
 
           {/* Test Log */}
-          <div className="bg-black/30 rounded-xl p-4 border border-white/5">
-            <label className="text-xs font-bold text-white/40 uppercase tracking-widest mb-3 block">
+          <div className="bg-black/30 rounded-xl p-4 border border-border">
+            <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-3 block">
               Test Log
             </label>
-            <div className="space-y-1 font-mono text-xs text-white/60 max-h-96 overflow-y-auto">
+            <div className="space-y-1 font-mono text-xs text-foreground/60 max-h-96 overflow-y-auto">
               {testLog.length === 0 ? (
-                <p className="text-white/30">Waiting for tests...</p>
+                <p className="text-foreground/30">Waiting for tests...</p>
               ) : (
                 testLog.map((log, i) => (
-                  <div key={i} className="text-white/50">
-                    <span className="text-white/30">[{log.split(':')[0]}]</span> {log.split(':').slice(1).join(':')}
+                  <div key={i} className="text-foreground/50">
+                    <span className="text-foreground/30">[{log.split(':')[0]}]</span> {log.split(':').slice(1).join(':')}
                   </div>
                 ))
               )}
@@ -260,23 +260,23 @@ export default function OAuthTestPage() {
           </div>
 
           {/* Links */}
-          <div className="mt-8 pt-8 border-t border-white/5 space-y-3">
+          <div className="mt-8 pt-8 border-t border-border space-y-3">
             <a
               href="/login"
-              className="inline-block text-indigo-400 hover:text-indigo-300 text-sm font-medium"
+              className="inline-block text-primary hover:text-primary text-sm font-medium"
             >
               ← Back to Login
             </a>
-            <div className="text-xs text-white/40 space-y-1">
+            <div className="text-xs text-foreground/40 space-y-1">
               <p>
                 <strong>Supabase Console:</strong>{' '}
-                <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300">
+                <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">
                   https://app.supabase.com
                 </a>
               </p>
               <p>
                 <strong>Google Cloud Console:</strong>{' '}
-                <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300">
+                <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">
                   https://console.cloud.google.com/apis/credentials
                 </a>
               </p>

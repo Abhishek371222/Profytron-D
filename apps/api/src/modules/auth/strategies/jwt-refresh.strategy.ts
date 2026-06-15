@@ -22,6 +22,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
         (() => {
           throw new Error('JWT_REFRESH_SECRET env var is required');
         })(),
+      algorithms: ['HS256'],
       passReqToCallback: true,
     });
   }

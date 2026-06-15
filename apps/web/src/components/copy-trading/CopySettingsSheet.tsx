@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { copyTradingApi } from '@/lib/api/copy-trading';
+import { formatBotName } from '@/lib/bot-labels';
 import { toast } from 'sonner';
 
 interface Props {
@@ -18,9 +19,14 @@ interface Props {
 }
 
 const PLAN_MAX_LOT: Record<string, number> = {
+  'Basic Bot': 0.5,
   'Basic Copy': 0.5,
+  'Pro Bot': 2.0,
   'Pro Copy': 2.0,
+  'VIP Bot': 5.0,
   'VIP Copy': 5.0,
+  'Profytron Master Bot': 2.0,
+  'Profytron Master Copy': 2.0,
 };
 
 export function CopySettingsSheet({ subscription, onClose }: Props) {
@@ -60,10 +66,12 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
             <div>
-              <h2 className="text-base font-semibold text-text-primary">Copy Settings</h2>
-              <p className="text-xs text-text-secondary mt-0.5">{subscription.strategy?.name ?? 'Subscription'}</p>
+              <h2 className="text-base font-semibold text-text-primary">Bot Settings</h2>
+              <p className="text-xs text-text-secondary mt-0.5">
+                {formatBotName(subscription.strategy?.name ?? 'Bot')}
+              </p>
             </div>
-            <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/5 text-text-secondary">
+            <button onClick={onClose} className="p-1 rounded-lg hover:bg-foreground/5 text-text-secondary">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -73,7 +81,7 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium text-text-primary">Lot Multiplier</label>
-                <span className="text-sm font-semibold text-violet-400">{lotMultiplier.toFixed(2)}x</span>
+                <span className="text-sm font-semibold text-chart-2">{lotMultiplier.toFixed(2)}x</span>
               </div>
               <input
                 type="range"
@@ -82,21 +90,21 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
                 step={0.01}
                 value={lotMultiplier}
                 onChange={(e) => setLotMultiplier(Number(e.target.value))}
-                className="w-full accent-violet-500"
+                className="w-full accent-chart-2"
               />
               <div className="flex justify-between text-xs text-text-muted mt-1">
                 <span>0.01x</span>
                 <span>{maxLot}x (plan max)</span>
               </div>
               <p className="text-xs text-text-secondary mt-2">
-                If the master opens 1.0 lot, you trade {lotMultiplier.toFixed(2)} lot.
+                When the operator bot opens 1.0 lot, your bot trades {lotMultiplier.toFixed(2)} lot.
               </p>
             </div>
 
             {/* Pause toggle */}
             <div className="flex items-center justify-between p-4 rounded-xl border border-border-default">
               <div>
-                <p className="text-sm font-medium text-text-primary">Pause copying</p>
+                <p className="text-sm font-medium text-text-primary">Pause bot</p>
                 <p className="text-xs text-text-secondary mt-0.5">
                   No new trades while paused. Existing open trades are unaffected.
                 </p>
@@ -104,7 +112,7 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
               <button
                 onClick={() => setIsPaused(!isPaused)}
                 className={`relative w-11 h-6 rounded-full transition-colors ${
-                  isPaused ? 'bg-amber-500' : 'bg-gray-600'
+                  isPaused ? 'bg-chart-4' : 'bg-gray-600'
                 }`}
               >
                 <span

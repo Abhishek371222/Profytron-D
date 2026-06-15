@@ -5,7 +5,9 @@ export class PaperBrokerAdapter {
   async connect(account: string, _password?: string, _server?: string) {
     await new Promise((resolve) => setTimeout(resolve, 50));
     // Each paper account gets its own 100k demo balance — not shared state
-    const seed = account ? account.split('').reduce((a, c) => a + c.charCodeAt(0), 0) : 0;
+    const seed = account
+      ? account.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+      : 0;
     const balance = 100_000 + (seed % 50_000);
 
     return {
@@ -29,7 +31,9 @@ export class PaperBrokerAdapter {
   }
 
   async closeTrade(ticket: string) {
-    await new Promise((resolve) => setTimeout(resolve, Math.random() * 200 + 30));
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 200 + 30),
+    );
     return { success: true, ticket, close_price: 0, profit: 0 };
   }
 }

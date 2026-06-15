@@ -21,8 +21,8 @@ function Switch({ checked, onCheckedChange, className }: {
  <button
  onClick={toggle}
  className={cn(
-"relative h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-p focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
- internalChecked ?"bg-p" :"bg-white/20",
+"relative h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+ internalChecked ?"bg-primary" :"bg-foreground/20",
  className
  )}
  >

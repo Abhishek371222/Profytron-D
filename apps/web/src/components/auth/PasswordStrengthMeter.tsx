@@ -21,8 +21,8 @@ export const PasswordStrengthMeter = ({ password ="" }: PasswordStrengthMeterPro
  const segments = [
  { label:"Very Weak", color:"bg-red-500" },
  { label:"Weak", color:"bg-orange-500" },
- { label:"Fair", color:"bg-amber-500" },
- { label:"Good", color:"bg-emerald-500" },
+ { label:"Fair", color:"bg-chart-4" },
+ { label:"Good", color:"bg-chart-3" },
  { label:"Strong", color:"bg-success" },
  ];
 
@@ -31,7 +31,7 @@ export const PasswordStrengthMeter = ({ password ="" }: PasswordStrengthMeterPro
  return (
  <div className="space-y-2 py-2">
  <div className="flex justify-between items-center px-1">
- <span className="text-xs uppercase tracking-widest font-semibold text-white/30">Security Strength</span>
+ <span className="text-xs uppercase tracking-widest font-semibold text-foreground/30">Security Strength</span>
  <span className={cn("text-xs uppercase tracking-widest font-semibold", current.color.replace('bg-', 'text-'))}>
  {current.label}
  </span>
@@ -42,7 +42,7 @@ export const PasswordStrengthMeter = ({ password ="" }: PasswordStrengthMeterPro
  <div 
  key={i}
  className={cn(
-"flex-1 rounded-full transition-all duration-500 bg-white/5",
+"flex-1 rounded-full transition-all duration-500 bg-foreground/5",
  i <= score && current.color
  )}
  />

@@ -9,6 +9,7 @@ import {
   Req,
   Query,
 } from '@nestjs/common';
+import { IsString, IsOptional, IsIn, MaxLength, MinLength } from 'class-validator';
 import { NotificationsService } from './notifications.service';
 import { FcmService } from './fcm.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -18,6 +19,27 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
+
+class RegisterFcmTokenDto {
+  @IsString()
+  @MinLength(10)
+  @MaxLength(512)
+  token: string;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['web', 'android', 'ios'])
+  platform?: string;
+}
+
+class RemoveFcmTokenDto {
+  @IsString()
+  @MinLength(10)
+  @MaxLength(512)
+  token: string;
+}
+
+type AuthReq = { user: { id: string } };
 
 @ApiTags('Notifications')
 @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -35,7 +57,7 @@ export class NotificationsController {
   @ApiOperation({ summary: 'List all notifications for user' })
   @Get()
   async findAll(
-    @Req() req: any,
+    @Req() req: AuthReq,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('unreadOnly') unreadOnly?: string,
@@ -51,7 +73,7 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get unread notification count' })
   @Get('unread-count')
-  async getUnreadCount(@Req() req: any) {
+  async getUnreadCount(@Req() req: AuthReq) {
     return this.notificationsService.getUnreadCount(req.user.id);
   }
 
@@ -59,32 +81,37 @@ export class NotificationsController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Mark notification as read' })
   @Patch(':id/read')
-  async markAsRead(@Req() req: any, @Param('id') id: string) {
+  async markAsRead(@Req() req: AuthReq, @Param('id') id: string) {
     return this.notificationsService.markAsRead(id, req.user.id);
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Mark all notifications as read' })
   @Patch('mark-all-read')
-  async markAllAsRead(@Req() req: any) {
+  async markAllAsRead(@Req() req: AuthReq) {
     return this.notificationsService.markAllAsRead(req.user.id);
   }
 
   @ApiResponse({ status: 200, description: 'Token registered' })
   @ApiOperation({ summary: 'Register FCM device token for push notifications' })
   @Post('fcm-token')
-  async registerFcmToken(@Req() req: any, @Body() body: { token: string; platform?: string }) {
-    if (!body.token) return { success: false, error: 'Token is required' };
-    await this.fcmService.registerToken(req.user.id, body.token, body.platform || 'web');
+  async registerFcmToken(
+    @Req() req: AuthReq,
+    @Body() dto: RegisterFcmTokenDto,
+  ) {
+    await this.fcmService.registerToken(
+      req.user.id,
+      dto.token,
+      dto.platform || 'web',
+    );
     return { success: true };
   }
 
   @ApiResponse({ status: 200, description: 'Token removed' })
   @ApiOperation({ summary: 'Remove FCM device token' })
   @Post('fcm-token/remove')
-  async removeFcmToken(@Req() req: any, @Body() body: { token: string }) {
-    if (!body.token) return { success: false, error: 'Token is required' };
-    await this.fcmService.removeToken(body.token);
+  async removeFcmToken(@Req() req: AuthReq, @Body() dto: RemoveFcmTokenDto) {
+    await this.fcmService.removeToken(req.user.id, dto.token);
     return { success: true };
   }
 }

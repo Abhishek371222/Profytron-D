@@ -5,7 +5,7 @@ const cookieTypes = [
   {
     name: 'Strictly Necessary',
     tag: 'Always Active',
-    tagColor: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
+    tagColor: 'text-chart-3 bg-chart-3/10 border-chart-3/20',
     canDisable: false,
     desc: 'These cookies are essential for the Profytron platform to function. They manage your authenticated session, maintain CSRF security tokens, and enable core features such as login persistence and order submission. The platform cannot function correctly without these cookies.',
     examples: ['profytron_session', 'csrf_token', 'auth_refresh_token'],
@@ -13,7 +13,7 @@ const cookieTypes = [
   {
     name: 'Performance & Analytics',
     tag: 'Optional',
-    tagColor: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20',
+    tagColor: 'text-primary bg-primary/10 border-primary/20',
     canDisable: true,
     desc: 'These cookies help us understand how users interact with the platform — which pages are visited, where errors occur, and which features are used most. The data collected is anonymized and is used solely to improve the reliability and usability of the Service. No personally identifiable information is shared with analytics providers.',
     examples: ['_profytron_aid', 'sentry_session'],
@@ -21,7 +21,7 @@ const cookieTypes = [
   {
     name: 'Functional',
     tag: 'Optional',
-    tagColor: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20',
+    tagColor: 'text-primary bg-primary/10 border-primary/20',
     canDisable: true,
     desc: 'Functional cookies remember your preferences and interface settings — such as your selected dashboard layout, language preference, and notification configuration — so that they persist between sessions. Disabling these does not affect core trading functionality; your preferences will simply reset on each visit.',
     examples: ['ui_theme', 'dashboard_layout', 'notification_prefs'],
@@ -42,18 +42,18 @@ export default function CookiePolicyPage() {
   return (
     <PublicPageLayout>
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-0 left-1/3 w-[500px] h-62.5 bg-indigo-600/8 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/3 w-[500px] h-62.5 bg-primary/8 blur-[100px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-4xl relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
-              <Cookie className="w-3 h-3 text-indigo-400" /> Legal
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-foreground/3 border border-border text-foreground/50 text-micro font-bold tracking-[0.4em] uppercase mb-8">
+              <Cookie className="w-3 h-3 text-primary" /> Legal
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] text-white leading-tight mb-6">Cookie Policy</h1>
-            <div className="flex items-center gap-6 text-white/30 text-xs font-mono">
+            <h1 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] text-foreground leading-tight mb-6">Cookie Policy</h1>
+            <div className="flex items-center gap-6 text-foreground/30 text-xs font-mono">
               <span>Effective Date: April 12, 2026</span>
               <span>Last Updated: April 12, 2026</span>
             </div>
-            <p className="mt-6 text-white/50 leading-relaxed">
+            <p className="mt-6 text-foreground/50 leading-relaxed">
               This Cookie Policy explains what cookies are, which cookies we use, why we use them, and how you can manage your preferences.
             </p>
           </div>
@@ -63,12 +63,12 @@ export default function CookiePolicyPage() {
       {/* What are cookies */}
       <section className="pb-10">
         <div className="container mx-auto px-6 max-w-4xl">
-          <div className="p-8 rounded-2xl bg-white/2 border border-white/6">
-            <h2 className="text-lg font-bold text-white mb-4 tracking-tight">What Are Cookies?</h2>
-            <p className="text-white/55 text-sm leading-relaxed">
+          <div className="p-8 rounded-2xl bg-foreground/2 border border-border">
+            <h2 className="text-lg font-bold text-foreground mb-4 tracking-tight">What Are Cookies?</h2>
+            <p className="text-foreground/55 text-sm leading-relaxed">
               Cookies are small text files placed on your device by a website or web application when you visit it. They allow the service to remember information about your visit — such as your login state, interface preferences, and session identifier.
             </p>
-            <p className="text-white/55 text-sm leading-relaxed mt-3">
+            <p className="text-foreground/55 text-sm leading-relaxed mt-3">
               In addition to cookies, we may use similar technologies such as local storage and session storage for the same functional purposes. This policy applies to all such technologies collectively.
             </p>
           </div>
@@ -76,37 +76,37 @@ export default function CookiePolicyPage() {
       </section>
 
       {/* Cookie Types */}
-      <section className="py-16 bg-black/20 border-y border-white/5">
+      <section className="py-16 bg-black/20 border-y border-border">
         <div className="container mx-auto px-6 max-w-4xl">
-          <h2 className="text-xl font-bold text-white mb-8 tracking-tight">Cookie Categories</h2>
+          <h2 className="text-xl font-bold text-foreground mb-8 tracking-tight">Cookie Categories</h2>
           <div className="flex flex-col gap-6">
             {cookieTypes.map((type, i) => (
               <div 
                 key={type.name}
-                className="p-7 rounded-2xl bg-white/2 border border-white/6"
+                className="p-7 rounded-2xl bg-foreground/2 border border-border"
               >
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <h3 className="font-bold text-white text-base">{type.name}</h3>
-                    <span className={`mt-1.5 inline-block px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-widest border ${type.tagColor}`}>{type.tag}</span>
+                    <h3 className="font-bold text-foreground text-base">{type.name}</h3>
+                    <span className={`mt-1.5 inline-block px-2.5 py-1 rounded text-micro font-bold uppercase tracking-widest border ${type.tagColor}`}>{type.tag}</span>
                   </div>
-                  <div className={`flex items-center gap-1.5 text-xs font-medium shrink-0 mt-1 ${type.canDisable ? 'text-white/40' : 'text-emerald-400'}`}>
+                  <div className={`flex items-center gap-1.5 text-xs font-medium shrink-0 mt-1 ${type.canDisable ? 'text-foreground/40' : 'text-chart-3'}`}>
                     {type.canDisable ? <X className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5" />}
                     {type.canDisable ? 'Can be disabled' : 'Cannot be disabled'}
                   </div>
                 </div>
-                <p className="text-white/50 text-sm leading-relaxed mb-4">{type.desc}</p>
+                <p className="text-foreground/50 text-sm leading-relaxed mb-4">{type.desc}</p>
                 <div className="flex flex-wrap gap-2">
                   {type.examples.map(ex => (
-                    <code key={ex} className="px-2 py-0.5 rounded bg-white/4 border border-white/6 text-white/40 text-[10px] font-mono">{ex}</code>
+                    <code key={ex} className="px-2 py-0.5 rounded bg-foreground/4 border border-border text-foreground/40 text-micro font-mono">{ex}</code>
                   ))}
                 </div>
               </div>
             ))}
 
-            <div className="p-6 rounded-xl bg-white/1 border border-white/4">
-              <p className="text-white/30 text-xs leading-relaxed">
-                <span className="text-white/50 font-semibold">Marketing & Targeting Cookies:</span> Profytron does not currently use third-party advertising or behavioural tracking cookies. If this changes in the future, this policy will be updated and you will be notified in advance.
+            <div className="p-6 rounded-xl bg-foreground/1 border border-border">
+              <p className="text-foreground/30 text-xs leading-relaxed">
+                <span className="text-foreground/50 font-semibold">Marketing & Targeting Cookies:</span> Profytron does not currently use third-party advertising or behavioural tracking cookies. If this changes in the future, this policy will be updated and you will be notified in advance.
               </p>
             </div>
           </div>
@@ -116,9 +116,9 @@ export default function CookiePolicyPage() {
       {/* Retention Table */}
       <section className="py-16">
         <div className="container mx-auto px-6 max-w-4xl">
-          <h2 className="text-xl font-bold text-white mb-8 tracking-tight">Cookie Retention Periods</h2>
-          <div className="rounded-2xl overflow-hidden border border-white/6">
-            <div className="grid grid-cols-3 text-[10px] uppercase tracking-widest font-bold text-white/30 bg-white/2 px-5 py-3 border-b border-white/6">
+          <h2 className="text-xl font-bold text-foreground mb-8 tracking-tight">Cookie Retention Periods</h2>
+          <div className="rounded-2xl overflow-hidden border border-border">
+            <div className="grid grid-cols-3 text-micro uppercase tracking-widest font-bold text-foreground/30 bg-foreground/2 px-5 py-3 border-b border-border">
               <div>Cookie Name</div>
               <div>Purpose</div>
               <div>Duration</div>
@@ -126,11 +126,11 @@ export default function CookiePolicyPage() {
             {retention.map((r, i) => (
               <div 
                 key={r.name}
-                className="grid grid-cols-3 px-5 py-4 border-b border-white/4 text-sm hover:bg-white/2 transition-colors"
+                className="grid grid-cols-3 px-5 py-4 border-b border-border text-sm hover:bg-foreground/2 transition-colors"
               >
-                <code className="text-indigo-300 text-xs font-mono">{r.name}</code>
-                <span className="text-white/50 text-xs">{r.purpose}</span>
-                <span className="text-white/40 text-xs font-mono">{r.duration}</span>
+                <code className="text-primary text-xs font-mono">{r.name}</code>
+                <span className="text-foreground/50 text-xs">{r.purpose}</span>
+                <span className="text-foreground/40 text-xs font-mono">{r.duration}</span>
               </div>
             ))}
           </div>
@@ -138,20 +138,20 @@ export default function CookiePolicyPage() {
       </section>
 
       {/* Control */}
-      <section className="py-16 border-t border-white/5">
+      <section className="py-16 border-t border-border">
         <div className="container mx-auto px-6 max-w-4xl">
-          <div className="p-8 rounded-2xl bg-white/2 border border-white/6">
-            <h2 className="text-lg font-bold text-white mb-5 tracking-tight">How to Control Cookies</h2>
-            <div className="text-white/55 text-sm leading-relaxed space-y-4">
+          <div className="p-8 rounded-2xl bg-foreground/2 border border-border">
+            <h2 className="text-lg font-bold text-foreground mb-5 tracking-tight">How to Control Cookies</h2>
+            <div className="text-foreground/55 text-sm leading-relaxed space-y-4">
               <p>
-                <span className="text-white/70 font-semibold">Browser Settings:</span> All major browsers allow you to view, block, or delete cookies through their privacy or security settings.
+                <span className="text-foreground/70 font-semibold">Browser Settings:</span> All major browsers allow you to view, block, or delete cookies through their privacy or security settings.
               </p>
               <p>
-                <span className="text-white/70 font-semibold">Important:</span> Disabling or deleting cookies classified as Strictly Necessary will prevent you from remaining logged in and will interrupt the core functionality of the platform, including order execution.
+                <span className="text-foreground/70 font-semibold">Important:</span> Disabling or deleting cookies classified as Strictly Necessary will prevent you from remaining logged in and will interrupt the core functionality of the platform, including order execution.
               </p>
               <p>
-                <span className="text-white/70 font-semibold">Queries:</span> If you have any questions about cookies or how we use them, contact us at{' '}
-                <a href="mailto:privacy@profytron.com" className="text-indigo-400 hover:text-indigo-300 transition-colors">privacy@profytron.com</a>.
+                <span className="text-foreground/70 font-semibold">Queries:</span> If you have any questions about cookies or how we use them, contact us at{' '}
+                <a href="mailto:privacy@profytron.com" className="text-primary hover:text-primary transition-colors">privacy@profytron.com</a>.
               </p>
             </div>
           </div>

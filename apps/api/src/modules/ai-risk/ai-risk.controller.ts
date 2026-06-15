@@ -27,7 +27,8 @@ export class AiRiskController {
   @Get('score')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({
-    summary: 'Get behavioral risk score (0-100). LOW <40, MEDIUM 40-69, HIGH 70+',
+    summary:
+      'Get behavioral risk score (0-100). LOW <40, MEDIUM 40-69, HIGH 70+',
   })
   async getRiskScore(@Req() req: any) {
     const score = await this.aiRiskService.computeRiskScore(req.user.id);
@@ -40,5 +41,13 @@ export class AiRiskController {
   @ApiOperation({ summary: 'Get your current AI risk policy' })
   async getPolicy(@Req() req: any) {
     return this.aiRiskService.getRiskPolicy(req.user.id);
+  }
+
+  @Get('dashboard')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Live risk monitor snapshot for dashboard' })
+  async getDashboard(@Req() req: any) {
+    const userId = req.user.userId ?? req.user.id;
+    return this.aiRiskService.getDashboardRisk(userId);
   }
 }

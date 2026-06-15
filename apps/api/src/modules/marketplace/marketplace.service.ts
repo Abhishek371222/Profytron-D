@@ -14,13 +14,21 @@ import {
   SubscribeStrategyDto,
   UpdateSubscriptionRiskDto,
 } from './dto/marketplace.dto';
-import { Prisma, SubscriptionStatus } from '@prisma/client';
+import { Prisma, SubscriptionStatus, TradeStatus } from '@prisma/client';
+import { buildStrategyAnalytics } from './strategy-analytics.builder';
+import {
+  ActivationService,
+  ACTIVATION_EVENTS,
+} from '../growth/activation.service';
 
 @Injectable()
 export class MarketplaceService {
   private stripe: InstanceType<typeof Stripe>;
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    private activationService: ActivationService,
+  ) {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
       apiVersion: '2025-01-27' as any,
     });
@@ -65,7 +73,8 @@ export class MarketplaceService {
               },
             },
             performance: { take: 1, orderBy: { date: 'desc' } },
-            reviews: { select: { rating: true } },
+            // Load only ratings for visible reviews — no text/author fields needed for list view.
+            reviews: { where: { isVisible: true }, select: { rating: true } },
           },
         },
       },
@@ -258,6 +267,102 @@ export class MarketplaceService {
     };
   }
 
+  async getStrategyAnalytics(
+    id: string,
+    query?: MarketplaceQueryDto,
+  ) {
+    const strategy = await this.prisma.strategy.findFirst({
+      where: { id, deletedAt: null, isPublished: true },
+      select: {
+        id: true,
+        name: true,
+        isVerified: true,
+        verificationStatus: true,
+        configJson: true,
+        biasCheckJson: true,
+        masterBrokerAccountId: true,
+        createdAt: true,
+      },
+    });
+
+    if (!strategy) {
+      throw new NotFoundException('Marketplace strategy not found');
+    }
+
+    const tradesPage = query?.tradesPage ?? 1;
+    const tradesLimit = query?.tradesLimit ?? 20;
+
+    const [performance, trades, openTrades, tradeHistory, totalTrades] =
+      await Promise.all([
+        this.prisma.strategyPerformance.findMany({
+          where: { strategyId: id },
+          orderBy: { date: 'asc' },
+        }),
+        this.prisma.trade.findMany({
+          where: { strategyId: id },
+          orderBy: { closedAt: 'asc' },
+        }),
+        this.prisma.trade.findMany({
+          where: { strategyId: id, status: TradeStatus.OPEN },
+        }),
+        this.prisma.trade.findMany({
+          where: { strategyId: id, status: TradeStatus.CLOSED },
+          orderBy: { closedAt: 'desc' },
+          skip: (tradesPage - 1) * tradesLimit,
+          take: tradesLimit,
+          select: {
+            id: true,
+            symbol: true,
+            direction: true,
+            volume: true,
+            openPrice: true,
+            closePrice: true,
+            profit: true,
+            openedAt: true,
+            closedAt: true,
+            status: true,
+          },
+        }),
+        this.prisma.trade.count({
+          where: { strategyId: id, status: TradeStatus.CLOSED },
+        }),
+      ]);
+
+    const analytics = buildStrategyAnalytics({
+      performance,
+      trades,
+      openTrades,
+      configJson: (strategy.configJson as Record<string, unknown>) ?? {},
+      biasCheckJson: (strategy.biasCheckJson as Record<string, unknown>) ?? null,
+      isVerified: strategy.isVerified,
+      verificationStatus: strategy.verificationStatus,
+      masterBrokerAccountId: strategy.masterBrokerAccountId,
+      createdAt: strategy.createdAt,
+    });
+
+    return {
+      strategyId: strategy.id,
+      strategyName: strategy.name,
+      analytics,
+      tradeHistory: {
+        items: tradeHistory.map((trade) => ({
+          id: trade.id,
+          asset: trade.symbol,
+          type: trade.direction === 'LONG' ? 'Buy' : 'Sell',
+          openPrice: trade.openPrice,
+          closePrice: trade.closePrice,
+          volume: trade.volume,
+          openedAt: trade.openedAt,
+          closedAt: trade.closedAt,
+          pnl: trade.profit ?? 0,
+        })),
+        page: tradesPage,
+        limit: tradesLimit,
+        total: totalTrades,
+      },
+    };
+  }
+
   async createListing(
     strategyId: string,
     creatorId: string,
@@ -368,10 +473,20 @@ export class MarketplaceService {
           subscribedAt: new Date(),
         },
       });
+      await this.activationService.track(
+        userId,
+        ACTIVATION_EVENTS.FIRST_MARKETPLACE_SUB,
+        { strategyId },
+      );
       return { subscription, requiresPayment: false };
     }
 
-    if (dto.useTrial && listing.trialDays > 0 && planType !== 'LIFETIME') {
+    if (
+      dto.useTrial &&
+      listing.trialDays > 0 &&
+      planType !== 'LIFETIME' &&
+      !listing.strategy.masterBrokerAccountId
+    ) {
       const trialEndsAt = new Date(
         Date.now() + listing.trialDays * 24 * 60 * 60 * 1000,
       );
@@ -394,6 +509,11 @@ export class MarketplaceService {
           subscribedAt: new Date(),
         },
       });
+      await this.activationService.track(
+        userId,
+        ACTIVATION_EVENTS.FIRST_MARKETPLACE_SUB,
+        { strategyId },
+      );
       return {
         subscription,
         requiresPayment: false,

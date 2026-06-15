@@ -8,15 +8,23 @@ import {
   Query,
   UseGuards,
   Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { SupportService } from './support.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard, Roles } from '../auth/guards/auth.guard';
 import {
   ApiTags,
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
+import {
+  CreateTicketDto,
+  AddResponseDto,
+  UpdateStatusDto,
+  AssignTicketDto,
+} from './dto/support.dto';
 import type { Request } from 'express';
 
 type AuthRequest = Request & { user: { id: string; role?: string } };
@@ -32,15 +40,12 @@ export class SupportController {
   @ApiOperation({ summary: 'Create a new support ticket' })
   @ApiResponse({ status: 201, description: 'Ticket created' })
   @Post('tickets')
-  createTicket(
-    @Req() req: AuthRequest,
-    @Body() body: { subject: string; description: string; category: string },
-  ) {
+  createTicket(@Req() req: AuthRequest, @Body() dto: CreateTicketDto) {
     return this.supportService.createTicket(
       req.user.id,
-      body.subject,
-      body.description,
-      body.category,
+      dto.subject,
+      dto.description,
+      dto.category,
     );
   }
 
@@ -51,12 +56,20 @@ export class SupportController {
     return this.supportService.getTickets(req.user.id, status);
   }
 
-  @ApiOperation({ summary: 'Get a single support ticket' })
+  @ApiOperation({ summary: 'Get a single support ticket (own tickets only)' })
   @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @Get('tickets/:id')
-  getTicket(@Param('id') id: string) {
-    return this.supportService.getTicket(id);
+  async getTicket(@Req() req: AuthRequest, @Param('id') id: string) {
+    const isAdmin =
+      req.user.role === 'ADMIN' || req.user.role === 'SUPER_ADMIN';
+    const ticket = await this.supportService.getTicket(id);
+    if (!ticket) return null;
+    if (!isAdmin && ticket.userId !== req.user.id) {
+      throw new ForbiddenException('You do not have access to this ticket');
+    }
+    return ticket;
   }
 
   @ApiOperation({ summary: 'Add a response to a ticket' })
@@ -65,38 +78,42 @@ export class SupportController {
   addResponse(
     @Req() req: AuthRequest,
     @Param('id') id: string,
-    @Body() body: { message: string },
+    @Body() dto: AddResponseDto,
   ) {
     const isAdmin =
       req.user.role === 'ADMIN' || req.user.role === 'SUPER_ADMIN';
-    return this.supportService.addResponse(
-      id,
-      req.user.id,
-      body.message,
-      isAdmin,
-    );
+    return this.supportService.addResponse(id, req.user.id, dto.message, isAdmin);
   }
 
-  @ApiOperation({ summary: 'Update ticket status (admin)' })
+  @ApiOperation({ summary: 'Update ticket status (admin only)' })
   @ApiResponse({ status: 200, description: 'Updated' })
+  @ApiResponse({ status: 403, description: 'Forbidden — admin only' })
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Patch('tickets/:id/status')
-  updateStatus(@Param('id') id: string, @Body() body: { status: string }) {
-    return this.supportService.updateTicketStatus(id, body.status);
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
+    return this.supportService.updateTicketStatus(id, dto.status);
   }
 
-  @ApiOperation({ summary: 'Assign ticket to admin' })
+  @ApiOperation({ summary: 'Assign ticket to admin (admin only)' })
   @ApiResponse({ status: 200, description: 'Assigned' })
+  @ApiResponse({ status: 403, description: 'Forbidden — admin only' })
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Patch('tickets/:id/assign')
   assignTicket(
     @Req() req: AuthRequest,
     @Param('id') id: string,
-    @Body() body: { adminId?: string },
+    @Body() dto: AssignTicketDto,
   ) {
-    return this.supportService.assignTicket(id, body.adminId || req.user.id);
+    return this.supportService.assignTicket(id, dto.adminId || req.user.id);
   }
 
-  @ApiOperation({ summary: 'Get all pending tickets (admin)' })
+  @ApiOperation({ summary: 'Get all pending tickets (admin only)' })
   @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 403, description: 'Forbidden — admin only' })
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
   @Get('admin/pending')
   getPendingTickets() {
     return this.supportService.getPendingTickets();

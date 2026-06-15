@@ -3,6 +3,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CryptoService } from '../../common/crypto.service';
 import { MetaTraderAdapter } from './adapters/metatrader.adapter';
 import { PaperBrokerAdapter } from './adapters/paper.adapter';
+import { InjectQueue } from '@nestjs/bull';
+import type { Queue } from 'bull';
+import {
+  ActivationService,
+  ACTIVATION_EVENTS,
+} from '../growth/activation.service';
 
 @Injectable()
 export class BrokerService {
@@ -13,10 +19,20 @@ export class BrokerService {
     private cryptoService: CryptoService,
     private mtAdapter: MetaTraderAdapter,
     private paperAdapter: PaperBrokerAdapter,
+    private activationService: ActivationService,
+    @InjectQueue('copyfactory_sync')
+    private readonly copyFactoryQueue: Queue,
   ) {}
 
   async connectBroker(userId: string, dto: any) {
-    const { brokerName, login, password, serverName, platform } = dto;
+    const {
+      brokerName,
+      login,
+      password,
+      serverName,
+      platform,
+      copyFactoryRole,
+    } = dto;
 
     try {
       let connectionResult: any;
@@ -26,12 +42,25 @@ export class BrokerService {
       } else {
         // All real MT4/MT5 brokers go through MetaTraderAdapter
         const mt = platform === 'mt4' ? 'mt4' : 'mt5';
-        connectionResult = await this.mtAdapter.connect(login, password, serverName, mt);
+        const roles =
+          copyFactoryRole === 'PROVIDER'
+            ? (['PROVIDER'] as const)
+            : copyFactoryRole === 'SUBSCRIBER' || copyFactoryRole === undefined
+              ? (['SUBSCRIBER'] as const)
+              : undefined;
+        connectionResult = await this.mtAdapter.connect(
+          login,
+          password,
+          serverName,
+          mt,
+          roles ? { copyFactoryRoles: [...roles] } : undefined,
+        );
       }
 
       if (!connectionResult.connected) {
         throw new BadRequestException(
-          connectionResult.error || 'Connection failed. Check your credentials.',
+          connectionResult.error ||
+            'Connection failed. Check your credentials.',
         );
       }
 
@@ -42,30 +71,44 @@ export class BrokerService {
 
       const last4 = login ? login.slice(-4).padStart(4, '0') : '0000';
 
-      const existingCount = await this.prisma.brokerAccount.count({ where: { userId } });
+      const existingCount = await this.prisma.brokerAccount.count({
+        where: { userId },
+      });
       const isDefault = existingCount === 0;
 
       const account = await this.prisma.brokerAccount.create({
         data: {
           userId,
-          brokerName: brokerName === 'PAPER' ? 'PAPER' : (platform === 'mt4' ? 'MT4' : 'MT5'),
+          brokerName:
+            brokerName === 'PAPER'
+              ? 'PAPER'
+              : platform === 'mt4'
+                ? 'MT4'
+                : 'MT5',
           accountNumberLast4: last4,
           credentialsEncrypted: encrypted,
           serverName,
           isPaperTrading: brokerName === 'PAPER',
           isDefault,
           // store MetaAPI account ID for future use if available
-          ...(connectionResult.metaApiAccountId && {
-            // We'll store it in serverName as "SERVER|metaApiId" or we can add a field
-            // For now we keep it in the encrypted blob
-          }),
+          ...(connectionResult.metaApiAccountId &&
+            {
+              // We'll store it in serverName as "SERVER|metaApiId" or we can add a field
+              // For now we keep it in the encrypted blob
+            }),
         },
       });
 
-      // Re-encrypt with metaApiAccountId included
+      // Re-encrypt with metaApiAccountId + region included so later trade and
+      // account-info calls hit the correct region-specific MetaAPI host.
       if (connectionResult.metaApiAccountId) {
         const enriched = this.cryptoService.encrypt(
-          JSON.stringify({ login, password, metaApiAccountId: connectionResult.metaApiAccountId }),
+          JSON.stringify({
+            login,
+            password,
+            metaApiAccountId: connectionResult.metaApiAccountId,
+            metaApiRegion: connectionResult.metaApiRegion,
+          }),
         );
         await this.prisma.brokerAccount.update({
           where: { id: account.id },
@@ -77,14 +120,43 @@ export class BrokerService {
         data: {
           eventType: 'BROKER_CONNECTED',
           userId,
-          detailsJson: { brokerName: account.brokerName, accountId: account.id, server: serverName },
+          detailsJson: {
+            brokerName: account.brokerName,
+            accountId: account.id,
+            server: serverName,
+          },
           triggeredBy: 'USER',
         },
       });
 
+      if (brokerName !== 'PAPER') {
+        await this.copyFactoryQueue.add(
+          'sync_copyfactory',
+          { action: 'link', userId },
+          { removeOnComplete: true, attempts: 4, backoff: { type: 'exponential', delay: 5000 } },
+        );
+      }
+
+      await this.activationService.track(
+        userId,
+        ACTIVATION_EVENTS.BROKER_CONNECTED,
+        { brokerName: account.brokerName, isPaper: brokerName === 'PAPER' },
+      );
+      if (brokerName === 'PAPER') {
+        await this.activationService.track(
+          userId,
+          ACTIVATION_EVENTS.FIRST_PAPER_TRADE,
+          { mode: 'paper_account_connected' },
+        );
+      }
+
       const { credentialsEncrypted: _, ...safe } = account as any;
       return {
         ...safe,
+        // pending=true means the account is provisioned and deploying, but the
+        // broker terminal hasn't streamed live balance yet (demo servers can be
+        // slow). The account is saved; balance appears on the next test/refresh.
+        pending: connectionResult.pending ?? false,
         accountInfo: {
           balance: connectionResult.balance,
           equity: connectionResult.equity,
@@ -95,7 +167,9 @@ export class BrokerService {
         },
       };
     } catch (e) {
-      this.logger.error(`Failed to connect broker for user ${userId}: ${e.message}`);
+      this.logger.error(
+        `Failed to connect broker for user ${userId}: ${e.message}`,
+      );
       throw new BadRequestException(e.message || 'Broker connection failed');
     }
   }
@@ -117,11 +191,15 @@ export class BrokerService {
     // Deprovision from MetaAPI if applicable
     if (!account.isPaperTrading && this.mtAdapter.isLive) {
       try {
-        const creds = JSON.parse(this.cryptoService.decrypt(account.credentialsEncrypted));
+        const creds = JSON.parse(
+          this.cryptoService.decrypt(account.credentialsEncrypted),
+        );
         if (creds.metaApiAccountId) {
           await this.mtAdapter.deprovision(creds.metaApiAccountId);
         }
-      } catch (_) { /* non-fatal */ }
+      } catch (_) {
+        /* non-fatal */
+      }
     }
 
     await this.prisma.brokerAccount.update({
@@ -144,15 +222,27 @@ export class BrokerService {
         return { connected: r.connected, accountInfo: r };
       }
 
-      const creds = JSON.parse(this.cryptoService.decrypt(account.credentialsEncrypted));
+      const creds = JSON.parse(
+        this.cryptoService.decrypt(account.credentialsEncrypted),
+      );
 
-      let result: any;
-      if (creds.metaApiAccountId) {
-        result = await this.mtAdapter.testExisting(creds.metaApiAccountId);
-      } else {
-        const mt = account.brokerName === 'MT4' ? 'mt4' : 'mt5';
-        result = await this.mtAdapter.connect(creds.login, creds.password, account.serverName ?? '', mt);
+      // Only test an already-provisioned MetaAPI account. NEVER call connect()
+      // here — connect() provisions a NEW MetaAPI account, so doing it on a
+      // (potentially polled) test endpoint would spawn duplicate accounts and
+      // exhaust the MetaAPI quota. Legacy/mock accounts without a real id must
+      // be reconnected instead.
+      const metaApiId: string | undefined = creds.metaApiAccountId;
+      if (!metaApiId || metaApiId.startsWith('mock-')) {
+        return {
+          connected: false,
+          error: 'Account not linked to MetaAPI. Please reconnect this broker.',
+        };
       }
+
+      const result = await this.mtAdapter.testExisting(
+        metaApiId,
+        creds.metaApiRegion,
+      );
 
       return { connected: result.connected, accountInfo: result };
     } catch (e) {
@@ -162,7 +252,8 @@ export class BrokerService {
 
   async getAccountInfo(userId: string, accountId: string) {
     const test = await this.testConnection(userId, accountId);
-    if (!test.connected) throw new BadRequestException('Cannot fetch account info; disconnected');
+    if (!test.connected)
+      throw new BadRequestException('Cannot fetch account info; disconnected');
     return test.accountInfo;
   }
 }

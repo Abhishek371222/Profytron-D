@@ -15,20 +15,20 @@
 
 /* ── Glow ─────────────────────────────────────────────── */
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.25), 0 0 60px rgba(99,102,241,0.1); }
-  50%       { box-shadow: 0 0 40px rgba(99,102,241,0.5),  0 0 100px rgba(99,102,241,0.2); }
+  0%, 100% { box-shadow: 0 0 20px color-mix(in srgb, var(--primary) 25%, transparent), 0 0 60px color-mix(in srgb, var(--primary) 10%, transparent); }
+  50%       { box-shadow: 0 0 40px color-mix(in srgb, var(--primary) 50%, transparent), 0 0 100px color-mix(in srgb, var(--primary) 20%, transparent); }
 }
 @keyframes glow-cyan {
-  0%, 100% { box-shadow: 0 0 20px rgba(6,182,212,0.25); }
-  50%       { box-shadow: 0 0 45px rgba(6,182,212,0.55); }
+  0%, 100% { box-shadow: 0 0 20px color-mix(in srgb, var(--chart-3) 25%, transparent); }
+  50%       { box-shadow: 0 0 45px color-mix(in srgb, var(--chart-3) 55%, transparent); }
 }
 @keyframes glow-emerald {
-  0%, 100% { box-shadow: 0 0 20px rgba(52,211,153,0.25); }
-  50%       { box-shadow: 0 0 45px rgba(52,211,153,0.55); }
+  0%, 100% { box-shadow: 0 0 20px color-mix(in srgb, var(--chart-3) 25%, transparent); }
+  50%       { box-shadow: 0 0 45px color-mix(in srgb, var(--chart-3) 55%, transparent); }
 }
 @keyframes glow-rose {
-  0%, 100% { box-shadow: 0 0 20px rgba(251,113,133,0.25); }
-  50%       { box-shadow: 0 0 45px rgba(251,113,133,0.55); }
+  0%, 100% { box-shadow: 0 0 20px color-mix(in srgb, var(--chart-2) 25%, transparent); }
+  50%       { box-shadow: 0 0 45px color-mix(in srgb, var(--chart-2) 55%, transparent); }
 }
 
 /* ── Text effects ─────────────────────────────────────── */
@@ -231,6 +231,29 @@
   100% { transform: translateY(0)    scale(1);    opacity: 1; }
 }
 
+/* ── SaaSfly animations ───────────────────────────────── */
+@keyframes meteor-effect {
+  0%   { transform: rotate(215deg) translateX(0); opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: rotate(215deg) translateX(-500px); opacity: 0; }
+}
+@keyframes scroll {
+  to { transform: translate(calc(-50% - 0.5rem)); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-100% - var(--gap))); }
+}
+@keyframes marquee-vertical {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100% - var(--gap))); }
+}
+@keyframes gradient-animate {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 /* ── Notification shake ───────────────────────────────── */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -344,6 +367,13 @@
 /* Shake */
 .animate-shake        { animation: shake 0.55s ease both; }
 
+/* SaaSfly */
+.animate-meteor-effect { animation: meteor-effect linear infinite; }
+.animate-scroll        { animation: scroll var(--animation-duration,40s) var(--animation-direction,forwards) linear infinite; }
+.animate-marquee       { animation: marquee var(--duration,40s) linear infinite; }
+.animate-marquee-vertical { animation: marquee-vertical var(--duration,40s) linear infinite; }
+.animate-gradient      { animation: gradient-animate 6s ease infinite; background-size: var(--bg-size,300%) 100%; }
+
 /* ═══════════════════════════════════════════════════════
    STAGGER DELAYS — for .stagger-children wrappers
 ═══════════════════════════════════════════════════════ */
@@ -387,6 +417,7 @@
 }
 .tilt-card:hover {
   transform: perspective(800px) rotateX(2deg) rotateY(-2deg) scale(1.02);
+  box-shadow: 0 16px 48px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 /* ═══════════════════════════════════════════════════════

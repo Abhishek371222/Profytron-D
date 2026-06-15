@@ -157,13 +157,25 @@ export class AnalyticsService {
         closedAt: start ? { gte: start } : undefined,
       },
       orderBy: { closedAt: 'asc' },
-      include: {
-        strategy: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+      // Explicit select — excludes executionMetadataJson, aiExplanation,
+      // socialComments, journalEntry which are not needed for analytics.
+      select: {
+        id: true,
+        userId: true,
+        strategyId: true,
+        symbol: true,
+        direction: true,
+        volume: true,
+        openPrice: true,
+        closePrice: true,
+        stopLoss: true,
+        takeProfit: true,
+        profit: true,
+        commission: true,
+        swap: true,
+        openedAt: true,
+        closedAt: true,
+        strategy: { select: { id: true, name: true } },
       },
     }) as unknown as Promise<ClosedTradeRow[]>;
   }
@@ -388,11 +400,7 @@ export class AnalyticsService {
       ),
     };
 
-    await this.redis.set(
-      cacheKey,
-      JSON.stringify(comparison),
-      TTL_ANALYTICS,
-    );
+    await this.redis.set(cacheKey, JSON.stringify(comparison), TTL_ANALYTICS);
     return comparison;
   }
 
@@ -733,23 +741,35 @@ export class AnalyticsService {
     try {
       const now = new Date();
       const from = now.toISOString().split('T')[0];
-      const to = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const to = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0];
 
-      const response = await axios.get('https://api.twelvedata.com/economic_calendar', {
-        params: { apikey: apiKey, start_date: from, end_date: to, importance: 'high,medium' },
-        timeout: 8000,
-      });
+      const response = await axios.get(
+        'https://api.twelvedata.com/economic_calendar',
+        {
+          params: {
+            apikey: apiKey,
+            start_date: from,
+            end_date: to,
+            importance: 'high,medium',
+          },
+          timeout: 8000,
+        },
+      );
 
-      const events = (response.data?.result || []).slice(0, 10).map((e: any) => ({
-        date: e.date,
-        country: e.country,
-        event: e.event,
-        impact: e.importance,
-        actual: e.actual ?? null,
-        forecast: e.forecast ?? null,
-        previous: e.previous ?? null,
-        currency: e.currency ?? null,
-      }));
+      const events = (response.data?.result || [])
+        .slice(0, 10)
+        .map((e: any) => ({
+          date: e.date,
+          country: e.country,
+          event: e.event,
+          impact: e.importance,
+          actual: e.actual ?? null,
+          forecast: e.forecast ?? null,
+          previous: e.previous ?? null,
+          currency: e.currency ?? null,
+        }));
 
       await this.redis.set(cacheKey, JSON.stringify(events), TTL_MACRO);
       return events;

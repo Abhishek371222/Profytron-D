@@ -5,6 +5,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { journalApi, type JournalEntry } from '@/lib/api/journal';
 import { motion, AnimatePresence } from 'framer-motion';
+import {
+  DashboardPage,
+  DashboardBreadcrumbs,
+  DashboardPageHeader,
+} from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import {
   BookOpen,
@@ -35,20 +40,20 @@ function fmtDateTime(iso: string) {
 const EMOTION_OPTIONS = ['Confident', 'Anxious', 'Greedy', 'Fearful', 'Calm', 'Impulsive', 'Disciplined', 'Frustrated'];
 
 const EMOTION_COLORS: Record<string, string> = {
-  Confident: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
-  Calm: 'text-blue-400 bg-blue-400/10 border-blue-400/20',
-  Disciplined: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/20',
-  Anxious: 'text-amber-400 bg-amber-400/10 border-amber-400/20',
+  Confident: 'text-chart-3 bg-chart-3/10 border-chart-3/20',
+  Calm: 'text-chart-5 bg-chart-5/10 border-chart-5/20',
+  Disciplined: 'text-primary bg-primary/10 border-primary/20',
+  Anxious: 'text-chart-4 bg-chart-4/10 border-chart-4/20',
   Greedy: 'text-orange-400 bg-orange-400/10 border-orange-400/20',
   Fearful: 'text-red-400 bg-red-400/10 border-red-400/20',
-  Impulsive: 'text-rose-400 bg-rose-400/10 border-rose-400/20',
+  Impulsive: 'text-destructive bg-destructive/10 border-destructive/20',
   Frustrated: 'text-red-500 bg-red-500/10 border-red-500/20',
 };
 
 function EmotionTag({ emotion }: { emotion: string }) {
-  const color = EMOTION_COLORS[emotion] ?? 'text-white/40 bg-white/5 border-white/10';
+  const color = EMOTION_COLORS[emotion] ?? 'text-foreground/40 bg-foreground/5 border-border';
   return (
-    <span className={cn('px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border', color)}>
+    <span className={cn('px-2.5 py-0.5 rounded-full text-micro font-bold uppercase tracking-widest border', color)}>
       {emotion}
     </span>
   );
@@ -67,7 +72,7 @@ function StarRating({ rating, onChange }: { rating: number | null; onChange?: (r
           <Star
             className={cn(
               'w-3.5 h-3.5 transition-colors',
-              (rating ?? 0) >= s ? 'text-yellow-400 fill-yellow-400' : 'text-white/15',
+              (rating ?? 0) >= s ? 'text-yellow-400 fill-yellow-400' : 'text-foreground/15',
             )}
           />
         </button>
@@ -97,34 +102,34 @@ function JournalCard({
       className={cn(
         'w-full text-left p-4 rounded-[20px] border transition-all duration-300 group',
         isSelected
-          ? 'bg-indigo-500/8 border-indigo-500/25 shadow-[0_0_20px_rgba(99,102,241,0.08)]'
-          : 'bg-white/[0.02] border-white/[0.05] hover:border-white/10 hover:bg-white/[0.03]',
+          ? 'bg-primary/8 border-primary/25 shadow-[0_0_20px_rgba(99,102,241,0.08)]'
+          : 'bg-muted/2 border-white/[0.05] hover:border-border hover:bg-muted',
       )}
     >
       <div className="flex items-start justify-between gap-3 mb-2.5">
         <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-white">{entry.trade.symbol}</span>
+            <span className="text-sm font-bold text-foreground">{entry.trade.symbol}</span>
             <span
               className={cn(
-                'text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md',
+                'text-micro font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md',
                 entry.trade.direction === 'LONG'
-                  ? 'text-emerald-400 bg-emerald-400/10'
-                  : 'text-rose-400 bg-rose-400/10',
+                  ? 'text-chart-3 bg-chart-3/10'
+                  : 'text-destructive bg-destructive/10',
               )}
             >
               {entry.trade.direction}
             </span>
           </div>
-          <p className="text-[10px] text-white/25 uppercase tracking-widest font-mono">{fmtDate(entry.createdAt)}</p>
+          <p className="text-micro text-foreground/25 uppercase tracking-widest font-mono">{fmtDate(entry.createdAt)}</p>
         </div>
         <div className="text-right shrink-0 space-y-1">
           {pnl !== null ? (
-            <p className={cn('text-sm font-bold', isWin ? 'text-emerald-400' : 'text-rose-400')}>
+            <p className={cn('text-sm font-bold', isWin ? 'text-chart-3' : 'text-destructive')}>
               {isWin ? '+' : ''}${Math.abs(pnl).toFixed(2)}
             </p>
           ) : (
-            <p className="text-xs text-white/25">Open</p>
+            <p className="text-xs text-foreground/25">Open</p>
           )}
           <StarRating rating={entry.rating} />
         </div>
@@ -136,7 +141,7 @@ function JournalCard({
             <EmotionTag key={e} emotion={e} />
           ))}
           {emotions.length > 3 && (
-            <span className="text-[10px] text-white/20 uppercase tracking-widest self-center">
+            <span className="text-micro text-foreground/20 uppercase tracking-widest self-center">
               +{emotions.length - 3}
             </span>
           )}
@@ -145,8 +150,8 @@ function JournalCard({
 
       {entry.aiAnalysis && (
         <div className="flex items-center gap-1.5 mt-1.5">
-          <Sparkles className="w-3 h-3 text-indigo-400" />
-          <span className="text-[10px] text-indigo-300 uppercase tracking-widest font-bold">AI Analysis</span>
+          <Sparkles className="w-3 h-3 text-primary" />
+          <span className="text-micro text-primary uppercase tracking-widest font-bold">AI Analysis</span>
         </div>
       )}
     </motion.button>
@@ -167,28 +172,28 @@ function InsightsBar() {
     <motion.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-wrap items-center gap-4 rounded-[22px] border border-white/[0.07] bg-white/[0.02] px-5 py-4"
+      className="flex flex-wrap items-center gap-4 rounded-[22px] border border-[var(--card-border)] bg-muted/2 px-5 py-4"
     >
       <div className="flex items-center gap-2 shrink-0">
-        <Brain className="w-4 h-4 text-indigo-400" />
-        <span className="text-[10px] font-bold text-white/35 uppercase tracking-[0.3em]">Emotional Insights</span>
+        <Brain className="w-4 h-4 text-primary" />
+        <span className="text-micro font-bold text-foreground/35 uppercase tracking-[0.3em]">Emotional Insights</span>
       </div>
       <div className="flex items-center gap-5 ml-auto">
         <div className="text-center">
-          <p className="text-lg font-bold text-white">{data.totalEntries}</p>
-          <p className="text-[9px] text-white/25 uppercase tracking-widest">Entries</p>
+          <p className="text-lg font-bold text-foreground">{data.totalEntries}</p>
+          <p className="text-micro text-foreground/25 uppercase tracking-widest">Entries</p>
         </div>
-        <div className="w-px h-8 bg-white/10" />
+        <div className="w-px h-8 bg-foreground/10" />
         <div className="text-center">
           <p className="text-lg font-bold text-yellow-400">
             {data.averageRating > 0 ? data.averageRating.toFixed(1) : '—'}
           </p>
-          <p className="text-[9px] text-white/25 uppercase tracking-widest">Avg Rating</p>
+          <p className="text-micro text-foreground/25 uppercase tracking-widest">Avg Rating</p>
         </div>
-        <div className="w-px h-8 bg-white/10" />
+        <div className="w-px h-8 bg-foreground/10" />
         <div className="text-center">
-          <p className="text-sm font-bold text-white truncate max-w-[80px]">{topEmotion ? topEmotion[0] : '—'}</p>
-          <p className="text-[9px] text-white/25 uppercase tracking-widest">Top Emotion</p>
+          <p className="text-sm font-bold text-foreground truncate max-w-[80px]">{topEmotion ? topEmotion[0] : '—'}</p>
+          <p className="text-micro text-foreground/25 uppercase tracking-widest">Top Emotion</p>
         </div>
       </div>
     </motion.div>
@@ -263,31 +268,14 @@ export default function JournalPage() {
   };
 
   return (
-    <div className="space-y-5 pb-10">
-      {/* Ambient glow */}
-      <div className="pointer-events-none fixed top-0 left-0 h-72 w-72 rounded-full bg-indigo-500/5 blur-[120px]" />
+    <DashboardPage>
+      <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Journal' }]} />
 
-      {/* ── Header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[28px] border border-indigo-500/15 bg-gradient-to-br from-indigo-500/[0.04] to-transparent p-6 md:p-8"
-      >
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/35 to-transparent" />
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse shadow-[0_0_8px_rgba(129,140,248,0.8)]" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-indigo-400/70">Trade Journal</span>
-            </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">My Trades</h1>
-            <p className="text-sm text-white/40">Track emotions · Learn lessons · Get AI insights</p>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-            <BookOpen className="w-6 h-6 text-indigo-400" />
-          </div>
-        </div>
-      </motion.div>
+      <DashboardPageHeader
+        title="My Trades"
+        description="Track emotions, learn lessons, and get AI insights on every trade."
+        icon={BookOpen}
+      />
 
       {/* ── Insights bar ── */}
       <InsightsBar />
@@ -297,7 +285,7 @@ export default function JournalPage() {
         {/* Entry List */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] text-white/20 uppercase tracking-widest font-bold">
+            <p className="text-micro text-foreground/20 uppercase tracking-widest font-bold">
               {entries.length} entr{entries.length !== 1 ? 'ies' : 'y'}
             </p>
           </div>
@@ -305,7 +293,7 @@ export default function JournalPage() {
           {isLoading ? (
             <div className="space-y-2.5">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-24 rounded-[20px] bg-white/[0.025] animate-pulse border border-white/[0.04]" />
+                <div key={i} className="h-24 rounded-[20px] bg-muted/25 animate-pulse border border-[var(--card-border)]" />
               ))}
             </div>
           ) : entries.length === 0 ? (
@@ -314,12 +302,12 @@ export default function JournalPage() {
               animate={{ opacity: 1 }}
               className="py-20 text-center space-y-4"
             >
-              <div className="w-16 h-16 rounded-[20px] bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto">
-                <BookOpen className="w-7 h-7 text-white/10" />
+              <div className="w-16 h-16 rounded-[20px] bg-muted border border-[var(--card-border)] flex items-center justify-center mx-auto">
+                <BookOpen className="w-7 h-7 text-foreground/10" />
               </div>
               <div className="space-y-1.5">
-                <p className="text-sm font-bold text-white/20 uppercase tracking-widest">No trades recorded</p>
-                <p className="text-xs text-white/15">Journal entries are created from your trade history.</p>
+                <p className="text-sm font-bold text-foreground/20 uppercase tracking-widest">No trades recorded</p>
+                <p className="text-xs text-foreground/15">Journal entries are created from your trade history.</p>
               </div>
             </motion.div>
           ) : (
@@ -341,7 +329,7 @@ export default function JournalPage() {
         {/* ── Detail Panel ── */}
         <motion.div
           layout
-          className="rounded-[24px] border border-white/[0.06] bg-white/[0.015] flex flex-col min-h-[520px] overflow-hidden"
+          className="rounded-[24px] border border-[var(--card-border)] bg-muted/505 flex flex-col min-h-[520px] overflow-hidden"
         >
           <AnimatePresence mode="wait">
             {!selectedEntry ? (
@@ -352,12 +340,12 @@ export default function JournalPage() {
                 exit={{ opacity: 0 }}
                 className="flex-1 flex flex-col items-center justify-center gap-4 p-10 text-center"
               >
-                <div className="w-16 h-16 rounded-[20px] bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
-                  <ChevronRight className="w-6 h-6 text-white/10" />
+                <div className="w-16 h-16 rounded-[20px] bg-muted border border-[var(--card-border)] flex items-center justify-center">
+                  <ChevronRight className="w-6 h-6 text-foreground/10" />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-bold text-white/20 uppercase tracking-widest">Select a trade</p>
-                  <p className="text-xs text-white/15">Click any entry to view details and insights.</p>
+                  <p className="text-sm font-bold text-foreground/20 uppercase tracking-widest">Select a trade</p>
+                  <p className="text-xs text-foreground/15">Click any entry to view details and insights.</p>
                 </div>
               </motion.div>
             ) : (
@@ -369,30 +357,30 @@ export default function JournalPage() {
                 className="flex flex-col h-full"
               >
                 {/* Trade header */}
-                <div className="p-5 border-b border-white/[0.06] bg-white/[0.01]">
+                <div className="p-5 border-b border-[var(--card-border)] bg-muted/50">
                   <div className="flex items-center justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg font-bold text-white">{selectedEntry.trade.symbol}</span>
+                        <span className="text-lg font-bold text-foreground">{selectedEntry.trade.symbol}</span>
                         <span
                           className={cn(
-                            'text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg',
+                            'text-micro font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg',
                             selectedEntry.trade.direction === 'LONG'
-                              ? 'text-emerald-400 bg-emerald-400/10'
-                              : 'text-rose-400 bg-rose-400/10',
+                              ? 'text-chart-3 bg-chart-3/10'
+                              : 'text-destructive bg-destructive/10',
                           )}
                         >
                           {selectedEntry.trade.direction}
                         </span>
                       </div>
-                      <p className="text-[10px] text-white/25 font-mono">{fmtDateTime(selectedEntry.createdAt)}</p>
+                      <p className="text-micro text-foreground/25 font-mono">{fmtDateTime(selectedEntry.createdAt)}</p>
                     </div>
                     <div className="text-right space-y-1">
                       {selectedEntry.trade.profit !== null && (
                         <p
                           className={cn(
                             'text-xl font-bold',
-                            selectedEntry.trade.profit >= 0 ? 'text-emerald-400' : 'text-rose-400',
+                            selectedEntry.trade.profit >= 0 ? 'text-chart-3' : 'text-destructive',
                           )}
                         >
                           {selectedEntry.trade.profit >= 0 ? '+' : ''}$
@@ -411,7 +399,7 @@ export default function JournalPage() {
                 <div className="flex-1 p-5 space-y-5 overflow-y-auto">
                   {/* Emotions */}
                   <div className="space-y-2.5">
-                    <label className="text-[10px] font-bold text-white/25 uppercase tracking-[0.3em] block">
+                    <label className="text-micro font-bold text-foreground/25 uppercase tracking-[0.3em] block">
                       Emotions During Trade
                     </label>
                     {isEditing ? (
@@ -421,10 +409,10 @@ export default function JournalPage() {
                             key={e}
                             onClick={() => toggleEmotion(e)}
                             className={cn(
-                              'px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-all duration-200',
+                              'px-3 py-1.5 rounded-full text-micro font-bold uppercase tracking-widest border transition-all duration-200',
                               editingEmotions.includes(e)
-                                ? EMOTION_COLORS[e] ?? 'bg-indigo-500 text-white border-indigo-400/40'
-                                : 'bg-white/[0.03] text-white/30 border-white/[0.06] hover:border-white/15',
+                                ? EMOTION_COLORS[e] ?? 'bg-primary text-foreground border-primary/40'
+                                : 'bg-muted text-foreground/30 border-[var(--card-border)] hover:border-border',
                             )}
                           >
                             {e}
@@ -436,7 +424,7 @@ export default function JournalPage() {
                         {editingEmotions.length > 0 ? (
                           editingEmotions.map((e) => <EmotionTag key={e} emotion={e} />)
                         ) : (
-                          <p className="text-xs text-white/15">No emotions recorded</p>
+                          <p className="text-xs text-foreground/15">No emotions recorded</p>
                         )}
                       </div>
                     )}
@@ -444,7 +432,7 @@ export default function JournalPage() {
 
                   {/* Lesson */}
                   <div className="space-y-2.5">
-                    <label className="text-[10px] font-bold text-white/25 uppercase tracking-[0.3em] block">
+                    <label className="text-micro font-bold text-foreground/25 uppercase tracking-[0.3em] block">
                       Lesson Learned
                     </label>
                     {isEditing ? (
@@ -453,11 +441,11 @@ export default function JournalPage() {
                         onChange={(e) => setEditingLesson(e.target.value)}
                         rows={4}
                         placeholder="What did you learn from this trade?"
-                        className="w-full bg-white/[0.03] border border-white/[0.07] rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 focus:border-indigo-400/40 outline-none resize-none transition-colors"
+                        className="w-full bg-muted border border-[var(--card-border)] rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/20 focus:border-primary/40 outline-none resize-none transition-colors"
                       />
                     ) : (
-                      <p className="text-sm text-white/45 leading-relaxed">
-                        {editingLesson || <span className="text-white/15">No lesson recorded</span>}
+                      <p className="text-sm text-foreground/45 leading-relaxed">
+                        {editingLesson || <span className="text-foreground/15">No lesson recorded</span>}
                       </p>
                     )}
                   </div>
@@ -466,13 +454,13 @@ export default function JournalPage() {
                   {selectedEntry.aiAnalysis && (
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                        <label className="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.3em]">
+                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+                        <label className="text-micro font-bold text-primary uppercase tracking-[0.3em]">
                           AI Analysis
                         </label>
                       </div>
-                      <div className="p-4 rounded-xl bg-indigo-500/[0.06] border border-indigo-500/20">
-                        <p className="text-xs text-white/55 leading-relaxed whitespace-pre-line">
+                      <div className="p-4 rounded-xl bg-primary/[0.06] border border-primary/20">
+                        <p className="text-xs text-foreground/55 leading-relaxed whitespace-pre-line">
                           {selectedEntry.aiAnalysis}
                         </p>
                       </div>
@@ -481,19 +469,19 @@ export default function JournalPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="p-5 border-t border-white/[0.06] flex gap-3">
+                <div className="p-5 border-t border-[var(--card-border)] flex gap-3">
                   {isEditing ? (
                     <>
                       <button
                         onClick={() => setIsEditing(false)}
-                        className="h-10 px-4 rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/40 text-[11px] font-bold uppercase tracking-widest hover:bg-white/[0.06] transition-all"
+                        className="h-10 px-4 rounded-xl border border-[var(--card-border)] bg-muted text-foreground/40 text-caption font-bold uppercase tracking-widest hover:bg-muted/6 transition-all"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={handleSave}
                         disabled={updateMutation.isPending}
-                        className="flex-1 h-10 bg-indigo-500 text-white rounded-xl text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-400 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(99,102,241,0.25)]"
+                        className="flex-1 h-10 bg-primary text-foreground rounded-xl text-caption font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(99,102,241,0.25)]"
                       >
                         {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Entry'}
                       </button>
@@ -502,7 +490,7 @@ export default function JournalPage() {
                     <>
                       <button
                         onClick={() => setIsEditing(true)}
-                        className="h-10 px-4 rounded-xl border border-white/[0.08] bg-white/[0.03] text-white/45 text-[11px] font-bold uppercase tracking-widest hover:bg-white/[0.06] hover:text-white/70 transition-all"
+                        className="h-10 px-4 rounded-xl border border-[var(--card-border)] bg-muted text-foreground/45 text-caption font-bold uppercase tracking-widest hover:bg-muted/6 hover:text-foreground/70 transition-all"
                       >
                         Edit
                       </button>
@@ -510,7 +498,7 @@ export default function JournalPage() {
                         <button
                           onClick={() => analyzeMutation.mutate(selectedEntry.id)}
                           disabled={analyzeMutation.isPending}
-                          className="flex-1 h-10 border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 rounded-xl text-[11px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-500/20 disabled:opacity-50 transition-all"
+                          className="flex-1 h-10 border border-primary/30 bg-primary/10 text-primary rounded-xl text-caption font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/20 disabled:opacity-50 transition-all"
                         >
                           {analyzeMutation.isPending ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -528,6 +516,6 @@ export default function JournalPage() {
           </AnimatePresence>
         </motion.div>
       </div>
-    </div>
+    </DashboardPage>
   );
 }

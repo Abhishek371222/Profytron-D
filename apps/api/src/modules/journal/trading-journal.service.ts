@@ -69,7 +69,7 @@ export class TradingJournalService {
           ? 'https://openrouter.ai/api/v1/chat/completions'
           : 'https://api.openai.com/v1/chat/completions';
         const model = isOpenRouter
-          ? (process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct')
+          ? process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct'
           : 'gpt-4o-mini';
 
         const systemPrompt = `You are an expert trading psychology coach at Profytron. Analyze the trader's journal entry and trade data. Provide structured, actionable insights covering:
@@ -116,7 +116,9 @@ Trade status: ${entry.trade?.status || 'N/A'}`;
         analysis = response.data.choices[0]?.message?.content || '';
         this.logger.log(`AI journal analysis generated for entry ${entryId}`);
       } catch (err: any) {
-        this.logger.warn(`AI analysis failed: ${err.message} — using template fallback`);
+        this.logger.warn(
+          `AI analysis failed: ${err.message} — using template fallback`,
+        );
         analysis = this.buildTemplateAnalysis(entry);
       }
     } else {

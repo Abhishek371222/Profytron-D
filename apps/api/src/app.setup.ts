@@ -9,6 +9,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
 
 // ─── Request body size limits ────────────────────────────────────────────────
 // Keep these conservative. Webhook routes receive raw buffers and are registered
@@ -49,7 +50,12 @@ export function configureApp(app: INestApplication) {
   app.use('/v1/wallet/webhook', express.raw({ type: 'application/json' }));
 
   // ─── JSON / URL-encoded parsers (size-limited) ────────────────────────────
-  app.use(express.json({ limit: JSON_BODY_LIMIT }));
+  app.use(
+    express.json({
+      limit: JSON_BODY_LIMIT,
+      strict: false,
+    }),
+  );
   app.use(express.urlencoded({ extended: true, limit: URLENCODED_BODY_LIMIT }));
 
   // ─── Reject oversized requests early with a clear 413 ─────────────────────
@@ -144,11 +150,11 @@ export function configureApp(app: INestApplication) {
   app.useGlobalFilters(
     new AllExceptionsFilter({ httpAdapter: app.getHttpAdapter() } as any),
   );
-  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalInterceptors(new SentryInterceptor(), new TransformInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,       // Strip unknown properties — prevents mass assignment
-      transform: true,       // Auto-coerce types from request payloads
+      whitelist: true, // Strip unknown properties — prevents mass assignment
+      transform: true, // Auto-coerce types from request payloads
       forbidNonWhitelisted: true, // Reject requests that contain unknown properties
     }),
   );

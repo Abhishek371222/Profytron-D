@@ -2,6 +2,13 @@ import { PrismaClient, UserRole, KycStatus, SubscriptionTier, RiskLevel, Strateg
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
 
+const PLATFORM_PLANS_SEED = [
+  { name: 'Free', description: 'Paper trading and marketplace exploration.', monthlyPrice: 0, annualPrice: 0, features: ['1 paper copy subscription', 'Paper trading account', 'Basic analytics (30 days)', '5 AI Coach sessions/month', 'Community support'], maxStrategies: 0, maxCopyTrades: 1, prioritySupport: false },
+  { name: 'Starter', description: 'For retail copy traders getting started with live execution.', monthlyPrice: 3999, annualPrice: 39990, features: ['3 live copy subscriptions', '2 strategy deployments', '2 broker accounts', '50 AI Coach sessions/month', '1 year trade history', 'Email support (48h)'], maxStrategies: 2, maxCopyTrades: 3, prioritySupport: false },
+  { name: 'Pro', description: 'For active traders and strategy builders.', monthlyPrice: 11999, annualPrice: 119990, features: ['Unlimited copy subscriptions', 'Unlimited strategy deployments', '5 broker accounts', 'Unlimited AI Coach', '1 VPS bot slot', 'Priority chat support (24h)'], maxStrategies: 999, maxCopyTrades: 999, prioritySupport: true },
+  { name: 'Business', description: 'For prop desks and small funds (5 seats).', monthlyPrice: 29999, annualPrice: 299990, features: ['Everything in Pro', '5 team seats', '20 broker accounts', '5 VPS bot slots', 'Dedicated CSM'], maxStrategies: 999, maxCopyTrades: 999, prioritySupport: true },
+];
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -16,6 +23,8 @@ async function main() {
   await prisma.walletTransaction.deleteMany();
   await prisma.trade.deleteMany();
   await prisma.userStrategySubscription.deleteMany();
+  await prisma.userSubscription.deleteMany();
+  await prisma.subscriptionPlan.deleteMany();
   await prisma.strategyPerformance.deleteMany();
   await prisma.brokerAccount.deleteMany();
   await prisma.strategy.deleteMany();
@@ -58,6 +67,7 @@ async function main() {
       isActive: true,
       isSuspended: false,
       role: UserRole.ADMIN,
+      onboardingCompleted: true,
     },
     create: {
       email: 'admin@profytron.com',
@@ -70,7 +80,8 @@ async function main() {
       referralCode: randomUUID(),
       role: UserRole.ADMIN,
       subscriptionTier: SubscriptionTier.ELITE,
-      kycStatus: KycStatus.VERIFIED
+      kycStatus: KycStatus.VERIFIED,
+      onboardingCompleted: true,
     },
   });
 
@@ -248,6 +259,33 @@ async function main() {
     });
   }
 
+  console.log('Seeding Subscription Plans...');
+  for (const plan of PLATFORM_PLANS_SEED) {
+    if (plan.monthlyPrice < 0) continue;
+    await prisma.subscriptionPlan.upsert({
+      where: { name: plan.name },
+      create: {
+        name: plan.name,
+        description: plan.description,
+        monthlyPrice: plan.monthlyPrice,
+        annualPrice: plan.annualPrice,
+        features: plan.features,
+        maxStrategies: plan.maxStrategies,
+        maxCopyTrades: plan.maxCopyTrades,
+        prioritySupport: plan.prioritySupport,
+      },
+      update: {
+        description: plan.description,
+        monthlyPrice: plan.monthlyPrice,
+        annualPrice: plan.annualPrice,
+        features: plan.features,
+        maxStrategies: plan.maxStrategies,
+        maxCopyTrades: plan.maxCopyTrades,
+        prioritySupport: plan.prioritySupport,
+      },
+    });
+  }
+
   for (let i = 0; i < 5; i++) {
     await prisma.notification.create({
       data: {
@@ -257,6 +295,36 @@ async function main() {
         body: 'Your strategy has executed a new trade successfully.',
         isRead: false
       }
+    });
+  }
+
+  console.log('Seeding AI workforce budgets & KB...');
+  const agentTypes = [
+    'CEO', 'PRODUCT', 'CUSTOMER_SUCCESS', 'SUPPORT', 'MARKETING',
+    'SEO', 'SECURITY', 'ANALYTICS', 'BILLING', 'DEVOPS',
+  ] as const;
+  for (const agentType of agentTypes) {
+    await prisma.agentBudget.upsert({
+      where: { agentType },
+      create: {
+        agentType,
+        dailyTokenCap: agentType === 'CEO' ? 200 : 300,
+        dailyCostCapUsd: 0.05,
+      },
+      update: {},
+    });
+  }
+  const kbArticles = [
+    { slug: 'connect-broker', title: 'How to connect MT5 broker', content: 'Go to Copy Trading, click Connect Broker, enter MT5 login and server. Use paper account for risk-free testing.', tags: ['broker', 'mt5', 'paper'] },
+    { slug: 'wallet-deposit', title: 'How to fund wallet', content: 'Open Wallet, click Deposit, pay via Razorpay UPI or card. Minimum deposit ₹1000 for referral bonus eligibility.', tags: ['wallet', 'razorpay', 'deposit'] },
+    { slug: 'marketplace-subscribe', title: 'Subscribe to a strategy', content: 'Browse Marketplace, open a strategy, click Subscribe. Free strategies available on Starter plan and above for paid listings.', tags: ['marketplace', 'subscribe'] },
+    { slug: 'billing-plans', title: 'Platform subscription plans', content: 'Starter ₹3999/mo, Pro ₹11999/mo. Manage at Settings > Billing. 7-day trial on signup from pricing page.', tags: ['billing', 'pricing'] },
+  ];
+  for (const article of kbArticles) {
+    await prisma.supportKnowledgeChunk.upsert({
+      where: { slug: article.slug },
+      create: article,
+      update: { title: article.title, content: article.content, tags: article.tags },
     });
   }
 

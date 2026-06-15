@@ -6,6 +6,7 @@ import { usePathname, useRouter } from"next/navigation";
 import { useAuthStore } from"@/lib/stores/useAuthStore";
 import { motion, AnimatePresence } from"framer-motion";
 import { cn } from"@/lib/utils";
+import { AppProviders } from "@/components/providers/AppProviders";
 import {
  LayoutDashboard,
  ShieldCheck,
@@ -17,13 +18,14 @@ import {
 
 // We need to extend the icons or use existing ones that match.
 // I'll import from lucide-react for the ones not in ui/icons if needed, or stick to what is available.
-import { Users as UsersIcon, Shield as ShieldIcon, Server as ServerIcon } from"lucide-react";
+import { Users as UsersIcon, Shield as ShieldIcon, Server as ServerIcon, Bot } from"lucide-react";
 
 const adminNavItems = [
  { name:"Dashboard", icon: LayoutDashboard, href:"/admin" },
  { name:"Users", icon: UsersIcon, href:"/admin/users" },
  { name:"Strategies", icon: ShieldIcon, href:"/admin/strategies" },
  { name:"System", icon: ServerIcon, href:"/admin/system" },
+ { name:"AI Workforce", icon: Bot, href:"/admin/agents" },
 ];
 
 function AdminSidebar() {
@@ -56,9 +58,9 @@ function AdminSidebar() {
  className="flex items-center gap-2"
  >
  <div className="w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center">
- <ShieldCheck className="text-white w-5 h-5" />
+ <ShieldCheck className="text-foreground w-5 h-5" />
  </div>
- <span className="font-display font-bold space-x-1 tracking-tight text-red-500">
+ <span className="font-serif font-bold space-x-1 tracking-tight text-red-500">
  ADMIN
  </span>
  </motion.div>
@@ -84,7 +86,7 @@ function AdminSidebar() {
 "flex items-center h-11 rounded-lg transition-all relative group",
  isActive 
  ?"bg-red-500/10 text-red-400 font-medium shadow-[0_0_20px_rgba(239,68,68,0.05)] border border-red-500/20" 
- :"text-slate-400 hover:text-slate-200 hover:bg-slate-800",
+ :"text-muted-foreground hover:text-foreground/80 hover:bg-slate-800",
  !sidebarOpen &&"justify-center"
  )}
  >
@@ -115,7 +117,7 @@ function AdminSidebar() {
  <Link
  href="/dashboard"
  className={cn(
-"flex items-center h-11 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all group",
+"flex items-center h-11 rounded-lg text-muted-foreground hover:text-foreground hover:bg-slate-800 transition-all group",
  !sidebarOpen &&"justify-center"
  )}
  >
@@ -129,7 +131,7 @@ function AdminSidebar() {
  onClick={() => setSidebarOpen(!sidebarOpen)}
  className="flex items-center justify-center w-full h-10 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 transition-colors"
  >
- {sidebarOpen ? <ChevronLeft className="w-4 h-4 text-slate-400" /> : <ChevronLeft className="w-4 h-4 text-slate-400 rotate-180" />}
+ {sidebarOpen ? <ChevronLeft className="w-4 h-4 text-muted-foreground" /> : <ChevronLeft className="w-4 h-4 text-muted-foreground rotate-180" />}
  </button>
  </div>
  </motion.aside>
@@ -142,25 +144,47 @@ export default function AdminLayout({
 }: {
  children: React.ReactNode;
 }) {
- const { user, isAuthenticated, isLoading } = useAuthStore();
+ return (
+ <AppProviders>
+ <AdminAuthGate>{children}</AdminAuthGate>
+ </AppProviders>
+ );
+}
+
+function AdminAuthGate({ children }: { children: React.ReactNode }) {
+ const { user, isAuthenticated, isHydrating } = useAuthStore();
  const router = useRouter();
+ const pathname = usePathname();
 
  useEffect(() => {
- if (!isLoading && isAuthenticated && user?.role !== 'ADMIN') {
- router.push('/dashboard');
+ if (isHydrating) return;
+ if (!isAuthenticated) {
+ router.replace(`/login?redirect=${encodeURIComponent(pathname || '/admin')}`);
+ return;
  }
- }, [isAuthenticated, isLoading, user, router]);
+ if (user?.role !== 'ADMIN') {
+ router.replace('/dashboard');
+ }
+ }, [isHydrating, isAuthenticated, user, router, pathname]);
 
- if (isLoading || !isAuthenticated || user?.role !== 'ADMIN') {
+ if (isHydrating) {
  return (
- <div className="h-screen w-full flex items-center justify-center bg-slate-950 text-slate-400">
- Authenticating...
+ <div className="h-screen w-full flex items-center justify-center bg-slate-950 text-muted-foreground">
+ Authenticating…
+ </div>
+ );
+ }
+
+ if (!isAuthenticated || user?.role !== 'ADMIN') {
+ return (
+ <div className="h-screen w-full flex items-center justify-center bg-slate-950 text-muted-foreground">
+ Redirecting…
  </div>
  );
  }
 
  return (
- <div className="flex h-screen bg-slate-950 text-slate-200 overflow-hidden font-sans">
+ <div className="flex h-screen bg-slate-950 text-foreground/80 overflow-hidden font-sans">
  <AdminSidebar />
  <div className="flex-1 flex flex-col h-screen overflow-hidden">
  <div className="h-10 bg-red-600/10 border-b border-red-500/20 flex items-center justify-center gap-2 text-red-500 text-sm font-medium px-4">

@@ -10,7 +10,9 @@ import {
   HttpStatus,
   UnauthorizedException,
   Query,
+  NotFoundException,
 } from '@nestjs/common';
+import { IsString, IsUUID, MinLength, MaxLength } from 'class-validator';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -23,6 +25,7 @@ import {
   ResetPasswordDto,
   ResendOtpDto,
   SupabaseLoginDto,
+  MagicLinkDto,
 } from './dto/auth.dto';
 import {
   Public,
@@ -42,6 +45,11 @@ type AuthenticatedRequest = Request & {
   };
 };
 
+class CompleteTwoFactorLoginDto {
+  @IsUUID() challengeToken: string;
+  @IsString() @MinLength(6) @MaxLength(16) code: string;
+}
+
 @ApiTags('Auth')
 @ApiResponse({ status: 429, description: 'Rate limit exceeded' })
 @Controller('auth')
@@ -55,14 +63,14 @@ export class AuthController {
     res: Response,
     refreshToken: string,
     role?: string,
+    onboardingCompleted?: boolean,
   ) {
     const isSecure = process.env.NODE_ENV === 'production';
-    const sameSite: 'lax' = 'lax';
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: isSecure,
-      sameSite,
+      sameSite: 'strict',
       path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
@@ -71,7 +79,17 @@ export class AuthController {
       res.cookie('user_role', role, {
         httpOnly: false,
         secure: isSecure,
-        sameSite,
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+    }
+
+    if (onboardingCompleted !== undefined) {
+      res.cookie('onboarding_completed', onboardingCompleted ? '1' : '0', {
+        httpOnly: false,
+        secure: isSecure,
+        sameSite: 'strict',
         path: '/',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
@@ -106,6 +124,7 @@ export class AuthController {
       res,
       result.refreshTokenForCookie,
       result.user?.role,
+      result.user?.onboardingCompleted,
     );
     return { accessToken: result.accessToken, user: result.user };
   }
@@ -127,11 +146,32 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.login(dto, req);
+    if (result.requiresTwoFa) {
+      return { requiresTwoFa: true, challengeToken: result.challengeToken };
+    }
     this.setSessionCookies(
       res,
-      result.refreshTokenForCookie,
+      result.refreshTokenForCookie!,
       result.user?.role,
+      result.user?.onboardingCompleted,
     );
+    return { accessToken: result.accessToken, user: result.user };
+  }
+
+  @Public()
+  @Post('2fa/complete-login')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 300000, limit: 10 } })
+  @ApiResponse({ status: 200, description: 'Authenticated — tokens issued' })
+  @ApiResponse({ status: 401, description: 'Invalid challenge token or 2FA code' })
+  @ApiOperation({ summary: 'Complete login by submitting 2FA code for challenge token' })
+  async completeTwoFactorLogin(
+    @Body() dto: CompleteTwoFactorLoginDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.completeTwoFactorLogin(dto.challengeToken, dto.code, req);
+    this.setSessionCookies(res, result.refreshTokenForCookie, result.user?.role, result.user?.onboardingCompleted);
     return { accessToken: result.accessToken, user: result.user };
   }
 
@@ -154,6 +194,7 @@ export class AuthController {
       res,
       result.refreshTokenForCookie,
       result.user?.role,
+      result.user?.onboardingCompleted,
     );
     return { accessToken: result.accessToken, user: result.user };
   }
@@ -179,7 +220,12 @@ export class AuthController {
     }
 
     const result = await this.authService.refresh(userId, refreshToken, jti);
-    this.setSessionCookies(res, result.refreshTokenForCookie);
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+      result.user?.role,
+      result.user?.onboardingCompleted,
+    );
     return { accessToken: result.accessToken };
   }
 
@@ -200,8 +246,11 @@ export class AuthController {
     }
 
     await this.authService.logout(userId, jti);
-    res.clearCookie('refresh_token', { path: '/' });
-    res.clearCookie('user_role', { path: '/' });
+    const isSecure = process.env.NODE_ENV === 'production';
+    const cookieOpts = { path: '/', httpOnly: true, secure: isSecure, sameSite: 'strict' as const };
+    res.clearCookie('refresh_token', cookieOpts);
+    res.clearCookie('user_role', { ...cookieOpts, httpOnly: false });
+    res.clearCookie('onboarding_completed', { ...cookieOpts, httpOnly: false });
     return { success: true };
   }
 
@@ -244,8 +293,8 @@ export class AuthController {
   @Throttle({ default: { ttl: 60000, limit: 3 } })
   @ApiResponse({ status: 200, description: 'Magic link sent if email exists' })
   @ApiOperation({ summary: 'Send passwordless magic link to email' })
-  async sendMagicLink(@Body('email') email: string) {
-    return this.authService.sendMagicLink(email);
+  async sendMagicLink(@Body() dto: MagicLinkDto) {
+    return this.authService.sendMagicLink(dto.email);
   }
 
   @Public()
@@ -264,6 +313,7 @@ export class AuthController {
       res,
       result.refreshTokenForCookie,
       result.user?.role,
+      result.user?.onboardingCompleted,
     );
     return { accessToken: result.accessToken, user: result.user };
   }
@@ -282,6 +332,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('2fa/verify-setup')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 300000, limit: 10 } })
   @ApiResponse({
     status: 200,
     description: '2FA enabled, backup codes returned',
@@ -298,6 +349,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('2fa/disable')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 300000, limit: 10 } })
   @ApiResponse({ status: 200, description: '2FA disabled' })
   @ApiResponse({ status: 400, description: 'Invalid TOTP or backup code' })
   @ApiOperation({ summary: 'Disable 2FA with current TOTP or backup code' })
@@ -311,6 +363,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('2fa/backup-codes')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 300000, limit: 5 } })
   @ApiResponse({ status: 200, description: 'New backup codes generated' })
   @ApiOperation({ summary: 'Regenerate 2FA backup codes' })
   async regenerateBackupCodes(
@@ -343,21 +396,14 @@ export class AuthController {
       res,
       result.refreshTokenForCookie,
       result.user?.role,
+      result.user?.onboardingCompleted,
     );
-    const frontendUrl =
-      process.env.FRONTEND_URL || 'http://localhost:3000';
-    // SECURITY: Access token is stored in a short-lived session cookie so the
-    // frontend can retrieve it via /auth/refresh immediately after redirect.
-    // Do NOT append the token as a URL query param — it leaks into browser
-    // history, server access logs, and Referer headers.
-    res.cookie('oauth_access_token', result.accessToken, {
-      httpOnly: false, // Frontend JS must read this once to bootstrap state
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 1000, // 60-second TTL — frontend consumes and discards it
-    });
-    res.redirect(`${frontendUrl}/dashboard`);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    // The access token is exchanged via a server-side one-time code rather than
+    // a JS-readable cookie. The frontend calls GET /auth/oauth-token-exchange?code=
+    // to retrieve the bearer token once, then the code is consumed and deleted.
+    const dest = result.user?.onboardingCompleted ? '/dashboard' : '/onboarding/risk';
+    res.redirect(`${frontendUrl}${dest}?oauthCode=${result.oauthCode}`);
   }
 
   // ──────────────────────────── GOOGLE OAuth ────────────────────────────
@@ -393,22 +439,25 @@ export class AuthController {
       res,
       result.refreshTokenForCookie,
       result.user?.role,
+      result.user?.onboardingCompleted,
     );
-    // SECURITY: Access token is stored in a short-lived session cookie so the
-    // frontend can retrieve it immediately after redirect.
-    // Do NOT append the token as a URL query param — it leaks into browser
-    // history, server access logs, and Referer headers.
-    res.cookie('oauth_access_token', result.accessToken, {
-      httpOnly: false, // Frontend JS must read this once to bootstrap state
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 1000, // 60-second TTL — frontend consumes and discards it
-    });
-    const frontendUrl =
-      process.env.FRONTEND_URL || 'http://localhost:3000';
-    res.redirect(
-      process.env.FRONTEND_DASHBOARD_URL || `${frontendUrl}/dashboard`,
-    );
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const dest = result.user?.onboardingCompleted
+      ? process.env.FRONTEND_DASHBOARD_URL || `${frontendUrl}/dashboard`
+      : `${frontendUrl}/onboarding/risk`;
+    res.redirect(`${dest}?oauthCode=${result.oauthCode}`);
+  }
+
+  @Public()
+  @Get('oauth-token-exchange')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  @ApiResponse({ status: 200, description: 'Access token returned — code consumed' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired OAuth code' })
+  @ApiOperation({ summary: 'Exchange a one-time OAuth code for an access token' })
+  async oauthTokenExchange(@Query('code') code: string) {
+    if (!code) throw new NotFoundException('code is required');
+    const accessToken = await this.authService.exchangeOAuthCode(code);
+    return { accessToken };
   }
 }

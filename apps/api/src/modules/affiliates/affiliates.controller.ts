@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Param, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AffiliatesService } from './affiliates.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
@@ -56,10 +64,7 @@ export class AffiliatesController {
   @ApiResponse({ status: 201, description: 'Withdrawal requested' })
   @ApiOperation({ summary: 'Request affiliate earnings withdrawal' })
   @Post('withdraw')
-  async requestWithdrawal(
-    @Req() req: any,
-    @Body() body: { amount: number },
-  ) {
+  async requestWithdrawal(@Req() req: any, @Body() body: { amount: number }) {
     return this.affiliatesService.requestWithdrawal(req.user.id, body.amount);
   }
 }

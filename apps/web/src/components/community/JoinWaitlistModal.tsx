@@ -34,7 +34,7 @@ export function JoinWaitlistModal({ open, onOpenChange }: { open: boolean; onOpe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md bg-[#0b0b0f] border border-white/10 text-white">
+      <DialogContent className="max-w-md bg-card border border-border text-foreground">
         <DialogHeader>
           <DialogTitle>Join the Community Waitlist</DialogTitle>
           <DialogDescription>Enter your email and we'll notify you when the Discord server and community channels go live.</DialogDescription>
@@ -46,10 +46,10 @@ export function JoinWaitlistModal({ open, onOpenChange }: { open: boolean; onOpe
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@company.com"
-            className="w-full px-4 py-3 rounded-xl bg-white/4 border border-white/6 text-white outline-none"
+            className="w-full px-4 py-3 rounded-xl bg-foreground/4 border border-border text-foreground outline-none"
           />
 
-          {message && <div className="text-sm text-white/60">{message}</div>}
+          {message && <div className="text-sm text-foreground/60">{message}</div>}
 
           <div className="flex items-center justify-end gap-3">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>

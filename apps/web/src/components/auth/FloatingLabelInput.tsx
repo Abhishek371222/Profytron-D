@@ -1,97 +1,136 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FloatingLabelInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
- label: string;
- icon?: LucideIcon;
- error?: string;
+  label: string;
+  icon?: LucideIcon;
+  error?: string;
 }
 
 export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInputProps>(
- ({ label, icon: Icon, error, className, id, value, ...props }, ref) => {
- const [isFocused, setIsFocused] = useState(false);
- const hasValue = value !== undefined && value !== null && value !== '';
+  ({ label, icon: Icon, error, className, id, value, defaultValue, ...props }, ref) => {
+    const generatedId = useId();
+    const inputId = id ?? generatedId;
+    const [isFocused, setIsFocused] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const [localValue, setLocalValue] = useState(
+      () => String(value ?? defaultValue ?? ''),
+    );
 
- return (
- <div className="w-full space-y-1.5 group/input">
- <div className="relative">
- {/* Subtle Input Background Glow */}
- <div className={cn(
-"absolute inset-0 rounded-2xl transition-opacity duration-500 blur-xl opacity-0",
- isFocused ?"bg-p/10 opacity-100" :"group-hover/input:bg-white/5 group-hover/input:opacity-50"
- )} />
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
- <div className="relative flex items-center">
- <input
- id={id}
- ref={ref}
- value={value}
- onFocus={() => setIsFocused(true)}
- onBlur={(e) => {
- setIsFocused(false);
- props.onBlur?.(e);
- }}
- className={cn(
-"peer w-full h-16 bg-white/4 backdrop-blur-md border border-white/10 rounded-2xl px-5 pt-6 pb-2 outline-none transition-all duration-300 font-body text-white placeholder-transparent",
-"hover:bg-white/6 hover:border-white/20",
- isFocused &&"bg-white/8 border-white/20 ring-1 ring-white/10",
- error &&"border-danger/50 focus:border-danger ring-danger/20",
- className
- )}
- placeholder={label}
- {...props}
- />
- 
- <label
- htmlFor={id}
- className={cn(
-"absolute left-5 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none transition-all duration-300 ease-out origin-left font-bold tracking-tight",
- (isFocused || hasValue) &&"translate-y-[-24px] scale-[0.75] text-p"
- )}
- >
- {label}
- </label>
+    useEffect(() => {
+      if (value !== undefined && value !== null) {
+        setLocalValue(String(value));
+      }
+    }, [value]);
 
- {Icon && (
- <div className={cn(
-"absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-300",
- isFocused ?"text-p scale-110" :"text-white/20"
- )}>
- <Icon className="w-5 h-5" />
- </div>
- )}
+    const hasValue = localValue.length > 0;
 
- {/* Cinematic Focus Line */}
- <div className="absolute bottom-0 left-5 right-5 h-px bg-linear-to-r from-transparent via-white/10 to-transparent overflow-hidden">
- <motion.div 
- initial={{ x: '-100%' }}
- animate={{ x: isFocused ? '100%' : '-100%' }}
- transition={{ duration: 1.5, repeat: Infinity, ease:"linear" }}
- className="w-1/2 h-full bg-linear-to-r from-transparent via-p/50 to-transparent"
- />
- </div>
- </div>
- </div>
- 
- <AnimatePresence>
- {error && (
- <motion.p 
- initial={{ opacity: 0, y: -5 }}
- animate={{ opacity: 1, y: 0 }}
- exit={{ opacity: 0, y: -5 }}
- className="text-xs text-danger font-semibold uppercase tracking-widest px-4"
- >
- {error}
- </motion.p>
- )}
- </AnimatePresence>
- </div>
- );
- }
+    const inputProps: React.InputHTMLAttributes<HTMLInputElement> = {
+      ...props,
+      id: inputId,
+      defaultValue: value === undefined ? defaultValue : undefined,
+      suppressHydrationWarning: true,
+      onFocus: (e) => {
+        setIsFocused(true);
+        props.onFocus?.(e);
+      },
+      onBlur: (e) => {
+        setIsFocused(false);
+        props.onBlur?.(e);
+      },
+      onChange: (e) => {
+        setLocalValue(e.target.value);
+        props.onChange?.(e);
+      },
+    };
+
+    if (value !== undefined && value !== null) {
+      inputProps.value = value;
+    }
+
+    return (
+      <div className="w-full space-y-1.5 group/input">
+        <div className="relative">
+          <div
+            className={cn(
+              'absolute inset-0 rounded-2xl transition-opacity duration-500 blur-xl opacity-0',
+              isFocused
+                ? 'bg-primary/10 opacity-100'
+                : 'group-hover/input:bg-foreground/5 group-hover/input:opacity-50',
+            )}
+          />
+
+          <div className="relative flex items-center">
+            <input
+              {...inputProps}
+              ref={ref}
+              className={cn(
+                'peer w-full h-16 bg-input backdrop-blur-md border border-border rounded-2xl px-5 pt-6 pb-2 outline-none transition-all duration-300 font-sans text-body text-foreground placeholder-transparent',
+                'hover:bg-input/80 hover:border-primary/25',
+                isFocused && 'bg-card border-primary/30 ring-1 ring-ring/30',
+                error && 'border-destructive/50 focus:border-destructive ring-destructive/20',
+                className,
+              )}
+              placeholder={label}
+            />
+
+            <label
+              htmlFor={inputId}
+              className={cn(
+                'absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none transition-all duration-300 ease-out origin-left text-body-sm font-semibold tracking-wide',
+                (isFocused || hasValue) && 'translate-y-[-24px] scale-[0.75] text-primary',
+              )}
+            >
+              {label}
+            </label>
+
+            {Icon && (
+              <div
+                className={cn(
+                  'absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-300',
+                  isFocused ? 'text-primary scale-110' : 'text-foreground/20',
+                )}
+              >
+                <Icon className="w-5 h-5" />
+              </div>
+            )}
+
+            {mounted && (
+              <div className="absolute bottom-0 left-5 right-5 h-px bg-linear-to-r from-transparent via-white/10 to-transparent overflow-hidden">
+                <motion.div
+                  initial={{ x: '-100%' }}
+                  animate={{ x: isFocused ? '100%' : '-100%' }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                  className="w-1/2 h-full bg-linear-to-r from-transparent via-primary/50 to-transparent"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              className="text-caption text-destructive font-semibold uppercase tracking-widest px-4"
+            >
+              {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  },
 );
 
 FloatingLabelInput.displayName = 'FloatingLabelInput';

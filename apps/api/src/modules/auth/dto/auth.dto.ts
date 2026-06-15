@@ -5,8 +5,36 @@ import {
   IsUUID,
   IsStrongPassword,
   IsOptional,
+  registerDecorator,
+  ValidationOptions,
+  ValidationArguments,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+function Match(property: string, validationOptions?: ValidationOptions) {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      name: 'Match',
+      target: (object as any).constructor,
+      propertyName,
+      constraints: [property],
+      options: validationOptions,
+      validator: {
+        validate(value: unknown, args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints as string[];
+          const relatedValue = (args.object as Record<string, unknown>)[
+            relatedPropertyName
+          ];
+          return value === relatedValue;
+        },
+        defaultMessage(args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints as string[];
+          return `${args.property} must match ${relatedPropertyName}`;
+        },
+      },
+    });
+  };
+}
 
 export class RegisterDto {
   @ApiProperty({ example: 'voss@profytron.ai' })
@@ -24,8 +52,18 @@ export class RegisterDto {
 
   @ApiProperty({ example: 'Str0ngP@ssw0rd' })
   @IsString()
-  @IsStrongPassword()
+  @Match('password', { message: 'confirmPassword must match password' })
   confirmPassword: string;
+
+  @ApiPropertyOptional({ example: 'uuid-referral-code' })
+  @IsOptional()
+  @IsString()
+  referralCode?: string;
+
+  @ApiPropertyOptional({ example: 'starter' })
+  @IsOptional()
+  @IsString()
+  plan?: string;
 }
 
 export class VerifyEmailDto {
@@ -66,6 +104,12 @@ export class ResetPasswordDto {
 }
 
 export class ResendOtpDto {
+  @ApiProperty({ example: 'voss@profytron.ai' })
+  @IsEmail()
+  email: string;
+}
+
+export class MagicLinkDto {
   @ApiProperty({ example: 'voss@profytron.ai' })
   @IsEmail()
   email: string;

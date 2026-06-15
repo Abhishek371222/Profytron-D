@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TradingService } from './trading.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TradingGateway } from './trading.gateway';
+import { MasterSyncService } from './master-sync.service';
 import { getQueueToken } from '@nestjs/bull';
 
 describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
@@ -31,6 +32,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
             trade: {
               create: jest.fn(),
               update: jest.fn(),
+              updateMany: jest.fn().mockResolvedValue({ count: 0 }),
               findMany: jest.fn().mockResolvedValue([]),
             },
             walletTransaction: {
@@ -43,6 +45,13 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
           provide: TradingGateway,
           useValue: {
             sendToUser: jest.fn(),
+          },
+        },
+        {
+          provide: MasterSyncService,
+          useValue: {
+            startPolling: jest.fn(),
+            getMasterStatus: jest.fn().mockResolvedValue([]),
           },
         },
         {
@@ -96,7 +105,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
           where: {
             strategyId,
             status: 'ACTIVE',
-            expiresAt: { gt: expect.any(Date) },
+            OR: [{ expiresAt: null }, { expiresAt: { gt: expect.any(Date) } }],
           },
           select: expect.objectContaining({
             id: true,
@@ -325,6 +334,19 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
   describe('5. EMERGENCY STOP', () => {
     it('should trigger emergency stop for user', async () => {
       const userId = 'user-123';
+
+      // One open paper trade (no broker ticket) so the stop closes it -> SUCCESS.
+      (prismaService.trade.findMany as jest.Mock).mockResolvedValueOnce([
+        {
+          id: 'trade-1',
+          symbol: 'BTCUSD',
+          direction: 'BUY',
+          openPrice: 45000,
+          profit: 0,
+          brokerAccountId: null,
+          brokerTicket: null,
+        },
+      ]);
 
       await tradingService.emergencyStop(userId);
 

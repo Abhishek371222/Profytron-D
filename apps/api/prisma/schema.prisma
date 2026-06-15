@@ -239,9 +239,25 @@ model User {
   userPreferences       UserPreference?
   brokerCredentials     BrokerApiCredential[]
   tradeJournalEntries   TradeJournalEntry[]
+  apiKeys               ApiKey[]
+  activationEvents      UserActivationEvent[]
 
   @@index([email])
   @@index([referralCode])
+}
+
+model UserActivationEvent {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, event])
+  @@index([userId])
+  @@index([event])
+  @@index([createdAt])
 }
 
 model UserSession {
@@ -276,8 +292,9 @@ model BrokerAccount {
   connectedAt          DateTime   @default(now())
   createdAt            DateTime   @default(now())
 
-  subscriptions UserStrategySubscription[]
-  trades        Trade[]
+  subscriptions     UserStrategySubscription[]
+  trades            Trade[]
+  masterForStrategies Strategy[] @relation("StrategyMasterAccount")
 
   @@index([userId])
 }
@@ -302,6 +319,9 @@ model Strategy {
   copiesCount        Int                @default(0)
   totalRevenue       Float              @default(0)
   isFeatured         Boolean            @default(false)
+  masterBrokerAccountId String?
+  masterBrokerAccount   BrokerAccount?  @relation("StrategyMasterAccount", fields: [masterBrokerAccountId], references: [id], onDelete: SetNull)
+  copyFactoryStrategyId String?
   deletedAt          DateTime?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -369,6 +389,7 @@ model UserStrategySubscription {
   @@unique([userId, strategyId])
   @@index([userId, status])
   @@index([strategyId])
+  @@index([expiresAt])
 }
 
 model Trade {
@@ -407,7 +428,10 @@ model Trade {
   journalEntry    TradeJournalEntry?
 
   @@index([userId, status])
+  @@index([userId, closedAt])
   @@index([strategyId])
+  @@index([brokerAccountId])
+  @@index([brokerTicket])
   @@index([symbol])
   @@index([openedAt])
 }
@@ -728,6 +752,7 @@ model SocialComment {
   @@index([tradeId])
   @@index([userId])
   @@index([profileId])
+  @@index([createdAt])
 }
 
 model SocialFollow {
@@ -951,4 +976,143 @@ model WebhookEvent {
 
   @@index([eventType])
   @@index([delivered])
+}
+
+// ===== FEATURE FLAGS =====
+model FeatureFlag {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  name        String
+  description String?
+  enabled     Boolean  @default(false)
+  rolloutPct  Int      @default(0)
+  userIds     String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([key])
+  @@index([enabled])
+}
+
+// ===== API KEYS =====
+model ApiKey {
+  id         String    @id @default(uuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  keyHash    String    @unique
+  keyPrefix  String
+  scopes     String[]
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([keyHash])
+}
+
+// ===== AI WORKFORCE (event-driven agents) =====
+enum AgentType {
+  CEO
+  PRODUCT
+  CUSTOMER_SUCCESS
+  SUPPORT
+  MARKETING
+  SEO
+  SECURITY
+  ANALYTICS
+  BILLING
+  DEVOPS
+}
+
+enum AgentJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  SKIPPED_NO_AI
+  FAILED
+  DEAD_LETTER
+}
+
+model AgentEventOutbox {
+  id             String    @id @default(uuid())
+  eventType      String
+  entityType     String
+  entityId       String
+  userId         String?
+  payload        Json      @default("{}")
+  idempotencyKey String    @unique
+  processedAt    DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([processedAt, createdAt])
+  @@index([eventType, createdAt])
+}
+
+model AgentJob {
+  id           String         @id @default(uuid())
+  agentType    AgentType
+  eventType    String
+  entityId     String?
+  userId       String?
+  status       AgentJobStatus @default(PENDING)
+  gateSource   String?
+  modelLevel   String?
+  inputTokens  Int            @default(0)
+  outputTokens Int            @default(0)
+  costUsd      Float          @default(0)
+  latencyMs    Int?
+  errorMessage String?        @db.Text
+  resultJson   Json?
+  createdAt    DateTime       @default(now())
+  completedAt  DateTime?
+
+  @@index([agentType, status, createdAt])
+  @@index([userId, createdAt])
+}
+
+model AgentInsight {
+  id         String    @id @default(uuid())
+  agentType  AgentType
+  scope      String
+  title      String
+  summary    String    @db.Text
+  dataJson   Json      @default("{}")
+  validUntil DateTime
+  createdAt  DateTime  @default(now())
+
+  @@index([agentType, scope, createdAt])
+}
+
+model DailyMetricsSnapshot {
+  date           DateTime @id @db.Date
+  mrr            Float    @default(0)
+  arr            Float    @default(0)
+  newUsers       Int      @default(0)
+  churnedUsers   Int      @default(0)
+  activationRate Float    @default(0)
+  depositsInr    Float    @default(0)
+  supportTickets Int      @default(0)
+  errorRate      Float    @default(0)
+  computedAt     DateTime @default(now())
+}
+
+model SupportKnowledgeChunk {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  title     String
+  content   String   @db.Text
+  tags      String[] @default([])
+  updatedAt DateTime @updatedAt
+}
+
+model AgentBudget {
+  agentType         AgentType @id
+  dailyTokenCap     Int       @default(10000)
+  dailyCostCapUsd   Float     @default(1.0)
+  enabled           Boolean   @default(true)
+  tokensUsedToday   Int       @default(0)
+  costUsedTodayUsd  Float     @default(0)
+  resetAt           DateTime  @default(now())
 }

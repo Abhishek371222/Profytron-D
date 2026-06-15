@@ -52,6 +52,18 @@ export class MarketplaceController {
   @Public()
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({ summary: 'Institutional analytics for marketplace strategy' })
+  @Get(':id/analytics')
+  async getAnalytics(
+    @Param('id') id: string,
+    @Query() query: MarketplaceQueryDto,
+  ) {
+    return this.marketplaceService.getStrategyAnalytics(id, query);
+  }
+
+  @Public()
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Get single marketplace strategy details' })
   @Get(':id')
   async getById(

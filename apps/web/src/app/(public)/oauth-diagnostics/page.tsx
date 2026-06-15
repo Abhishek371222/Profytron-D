@@ -95,16 +95,16 @@ export default function OauthAnalysisPage() {
   };
 
   return (
-    <main className="min-h-screen bg-bg-base p-6 text-white">
+    <main className="min-h-screen bg-bg-base p-6 text-foreground">
       <div className="mx-auto max-w-3xl space-y-6">
         <div>
           <h1 className="text-2xl font-semibold">OAuth Analysis</h1>
-          <p className="mt-2 text-sm text-white/70">
+          <p className="mt-2 text-sm text-foreground/70">
             Run checks and validate Google OAuth setup for this environment.
           </p>
         </div>
 
-        <Card className="space-y-3 border-white/10 bg-black/40 p-4">
+        <Card className="space-y-3 border-border bg-black/40 p-4">
           <div className="flex flex-wrap gap-2">
             <Button onClick={runAnalysis} disabled={running}>
               {running ? 'Running...' : 'Run Analysis'}
@@ -112,42 +112,42 @@ export default function OauthAnalysisPage() {
             <Button variant="outline" onClick={triggerGoogleOauth}>
               Test Google OAuth
             </Button>
-            <Link href="/login" className="inline-flex items-center rounded-md border border-white/20 px-3 py-2 text-sm text-white/80 hover:bg-white/10">
+            <Link href="/login" className="inline-flex items-center rounded-md border border-border px-3 py-2 text-sm text-foreground/80 hover:bg-foreground/10">
               Back to Login
             </Link>
           </div>
         </Card>
 
-        <Card className="space-y-3 border-white/10 bg-black/40 p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-white/70">Checks</h2>
+        <Card className="space-y-3 border-border bg-black/40 p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-foreground/70">Checks</h2>
           {checks.length === 0 ? (
-            <p className="text-sm text-white/60">No checks run yet.</p>
+            <p className="text-sm text-foreground/60">No checks run yet.</p>
           ) : (
             <ul className="space-y-2">
               {checks.map((check) => (
-                <li key={check.name} className="rounded-md border border-white/10 bg-white/5 p-3">
+                <li key={check.name} className="rounded-md border border-border bg-foreground/5 p-3">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-sm font-medium">{check.name}</span>
                     <span
                       className={`rounded px-2 py-0.5 text-xs uppercase ${
                         check.status === 'pass'
-                          ? 'bg-emerald-500/20 text-emerald-300'
+                          ? 'bg-chart-3/20 text-chart-3'
                           : check.status === 'warn'
-                          ? 'bg-amber-500/20 text-amber-300'
+                          ? 'bg-chart-4/20 text-chart-4'
                           : 'bg-red-500/20 text-red-300'
                       }`}
                     >
                       {check.status}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-white/70">{check.details}</p>
+                  <p className="mt-1 text-xs text-foreground/70">{check.details}</p>
                 </li>
               ))}
             </ul>
           )}
         </Card>
 
-        <Card className="space-y-2 border-white/10 bg-black/40 p-4 text-sm text-white/80">
+        <Card className="space-y-2 border-border bg-black/40 p-4 text-sm text-foreground/80">
           <p className="font-semibold">Required provider configuration</p>
           <p>1. Enable Google provider in Supabase Auth providers.</p>
           <p>2. Configure Google OAuth credentials (client id and secret) in Supabase.</p>

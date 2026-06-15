@@ -14,7 +14,15 @@ import {
   VerifyEmailDto,
   SupabaseLoginDto,
 } from './dto/auth.dto';
+import { TwoFaService } from './twofa.service';
 import { appError, ErrorCode } from '../../common/errors';
+import { AffiliatesService } from '../affiliates/affiliates.service';
+import {
+  ActivationService,
+  ACTIVATION_EVENTS,
+} from '../growth/activation.service';
+import { AgentEventService } from '../agents/agent-event.service';
+import { AGENT_EVENTS } from '../agents/agent.types';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +34,10 @@ export class AuthService {
     private redisService: RedisService,
     private emailService: EmailService,
     private jwtService: JwtService,
+    private affiliatesService: AffiliatesService,
+    private activationService: ActivationService,
+    private agentEvents: AgentEventService,
+    private twoFaService: TwoFaService,
   ) {
     this.supabase = createClient(
       process.env.SUPABASE_URL!,
@@ -119,6 +131,25 @@ export class AuthService {
       throw error;
     }
 
+    await this.prisma.affiliate.create({ data: { userId: user.id } }).catch(() => {});
+
+    void this.agentEvents.emit({
+      type: AGENT_EVENTS.USER_REGISTERED,
+      entityType: 'user',
+      entityId: user.id,
+      userId: user.id,
+      payload: { email: dto.email, plan: dto.plan },
+      idempotencyKey: `registered:${user.id}`,
+    });
+
+    if (dto.referralCode) {
+      await this.affiliatesService.processReferral(user.id, dto.referralCode);
+    }
+
+    if (dto.plan) {
+      await this.redisService.set(`auth:plan:${dto.email}`, dto.plan, 86400);
+    }
+
     // randomInt(min, max) is cryptographically secure (CSPRNG via OpenSSL).
     // Math.random() is NOT suitable for security-sensitive tokens.
     const otp = randomInt(100000, 1000000).toString();
@@ -155,6 +186,15 @@ export class AuthService {
   }
 
   async verifyEmail(dto: VerifyEmailDto) {
+    const attemptKey = `auth:otp:attempts:${dto.email}`;
+    const attempts = parseInt((await this.redisService.get(attemptKey)) ?? '0', 10);
+    if (attempts >= 5) {
+      // Too many bad guesses — invalidate the OTP to force re-issue
+      await this.redisService.del(`auth:otp:${dto.email}`);
+      await this.redisService.del(attemptKey);
+      appError(HttpStatus.TOO_MANY_REQUESTS, 'Too many attempts. Request a new OTP.', ErrorCode.RATE_LIMIT_EXCEEDED);
+    }
+
     const storedOtp = await this.redisService.get(`auth:otp:${dto.email}`);
     if (!storedOtp)
       appError(
@@ -162,12 +202,15 @@ export class AuthService {
         'OTP expired. Request a new one.',
         ErrorCode.OTP_EXPIRED,
       );
-    if (storedOtp !== dto.otp)
+    if (storedOtp !== dto.otp) {
+      await this.redisService.set(attemptKey, String(attempts + 1), 10 * 60);
       appError(
         HttpStatus.BAD_REQUEST,
         'Invalid verification code',
         ErrorCode.OTP_INVALID,
       );
+    }
+    await this.redisService.del(attemptKey);
 
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -185,10 +228,25 @@ export class AuthService {
       data: { emailVerified: true },
     });
 
-    // Fire-and-forget welcome email
+    // Fire-and-forget welcome email with paper-trading CTA
     this.emailService
       .sendWelcomeEmail(updatedUser.email, updatedUser.fullName)
       .catch(() => {});
+
+    await this.activationService.track(
+      updatedUser.id,
+      ACTIVATION_EVENTS.FIRST_LOGIN,
+    );
+
+    let selectedPlan: string | null = null;
+    const storedPlan = await this.redisService.get(`auth:plan:${dto.email}`);
+    if (storedPlan) {
+      selectedPlan = storedPlan;
+      await this.redisService.del(`auth:plan:${dto.email}`);
+      if (storedPlan !== 'free') {
+        await this.startPlatformTrial(updatedUser.id, storedPlan);
+      }
+    }
 
     const tokens = await this.generateTokenPair(
       updatedUser.id,
@@ -217,7 +275,54 @@ export class AuthService {
       accessToken: tokens.accessToken,
       user: this.sanitizeUser(updatedUser),
       refreshTokenForCookie: tokens.refreshToken,
+      selectedPlan,
     };
+  }
+
+  /** 7-day platform trial for Starter/Pro signups — no payment required. */
+  private async startPlatformTrial(userId: string, planSlug: string) {
+    const slug = planSlug.toLowerCase();
+    if (slug === 'free') return;
+
+    const plan = await this.prisma.subscriptionPlan.findFirst({
+      where: {
+        OR: [
+          { name: { equals: slug, mode: 'insensitive' } },
+          { name: { contains: slug, mode: 'insensitive' } },
+        ],
+      },
+    });
+    if (!plan || plan.monthlyPrice <= 0) return;
+
+    const existing = await this.prisma.userSubscription.findFirst({
+      where: { userId },
+    });
+    if (existing) return;
+
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    await this.prisma.userSubscription.create({
+      data: {
+        userId,
+        planId: plan.id,
+        status: 'ACTIVE',
+        billingCycle: 'TRIAL',
+        expiresAt,
+        nextBillingAt: expiresAt,
+      },
+    });
+
+    const tierBySlug: Record<string, 'PRO' | 'ELITE' | 'INSTITUTIONAL'> = {
+      starter: 'PRO',
+      pro: 'ELITE',
+      business: 'INSTITUTIONAL',
+    };
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { subscriptionTier: tierBySlug[slug] ?? 'PRO' },
+    });
   }
 
   async login(dto: LoginDto, req: Request) {
@@ -240,18 +345,56 @@ export class AuthService {
       }
     } catch {
       // Redis unavailable for fail-counter — allow the request to proceed
-      this.logger.warn(`Redis unavailable for login fail-counter ${failKey}. Skipping lockout check.`);
+      this.logger.warn(
+        `Redis unavailable for login fail-counter ${failKey}. Skipping lockout check.`,
+      );
     }
 
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    if (!user || !user.passwordHash)
+
+    // Always run bcrypt.compare regardless of whether the user exists so that
+    // response time is indistinguishable between "no such user" and "wrong
+    // password". Without this, an attacker can enumerate registered emails via
+    // timing (missing users return ~0 ms; valid users return ~100 ms).
+    const DUMMY_HASH =
+      '$2b$12$invalidhashpaddingtomakethislooklikearealbcrypthash00000';
+    const isMatch = await bcrypt.compare(
+      dto.password,
+      user?.passwordHash ?? DUMMY_HASH,
+    );
+
+    if (!user || !user.passwordHash || !isMatch) {
+      // Increment fail counter regardless of whether the user exists to prevent
+      // non-existent-email addresses from bypassing rate limiting
+      try {
+        const current = parseInt(
+          (await this.redisService.get(failKey)) ?? '0',
+          10,
+        );
+        const next = current + 1;
+        await this.redisService.set(failKey, String(next), LOCKOUT_SECONDS);
+        if (user && next >= MAX_ATTEMPTS) {
+          const hour = new Date().toISOString().slice(0, 13);
+          void this.agentEvents.emit({
+            type: AGENT_EVENTS.AUTH_LOGIN_FAILED_THRESHOLD,
+            entityType: 'user',
+            entityId: user.id,
+            userId: user.id,
+            payload: { failCount: next, ip: req.ip },
+            idempotencyKey: `login-fail:${user.id}:${hour}`,
+          });
+        }
+      } catch {
+        // Non-critical
+      }
       appError(
         HttpStatus.UNAUTHORIZED,
         'Invalid credentials',
         ErrorCode.INVALID_CREDENTIALS,
       );
+    }
     if (user.isSuspended)
       appError(
         HttpStatus.FORBIDDEN,
@@ -265,29 +408,7 @@ export class AuthService {
         ErrorCode.EMAIL_NOT_VERIFIED,
       );
 
-    const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!isMatch) {
-      try {
-        const current = parseInt(
-          (await this.redisService.get(failKey)) ?? '0',
-          10,
-        );
-        await this.redisService.set(
-          failKey,
-          String(current + 1),
-          LOCKOUT_SECONDS,
-        );
-      } catch {
-        // Non-critical — proceed
-      }
-      appError(
-        HttpStatus.UNAUTHORIZED,
-        'Invalid credentials',
-        ErrorCode.INVALID_CREDENTIALS,
-      );
-    }
-
-    // Clear fail counter on successful password check
+    // Clear fail counter on successful login
     try {
       await this.redisService.del(failKey);
     } catch {
@@ -296,6 +417,19 @@ export class AuthService {
 
     const ip = req.ip || '0.0.0.0';
     const userAgent = req.headers['user-agent'] || 'Unknown';
+
+    // If 2FA is enabled, issue a short-lived challenge token instead of full
+    // session tokens. The client must call POST /auth/2fa/complete-login with
+    // the challenge token + TOTP/backup code to receive a real session.
+    if (user.twoFactorEnabled) {
+      const challengeToken = randomUUID();
+      await this.redisService.set(
+        `auth:2fa:challenge:${challengeToken}`,
+        user.id,
+        5 * 60,
+      );
+      return { requiresTwoFa: true as const, challengeToken };
+    }
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
     await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
@@ -331,8 +465,56 @@ export class AuthService {
     }
 
     return {
+      requiresTwoFa: false as const,
       accessToken: tokens.accessToken,
       user: this.sanitizeUser(user),
+      refreshTokenForCookie: tokens.refreshToken,
+    };
+  }
+
+  async completeTwoFactorLogin(challengeToken: string, code: string, req: Request) {
+    const userId = await this.redisService.getdel(`auth:2fa:challenge:${challengeToken}`);
+    if (!userId) {
+      appError(HttpStatus.UNAUTHORIZED, 'Invalid or expired 2FA challenge', ErrorCode.OTP_EXPIRED);
+    }
+
+    const valid = await this.twoFaService.verifyForLogin(userId!, code);
+    if (!valid) {
+      appError(HttpStatus.UNAUTHORIZED, 'Invalid 2FA code', ErrorCode.OTP_INVALID);
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId! } });
+    if (!user) {
+      appError(HttpStatus.UNAUTHORIZED, 'User not found', ErrorCode.USER_NOT_FOUND);
+    }
+
+    const ip = req.ip || '0.0.0.0';
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const tokens = await this.generateTokenPair(user!.id, user!.email, user!.role);
+    await this.persistRefreshTokenSafely(user!.id, tokens.refreshToken);
+
+    try {
+      await this.prisma.user.update({ where: { id: user!.id }, data: { lastLoginAt: new Date() } });
+      await this.prisma.userSession.create({
+        data: { userId: user!.id, deviceId: 'default', ipAddress: ip, browser: userAgent },
+      });
+      await this.prisma.auditLog.create({
+        data: {
+          eventType: 'LOGIN_2FA',
+          userId: user!.id,
+          detailsJson: { ip, userAgent },
+          triggeredBy: user!.id,
+          ipAddress: ip,
+          userAgent,
+        },
+      });
+    } catch {
+      // Non-critical
+    }
+
+    return {
+      accessToken: tokens.accessToken,
+      user: this.sanitizeUser(user!),
       refreshTokenForCookie: tokens.refreshToken,
     };
   }
@@ -375,6 +557,10 @@ export class AuthService {
     return {
       accessToken: tokens.accessToken,
       refreshTokenForCookie: tokens.refreshToken,
+      user: {
+        role: user.role,
+        onboardingCompleted: user.onboardingCompleted,
+      },
     };
   }
 
@@ -388,7 +574,11 @@ export class AuthService {
         process.env.JWT_ACCESS_EXPIRES,
         3600,
       );
-      await this.redisService.set(`auth:blacklist:${jti}`, 'true', accessExpiry);
+      await this.redisService.set(
+        `auth:blacklist:${jti}`,
+        'true',
+        accessExpiry,
+      );
     }
 
     await this.prisma.userSession.deleteMany({
@@ -420,7 +610,9 @@ export class AuthService {
   }
 
   async resetPassword(token: string, newPassword: string) {
-    const email = await this.redisService.get(`auth:reset:${token}`);
+    // Atomic GETDEL prevents concurrent requests from both consuming the same
+    // reset token and overwriting each other's new password.
+    const email = await this.redisService.getdel(`auth:reset:${token}`);
     if (!email)
       appError(
         HttpStatus.BAD_REQUEST,
@@ -428,7 +620,7 @@ export class AuthService {
         ErrorCode.INVALID_RESET_LINK,
       );
 
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({ where: { email: email! } });
     if (!user)
       appError(
         HttpStatus.BAD_REQUEST,
@@ -437,8 +629,7 @@ export class AuthService {
       );
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
-    await this.prisma.user.update({ where: { email }, data: { passwordHash } });
-    await this.redisService.del(`auth:reset:${token}`);
+    await this.prisma.user.update({ where: { email: email! }, data: { passwordHash } });
 
     // Invalidate refresh tokens broadly for the user
     await this.redisService.del(`auth:refresh:${user.id}:default`);
@@ -456,12 +647,20 @@ export class AuthService {
   }
 
   async resendOtp(email: string) {
+    // Always return the same generic response to prevent registration-status
+    // enumeration (an attacker could distinguish "has pending OTP" from "not registered").
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true, emailVerified: true },
+    });
+    if (!user || user.emailVerified) {
+      return { success: true };
+    }
+
     const existing = await this.redisService.get(`auth:otp:${email}`);
-    if (existing)
-      return {
-        success: true,
-        message: 'Please wait before requesting a new code',
-      }; // Throttle logic simplified
+    if (existing) {
+      return { success: true };
+    }
 
     const otp = randomInt(100000, 1000000).toString();
     await this.redisService.set(`auth:otp:${email}`, otp, 600);
@@ -507,11 +706,23 @@ export class AuthService {
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
     await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+
+    const oauthCode = randomUUID();
+    await this.redisService.set(`auth:oauth:code:${oauthCode}`, tokens.accessToken, 60);
+
     return {
-      accessToken: tokens.accessToken,
+      oauthCode,
       user: this.sanitizeUser(user),
       refreshTokenForCookie: tokens.refreshToken,
     };
+  }
+
+  async exchangeOAuthCode(code: string): Promise<string> {
+    const accessToken = await this.redisService.getdel(`auth:oauth:code:${code}`);
+    if (!accessToken) {
+      appError(HttpStatus.UNAUTHORIZED, 'Invalid or expired OAuth code', ErrorCode.INVALID_CREDENTIALS);
+    }
+    return accessToken!;
   }
 
   async supabaseLogin(dto: SupabaseLoginDto) {
@@ -703,8 +914,12 @@ export class AuthService {
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
     await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+
+    const oauthCode = randomUUID();
+    await this.redisService.set(`auth:oauth:code:${oauthCode}`, tokens.accessToken, 60);
+
     return {
-      accessToken: tokens.accessToken,
+      oauthCode,
       user: this.sanitizeUser(user),
       refreshTokenForCookie: tokens.refreshToken,
     };

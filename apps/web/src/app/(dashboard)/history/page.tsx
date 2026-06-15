@@ -15,7 +15,13 @@ import {
  Brain,
  X
 } from '@/components/ui/icons';
-import { Button } from '@/components/ui/button';
+import {
+  DashboardPage,
+  DashboardBreadcrumbs,
+  DashboardPageHeader,
+  DashButton,
+  DashFilterPill,
+} from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { toast } from 'sonner';
@@ -178,94 +184,85 @@ export default function HistoryPage() {
  }, [currentPage, totalPages]);
 
  return (
- <div className="p-8 space-y-10">
- {/* Header Section */}
- <div className="flex flex-col md:flex-row justify-between items-end gap-6">
- <div className="space-y-4">
- <div className="flex items-center gap-3">
- <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
- <History className="w-5 h-5 text-primary" />
- </div>
- <div>
- <h1 className="text-3xl font-semibold text-white uppercase tracking-tight">Execution_Vault</h1>
- <p className="text-xs text-white/30 font-bold uppercase tracking-[0.4em] mt-1">Immutable Transaction Ledger</p>
- </div>
- </div>
- </div>
+ <DashboardPage>
+ <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'History' }]} />
 
- <div className="flex items-center gap-4">
- <div className="h-14 flex items-center gap-3 glass-strong px-6 rounded-2xl border border-white/5">
- <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Aggregate Earnings</span>
- <span className={cn("text-xl font-semibold font-mono tracking-tight", aggregatePnl >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
- {aggregatePnl >= 0 ? '+' : '-'}${Math.abs(aggregatePnl).toLocaleString(undefined, { maximumFractionDigits: 2 })}
- </span>
- <div className="w-1 h-4 bg-white/10 mx-2" />
- <div className="flex items-center gap-2">
- <div className={cn('w-2 h-2 rounded-full', isFetching ? 'bg-amber-500' : 'bg-emerald-500')} />
- <span className="text-xs font-bold text-white/40 uppercase">{isFetching ? 'Syncing' : 'Synced'}</span>
- </div>
- </div>
- <Button onClick={handleExport} className="h-14 px-8 bg-white text-black hover:bg-white/90 rounded-2xl font-semibold uppercase tracking-widest gap-3 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
- <Download className="w-4 h-4" />
- Export Terminal Log
- </Button>
- </div>
+ <DashboardPageHeader
+  title="Trade History"
+  description="Immutable ledger of all executions, exports, and performance."
+  icon={History}
+  actions={
+   <DashButton variant="primary" onClick={handleExport} className="gap-2">
+    <Download className="w-3.5 h-3.5" />
+    Export CSV
+   </DashButton>
+  }
+ />
+
+ <div className="dashboard-card flex flex-wrap items-center gap-4 p-4">
+  <div className="flex items-center gap-2">
+   <span className="dash-eyebrow">Aggregate P&amp;L</span>
+   <span className={cn('text-lg font-bold tabular-nums', aggregatePnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
+    {aggregatePnl >= 0 ? '+' : '-'}${Math.abs(aggregatePnl).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+   </span>
+  </div>
+  <div className="h-4 w-px bg-[var(--card-border)]" />
+  <div className="flex items-center gap-2">
+   <div className={cn('w-2 h-2 rounded-full', isFetching ? 'bg-chart-4' : 'bg-chart-3')} />
+   <span className="dash-eyebrow">{isFetching ? 'Syncing' : 'Synced'}</span>
+  </div>
  </div>
 
  {/* Filter Bar */}
  <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
  <div className="lg:col-span-2 relative">
- <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+ <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
  <input 
  type="text" 
- placeholder="FILTER BY ASSET OR ID..."
+ placeholder="Filter by asset or ID…"
  value={searchQuery}
  onChange={(e) => setSearchQuery(e.target.value)}
- className="w-full h-14 bg-white/5 border border-white/5 rounded-2xl pl-14 pr-6 text-sm font-semibold tracking-[0.2em] text-white placeholder:text-white/10 focus:border-primary/30 transition-all outline-none"
+ className="dash-input h-11 pl-11"
  />
  </div>
  <div className="relative">
  <select 
  value={selectedStrategy}
  onChange={(e) => setSelectedStrategy(e.target.value)}
- className="w-full h-14 bg-white/5 border border-white/5 rounded-2xl px-6 text-sm font-semibold tracking-widest text-white/60 appearance-none focus:text-white focus:border-primary/30 transition-all outline-none cursor-pointer"
+ className="dash-input h-11 appearance-none cursor-pointer pr-10"
  >
  {strategyOptions.map((strategy) => (
   <option key={strategy} value={strategy}>{strategy}</option>
  ))}
  </select>
- <Filter className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
+ <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
  </div>
- <Button onClick={cycleRange} variant="ghost" className="h-14 border border-white/5 bg-white/2 rounded-2xl text-sm font-semibold uppercase tracking-widest text-white/40 hover:text-white gap-3">
+ <DashButton onClick={cycleRange} variant="outline" className="gap-2 h-11">
  <Calendar className="w-4 h-4" />
  {rangeButtonLabel}
- </Button>
+ </DashButton>
  </div>
 
  {/* Main Table */}
- <div className="glass-ultra rounded-[40px] border border-white/5 overflow-hidden shadow-2xl relative">
- {/* Table Background Glows */}
- <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
- <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
-
- <div className="overflow-x-auto relative z-10">
+ <div className="dash-table-wrap overflow-hidden">
+ <div className="overflow-x-auto">
  <table className="w-full border-collapse">
  <thead>
- <tr className="border-b border-white/5 bg-white/1">
- {['Execution_ID', 'Asset_Token', 'Logic_System', 'Type', 'Volume', 'Performance', 'Timestamp', 'Status'].map((head) => (
- <th key={head} className="px-8 py-6 text-left text-xs font-semibold text-white/20 uppercase tracking-[0.3em]">
+ <tr className="border-b border-[var(--card-border)] bg-muted/50">
+ {['Execution ID', 'Asset', 'Strategy', 'Type', 'Volume', 'Performance', 'Timestamp', 'Status'].map((head) => (
+ <th key={head} className="px-5 py-3.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">
  {head}
  </th>
  ))}
  </tr>
  </thead>
- <tbody className="divide-y divide-white/3">
+ <tbody className="divide-y divide-[var(--card-border)]">
  {isLoading ? (
   Array.from({ length: pageSize }).map((_, i) => (
    <tr key={i} className="animate-pulse">
     {Array.from({ length: 8 }).map((__, j) => (
-     <td key={j} className="px-8 py-6">
-      <div className="h-4 rounded bg-white/5" />
+     <td key={j} className="px-5 py-4">
+      <div className="h-4 rounded bg-foreground/5" />
      </td>
     ))}
    </tr>
@@ -276,58 +273,58 @@ export default function HistoryPage() {
  initial={{ opacity: 0, y: 10 }}
  animate={{ opacity: 1, y: 0 }}
  transition={{ delay: i * 0.05 }}
- className="group hover:bg-white/2 transition-all cursor-pointer"
+ className="group hover:bg-foreground/2 transition-all cursor-pointer"
  onClick={() => setSelectedTradeId(trade.id)}
  >
- <td className="px-8 py-6">
- <span className="text-xs font-mono text-white/30 uppercase group-hover:text-primary transition-colors">TR_{trade.id}X77_{trade.id.slice(-3).toUpperCase()}</span>
+ <td className="px-5 py-4">
+ <span className="text-sm font-mono text-muted-foreground group-hover:text-primary transition-colors">TR_{trade.id}</span>
  </td>
- <td className="px-8 py-6">
+ <td className="px-5 py-4">
  <div className="flex items-center gap-3">
- <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
- <Box className="w-4 h-4 text-white/40" />
+ <div className="w-8 h-8 rounded-lg bg-foreground/5 border border-border flex items-center justify-center">
+ <Box className="w-4 h-4 text-foreground/40" />
  </div>
- <span className="text-sm font-semibold text-white tracking-tight">{trade.asset}</span>
+ <span className="text-sm font-semibold text-foreground tracking-tight">{trade.asset}</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-5 py-4">
  <div className="flex items-center gap-2">
  <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
- <span className="text-sm font-bold text-white/60 tracking-tight">{trade.strategy}</span>
+ <span className="text-sm font-bold text-foreground/60 tracking-tight">{trade.strategy}</span>
  </div>
  </td>
- <td className="px-8 py-6">
+ <td className="px-5 py-4">
  <span className={cn(
 "text-xs font-semibold px-3 py-1 rounded-full border tracking-widest uppercase",
- trade.type === 'Long' ?"bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :"bg-rose-500/10 text-rose-400 border-rose-500/20"
+ trade.type === 'Long' ?"bg-chart-3/10 text-chart-3 border-chart-3/20" :"bg-destructive/10 text-destructive border-destructive/20"
  )}>
  {trade.type}
  </span>
  </td>
- <td className="px-8 py-6 font-mono text-xs text-white/60">
+ <td className="px-5 py-4 font-mono text-xs text-foreground/60">
  {trade.amount} Lots
  </td>
- <td className="px-8 py-6">
+ <td className="px-5 py-4">
  <div className="flex flex-col">
  <span className={cn(
 "text-sm font-semibold font-mono tracking-tight",
- trade.pnl > 0 ?"text-emerald-400" :"text-rose-400"
+ trade.pnl > 0 ?"text-chart-3" :"text-destructive"
  )}>
  {trade.pnl > 0 ? '+' : ''}${Math.abs(trade.pnl).toLocaleString()}
  </span>
  <div className="flex items-center gap-1 mt-1">
- {trade.pnl > 0 ? <ArrowUpRight className="w-3 h-3 text-emerald-500/40" /> : <ArrowDownRight className="w-3 h-3 text-rose-500/40" />}
- <span className="text-xs font-bold text-white/20 uppercase">Settled Terminal</span>
+ {trade.pnl > 0 ? <ArrowUpRight className="w-3 h-3 text-chart-3/40" /> : <ArrowDownRight className="w-3 h-3 text-destructive/40" />}
+ <span className="text-xs text-muted-foreground">Settled</span>
  </div>
  </div>
  </td>
- <td className="px-8 py-6">
- <span className="text-xs font-bold text-white/30 tracking-widest">{trade.time}</span>
+ <td className="px-5 py-4">
+ <span className="text-sm text-muted-foreground">{trade.time}</span>
  </td>
- <td className="px-8 py-6">
+ <td className="px-5 py-4">
  <div className="flex items-center gap-2">
- <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
- <span className="text-xs font-semibold text-white/60 uppercase tracking-widest">{trade.status}</span>
+ <div className="w-1.5 h-1.5 rounded-full bg-chart-3" />
+ <span className="text-sm font-medium text-foreground">{trade.status}</span>
  </div>
  </td>
  </motion.tr>
@@ -339,38 +336,38 @@ export default function HistoryPage() {
  {/* Empty State */}
  {!isLoading && filteredHistory.length === 0 && (
  <div className="py-32 flex flex-col items-center justify-center space-y-6">
- <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center animate-pulse">
- <Brain className="w-10 h-10 text-white/10" />
+ <div className="w-20 h-20 rounded-3xl bg-foreground/5 border border-border flex items-center justify-center animate-pulse">
+ <Brain className="w-10 h-10 text-foreground/10" />
  </div>
- <p className="text-xs font-semibold text-white/20 uppercase tracking-[0.4em]">Vault Memory: Empty</p>
+ <p className="text-sm font-medium text-muted-foreground">Vault memory: empty</p>
  </div>
  )}
  </div>
 
  {selectedTrade && (
-  <div className="glass-ultra rounded-3xl border border-white/10 p-6 space-y-4">
+  <div className="dashboard-card p-6 space-y-4">
    <div className="flex items-center justify-between">
-	<h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-white/70">Execution Detail</h3>
-	<button onClick={() => setSelectedTradeId(null)} className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-colors">
+	<h3 className="text-base font-semibold text-foreground">Execution Detail</h3>
+	<button onClick={() => setSelectedTradeId(null)} className="w-8 h-8 rounded-lg bg-foreground/5 border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors">
 	 <X className="w-4 h-4" />
 	</button>
    </div>
    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-	<div className="rounded-xl border border-white/10 bg-white/5 p-3">
-	 <p className="text-[10px] uppercase tracking-[0.15em] text-white/35">Execution ID</p>
-	 <p className="text-xs font-mono text-white">TR_{selectedTrade.id}X77_{selectedTrade.id.slice(-3).toUpperCase()}</p>
+	<div className="rounded-xl border border-border bg-foreground/5 p-3">
+	 <p className="text-xs font-medium text-muted-foreground">Execution ID</p>
+	 <p className="text-sm font-mono text-foreground">TR_{selectedTrade.id}</p>
 	</div>
-	<div className="rounded-xl border border-white/10 bg-white/5 p-3">
-	 <p className="text-[10px] uppercase tracking-[0.15em] text-white/35">Entry / Exit</p>
-   <p className="text-xs font-semibold text-white">{selectedTrade.entry}{' -> '}{selectedTrade.exit}</p>
+	<div className="rounded-xl border border-border bg-foreground/5 p-3">
+	 <p className="text-xs font-medium text-muted-foreground">Entry / Exit</p>
+   <p className="text-xs font-semibold text-foreground">{selectedTrade.entry}{' -> '}{selectedTrade.exit}</p>
 	</div>
-	<div className="rounded-xl border border-white/10 bg-white/5 p-3">
-	 <p className="text-[10px] uppercase tracking-[0.15em] text-white/35">Type / Volume</p>
-	 <p className="text-xs font-semibold text-white">{selectedTrade.type} / {selectedTrade.amount} Lots</p>
+	<div className="rounded-xl border border-border bg-foreground/5 p-3">
+	 <p className="text-xs font-medium text-muted-foreground">Type / Volume</p>
+	 <p className="text-xs font-semibold text-foreground">{selectedTrade.type} / {selectedTrade.amount} Lots</p>
 	</div>
-	<div className="rounded-xl border border-white/10 bg-white/5 p-3">
-	 <p className="text-[10px] uppercase tracking-[0.15em] text-white/35">Settlement</p>
-	 <p className={cn('text-xs font-semibold', selectedTrade.pnl >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
+	<div className="rounded-xl border border-border bg-foreground/5 p-3">
+	 <p className="text-xs font-medium text-muted-foreground">Settlement</p>
+	 <p className={cn('text-xs font-semibold', selectedTrade.pnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
 	  {selectedTrade.pnl >= 0 ? '+' : '-'}${Math.abs(selectedTrade.pnl).toLocaleString()}
 	 </p>
 	</div>
@@ -379,10 +376,10 @@ export default function HistoryPage() {
  )}
 
  {/* Pagination / Status */}
- <div className="flex justify-between items-center text-xs font-semibold uppercase tracking-[0.2em] text-white/20">
+ <div className="flex justify-between items-center text-sm text-muted-foreground">
  <span>
-  Displaying {filteredHistory.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
-  -{Math.min(currentPage * pageSize, filteredHistory.length)} of {filteredHistory.length} transmissions
+  Showing {filteredHistory.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+  – {Math.min(currentPage * pageSize, filteredHistory.length)} of {filteredHistory.length} trades
  </span>
  <div className="flex items-center gap-4">
  <button
@@ -399,7 +396,7 @@ export default function HistoryPage() {
    <button
 	key={page}
 	onClick={() => setCurrentPage(page)}
-	className={cn('transition-colors hover:text-primary', page === currentPage ? 'text-white' : 'text-white/30')}
+	className={cn('transition-colors hover:text-primary', page === currentPage ? 'text-foreground' : 'text-foreground/30')}
    >
 	{page}
    </button>
@@ -407,7 +404,7 @@ export default function HistoryPage() {
  })}
  {totalPages > 3 && <span>...</span>}
  {totalPages > 3 && (
-  <button onClick={() => setCurrentPage(totalPages)} className={cn('transition-colors hover:text-primary', totalPages === currentPage ? 'text-white' : 'text-white/30')}>
+  <button onClick={() => setCurrentPage(totalPages)} className={cn('transition-colors hover:text-primary', totalPages === currentPage ? 'text-foreground' : 'text-foreground/30')}>
    {totalPages}
   </button>
  )}
@@ -421,6 +418,6 @@ export default function HistoryPage() {
  </button>
  </div>
  </div>
- </div>
+ </DashboardPage>
  );
 }

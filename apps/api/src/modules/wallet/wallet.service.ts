@@ -16,7 +16,7 @@ import {
   TransactionStatus,
   TransactionType,
 } from '@prisma/client';
-import { randomUUID } from 'crypto';
+import { randomUUID, randomInt } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { IORedis } from '../../config/redis.config';
 import {
@@ -50,7 +50,7 @@ export class WalletService {
     });
     if (!user) throw new NotFoundException('User not found');
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = randomInt(100000, 1000000).toString();
     const key = `withdrawal_otp:${userId}`;
 
     await this.redis.set(key, otp, 'EX', 600); // 10 minute TTL
@@ -262,7 +262,9 @@ export class WalletService {
     const otpKey = `withdrawal_otp:${userId}`;
     const storedOtp = await this.redis.get(otpKey);
     if (!storedOtp) {
-      throw new BadRequestException('OTP expired or not requested. Please request a new OTP.');
+      throw new BadRequestException(
+        'OTP expired or not requested. Please request a new OTP.',
+      );
     }
     if (storedOtp !== dto.otp.toString()) {
       throw new BadRequestException('Invalid OTP');

@@ -10,7 +10,7 @@ export default function NotFound() {
  <div className="min-h-screen bg-bg-base flex items-center justify-center p-6 relative overflow-hidden">
  {/* Background Effects */}
  <div className="absolute inset-0 pointer-events-none">
- <div className="absolute top-1/4 left-1/4 w-150 h-150 bg-p/5 rounded-full blur-[150px]" />
+ <div className="absolute top-1/4 left-1/4 w-150 h-150 bg-primary/5 rounded-full blur-[150px]" />
  <div className="absolute bottom-1/4 right-1/4 w-[400px] h-100 bg-s/5 rounded-full blur-[120px]" />
  </div>
 
@@ -27,11 +27,11 @@ export default function NotFound() {
  transition={{ delay: 0.2, duration: 0.5 }}
  className="mb-8"
  >
- <h1 className="text-[180px] font-semibold text-white/5 leading-tight select-none">
+ <h1 className="text-[180px] font-semibold text-foreground/5 leading-tight select-none">
  404
  </h1>
  <div className="relative -mt-16">
- <div className="w-24 h-1 bg-linear-to-r from-transparent via-p to-transparent mx-auto" />
+ <div className="w-24 h-1 bg-linear-to-r from-transparent via-primary to-transparent mx-auto" />
  </div>
  </motion.div>
 
@@ -41,24 +41,24 @@ export default function NotFound() {
  animate={{ opacity: 1, y: 0 }}
  transition={{ delay: 0.3, duration: 0.5 }}
  >
- <h2 className="text-4xl font-semibold text-white uppercase tracking-tight mb-4">
+ <h2 className="text-4xl font-semibold text-foreground uppercase tracking-tight mb-4">
  Signal Lost
  </h2>
- <p className="text-white/40 text-lg font-medium mb-8 max-w-md mx-auto">
+ <p className="text-foreground/40 text-lg font-medium mb-8 max-w-md mx-auto">
  The neural pathway you&apos;re searching for doesn&apos;t exist or has been decommissioned.
  </p>
 
  {/* Action Buttons */}
  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
  <Link href="/">
- <Button className="h-14 px-8 rounded-2xl bg-p text-white font-semibold uppercase tracking-widest gap-3 hover:bg-p/90 transition-all">
+ <Button className="h-14 px-8 rounded-2xl bg-primary text-foreground font-semibold uppercase tracking-widest gap-3 hover:bg-primary/90 transition-all">
  <Home className="w-5 h-5" />
  Return Home
  </Button>
  </Link>
  <Button 
  variant="outline"
- className="h-14 px-8 rounded-2xl border-white/10 bg-white/5 text-white font-semibold uppercase tracking-widest gap-3 hover:bg-white/10"
+ className="h-14 px-8 rounded-2xl border-border bg-foreground/5 text-foreground font-semibold uppercase tracking-widest gap-3 hover:bg-foreground/10"
  onClick={() => window.history.back()}
  >
  <ArrowLeft className="w-5 h-5" />
@@ -67,7 +67,7 @@ export default function NotFound() {
  </div>
 
  {/* Decorative Elements */}
- <div className="mt-16 flex items-center justify-center gap-2 text-white/20">
+ <div className="mt-16 flex items-center justify-center gap-2 text-foreground/20">
  <Search className="w-4 h-4" />
  <span className="text-xs font-bold uppercase tracking-[0.3em]">Lost in the void</span>
  </div>

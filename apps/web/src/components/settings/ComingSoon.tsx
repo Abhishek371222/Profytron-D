@@ -36,15 +36,15 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
 
  <div className="space-y-4 relative z-10">
  <div className="flex items-center justify-center gap-3">
- <Cpu className="w-3.5 h-3.5 text-white/20" />
- <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.5em]">System Access Restricted</span>
+ <Cpu className="w-3.5 h-3.5 text-foreground/20" />
+ <span className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.5em]">System Access Restricted</span>
  </div>
- <h2 className="text-4xl font-semibold text-white uppercase tracking-tight drop-shadow-2xl">{title}</h2>
- <p className="text-sm text-white/40 font-semibold uppercase tracking-[0.2em]">{description}</p>
+ <h2 className="text-4xl font-semibold text-foreground uppercase tracking-tight drop-shadow-2xl">{title}</h2>
+ <p className="text-sm text-foreground/40 font-semibold uppercase tracking-[0.2em]">{description}</p>
  </div>
 
  <div className="pt-8 space-y-6">
- <div className="w-64 h-1.5 bg-white/3 rounded-full border border-white/5 p-0.5 overflow-hidden">
+ <div className="w-64 h-1.5 bg-foreground/3 rounded-full border border-border p-0.5 overflow-hidden">
  <motion.div 
  initial={{ x:"-100%" }}
  animate={{ x:"100%" }}
@@ -54,12 +54,12 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
  </div>
  <div className="flex items-center justify-center gap-8">
  <div className="flex items-center gap-2">
- <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
- <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">Compiling Assets</span>
+ <div className="w-1.5 h-1.5 rounded-full bg-chart-3 animate-pulse" />
+ <span className="text-xs font-semibold text-foreground/20 uppercase tracking-widest">Compiling Assets</span>
  </div>
  <div className="flex items-center gap-2">
- <Zap className="w-3 h-3 text-amber-500" />
- <span className="text-xs font-semibold text-white/20 uppercase tracking-widest">L2 Finalizing</span>
+ <Zap className="w-3 h-3 text-chart-4" />
+ <span className="text-xs font-semibold text-foreground/20 uppercase tracking-widest">L2 Finalizing</span>
  </div>
  </div>
  </div>

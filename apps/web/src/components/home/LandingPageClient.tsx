@@ -1,84 +1,120 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { LandingNavbar } from '@/components/layout/LandingNavbar';
-import { HeroSection } from '@/components/home/HeroSection';
-import { LiveTicker, StatsSection } from '@/components/home/StatsSection';
-import { SocialProofBar } from '@/components/home/SocialProofBar';
-import { ValuePillars } from '@/components/home/ValuePillars';
-import { FeaturesSection } from '@/components/home/FeaturesSection';
-import { HowItWorks } from '@/components/home/HowItWorks';
-import { Testimonials } from '@/components/home/Testimonials';
-import { PricingSection } from '@/components/home/PricingSection';
-import { CTABanner } from '@/components/home/CTABanner';
-import { Footer } from '@/components/home/Footer';
-import { CinematicCursor } from '@/components/ui/CinematicCursor';
-import { SectionRevealer } from '@/components/ui/SectionRevealer';
+import dynamic from "next/dynamic";
+import { AppProviders } from "@/components/providers/AppProviders";
+import { LandingNavbar } from "@/components/layout/LandingNavbar";
+import { HeroSection } from "@/components/home/HeroSection";
+import { SectionRevealer } from "@/components/ui/SectionRevealer";
+import { LenisProvider } from "@/components/providers/LenisProvider";
+
+const LiveTicker = dynamic(
+  () => import("@/components/home/StatsSection").then((m) => ({ default: m.LiveTicker })),
+  { loading: () => <div className="h-[72px]" aria-hidden /> },
+);
+
+const SocialProofBar = dynamic(
+  () => import("@/components/home/SocialProofBar").then((m) => ({ default: m.SocialProofBar })),
+  { loading: () => null },
+);
+
+const ValuePillars = dynamic(
+  () => import("@/components/home/ValuePillars").then((m) => ({ default: m.ValuePillars })),
+  { loading: () => null },
+);
+
+const FeaturesSection = dynamic(
+  () => import("@/components/home/FeaturesSection").then((m) => ({ default: m.FeaturesSection })),
+  { loading: () => null },
+);
+
+const HowItWorks = dynamic(
+  () => import("@/components/home/HowItWorks").then((m) => ({ default: m.HowItWorks })),
+  { loading: () => null },
+);
+
+const StatsSection = dynamic(
+  () => import("@/components/home/StatsSection").then((m) => ({ default: m.StatsSection })),
+  { loading: () => null },
+);
+
+const Testimonials = dynamic(
+  () => import("@/components/home/Testimonials").then((m) => ({ default: m.Testimonials })),
+  { loading: () => null },
+);
+
+const PricingSection = dynamic(
+  () => import("@/components/home/PricingSection").then((m) => ({ default: m.PricingSection })),
+  { loading: () => null },
+);
+
+const FaqSection = dynamic(
+  () => import("@/components/home/FaqSection").then((m) => ({ default: m.FaqSection })),
+  { loading: () => null },
+);
+
+const CTABanner = dynamic(
+  () => import("@/components/home/CTABanner").then((m) => ({ default: m.CTABanner })),
+  { loading: () => null },
+);
+
+const Footer = dynamic(
+  () => import("@/components/home/Footer").then((m) => ({ default: m.Footer })),
+  { loading: () => null },
+);
 
 export function LandingPageClient() {
-  const [showCursor, setShowCursor] = useState(false);
-
-  useEffect(() => {
-    // Only render the custom cursor on devices that have a pointer (mouse/trackpad).
-    // Touch-only devices don't benefit from a custom cursor overlay.
-    const hasPointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    if (hasPointer) setShowCursor(true);
-  }, []);
-
   return (
-    <main className="min-h-screen bg-bg-base overflow-x-hidden noise relative aurora-bg">
-      {showCursor && <CinematicCursor />}
+    <AppProviders>
+    <LenisProvider>
+      <main className="relative min-h-screen bg-background overflow-x-hidden">
+        <div className="relative z-10">
+          <LandingNavbar />
+          <HeroSection />
 
-      <div className="fixed inset-0 pointer-events-none z-[-2] opacity-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.05)_0%,transparent_100%)]" />
-      </div>
+          <SectionRevealer>
+            <SocialProofBar />
+          </SectionRevealer>
 
-      <LandingNavbar />
+          <SectionRevealer delay={0.08}>
+            <LiveTicker />
+          </SectionRevealer>
 
-      <HeroSection />
+          <SectionRevealer delay={0.1}>
+            <ValuePillars />
+          </SectionRevealer>
 
-      <SectionRevealer>
-        <LiveTicker />
-      </SectionRevealer>
+          <SectionRevealer delay={0.05} direction="right">
+            <FeaturesSection />
+          </SectionRevealer>
 
-      <SectionRevealer delay={0.1}>
-        <SocialProofBar />
-      </SectionRevealer>
+          <SectionRevealer delay={0.08}>
+            <HowItWorks />
+          </SectionRevealer>
 
-      <SectionRevealer delay={0.15}>
-        <ValuePillars />
-      </SectionRevealer>
+          <SectionRevealer delay={0.06}>
+            <StatsSection />
+          </SectionRevealer>
 
-      <SectionRevealer>
-        <FeaturesSection />
-      </SectionRevealer>
+          <SectionRevealer delay={0.08} direction="left">
+            <Testimonials />
+          </SectionRevealer>
 
-      <SectionRevealer>
-        <HowItWorks />
-      </SectionRevealer>
+          <SectionRevealer delay={0.1}>
+            <PricingSection />
+          </SectionRevealer>
 
-      <SectionRevealer>
-        <StatsSection />
-      </SectionRevealer>
+          <SectionRevealer delay={0.08}>
+            <FaqSection />
+          </SectionRevealer>
 
-      <SectionRevealer>
-        <Testimonials />
-      </SectionRevealer>
+          <SectionRevealer delay={0.12}>
+            <CTABanner />
+          </SectionRevealer>
 
-      <SectionRevealer>
-        <PricingSection />
-      </SectionRevealer>
-
-      <SectionRevealer>
-        <CTABanner />
-      </SectionRevealer>
-
-      <Footer />
-
-      <div className="fixed inset-0 pointer-events-none z-[-1]">
-        <div className="absolute top-[20%] -left-[10%] w-200 h-200 bg-primary/5 blur-[180px] rounded-full opacity-50" />
-        <div className="absolute bottom-[20%] -right-[10%] w-200 h-200 bg-indigo-500/5 blur-[180px] rounded-full opacity-50" />
-      </div>
-    </main>
+          <Footer />
+        </div>
+      </main>
+    </LenisProvider>
+    </AppProviders>
   );
 }

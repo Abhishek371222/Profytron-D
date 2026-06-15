@@ -21,7 +21,7 @@ function Tabs({ defaultValue, children, className }: { defaultValue: string, chi
 
 function TabsList({ children, className, activeTab, setActiveTab }: any) {
  return (
- <div className={cn("inline-flex h-9 items-center justify-center rounded-full bg-white/5 p-1 text-white/50", className)}>
+ <div className={cn("inline-flex h-9 items-center justify-center rounded-full bg-foreground/5 p-1 text-foreground/50", className)}>
  {React.Children.map(children, child => {
  if (React.isValidElement(child)) {
  return React.cloneElement(child as any, { activeTab, setActiveTab });
@@ -40,14 +40,14 @@ function TabsTrigger({ value, children, className, activeTab, setActiveTab }: an
  onClick={() => setActiveTab(value)}
  className={cn(
 "relative px-4 py-1.5 text-xs font-bold transition-all uppercase tracking-widest outline-none",
- isActive ?"text-white" :"hover:text-white/80",
+ isActive ?"text-foreground" :"hover:text-foreground/80",
  className
  )}
  >
  {isActive && (
  <motion.div
  layoutId="activeTab"
- className="absolute inset-0 rounded-full bg-p shadow-[0_0_10px_rgba(var(--p-rgb),0.5)]"
+ className="absolute inset-0 rounded-full bg-primary shadow-[0_0_10px_rgba(var(--p-rgb),0.5)]"
  transition={{ type:"spring", bounce: 0.2, duration: 0.6 }}
  />
  )}

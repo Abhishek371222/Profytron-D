@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Bar,
@@ -9,7 +8,6 @@ import {
   CartesianGrid,
   Cell,
   ComposedChart,
-  Legend,
   Line,
   ReferenceLine,
   ResponsiveContainer,
@@ -19,10 +17,19 @@ import {
 } from 'recharts';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { cn } from '@/lib/utils';
-import { RefreshCcw, BarChart2, TrendingUp, Target, Zap } from 'lucide-react';
+import { BarChart2, TrendingUp, Target, Zap } from 'lucide-react';
 import { toast } from 'sonner';
-
-const RANGE_OPTIONS: AnalyticsRange[] = ['1d', '1w', '1m', '3m', '1y', 'all'];
+import {
+  AnalyticsInfoBanner,
+  AnalyticsPageHeader,
+  AnalyticsRangeSelector,
+  CHART_AXIS_TICK,
+  CHART_GRID_STROKE,
+  ChartCard,
+  ChartTooltip,
+  EmptyChartOverlay,
+  StatCard,
+} from '../_components/AnalyticsShared';
 
 const MONTHS_BY_RANGE: Record<AnalyticsRange, number> = {
   '1d': 1,
@@ -33,36 +40,22 @@ const MONTHS_BY_RANGE: Record<AnalyticsRange, number> = {
   all: Number.POSITIVE_INFINITY,
 };
 
-function CustomTooltip({ active, payload, label, formatter }: any) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="rounded-2xl border border-emerald-400/25 bg-[#080d18]/95 p-3 shadow-2xl backdrop-blur-xl">
-      <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-2">{label}</p>
-      {payload.map((entry: any, i: number) => (
-        <p key={i} className="text-sm font-bold" style={{ color: entry.color }}>
-          {formatter ? formatter(entry.value, entry.name) : entry.value}
-        </p>
-      ))}
-    </div>
-  );
-}
-
 export default function PerformanceAnalyticsPage() {
   const queryClient = useQueryClient();
-  const [range, setRange] = React.useState<AnalyticsRange>('3m');
+  const [range, setRange] = React.useState<AnalyticsRange>('1m');
 
   const strategyQuery = useQuery({
     queryKey: ['analytics', 'strategy-comparison', range],
     queryFn: () => analyticsApi.getStrategyComparison(range),
     staleTime: 120_000,
-    refetchInterval: 20_000,
+    refetchOnWindowFocus: false,
   });
 
   const monthlyQuery = useQuery({
     queryKey: ['analytics', 'monthly-returns'],
     queryFn: () => analyticsApi.getMonthlyReturns(),
     staleTime: 300_000,
-    refetchInterval: 60_000,
+    refetchOnWindowFocus: false,
   });
 
   const strategy = strategyQuery.data;
@@ -80,6 +73,18 @@ export default function PerformanceAnalyticsPage() {
     };
   }, [monthlyQuery.data, range]);
 
+  const totalStrategies = strategy?.strategies.length ?? 0;
+  const avgWinRate =
+    totalStrategies > 0
+      ? strategy!.strategies.reduce((s, x) => s + x.winRate, 0) / totalStrategies
+      : 0;
+  const totalNetPnl = strategy?.strategies.reduce((s, x) => s + x.netPnl, 0) ?? 0;
+  const bestStrategy = strategy?.strategies.reduce(
+    (best, s) => (s.netPnl > (best?.netPnl ?? -Infinity) ? s : best),
+    strategy?.strategies[0],
+  );
+  const hasData = strategyChartData.length > 0 || monthly.months.length > 0;
+
   React.useEffect(() => {
     if (strategyQuery.isError || monthlyQuery.isError) {
       toast.error('Performance analytics unavailable', {
@@ -95,156 +100,188 @@ export default function PerformanceAnalyticsPage() {
   };
 
   return (
-    <div className="space-y-5 pb-10">
-      {/* ── Header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[26px] border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.05] to-transparent p-5 md:p-6"
-      >
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent" />
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-2xl bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center shrink-0">
-              <BarChart2 className="w-5 h-5 text-emerald-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">Performance Lab</h1>
-              <p className="text-sm text-white/40 mt-0.5">
-                Strategy comparisons, monthly return rhythm, and production-readiness scores.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={refreshData}
-            className="flex items-center gap-2 h-9 px-4 rounded-xl border border-white/[0.08] bg-white/[0.03] text-[11px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white hover:border-white/20 transition-all"
-          >
-            <RefreshCcw className="w-3.5 h-3.5" />
-            Refresh
-          </button>
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {RANGE_OPTIONS.map((option) => (
-            <button
-              key={option}
-              onClick={() => setRange(option)}
-              className={cn(
-                'px-3.5 py-1.5 rounded-xl text-[11px] font-bold uppercase tracking-[0.2em] border transition-all duration-300',
-                range === option
-                  ? 'bg-emerald-400/15 text-emerald-400 border-emerald-400/40 shadow-[0_0_12px_rgba(52,211,153,0.15)]'
-                  : 'bg-white/[0.03] text-white/30 border-white/[0.06] hover:text-white/60 hover:border-white/15',
-              )}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-      </motion.div>
+    <div className="space-y-5 pb-8">
+      <AnalyticsPageHeader
+        title="Performance Lab"
+        description="Strategy comparisons, monthly return rhythm, and production-readiness scores."
+        icon={BarChart2}
+        iconBg="bg-chart-3/10 text-chart-3"
+        onRefresh={refreshData}
+      />
 
-      {/* ── Charts ── */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        {/* Strategy Performance Mix */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="relative rounded-[22px] border border-white/[0.07] bg-white/[0.025] p-5 overflow-hidden"
+      <AnalyticsRangeSelector range={range} onChange={setRange} accent="chart-3" />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatCard
+          label="Total Net PnL"
+          value={`$${totalNetPnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          icon={TrendingUp}
+          iconBg="bg-chart-3/10 text-chart-3"
+          valueClass={totalNetPnl >= 0 ? 'text-chart-3' : 'text-destructive'}
+        />
+        <StatCard
+          label="Avg Win Rate"
+          value={`${avgWinRate.toFixed(1)}%`}
+          icon={Target}
+          iconBg="bg-primary/10 text-primary"
+          valueClass="text-primary"
+          delay={0.05}
+        />
+        <StatCard
+          label="Strategies"
+          value={totalStrategies || '—'}
+          icon={BarChart2}
+          iconBg="bg-blue-500/10 text-blue-600"
+          valueClass="text-blue-600"
+          delay={0.1}
+        />
+        <StatCard
+          label="Best Performer"
+          value={bestStrategy ? bestStrategy.name.slice(0, 12) : '—'}
+          icon={Zap}
+          iconBg="bg-chart-4/10 text-chart-4"
+          valueClass="text-foreground"
+          delay={0.15}
+        />
+      </div>
+
+      {!hasData && !strategyQuery.isLoading && !monthlyQuery.isLoading && (
+        <AnalyticsInfoBanner message="Performance metrics populate once closed trades exist in your account history. Connecting MT5 alone does not create these values." />
+      )}
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <ChartCard
+          eyebrow="Strategy Performance"
+          title="Performance Mix"
+          subtitle="Bars = net PnL (k) · Line = win rate %"
+          delay={0.1}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] to-transparent pointer-events-none" />
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-0.5">Strategy Performance</p>
-          <p className="text-base font-bold text-white mb-1">Performance Mix</p>
-          <p className="text-xs text-white/25 mb-4">Bars = net PnL (k) · Line = win rate %</p>
-          <div className="h-[280px]">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
-              <ComposedChart data={strategyChartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="name" tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="left" tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}k`} width={35} />
-                <YAxis yAxisId="right" orientation="right" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} width={35} />
-                <Tooltip content={<CustomTooltip formatter={(v: number, n: string) => n === 'netPnlK' ? `$${v}k` : `${v.toFixed(1)}%`} />} />
-                <Bar yAxisId="left" dataKey="netPnlK" fill="#10b981" radius={[6, 6, 0, 0]} opacity={0.8} />
-                <Line yAxisId="right" dataKey="winRate" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3, fill: '#f59e0b' }} activeDot={{ r: 5 }} />
+          <div className="h-[280px] relative">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <ComposedChart data={strategyChartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
+                <XAxis dataKey="name" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
+                <YAxis
+                  yAxisId="left"
+                  tick={CHART_AXIS_TICK}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `${v}k`}
+                  width={40}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  domain={[0, 100]}
+                  tick={CHART_AXIS_TICK}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `${v}%`}
+                  width={40}
+                />
+                <Tooltip
+                  content={
+                    <ChartTooltip
+                      formatter={(v, n) => (n === 'netPnlK' ? `$${v}k` : `${Number(v).toFixed(1)}%`)}
+                    />
+                  }
+                />
+                <Bar yAxisId="left" dataKey="netPnlK" fill="#16A34A" radius={[6, 6, 0, 0]} opacity={0.85} />
+                <Line
+                  yAxisId="right"
+                  dataKey="winRate"
+                  stroke="#3B5BFF"
+                  strokeWidth={2}
+                  dot={{ r: 3, fill: '#3B5BFF' }}
+                  activeDot={{ r: 5 }}
+                />
               </ComposedChart>
             </ResponsiveContainer>
+            {strategyChartData.length === 0 && !strategyQuery.isLoading && (
+              <EmptyChartOverlay
+                title="No strategy data"
+                description="Strategy comparisons appear after trades are linked to strategies."
+              />
+            )}
           </div>
-          {strategyChartData.length === 0 && !strategyQuery.isLoading && (
-            <p className="mt-3 text-xs text-white/20 uppercase tracking-widest">No strategy data yet</p>
-          )}
-        </motion.div>
+        </ChartCard>
 
-        {/* Monthly Returns */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="relative rounded-[22px] border border-white/[0.07] bg-white/[0.025] p-5 overflow-hidden"
+        <ChartCard
+          eyebrow="Monthly Returns"
+          title="Return Clarity"
+          subtitle="Green = positive · Red = negative months"
+          delay={0.15}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] to-transparent pointer-events-none" />
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-0.5">Monthly Returns</p>
-          <p className="text-base font-bold text-white mb-1">Return Clarity</p>
-          <p className="text-xs text-white/25 mb-4">Green = positive · Red = negative months</p>
-          <div className="h-[280px]">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
-              <BarChart data={monthly.months} margin={{ top: 5, right: 8, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} width={35} />
-                <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" strokeDasharray="4 4" />
-                <Tooltip content={<CustomTooltip formatter={(v: number) => `${v.toFixed(2)}%`} />} />
+          <div className="h-[280px] relative">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <BarChart data={monthly.months} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
+                <XAxis dataKey="month" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
+                <YAxis
+                  tick={CHART_AXIS_TICK}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `${v}%`}
+                  width={40}
+                />
+                <ReferenceLine y={0} stroke="rgba(15,23,42,0.12)" strokeDasharray="4 4" />
+                <Tooltip content={<ChartTooltip formatter={(v) => `${Number(v).toFixed(2)}%`} />} />
                 <Bar dataKey="returnPct" radius={[6, 6, 0, 0]}>
-                  {monthly.months.map((item: any) => (
-                    <Cell key={`${item.month}-${item.year}`} fill={item.returnPct >= 0 ? '#10b981' : '#f43f5e'} fillOpacity={0.8} />
+                  {monthly.months.map((item) => (
+                    <Cell
+                      key={`${item.month}-${item.year}`}
+                      fill={item.returnPct >= 0 ? '#16A34A' : '#DC2626'}
+                      fillOpacity={0.85}
+                    />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+            {monthly.months.length === 0 && !monthlyQuery.isLoading && (
+              <EmptyChartOverlay
+                title="No monthly data"
+                description="Monthly returns appear after closed trades are recorded."
+              />
+            )}
           </div>
-          {monthly.months.length === 0 && !monthlyQuery.isLoading && (
-            <p className="mt-3 text-xs text-white/20 uppercase tracking-widest">No monthly data yet</p>
-          )}
-        </motion.div>
+        </ChartCard>
       </div>
 
-      {/* ── Strategy Scorecard ── */}
       {(strategy?.strategies ?? []).length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="rounded-[22px] border border-white/[0.07] bg-white/[0.025] p-5"
-        >
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-1">Strategy Scorecard</p>
-          <p className="text-base font-bold text-white mb-4">All Strategies Overview</p>
+        <ChartCard eyebrow="Strategy Scorecard" title="All Strategies Overview" delay={0.2}>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {strategy!.strategies.map((s) => (
-              <div key={s.id} className="rounded-[18px] border border-white/[0.06] bg-white/[0.02] p-4 space-y-2 hover:border-emerald-400/20 transition-all">
-                <p className="text-sm font-bold text-white truncate">{s.name}</p>
+              <div
+                key={s.id}
+                className="rounded-xl border border-[var(--card-border)] bg-muted/20 p-4 space-y-2 hover:border-primary/20 transition-colors"
+              >
+                <p className="text-sm font-bold text-foreground truncate">{s.name}</p>
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-white/30 uppercase tracking-widest">Win Rate</span>
-                    <span className="text-emerald-400 font-bold">{s.winRate.toFixed(1)}%</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Win Rate</span>
+                    <span className="text-chart-3 font-bold">{s.winRate.toFixed(1)}%</span>
                   </div>
-                  <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-white/30 uppercase tracking-widest">Trades</span>
-                    <span className="text-white font-bold">{s.trades}</span>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Trades</span>
+                    <span className="text-foreground font-bold">{s.trades}</span>
                   </div>
-                  <div className="flex items-center justify-between text-[10px]">
-                    <span className="text-white/30 uppercase tracking-widest">Net PnL</span>
-                    <span className={cn('font-bold', s.netPnl >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Net PnL</span>
+                    <span className={cn('font-bold', s.netPnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
                       {s.netPnl >= 0 ? '+' : ''}${s.netPnl.toLocaleString()}
                     </span>
                   </div>
                 </div>
-                <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+                <div className="h-1.5 rounded-full bg-primary/10 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full"
+                    className="h-full rounded-full bg-primary"
                     style={{ width: `${Math.min(100, s.winRate)}%` }}
                   />
                 </div>
               </div>
             ))}
           </div>
-        </motion.div>
+        </ChartCard>
       )}
     </div>
   );

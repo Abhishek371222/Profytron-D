@@ -45,18 +45,60 @@ export class EmailService {
   }
 
   async sendWelcomeEmail(email: string, name: string) {
+    const base = process.env.FRONTEND_URL || 'https://profytron.com';
     const html = `${BASE}
       <p style="font-size:22px;font-weight:700;margin:0 0 12px;">Welcome, ${name} 🎯</p>
-      <p style="color:#94a3b8;margin:0 0 20px;">Your account is verified and ready. You now have access to:</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">Your account is verified. Get your first algo trade in under 10 minutes:</p>
       <ul style="color:#cbd5e1;padding-left:20px;line-height:1.9;">
-        <li>Copy trading from verified strategy creators</li>
-        <li>AI-powered trade coaching and analytics</li>
-        <li>Real-time signals and risk management</li>
-        <li>Strategy marketplace and affiliate earnings</li>
+        <li>Complete your 2-minute risk profile</li>
+        <li>Start paper trading (no capital required)</li>
+        <li>Browse verified marketplace strategies</li>
+        <li>Connect MT5 when you're ready for live copy trading</li>
       </ul>
-      <a href="${process.env.FRONTEND_URL}/dashboard" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;margin-top:20px;">Go to Dashboard</a>
+      <div style="margin-top:24px;">
+        <a href="${base}/onboarding/risk" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;margin-right:12px;">Start Paper Trading</a>
+        <a href="${base}/marketplace" style="background:#0f172a;color:#cbd5e1;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;border:1px solid #1e293b;">Browse Strategies</a>
+      </div>
     ${FOOTER}`;
     return this.send(email, `Welcome to Profytron, ${name}!`, html);
+  }
+
+  async sendLifecycleEmail(
+    email: string,
+    name: string,
+    data: {
+      subject: string;
+      headline: string;
+      body: string;
+      ctaLabel: string;
+      ctaPath: string;
+    },
+  ) {
+    const url = `${process.env.FRONTEND_URL || 'https://profytron.com'}${data.ctaPath}`;
+    const html = `${BASE}
+      <p style="font-size:20px;font-weight:700;margin:0 0 12px;">${data.headline}</p>
+      <p style="color:#94a3b8;margin:0 0 24px;">Hi ${name || 'Trader'}, ${data.body}</p>
+      <a href="${url}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${data.ctaLabel}</a>
+    ${FOOTER}`;
+    return this.send(email, data.subject, html);
+  }
+
+  async sendActivationCelebrationEmail(
+    email: string,
+    name: string,
+    data: {
+      title: string;
+      body: string;
+      ctaUrl: string;
+      ctaLabel: string;
+    },
+  ) {
+    const html = `${BASE}
+      <p style="font-size:22px;font-weight:700;color:#4ade80;margin:0 0 12px;">🎯 ${data.title}</p>
+      <p style="color:#94a3b8;margin:0 0 24px;">Hi ${name || 'Trader'}, ${data.body}</p>
+      <a href="${data.ctaUrl}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${data.ctaLabel}</a>
+    ${FOOTER}`;
+    return this.send(email, `Profytron: ${data.title}`, html);
   }
 
   async sendMagicLinkEmail(email: string, name: string, link: string) {
@@ -151,7 +193,7 @@ export class EmailService {
   ) {
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Subscription Expired</p>
-      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${name || 'Trader'}, your subscription to <strong>${strategyName}</strong> has expired. Renew to continue copy trading.</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${name || 'Trader'}, your subscription to <strong>${strategyName}</strong> has expired. Renew to keep your bot enabled.</p>
       <a href="${process.env.FRONTEND_URL}/marketplace" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">Renew Subscription</a>
     ${FOOTER}`;
     return this.send(

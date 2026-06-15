@@ -7,10 +7,15 @@ export class CryptoService {
   private readonly key: Buffer;
 
   constructor() {
-    const rawKey =
-      process.env.AES_MASTER_KEY || 'default_key_32_characters_long_!';
-    // Must be exactly 32 bytes for aes-256
-    this.key = Buffer.from(rawKey.padEnd(32).slice(0, 32), 'utf-8');
+    const rawKey = process.env.AES_MASTER_KEY;
+    if (!rawKey) {
+      throw new Error('AES_MASTER_KEY env var is required — generate one with: node -e "require(\'crypto\').randomBytes(32).toString(\'hex\')|0"');
+    }
+    const keyBytes = Buffer.from(rawKey, 'hex');
+    if (keyBytes.length !== 32) {
+      throw new Error(`AES_MASTER_KEY must be exactly 32 bytes (64 hex chars). Got ${keyBytes.length} bytes.`);
+    }
+    this.key = keyBytes;
   }
 
   encrypt(plaintext: string): string {

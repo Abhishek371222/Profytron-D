@@ -56,7 +56,7 @@ export class AIService {
       : 'https://api.openai.com/v1/chat/completions';
 
     const model = isOpenRouter
-      ? (process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct')
+      ? process.env.OPENROUTER_MODEL || 'meta-llama/llama-3.3-70b-instruct'
       : 'gpt-4o-mini';
 
     const start = Date.now();
@@ -83,7 +83,9 @@ export class AIService {
         timeout: 25000,
       },
     );
-    this.logger.log(`AI request (${model}) completed in ${Date.now() - start}ms`);
+    this.logger.log(
+      `AI request (${model}) completed in ${Date.now() - start}ms`,
+    );
 
     return response.data.choices[0]?.message?.content || '';
   }
@@ -133,110 +135,121 @@ ${tradeData.profit !== undefined ? `P&L: ${tradeData.profit}` : ''}
 Strategy: ${tradeData.reason || 'Manual entry'}`;
 
       const explanation = await this.callOpenAI(systemPrompt, userPrompt);
-      return { explanation: this.sanitizeAIResponse(explanation), source: 'openai' };
+      return {
+        explanation: this.sanitizeAIResponse(explanation),
+        source: 'openai',
+      };
     } catch (err: any) {
       this.logger.error(`OpenAI fallback failed: ${err.message}`);
       throw new BadRequestException('AI Coach currently unavailable');
     }
   }
 
+  /**
+   * Returns cached explanation immediately, or queues a background job and returns
+   * { status: 'pending' } so the caller can poll. This prevents the 25s blocking
+   * request that previously froze the response thread.
+   */
   async explainTradeById(userId: string, tradeId: string) {
-    // Return cached explanation for closed trades (they won't change)
     const cacheKey = `ai:trade-explain:${tradeId}`;
+
+    // Fast path: return cached result if available (closed trades are immutable).
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.log(`Cache hit: trade explanation for ${tradeId}`);
+      return JSON.parse(cached) as { tradeId: string; symbol: string; explanation: unknown };
+    }
 
     const trade = await this.prisma.trade.findFirst({
       where: { id: tradeId, userId },
-      include: {
+      select: {
+        id: true, userId: true, strategyId: true, symbol: true,
+        direction: true, openPrice: true, closePrice: true,
+        stopLoss: true, takeProfit: true, profit: true, status: true,
         strategy: { select: { name: true, category: true, riskLevel: true } },
       },
     });
 
-    if (!trade) {
-      throw new NotFoundException('Trade not found');
+    if (!trade) throw new NotFoundException('Trade not found');
+
+    // If already computing (pending key in Redis), return pending status immediately.
+    const pendingKey = `ai:trade-explain-pending:${tradeId}`;
+    const isPending = await this.redis.get(pendingKey);
+    if (isPending) {
+      return { status: 'pending', tradeId, symbol: trade.symbol };
     }
 
-    // Only cache closed trades — open trade state changes continuously
-    if (trade.status === 'CLOSED') {
-      const cached = await this.redis.get(cacheKey);
-      if (cached) {
-        this.logger.log(`Cache hit: trade explanation for ${tradeId}`);
-        return JSON.parse(cached) as {
-          tradeId: string;
-          symbol: string;
-          explanation: unknown;
-        };
-      }
-    }
+    // Mark as pending (5-min TTL — job should complete well within this).
+    await this.redis.set(pendingKey, '1', 30 * 60);
 
-    const promptPayload = {
-      asset: trade.symbol,
-      type: trade.direction,
-      entry: trade.openPrice,
-      reason: `Strategy: ${trade.strategy?.name || 'Manual'}. Risk level: ${trade.strategy?.riskLevel || 'N/A'}`,
-      stopLoss: trade.stopLoss,
-      takeProfit: trade.takeProfit,
-      profit: trade.profit,
-      status: trade.status,
-    };
-
-    const start = Date.now();
-    const ai = await this.explainTrade(promptPayload);
-    this.logger.log(
-      `AI trade explanation for ${tradeId} completed in ${Date.now() - start}ms`,
+    // Fire AI call in background — do NOT await.
+    this.runExplainInBackground(trade, cacheKey, pendingKey).catch((err: Error) =>
+      this.logger.error(`Background AI explain failed for ${tradeId}: ${err.message}`),
     );
 
-    const summary =
-      typeof ai === 'string'
-        ? ai
-        : ai?.explanation
-          ? ai.explanation
-          : Array.isArray(ai)
-            ? JSON.stringify(ai[0] ?? ai)
-            : JSON.stringify(ai);
+    return { status: 'pending', tradeId, symbol: trade.symbol };
+  }
 
-    await this.prisma.aITradeExplanation.upsert({
-      where: { tradeId: trade.id },
-      update: {
-        summary,
-        confidenceScore: 78,
-        riskFactorsJson: {
-          stopLoss: trade.stopLoss,
-          takeProfit: trade.takeProfit,
-          currentStatus: trade.status,
-        },
-        keyLevelsJson: {
-          entry: trade.openPrice,
-          close: trade.closePrice,
-        },
-      },
-      create: {
-        tradeId: trade.id,
-        strategyId: trade.strategyId,
-        summary,
-        confidenceScore: 78,
-        riskFactorsJson: {
-          stopLoss: trade.stopLoss,
-          takeProfit: trade.takeProfit,
-          currentStatus: trade.status,
-        },
-        keyLevelsJson: {
-          entry: trade.openPrice,
-          close: trade.closePrice,
-        },
-      },
-    });
+  private async runExplainInBackground(
+    trade: {
+      id: string; userId: string; strategyId: string | null; symbol: string;
+      direction: string; openPrice: number; closePrice: number | null;
+      stopLoss: number | null; takeProfit: number | null; profit: number | null;
+      status: string; strategy?: { name: string; category: string; riskLevel: string } | null;
+    },
+    cacheKey: string,
+    pendingKey: string,
+  ) {
+    try {
+      const promptPayload = {
+        asset: trade.symbol,
+        type: trade.direction,
+        entry: trade.openPrice,
+        reason: `Strategy: ${trade.strategy?.name || 'Manual'}. Risk level: ${trade.strategy?.riskLevel || 'N/A'}`,
+        stopLoss: trade.stopLoss,
+        takeProfit: trade.takeProfit,
+        profit: trade.profit,
+        status: trade.status,
+      };
 
-    const result = {
-      tradeId: trade.id,
-      symbol: trade.symbol,
-      explanation: ai,
-    };
+      const start = Date.now();
+      const ai = await this.explainTrade(promptPayload);
+      this.logger.log(`AI trade explanation for ${trade.id} completed in ${Date.now() - start}ms`);
 
-    if (trade.status === 'CLOSED') {
-      await this.redis.set(cacheKey, JSON.stringify(result), TTL_AI_RESPONSE);
+      const summary =
+        typeof ai === 'string'
+          ? ai
+          : ai?.explanation
+            ? ai.explanation
+            : Array.isArray(ai)
+              ? JSON.stringify(ai[0] ?? ai)
+              : JSON.stringify(ai);
+
+      await this.prisma.aITradeExplanation.upsert({
+        where: { tradeId: trade.id },
+        update: {
+          summary,
+          confidenceScore: 78,
+          riskFactorsJson: { stopLoss: trade.stopLoss, takeProfit: trade.takeProfit, currentStatus: trade.status },
+          keyLevelsJson: { entry: trade.openPrice, close: trade.closePrice },
+        },
+        create: {
+          tradeId: trade.id,
+          strategyId: trade.strategyId,
+          summary,
+          confidenceScore: 78,
+          riskFactorsJson: { stopLoss: trade.stopLoss, takeProfit: trade.takeProfit, currentStatus: trade.status },
+          keyLevelsJson: { entry: trade.openPrice, close: trade.closePrice },
+        },
+      });
+
+      const result = { tradeId: trade.id, symbol: trade.symbol, explanation: ai, status: 'ready' };
+      if (trade.status === 'CLOSED') {
+        await this.redis.set(cacheKey, JSON.stringify(result), TTL_AI_RESPONSE);
+      }
+    } finally {
+      await this.redis.del(pendingKey);
     }
-
-    return result;
   }
 
   async chat(userId: string, payload: AIChatRequest) {

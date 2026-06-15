@@ -8,6 +8,9 @@ import { TwoFaService } from './twofa.service';
 import { RedisModule } from './redis.module';
 import { EmailModule } from '../email/email.module';
 import { UsersModule } from '../users/users.module';
+import { AffiliatesModule } from '../affiliates/affiliates.module';
+import { GrowthModule } from '../growth/growth.module';
+import { AgentsModule } from '../agents/agents.module';
 
 // Strategies
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -28,12 +31,15 @@ const oauthProviders =
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.getOrThrow<string>('JWT_ACCESS_SECRET'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '1h', algorithm: 'HS256' },
       }),
     }),
     RedisModule,
     EmailModule,
     UsersModule,
+    AffiliatesModule,
+    GrowthModule,
+    AgentsModule,
   ],
   controllers: [AuthController],
   providers: [

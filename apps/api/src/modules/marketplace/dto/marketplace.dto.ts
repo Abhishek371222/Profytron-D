@@ -82,6 +82,20 @@ export class MarketplaceQueryDto {
   @Max(50)
   @Transform(({ value }) => Number(value))
   reviewsLimit: number = 10;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @Transform(({ value }) => Number(value))
+  tradesPage: number = 1;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  @Transform(({ value }) => Number(value))
+  tradesLimit: number = 20;
 }
 
 export class CreateMarketplaceListingDto {

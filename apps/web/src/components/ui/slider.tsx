@@ -32,11 +32,11 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
  className={cn("relative w-full h-12 flex items-center group", className)}
  >
  {/* Track Background */}
- <div className="absolute inset-x-0 h-1.5 bg-white/5 rounded-full overflow-hidden">
+ <div className="absolute inset-x-0 h-1.5 bg-foreground/5 rounded-full overflow-hidden">
  {/* Active Track with Glow */}
  <motion.div 
  style={{ width: glowWidth }}
- className="absolute left-0 top-0 h-full bg-linear-to-r from-p/50 to-p shadow-[0_0_15px_rgba(var(--p-rgb),0.5)] transition-all duration-300"
+ className="absolute left-0 top-0 h-full bg-linear-to-r from-primary/50 to-primary shadow-[0_0_15px_rgba(var(--p-rgb),0.5)] transition-all duration-300"
  />
  </div>
 
@@ -59,13 +59,13 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
  >
  {/* Central Thumb Body */}
  <div className="w-full h-full bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.4)] flex items-center justify-center relative">
- <div className="w-2 h-2 bg-p rounded-full" />
+ <div className="w-2 h-2 bg-primary rounded-full" />
  
  {/* Magnetic Ring Pulse */}
  <motion.div 
  animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0.2, 0.5] }}
  transition={{ duration: 2, repeat: Infinity }}
- className="absolute inset-[-4px] border border-white/30 rounded-full"
+ className="absolute inset-[-4px] border border-border rounded-full"
  />
  </div>
 
@@ -81,7 +81,7 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
  {/* Interactive glow spotlight trailing the thumb */}
  <motion.div 
  animate={{ x: `${percentage}%` }}
- className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-40 h-40 bg-p/5 blur-3xl rounded-full pointer-events-none -z-10"
+ className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-40 h-40 bg-primary/5 blur-3xl rounded-full pointer-events-none -z-10"
  />
  </div>
  );

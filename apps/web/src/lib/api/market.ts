@@ -58,4 +58,9 @@ export const marketApi = {
     });
     return unwrap<MarketQuoteResponse>(response.data);
   },
+
+  async getQuotes() {
+    const response = await apiClient.get('/market/quotes');
+    return unwrap<MarketQuoteResponse[]>(response.data);
+  },
 };

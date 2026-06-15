@@ -13,21 +13,19 @@ export default function AnalyticsLayout({ children }: { children: ReactNode }) {
   const section = parts[1] && parts[1] !== 'analytics' ? parts[1] : '';
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-white/55">
-        <Link href="/dashboard" className="rounded px-1.5 py-0.5 hover:bg-white/10 hover:text-white/80">
+    <div className="space-y-5">
+      <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
+        <Link href="/dashboard" className="hover:underline">
           Dashboard
         </Link>
-        <ChevronRight className="h-3 w-3" />
-        <Link href="/analytics" className="rounded px-1.5 py-0.5 hover:bg-white/10 hover:text-white/80">
+        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+        <Link href="/analytics" className={section ? 'text-muted-foreground hover:text-primary hover:underline' : ''}>
           Analytics
         </Link>
         {section ? (
           <>
-            <ChevronRight className="h-3 w-3" />
-            <span className="rounded border border-cyan-200/25 bg-cyan-200/10 px-2 py-0.5 text-cyan-100">
-              {section}
-            </span>
+            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+            <span className="text-foreground capitalize">{section}</span>
           </>
         ) : null}
       </div>
@@ -37,10 +35,10 @@ export default function AnalyticsLayout({ children }: { children: ReactNode }) {
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={pathname}
-          initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, y: -6, filter: 'blur(4px)' }}
-          transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -4 }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
         >
           {children}
         </motion.div>

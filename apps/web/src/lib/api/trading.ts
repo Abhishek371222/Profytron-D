@@ -19,6 +19,7 @@ export interface OpenTrade {
   openPrice: number;
   fillPrice: number | null;
   profit: number | null;
+  unrealizedPnl?: number;
   status: string;
   openedAt: string;
   strategyId: string | null;

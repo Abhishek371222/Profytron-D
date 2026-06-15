@@ -1,11 +1,12 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { apiClient, unwrapApiResponse } from '../api/client';
 import { authApi } from '../api/auth';
+import { isAdminUser } from '../utils';
 
 const isMockApiEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_API === 'true';
+const SESSION_TOKEN_KEY = 'profytron_access';
 
-// Inline until workspace types are resolved
 type User = any;
 
 interface AuthState {
@@ -14,13 +15,22 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isHydrating: boolean;
-  
   setAuth: (user: User, accessToken: string) => void;
   setToken: (token: string) => void;
   clearAuth: () => void;
   login: (accessToken: string, user: User) => void;
   logout: () => Promise<void>;
   hydrate: () => Promise<void>;
+}
+
+function syncUserCookies(user: User | null | undefined) {
+  if (typeof window === 'undefined' || !user) return;
+  const onboardingFlag =
+    isAdminUser(user) || user.onboardingCompleted ? '1' : '0';
+  document.cookie = `onboarding_completed=${onboardingFlag}; path=/; max-age=604800; samesite=lax`;
+  if (user.role) {
+    document.cookie = `user_role=${user.role}; path=/; max-age=604800; samesite=lax`;
+  }
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -31,84 +41,84 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       isHydrating: true,
-
       setAuth: (user, accessToken) => set({ user, accessToken, isAuthenticated: true }),
-      
-      setToken: (accessToken) => set({ accessToken }),
-
-      clearAuth: () =>
-        {
+      setToken: (accessToken) => set({ accessToken, isAuthenticated: true }),
+      clearAuth: () => {
         if (typeof window !== 'undefined') {
+          sessionStorage.removeItem(SESSION_TOKEN_KEY);
           document.cookie = 'demo_access=; path=/; max-age=0; samesite=lax';
+          document.cookie = 'onboarding_completed=; path=/; max-age=0; samesite=lax';
+          document.cookie = 'user_role=; path=/; max-age=0; samesite=lax';
         }
-        set({
-          user: null,
-          accessToken: null,
-          isAuthenticated: false,
-          isLoading: false,
-          isHydrating: false,
-        });
+        set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false, isHydrating: false });
       },
-
       login: (accessToken, user) => {
-        if (typeof window !== 'undefined' && accessToken.startsWith('mock_token_')) {
-          document.cookie = 'demo_access=1; path=/; max-age=86400; samesite=lax';
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
+          if (accessToken.startsWith('mock_token_')) {
+            document.cookie = 'demo_access=1; path=/; max-age=86400; samesite=lax';
+          }
+          syncUserCookies(user);
+          if (user?.id && window.posthog) {
+            window.posthog.identify(user.id, { email: user.email, name: user.fullName });
+          }
         }
         set({ user, accessToken, isAuthenticated: true, isLoading: false, isHydrating: false });
       },
-
       logout: async () => {
         set({ isLoading: true });
-        try {
-           await authApi.logout();
-        } catch (e) {
-           console.error("Logout API failed, continuing client purge.");
-        }
+        try { await authApi.logout(); } catch (e) { console.error('Logout API failed, continuing client purge.'); }
         get().clearAuth();
       },
-
       hydrate: async () => {
         if (isMockApiEnabled) {
-          set((state) => ({
-            isAuthenticated: Boolean(state.user),
-            isHydrating: false,
-          }));
+          set((state) => ({ isAuthenticated: Boolean(state.user), isHydrating: false }));
           return;
         }
-
+        set({ isHydrating: true });
+        const tryMe = async (token: string) => {
+          const meRes = await apiClient.get('/users/me', { headers: { Authorization: `Bearer ${token}` } });
+          return unwrapApiResponse<User>(meRes.data);
+        };
+        const memoryToken = get().accessToken;
+        const sessionToken = typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_TOKEN_KEY) : null;
+        const bootstrapToken = memoryToken || sessionToken;
+        if (bootstrapToken) {
+          try {
+            const user = await tryMe(bootstrapToken);
+            syncUserCookies(user);
+            if (typeof window !== 'undefined') sessionStorage.setItem(SESSION_TOKEN_KEY, bootstrapToken);
+            set({ accessToken: bootstrapToken, user, isAuthenticated: true, isHydrating: false });
+            return;
+          } catch {
+            if (typeof window !== 'undefined') sessionStorage.removeItem(SESSION_TOKEN_KEY);
+          }
+        }
         try {
-          // This call triggers the HTTP-only cookie automatically if credentials inclusion is true
-          const response = await apiClient.post(
-          '/auth/refresh',
-          {},
-          {
-            timeout: 10000,
-          },
-        );
+          const response = await apiClient.post('/auth/refresh', {}, { timeout: 10000 });
           const data = unwrapApiResponse<{ accessToken: string }>(response.data);
-          set({ accessToken: data.accessToken, isAuthenticated: true, isHydrating: false });
-        } catch (error) {
-          // Boot failed silently if no session (or backend unavailable during startup).
+          let user = get().user;
+          try { user = await tryMe(data.accessToken); syncUserCookies(user); } catch {}
+          if (typeof window !== 'undefined') sessionStorage.setItem(SESSION_TOKEN_KEY, data.accessToken);
+          set({ accessToken: data.accessToken, user, isAuthenticated: true, isHydrating: false });
+        } catch {
+          const persistedUser = get().user;
+          if (persistedUser?.id) { set({ isAuthenticated: true, isHydrating: false }); return; }
           set({ user: null, accessToken: null, isAuthenticated: false, isHydrating: false });
         }
       },
     }),
-    { 
-        name: 'profytron-auth',
-        // Persist a minimal user snapshot only; never persist access tokens.
-        partialize: (state) => ({
-          user: state.user
-            ? {
-                id: state.user.id,
-                googleId: state.user.googleId,
-                email: state.user.email,
-                fullName: state.user.fullName,
-                username: state.user.username,
-                avatarUrl: state.user.avatarUrl,
-                role: state.user.role,
-              }
-            : null,
-        })
-    }
-  )
+    {
+      name: 'profytron-auth',
+      partialize: (state) => ({
+        user: state.user ? {
+          id: state.user.id, googleId: state.user.googleId, email: state.user.email,
+          fullName: state.user.fullName, username: state.user.username, avatarUrl: state.user.avatarUrl,
+          role: state.user.role, onboardingCompleted: state.user.onboardingCompleted,
+        } : null,
+        isAuthenticated: Boolean(state.user?.id),
+      }),
+      onRehydrateStorage: () => (state) => { if (state?.user?.id) state.isAuthenticated = true; },
+    },
+  ),
 );

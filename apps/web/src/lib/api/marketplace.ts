@@ -42,6 +42,14 @@ export const marketplaceApi = {
     return res.data.data;
   },
 
+  async getStrategyAnalytics(
+    id: string,
+    params?: { tradesPage?: number; tradesLimit?: number },
+  ) {
+    const res = await apiClient.get(`/marketplace/${id}/analytics`, { params });
+    return res.data.data;
+  },
+
   async subscribe(id: string, data: SubscribeRequest) {
     const res = await apiClient.post(`/marketplace/${id}/subscribe`, data);
     return res.data.data;

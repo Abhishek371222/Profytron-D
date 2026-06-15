@@ -5,6 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import Stripe from 'stripe';
+import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -12,21 +13,318 @@ import { TradingGateway } from '../trading/trading.gateway';
 import { Inject } from '@nestjs/common';
 import { REDIS_CLIENT } from '../auth/redis.service';
 import type { IORedis } from '../../config/redis.config';
+import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
+import { AffiliatesService } from '../affiliates/affiliates.service';
+import {
+  ActivationService,
+  ACTIVATION_EVENTS,
+} from '../growth/activation.service';
+import { SubscriptionTier } from '@prisma/client';
+import { PLATFORM_PLANS } from '../../common/constants/pricing.constants';
+import { AgentEventService } from '../agents/agent-event.service';
+import { AGENT_EVENTS } from '../agents/agent.types';
 
 @Injectable()
 export class PaymentsService {
   private readonly logger = new Logger(PaymentsService.name);
   private readonly stripe: InstanceType<typeof Stripe>;
+  private readonly razorpay: Razorpay | null;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
     private readonly tradingGateway: TradingGateway,
+    private readonly copyFactorySync: CopyFactorySyncService,
+    private readonly affiliatesService: AffiliatesService,
+    private readonly activationService: ActivationService,
+    private readonly agentEvents: AgentEventService,
     @Inject(REDIS_CLIENT) private readonly redis: IORedis,
   ) {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
       apiVersion: '2025-01-27' as any,
     });
+
+    const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
+    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+    this.razorpay =
+      razorpayKeyId && razorpayKeySecret
+        ? new Razorpay({ key_id: razorpayKeyId, key_secret: razorpayKeySecret })
+        : null;
+  }
+
+  /** Local dev only — RAZORPAY_KEY_ID=DEMO_KEY skips the live Razorpay API. */
+  private isRazorpayDemoMode(): boolean {
+    return (
+      process.env.NODE_ENV !== 'production' &&
+      process.env.RAZORPAY_KEY_ID === 'DEMO_KEY'
+    );
+  }
+
+  private demoOrderRedisKey(orderId: string): string {
+    return `razorpay:demo:${orderId}`;
+  }
+
+  // ── Razorpay Standard Checkout ─────────────────────────────────────────────
+
+  /**
+   * Create a Razorpay order for the given user. `amount` is in paise (minimum
+   * 100 = ₹1). The order id is returned to the browser so it can open the
+   * Razorpay Checkout modal; no money moves until the payment is captured and
+   * its signature verified server-side via verifyRazorpayPayment().
+   */
+  async createRazorpayOrder(
+    userId: string,
+    amount: number,
+    currency = 'INR',
+    receipt?: string,
+    extraNotes?: Record<string, string>,
+  ) {
+    if (!Number.isInteger(amount) || amount < 100) {
+      throw new BadRequestException(
+        'Amount must be an integer of at least 100 paise (₹1).',
+      );
+    }
+
+    if (this.isRazorpayDemoMode()) {
+      const orderId = `order_demo_${crypto.randomBytes(8).toString('hex')}`;
+      await this.redis.set(
+        this.demoOrderRedisKey(orderId),
+        JSON.stringify({
+          userId,
+          amount,
+          currency,
+          notes: extraNotes ?? {},
+        }),
+        'EX',
+        3600,
+      );
+      return {
+        orderId,
+        amount,
+        currency,
+        keyId: 'DEMO_KEY',
+        demo: true,
+      };
+    }
+
+    if (!this.razorpay) {
+      throw new BadRequestException(
+        'Razorpay is not configured (missing RAZORPAY_KEY_ID/SECRET).',
+      );
+    }
+
+    try {
+      const order = await this.razorpay.orders.create({
+        amount,
+        currency,
+        // Razorpay caps receipt at 40 chars; keep it short (userId is in notes).
+        receipt: (receipt || `wlt_${Date.now()}`).slice(0, 40),
+        notes: { userId, ...(extraNotes ?? {}) },
+      });
+
+      return {
+        orderId: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        keyId: process.env.RAZORPAY_KEY_ID,
+      };
+    } catch (error: any) {
+      const status = error?.statusCode;
+      this.logger.error(
+        `Razorpay order creation failed for user ${userId}: ${error?.error?.description || error?.message}`,
+      );
+      if (status === 401 || status === 403) {
+        throw new ForbiddenException(
+          'Razorpay authentication failed. Set valid RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in apps/api/.env (or use DEMO_KEY for local simulation).',
+        );
+      }
+      throw new BadRequestException(
+        error?.error?.description || 'Failed to create Razorpay order.',
+      );
+    }
+  }
+
+  /**
+   * Complete a demo Razorpay order in local development (RAZORPAY_KEY_ID=DEMO_KEY).
+   * Credits the wallet without opening the Razorpay checkout modal.
+   */
+  async completeDemoRazorpayOrder(userId: string, orderId: string) {
+    if (!this.isRazorpayDemoMode()) {
+      throw new BadRequestException(
+        'Demo payments are only available in development with RAZORPAY_KEY_ID=DEMO_KEY.',
+      );
+    }
+    if (!orderId.startsWith('order_demo_')) {
+      throw new BadRequestException('Invalid demo order id.');
+    }
+
+    const raw = await this.redis.get(this.demoOrderRedisKey(orderId));
+    if (!raw) {
+      throw new BadRequestException('Demo order expired or not found.');
+    }
+
+    const stored = JSON.parse(raw) as {
+      userId: string;
+      amount: number;
+      currency: string;
+      notes?: Record<string, string>;
+    };
+
+    if (stored.userId !== userId) {
+      throw new ForbiddenException('Demo order does not belong to this user.');
+    }
+
+    const paymentId = `pay_demo_${crypto.randomBytes(8).toString('hex')}`;
+    const amountRupees = Number(stored.amount) / 100;
+    const notes = stored.notes ?? {};
+
+    await this.creditWallet(
+      userId,
+      amountRupees,
+      'DEPOSIT',
+      {
+        source: 'razorpay_demo',
+        orderId,
+        paymentId,
+      },
+      `razorpay_payment_${paymentId}`,
+    );
+
+    if (notes.type === 'platform_subscription' && notes.planId) {
+      await this.activatePlatformSubscriptionFromPayment(
+        userId,
+        notes.planId,
+        notes.billingCycle ?? 'MONTHLY',
+        paymentId,
+        amountRupees,
+      );
+    } else {
+      await this.activationService.track(
+        userId,
+        ACTIVATION_EVENTS.FIRST_WALLET_DEPOSIT,
+        { amount: amountRupees },
+      );
+      await this.affiliatesService.processFirstDepositBonus(userId, amountRupees);
+      await this.affiliatesService.calculateCommission(userId, amountRupees);
+    }
+
+    await this.notifications.create(
+      userId,
+      'Deposit Successful',
+      `₹${amountRupees.toFixed(2)} has been added to your wallet (demo mode).`,
+    );
+
+    await this.redis.del(this.demoOrderRedisKey(orderId));
+
+    return {
+      success: true,
+      orderId,
+      paymentId,
+      amount: amountRupees,
+      currency: stored.currency,
+      demo: true,
+    };
+  }
+
+  /**
+   * Verify a completed Razorpay Checkout payment.
+   *
+   * Razorpay signs `${order_id}|${payment_id}` with HMAC-SHA256 using the key
+   * secret. We recompute it and compare in constant time. Only on a match do we
+   * fetch the authoritative paid amount from Razorpay (never trusting the
+   * client) and credit the user's wallet — idempotently, using the same key the
+   * webhook uses so a payment can't be double-credited.
+   */
+  async verifyRazorpayPayment(
+    userId: string,
+    payload: {
+      razorpay_order_id?: string;
+      razorpay_payment_id?: string;
+      razorpay_signature?: string;
+    },
+  ) {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      payload;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      throw new BadRequestException(
+        'razorpay_order_id, razorpay_payment_id and razorpay_signature are required.',
+      );
+    }
+
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!secret || !this.razorpay) {
+      throw new BadRequestException('Razorpay is not configured.');
+    }
+
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest('hex');
+
+    const provided = Buffer.from(razorpay_signature);
+    const expected = Buffer.from(expectedSignature);
+    const signatureValid =
+      provided.length === expected.length &&
+      crypto.timingSafeEqual(provided, expected);
+
+    if (!signatureValid) {
+      this.logger.warn(
+        `Razorpay signature mismatch for order ${razorpay_order_id} (user ${userId})`,
+      );
+      throw new BadRequestException('Payment signature verification failed.');
+    }
+
+    // Signature is valid — pull the authoritative amount from Razorpay so the
+    // credited value can't be tampered with on the client.
+    const order = await this.razorpay.orders.fetch(razorpay_order_id);
+    const amountRupees = Number(order.amount) / 100;
+
+    await this.creditWallet(
+      userId,
+      amountRupees,
+      'DEPOSIT',
+      {
+        source: 'razorpay_checkout',
+        orderId: razorpay_order_id,
+        paymentId: razorpay_payment_id,
+      },
+      `razorpay_payment_${razorpay_payment_id}`,
+    );
+
+    const orderNotes = (order.notes ?? {}) as Record<string, string>;
+    if (orderNotes.type === 'platform_subscription' && orderNotes.planId) {
+      await this.activatePlatformSubscriptionFromPayment(
+        userId,
+        orderNotes.planId,
+        orderNotes.billingCycle ?? 'MONTHLY',
+        razorpay_payment_id,
+        amountRupees,
+      );
+    } else {
+      await this.activationService.track(
+        userId,
+        ACTIVATION_EVENTS.FIRST_WALLET_DEPOSIT,
+        { amount: amountRupees },
+      );
+      await this.affiliatesService.processFirstDepositBonus(userId, amountRupees);
+      await this.affiliatesService.calculateCommission(userId, amountRupees);
+    }
+
+    await this.notifications.create(
+      userId,
+      'Deposit Successful',
+      `₹${amountRupees.toFixed(2)} has been added to your wallet.`,
+      'SUCCESS',
+    );
+
+    return {
+      success: true,
+      orderId: razorpay_order_id,
+      paymentId: razorpay_payment_id,
+      amount: amountRupees,
+      currency: order.currency,
+    };
   }
 
   verifyAndBuildStripeEvent(rawBody: Buffer, signature: string): any {
@@ -150,6 +448,26 @@ export class PaymentsService {
       const userId = paymentEntity.notes.userId;
       const strategyId = paymentEntity.notes.strategyId;
       const planType = paymentEntity.notes.planType ?? 'MONTHLY';
+      const notes = paymentEntity.notes;
+
+      if (notes.type === 'platform_subscription' && notes.planId) {
+        await this.activatePlatformSubscriptionFromPayment(
+          userId,
+          notes.planId,
+          notes.billingCycle ?? 'MONTHLY',
+          paymentEntity.id,
+          Number(paymentEntity.amount || 0) / 100,
+        );
+        void this.agentEvents.emit({
+          type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
+          entityType: 'payment',
+          entityId: paymentEntity.id,
+          userId,
+          payload: { planId: notes.planId, type: 'platform_subscription' },
+          idempotencyKey: `payment-ok:${paymentEntity.id}`,
+        });
+        return { ok: true };
+      }
 
       await this.creditWallet(
         userId,
@@ -166,12 +484,23 @@ export class PaymentsService {
           amount_total: paymentEntity.amount,
         });
       }
+
+      void this.agentEvents.emit({
+        type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
+        entityType: 'payment',
+        entityId: paymentEntity.id,
+        userId,
+        payload: { strategyId, amount: paymentEntity.amount },
+        idempotencyKey: `payment-ok:${paymentEntity.id}`,
+      });
     }
 
     if (eventType === 'payment.failed' && paymentEntity?.notes?.userId) {
       const userId = paymentEntity.notes.userId;
       const strategyId = paymentEntity.notes.strategyId;
-      this.logger.warn(`Razorpay payment failed for user ${userId}, payment ${paymentEntity.id}`);
+      this.logger.warn(
+        `Razorpay payment failed for user ${userId}, payment ${paymentEntity.id}`,
+      );
 
       // If tied to a strategy subscription, mark it inactive
       if (strategyId) {
@@ -187,6 +516,19 @@ export class PaymentsService {
         'Your payment could not be processed. Please try again.',
         'ERROR',
       );
+
+      void this.agentEvents.emit({
+        type: AGENT_EVENTS.PAYMENT_FAILED,
+        entityType: 'payment',
+        entityId: paymentEntity.id,
+        userId,
+        payload: {
+          strategyId,
+          errorCode: paymentEntity.error_code,
+          amount: paymentEntity.amount,
+        },
+        idempotencyKey: `payment-failed:${paymentEntity.id}`,
+      });
     }
 
     if (eventType === 'refund.created' && refundEntity?.notes?.userId) {
@@ -199,7 +541,10 @@ export class PaymentsService {
       );
     }
 
-    if (eventType === 'subscription.cancelled' && subscriptionEntity?.notes?.userId) {
+    if (
+      eventType === 'subscription.cancelled' &&
+      subscriptionEntity?.notes?.userId
+    ) {
       const userId = subscriptionEntity.notes.userId;
       const strategyId = subscriptionEntity.notes.strategyId;
       if (strategyId) {
@@ -208,6 +553,14 @@ export class PaymentsService {
           data: { status: 'CANCELLED', cancelledAt: new Date() },
         });
       }
+      void this.agentEvents.emit({
+        type: AGENT_EVENTS.SUBSCRIPTION_CANCELLED,
+        entityType: 'subscription',
+        entityId: subscriptionEntity.id ?? userId,
+        userId,
+        payload: { strategyId },
+        idempotencyKey: `sub-cancel:${subscriptionEntity.id ?? userId}`,
+      });
     }
 
     return { ok: true };
@@ -253,6 +606,24 @@ export class PaymentsService {
     const creatorShare = paidAmount * (listing.creatorSharePct ?? 0.8);
     const platformShare = Math.max(0, paidAmount - creatorShare);
 
+    const followerBroker = await this.prisma.brokerAccount.findFirst({
+      where: {
+        userId,
+        isActive: true,
+        isPaperTrading: false,
+        brokerName: { in: ['MT4', 'MT5'] },
+      },
+      orderBy: [{ isDefault: 'desc' }, { connectedAt: 'desc' }],
+      select: { id: true },
+    });
+
+    const paymentReference =
+      typeof stripeObject.subscription === 'string'
+        ? stripeObject.subscription
+        : typeof stripeObject.id === 'string'
+          ? stripeObject.id
+          : null;
+
     await this.prisma.$transaction(async (tx) => {
       await tx.userStrategySubscription.upsert({
         where: { userId_strategyId: { userId, strategyId } },
@@ -261,22 +632,20 @@ export class PaymentsService {
           strategyId,
           status: 'ACTIVE',
           planType,
-          stripeSubId:
-            typeof stripeObject.subscription === 'string'
-              ? stripeObject.subscription
-              : null,
+          stripeSubId: paymentReference,
+          brokerAccountId: followerBroker?.id ?? null,
           subscribedAt: new Date(),
           expiresAt,
+          trialEndsAt: null,
         },
         update: {
           status: 'ACTIVE',
           planType,
-          stripeSubId:
-            typeof stripeObject.subscription === 'string'
-              ? stripeObject.subscription
-              : undefined,
+          stripeSubId: paymentReference ?? undefined,
+          brokerAccountId: followerBroker?.id ?? undefined,
           subscribedAt: new Date(),
           expiresAt,
+          trialEndsAt: null,
         },
       });
 
@@ -342,6 +711,14 @@ export class PaymentsService {
       planType,
       activatedAt: new Date().toISOString(),
     });
+
+    const subscription = await this.prisma.userStrategySubscription.findUnique({
+      where: { userId_strategyId: { userId, strategyId } },
+      select: { id: true },
+    });
+    if (subscription) {
+      await this.copyFactorySync.enqueueLinkSubscription(subscription.id);
+    }
   }
 
   private getPeriodEndDate(stripeObject: any): Date | null {
@@ -616,6 +993,160 @@ export class PaymentsService {
         ],
       },
     });
+  }
+
+  async getSubscriptionPlans() {
+    const plans = await this.prisma.subscriptionPlan.findMany({
+      orderBy: { monthlyPrice: 'asc' },
+    });
+    if (plans.length > 0) return plans;
+    return PLATFORM_PLANS.filter((p) => p.monthlyPrice >= 0).map((p) => ({
+      id: p.slug,
+      name: p.name,
+      description: p.description,
+      monthlyPrice: p.monthlyPrice,
+      annualPrice: p.annualPrice,
+      features: p.features,
+      maxStrategies: p.maxStrategies,
+      maxCopyTrades: p.maxCopyTrades,
+      prioritySupport: p.prioritySupport,
+    }));
+  }
+
+  async getCurrentSubscription(userId: string) {
+    return this.prisma.userSubscription.findFirst({
+      where: { userId, status: 'ACTIVE' },
+      include: { plan: true },
+      orderBy: { subscribedAt: 'desc' },
+    });
+  }
+
+  async createPlatformPlanOrder(
+    userId: string,
+    planId: string,
+    billingCycle: 'MONTHLY' | 'ANNUAL' = 'MONTHLY',
+  ) {
+    const plan = await this.prisma.subscriptionPlan.findFirst({
+      where: { OR: [{ id: planId }, { name: planId }] },
+    });
+    if (!plan || plan.monthlyPrice <= 0) {
+      throw new BadRequestException('Invalid subscription plan');
+    }
+
+    const amountRupees =
+      billingCycle === 'ANNUAL'
+        ? (plan.annualPrice ?? plan.monthlyPrice * 12)
+        : plan.monthlyPrice;
+    const amountPaise = Math.round(amountRupees * 100);
+
+    return this.createRazorpayOrder(
+      userId,
+      amountPaise,
+      'INR',
+      `sub_${plan.id.slice(0, 8)}`,
+      {
+        type: 'platform_subscription',
+        planId: plan.id,
+        billingCycle,
+      },
+    );
+  }
+
+  private tierFromPlanName(name: string): SubscriptionTier {
+    const slug = name.toLowerCase();
+    if (slug.includes('enterprise') || slug.includes('business')) {
+      return 'INSTITUTIONAL';
+    }
+    if (slug.includes('pro')) return 'ELITE';
+    if (slug.includes('starter')) return 'PRO';
+    return 'FREE';
+  }
+
+  private async activatePlatformSubscriptionFromPayment(
+    userId: string,
+    planId: string,
+    billingCycle: string,
+    paymentRef: string,
+    amount: number,
+  ) {
+    const plan = await this.prisma.subscriptionPlan.findUnique({
+      where: { id: planId },
+    });
+    if (!plan) return;
+
+    const priorActive = await this.prisma.userSubscription.findMany({
+      where: { userId, status: 'ACTIVE' },
+      include: { plan: true },
+    });
+    const isUpgrade = priorActive.some(
+      (s) => s.planId !== planId && s.plan.monthlyPrice < plan.monthlyPrice,
+    );
+
+    const payment = await this.prisma.payment.create({
+      data: {
+        userId,
+        amount,
+        currency: 'INR',
+        method: 'UPI',
+        status: 'COMPLETED',
+        description: `${plan.name} subscription (${billingCycle})`,
+        razorpayPaymentId: paymentRef,
+      },
+    });
+
+    const expiresAt = new Date();
+    if (billingCycle === 'ANNUAL') {
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+    } else {
+      expiresAt.setMonth(expiresAt.getMonth() + 1);
+    }
+
+    await this.prisma.userSubscription.upsert({
+      where: { userId_planId: { userId, planId } },
+      create: {
+        userId,
+        planId,
+        paymentId: payment.id,
+        status: 'ACTIVE',
+        billingCycle,
+        expiresAt,
+        nextBillingAt: expiresAt,
+      },
+      update: {
+        paymentId: payment.id,
+        status: 'ACTIVE',
+        billingCycle,
+        expiresAt,
+        nextBillingAt: expiresAt,
+        cancelledAt: null,
+      },
+    });
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { subscriptionTier: this.tierFromPlanName(plan.name) },
+    });
+
+    await this.notifications.create(
+      userId,
+      'Subscription Active',
+      `Your ${plan.name} plan is now active.`,
+      'SUCCESS',
+      '/settings/billing',
+    );
+
+    await this.affiliatesService.calculateCommission(userId, amount);
+
+    if (isUpgrade) {
+      void this.agentEvents.emit({
+        type: AGENT_EVENTS.SUBSCRIPTION_UPGRADED,
+        entityType: 'subscription',
+        entityId: planId,
+        userId,
+        payload: { planName: plan.name, amount },
+        idempotencyKey: `sub-upgrade:${userId}:${planId}:${paymentRef}`,
+      });
+    }
   }
 
   async createSubscription(userId: string, planId: string, paymentId?: string) {

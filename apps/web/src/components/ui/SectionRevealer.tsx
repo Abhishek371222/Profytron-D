@@ -1,57 +1,55 @@
 "use client";
 
-import React, { useEffect, useRef } from"react";
+import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 interface SectionRevealerProps {
- children: React.ReactNode;
- className?: string;
- delay?: number;
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  /** Slight horizontal slide direction for variety */
+  direction?: "up" | "left" | "right";
 }
 
-// Pure CSS + IntersectionObserver — no GSAP needed for a simple y:10→0 reveal.
-// This removes the ScrollTrigger dependency from every section bundle.
+const ease = [0.22, 1, 0.36, 1] as const;
+
 export function SectionRevealer({
- children,
- className ="",
- delay = 0,
+  children,
+  className = "",
+  delay = 0,
+  direction = "up",
 }: SectionRevealerProps) {
- const sectionRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
 
- useEffect(() => {
- const element = sectionRef.current;
- if (!element) return;
+  const hidden = {
+    up: { opacity: 0, y: 40 },
+    left: { opacity: 0, x: -32, y: 40 },
+    right: { opacity: 0, x: 32, y: 40 },
+  }[direction];
 
- const observer = new IntersectionObserver(
- ([entry]) => {
- if (entry.isIntersecting) {
- // Apply the reveal after the optional delay
- const timer = setTimeout(() => {
- element.style.opacity ="1";
- element.style.transform ="translateY(0) scale(1)";
- }, delay * 1000);
- observer.unobserve(element);
- return () => clearTimeout(timer);
- }
- },
- { threshold: 0.05, rootMargin:"0px 0px -5% 0px" }
- );
+  const visible = {
+    up: { opacity: 1, y: 0 },
+    left: { opacity: 1, x: 0, y: 0 },
+    right: { opacity: 1, x: 0, y: 0 },
+  }[direction];
 
- observer.observe(element);
- return () => observer.disconnect();
- }, [delay]);
+  if (reduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
 
- return (
- <div
- ref={sectionRef}
- className={className}
- style={{
- opacity: 0,
- transform:"translateY(10px) scale(0.99)",
- transition: `opacity 0.4s ease-out ${delay * 1000}ms, transform 0.4s ease-out ${delay * 1000}ms`,
- willChange:"opacity, transform",
- }}
- >
- {children}
- </div>
- );
+  return (
+    <motion.div
+      className={`relative ${className}`}
+      initial={hidden}
+      whileInView={visible}
+      viewport={{ once: true, amount: 0.05, margin: "0px 0px -5% 0px" }}
+      transition={{
+        duration: 0.5,
+        delay,
+        ease,
+      }}
+    >
+      {children}
+    </motion.div>
+  );
 }

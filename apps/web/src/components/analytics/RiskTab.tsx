@@ -25,12 +25,12 @@ const drawdownData = [
 ];
 
 const riskMetrics = [
- { label: 'VaR 95%', val: '$8,240', sub: 'DAILY VALUE AT RISK', icon: Shield , color : 'text-indigo-400', bg: 'bg-indigo-500/10', border: 'border-indigo-500/20' },
- { label: 'Max Consec Losses', val: '4', sub: 'HISTORICAL PEAK', icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+ { label: 'VaR 95%', val: '$8,240', sub: 'DAILY VALUE AT RISK', icon: Shield , color : 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20' },
+ { label: 'Max Consec Losses', val: '4', sub: 'HISTORICAL PEAK', icon: AlertTriangle, color: 'text-chart-4', bg: 'bg-chart-4/10', border: 'border-chart-4/20' },
  { label: 'Largest Loss', val: '-$3,120', sub: 'NOV 12 LIQUIDITY EVENT', icon: TrendingDown, color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
- { label: 'Best Single Win', val: '+$5,840', sub: 'DEC 05 VOL BREAKOUT', icon: ShieldCheck, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
- { label: 'Avg Risk/Reward', val: '1 : 2.4', sub: 'EXPECTED UTILITY SCORE', icon: Gauge, color: 'text-p', bg: 'bg-p/10', border: 'border-p/20' },
- { label: 'Calmar Ratio', val: '1.45', sub: 'EFFICIENCY MULTIPLIER', icon: Activity, color: 'text-cyan-400', bg: 'bg-cyan-500/10', border: 'border-cyan-500/20' },
+ { label: 'Best Single Win', val: '+$5,840', sub: 'DEC 05 VOL BREAKOUT', icon: ShieldCheck, color: 'text-chart-3', bg: 'bg-chart-3/10', border: 'border-chart-3/20' },
+ { label: 'Avg Risk/Reward', val: '1 : 2.4', sub: 'EXPECTED UTILITY SCORE', icon: Gauge, color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20' },
+ { label: 'Calmar Ratio', val: '1.45', sub: 'EFFICIENCY MULTIPLIER', icon: Activity, color: 'text-chart-5', bg: 'bg-chart-5/10', border: 'border-chart-5/20' },
 ];
 
 const riskZones = [
@@ -49,18 +49,18 @@ const itemVariants = {
  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = React.memo(function CustomTooltip({ active, payload, label }: any) {
  if (active && payload?.[0]) {
  const v = payload[0].value as number;
  return (
  <div className="bg-[#0a0a0f]/95 border-2 border-red-500/20 rounded-[20px] p-5 shadow-[0_30px_60px_rgba(239,68,68,0.2)] backdrop-blur-3xl">
  <p className="text-xs font-semibold text-red-500/40 uppercase tracking-[0.4em] mb-2">{label}</p>
- <p className="text-xl font-semibold text-red-500">{v.toFixed(2)}% <span className="text-xs text-white/20 ml-2 font-normal uppercase tracking-wider">drawdown</span></p>
+ <p className="text-xl font-semibold text-red-500">{v.toFixed(2)}% <span className="text-xs text-foreground/20 ml-2 font-normal uppercase tracking-wider">drawdown</span></p>
  </div>
  );
  }
  return null;
-};
+});
 
 export default function RiskTab() {
  return (
@@ -74,16 +74,16 @@ export default function RiskTab() {
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
  {/* VaR Gauge */}
  <motion.div variants={itemVariants}>
- <Card className="p-10 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center h-full relative overflow-hidden group rounded-[40px]">
- <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-amber-500/60 to-transparent" />
+ <Card className="p-10 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center h-full relative overflow-hidden group rounded-[40px]">
+ <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-chart-4/60 to-transparent" />
  <div className="w-full space-y-3 mb-10 relative z-10">
  <div className="flex items-center gap-4">
- <div className="w-10 h-10 rounded-[14px] bg-amber-500/10 border-2 border-amber-500/20 flex items-center justify-center">
- <Gauge className="w-5 h-5 text-amber-500" />
+ <div className="w-10 h-10 rounded-[14px] bg-chart-4/10 border-2 border-chart-4/20 flex items-center justify-center">
+ <Gauge className="w-5 h-5 text-chart-4" />
  </div>
- <h4 className="text-lg font-semibold text-white uppercase tracking-tight">Risk_Neural_Dial</h4>
+ <h4 className="text-lg font-semibold text-foreground uppercase tracking-tight">Risk_Neural_Dial</h4>
  </div>
- <p className="text-xs text-white/20 font-semibold uppercase tracking-[0.3em] leading-relaxed">95% Confidence Interval — Daily VaR Probe</p>
+ <p className="text-xs text-foreground/20 font-semibold uppercase tracking-[0.3em] leading-relaxed">95% Confidence Interval — Daily VaR Probe</p>
  </div>
 
  {/* SVG Gauge */}
@@ -128,18 +128,18 @@ export default function RiskTab() {
  style={{ originX: '50%', originY: '100%' }}
  className="absolute bottom-0 left-1/2 -ml-0.5 w-1 h-28 z-20"
  >
- <div className="h-full bg-linear-to-t from-white via-amber-400 to-transparent rounded-full shadow-[0_0_16px_rgba(245,158,11,0.6)]" />
- <div className="w-6 h-6 rounded-full bg-black border-4 border-amber-500 absolute -bottom-3 -left-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center justify-center">
- <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+ <div className="h-full bg-linear-to-t from-white via-chart-4 to-transparent rounded-full shadow-[0_0_16px_rgba(245,158,11,0.6)]" />
+ <div className="w-6 h-6 rounded-full bg-black border-4 border-chart-4 absolute -bottom-3 -left-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center justify-center">
+ <div className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
  </div>
  </motion.div>
  </div>
 
  <div className="text-center mt-8 space-y-4 relative z-10 w-full">
- <h2 className="text-5xl font-semibold text-white tracking-tight">$8,240</h2>
- <p className="text-xs font-semibold text-white/20 uppercase tracking-[0.4em]">MAX_LTM_EXPOSURE</p>
- <div className="px-6 py-3 rounded-[20px] bg-amber-500/10 border border-amber-500/20 w-fit mx-auto">
- <span className="text-xs font-semibold text-amber-500 uppercase tracking-[0.3em]">BUFFER: 85%_ACTIVE</span>
+ <h2 className="text-5xl font-semibold text-foreground tracking-tight">$8,240</h2>
+ <p className="text-xs font-semibold text-foreground/20 uppercase tracking-[0.4em]">MAX_LTM_EXPOSURE</p>
+ <div className="px-6 py-3 rounded-[20px] bg-chart-4/10 border border-chart-4/20 w-fit mx-auto">
+ <span className="text-xs font-semibold text-chart-4 uppercase tracking-[0.3em]">BUFFER: 85%_ACTIVE</span>
  </div>
 
  {/* Mini risk zone bars */}
@@ -148,9 +148,9 @@ export default function RiskTab() {
  <div key={z.label} className="space-y-1">
  <div className="flex items-center justify-between">
  <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: z.color }}>{z.label}</span>
- <span className="text-xs font-semibold text-white/20">{z.pct}%</span>
+ <span className="text-xs font-semibold text-foreground/20">{z.pct}%</span>
  </div>
- <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+ <div className="h-1 bg-foreground/5 rounded-full overflow-hidden">
  <motion.div
  initial={{ width: 0 }}
  animate={{ width: `${z.pct}%` }}
@@ -168,7 +168,7 @@ export default function RiskTab() {
 
  {/* Losing period Chart */}
  <motion.div variants={itemVariants} className="lg:col-span-2">
- <Card className="p-10 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[40px]">
+ <Card className="p-10 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[40px]">
  <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-red-500/50 to-transparent" />
  <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-8 relative z-10">
  <div className="space-y-3">
@@ -176,9 +176,9 @@ export default function RiskTab() {
  <div className="w-10 h-10 rounded-[14px] bg-red-500/10 border-2 border-red-500/20 flex items-center justify-center">
  <Shield className="w-5 h-5 text-red-400" />
  </div>
- <h4 className="text-xl font-semibold text-white uppercase tracking-tight">Stress_Profile_Lattice</h4>
+ <h4 className="text-xl font-semibold text-foreground uppercase tracking-tight">Stress_Profile_Lattice</h4>
  </div>
- <p className="text-xs text-white/20 font-semibold uppercase tracking-[0.3em] leading-relaxed max-w-md">
+ <p className="text-xs text-foreground/20 font-semibold uppercase tracking-[0.3em] leading-relaxed max-w-md">
  Underwater analytics relative to High-Water Mark. Visualizing drawdown recovery velocity.
  </p>
  </div>
@@ -210,12 +210,12 @@ export default function RiskTab() {
  </ResponsiveContainer>
  </div>
 
- <div className="mt-6 flex items-center gap-5 bg-white/2 p-5 rounded-3xl border border-white/5 relative z-10">
- <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
- <Info className="w-5 h-5 text-white/20 animate-pulse" />
+ <div className="mt-6 flex items-center gap-5 bg-foreground/2 p-5 rounded-3xl border border-border relative z-10">
+ <div className="w-10 h-10 rounded-xl bg-foreground/5 border border-border flex items-center justify-center shrink-0">
+ <Info className="w-5 h-5 text-foreground/20 animate-pulse" />
  </div>
- <p className="text-sm text-white/30 font-semibold uppercase tracking-[0.3em] leading-relaxed">
- Recovery buffer estimated at <span className="text-white">12.4_TRADING_EPOCHS</span> based on current volatility regime indices.
+ <p className="text-sm text-foreground/30 font-semibold uppercase tracking-[0.3em] leading-relaxed">
+ Recovery buffer estimated at <span className="text-foreground">12.4_TRADING_EPOCHS</span> based on current volatility regime indices.
  </p>
  </div>
  </Card>
@@ -226,16 +226,16 @@ export default function RiskTab() {
  <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
  {riskMetrics.map((m, i) => (
  <motion.div key={i} variants={itemVariants}>
- <Card className="p-8 border-2 border-white/5 bg-black/40 backdrop-blur-3xl hover:border-white/20 transition-all duration-700 overflow-hidden relative group h-full rounded-4xl shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
+ <Card className="p-8 border-2 border-border bg-black/40 backdrop-blur-3xl hover:border-border transition-all duration-700 overflow-hidden relative group h-full rounded-4xl shadow-[0_30px_60px_rgba(0,0,0,0.5)]">
  <div className={cn('absolute top-0 left-0 w-full h-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-700', m.bg.replace('bg-', 'bg-').replace('/10', '/60'))} />
  <div className="flex items-center gap-6 relative z-10">
  <div className={cn('w-14 h-14 rounded-[18px] flex items-center justify-center border-2 group-hover:rotate-12 group-hover:scale-110 transition-all duration-700 shrink-0', m.bg, m.border)}>
  <m.icon className={cn('w-7 h-7', m.color, 'drop-shadow-[0_0_8px_currentColor]')} />
  </div>
  <div className="min-w-0">
- <p className="text-xs font-semibold text-white/30 uppercase tracking-[0.3em]">{m.label}</p>
- <h4 className="text-2xl font-semibold text-white tracking-tight mt-1">{m.val}</h4>
- <p className="text-xs text-white/10 font-semibold uppercase tracking-[0.2em] mt-1 truncate">{m.sub}</p>
+ <p className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.3em]">{m.label}</p>
+ <h4 className="text-2xl font-semibold text-foreground tracking-tight mt-1">{m.val}</h4>
+ <p className="text-xs text-foreground/10 font-semibold uppercase tracking-[0.2em] mt-1 truncate">{m.sub}</p>
  </div>
  </div>
  </Card>
@@ -245,15 +245,15 @@ export default function RiskTab() {
 
  {/* ── Scenario Stress Tests ── */}
  <motion.div variants={itemVariants}>
- <Card className="p-10 border-2 border-white/5 bg-black/40 backdrop-blur-3xl shadow-[0_40px_80px_rgba(0,0,0,0.6)] relative overflow-hidden group rounded-[40px]">
+ <Card className="p-10 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_40px_80px_rgba(0,0,0,0.6)] relative overflow-hidden group rounded-[40px]">
  <div className="mb-8 relative z-10">
  <div className="flex items-center gap-4">
- <div className="w-10 h-10 rounded-[14px] bg-p/10 border-2 border-p/20 flex items-center justify-center">
- <Zap className="w-5 h-5 text-p animate-pulse" />
+ <div className="w-10 h-10 rounded-[14px] bg-primary/10 border-2 border-primary/20 flex items-center justify-center">
+ <Zap className="w-5 h-5 text-primary animate-pulse" />
  </div>
- <h4 className="text-lg font-semibold text-white uppercase tracking-tight">Scenario_Stress_Matrix</h4>
+ <h4 className="text-lg font-semibold text-foreground uppercase tracking-tight">Scenario_Stress_Matrix</h4>
  </div>
- <p className="text-xs text-white/20 font-semibold uppercase tracking-[0.3em] mt-3">Simulated portfolio impact under historical stress regimes</p>
+ <p className="text-xs text-foreground/20 font-semibold uppercase tracking-[0.3em] mt-3">Simulated portfolio impact under historical stress regimes</p>
  </div>
  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-10">
  {[
@@ -265,18 +265,18 @@ export default function RiskTab() {
  <div key={i} className={cn(
  'p-6 rounded-3xl border-2 relative overflow-hidden',
  s.color === 'red' ? 'bg-red-500/4 border-red-500/10' :
- s.color === 'amber' ? 'bg-amber-500/4 border-amber-500/10' :
- 'bg-emerald-500/4 border-emerald-500/10'
+ s.color === 'amber' ? 'bg-chart-4/4 border-chart-4/10' :
+ 'bg-chart-3/4 border-chart-3/10'
  )}>
- <p className="text-xs font-semibold text-white/30 uppercase tracking-[0.3em] leading-relaxed">{s.scenario}</p>
+ <p className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.3em] leading-relaxed">{s.scenario}</p>
  <p className={cn('text-2xl font-semibold tracking-tight mt-3',
- s.impact.startsWith('+') ? 'text-emerald-400' : 'text-red-400'
+ s.impact.startsWith('+') ? 'text-chart-3' : 'text-red-400'
  )}>{s.impact}</p>
  <span className={cn(
  'text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border mt-2 inline-block',
- s.color === 'emerald' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' :
+ s.color === 'emerald' ? 'text-chart-3 bg-chart-3/10 border-chart-3/20' :
  s.color === 'red' ? 'text-red-400 bg-red-500/10 border-red-500/20' :
- 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+ 'text-chart-4 bg-chart-4/10 border-chart-4/20'
  )}>
  {s.prob}_PROB
  </span>

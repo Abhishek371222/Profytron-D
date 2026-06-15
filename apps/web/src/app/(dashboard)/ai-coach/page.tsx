@@ -18,7 +18,11 @@ import {
   Target,
   ChevronRight,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  DashboardPage,
+  DashboardBreadcrumbs,
+  DashButton,
+} from '@/components/dashboard/DashboardPrimitives';
 import { Magnetic } from '@/components/ui/Interactions';
 import { aiApi, type CoachingReport } from '@/lib/api/ai';
 import { toast } from 'sonner';
@@ -31,10 +35,10 @@ const INSIGHTS = [
     title: 'Strong Discipline',
     body: 'Risk management validated. 14 consecutive sessions with discipline maintained.',
     stat: '+14 streak',
-    color: 'text-emerald-400',
-    border: 'border-emerald-500/20',
-    bg: 'bg-emerald-500/[0.04]',
-    iconBg: 'bg-emerald-400/10 border-emerald-400/25',
+    color: 'text-chart-3',
+    border: 'border-chart-3/20',
+    bg: 'bg-chart-3/[0.04]',
+    iconBg: 'bg-chart-3/10 border-chart-3/25',
     glow: 'rgba(52,211,153,0.15)',
   },
   {
@@ -45,10 +49,10 @@ const INSIGHTS = [
     body: 'Trade size deviates from plan. 4 tactical overrides post-drawdown detected.',
     tip: 'Stick to your framework for 14 days.',
     stat: '4 overrides',
-    color: 'text-amber-400',
-    border: 'border-amber-500/20',
-    bg: 'bg-amber-500/[0.04]',
-    iconBg: 'bg-amber-400/10 border-amber-400/25',
+    color: 'text-chart-4',
+    border: 'border-chart-4/20',
+    bg: 'bg-chart-4/[0.04]',
+    iconBg: 'bg-chart-4/10 border-chart-4/25',
     glow: 'rgba(251,191,36,0.12)',
   },
   {
@@ -58,10 +62,10 @@ const INSIGHTS = [
     title: 'Emotional Pressure',
     body: '23 manual overrides detected. Psychological fatigue elevated.',
     stat: '↑ High risk',
-    color: 'text-rose-400',
-    border: 'border-rose-500/20',
-    bg: 'bg-rose-500/[0.04]',
-    iconBg: 'bg-rose-400/10 border-rose-400/25',
+    color: 'text-destructive',
+    border: 'border-destructive/20',
+    bg: 'bg-destructive/[0.04]',
+    iconBg: 'bg-destructive/10 border-destructive/25',
     glow: 'rgba(248,113,113,0.12)',
   },
   {
@@ -71,10 +75,10 @@ const INSIGHTS = [
     title: 'Peak Window',
     body: 'Best performance (84% win rate) between 10:00–12:00 IST.',
     stat: '84% win rate',
-    color: 'text-cyan-400',
-    border: 'border-cyan-500/20',
-    bg: 'bg-cyan-500/[0.04]',
-    iconBg: 'bg-cyan-400/10 border-cyan-400/25',
+    color: 'text-chart-5',
+    border: 'border-chart-5/20',
+    bg: 'bg-chart-5/[0.04]',
+    iconBg: 'bg-chart-5/10 border-chart-5/25',
     glow: 'rgba(34,211,238,0.12)',
   },
 ];
@@ -93,7 +97,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: '1',
     role: 'ai',
-    text: "All set. Portfolio metrics: +$3,240 today. MomentumPro v4 showing high statistical resonance. Want me to analyze this further?",
+    text: "You're all set. Portfolio is up $3,240 today. MomentumPro v4 is performing well. Want me to dig into anything?",
   },
 ];
 
@@ -140,61 +144,57 @@ export default function AICoachPage() {
   }, []);
 
   return (
-    <div className="flex h-[calc(100vh-80px)] gap-4 overflow-hidden">
+    <DashboardPage className="!gap-4">
+      <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'AI Coach' }]} />
+
+    <div className="flex h-[calc(100vh-140px)] gap-4 overflow-hidden min-h-[520px]">
       {/* ── LEFT PANEL ── */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-        className="hidden xl:flex w-[320px] shrink-0 flex-col gap-3 overflow-hidden"
+        className="hidden xl:flex w-[320px] shrink-0 flex-col gap-3 overflow-hidden min-h-0"
       >
         {/* Header card */}
-        <div className="relative rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 overflow-hidden group">
+        <div className="relative rounded-2xl border border-[var(--card-border)] bg-card p-5 overflow-hidden">
           {/* Top hairline */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-chart-5/40 to-transparent" />
           {/* Ambient glow */}
-          <div className="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full bg-cyan-500/[0.08] blur-2xl" />
+          <div className="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full bg-chart-5/[0.08] blur-2xl" />
 
           <div className="relative flex items-center gap-2 mb-3">
-            <motion.div
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-cyan-400"
-              style={{ boxShadow: '0 0 6px #22d3ee' }}
-            />
-            <span className="text-[9px] font-bold text-white/30 uppercase tracking-[0.4em]">Profytron AI v4.2</span>
+            <div className="w-1.5 h-1.5 rounded-full bg-chart-5" />
+            <span className="text-xs font-semibold text-muted-foreground">Trading insights</span>
           </div>
 
           <div className="relative flex items-center gap-3 mb-3">
-            <div className="relative w-10 h-10 rounded-[14px] bg-gradient-to-tr from-indigo-500 via-violet-500 to-cyan-500 p-[1.5px] shrink-0">
-              <div className="w-full h-full rounded-[12px] bg-[#0a0a10] flex items-center justify-center">
-                <Brain className="w-5 h-5 text-indigo-300" />
-              </div>
+            <div className="relative w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Brain className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-[15px] font-bold text-white tracking-tight">AI Trading Coach</h1>
-              <p className="text-[10px] text-white/35 mt-0.5">Insights · Safety · Performance</p>
+              <h1 className="text-base font-bold text-foreground tracking-tight">AI Trading Coach</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Insights · Safety · Performance</p>
             </div>
           </div>
 
           {report && (
-            <div className="flex items-center gap-4 pt-3 border-t border-white/[0.06]">
+            <div className="flex items-center gap-4 pt-3 border-t border-[var(--card-border)]">
               <div className="flex flex-col">
-                <span className="text-[9px] text-white/20 uppercase tracking-widest font-bold">Win Rate</span>
-                <span className="text-sm font-bold text-emerald-400 mt-0.5">{report.winRate}%</span>
+                <span className="text-xs font-medium text-muted-foreground">Win Rate</span>
+                <span className="text-base font-bold text-chart-3 mt-0.5">{report.winRate}%</span>
               </div>
-              <div className="w-px h-8 bg-white/[0.06]" />
+              <div className="w-px h-8 bg-muted/6" />
               <div className="flex flex-col">
-                <span className="text-[9px] text-white/20 uppercase tracking-widest font-bold">Avg PnL</span>
-                <span className="text-sm font-bold text-cyan-400 mt-0.5">{report.avgPnl}</span>
+                <span className="text-xs font-medium text-muted-foreground">Avg PnL</span>
+                <span className="text-base font-bold text-chart-5 mt-0.5">{report.avgPnl}</span>
               </div>
             </div>
           )}
         </div>
 
-        {/* Insights */}
-        <div className="flex-1 overflow-y-auto space-y-2 no-scrollbar">
-          {INSIGHTS.map((insight, idx) => {
+        {/* Insights — fixed height, no inner scroll */}
+        <div className="flex-1 min-h-0 space-y-2">
+          {INSIGHTS.slice(0, 3).map((insight, idx) => {
             const Icon = insight.icon;
             return (
               <motion.div
@@ -225,18 +225,18 @@ export default function AICoachPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <p className={cn('text-[10px] font-bold uppercase tracking-widest', insight.color)}>
+                      <p className={cn('text-sm font-semibold', insight.color)}>
                         {insight.title}
                       </p>
-                      <span className={cn('text-[9px] font-bold px-1.5 py-0.5 rounded-md shrink-0', insight.bg, insight.color)}>
+                      <span className={cn('text-xs font-semibold px-2 py-0.5 rounded-md shrink-0', insight.bg, insight.color)}>
                         {insight.stat}
                       </span>
                     </div>
-                    <p className="text-[11px] text-white/50 leading-relaxed">{insight.body}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{insight.body}</p>
                     {insight.tip && (
-                      <div className="mt-2 flex items-start gap-1.5 rounded-xl border border-amber-400/15 bg-amber-400/5 px-2.5 py-2">
-                        <Sparkles className="w-3 h-3 text-amber-400 shrink-0 mt-0.5" />
-                        <p className="text-[10px] text-amber-300/60 leading-relaxed">{insight.tip}</p>
+                      <div className="mt-2 flex items-start gap-1.5 rounded-xl border border-chart-4/15 bg-chart-4/5 px-2.5 py-2">
+                        <Sparkles className="w-3.5 h-3.5 text-chart-4 shrink-0 mt-0.5" />
+                        <p className="text-xs text-chart-4 leading-relaxed">{insight.tip}</p>
                       </div>
                     )}
                   </div>
@@ -251,14 +251,14 @@ export default function AICoachPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55, duration: 0.5 }}
-          className="relative rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 overflow-hidden"
+          className="relative rounded-2xl border border-[var(--card-border)] bg-card p-5 overflow-hidden"
         >
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
           <div className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/25">Trading Score</p>
-              <p className="text-xl font-bold text-white mt-0.5">78<span className="text-sm text-white/30 font-normal"> / 100</span></p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Trading Score</p>
+              <p className="text-2xl font-bold text-foreground mt-0.5">78<span className="text-sm text-muted-foreground font-normal"> / 100</span></p>
             </div>
             <div className="relative w-14 h-14">
               <svg className="w-full h-full -rotate-90">
@@ -282,25 +282,19 @@ export default function AICoachPage() {
                 </defs>
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[13px] font-bold text-white">78</span>
+                <span className="text-body-sm font-bold text-foreground">78</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 mb-3">
-            <motion.span
-              animate={{ opacity: [0.6, 1, 0.6] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-emerald-400"
-              style={{ boxShadow: '0 0 6px #34d399' }}
-            />
-            <span className="text-[11px] text-emerald-400 font-bold">Good Zone</span>
-            <span className="ml-auto text-[9px] text-white/20 font-mono uppercase tracking-widest">AES-256</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-chart-3" />
+            <span className="text-sm text-chart-3 font-semibold">Good zone</span>
           </div>
 
           <div className="flex items-end gap-1">
             {SCORE_BARS.map((s, i) => (
-              <div key={i} className="flex-1 h-8 bg-white/[0.04] rounded-full relative overflow-hidden">
+              <div key={i} className="flex-1 h-8 bg-muted/4 rounded-full relative overflow-hidden">
                 <motion.div
                   initial={{ height: 0 }}
                   animate={{ height: `${s * 100}%` }}
@@ -319,48 +313,46 @@ export default function AICoachPage() {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-        className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.015]"
+        className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--card-border)] bg-card shadow-sm"
       >
         {/* Chat header */}
-        <div className="relative flex items-center justify-between border-b border-white/[0.06] bg-black/20 px-5 py-4 backdrop-blur-xl shrink-0 overflow-hidden">
+        <div className="relative flex items-center justify-between border-b border-[var(--card-border)] bg-card px-5 py-4 shrink-0">
           {/* Top hairline */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/30 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
           {/* Ambient */}
-          <div className="pointer-events-none absolute -top-8 left-12 w-32 h-16 rounded-full bg-indigo-500/[0.08] blur-2xl" />
+          <div className="pointer-events-none absolute -top-8 left-12 w-32 h-16 rounded-full bg-primary/[0.08] blur-2xl" />
 
           <div className="relative flex items-center gap-4">
             <div className="relative">
-              <div className="w-11 h-11 rounded-[14px] bg-gradient-to-tr from-indigo-500 via-violet-500 to-cyan-500 p-[1.5px]">
-                <div className="w-full h-full rounded-[12px] bg-[#0a0a10] flex items-center justify-center">
-                  <Sparkles className="w-4.5 h-4.5 text-indigo-300" />
-                </div>
+              <div className="w-11 h-11 rounded-[14px] bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <span
-                className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#0a0a10]"
+                className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-chart-3 border-2 border-card"
                 style={{ boxShadow: '0 0 8px rgba(52,211,153,0.7)' }}
               />
             </div>
             <div>
-              <h2 className="text-[14px] font-bold text-white leading-tight">AI Trading Coach</h2>
+              <h2 className="text-base font-bold text-foreground leading-tight">AI Trading Coach</h2>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <motion.span
                   animate={{ opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                  className="w-1.5 h-1.5 rounded-full bg-cyan-400"
+                  className="w-1.5 h-1.5 rounded-full bg-chart-5"
                 />
-                <span className="text-[9px] text-cyan-400 font-bold uppercase tracking-[0.25em]">Claude AI · Live</span>
+                <span className="text-xs text-chart-5 font-semibold">Claude AI · Live</span>
               </div>
             </div>
           </div>
 
           <div className="relative flex items-center gap-3">
             <div className="hidden md:flex flex-col text-right">
-              <span className="text-[9px] text-white/20 uppercase tracking-widest">Model</span>
-              <span className="text-[11px] font-bold text-white/50 font-mono">Claude 4.5</span>
+              <span className="text-xs text-muted-foreground">Model</span>
+              <span className="text-sm font-semibold text-foreground font-mono">Claude 4.5</span>
             </div>
             <button
               onClick={() => router.push('/history')}
-              className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/15 hover:bg-white/[0.06] text-white/35 hover:text-white transition-all flex items-center justify-center"
+              className="w-9 h-9 rounded-xl bg-muted border border-[var(--card-border)] hover:border-border hover:bg-muted/6 text-foreground/35 hover:text-foreground transition-all flex items-center justify-center"
             >
               <History className="w-4 h-4" />
             </button>
@@ -379,17 +371,17 @@ export default function AICoachPage() {
                 className={cn('flex items-start gap-3 max-w-[90%]', msg.role === 'user' && 'ml-auto flex-row-reverse')}
               >
                 {msg.role === 'ai' && (
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500/15 to-violet-500/15 border border-indigo-400/20 flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-chart-2/15 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Sparkles className="w-3.5 h-3.5 text-primary" />
                   </div>
                 )}
 
                 <div
                   className={cn(
-                    'rounded-[18px] px-4 py-3 text-[13px] leading-relaxed font-medium',
+                    'rounded-[18px] px-4 py-3 text-body-sm leading-relaxed font-medium',
                     msg.role === 'ai'
-                      ? 'rounded-tl-md bg-white/[0.04] border border-white/[0.07] text-white/80'
-                      : 'rounded-tr-md bg-gradient-to-br from-indigo-500/25 to-violet-500/20 border border-indigo-400/25 text-white',
+                      ? 'rounded-tl-md bg-muted/4 border border-[var(--card-border)] text-foreground/80'
+                      : 'rounded-tr-md bg-gradient-to-br from-primary/25 to-chart-2/20 border border-primary/25 text-foreground',
                   )}
                   style={msg.role === 'user' ? { boxShadow: '0 4px 20px rgba(99,102,241,0.15)' } : undefined}
                 >
@@ -402,8 +394,8 @@ export default function AICoachPage() {
                             <span
                               key={j}
                               className={cn(
-                                'font-mono font-bold mx-0.5 px-1.5 py-0.5 rounded-lg text-[12px]',
-                                msg.role === 'ai' ? 'text-cyan-400 bg-cyan-400/[0.08]' : 'text-white bg-white/15',
+                                'font-mono font-bold mx-0.5 px-1.5 py-0.5 rounded-lg text-caption',
+                                msg.role === 'ai' ? 'text-chart-5 bg-chart-5/[0.08]' : 'text-foreground bg-foreground/15',
                               )}
                             >
                               {part}
@@ -427,16 +419,16 @@ export default function AICoachPage() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="flex items-center gap-3 max-w-[60%]"
               >
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500/15 to-violet-500/15 border border-indigo-400/20 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/15 to-chart-2/15 border border-primary/20 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
                 </div>
-                <div className="flex items-center gap-1.5 rounded-[18px] rounded-tl-md px-4 py-3 bg-white/[0.04] border border-white/[0.07]">
+                <div className="flex items-center gap-1.5 rounded-[18px] rounded-tl-md px-4 py-3 bg-muted/4 border border-[var(--card-border)]">
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
                       animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }}
                       transition={{ repeat: Infinity, duration: 1.2, delay: i * 0.18 }}
-                      className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+                      className="w-1.5 h-1.5 rounded-full bg-primary"
                     />
                   ))}
                 </div>
@@ -447,7 +439,7 @@ export default function AICoachPage() {
         </div>
 
         {/* Input area */}
-        <div className="border-t border-white/[0.06] bg-black/20 p-4 backdrop-blur-xl shrink-0">
+        <div className="border-t border-[var(--card-border)] bg-muted/30 p-4 shrink-0">
           {/* Quick suggestions */}
           <div className="flex gap-2 mb-3 overflow-x-auto no-scrollbar pb-0.5">
             {SUGGESTIONS.map((s, i) => {
@@ -459,7 +451,7 @@ export default function AICoachPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4 + i * 0.06 }}
                   onClick={() => handleSend(s.label)}
-                  className="flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-white/30 transition-all hover:border-indigo-400/30 hover:text-indigo-300 hover:bg-indigo-400/[0.05] shrink-0"
+                  className="flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-[var(--card-border)] bg-card px-3 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-primary/30 hover:text-primary hover:bg-primary/[0.05] shrink-0"
                 >
                   <Icon className="w-2.5 h-2.5" />
                   {s.label}
@@ -469,35 +461,36 @@ export default function AICoachPage() {
           </div>
 
           {/* Input */}
-          <div className="flex items-center gap-3 rounded-[14px] border border-white/[0.07] bg-white/[0.025] px-4 py-3 focus-within:border-indigo-400/35 focus-within:bg-indigo-400/[0.025] focus-within:shadow-[0_0_24px_rgba(99,102,241,0.10)] transition-all duration-200">
+          <div className="flex items-center gap-3 rounded-[14px] border border-[var(--card-border)] bg-muted/25 px-4 py-3 focus-within:border-primary/35 focus-within:bg-primary/[0.025] focus-within:shadow-[0_0_24px_rgba(99,102,241,0.10)] transition-all duration-200">
             <input
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend(inputValue)}
               placeholder="Ask about your trading performance..."
-              className="flex-1 bg-transparent text-[13px] font-medium text-white placeholder:text-white/20 outline-none"
+              className="flex-1 bg-transparent text-sm font-medium text-foreground placeholder:text-muted-foreground outline-none"
             />
-            <span className="text-[9px] text-white/15 font-mono hidden md:block">{inputValue.length}/500</span>
+            <span className="text-micro text-foreground/15 font-mono hidden md:block">{inputValue.length}/500</span>
             <Magnetic strength={0.2}>
               <motion.button
                 onClick={() => handleSend(inputValue)}
                 disabled={!inputValue.trim()}
                 whileHover={inputValue.trim() ? { scale: 1.05 } : {}}
                 whileTap={inputValue.trim() ? { scale: 0.92 } : {}}
-                className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 disabled:opacity-20 flex items-center justify-center transition-opacity"
+                className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-chart-2 disabled:opacity-20 flex items-center justify-center transition-opacity"
                 style={{ boxShadow: inputValue.trim() ? '0 0 20px rgba(99,102,241,0.5)' : 'none' }}
               >
-                <Send className="w-3.5 h-3.5 text-white" />
+                <Send className="w-3.5 h-3.5 text-foreground" />
               </motion.button>
             </Magnetic>
           </div>
 
-          <p className="text-center mt-2 text-[9px] text-white/12 font-mono uppercase tracking-[0.2em]">
+          <p className="text-center mt-2 text-xs text-muted-foreground">
             Encrypted · AI System v8.42 · Powered by Anthropic
           </p>
         </div>
       </motion.div>
     </div>
+    </DashboardPage>
   );
 }

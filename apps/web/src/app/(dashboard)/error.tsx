@@ -16,14 +16,14 @@ export default function DashboardError({
         <AlertTriangle className="h-8 w-8 text-red-400" />
       </div>
       <div className="space-y-2">
-        <h2 className="text-xl font-semibold text-white">Something went wrong</h2>
-        <p className="max-w-md text-sm text-white/50">
+        <h2 className="text-xl font-semibold text-foreground">Something went wrong</h2>
+        <p className="max-w-md text-sm text-foreground/50">
           {error?.message || 'An unexpected error occurred. Please try again.'}
         </p>
       </div>
       <button
         onClick={reset}
-        className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm text-white/80 transition hover:bg-white/10"
+        className="flex items-center gap-2 rounded-xl border border-border bg-foreground/5 px-5 py-2.5 text-sm text-foreground/80 transition hover:bg-foreground/10"
       >
         <RefreshCw className="h-4 w-4" />
         Try again

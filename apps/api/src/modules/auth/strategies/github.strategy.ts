@@ -7,12 +7,13 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
   constructor() {
     super({
       clientID: process.env.GITHUB_CLIENT_ID || 'missing-github-client-id',
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || 'missing-github-client-secret',
+      clientSecret:
+        process.env.GITHUB_CLIENT_SECRET || 'missing-github-client-secret',
       callbackURL:
         process.env.GITHUB_CALLBACK_URL ||
         `${process.env.API_PUBLIC_URL || 'http://localhost:4000'}/v1/auth/github/callback`,
       scope: ['user:email'],
-    });
+    } as any);
   }
 
   async validate(

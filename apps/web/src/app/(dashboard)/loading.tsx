@@ -3,7 +3,7 @@ import React from 'react';
 function Shimmer({ className }: { className?: string }) {
   return (
     <div
-      className={`relative overflow-hidden bg-white/[0.04] before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/[0.06] before:to-transparent ${className ?? ''}`}
+      className={`relative overflow-hidden bg-muted/4 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/[0.06] before:to-transparent ${className ?? ''}`}
     />
   );
 }
@@ -12,7 +12,7 @@ export default function DashboardLoading() {
   return (
     <div className="space-y-5 pb-10 animate-in fade-in duration-300">
       {/* Header skeleton */}
-      <div className="rounded-[26px] border border-white/[0.06] bg-white/[0.015] p-5 md:p-6">
+      <div className="rounded-[26px] border border-[var(--card-border)] bg-muted/505 p-5 md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <Shimmer className="w-10 h-10 rounded-2xl shrink-0" />
@@ -33,7 +33,7 @@ export default function DashboardLoading() {
       {/* KPI cards skeleton */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-[22px] border border-white/[0.06] bg-white/[0.015] p-5 space-y-3">
+          <div key={i} className="rounded-[22px] border border-[var(--card-border)] bg-muted/505 p-5 space-y-3">
             <div className="flex items-center justify-between">
               <Shimmer className="h-3 w-20 rounded-lg" />
               <Shimmer className="w-8 h-8 rounded-xl" />
@@ -46,20 +46,20 @@ export default function DashboardLoading() {
 
       {/* Chart area skeleton */}
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <div className="rounded-[22px] border border-white/[0.06] bg-white/[0.015] p-5 space-y-4">
+        <div className="rounded-[22px] border border-[var(--card-border)] bg-muted/505 p-5 space-y-4">
           <div className="space-y-1.5">
             <Shimmer className="h-3 w-24 rounded-lg" />
             <Shimmer className="h-5 w-40 rounded-xl" />
           </div>
           <Shimmer className="h-[280px] w-full rounded-xl" />
         </div>
-        <div className="rounded-[22px] border border-white/[0.06] bg-white/[0.015] p-5 space-y-3">
+        <div className="rounded-[22px] border border-[var(--card-border)] bg-muted/505 p-5 space-y-3">
           <div className="space-y-1.5">
             <Shimmer className="h-3 w-24 rounded-lg" />
             <Shimmer className="h-5 w-36 rounded-xl" />
           </div>
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="flex items-center justify-between p-3 rounded-[14px] border border-white/[0.04]">
+            <div key={i} className="flex items-center justify-between p-3 rounded-[14px] border border-[var(--card-border)]">
               <Shimmer className="h-3 w-28 rounded-lg" />
               <Shimmer className="h-4 w-16 rounded-lg" />
             </div>

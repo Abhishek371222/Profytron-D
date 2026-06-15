@@ -104,24 +104,24 @@ export class AiRiskService {
   async monitorRiskPolicies() {
     try {
       const policies = await this.prisma.aiRiskPolicy.findMany({
-      where: {
-        OR: [{ autoStopAfterLoss: true }, { maxDrawdownPct: { not: null } }],
-      },
-    });
+        where: {
+          OR: [{ autoStopAfterLoss: true }, { maxDrawdownPct: { not: null } }],
+        },
+      });
 
-    for (const policy of policies) {
-      const shouldStop = await this.stopTradingIfNeeded(policy.userId);
-      if (shouldStop) {
-        await this.prisma.auditLog.create({
-          data: {
-            eventType: 'RISK_LIMIT_TRIGGERED',
-            userId: policy.userId,
-            detailsJson: { policyId: policy.id },
-            triggeredBy: 'SYSTEM',
-          },
-        });
+      for (const policy of policies) {
+        const shouldStop = await this.stopTradingIfNeeded(policy.userId);
+        if (shouldStop) {
+          await this.prisma.auditLog.create({
+            data: {
+              eventType: 'RISK_LIMIT_TRIGGERED',
+              userId: policy.userId,
+              detailsJson: { policyId: policy.id },
+              triggeredBy: 'SYSTEM',
+            },
+          });
+        }
       }
-    }
     } catch (error) {
       this.logger.warn(
         `Risk policy monitor skipped: ${(error as Error).message}`,
@@ -257,5 +257,66 @@ export class AiRiskService {
       );
       return RISK_METRICS_FALLBACK;
     }
+  }
+
+  async getDashboardRisk(userId: string) {
+    const policy = await this.getRiskPolicy(userId);
+    const dailyCap = policy?.maxDailyLossUsd ?? 10_000;
+    const maxDrawdownPct = policy?.maxDrawdownPct ?? 15;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [todaysClosed, openTrades, score] = await Promise.all([
+      this.prisma.trade.findMany({
+        where: { userId, status: 'CLOSED', closedAt: { gte: today } },
+        select: { profit: true },
+      }),
+      this.prisma.trade.findMany({
+        where: { userId, status: 'OPEN' },
+        select: { profit: true },
+      }),
+      this.computeRiskScore(userId),
+    ]);
+
+    const dailyLoss = todaysClosed
+      .filter((t) => (t.profit ?? 0) < 0)
+      .reduce((sum, t) => sum + Math.abs(t.profit ?? 0), 0);
+
+    const openUnrealized = openTrades.reduce((sum, t) => sum + (t.profit ?? 0), 0);
+    const dailyUsed = Math.max(0, dailyLoss + Math.min(0, openUnrealized) * -1);
+
+    let peakBalance = 10_000;
+    let running = 10_000;
+    let currentDrawdown = 0;
+    const allTrades = await this.prisma.trade.findMany({
+      where: { userId, status: { in: ['OPEN', 'CLOSED'] } },
+      orderBy: { openedAt: 'asc' },
+      select: { profit: true },
+    });
+    for (const t of allTrades) {
+      running += t.profit ?? 0;
+      if (running > peakBalance) peakBalance = running;
+      const dd = peakBalance > 0 ? ((peakBalance - running) / peakBalance) * 100 : 0;
+      currentDrawdown = Math.max(currentDrawdown, dd);
+    }
+
+    const limitPct = Math.min(
+      100,
+      Math.max(
+        (dailyUsed / dailyCap) * 100,
+        (currentDrawdown / maxDrawdownPct) * 100,
+      ),
+    );
+
+    return {
+      riskScore: score,
+      limitPct: Number(limitPct.toFixed(1)),
+      dailyLossUsed: Number(dailyUsed.toFixed(2)),
+      dailyLossCap: dailyCap,
+      drawdownPct: Number(currentDrawdown.toFixed(1)),
+      maxDrawdownPct,
+      openPositions: openTrades.length,
+    };
   }
 }

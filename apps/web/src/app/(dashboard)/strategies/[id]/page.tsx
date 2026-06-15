@@ -1,12 +1,21 @@
 'use client';
 
-import * as React from 'react';
+import React from 'react';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useParams, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ArrowLeft, Activity, Shield, Zap, TrendingUp, 
-  BarChart3, History, Info, Cpu, Globe, Lock,
-  ChevronRight, Share2, Star, AlertTriangle
+import {
+  ArrowLeft,
+  Activity,
+  Zap,
+  TrendingUp,
+  BarChart3,
+  History,
+  Info,
+  ChevronRight,
+  Share2,
+  AlertTriangle,
+  Globe,
+  Lock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { strategiesApi } from '@/lib/api/strategies';
@@ -14,8 +23,20 @@ import { analyticsApi } from '@/lib/api/analytics';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { StrategyActivationModal } from '@/components/strategies/StrategyActivationModal';
+import { StrategiesBreadcrumbs, CATEGORY_COLORS } from '../_components/StrategiesShared';
+
+const CHART_GRID = 'rgba(15,23,42,0.06)';
+const CHART_TICK = { fill: '#94A3B8', fontSize: 10 };
 
 export default function StrategyDetailPage() {
   const { id } = useParams();
@@ -30,74 +51,59 @@ export default function StrategyDetailPage() {
     enabled: !!id,
   });
 
-  const { data: tradeExport, isError: tradeExportError } = useQuery({
+  const { data: tradeExport } = useQuery({
     queryKey: ['strategy-trade-export', id],
     queryFn: () => analyticsApi.getTradeExport('all'),
     enabled: !!id,
   });
 
-  React.useEffect(() => {
-    if (tradeExportError) {
-      toast.error('Live execution feed unavailable', {
-        description: 'Showing fallback trade frames for this strategy.',
-      });
-    }
-  }, [tradeExportError]);
-
-  const equityCurve = strategy?.equityCurve || [];
+  const equityCurve = strategy?.equityCurve ?? [];
   const chartData = React.useMemo(() => {
-    if (chartRange === 'ALL') return equityCurve;
-    const points = chartRange === '1M' ? 30 : chartRange === '3M' ? 90 : 365;
-    return equityCurve.slice(-points);
+    const points = chartRange === '1M' ? 30 : chartRange === '3M' ? 90 : chartRange === '1Y' ? 365 : equityCurve.length;
+    const slice = chartRange === 'ALL' ? equityCurve : equityCurve.slice(-points);
+    return slice.map((p: { date?: string; value?: number; equity?: number }) => ({
+      date: p.date,
+      value: p.value ?? p.equity ?? 0,
+    }));
   }, [chartRange, equityCurve]);
 
-  const strategyName = strategy?.name || '';
-  const strategyRecentTrades = (strategy as unknown as { recentTrades?: unknown[] } | undefined)?.recentTrades;
   const mockTrades = React.useMemo(() => {
-    if (Array.isArray(strategyRecentTrades) && strategyRecentTrades.length > 0) {
-      return strategyRecentTrades;
-    }
-
-    const liveTrades = (tradeExport?.rows || [])
-      .filter((trade) => (trade.strategyName || '') === strategyName)
+    const liveTrades = (tradeExport?.rows ?? [])
+      .filter((t) => (t.strategyName ?? '') === strategy?.name)
       .slice(0, 8)
-      .map((trade) => ({
-        id: trade.id,
-        pair: trade.symbol,
-        side: trade.direction,
-        pnl: Number(trade.profit ?? 0),
-        at: new Date(trade.closedAt ?? trade.openedAt).toISOString().slice(0, 16).replace('T', ' '),
+      .map((t) => ({
+        id: t.id,
+        pair: t.symbol,
+        side: t.direction,
+        pnl: Number(t.profit ?? 0),
+        at: new Date(t.closedAt ?? t.openedAt).toLocaleString(),
       }));
-
-    if (liveTrades.length > 0) {
-      return liveTrades;
-    }
-
-    return [
-      { id: 'TR-001', pair: 'EUR/USD', side: 'LONG', pnl: 142.8, at: '2026-04-10 13:22' },
-      { id: 'TR-002', pair: 'BTC/USDT', side: 'SHORT', pnl: -38.2, at: '2026-04-10 10:47' },
-      { id: 'TR-003', pair: 'SOL/USDT', side: 'LONG', pnl: 74.4, at: '2026-04-09 18:15' },
-      { id: 'TR-004', pair: 'XAU/USD', side: 'SHORT', pnl: 59.1, at: '2026-04-09 14:08' },
-    ];
-  }, [strategyName, strategyRecentTrades, tradeExport?.rows]);
+    return liveTrades.length > 0 ? liveTrades : [];
+  }, [strategy?.name, tradeExport?.rows]);
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-[#030303]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-2 border-p border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-jet-mono text-white/20 uppercase tracking-[0.4em]">Synching Node Data...</span>
+      <div className="space-y-5 pb-8 animate-pulse">
+        <div className="h-3 w-48 bg-muted rounded" />
+        <div className="h-24 bg-muted rounded-2xl" />
+        <div className="grid grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="dashboard-card h-28" />
+          ))}
         </div>
+        <div className="dashboard-card h-[400px]" />
       </div>
     );
   }
 
   if (!strategy) return null;
 
+  const perf = strategy.latestPerformance ?? {};
+  const catStyle = CATEGORY_COLORS[strategy.category] ?? 'bg-primary/10 text-primary border-primary/20';
+
   const handleShare = async () => {
-    const strategyUrl = `${window.location.origin}/strategies/${strategy.id}`;
     try {
-      await navigator.clipboard.writeText(strategyUrl);
+      await navigator.clipboard.writeText(`${window.location.origin}/strategies/${strategy.id}`);
       toast.success('Strategy link copied');
     } catch {
       toast.error('Unable to copy link');
@@ -105,335 +111,308 @@ export default function StrategyDetailPage() {
   };
 
   return (
-    <div className="flex-1 min-h-screen bg-[#030303] text-white p-8 space-y-10 relative overflow-hidden">
-      {/* Background Ambience */}
-      <div className="absolute top-0 right-0 w-[60%] h-[60%] bg-p/5 blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[40%] h-[40%] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
+    <div className="space-y-5 pb-8">
+      <StrategiesBreadcrumbs current={strategy.name} />
 
-      {/* Breadcrumbs & Header */}
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="space-y-4">
-          <button 
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-white/40 hover:text-white transition-colors group"
+          <button
+            type="button"
+            onClick={() => router.push('/strategies')}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
           >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-semibold uppercase tracking-widest">Back to Terminal</span>
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Command Center
           </button>
-          
-          <div className="flex items-center gap-6">
-            <div className="h-20 w-20 rounded-3xl bg-white/3 border border-white/10 flex items-center justify-center shadow-inner relative group overflow-hidden">
-               <div className="absolute inset-0 bg-linear-to-br from-p/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-               <Cpu className="w-10 h-10 text-white/40 relative z-10" />
+          <div className="flex items-start gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
+              <BarChart3 className="h-7 w-7 text-primary" />
             </div>
             <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-4xl font-bold tracking-tight uppercase">{strategy.name}</h1>
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight uppercase">
+                  {strategy.name}
+                </h1>
                 {strategy.isVerified && (
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Verified_Node</div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-chart-3/10 text-chart-3 border border-chart-3/20 uppercase">
+                    Verified
+                  </span>
                 )}
+                <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded border uppercase', catStyle)}>
+                  {strategy.category}
+                </span>
               </div>
-              <div className="flex items-center gap-3 text-white/30 text-xs font-jet-mono uppercase tracking-widest">
-                <span>By {strategy.creator?.fullName}</span>
-                <span className="w-1 h-1 rounded-full bg-white/10" />
-                <span className="text-p">{strategy.category}</span>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                By {strategy.creator?.fullName ?? 'Unknown Creator'}
+              </p>
             </div>
           </div>
         </div>
-
-        <div className="flex items-center gap-4">
-          <Button onClick={handleShare} variant="ghost" className="h-14 w-14 rounded-2xl border border-white/5 bg-white/2 hover:bg-white/5">
-            <Share2 className="w-5 h-5" />
-          </Button>
-          <Button 
-            onClick={() => setIsActivationOpen(true)}
-            className="h-14 px-10 rounded-2xl bg-white text-black font-bold uppercase tracking-widest shadow-[0_0_30px_rgba(255,255,255,0.1)] group transition-all hover:scale-[1.02]"
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="ghost"
+            onClick={handleShare}
+            className="h-10 w-10 rounded-xl border border-[var(--card-border)] bg-card"
           >
-            <span>Initialize Node</span>
-            <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <Share2 className="h-4 w-4" />
+          </Button>
+          <Button
+            onClick={() => setIsActivationOpen(true)}
+            className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[11px] tracking-wide"
+          >
+            Activate
+            <ChevronRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 relative z-10">
-        
-        {/* Left Column: Analytics & Stats */}
-        <div className="xl:col-span-8 space-y-10">
-          
-          {/* Performance HUD */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatBox label="Total Alpha" value={`+${strategy.latestPerformance?.winRate || 0}%`} sub="Across All Periods" icon={<TrendingUp className="text-emerald-400" />} />
-            <StatBox label="Sharpe Ratio" value={strategy.latestPerformance?.sharpeRatio || 0} sub="Risk Adjusted Return" icon={<Zap className="text-p" />} />
-            <StatBox label="Max Drawdown" value={`-${strategy.latestPerformance?.maxDrawdown || 0}%`} sub="Historical Peak-to-Trough" icon={<AlertTriangle className="text-rose-400" />} />
-            <StatBox label="Active Nodes" value={strategy.copiesCount || 0} sub="Network Replications" icon={<Globe className="text-cyan-400" />} />
-          </div>
+      {/* KPI row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="30D Return" value={`+${perf.winRate ?? 0}%`} icon={TrendingUp} iconBg="bg-chart-3/10 text-chart-3" valueClass="text-chart-3" />
+        <StatCard label="Sharpe Ratio" value={perf.sharpeRatio ?? 0} icon={Zap} iconBg="bg-primary/10 text-primary" valueClass="text-primary" />
+        <StatCard label="Max Drawdown" value={`-${perf.maxDrawdown ?? 0}%`} icon={AlertTriangle} iconBg="bg-destructive/10 text-destructive" valueClass="text-destructive" />
+        <StatCard label="Subscribers" value={strategy.copiesCount ?? 0} icon={Globe} iconBg="bg-blue-500/10 text-blue-600" valueClass="text-blue-600" />
+      </div>
 
-          {/* Core Charting Area */}
-          <div className="p-8 rounded-4xl bg-black/40 border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-p/50 to-transparent" />
-            <div className="flex items-center justify-between mb-10">
-              <div className="space-y-1">
-                <h3 className="text-xl font-semibold uppercase tracking-tight">Equity Curve Data</h3>
-                <p className="text-xs text-white/20 font-jet-mono uppercase tracking-[0.2em]">Earnings Performance over 365 Days</p>
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+        <div className="xl:col-span-8 space-y-5">
+          {/* Equity chart */}
+          <div className="dashboard-card p-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Performance</p>
+                <p className="text-base font-bold text-foreground">Equity Curve</p>
               </div>
-              <div className="flex items-center gap-2 p-1 bg-white/3 border border-white/5 rounded-xl">
-                {['1M', '3M', '1Y', 'ALL'].map(range => (
+              <div className="flex gap-1.5">
+                {(['1M', '3M', '1Y', 'ALL'] as const).map((range) => (
                   <button
                     key={range}
-                    onClick={() => setChartRange(range as '1M' | '3M' | '1Y' | 'ALL')}
-                    className={cn("px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all", range === chartRange ? "bg-p text-white" : "text-white/20 hover:text-white/40")}
+                    type="button"
+                    onClick={() => setChartRange(range)}
+                    className={cn(
+                      'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
+                      chartRange === range
+                        ? 'bg-primary/10 text-primary border border-primary/25'
+                        : 'text-muted-foreground hover:text-foreground border border-transparent',
+                    )}
                   >
                     {range}
                   </button>
                 ))}
               </div>
             </div>
-
-            <div className="h-[450px] w-full">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
-                <AreaChart data={chartData}>
+            <div className="h-[360px]">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="colorEquity" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <linearGradient id="strategyEq" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#3B5BFF" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#3B5BFF" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                  <XAxis 
-                    dataKey="date" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10, fontWeight: 600 }}
-                    tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, { month: 'short' })}
+                  <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tick={CHART_TICK}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => new Date(v).toLocaleDateString(undefined, { month: 'short' })}
                   />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10, fontWeight: 600 }}
-                    tickFormatter={(val) => `$${val.toLocaleString()}`}
+                  <YAxis tick={CHART_TICK} axisLine={false} tickLine={false} width={48} tickFormatter={(v) => `$${v}`} />
+                  <Tooltip
+                    content={({ active, payload, label }) =>
+                      active && payload?.length ? (
+                        <div className="rounded-xl border border-[var(--card-border)] bg-card px-3 py-2 shadow-lg">
+                          <p className="text-[10px] text-muted-foreground">{label}</p>
+                          <p className="text-sm font-bold">${Number(payload[0]?.value ?? 0).toLocaleString()}</p>
+                        </div>
+                      ) : null
+                    }
                   />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
-                    itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke="#6366f1" 
-                    strokeWidth={4} 
-                    fillOpacity={1} 
-                    fill="url(#colorEquity)" 
-                    animationDuration={2000}
-                  />
+                  <Area type="monotone" dataKey="value" stroke="#3B5BFF" fill="url(#strategyEq)" strokeWidth={2} dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          {/* Tabs Section */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-10 border-b border-white/5">
+          {/* Tabs */}
+          <div className="dashboard-card overflow-hidden">
+            <div className="flex flex-wrap gap-1 border-b border-[var(--card-border)] px-4">
               {[
-                { id: 'analytics', label: 'History Metrics', icon: <BarChart3 className="w-4 h-4" /> },
-                { id: 'trades', label: 'Execution Log', icon: <History className="w-4 h-4" /> },
-                { id: 'details', label: 'Architecture', icon: <Info className="w-4 h-4" /> }
-              ].map(tab => (
+                { id: 'analytics' as const, label: 'History Metrics', icon: BarChart3 },
+                { id: 'trades' as const, label: 'Execution Log', icon: History },
+                { id: 'details' as const, label: 'Architecture', icon: Info },
+              ].map(({ id: tabId, label, icon: Icon }) => (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  key={tabId}
+                  type="button"
+                  onClick={() => setActiveTab(tabId)}
                   className={cn(
-                    "flex items-center gap-3 pb-6 text-sm font-semibold uppercase tracking-widest transition-all relative",
-                    activeTab === tab.id ? "text-white" : "text-white/20 hover:text-white/40"
+                    'relative flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wide transition-colors',
+                    activeTab === tabId ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
-                  {tab.icon}
-                  {tab.label}
-                  {activeTab === tab.id && (
-                    <motion.div layoutId="tabUnderline" className="absolute bottom-[-1px] left-0 right-0 h-0.5 bg-p shadow-[0_0_10px_#6366f1]" />
+                  <Icon className="h-3.5 w-3.5" />
+                  {label}
+                  {activeTab === tabId && (
+                    <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary" />
                   )}
                 </button>
               ))}
             </div>
-
-            <div className="min-h-[300px] p-8 rounded-4xl bg-black/20 border border-white/5">
-               {activeTab === 'analytics' && <div className="grid grid-cols-1 md:grid-cols-2 gap-12 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                  <div className="space-y-6">
-                    <h4 className="text-xs font-bold text-p uppercase tracking-[0.3em]">Monthly Pulse</h4>
-                    <div className="space-y-4">
-                       {Object.entries(strategy.monthlyReturns || {}).slice(0, 6).map(([month, val]) => (
-                         <div key={month} className="flex items-center justify-between p-4 rounded-2xl bg-white/2 border border-white/5">
-                            <span className="text-xs font-jet-mono text-white/40 uppercase">{month}</span>
-                            <span className={cn("text-xs font-bold font-jet-mono", (val as number) > 0 ? "text-emerald-400" : "text-rose-400")}>
-                               {(val as number) > 0 ? '+' : ''}{(val as number).toFixed(2)}%
-                            </span>
-                         </div>
-                       ))}
+            <div className="p-5 min-h-[240px]">
+              {activeTab === 'analytics' && (
+                <div className="grid md:grid-cols-2 gap-6 animate-in fade-in duration-300">
+                  <div className="space-y-3">
+                    <h4 className="text-[11px] font-semibold text-primary uppercase tracking-wider">Monthly Pulse</h4>
+                    {Object.entries(strategy.monthlyReturns ?? {}).slice(0, 6).map(([month, val]) => (
+                      <div key={month} className="flex items-center justify-between p-3 rounded-xl border border-[var(--card-border)] bg-muted/20">
+                        <span className="text-xs text-muted-foreground uppercase">{month}</span>
+                        <span className={cn('text-sm font-bold tabular-nums', Number(val) >= 0 ? 'text-chart-3' : 'text-destructive')}>
+                          {Number(val) >= 0 ? '+' : ''}{Number(val).toFixed(2)}%
+                        </span>
+                      </div>
+                    ))}
+                    {!Object.keys(strategy.monthlyReturns ?? {}).length && (
+                      <p className="text-sm text-muted-foreground">No monthly data yet.</p>
+                    )}
+                  </div>
+                  <div className="space-y-3">
+                    <h4 className="text-[11px] font-semibold text-primary uppercase tracking-wider">Stability Metrics</h4>
+                    <div className="p-4 rounded-xl border border-[var(--card-border)] bg-muted/20 space-y-3">
+                      <MetricRow label="Access Tier" value={strategy.monthlyPrice > 0 ? `$${strategy.monthlyPrice}/mo` : 'Open'} />
+                      <MetricRow label="Risk Level" value={strategy.riskLevel} />
+                      <MetricRow label="Subscribers" value={String(strategy.copiesCount ?? 0)} />
+                      <MetricRow label="Verified" value={strategy.isVerified ? 'Yes' : 'No'} />
                     </div>
                   </div>
-                  <div className="space-y-6">
-                    <h4 className="text-xs font-bold text-p uppercase tracking-[0.3em]">Stability Metrics</h4>
-                    <div className="p-6 rounded-2xl bg-white/2 border border-white/5 space-y-8">
-                       <MetricLine label="Avg. Monthly Earnings" value="+4.82%" />
-                       <MetricLine label="Profit Factor" value="2.14" />
-                       <MetricLine label="Avg. Win Duration" value="1.4 days" />
-                       <MetricLine label="Risk Reward Ratio" value="1:2.4" />
-                    </div>
-                  </div>
-               </div>}
-               {activeTab === 'trades' && (
-                 <div className="animate-in fade-in duration-500 space-y-5">
-                   <div className="flex items-center justify-between">
-                     <p className="text-xs font-jet-mono uppercase tracking-[0.3em] text-white/30">Latest Execution Frames</p>
-                     <Button
-                       variant="ghost"
-                       onClick={() => router.push('/history')}
-                       className="h-8 px-3 rounded-lg border border-white/10 bg-white/5 text-[10px] uppercase tracking-[0.16em]"
-                     >
-                       Open Full Vault
-                     </Button>
-                   </div>
-                   <div className="space-y-3">
-                     {mockTrades.map((trade: any) => (
-                       <div key={trade.id} className="p-4 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-between">
-                         <div className="space-y-1">
-                           <p className="text-xs font-jet-mono text-white/30 uppercase tracking-[0.2em]">{trade.id}</p>
-                           <p className="text-sm font-semibold text-white">{trade.pair} <span className="text-white/40">({trade.side})</span></p>
-                         </div>
-                         <div className="text-right space-y-1">
-                           <p className={cn('text-sm font-bold font-jet-mono', Number(trade.pnl) >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
-                             {Number(trade.pnl) >= 0 ? '+' : ''}${Number(trade.pnl).toFixed(2)}
-                           </p>
-                           <p className="text-xs text-white/30 font-jet-mono">{trade.at}</p>
-                         </div>
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-               )}
-               {activeTab === 'details' && <div className="space-y-8 animate-in fade-in duration-500">
-                  <p className="text-sm text-white/60 leading-relaxed font-medium uppercase tracking-wide">
-                    {strategy.description}
-                  </p>
-                  <div className="grid grid-cols-2 gap-8 pt-8 border-t border-white/5">
-                     <div>
-                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] block mb-4">Core Model Logic</span>
-                        <div className="flex flex-wrap gap-2">
-                           {['NEURAL_NET','L1_LIQUIDITY','SCALPING'].map(logic => (
-                             <span key={logic} className="px-3 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold font-jet-mono text-white/40 uppercase tracking-widest">{logic}</span>
-                           ))}
+                </div>
+              )}
+              {activeTab === 'trades' && (
+                <div className="space-y-3 animate-in fade-in duration-300">
+                  {mockTrades.length > 0 ? (
+                    mockTrades.map((trade) => (
+                      <div key={trade.id} className="flex items-center justify-between p-3 rounded-xl border border-[var(--card-border)] bg-muted/20">
+                        <div>
+                          <p className="text-xs text-muted-foreground">{trade.id}</p>
+                          <p className="text-sm font-semibold">{trade.pair} <span className="text-muted-foreground">({trade.side})</span></p>
                         </div>
-                     </div>
-                     <div>
-                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] block mb-4">Security System</span>
-                        <div className="flex items-center gap-2 text-emerald-400">
-                           <Lock className="w-4 h-4" />
-                           <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400/80">End-to-End Encrypted Strategy Gate</span>
+                        <div className="text-right">
+                          <p className={cn('text-sm font-bold tabular-nums', trade.pnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
+                            {trade.pnl >= 0 ? '+' : ''}${trade.pnl.toFixed(2)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{trade.at}</p>
                         </div>
-                     </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground py-8 text-center">No execution log entries yet.</p>
+                  )}
+                  <Button variant="ghost" onClick={() => router.push('/history')} className="text-xs uppercase tracking-wide">
+                    Open Full History
+                  </Button>
+                </div>
+              )}
+              {activeTab === 'details' && (
+                <div className="space-y-5 animate-in fade-in duration-300">
+                  <p className="text-sm text-muted-foreground leading-relaxed">{strategy.description}</p>
+                  <div className="flex items-center gap-2 text-chart-3 text-sm">
+                    <Lock className="h-4 w-4" />
+                    End-to-end encrypted strategy deployment
                   </div>
-               </div>}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Mini Sidebar & Insights */}
-        <div className="xl:col-span-4 space-y-10">
-          
-          {/* Creator Profile Card */}
-          <div className="p-8 rounded-[40px] bg-linear-to-br from-white/5 to-transparent border border-white/10 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-p/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            <h4 className="text-[10px] font-bold text-white/10 uppercase tracking-[0.6em] mb-8">Node_Creator_Identity</h4>
-            <div className="flex items-center gap-6 mb-8">
-              <div className="h-16 w-16 rounded-full bg-white/5 border border-white/10 p-1">
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${strategy.creator?.fullName}`} alt="Avatar" className="w-full h-full rounded-full grayscale group-hover:grayscale-0 transition-all" />
-              </div>
+        {/* Sidebar */}
+        <div className="xl:col-span-4 space-y-5">
+          <div className="dashboard-card p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Creator</p>
+            <div className="flex items-center gap-4 mb-4">
+              <UserAvatar name={strategy.creator?.fullName ?? 'Creator'} src={strategy.creator?.avatarUrl} size="lg" />
               <div>
-                <h5 className="text-xl font-bold uppercase tracking-tight">{strategy.creator?.fullName}</h5>
-                <p className="text-[10px] text-p uppercase tracking-[0.2em] font-bold">Verified Institution</p>
+                <h5 className="font-bold text-foreground">{strategy.creator?.fullName}</h5>
+                {strategy.isVerified && (
+                  <p className="text-xs text-chart-3 font-semibold">Verified Creator</p>
+                )}
               </div>
             </div>
-            <p className="text-xs text-white/30 leading-relaxed uppercase tracking-widest mb-8">
-              {strategy.creator?.bio || 'Professional quantitative fund manager specializing in neural liquidity extraction.'}
+            <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+              {strategy.creator?.bio ?? 'Professional quantitative strategy creator.'}
             </p>
             <Button
               variant="ghost"
               onClick={() => router.push(`/ai-coach?topic=${encodeURIComponent(strategy.name)}`)}
-              className="w-full h-12 rounded-xl border border-white/5 bg-white/1 hover:bg-white/5 text-[10px] font-bold uppercase tracking-[0.2em]"
+              className="w-full rounded-xl border border-[var(--card-border)] text-xs font-semibold uppercase tracking-wide"
             >
-              Contact Node Admin
+              Contact Creator
             </Button>
           </div>
 
-          {/* Operational Risk Insight */}
-          <div className="p-8 rounded-[40px] bg-rose-500/2 border border-rose-500/10 space-y-6">
-            <div className="flex items-center gap-3 text-rose-400">
-              <AlertTriangle className="w-5 h-5" />
-              <h4 className="text-xs font-bold uppercase tracking-[0.3em]">Risk Profile: {strategy.riskLevel}</h4>
+          <div className="dashboard-card p-5 border-destructive/20 bg-destructive/5">
+            <div className="flex items-center gap-2 text-destructive mb-2">
+              <AlertTriangle className="h-4 w-4" />
+              <h4 className="text-xs font-bold uppercase tracking-wide">Risk: {strategy.riskLevel}</h4>
             </div>
-            <p className="text-xs text-rose-500/40 leading-relaxed uppercase tracking-widest font-medium">
-              This node utilizes significant leverage during high-frequency cycles. Max historical drawdown was observed during the Q3 2024 flash crash. Ensure your Risk DNA is synchronized.
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Review drawdown history and ensure your risk profile matches this strategy before deploying.
             </p>
           </div>
 
-          {/* Hardware Connection Card */}
-          <div className="p-1 px-8 py-8 rounded-[40px] border border-white/5 bg-black/60 relative overflow-hidden group">
-             <div className="flex flex-col items-center text-center space-y-6">
-                <div className="h-20 w-20 rounded-full bg-white/2 border border-white/5 flex items-center justify-center relative shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]">
-                   <Activity className="w-10 h-10 text-white/10 group-hover:text-primary transition-all duration-700" />
-                   <div className="absolute inset-0 bg-primary/20 blur-2xl scale-0 group-hover:scale-100 transition-transform duration-700" />
-                </div>
-                <div className="space-y-2">
-                   <h5 className="text-lg font-bold uppercase tracking-tight">Active Replication</h5>
-                   <p className="text-[10px] text-white/20 uppercase tracking-[0.2em] font-bold italic">Node Instance Sync Required</p>
-                </div>
-                <Button 
-                  onClick={() => setIsActivationOpen(true)}
-                  className="w-full h-16 rounded-2xl bg-white/5 border border-white/10 hover:bg-white hover:text-black hover:border-white transition-all duration-500 text-xs font-bold uppercase tracking-[0.3em]"
-                >
-                  Configure Handshake
-                </Button>
-             </div>
+          <div className="dashboard-card p-5 text-center space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
+              <Activity className="h-7 w-7 text-primary" />
+            </div>
+            <div>
+              <h5 className="font-bold text-foreground">Deploy Strategy</h5>
+              <p className="text-xs text-muted-foreground mt-1">Connect and start copying signals</p>
+            </div>
+            <Button onClick={() => setIsActivationOpen(true)} className="w-full rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[11px] tracking-wide">
+              Configure & Activate
+            </Button>
           </div>
-
         </div>
       </div>
 
-      <StrategyActivationModal 
-        isOpen={isActivationOpen} 
-        onClose={() => setIsActivationOpen(false)} 
-        strategy={strategy} 
-      />
+      <StrategyActivationModal isOpen={isActivationOpen} onClose={() => setIsActivationOpen(false)} strategy={strategy} />
     </div>
   );
 }
 
-function StatBox({ label, value, sub, icon }: { label: string, value: any, sub: string, icon: React.ReactNode }) {
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  iconBg,
+  valueClass,
+}: {
+  label: string;
+  value: React.ReactNode;
+  icon: React.ElementType;
+  iconBg: string;
+  valueClass?: string;
+}) {
   return (
-    <div className="p-6 rounded-3xl bg-white/2 border border-white/5 hover:border-p/20 transition-all group overflow-hidden relative">
-      <div className="absolute -right-2 -bottom-2 opacity-5 group-hover:opacity-10 transition-opacity">
-        {React.isValidElement(icon) && React.cloneElement(icon as React.ReactElement<any>, { className: 'w-20 h-20' })}
+    <div className="dashboard-card p-5 flex flex-col gap-3">
+      <div className={cn('flex h-9 w-9 items-center justify-center rounded-xl', iconBg)}>
+        <Icon className="h-4 w-4" />
       </div>
-      <div className="relative z-10 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-black/40 border border-white/5">{icon}</div>
-          <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">{label}</span>
-        </div>
-        <div className="space-y-1">
-          <h4 className="text-3xl font-bold tracking-tight text-white">{value}</h4>
-          <p className="text-[9px] font-jet-mono text-white/10 uppercase font-bold tracking-widest">{sub}</p>
-        </div>
+      <div>
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <p className={cn('text-2xl font-bold tabular-nums mt-0.5', valueClass ?? 'text-foreground')}>{value}</p>
       </div>
     </div>
   );
 }
 
-function MetricLine({ label, value }: { label: string, value: string }) {
+function MetricRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between pb-4 border-b border-white/3 last:border-0 last:pb-0">
-      <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em]">{label}</span>
-      <span className="text-sm font-bold font-jet-mono text-white/80">{value}</span>
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-semibold text-foreground">{value}</span>
     </div>
   );
 }

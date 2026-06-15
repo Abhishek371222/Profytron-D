@@ -36,7 +36,7 @@ export function MobileBottomNav() {
         {/* Glass background */}
         <div className="absolute inset-0 bg-[#0a0a10]/85 backdrop-blur-2xl border-t border-white/[0.06]" />
         {/* Top accent hairline */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/25 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
 
         <div className="relative flex items-stretch h-16 pb-safe">
           {bottomNavItems.map((item) => {
@@ -49,14 +49,14 @@ export function MobileBottomNav() {
                 href={item.href}
                 className={cn(
                   "relative flex flex-col items-center justify-center flex-1 gap-1 transition-colors duration-200",
-                  isActive ? "text-indigo-400" : "text-white/25 hover:text-white/50",
+                  isActive ? "text-primary" : "text-foreground/25 hover:text-foreground/50",
                 )}
               >
                 {/* Active top bar */}
                 {isActive && (
                   <motion.div
                     layoutId="mobile-nav-bar"
-                    className="absolute top-0 inset-x-4 h-[2px] rounded-b-full bg-gradient-to-r from-indigo-400 to-violet-400"
+                    className="absolute top-0 inset-x-4 h-[2px] rounded-b-full bg-gradient-to-r from-primary to-chart-2"
                     style={{ boxShadow: "0 0 8px rgba(129,140,248,0.6)" }}
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
@@ -66,7 +66,7 @@ export function MobileBottomNav() {
                 {isActive && (
                   <motion.div
                     layoutId="mobile-nav-bg"
-                    className="absolute inset-x-2 inset-y-1.5 rounded-xl bg-indigo-500/10 border border-indigo-400/15"
+                    className="absolute inset-x-2 inset-y-1.5 rounded-xl bg-primary/10 border border-primary/15"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
@@ -74,13 +74,13 @@ export function MobileBottomNav() {
                 <div className="relative">
                   <Icon className={cn("w-5 h-5 transition-transform duration-200", isActive && "scale-110")} />
                   {isActive && item.name === "Alerts" && (
-                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
                   )}
                 </div>
 
                 <span className={cn(
-                  "text-[10px] font-bold uppercase tracking-[0.15em] transition-colors duration-200",
-                  isActive ? "text-indigo-400" : "text-white/20",
+                  "text-micro font-bold uppercase tracking-[0.15em] transition-colors duration-200",
+                  isActive ? "text-primary" : "text-foreground/20",
                 )}>
                   {item.name}
                 </span>

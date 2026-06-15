@@ -18,15 +18,22 @@ export class AppController {
 
   @Get('health')
   async getHealth() {
-    const [databaseResult, redisConnected] = await Promise.all([
+    const [databaseResult, redisResult] = await Promise.allSettled([
       this.prismaService.$queryRaw`SELECT 1 AS ok`,
       this.redisService.ping(),
     ]);
 
+    const database =
+      databaseResult.status === 'fulfilled' ? 'connected' : 'degraded';
+    const redis =
+      redisResult.status === 'fulfilled' && redisResult.value
+        ? 'connected'
+        : 'degraded';
+
     return {
-      status: 'ok',
-      database: Array.isArray(databaseResult) ? 'connected' : 'connected',
-      redis: redisConnected ? 'connected' : 'degraded',
+      status: database === 'connected' ? 'ok' : 'degraded',
+      database,
+      redis,
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version ?? 'unknown',
     };

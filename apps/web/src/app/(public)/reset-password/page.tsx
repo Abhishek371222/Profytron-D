@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -11,7 +11,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { Button } from '@/components/ui/button';
-import { CinematicCursor } from '@/components/ui/CinematicCursor';
 import { Magnetic } from '@/components/ui/Interactions';
 import { authApi } from '@/lib/api/auth';
 import { toast } from 'sonner';
@@ -43,7 +42,7 @@ function PasswordStrength({ password }: { password?: string }) {
  <div 
  key={step} 
  className={`flex-1 rounded-full transition-all duration-500 ${
- strength >= step ? (strength <= 2 ? 'bg-error' : strength === 3 ? 'bg-p' : 'bg-success') : 'bg-white/5'
+ strength >= step ? (strength <= 2 ? 'bg-error' : strength === 3 ? 'bg-primary' : 'bg-success') : 'bg-foreground/5'
  }`} 
  />
  ))}
@@ -51,8 +50,8 @@ function PasswordStrength({ password }: { password?: string }) {
  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
  {checks.map((check) => (
  <div key={check.label} className="flex items-center gap-2">
- <div className={`w-1 h-1 rounded-full ${check.met ? 'bg-p shadow-[0_0_8px_rgba(var(--p-rgb),0.5)]' : 'bg-white/10'}`} />
- <span className={`text-xs uppercase tracking-widest font-bold ${check.met ? 'text-white' : 'text-white/20'}`}>
+ <div className={`w-1 h-1 rounded-full ${check.met ? 'bg-primary shadow-[0_0_8px_rgba(var(--p-rgb),0.5)]' : 'bg-foreground/10'}`} />
+ <span className={`text-xs uppercase tracking-widest font-bold ${check.met ? 'text-foreground' : 'text-foreground/20'}`}>
  {check.label}
  </span>
  </div>
@@ -62,7 +61,7 @@ function PasswordStrength({ password }: { password?: string }) {
  );
 }
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -75,6 +74,7 @@ export default function ResetPasswordPage() {
  formState: { errors },
  } = useForm<ResetPasswordValues>({
  resolver: zodResolver(resetPasswordSchema),
+ defaultValues: { password: '', confirmPassword: '' },
  });
 
   const onSubmit = async (data: ResetPasswordValues) => {
@@ -121,28 +121,21 @@ export default function ResetPasswordPage() {
  };
 
  return (
- <main className="min-h-screen w-full bg-bg-base overflow-hidden noise relative flex flex-col items-center justify-center p-6">
- <CinematicCursor />
- 
- {/* Immersive Background Environment */}
- <div className="fixed inset-0 pointer-events-none z-0">
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-250 h-250 bg-p/10 blur-[180px] rounded-full opacity-40 animate-pulse" />
- <div className="absolute -bottom-[10%] -left-[10%] w-150 h-150 bg-s/10 blur-[150px] rounded-full opacity-30" />
- </div>
+ <main className="min-h-screen w-full bg-bg-base overflow-hidden relative flex flex-col items-center justify-center p-6">
 
  <div className="fixed top-12 right-12 z-50">
  <div className="flex items-center gap-3">
- <Zap className="w-6 h-6 text-p fill-p animate-pulse" />
- <span className="text-xl font-display font-semibold tracking-tight text-white">PROFYTRON</span>
+ <Zap className="w-6 h-6 text-primary fill-p" />
+ <span className="text-xl font-serif font-semibold tracking-tight text-foreground">PROFYTRON</span>
  </div>
 
  <div className="fixed top-12 left-12 z-50">
  <Magnetic strength={0.2}>
  <Link href="/login" className="flex items-center gap-4 group">
- <div className="w-10 h-10 rounded-xl bg-bg-card border border-white/10 flex items-center justify-center group-hover:border-p/50 transition-colors shadow-2xl">
- <ArrowLeft className="w-5 h-5 text-white/60 group-hover:text-p transition-colors" />
+ <div className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors shadow-2xl">
+ <ArrowLeft className="w-5 h-5 text-foreground/60 group-hover:text-primary transition-colors" />
  </div>
- <span className="text-white/40 group-hover:text-white font-bold tracking-widest text-xs uppercase hidden sm:block">Back to Login</span>
+ <span className="text-foreground/40 group-hover:text-foreground font-bold tracking-widest text-xs uppercase hidden sm:block">Back to Login</span>
  </Link>
  </Magnetic>
  </div>
@@ -151,24 +144,22 @@ export default function ResetPasswordPage() {
  {/* Centered Auth Card */}
  <motion.div
  variants={containerVariants}
- initial="hidden"
+ initial={false}
  animate="visible"
  className="relative z-10 w-full max-w-lg"
  >
- <div className="relative bg-bg-card/40 backdrop-blur-3xl border border-white/10 rounded-[40px] p-10 lg:p-14 shadow-2xl overflow-hidden group">
- <div className="absolute inset-0 noise opacity-20 pointer-events-none" />
+ <div className="relative bg-bg-card/40 backdrop-blur-3xl border border-border rounded-[40px] p-10 lg:p-14 shadow-2xl overflow-hidden group">
  
  <motion.div variants={itemVariants} className="flex flex-col items-center text-center space-y-6 mb-12">
- <div className="w-20 h-20 rounded-3xl bg-p/10 border border-p/20 flex items-center justify-center shadow-2xl relative">
- <ShieldCheck className="w-10 h-10 text-p" />
- <div className="absolute inset-[-10px] bg-p/20 blur-2xl rounded-full -z-10 animate-pulse" />
+ <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-2xl relative">
+ <ShieldCheck className="w-10 h-10 text-primary" />
  </div>
 
  <div className="space-y-3">
- <h2 className="text-4xl font-display font-bold text-white tracking-tight">
+ <h2 className="text-4xl font-serif font-bold text-foreground tracking-tight">
  Secure <span className="text-gradient">vault.</span>
  </h2>
- <p className="text-slate-400 font-body text-lg">
+ <p className="text-muted-foreground font-sans text-lg">
  Establish a new high-security access key for your terminal.
  </p>
  </div>
@@ -186,7 +177,7 @@ export default function ResetPasswordPage() {
  setPassword(e.target.value);
  }}
  error={errors.password?.message}
- className="bg-white/3"
+ className="bg-foreground/3"
  />
  <PasswordStrength password={password} />
  </motion.div>
@@ -198,7 +189,7 @@ export default function ResetPasswordPage() {
  icon={Lock}
  {...register('confirmPassword')}
  error={errors.confirmPassword?.message}
- className="bg-white/3"
+ className="bg-foreground/3"
  />
  </motion.div>
 
@@ -207,7 +198,7 @@ export default function ResetPasswordPage() {
  <Button 
  type="submit" 
  disabled={isLoading}
- className="w-full h-16 bg-linear-to-r from-p to-p-dark text-white font-semibold text-xl rounded-2xl transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
+ className="w-full h-16 bg-linear-to-r from-primary to-primary-dark text-foreground font-semibold text-xl rounded-2xl transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
  >
  <span className="relative z-10 flex items-center justify-center gap-3">
  {isLoading ? (
@@ -225,11 +216,19 @@ export default function ResetPasswordPage() {
  </motion.div>
  </form>
 
- <motion.div variants={itemVariants} className="mt-12 text-center text-white/20 text-xs font-bold uppercase tracking-[0.2em]">
+ <motion.div variants={itemVariants} className="mt-12 text-center text-foreground/20 text-xs font-bold uppercase tracking-[0.2em]">
  Your Grade Security Active
  </motion.div>
  </div>
  </motion.div>
  </main>
  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen w-full bg-background" />}>
+      <ResetPasswordPageInner />
+    </Suspense>
+  );
 }

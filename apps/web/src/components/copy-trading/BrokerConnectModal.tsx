@@ -17,6 +17,7 @@ type Step = 'form' | 'testing' | 'success' | 'error';
 export function BrokerConnectModal({ open, onClose }: Props) {
   const [step, setStep] = React.useState<Step>('form');
   const [error, setError] = React.useState('');
+  const [pending, setPending] = React.useState(false);
   const [form, setForm] = React.useState({ login: '', password: '', server: '', platform: 'mt5' as 'mt4' | 'mt5' });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,13 +26,14 @@ export function BrokerConnectModal({ open, onClose }: Props) {
     setStep('testing');
     setError('');
     try {
-      await brokerApi.connectBroker({
+      const result = await brokerApi.connectBroker({
         login: form.login,
         password: form.password,
         serverName: form.server,
         brokerName: form.platform === 'mt4' ? 'MT4' : 'MT5',
         platform: form.platform,
       });
+      setPending(Boolean(result?.pending));
       setStep('success');
     } catch (err: any) {
       setError(err?.response?.data?.error ?? err.message ?? 'Connection failed');
@@ -42,6 +44,7 @@ export function BrokerConnectModal({ open, onClose }: Props) {
   const reset = () => {
     setStep('form');
     setError('');
+    setPending(false);
     setForm({ login: '', password: '', server: '', platform: 'mt5' });
   };
 
@@ -69,7 +72,7 @@ export function BrokerConnectModal({ open, onClose }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
               <h2 className="text-base font-semibold text-text-primary">Connect MT4/MT5 Broker</h2>
-              <button onClick={handleClose} className="p-1 rounded-lg hover:bg-white/5 text-text-secondary">
+              <button onClick={handleClose} className="p-1 rounded-lg hover:bg-foreground/5 text-text-secondary">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -92,7 +95,7 @@ export function BrokerConnectModal({ open, onClose }: Props) {
                       value={form.login}
                       onChange={(e) => setForm({ ...form, login: e.target.value })}
                       placeholder="e.g. 12345678"
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                      className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
                       required
                     />
                   </div>
@@ -104,7 +107,7 @@ export function BrokerConnectModal({ open, onClose }: Props) {
                       value={form.password}
                       onChange={(e) => setForm({ ...form, password: e.target.value })}
                       placeholder="Trading password"
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                      className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
                       required
                     />
                   </div>
@@ -116,7 +119,7 @@ export function BrokerConnectModal({ open, onClose }: Props) {
                       value={form.server}
                       onChange={(e) => setForm({ ...form, server: e.target.value })}
                       placeholder="e.g. Exness-Real"
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+                      className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
                       required
                     />
                     <p className="text-xs text-text-muted">Find this in your MT5 terminal under File → Open an Account</p>
@@ -130,7 +133,7 @@ export function BrokerConnectModal({ open, onClose }: Props) {
                         onClick={() => setForm({ ...form, platform: p })}
                         className={`flex-1 py-2 rounded-xl border text-sm font-medium transition-colors ${
                           form.platform === p
-                            ? 'border-violet-500/50 bg-violet-500/10 text-violet-400'
+                            ? 'border-chart-2/50 bg-chart-2/10 text-chart-2'
                             : 'border-border-default text-text-secondary hover:border-border-hover'
                         }`}
                       >
@@ -153,11 +156,11 @@ export function BrokerConnectModal({ open, onClose }: Props) {
               {/* Testing */}
               {step === 'testing' && (
                 <div className="flex flex-col items-center gap-4 py-6">
-                  <Loader2 className="w-10 h-10 text-violet-400 animate-spin" />
+                  <Loader2 className="w-10 h-10 text-chart-2 animate-spin" />
                   <p className="text-sm text-text-secondary text-center">
                     Connecting to <span className="text-text-primary font-medium">{form.server}</span>…
                     <br />
-                    This may take up to 30 seconds.
+                    Provisioning a secure bridge to your broker — this can take up to 90 seconds.
                   </p>
                 </div>
               )}
@@ -165,11 +168,15 @@ export function BrokerConnectModal({ open, onClose }: Props) {
               {/* Success */}
               {step === 'success' && (
                 <div className="flex flex-col items-center gap-4 py-6">
-                  <CheckCircle2 className="w-12 h-12 text-emerald-400" />
+                  <CheckCircle2 className="w-12 h-12 text-chart-3" />
                   <div className="text-center">
-                    <p className="font-semibold text-text-primary">Broker Connected!</p>
+                    <p className="font-semibold text-text-primary">
+                      {pending ? 'Broker Linked — Connecting…' : 'Broker Connected!'}
+                    </p>
                     <p className="text-sm text-text-secondary mt-1">
-                      Your MT5 account is ready to receive copy trades.
+                      {pending
+                        ? 'Your account is provisioned. The broker terminal is still connecting — your live balance will appear in a minute.'
+                        : 'Your MT5 account is ready — bot execution can start after purchase.'}
                     </p>
                   </div>
                   <Button className="w-full" onClick={handleClose}>

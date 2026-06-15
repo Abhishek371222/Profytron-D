@@ -43,12 +43,20 @@ function validateEnv() {
   const isProduction = process.env.NODE_ENV === 'production';
 
   // Always required
-  const required = ['DATABASE_URL', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET', 'AES_MASTER_KEY'];
+  const required = [
+    'DATABASE_URL',
+    'JWT_ACCESS_SECRET',
+    'JWT_REFRESH_SECRET',
+    'AES_MASTER_KEY',
+  ];
   // Required in production only
   const prodRequired = [
-    'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET',
-    'CORS_ORIGIN', 'FRONTEND_URL',
-    'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN',
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+    'CORS_ORIGIN',
+    'FRONTEND_URL',
+    'UPSTASH_REDIS_REST_URL',
+    'UPSTASH_REDIS_REST_TOKEN',
   ];
 
   const missing: string[] = [];
@@ -62,23 +70,33 @@ function validateEnv() {
   }
 
   if (missing.length > 0) {
-    logger.error(`Missing required environment variables: ${missing.join(', ')}`);
+    logger.error(
+      `Missing required environment variables: ${missing.join(', ')}`,
+    );
     if (isProduction) process.exit(1);
   }
 
   // Warn about demo/placeholder values in production
   if (isProduction) {
     if (!process.env.METAAPI_TOKEN) {
-      logger.warn('METAAPI_TOKEN is not set — all broker trades will be mocked');
+      logger.warn(
+        'METAAPI_TOKEN is not set — all broker trades will be mocked',
+      );
     }
     if (process.env.RAZORPAY_KEY_ID === 'DEMO_KEY') {
-      logger.warn('RAZORPAY_KEY_ID is still set to DEMO_KEY — Razorpay payments will fail');
+      logger.warn(
+        'RAZORPAY_KEY_ID is still set to DEMO_KEY — Razorpay payments will fail',
+      );
     }
     if ((process.env.STRIPE_SECRET_KEY || '').startsWith('sk_test_')) {
-      logger.warn('STRIPE_SECRET_KEY is a test key — switch to live key for production');
+      logger.warn(
+        'STRIPE_SECRET_KEY is a test key — switch to live key for production',
+      );
     }
     if (!process.env.MASTER_BROKER_ACCOUNT_ID) {
-      logger.warn('MASTER_BROKER_ACCOUNT_ID not set — copy trading master sync is disabled');
+      logger.warn(
+        'MASTER_BROKER_ACCOUNT_ID not set — copy trading master sync is disabled',
+      );
     }
   }
 }
@@ -103,7 +121,11 @@ async function bootstrap() {
   const requestedPort = Number(process.env.API_PORT || 4000);
   const logger = new Logger('Bootstrap');
 
-  if (Number.isNaN(requestedPort) || requestedPort < 1 || requestedPort > 65535) {
+  if (
+    Number.isNaN(requestedPort) ||
+    requestedPort < 1 ||
+    requestedPort > 65535
+  ) {
     logger.error(`Invalid API_PORT value: "${process.env.API_PORT}". Exiting.`);
     process.exit(1);
   }

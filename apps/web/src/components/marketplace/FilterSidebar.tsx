@@ -28,8 +28,8 @@ interface FilterSidebarProps {
 }
 
 const RISK_LEVELS = [
-  { id: 'low',    label: 'Low',    color: 'bg-emerald-500' },
-  { id: 'medium', label: 'Medium', color: 'bg-amber-500'   },
+  { id: 'low',    label: 'Low',    color: 'bg-chart-3' },
+  { id: 'medium', label: 'Medium', color: 'bg-chart-4'   },
   { id: 'high',   label: 'High',   color: 'bg-red-500'     },
   { id: 'expert', label: 'Expert', color: 'bg-purple-500'  },
 ];
@@ -66,21 +66,21 @@ function FilterContent({
   return (
     <>
       {/* Header */}
-      <div className="p-5 border-b border-white/5 flex items-center justify-between shrink-0">
+      <div className="p-5 border-b border-border flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5">
-          <Filter className="w-4 h-4 text-p" />
-          <h3 className="text-[11px] font-semibold text-white uppercase tracking-[0.16em]">Filters</h3>
+          <Filter className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">Filters</h3>
         </div>
         <div className="flex items-center gap-2">
           {activeCount > 0 && (
-            <span className="w-5 h-5 rounded-full bg-p/20 flex items-center justify-center text-[10px] font-semibold text-p">
+            <span className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary">
               {activeCount}
             </span>
           )}
           <button
             onClick={onClose}
             aria-label="Close filters"
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-white/40 hover:text-white hover:bg-white/[0.06] transition-all"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-muted/6 transition-all"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -92,8 +92,8 @@ function FilterContent({
         {/* Price Range */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.14em]">Monthly Fee</h4>
-            <span className="text-[11px] font-semibold text-white font-mono">
+            <h4 className="text-xs font-semibold text-muted-foreground">Monthly Fee</h4>
+            <span className="text-caption font-semibold text-foreground font-mono">
               {price === 0 ? 'All prices' : `₹0 – ₹${price.toLocaleString()}`}
             </span>
           </div>
@@ -105,18 +105,18 @@ function FilterContent({
               step="500"
               value={price}
               onChange={e => onChange({ ...value, priceMax: parseInt(e.target.value) })}
-              className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer accent-indigo-500"
+              className="w-full h-1 bg-foreground/10 rounded-full appearance-none cursor-pointer accent-primary"
             />
             <div className="flex items-center justify-between mt-3 px-1">
-              <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.12em]">Free</span>
-              <span className="text-[10px] font-bold text-white/20 uppercase tracking-[0.12em]">Premium Elite</span>
+              <span className="text-xs font-medium text-muted-foreground">Free</span>
+              <span className="text-xs font-medium text-muted-foreground">Premium Elite</span>
             </div>
           </div>
         </div>
 
         {/* Risk Level */}
         <div className="space-y-3">
-          <h4 className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.14em]">Risk Exposure</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground">Risk Exposure</h4>
           <div className="grid grid-cols-2 gap-2">
             {RISK_LEVELS.map(risk => (
               <button
@@ -125,12 +125,12 @@ function FilterContent({
                 className={cn(
                   'p-2.5 rounded-xl border transition-all duration-200 flex items-center gap-2.5 relative overflow-hidden',
                   selectedRisks.includes(risk.id)
-                    ? 'bg-white/5 border-white/20 shadow-xl'
-                    : 'bg-transparent border-white/5 hover:border-white/10',
+                    ? 'bg-foreground/5 border-border shadow-xl'
+                    : 'bg-transparent border-border hover:border-border',
                 )}
               >
                 <div className={cn('w-2 h-2 rounded-full', risk.color, selectedRisks.includes(risk.id) ? 'shadow-[0_0_8px_currentColor]' : 'opacity-30')} />
-                <span className={cn('text-[10px] font-semibold uppercase tracking-[0.12em]', selectedRisks.includes(risk.id) ? 'text-white' : 'text-white/30')}>
+                <span className={cn('text-xs font-semibold', selectedRisks.includes(risk.id) ? 'text-foreground' : 'text-muted-foreground')}>
                   {risk.label}
                 </span>
                 <AnimatePresence>
@@ -141,7 +141,7 @@ function FilterContent({
                       exit={{ opacity: 0, scale: 0.8 }}
                       className="absolute top-2 right-2"
                     >
-                      <Check className="w-3 h-3 text-p" />
+                      <Check className="w-3 h-3 text-primary" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -152,7 +152,7 @@ function FilterContent({
 
         {/* Asset Class */}
         <div className="space-y-3">
-          <h4 className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.14em]">Asset Universe</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground">Asset Universe</h4>
           <div className="flex flex-wrap gap-2">
             {ASSETS.map(asset => (
               <button
@@ -164,10 +164,10 @@ function FilterContent({
                   onChange({ ...value, selectedAssets: next });
                 }}
                 className={cn(
-                  'px-3 py-1.5 rounded-lg text-[10px] font-semibold uppercase tracking-[0.12em] transition-all',
+                  'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
                   selectedAssets.includes(asset)
-                    ? 'bg-p/20 border-p/50 text-p border'
-                    : 'bg-white/5 border border-white/5 text-white/30 hover:border-white/20',
+                    ? 'bg-primary/20 border-primary/50 text-primary border'
+                    : 'bg-foreground/5 border border-border text-foreground/30 hover:border-border',
                 )}
               >
                 {asset}
@@ -178,17 +178,17 @@ function FilterContent({
 
         {/* Timeframes */}
         <div className="space-y-3">
-          <h4 className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.14em]">Resolution</h4>
+          <h4 className="text-xs font-semibold text-muted-foreground">Resolution</h4>
           <div className="grid grid-cols-3 gap-2">
             {TIMEFRAMES.map(tf => (
               <button
                 key={tf}
                 onClick={() => toggleTimeframe(tf)}
                 className={cn(
-                  'py-2 rounded-lg border text-[10px] font-bold transition-all',
+                  'py-2 rounded-lg border text-xs font-semibold transition-all',
                   selectedTimeframes.includes(tf)
-                    ? 'bg-p/20 border-p/50 text-p'
-                    : 'bg-white/5 border-white/10 text-white/25 hover:text-white hover:border-white/20',
+                    ? 'bg-primary/20 border-primary/50 text-primary'
+                    : 'bg-foreground/5 border-border text-foreground/25 hover:text-foreground hover:border-border',
                 )}
               >
                 {tf}
@@ -199,41 +199,41 @@ function FilterContent({
 
         {/* Verification */}
         <div className="pt-1">
-          <div className="p-3 rounded-xl glass-strong border border-white/10 flex items-center justify-between">
+          <div className="p-3 rounded-xl glass-strong border border-border flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-[10px] font-semibold text-white uppercase tracking-[0.12em]">Verified Only</span>
-              <span className="text-[10px] text-white/35 font-bold uppercase tracking-tight mt-0.5">Show only audited creators</span>
+              <span className="text-sm font-semibold text-foreground">Verified Only</span>
+              <span className="text-xs text-muted-foreground mt-0.5">Show only audited creators</span>
             </div>
             <button
               onClick={() => onChange({ ...value, verifiedOnly: !verifiedOnly })}
               className={cn(
                 'w-10 h-5 rounded-full relative cursor-pointer p-1 transition-colors',
-                verifiedOnly ? 'bg-indigo-500/40 hover:bg-indigo-500/50' : 'bg-white/10 hover:bg-white/20',
+                verifiedOnly ? 'bg-primary/40 hover:bg-primary/50' : 'bg-foreground/10 hover:bg-foreground/20',
               )}
             >
-              <div className={cn('w-3 h-3 rounded-full bg-white/90 transition-transform', verifiedOnly && 'translate-x-5')} />
+              <div className={cn('w-3 h-3 rounded-full bg-foreground/90 transition-transform', verifiedOnly && 'translate-x-5')} />
             </button>
           </div>
         </div>
       </div>
 
       {/* Footer actions */}
-      <div className="p-5 space-y-2.5 border-t border-white/5 shrink-0">
+      <div className="p-5 space-y-2.5 border-t border-border shrink-0">
         <Button
           onClick={onApply}
-          className="w-full h-10 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[11px] uppercase tracking-[0.14em] shadow-2xl shadow-indigo-600/20 active:scale-95 transition-all"
+          className="w-full h-10 rounded-xl bg-primary hover:bg-primary text-primary-foreground font-semibold text-sm"
         >
           Apply Filters
         </Button>
         <button
           onClick={onSavePreset}
-          className="w-full text-[10px] font-semibold text-indigo-300/70 hover:text-indigo-200 uppercase tracking-[0.14em] transition-colors py-1"
+          className="w-full text-xs font-semibold text-primary hover:text-primary/80 transition-colors py-1"
         >
           Save Preset
         </button>
         <button
           onClick={() => onChange({ ...value, selectedRisks: [], selectedAssets: [], selectedTimeframes: [], verifiedOnly: false, priceMax: 0 })}
-          className="w-full text-[10px] font-semibold text-red-400/50 hover:text-red-400 uppercase tracking-[0.14em] transition-colors py-1"
+          className="w-full text-xs font-semibold text-destructive/70 hover:text-destructive transition-colors py-1"
         >
           Reset All
         </button>
@@ -248,7 +248,7 @@ export function FilterSidebar({ isOpen, onClose, value, onChange, onApply, onSav
       {/* ── Desktop inline sidebar (lg+) ───────────────────────────────── */}
       <aside
         className={cn(
-          'hidden lg:flex w-[292px] border-r border-white/5 bg-[#0d0d12]/70 backdrop-blur-3xl flex-col shrink-0 transition-all duration-300 relative z-40',
+          'hidden lg:flex w-[292px] border-r border-[var(--card-border)] bg-card/80 backdrop-blur-3xl flex-col shrink-0 transition-all duration-300 relative z-40',
           !isOpen && '-ml-[280px]',
         )}
       >
@@ -283,12 +283,12 @@ export function FilterSidebar({ isOpen, onClose, value, onChange, onApply, onSav
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-              className="lg:hidden fixed bottom-0 inset-x-0 z-[61] flex flex-col bg-[#0d0d12] border-t border-white/[0.08] rounded-t-3xl max-h-[82dvh] overflow-hidden"
+              className="lg:hidden fixed bottom-0 inset-x-0 z-[61] flex flex-col bg-card border-t border-[var(--card-border)] rounded-t-3xl max-h-[82dvh] overflow-hidden"
               style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
             >
               {/* Drag handle */}
               <div className="flex justify-center pt-3 pb-1 shrink-0">
-                <div className="w-10 h-1 rounded-full bg-white/15" />
+                <div className="w-10 h-1 rounded-full bg-foreground/15" />
               </div>
               <FilterContent
                 value={value}

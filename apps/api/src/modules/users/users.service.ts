@@ -2,8 +2,10 @@ import {
   Injectable,
   BadRequestException,
   UnauthorizedException,
+  NotFoundException,
   Logger,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 import {
@@ -15,6 +17,10 @@ import { createClient } from '@supabase/supabase-js';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import type { Express } from 'express';
+import {
+  ActivationService,
+  ACTIVATION_EVENTS,
+} from '../growth/activation.service';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +30,7 @@ export class UsersService {
   constructor(
     private prisma: PrismaService,
     private redisService: RedisService,
+    private activationService: ActivationService,
   ) {
     this.supabase = createClient(
       process.env.SUPABASE_URL || '',
@@ -107,15 +114,37 @@ export class UsersService {
   }
 
   async updateRiskProfile(userId: string, dto: UpdateRiskProfileDto) {
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+    if (!existing) {
+      throw new NotFoundException(
+        'User account not found. Please sign in again.',
+      );
+    }
+
     const user = await this.prisma.user.update({
       where: { id: userId },
       data: {
-        riskProfileJson: dto.riskProfileJson,
+        riskProfileJson: dto.riskProfileJson as Prisma.InputJsonValue,
         riskDnaScore: dto.riskDnaScore,
         onboardingCompleted: true,
       },
     });
+
     delete (user as any).passwordHash;
+    delete (user as any).twoFactorSecret;
+    delete (user as any).twoFactorBackupCodes;
+
+    void this.activationService
+      .track(userId, ACTIVATION_EVENTS.ONBOARDING_COMPLETED)
+      .catch((err) =>
+        this.logger.warn(
+          `Activation track skipped for ${userId}: ${err?.message ?? err}`,
+        ),
+      );
+
     return user;
   }
 
@@ -169,9 +198,9 @@ export class UsersService {
       data: { passwordHash: newHash },
     });
 
-    // Revoke all refresh tokens (omitted pending RedisService scan implementation)
-
-    // Also clear session DB
+    // Revoke the user's refresh token so the session cannot be continued with
+    // the old password. The access token will expire naturally within its TTL.
+    await this.redisService.del(`auth:refresh:${userId}:default`);
     await this.prisma.userSession.deleteMany({ where: { userId } });
 
     return { success: true };
@@ -248,7 +277,9 @@ export class UsersService {
       },
     });
 
-    // Revoke all refresh tokens (omitted pending RedisService scan implementation)
+    // Revoke active sessions so tokens can't be used after account deletion.
+    await this.redisService.del(`auth:refresh:${userId}:default`);
+    await this.prisma.userSession.deleteMany({ where: { userId } });
 
     return { success: true };
   }

@@ -13,8 +13,8 @@ export default function SettingsPage() {
   return (
     <div className="flex items-center justify-center min-h-[25rem]">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-4 border-p/20 border-t-p rounded-full animate-spin" />
-        <span className="text-xs font-semibold text-white/30 uppercase tracking-[0.5em]">Starting_Subsystem...</span>
+        <div className="w-12 h-12 border-4 border-primary/20 border-t-p rounded-full animate-spin" />
+        <span className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.5em]">Starting_Subsystem...</span>
       </div>
     </div>
   );

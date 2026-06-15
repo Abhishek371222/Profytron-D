@@ -1,7 +1,7 @@
 {
   "name": "Profytron — Fintech Intelligence",
   "short_name": "Profytron",
-  "description": "Algorithmic trading, copy trading, and AI-powered portfolio management.",
+  "description": "Algorithmic trading, automated bots, and AI-powered portfolio management.",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#050508",

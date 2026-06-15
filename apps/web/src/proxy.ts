@@ -39,6 +39,14 @@ async function handleProxy(request: NextRequest) {
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
     });
+    const backend =
+      process.env.BACKEND_API_ORIGIN ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      'http://localhost:4000';
+    void fetch(
+      `${backend}/v1/affiliates/capture/${encodeURIComponent(referralCode)}`,
+      { method: 'POST' },
+    ).catch(() => {});
     return updateSession(request, response);
   }
 
@@ -73,6 +81,21 @@ async function handleProxy(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
       url.searchParams.set('redirect', pathname);
+      return updateSession(request, NextResponse.redirect(url));
+    }
+
+    const onboardingDone =
+      request.cookies.get('onboarding_completed')?.value === '1';
+    const role = request.cookies.get('user_role')?.value?.toUpperCase();
+    const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
+    if (
+      refreshToken &&
+      !onboardingDone &&
+      !isAdmin &&
+      !pathname.startsWith('/onboarding')
+    ) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/onboarding/risk';
       return updateSession(request, NextResponse.redirect(url));
     }
 

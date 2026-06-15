@@ -4,6 +4,8 @@ import React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Network, Database, BrainCircuit, Rocket } from "lucide-react";
 import { FadeUp } from "@/components/animations";
+import { AnimatedGradientText } from "@/components/saasfly/animated-gradient-text";
+import { GlowingEffect } from "@/components/saasfly/glowing-effect";
 
 const steps = [
   {
@@ -12,10 +14,10 @@ const steps = [
       "Link your primary liquidity venues via secure, zero-knowledge API connections. We never hold or custody your assets.",
     icon: Database,
     badge: "Layer_01",
-    color: "text-cyan-400",
-    border: "border-cyan-400/20",
+    color: "text-chart-5",
+    border: "border-chart-5/20",
     glow: "rgba(34,211,238,0.12)",
-    iconBg: "bg-cyan-400/10 border-cyan-400/20",
+    iconBg: "bg-chart-5/10 border-chart-5/20",
   },
   {
     title: "Neural Profiling",
@@ -23,10 +25,10 @@ const steps = [
       "Our core engine ingests your risk tolerance, capital constraints, and latency requirements to build a unique trading fingerprint.",
     icon: BrainCircuit,
     badge: "Layer_02",
-    color: "text-violet-400",
-    border: "border-violet-400/20",
+    color: "text-chart-2",
+    border: "border-chart-2/20",
     glow: "rgba(167,139,250,0.12)",
-    iconBg: "bg-violet-400/10 border-violet-400/20",
+    iconBg: "bg-chart-2/10 border-chart-2/20",
   },
   {
     title: "Logic Assembly",
@@ -34,10 +36,10 @@ const steps = [
       "Compile algorithmic models using visual node graphs or deploy vetted institutional strategy templates instantly.",
     icon: Network,
     badge: "Layer_03",
-    color: "text-indigo-400",
-    border: "border-indigo-400/20",
+    color: "text-primary",
+    border: "border-primary/20",
     glow: "rgba(99,102,241,0.12)",
-    iconBg: "bg-indigo-400/10 border-indigo-400/20",
+    iconBg: "bg-primary/10 border-primary/20",
   },
   {
     title: "Live Execution",
@@ -45,10 +47,10 @@ const steps = [
       "Push to production. The engine continuously routes orders, rebalances positions, and monitors drawdowns in real-time.",
     icon: Rocket,
     badge: "Layer_04",
-    color: "text-emerald-400",
-    border: "border-emerald-400/20",
+    color: "text-chart-3",
+    border: "border-chart-3/20",
     glow: "rgba(52,211,153,0.12)",
-    iconBg: "bg-emerald-400/10 border-emerald-400/20",
+    iconBg: "bg-chart-3/10 border-chart-3/20",
   },
 ];
 
@@ -76,7 +78,7 @@ function StepCard({ step, index }: { step: typeof steps[0]; index: number }) {
       <div className="flex-1 pt-1">
         <div className="flex items-center gap-4 mb-4">
           <span
-            className={`text-[10px] font-mono tracking-[0.3em] uppercase px-3 py-1 rounded-full border ${step.border} ${step.color}`}
+            className={`text-micro font-mono tracking-[0.3em] uppercase px-3 py-1 rounded-full border ${step.border} ${step.color}`}
             style={{ background: "rgba(255,255,255,0.03)" }}
           >
             {step.badge}
@@ -89,10 +91,10 @@ function StepCard({ step, index }: { step: typeof steps[0]; index: number }) {
             className={`h-px bg-gradient-to-r from-current to-transparent ${step.color} opacity-30`}
           />
         </div>
-        <h4 className={`text-2xl font-bold mb-3 tracking-tight text-white/85 group-hover:text-white transition-colors`}>
+        <h4 className={`text-2xl font-bold mb-3 tracking-tight text-foreground/85 group-hover:text-foreground transition-colors`}>
           {step.title}
         </h4>
-        <p className="text-white/40 text-base leading-relaxed max-w-lg group-hover:text-white/60 transition-colors duration-400 font-medium">
+        <p className="text-foreground/40 text-base leading-relaxed max-w-lg group-hover:text-foreground/60 transition-colors duration-400 font-medium">
           {step.description}
         </p>
       </div>
@@ -111,29 +113,26 @@ export function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="py-32 bg-[#020202] relative border-t border-white/[0.04] overflow-hidden"
+      className="py-20 sm:py-28 lg:py-32 bg-transparent relative border-t border-border overflow-x-hidden"
     >
-      {/* Background */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-indigo-500/[0.05] to-transparent blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.06] mix-blend-overlay pointer-events-none" />
-
-      <div className="container mx-auto px-6 relative z-10 w-full max-w-[1400px]">
-        <div className="flex flex-col lg:flex-row gap-20 lg:gap-28 items-start">
+      <div className="page-container relative z-10 w-full max-w-[1400px]">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 xl:gap-28 items-start">
 
           {/* ── LEFT: sticky content ── */}
           <div className="lg:w-[45%] lg:sticky lg:top-36">
             <FadeUp>
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white/60 text-[10px] font-bold uppercase tracking-[0.4em] mb-8 relative">
-                <motion.span
-                  animate={{ scale: [1, 1.6, 1], opacity: [0.5, 0, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute w-2 h-2 rounded-full bg-indigo-400 left-4"
-                />
-                <span className="w-2 h-2 rounded-full bg-indigo-400 relative" />
-                <span>Operational Alpha</span>
+              <div className="mb-8">
+                <AnimatedGradientText className="text-foreground/70">
+                  <motion.span
+                    animate={{ scale: [1, 1.6, 1], opacity: [0.5, 0, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-2 h-2 rounded-full bg-primary mr-2 inline-block"
+                  />
+                  <span className="text-micro font-bold uppercase tracking-[0.4em]">Operational Alpha</span>
+                </AnimatedGradientText>
               </div>
 
-              <h3 className="text-5xl md:text-6xl font-extrabold mb-8 leading-[1.08] tracking-[-0.03em] text-white">
+              <h3 className="text-heading-1 sm:text-display-1 font-extrabold mb-6 sm:mb-8 leading-tight tracking-tight text-foreground text-balance">
                 Your Path to{" "}
                 <br />
                 <span
@@ -147,26 +146,27 @@ export function HowItWorks() {
                 </span>
               </h3>
 
-              <p className="text-white/40 text-lg mb-12 leading-relaxed font-medium">
+              <p className="text-muted-foreground text-body-lg mb-10 sm:mb-12 leading-relaxed max-w-xl">
                 We've distilled decades of quantitative research into four actionable
                 segments. Experience institutional deployment without the infrastructure overhead.
               </p>
 
               {/* Quote card */}
-              <div className="p-8 rounded-[24px] bg-white/[0.02] border border-white/[0.06] relative overflow-hidden group hover:border-white/10 transition-colors duration-500">
-                <div className="absolute -top-20 -right-20 w-44 h-44 bg-indigo-500/15 blur-[50px] rounded-full group-hover:scale-150 transition-transform duration-1000" />
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
-                <p className="text-lg text-white/80 font-medium leading-relaxed relative z-10 italic">
+              <div className="p-6 sm:p-8 rounded-card surface-panel relative overflow-hidden group hover:border-primary/30 transition-colors duration-300">
+                <GlowingEffect variant="indigo" spread={24} proximity={55} />
+                <div className="absolute -top-20 -right-20 w-44 h-44 bg-primary/15 blur-[50px] rounded-full group-hover:scale-150 transition-transform duration-1000" />
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+                <p className="text-body-lg text-foreground font-medium leading-relaxed relative z-10 italic">
                   "The most sophisticated execution architecture I've seen delivered
                   outside of a tier-1 firm."
                 </p>
                 <div className="flex items-center gap-4 mt-7 relative z-10">
-                  <div className="w-10 h-10 rounded-xl bg-white/[0.04] flex items-center justify-center border border-white/[0.08]">
-                    <Rocket className="w-4 h-4 text-indigo-400" />
+                  <div className="w-10 h-10 rounded-xl bg-muted/4 flex items-center justify-center border border-white/[0.08]">
+                    <Rocket className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-white font-bold text-sm tracking-wide">Dr. Alex Volkov</p>
-                    <p className="text-[10px] text-white/35 font-bold uppercase tracking-widest mt-0.5">Head of Quant // Omega Desk</p>
+                    <p className="text-foreground font-bold text-sm tracking-wide">Dr. Alex Volkov</p>
+                    <p className="text-micro text-foreground/35 font-bold uppercase tracking-widest mt-0.5">Head of Quant // Omega Desk</p>
                   </div>
                 </div>
               </div>
@@ -176,9 +176,9 @@ export function HowItWorks() {
           {/* ── RIGHT: steps ── */}
           <div className="lg:w-[55%] relative pt-8 lg:pt-0" ref={containerRef}>
             {/* Animated connecting line */}
-            <div className="absolute left-[35px] top-8 bottom-16 w-px bg-white/[0.05] hidden lg:block overflow-hidden">
+            <div className="absolute left-[35px] top-8 bottom-16 w-px bg-muted/5 hidden lg:block overflow-hidden">
               <motion.div
-                className="w-full bg-gradient-to-b from-indigo-400 via-violet-400 to-emerald-400 absolute top-0 left-0"
+                className="w-full bg-gradient-to-b from-primary via-chart-2 to-chart-3 absolute top-0 left-0"
                 style={{ height: lineH }}
               />
             </div>

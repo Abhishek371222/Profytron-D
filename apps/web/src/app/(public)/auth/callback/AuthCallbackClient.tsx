@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
-import { safeRedirect } from '@/lib/utils';
+import { resolvePostLoginRedirect } from '@/lib/utils';
 
 export default function AuthCallbackClient() {
   const router = useRouter();
@@ -81,7 +81,7 @@ export default function AuthCallbackClient() {
 
         login(data.accessToken, data.user);
         const redirectTo = searchParams.get('redirect') || '/dashboard';
-        window.location.href = safeRedirect(redirectTo);
+        router.replace(resolvePostLoginRedirect(data.user, redirectTo));
       } catch (e) {
         console.error('Backend synchronization failed:', e);
         router.push('/login?error=sync_failed');
@@ -94,8 +94,8 @@ export default function AuthCallbackClient() {
   return (
     <div className="min-h-screen w-full bg-bg-base flex flex-col items-center justify-center noise">
       <div className="flex flex-col items-center gap-6">
-        <Loader2 className="w-12 h-12 text-p animate-spin" />
-        <p className="text-white/60 font-bold tracking-widest uppercase text-xs">
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+        <p className="text-foreground/60 font-bold tracking-widest uppercase text-xs">
           Synchronizing Identity...
         </p>
       </div>

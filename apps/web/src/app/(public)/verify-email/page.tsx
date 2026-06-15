@@ -12,6 +12,7 @@ import { Magnetic } from '@/components/ui/Interactions';
 import { authApi } from '@/lib/api/auth';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { toast } from 'sonner';
+import { trackEvent, trackActivation, ACTIVATION_EVENTS } from '@/lib/analytics/track';
 
 export default function VerifyEmailPage() {
  const router = useRouter();
@@ -70,7 +71,14 @@ export default function VerifyEmailPage() {
       const response = await authApi.verifyEmail({ email, otp: code });
       setIsSuccess(true);
       useAuthStore.getState().login(response.accessToken, response.user);
-      setTimeout(() => router.push('/dashboard'), 1500);
+      trackEvent(ACTIVATION_EVENTS.FIRST_LOGIN);
+      void trackActivation(ACTIVATION_EVENTS.FIRST_LOGIN);
+      const dest = !response.user?.onboardingCompleted
+        ? '/onboarding/risk'
+        : response.selectedPlan && response.selectedPlan !== 'free'
+          ? `/settings/billing?plan=${response.selectedPlan}`
+          : '/dashboard';
+      setTimeout(() => router.push(dest), 1500);
     } catch (error: any) {
       console.error('Verification failed:', error);
       setErrorMessage(error?.response?.data?.error || 'Verification failed. Check OTP and try again.');
@@ -109,7 +117,7 @@ export default function VerifyEmailPage() {
  
  {/* Immersive Background Environment */}
  <div className="fixed inset-0 pointer-events-none z-0">
- <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-250 h-250 bg-p/10 blur-[180px] rounded-full opacity-40 animate-pulse" />
+ <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-250 h-250 bg-primary/10 blur-[180px] rounded-full opacity-40 animate-pulse" />
  <div className="absolute -top-[10%] -left-[10%] w-150 h-150 bg-s/10 blur-[150px] rounded-full opacity-30" />
  </div>
 
@@ -117,40 +125,40 @@ export default function VerifyEmailPage() {
  <div className="fixed top-12 left-12 z-50">
  <Magnetic strength={0.2}>
  <Link href="/register" className="flex items-center gap-4 group">
- <div className="w-10 h-10 rounded-xl bg-bg-card border border-white/10 flex items-center justify-center group-hover:border-p/50 transition-colors shadow-2xl">
- <ArrowLeft className="w-5 h-5 text-white/60 group-hover:text-p transition-colors" />
+ <div className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors shadow-2xl">
+ <ArrowLeft className="w-5 h-5 text-foreground/60 group-hover:text-primary transition-colors" />
  </div>
- <span className="text-white/40 group-hover:text-white font-bold tracking-widest text-xs uppercase hidden sm:block">Back to Entry</span>
+ <span className="text-foreground/40 group-hover:text-foreground font-bold tracking-widest text-xs uppercase hidden sm:block">Back to Entry</span>
  </Link>
  </Magnetic>
  </div>
 
  <div className="fixed top-12 right-12 z-50">
  <div className="flex items-center gap-3">
- <Zap className="w-6 h-6 text-p fill-p animate-pulse" />
- <span className="text-xl font-display font-semibold tracking-tight text-white">PROFYTRON</span>
+ <Zap className="w-6 h-6 text-primary fill-p animate-pulse" />
+ <span className="text-xl font-serif font-semibold tracking-tight text-foreground">PROFYTRON</span>
  </div>
  </div>
 
  {/* Centered Auth Card */}
  <motion.div
  variants={containerVariants}
- initial="hidden"
+ initial={false}
  animate="visible"
  className="relative z-10 w-full max-w-lg"
  >
- <div className="relative bg-bg-card/40 backdrop-blur-3xl border border-white/10 rounded-[40px] p-10 lg:p-14 shadow-2xl overflow-hidden group">
+ <div className="relative bg-bg-card/40 backdrop-blur-3xl border border-border rounded-[40px] p-10 lg:p-14 shadow-2xl overflow-hidden group">
  <div className="absolute inset-0 noise opacity-20 pointer-events-none" />
  
  <motion.div variants={itemVariants} className="flex flex-col items-center text-center space-y-6 mb-12">
  <div className="relative">
- <div className="w-20 h-20 rounded-3xl bg-p/10 border border-p/20 flex items-center justify-center shadow-2xl">
+ <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-2xl">
  {isSuccess ? (
  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}>
  <CheckCircle2 className="w-10 h-10 text-success" />
  </motion.div>
  ) : (
- <Mail className="w-10 h-10 text-p" />
+ <Mail className="w-10 h-10 text-primary" />
  )}
  </div>
  {/* Pulsing rings */}
@@ -161,13 +169,13 @@ export default function VerifyEmailPage() {
  key="r1"
  animate={{ scale: [1, 1.5], opacity: [0.5, 0] }} 
  transition={{ duration: 2, repeat: Infinity }}
- className="absolute inset-0 rounded-3xl border border-p/30"
+ className="absolute inset-0 rounded-3xl border border-primary/30"
  />
  <motion.div 
  key="r2"
  animate={{ scale: [1, 2], opacity: [0.3, 0] }} 
  transition={{ duration: 2, repeat: Infinity, delay: 1 }}
- className="absolute inset-0 rounded-3xl border border-p/10"
+ className="absolute inset-0 rounded-3xl border border-primary/10"
  />
  </>
  )}
@@ -175,11 +183,11 @@ export default function VerifyEmailPage() {
  </div>
 
  <div className="space-y-3">
- <h2 className="text-4xl font-display font-bold text-white tracking-tight">
+ <h2 className="text-4xl font-serif font-bold text-foreground tracking-tight">
  Check your <span className="text-gradient">intelligence.</span>
  </h2>
-        <p className="text-slate-400 font-body text-lg">
-          We've synchronized a verification code to <span className="text-white font-bold opacity-80">{email}</span>
+        <p className="text-muted-foreground font-sans text-lg">
+          We've synchronized a verification code to <span className="text-foreground font-bold opacity-80">{email}</span>
         </p>
  </div>
  </motion.div>
@@ -200,14 +208,14 @@ export default function VerifyEmailPage() {
  value={digit}
  onChange={(e) => handleChange(index, e.target.value)}
  onKeyDown={(e) => handleKeyDown(index, e)}
- className="w-full h-16 bg-white/3 backdrop-blur-md border border-white/10 rounded-xl text-center text-2xl font-mono font-bold text-white outline-none transition-all focus:bg-white/8 focus:border-p focus:ring-1 focus:ring-p/30"
+ className="w-full h-16 bg-foreground/3 backdrop-blur-md border border-border rounded-xl text-center text-2xl font-mono font-bold text-foreground outline-none transition-all focus:bg-foreground/8 focus:border-primary focus:ring-1 focus:ring-primary/30"
  />
  {/* Shimmer line on focus */}
  <div className="absolute bottom-0 left-2 right-2 h-px bg-linear-to-r from-transparent via-white/5 to-transparent overflow-hidden">
  <motion.div 
  animate={{ x: digit || (typeof document !== 'undefined' && inputRefs.current[index] === document.activeElement) ? '100%' : '-100%' }}
  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
- className="w-1/2 h-full bg-linear-to-r from-transparent via-p/40 to-transparent"
+ className="w-1/2 h-full bg-linear-to-r from-transparent via-primary/40 to-transparent"
  />
  </div>
  </div>
@@ -219,7 +227,7 @@ export default function VerifyEmailPage() {
  <Button 
  type="submit" 
  disabled={isLoading || otp.join('').length < 6}
- className="w-full h-16 bg-linear-to-r from-p to-p-dark text-white font-semibold text-xl rounded-2xl transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
+ className="w-full h-16 bg-linear-to-r from-primary to-primary-dark text-foreground font-semibold text-xl rounded-2xl transition-all shadow-2xl shadow-p/40 group relative overflow-hidden"
  >
  <span className="relative z-10 flex items-center justify-center gap-3">
  {isLoading ? (
@@ -240,7 +248,7 @@ export default function VerifyEmailPage() {
  </form>
 
  <motion.div variants={itemVariants} className="mt-12 flex flex-col items-center gap-4">
- <p className="text-slate-500 text-sm">
+ <p className="text-foreground0 text-sm">
  Didn't receive the signal?
  </p>
  <button
@@ -258,7 +266,7 @@ export default function VerifyEmailPage() {
      }
    }}
    disabled={timer > 0}
-   className="flex items-center gap-2 text-white font-semibold hover:text-p disabled:opacity-30 disabled:hover:text-white transition-all group/resend"
+   className="flex items-center gap-2 text-foreground font-semibold hover:text-primary disabled:opacity-30 disabled:hover:text-foreground transition-all group/resend"
  >
  <RotateCcw className={`w-4 h-4 ${timer === 0 ? 'group-hover/resend:rotate-180 transition-transform duration-500' : ''}`} />
  {timer > 0 ? `Resend Signal in ${timer}s` : 'Resend Signal Now'}

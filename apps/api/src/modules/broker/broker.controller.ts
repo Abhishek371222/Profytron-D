@@ -16,6 +16,9 @@ import {
 } from '@nestjs/swagger';
 import { BrokerService } from './broker.service';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
+import { ConnectBrokerDto } from './dto/broker.dto';
+
+type AuthReq = { user: { userId: string } };
 
 @ApiTags('Broker')
 @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -32,7 +35,7 @@ export class BrokerController {
   @ApiOperation({
     summary: 'Connect a new broker account (secure AES storage)',
   })
-  async connectBroker(@Req() req: any, @Body() dto: any) {
+  async connectBroker(@Req() req: AuthReq, @Body() dto: ConnectBrokerDto) {
     return this.brokerService.connectBroker(req.user.userId, dto);
   }
 
@@ -41,7 +44,7 @@ export class BrokerController {
   @ApiOperation({
     summary: 'Get all connected broker accounts for current user',
   })
-  async getBrokerAccounts(@Req() req: any) {
+  async getBrokerAccounts(@Req() req: AuthReq) {
     return this.brokerService.getBrokerAccounts(req.user.userId);
   }
 
@@ -49,7 +52,7 @@ export class BrokerController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Disconnect an active broker account' })
-  async disconnectBroker(@Req() req: any, @Param('id') accountId: string) {
+  async disconnectBroker(@Req() req: AuthReq, @Param('id') accountId: string) {
     return this.brokerService.disconnectBroker(req.user.userId, accountId);
   }
 
@@ -57,7 +60,7 @@ export class BrokerController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Run a live connection test to verify credentials' })
-  async testConnection(@Req() req: any, @Param('id') accountId: string) {
+  async testConnection(@Req() req: AuthReq, @Param('id') accountId: string) {
     return this.brokerService.testConnection(req.user.userId, accountId);
   }
 }

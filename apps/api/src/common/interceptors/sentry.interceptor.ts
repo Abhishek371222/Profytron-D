@@ -1,0 +1,52 @@
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+  HttpException,
+  Logger,
+} from '@nestjs/common';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Request } from 'express';
+
+const logger = new Logger('SentryInterceptor');
+
+@Injectable()
+export class SentryInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    return next.handle().pipe(
+      catchError((error) => {
+        // Don't report expected HTTP errors (4xx) to Sentry
+        if (error instanceof HttpException && error.getStatus() < 500) {
+          return throwError(() => error);
+        }
+
+        try {
+          // Dynamic import so the app doesn't crash if Sentry isn't installed yet
+          const Sentry = require('@sentry/nestjs');
+          if (Sentry?.captureException) {
+            const req = context.switchToHttp().getRequest<Request>();
+            Sentry.withScope((scope: any) => {
+              scope.setTag('route', req?.route?.path ?? req?.url);
+              scope.setTag('method', req?.method);
+              scope.setContext('request', {
+                url: req?.url,
+                method: req?.method,
+                headers: {
+                  'user-agent': req?.headers?.['user-agent'],
+                  'content-type': req?.headers?.['content-type'],
+                },
+              });
+              Sentry.captureException(error);
+            });
+          }
+        } catch {
+          logger.warn('Sentry not available — error not reported remotely');
+        }
+
+        return throwError(() => error);
+      }),
+    );
+  }
+}

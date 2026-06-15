@@ -7,6 +7,10 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { AffiliateTier } from '@prisma/client';
 import { randomUUID } from 'crypto';
+import {
+  REFERRAL_DEPOSIT_BONUS_INR,
+  REFERRAL_MIN_DEPOSIT_INR,
+} from '../../common/constants/pricing.constants';
 
 @Injectable()
 export class AffiliatesService {
@@ -79,7 +83,13 @@ export class AffiliatesService {
       where: { referralCode },
     });
 
-    if (!referrer) return;
+    if (!referrer || referrer.id === newUserId) return;
+
+    await this.prisma.affiliate.upsert({
+      where: { userId: referrer.id },
+      create: { userId: referrer.id },
+      update: {},
+    });
 
     await this.prisma.$transaction([
       this.prisma.affiliate.update({
@@ -97,6 +107,69 @@ export class AffiliatesService {
         },
       }),
     ]);
+  }
+
+  async processFirstDepositBonus(userId: string, amount: number) {
+    if (amount < REFERRAL_MIN_DEPOSIT_INR) return;
+
+    const affiliate = await this.prisma.affiliate.findUnique({
+      where: { userId },
+    });
+    if (!affiliate?.referrerId) return;
+
+    const existingBonus = await this.prisma.walletTransaction.findFirst({
+      where: {
+        userId,
+        type: 'COMMISSION',
+        reference: 'referral_first_deposit_bonus',
+      },
+    });
+    if (existingBonus) return;
+
+    const creditBoth = async (
+      targetUserId: string,
+      idempotencyKey: string,
+      description: string,
+      reference: string,
+    ) => {
+      const grouped = await this.prisma.walletTransaction.groupBy({
+        by: ['direction'],
+        where: { userId: targetUserId, status: 'CONFIRMED' },
+        _sum: { amount: true },
+      });
+      const confirmedIn =
+        grouped.find((e) => e.direction === 'IN')?._sum.amount ?? 0;
+      const confirmedOut =
+        grouped.find((e) => e.direction === 'OUT')?._sum.amount ?? 0;
+      const balance = confirmedIn - confirmedOut;
+
+      await this.prisma.walletTransaction.create({
+        data: {
+          userId: targetUserId,
+          type: 'COMMISSION',
+          direction: 'IN',
+          amount: REFERRAL_DEPOSIT_BONUS_INR,
+          status: 'CONFIRMED',
+          balanceAfter: balance + REFERRAL_DEPOSIT_BONUS_INR,
+          idempotencyKey,
+          description,
+          reference,
+        },
+      });
+    };
+
+    await creditBoth(
+      userId,
+      `ref_bonus_referee_${userId}`,
+      'Referral welcome bonus — first deposit',
+      'referral_first_deposit_bonus',
+    );
+    await creditBoth(
+      affiliate.referrerId,
+      `ref_bonus_referrer_${affiliate.referrerId}_${userId}`,
+      'Referral reward — friend made first deposit',
+      userId,
+    );
   }
 
   async captureReferralCode(referralCode: string) {
@@ -125,7 +198,8 @@ export class AffiliatesService {
 
     if (!affiliate || !affiliate.referrerId) return;
 
-    const commission = Math.round(amount * (affiliate.commissionRate || 0.3) * 100) / 100;
+    const commission =
+      Math.round(amount * (affiliate.commissionRate || 0.3) * 100) / 100;
     if (commission <= 0) return;
 
     const idempotencyKey = `commission_${userId}_${randomUUID()}`;
@@ -145,8 +219,10 @@ export class AffiliatesService {
         where: { userId: affiliate.referrerId!, status: 'CONFIRMED' },
         _sum: { amount: true },
       });
-      const confirmedIn = grouped.find((e) => e.direction === 'IN')?._sum.amount ?? 0;
-      const confirmedOut = grouped.find((e) => e.direction === 'OUT')?._sum.amount ?? 0;
+      const confirmedIn =
+        grouped.find((e) => e.direction === 'IN')?._sum.amount ?? 0;
+      const confirmedOut =
+        grouped.find((e) => e.direction === 'OUT')?._sum.amount ?? 0;
       const currentBalance = confirmedIn - confirmedOut;
 
       await tx.walletTransaction.create({
@@ -172,34 +248,46 @@ export class AffiliatesService {
       throw new BadRequestException('Minimum withdrawal amount is ₹500');
     }
 
-    const affiliate = await this.prisma.affiliate.findUnique({
-      where: { userId },
-    });
-
-    if (!affiliate) {
-      throw new NotFoundException('Affiliate record not found');
-    }
-
-    const pendingBalance = Number((affiliate.totalEarned - affiliate.totalPaid).toFixed(2));
-    if (amount > pendingBalance) {
-      throw new BadRequestException(
-        `Insufficient affiliate balance. Available: ₹${pendingBalance.toFixed(2)}`,
-      );
-    }
-
-    // Record withdrawal request as a pending wallet outflow
+    // Perform the balance check AND the debit atomically inside a single
+    // interactive transaction to prevent double-withdrawal under concurrent
+    // requests (TOCTOU race condition).
     const idempotencyKey = `aff_wd_${randomUUID()}`;
-    const grouped = await this.prisma.walletTransaction.groupBy({
-      by: ['direction'],
-      where: { userId, status: 'CONFIRMED' },
-      _sum: { amount: true },
-    });
-    const confirmedIn = grouped.find((e) => e.direction === 'IN')?._sum.amount ?? 0;
-    const confirmedOut = grouped.find((e) => e.direction === 'OUT')?._sum.amount ?? 0;
-    const currentBalance = confirmedIn - confirmedOut;
 
-    const [tx] = await this.prisma.$transaction([
-      this.prisma.walletTransaction.create({
+    const tx = await this.prisma.$transaction(async (prisma) => {
+      const affiliate = await prisma.affiliate.findUnique({
+        where: { userId },
+      });
+
+      if (!affiliate) {
+        throw new NotFoundException('Affiliate record not found');
+      }
+
+      const pendingBalance = Number(
+        (affiliate.totalEarned - affiliate.totalPaid).toFixed(2),
+      );
+      if (amount > pendingBalance) {
+        throw new BadRequestException(
+          `Insufficient affiliate balance. Available: ₹${pendingBalance.toFixed(2)}`,
+        );
+      }
+
+      const grouped = await prisma.walletTransaction.groupBy({
+        by: ['direction'],
+        where: { userId, status: 'CONFIRMED' },
+        _sum: { amount: true },
+      });
+      const confirmedIn =
+        grouped.find((e) => e.direction === 'IN')?._sum.amount ?? 0;
+      const confirmedOut =
+        grouped.find((e) => e.direction === 'OUT')?._sum.amount ?? 0;
+      const currentBalance = confirmedIn - confirmedOut;
+
+      await prisma.affiliate.update({
+        where: { userId },
+        data: { totalPaid: { increment: amount } },
+      });
+
+      return prisma.walletTransaction.create({
         data: {
           userId,
           type: 'WITHDRAWAL',
@@ -210,12 +298,8 @@ export class AffiliatesService {
           idempotencyKey,
           description: 'Affiliate payout withdrawal request',
         },
-      }),
-      this.prisma.affiliate.update({
-        where: { userId },
-        data: { totalPaid: { increment: amount } },
-      }),
-    ]);
+      });
+    });
 
     return {
       transactionId: tx.id,

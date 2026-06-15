@@ -89,10 +89,11 @@ export class AdminController {
   @ApiOperation({ summary: 'Update user system role' })
   @Patch('users/:id/role')
   async updateUserRole(
+    @Req() req: AdminRequest,
     @Param('id') id: string,
     @Body('role') role: UserRole,
   ) {
-    return this.adminService.updateUserRole(id, role);
+    return this.adminService.updateUserRole(id, role, req.user.id);
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -224,15 +225,21 @@ export class AdminController {
     summary: 'Parse strategy PDF to auto-fill admin strategy data',
   })
   @Post('strategies/pdf')
-  @UseInterceptors(FileInterceptor('file'))
-  async parseStrategyPdf(
-    @UploadedFile() file: Express.Multer.File,
-  ) {
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max — prevents memory exhaustion from large PDFs
+      fileFilter: (_req, file, cb) => {
+        if (file.mimetype !== 'application/pdf') {
+          cb(new BadRequestException('Only PDF files are supported'), false);
+        } else {
+          cb(null, true);
+        }
+      },
+    }),
+  )
+  async parseStrategyPdf(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('Uploaded file is required');
-    }
-    if (!file.mimetype?.includes('pdf')) {
-      throw new BadRequestException('Only PDF files are supported');
     }
     return this.adminService.parseStrategyPdf(file);
   }
@@ -270,6 +277,16 @@ export class AdminController {
   @Get('system/metrics')
   async getSystemMetrics() {
     return this.adminService.getSystemMetrics();
+  }
+
+  @ApiResponse({ status: 200, description: 'Master copy trading provisioned' })
+  @ApiOperation({
+    summary:
+      'Connect admin MT5 from env, mark master, publish marketplace copy strategy',
+  })
+  @Post('setup/master-copy')
+  async provisionMasterCopy() {
+    return this.adminService.provisionMasterCopyTrading();
   }
 
   @ApiResponse({ status: 200, description: 'OK' })

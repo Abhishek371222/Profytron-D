@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
+import { BrokerService } from '../broker/broker.service';
+import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
 import pdfParse from 'pdf-parse';
 import {
   Prisma,
@@ -13,7 +15,11 @@ import {
   StrategyCategory,
   UserRole,
   VerificationStatus,
+  SubscriptionTier,
+  KycStatus,
 } from '@prisma/client';
+import { randomUUID } from 'node:crypto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AdminService {
@@ -22,6 +28,8 @@ export class AdminService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
+    private brokerService: BrokerService,
+    private copyFactorySync: CopyFactorySyncService,
   ) {}
 
   async getSystemStats() {
@@ -128,7 +136,22 @@ export class AdminService {
   async getUserDetail(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        username: true,
+        avatarUrl: true,
+        role: true,
+        subscriptionTier: true,
+        isActive: true,
+        isSuspended: true,
+        emailVerified: true,
+        kycStatus: true,
+        onboardingCompleted: true,
+        createdAt: true,
+        lastLoginAt: true,
+        referralCode: true,
         _count: {
           select: {
             trades: true,
@@ -161,16 +184,23 @@ export class AdminService {
     return this.prisma.user.update({
       where: { id: userId },
       data: { isSuspended },
+      select: { id: true, email: true, isSuspended: true },
     });
   }
 
-  async updateUserRole(userId: string, role: UserRole) {
+  async updateUserRole(userId: string, role: UserRole, requestingAdminId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
+
+    // Prevent an ADMIN from modifying another ADMIN's role (only self-service allowed).
+    if (user.role === 'ADMIN' && userId !== requestingAdminId) {
+      throw new BadRequestException('Cannot modify another admin account');
+    }
 
     return this.prisma.user.update({
       where: { id: userId },
       data: { role },
+      select: { id: true, email: true, role: true },
     });
   }
 
@@ -218,6 +248,171 @@ export class AdminService {
       where: { id: accountId },
       data: { isMasterSource },
     });
+  }
+
+  /**
+   * One-time setup: connect admin MT5 (from env), mark as master, publish copy strategy.
+   * Requires ADMIN_MT5_LOGIN, ADMIN_MT5_PASSWORD, METAAPI_TOKEN in apps/api/.env
+   */
+  async provisionMasterCopyTrading(adminEmail?: string) {
+    const login = process.env.ADMIN_MT5_LOGIN;
+    const password = process.env.ADMIN_MT5_PASSWORD;
+    const serverName =
+      process.env.ADMIN_MT5_SERVER || 'MetaQuotes-Demo';
+    const platform = process.env.ADMIN_MT5_PLATFORM === 'mt4' ? 'mt4' : 'mt5';
+    const strategyName =
+      process.env.MASTER_COPY_STRATEGY_NAME || 'Profytron Master Bot';
+
+    if (!login || !password) {
+      throw new BadRequestException(
+        'Set ADMIN_MT5_LOGIN and ADMIN_MT5_PASSWORD in apps/api/.env',
+      );
+    }
+
+    const email = adminEmail || process.env.ADMIN_EMAIL || 'admin@profytron.com';
+    let admin = await this.prisma.user.findFirst({
+      where: { email },
+      select: { id: true, email: true, role: true },
+    });
+
+    if (!admin) {
+      const passwordHash = await bcrypt.hash(
+        process.env.ADMIN_DEFAULT_PASSWORD || 'Demo@123',
+        12,
+      );
+      admin = await this.prisma.user.create({
+        data: {
+          email,
+          passwordHash,
+          fullName: 'Profytron Admin',
+          username: 'profytron_admin',
+          emailVerified: true,
+          isActive: true,
+          referralCode: randomUUID(),
+          role: UserRole.ADMIN,
+          subscriptionTier: SubscriptionTier.ELITE,
+          kycStatus: KycStatus.VERIFIED,
+        },
+        select: { id: true, email: true, role: true },
+      });
+      this.logger.log(`Created admin user ${email} for master copy setup`);
+    } else if (admin.role !== UserRole.ADMIN) {
+      admin = await this.prisma.user.update({
+        where: { id: admin.id },
+        data: { role: UserRole.ADMIN },
+        select: { id: true, email: true, role: true },
+      });
+    }
+
+    const last4 = login.slice(-4).padStart(4, '0');
+    let brokerAccount = await this.prisma.brokerAccount.findFirst({
+      where: {
+        userId: admin.id,
+        accountNumberLast4: last4,
+        serverName,
+        brokerName: platform === 'mt4' ? 'MT4' : 'MT5',
+      },
+    });
+
+    if (!brokerAccount) {
+      const connected = await this.brokerService.connectBroker(admin.id, {
+        brokerName: platform === 'mt4' ? 'MT4' : 'MT5',
+        login,
+        password,
+        serverName,
+        platform,
+        copyFactoryRole: 'PROVIDER',
+      });
+      brokerAccount = await this.prisma.brokerAccount.findUnique({
+        where: { id: connected.id },
+      });
+    }
+
+    if (!brokerAccount) {
+      throw new BadRequestException('Failed to provision admin MT5 broker account');
+    }
+
+    await this.prisma.brokerAccount.update({
+      where: { id: brokerAccount.id },
+      data: { isMasterSource: true, isDefault: true, isActive: true },
+    });
+
+    const monthlyPrice = Number(process.env.MASTER_COPY_MONTHLY_PRICE || 49);
+    const annualPrice = Number(process.env.MASTER_COPY_ANNUAL_PRICE || 399);
+
+    let strategy = await this.prisma.strategy.findFirst({
+      where: {
+        creatorId: admin.id,
+        name: strategyName,
+        deletedAt: null,
+      },
+      include: { listing: true },
+    });
+
+    if (!strategy) {
+      strategy = (await this.createStrategy(
+        {
+          creatorId: admin.id,
+          name: strategyName,
+          description:
+            'Automated trading bot powered by the Profytron operator MT5 account. Buy access, connect your broker, and live bot execution starts after payment.',
+          category: StrategyCategory.TREND,
+          riskLevel: RiskLevel.MEDIUM,
+          configJson: {
+            type: 'master_copy',
+            masterBrokerAccountId: brokerAccount.id,
+            copyMode: 'position_sync',
+            modelingQuality: '99%',
+            backtestPeriod: '2018–2025 multi-year MT5 Strategy Tester',
+            minRecommendedCapital: 2500,
+            recommendedLeverage: '1:100',
+            leverageWarning:
+              'Use 1:100 or higher to match operator bot margin requirements. Lower leverage may reject mirrored lot sizes.',
+            symbols: ['EURUSD', 'GBPUSD', 'XAUUSD', 'USDJPY', 'US30'],
+          },
+          monthlyPrice,
+          annualPrice,
+          lifetimePrice: 0,
+          maxCopies: 500,
+          isFeatured: true,
+          isPublished: true,
+          isVerified: true,
+          trialDays: 0,
+          masterBrokerAccountId: brokerAccount.id,
+        },
+        admin.id,
+      )) as typeof strategy;
+    } else {
+      await this.prisma.strategy.update({
+        where: { id: strategy.id },
+        data: { masterBrokerAccountId: brokerAccount.id, isPublished: true },
+      });
+      if (strategy.listing) {
+        await this.prisma.marketplaceListing.update({
+          where: { strategyId: strategy.id },
+          data: { trialDays: 0 },
+        });
+      }
+    }
+
+    if (strategy?.id) {
+      await this.copyFactorySync.enqueueProvisionProvider(strategy.id);
+    }
+
+    this.logger.log(
+      `Master copy provisioned: broker=${brokerAccount.id}, strategy=${strategy?.id}`,
+    );
+
+    return {
+      adminEmail: admin.email,
+      brokerAccountId: brokerAccount.id,
+      strategyId: strategy?.id,
+      strategyName,
+      metaApiLive: Boolean(process.env.METAAPI_TOKEN),
+      copyFactoryEnabled: process.env.COPYFACTORY_ENABLED !== 'false',
+      message:
+        'Master MT5 linked via MetaAPI CopyFactory. Buyers pay on marketplace, connect MT5, and CopyFactory mirrors your trades automatically.',
+    };
   }
 
   async getPaymentsOverview() {
@@ -422,6 +617,7 @@ export class AdminService {
       isPublished?: boolean;
       isVerified?: boolean;
       trialDays?: number;
+      masterBrokerAccountId?: string;
       creatorSharePct?: number;
       platformSharePct?: number;
       payoutEnabled?: boolean;
@@ -463,8 +659,13 @@ export class AdminService {
           isPublished: input.isPublished ?? true,
           isVerified: input.isVerified ?? true,
           verificationStatus,
+          masterBrokerAccountId: input.masterBrokerAccountId ?? null,
         },
       });
+
+      const copyTrialDays = input.masterBrokerAccountId
+        ? 0
+        : (input.trialDays ?? 7);
 
       await tx.marketplaceListing.create({
         data: {
@@ -472,7 +673,7 @@ export class AdminService {
           monthlyPrice: normalizedPrices.monthlyPrice,
           annualPrice: normalizedPrices.annualPrice,
           lifetimePrice: normalizedPrices.lifetimePrice,
-          trialDays: input.trialDays ?? 7,
+          trialDays: copyTrialDays,
           maxCopies: input.maxCopies ?? 500,
           isFeatured: input.isFeatured ?? false,
           creatorSharePct: input.creatorSharePct ?? 0.8,
@@ -692,7 +893,10 @@ export class AdminService {
         data: {
           eventType: approve ? 'KYC_APPROVED' : 'KYC_REJECTED',
           userId,
-          detailsJson: { notes: notes ?? null, adminUserId: adminUserId ?? null },
+          detailsJson: {
+            notes: notes ?? null,
+            adminUserId: adminUserId ?? null,
+          },
           triggeredBy: adminUserId ?? 'system',
         },
       });
@@ -717,7 +921,9 @@ export class AdminService {
       );
     }
 
-    this.logger.log(`KYC ${approve ? 'approved' : 'rejected'} for user ${userId}`);
+    this.logger.log(
+      `KYC ${approve ? 'approved' : 'rejected'} for user ${userId}`,
+    );
     return { userId, kycStatus: newStatus };
   }
 }

@@ -12,6 +12,9 @@ const SECURITY_CRITICAL_PREFIXES = [
   'auth:reset:',
   'auth:magic:',
   'auth:refresh:',
+  'auth:fails:',
+  'auth:2fa:',
+  'auth:oauth:',
 ];
 
 function isSecurityCriticalKey(key: string): boolean {
@@ -161,6 +164,26 @@ export class RedisService {
       if (this.memoryStore.has(key)) {
         this.setMemoryTtl(key, ttlSeconds);
       }
+    }
+  }
+
+  /** Atomically gets and removes a key in one round-trip (Redis GETDEL). */
+  async getdel(key: string): Promise<string | null> {
+    try {
+      return await this.redis.getdel(key);
+    } catch (error) {
+      if (isSecurityCriticalKey(key)) {
+        this.logger.error(
+          `Redis unavailable for security-critical getdel(${key}). Failing hard to protect auth state.`,
+        );
+        throw error;
+      }
+      this.logger.warn(
+        `Redis unavailable for getdel(${key}), reading in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,
+      );
+      const val = this.memoryStore.get(key) ?? null;
+      this.clearMemoryKey(key);
+      return val;
     }
   }
 

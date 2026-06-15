@@ -17,3 +17,31 @@ export function safeRedirect(url: string | null | undefined): string {
     return fallback;
   }
 }
+
+export function isAdminUser(
+  user: { role?: string } | null | undefined,
+): boolean {
+  const role = user?.role?.toUpperCase();
+  return role === 'ADMIN' || role === 'SUPER_ADMIN';
+}
+
+/** After login: admins → /admin; regular users → onboarding or requested path. */
+export function resolvePostLoginRedirect(
+  user: { onboardingCompleted?: boolean; role?: string } | null | undefined,
+  redirectTo: string | null | undefined,
+): string {
+  const target = safeRedirect(redirectTo);
+  const requested = redirectTo?.trim() || null;
+
+  if (isAdminUser(user)) {
+    if (!requested || target === '/dashboard') {
+      return '/admin';
+    }
+    return target;
+  }
+
+  if (user?.onboardingCompleted || target.startsWith('/admin')) {
+    return target;
+  }
+  return '/onboarding/risk';
+}

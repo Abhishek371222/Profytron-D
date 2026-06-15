@@ -25,6 +25,14 @@ export class MarketController {
   }
 
   @Public()
+  @Get('quotes')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Get latest quotes for all supported symbols' })
+  getQuotes() {
+    return this.marketService.getAllQuotes();
+  }
+
+  @Public()
   @Get('ohlc')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get OHLCV candlestick data for charting' })

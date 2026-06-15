@@ -7,10 +7,17 @@ import { TradeProcessor } from './trade.processor';
 import { AuthModule } from '../auth/auth.module';
 import { SubscriptionCleanupService } from './subscription-cleanup.service';
 import { MasterSyncService } from './master-sync.service';
+import { CopyFactoryModule } from '../copy-factory/copy-factory.module';
+import { GrowthModule } from '../growth/growth.module';
+import { MarketModule } from '../market/market.module';
+import { MarketPriceBroadcastService } from './market-price-broadcast.service';
 
 @Module({
   imports: [
     AuthModule,
+    CopyFactoryModule,
+    GrowthModule,
+    MarketModule,
     BullModule.registerQueue({
       name: 'trade_execution',
     }),
@@ -22,6 +29,7 @@ import { MasterSyncService } from './master-sync.service';
     TradeProcessor,
     SubscriptionCleanupService,
     MasterSyncService,
+    MarketPriceBroadcastService,
   ],
   exports: [
     TradingService,

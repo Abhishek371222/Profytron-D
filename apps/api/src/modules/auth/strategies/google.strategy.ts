@@ -49,7 +49,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     const email = emails?.[0]?.value;
 
     if (!email) {
-      done(new UnauthorizedException('Google account has no public email'), false);
+      done(
+        new UnauthorizedException('Google account has no public email'),
+        false,
+      );
       return;
     }
 

@@ -44,7 +44,7 @@ export const affiliateLeaders: AffiliateLeader[] = [
     earnings: 28420,
     growth: 18.4,
     tier: 'ELITE',
-    color: 'from-emerald-400/35 via-cyan-400/20 to-transparent',
+    color: 'from-chart-3/35 via-chart-5/20 to-transparent',
     note: 'Largest conversion tree and highest retention.',
   },
   {
@@ -58,7 +58,7 @@ export const affiliateLeaders: AffiliateLeader[] = [
     earnings: 19680,
     growth: 15.1,
     tier: 'ELITE',
-    color: 'from-indigo-400/35 via-violet-400/20 to-transparent',
+    color: 'from-primary/35 via-chart-2/20 to-transparent',
     note: 'Balanced funnel with exceptional signup velocity.',
   },
   {
@@ -72,7 +72,7 @@ export const affiliateLeaders: AffiliateLeader[] = [
     earnings: 15840,
     growth: 12.9,
     tier: 'PRO',
-    color: 'from-amber-400/35 via-orange-400/20 to-transparent',
+    color: 'from-chart-4/35 via-orange-400/20 to-transparent',
     note: 'Strong referral quality from product-led channels.',
   },
   {
@@ -86,7 +86,7 @@ export const affiliateLeaders: AffiliateLeader[] = [
     earnings: 12490,
     growth: 11.2,
     tier: 'PRO',
-    color: 'from-rose-400/35 via-pink-400/20 to-transparent',
+    color: 'from-destructive/35 via-pink-400/20 to-transparent',
     note: 'Strong short-form content and webinar conversion.',
   },
   {
@@ -100,7 +100,7 @@ export const affiliateLeaders: AffiliateLeader[] = [
     earnings: 10120,
     growth: 9.7,
     tier: 'PRO',
-    color: 'from-sky-400/35 via-cyan-400/20 to-transparent',
+    color: 'from-sky-400/35 via-chart-5/20 to-transparent',
     note: 'Enterprise referrals with high average order value.',
   },
   {
@@ -114,7 +114,7 @@ export const affiliateLeaders: AffiliateLeader[] = [
     earnings: 7820,
     growth: 8.1,
     tier: 'STARTER',
-    color: 'from-teal-400/35 via-emerald-400/20 to-transparent',
+    color: 'from-teal-400/35 via-chart-3/20 to-transparent',
     note: 'Emerging affiliate with fast network growth.',
   },
 ];

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
+import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
 import {
   CreateStrategyDto,
   UpdateStrategyDto,
@@ -32,9 +33,16 @@ export class StrategiesService {
   constructor(
     private prisma: PrismaService,
     private redis: RedisService,
+    private copyFactorySync: CopyFactorySyncService,
   ) {}
 
   async findAll(query: StrategiesQueryDto, userId?: string) {
+    const cacheKey = `cache:strategies:${this.hashObject(query)}`;
+    if (!userId) {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return JSON.parse(cached);
+    }
+
     const {
       category,
       riskLevel,
@@ -101,40 +109,41 @@ export class StrategiesService {
     let total = 0;
 
     if (performanceSortFields.has(requestedSortBy)) {
-      const allStrategies = await this.prisma.strategy.findMany({
-        where,
-        include: {
-          creator: { select: { id: true, fullName: true, avatarUrl: true } },
-          performance: {
-            take: 1,
-            orderBy: { date: 'desc' },
+      // DB-side sort via StrategyPerformance — avoids loading all strategies into JS memory.
+      // Step 1: Get sorted strategy IDs from the performance table (latest record per strategy).
+      const perfField = requestedSortBy as 'winRate' | 'sharpeRatio' | 'maxDrawdown' | 'netPnl';
+      const perfRows = await this.prisma.strategyPerformance.findMany({
+        where: { strategy: where },
+        orderBy: { [perfField]: requestedOrder },
+        select: { strategyId: true, [perfField]: true },
+        distinct: ['strategyId'],
+        skip,
+        take: limit,
+      });
+
+      const orderedIds = perfRows.map((r) => r.strategyId);
+      const [pagedStrategies, count] = await Promise.all([
+        this.prisma.strategy.findMany({
+          where: { ...where, id: { in: orderedIds } },
+          include: {
+            creator: { select: { id: true, fullName: true, avatarUrl: true } },
+            performance: { take: 1, orderBy: { date: 'desc' } },
+            subscriptions: userId
+              ? { where: { userId, status: SubscriptionStatus.ACTIVE }, take: 1 }
+              : false,
           },
-          subscriptions: userId
-            ? {
-                where: { userId, status: SubscriptionStatus.ACTIVE },
-                take: 1,
-              }
-            : false,
-        },
-        orderBy: { createdAt: 'desc' },
-      });
+        }),
+        this.prisma.strategyPerformance.groupBy({
+          by: ['strategyId'],
+          where: { strategy: where },
+          _count: { strategyId: true },
+        }).then((r) => r.length),
+      ]);
 
-      const sorted = allStrategies.sort((a, b) => {
-        const aMetric = Number(
-          (a.performance[0] as Record<string, unknown> | undefined)?.[
-            requestedSortBy
-          ] ?? 0,
-        );
-        const bMetric = Number(
-          (b.performance[0] as Record<string, unknown> | undefined)?.[
-            requestedSortBy
-          ] ?? 0,
-        );
-        return requestedOrder === 'asc' ? aMetric - bMetric : bMetric - aMetric;
-      });
-
-      total = sorted.length;
-      strategies = sorted.slice(skip, skip + limit);
+      // Restore the DB-sorted order (findMany with `in` doesn't guarantee order).
+      const byId = new Map(pagedStrategies.map((s) => [s.id, s]));
+      strategies = orderedIds.map((id) => byId.get(id)!).filter(Boolean);
+      total = count;
     } else {
       const sortField = scalarSortFields.has(requestedSortBy)
         ? requestedSortBy
@@ -167,7 +176,7 @@ export class StrategiesService {
       total = count;
     }
 
-    return {
+    const result = {
       strategies: strategies.map((s) => ({
         ...s,
         isSubscribed: (s.subscriptions?.length ?? 0) > 0,
@@ -179,6 +188,12 @@ export class StrategiesService {
       page,
       limit,
     };
+
+    if (!userId) {
+      await this.redis.set(cacheKey, JSON.stringify(result), 60);
+    }
+
+    return result;
   }
 
   async findById(id: string, userId?: string) {
@@ -290,14 +305,36 @@ export class StrategiesService {
   async activate(strategyId: string, userId: string, dto: ActivateStrategyDto) {
     const strategy = await this.prisma.strategy.findUnique({
       where: { id: strategyId },
+      select: {
+        id: true,
+        isPublished: true,
+        masterBrokerAccountId: true,
+      },
     });
     if (!strategy || !strategy.isPublished)
       throw new NotFoundException('Strategy not available');
 
-    // Check if already active
     const existing = await this.prisma.userStrategySubscription.findUnique({
       where: { userId_strategyId: { userId, strategyId } },
     });
+
+    if (strategy.masterBrokerAccountId) {
+      if (
+        !existing ||
+        existing.status !== SubscriptionStatus.ACTIVE ||
+        !existing.stripeSubId
+      ) {
+        throw new ForbiddenException(
+          'Purchase this copy strategy on the marketplace before linking a broker account.',
+        );
+      }
+      const updated = await this.prisma.userStrategySubscription.update({
+        where: { id: existing.id },
+        data: { brokerAccountId: dto.brokerAccountId },
+      });
+      await this.copyFactorySync.enqueueLinkSubscription(updated.id);
+      return updated;
+    }
 
     if (existing && existing.status === SubscriptionStatus.ACTIVE) {
       return this.prisma.userStrategySubscription.update({
@@ -380,7 +417,11 @@ export class StrategiesService {
   }
 
   async runBacktest(strategyId: string, userId: string, dto: RunBacktestDto) {
-    await this.assertTier(userId, ['PRO', 'ELITE', 'INSTITUTIONAL'], 'Backtesting');
+    await this.assertTier(
+      userId,
+      ['PRO', 'ELITE', 'INSTITUTIONAL'],
+      'Backtesting',
+    );
     const strategy = await this.prisma.strategy.findUnique({
       where: { id: strategyId },
     });
@@ -395,7 +436,11 @@ export class StrategiesService {
   }
 
   async runBacktestPreview(userId: string, dto: RunBacktestDto) {
-    await this.assertTier(userId, ['PRO', 'ELITE', 'INSTITUTIONAL'], 'Backtesting');
+    await this.assertTier(
+      userId,
+      ['PRO', 'ELITE', 'INSTITUTIONAL'],
+      'Backtesting',
+    );
     if (!dto.configOverride) {
       throw new BadRequestException('Config override required for preview');
     }
@@ -407,7 +452,11 @@ export class StrategiesService {
     userId: string,
     dto: WalkForwardValidationDto,
   ) {
-    await this.assertTier(userId, ['ELITE', 'INSTITUTIONAL'], 'Walk-forward validation');
+    await this.assertTier(
+      userId,
+      ['ELITE', 'INSTITUTIONAL'],
+      'Walk-forward validation',
+    );
     const strategy = await this.prisma.strategy.findUnique({
       where: { id: strategyId },
     });
@@ -422,7 +471,11 @@ export class StrategiesService {
     userId: string,
     dto: SensitivityAnalysisDto,
   ) {
-    await this.assertTier(userId, ['ELITE', 'INSTITUTIONAL'], 'Sensitivity analysis');
+    await this.assertTier(
+      userId,
+      ['ELITE', 'INSTITUTIONAL'],
+      'Sensitivity analysis',
+    );
     const strategy = await this.prisma.strategy.findUnique({
       where: { id: strategyId },
     });

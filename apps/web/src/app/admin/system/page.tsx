@@ -44,8 +44,8 @@ export default function AdminSystemPage() {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">System Monitoring</h1>
-          <p className="text-sm text-slate-400">Live service status and core platform counters.</p>
+          <h1 className="text-2xl font-semibold text-foreground">System Monitoring</h1>
+          <p className="text-sm text-muted-foreground">Live service status and core platform counters.</p>
         </div>
         <button
           onClick={() => {
@@ -53,7 +53,7 @@ export default function AdminSystemPage() {
             queryClient.invalidateQueries({ queryKey: ['admin', 'system-health'] });
             toast.success('System data refresh queued');
           }}
-          className="inline-flex items-center gap-2 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-white hover:bg-slate-800"
+          className="inline-flex items-center gap-2 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-foreground hover:bg-slate-800"
         >
           <RefreshCcw className="h-4 w-4" />
           Refresh
@@ -79,13 +79,13 @@ export default function AdminSystemPage() {
       </div>
 
       <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-200">
+        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground/80">
           <Server className="h-4 w-4" /> Service Health
         </div>
         {healthQuery.isLoading ? (
-          <p className="text-sm text-slate-400">Loading services...</p>
+          <p className="text-sm text-muted-foreground">Loading services...</p>
         ) : services.length === 0 ? (
-          <p className="text-sm text-slate-400">No service telemetry available.</p>
+          <p className="text-sm text-muted-foreground">No service telemetry available.</p>
         ) : (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
             {services.map((service) => {
@@ -93,8 +93,8 @@ export default function AdminSystemPage() {
                 String(service.status).toUpperCase().includes('CONNECTED');
               return (
                 <div key={service.name} className="rounded border border-slate-700 bg-slate-950 p-3">
-                  <div className="text-xs uppercase tracking-wide text-slate-400">{service.name}</div>
-                  <div className={`mt-1 text-sm font-semibold ${ok ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <div className="text-xs uppercase tracking-wide text-muted-foreground">{service.name}</div>
+                  <div className={`mt-1 text-sm font-semibold ${ok ? 'text-chart-3' : 'text-red-400'}`}>
                     {service.status}
                   </div>
                 </div>
@@ -104,7 +104,7 @@ export default function AdminSystemPage() {
         )}
       </div>
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-foreground0">
         Last update: {healthQuery.data?.lastUpdated ?? metricsQuery.data?.timestamp ?? '-'}
       </p>
     </div>
@@ -122,8 +122,8 @@ function InfoCard({
 }) {
   return (
     <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-      <div className="text-xs uppercase tracking-wide text-slate-400">{label}</div>
-      <div className="mt-2 text-2xl font-semibold text-white">{Loading ? 'Loading...' : value}</div>
+      <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="mt-2 text-2xl font-semibold text-foreground">{Loading ? 'Loading...' : value}</div>
     </div>
   );
 }

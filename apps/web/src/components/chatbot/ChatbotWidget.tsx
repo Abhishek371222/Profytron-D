@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import {
   MessageCircle,
   X,
@@ -14,6 +15,13 @@ import {
   Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUIStore } from '@/lib/stores/useUIStore';
+
+const APP_SHELL_ROUTES = [
+  '/dashboard', '/analytics', '/wallet', '/strategies', '/marketplace',
+  '/journal', '/history', '/leaderboard', '/bots', '/copy-trading',
+  '/notifications', '/affiliate', '/ai-coach', '/settings', '/admin',
+];
 
 type Message = {
   id: string;
@@ -35,7 +43,7 @@ const STORAGE_KEY = 'profytron_chatbot_training';
 const QUICK_SUGGESTIONS = [
   'What is Profytron?',
   'How do I connect a broker?',
-  'What is copy trading?',
+  'How do automated trading bots work?',
   'How does the AI Coach work?',
   'How do I build a strategy?',
   'What is Paper Trading?',
@@ -55,7 +63,7 @@ function TypingDots() {
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
-          className="w-1.5 h-1.5 rounded-full bg-indigo-400"
+          className="w-1.5 h-1.5 rounded-full bg-primary"
           animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
           transition={{ duration: 1, delay: i * 0.18, repeat: Infinity }}
         />
@@ -66,8 +74,8 @@ function TypingDots() {
 
 function BotAvatar() {
   return (
-    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shrink-0 mt-0.5 shadow-lg shadow-indigo-500/25">
-      <Sparkles className="w-3.5 h-3.5 text-white" />
+    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center shrink-0 mt-0.5 shadow-lg shadow-primary/25">
+      <Sparkles className="w-3.5 h-3.5 text-foreground" />
     </div>
   );
 }
@@ -86,15 +94,15 @@ function MessageBubble({ msg }: { msg: Message }) {
         className={cn(
           'max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-relaxed',
           isUser
-            ? 'bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-tr-sm shadow-lg shadow-indigo-500/20'
-            : 'bg-white/5 border border-white/10 text-slate-200 rounded-tl-sm',
+            ? 'bg-gradient-to-br from-primary to-chart-2 text-foreground rounded-tr-sm shadow-lg shadow-primary/20'
+            : 'bg-foreground/5 border border-border text-foreground/80 rounded-tl-sm',
         )}
       >
         <p className="whitespace-pre-wrap break-words">{msg.content}</p>
         <p
           className={cn(
-            'text-[10px] mt-1.5 font-medium',
-            isUser ? 'text-white/50 text-right' : 'text-white/25',
+            'text-micro mt-1.5 font-medium',
+            isUser ? 'text-foreground/50 text-right' : 'text-foreground/25',
           )}
         >
           {new Date(msg.ts).toLocaleTimeString([], {
@@ -108,7 +116,14 @@ function MessageBubble({ msg }: { msg: Message }) {
 }
 
 export function ChatbotWidget() {
-  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const isAppShell = APP_SHELL_ROUTES.some((r) => pathname?.startsWith(r));
+  const { aiChatOpen, setAIChatOpen, toggleAIChat } = useUIStore();
+  const [localOpen, setLocalOpen] = useState(false);
+  const isOpen = isAppShell ? aiChatOpen : localOpen;
+  const setIsOpen = isAppShell ? setAIChatOpen : setLocalOpen;
+  const toggleOpen = isAppShell ? toggleAIChat : () => setLocalOpen((p) => !p);
+
   const [tab, setTab] = useState<Tab>('chat');
   const [messages, setMessages] = useState<Message[]>([WELCOME]);
   const [input, setInput] = useState('');
@@ -220,7 +235,10 @@ export function ChatbotWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3 select-none">
+    <div className={cn(
+      "fixed z-[9999] flex flex-col items-end gap-3 select-none",
+      isAppShell ? "bottom-24 right-6 sm:bottom-28 sm:right-8" : "bottom-6 right-6",
+    )}>
       {/* ── Chat window ── */}
       <AnimatePresence>
         {isOpen && (
@@ -230,23 +248,23 @@ export function ChatbotWidget() {
             exit={{ opacity: 0, scale: 0.88, y: 16 }}
             transition={{ type: 'spring', stiffness: 420, damping: 30 }}
             style={{ transformOrigin: 'bottom right' }}
-            className="w-[370px] max-w-[calc(100vw-24px)] rounded-3xl overflow-hidden flex flex-col bg-[#07070c]/96 backdrop-blur-3xl border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.04)] h-[560px]"
+            className="w-[370px] max-w-[calc(100vw-24px)] rounded-[20px] overflow-hidden flex flex-col bg-card backdrop-blur-xl border border-[var(--card-border)] shadow-card-premium h-[560px]"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 px-5 py-4 flex items-center justify-between shrink-0 relative overflow-hidden">
+            <div className="bg-gradient-to-r from-primary via-primary to-chart-2 px-5 py-4 flex items-center justify-between shrink-0 relative overflow-hidden">
               {/* subtle noise overlay */}
               <div className="absolute inset-0 opacity-10 mix-blend-overlay bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJuIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC45IiBudW1PY3RhdmVzPSI0IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWx0ZXI9InVybCgjbikiIG9wYWNpdHk9IjEiLz48L3N2Zz4=')]" />
               <div className="relative flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center border border-white/25 backdrop-blur-sm shadow-inner">
-                  <Zap className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 rounded-2xl bg-foreground/15 flex items-center justify-center border border-border backdrop-blur-sm shadow-inner">
+                  <Zap className="w-5 h-5 text-foreground" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white tracking-wide">
+                  <div className="text-sm font-bold text-foreground tracking-wide">
                     Profytron AI
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow shadow-emerald-400/70 animate-pulse" />
-                    <span className="text-[10px] text-white/70 uppercase tracking-widest font-semibold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-chart-3 shadow shadow-chart-3/70 animate-pulse" />
+                    <span className="text-micro text-foreground/70 uppercase tracking-widest font-semibold">
                       Online
                     </span>
                   </div>
@@ -255,16 +273,16 @@ export function ChatbotWidget() {
 
               <div className="relative flex items-center gap-2">
                 {/* Tab switcher */}
-                <div className="flex items-center bg-white/15 rounded-xl p-1 gap-0.5">
+                <div className="flex items-center bg-foreground/15 rounded-xl p-1 gap-0.5">
                   {(['chat', 'train'] as Tab[]).map((t) => (
                     <button
                       key={t}
                       onClick={() => setTab(t)}
                       className={cn(
-                        'px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all',
+                        'px-3 py-1 rounded-lg text-micro font-bold uppercase tracking-widest transition-all',
                         tab === t
-                          ? 'bg-white text-indigo-600 shadow-sm'
-                          : 'text-white/70 hover:text-white',
+                          ? 'bg-white text-primary shadow-sm'
+                          : 'text-foreground/70 hover:text-foreground',
                       )}
                     >
                       {t}
@@ -273,9 +291,9 @@ export function ChatbotWidget() {
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors border border-white/20"
+                  className="w-8 h-8 rounded-xl bg-foreground/15 hover:bg-foreground/25 flex items-center justify-center transition-colors border border-border"
                 >
-                  <X className="w-4 h-4 text-white" />
+                  <X className="w-4 h-4 text-foreground" />
                 </button>
               </div>
             </div>
@@ -291,7 +309,7 @@ export function ChatbotWidget() {
                   {loading && (
                     <div className="flex items-center gap-2.5">
                       <BotAvatar />
-                      <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm">
+                      <div className="bg-foreground/5 border border-border rounded-2xl rounded-tl-sm">
                         <TypingDots />
                       </div>
                     </div>
@@ -306,7 +324,7 @@ export function ChatbotWidget() {
                       <button
                         key={s}
                         onClick={() => sendMessage(s)}
-                        className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] text-white/50 hover:text-white hover:border-indigo-500/40 hover:bg-indigo-500/10 transition-all font-medium"
+                        className="px-3 py-1.5 rounded-full bg-foreground/5 border border-border text-caption text-foreground/50 hover:text-foreground hover:border-primary/40 hover:bg-primary/10 transition-all font-medium"
                       >
                         {s}
                       </button>
@@ -319,7 +337,7 @@ export function ChatbotWidget() {
                   <div className="px-4 pb-2 flex justify-end">
                     <button
                       onClick={() => setMessages([WELCOME])}
-                      className="flex items-center gap-1.5 text-[10px] text-white/25 hover:text-white/50 transition-colors font-semibold uppercase tracking-widest"
+                      className="flex items-center gap-1.5 text-micro text-foreground/25 hover:text-foreground/50 transition-colors font-semibold uppercase tracking-widest"
                     >
                       <RotateCcw className="w-3 h-3" />
                       New chat
@@ -329,7 +347,7 @@ export function ChatbotWidget() {
 
                 {/* Input */}
                 <div className="px-4 pb-4 shrink-0">
-                  <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-2xl px-4 py-3 focus-within:border-indigo-500/50 transition-colors">
+                  <div className="flex items-center gap-2 bg-foreground/5 border border-border rounded-2xl px-4 py-3 focus-within:border-primary/50 transition-colors">
                     <input
                       ref={inputRef}
                       value={input}
@@ -341,19 +359,19 @@ export function ChatbotWidget() {
                         }
                       }}
                       placeholder="Ask anything about Profytron…"
-                      className="flex-1 bg-transparent text-sm text-white placeholder:text-white/25 outline-none"
+                      className="flex-1 bg-transparent text-sm text-foreground placeholder:text-foreground/25 outline-none"
                       disabled={loading}
                     />
                     <motion.button
                       whileTap={{ scale: 0.9 }}
                       onClick={() => sendMessage(input)}
                       disabled={!input.trim() || loading}
-                      className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center disabled:opacity-30 hover:opacity-90 transition-opacity shrink-0"
+                      className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center disabled:opacity-30 hover:opacity-90 transition-opacity shrink-0"
                     >
-                      <Send className="w-3.5 h-3.5 text-white" />
+                      <Send className="w-3.5 h-3.5 text-foreground" />
                     </motion.button>
                   </div>
-                  <p className="text-[10px] text-white/15 text-center mt-2 uppercase tracking-widest">
+                  <p className="text-micro text-foreground/15 text-center mt-2 uppercase tracking-widest">
                     Powered by OpenRouter AI
                   </p>
                 </div>
@@ -366,14 +384,14 @@ export function ChatbotWidget() {
                 {/* Existing pairs */}
                 <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 min-h-0">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-[10px] uppercase tracking-widest text-white/35 font-semibold">
+                    <p className="text-micro uppercase tracking-widest text-foreground/35 font-semibold">
                       {customTraining.length} custom pair
                       {customTraining.length !== 1 ? 's' : ''}
                     </p>
                     {customTraining.length > 0 && (
                       <button
                         onClick={() => persistTraining([])}
-                        className="text-[10px] text-red-400/50 hover:text-red-400 transition-colors uppercase tracking-widest font-semibold"
+                        className="text-micro text-red-400/50 hover:text-red-400 transition-colors uppercase tracking-widest font-semibold"
                       >
                         Clear all
                       </button>
@@ -382,14 +400,14 @@ export function ChatbotWidget() {
 
                   {customTraining.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-10 gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-white/20" />
+                      <div className="w-12 h-12 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center">
+                        <BookOpen className="w-5 h-5 text-foreground/20" />
                       </div>
                       <div className="text-center">
-                        <p className="text-sm text-white/30 font-medium">
+                        <p className="text-sm text-foreground/30 font-medium">
                           No custom training yet
                         </p>
-                        <p className="text-[11px] text-white/20 mt-1">
+                        <p className="text-caption text-foreground/20 mt-1">
                           Add Q&amp;A pairs to teach the bot specific answers
                         </p>
                       </div>
@@ -399,10 +417,10 @@ export function ChatbotWidget() {
                   {customTraining.map((item) => (
                     <div
                       key={item.id}
-                      className="p-3 rounded-xl bg-white/3 border border-white/5 space-y-2 group"
+                      className="p-3 rounded-xl bg-foreground/3 border border-border space-y-2 group"
                     >
                       <div className="flex items-start justify-between gap-2">
-                        <span className="text-[10px] font-bold text-indigo-400/70 uppercase tracking-widest">
+                        <span className="text-micro font-bold text-primary/70 uppercase tracking-widest">
                           Q
                         </span>
                         <button
@@ -416,13 +434,13 @@ export function ChatbotWidget() {
                           <Trash2 className="w-3 h-3 text-red-400" />
                         </button>
                       </div>
-                      <p className="text-xs text-white/80 leading-relaxed">
+                      <p className="text-xs text-foreground/80 leading-relaxed">
                         {item.question}
                       </p>
-                      <span className="text-[10px] font-bold text-emerald-400/60 uppercase tracking-widest">
+                      <span className="text-micro font-bold text-chart-3/60 uppercase tracking-widest">
                         A
                       </span>
-                      <p className="text-xs text-white/45 leading-relaxed">
+                      <p className="text-xs text-foreground/45 leading-relaxed">
                         {item.answer}
                       </p>
                     </div>
@@ -430,30 +448,30 @@ export function ChatbotWidget() {
                 </div>
 
                 {/* Add new pair */}
-                <div className="px-4 pb-4 pt-3 border-t border-white/5 space-y-2.5 shrink-0">
-                  <p className="text-[10px] uppercase tracking-widest text-white/30 font-bold">
+                <div className="px-4 pb-4 pt-3 border-t border-border space-y-2.5 shrink-0">
+                  <p className="text-micro uppercase tracking-widest text-foreground/30 font-bold">
                     Add training pair
                   </p>
                   <input
                     value={newQ}
                     onChange={(e) => { setNewQ(e.target.value); setAddError(''); }}
                     placeholder="Question…"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-indigo-500/50 transition-colors"
+                    className="w-full bg-foreground/5 border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/25 outline-none focus:border-primary/50 transition-colors"
                   />
                   <textarea
                     value={newA}
                     onChange={(e) => { setNewA(e.target.value); setAddError(''); }}
                     placeholder="Answer…"
                     rows={3}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-white/25 outline-none focus:border-indigo-500/50 transition-colors resize-none"
+                    className="w-full bg-foreground/5 border border-border rounded-xl px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/25 outline-none focus:border-primary/50 transition-colors resize-none"
                   />
                   {addError && (
-                    <p className="text-[11px] text-red-400">{addError}</p>
+                    <p className="text-caption text-red-400">{addError}</p>
                   )}
                   <motion.button
                     whileTap={{ scale: 0.97 }}
                     onClick={addTrainingPair}
-                    className="w-full h-10 bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl text-sm font-bold text-white uppercase tracking-widest hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                    className="w-full h-10 bg-gradient-to-r from-primary to-chart-2 rounded-xl text-sm font-bold text-foreground uppercase tracking-widest hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     Add Pair
@@ -465,7 +483,8 @@ export function ChatbotWidget() {
         )}
       </AnimatePresence>
 
-      {/* ── Trigger button ── */}
+      {/* ── Trigger button (public pages only — dashboard uses AIAssistantOrb) ── */}
+      {!isAppShell && (
       <div className="relative">
         {hasUnread && (
           <motion.span
@@ -477,13 +496,13 @@ export function ChatbotWidget() {
         <motion.button
           whileHover={{ scale: 1.06 }}
           whileTap={{ scale: 0.94 }}
-          onClick={() => setIsOpen((p) => !p)}
-          className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 shadow-[0_8px_32px_rgba(99,102,241,0.45)] flex items-center justify-center border border-white/20 relative overflow-visible"
+          onClick={toggleOpen}
+          className="w-14 h-14 rounded-[14px] bg-gradient-cta shadow-cta flex items-center justify-center border border-primary/20 relative overflow-visible"
           aria-label="Open Profytron AI chat"
         >
           {/* Pulsing ring */}
           <motion.span
-            className="absolute inset-0 rounded-2xl ring-2 ring-indigo-400/50"
+            className="absolute inset-0 rounded-2xl ring-2 ring-primary/50"
             animate={{ scale: [1, 1.25, 1], opacity: [0.7, 0, 0.7] }}
             transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
           />
@@ -496,7 +515,7 @@ export function ChatbotWidget() {
                 exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
                 transition={{ duration: 0.18 }}
               >
-                <X className="w-6 h-6 text-white" />
+                <X className="w-6 h-6 text-foreground" />
               </motion.div>
             ) : (
               <motion.div
@@ -506,12 +525,13 @@ export function ChatbotWidget() {
                 exit={{ rotate: -90, opacity: 0, scale: 0.6 }}
                 transition={{ duration: 0.18 }}
               >
-                <MessageCircle className="w-6 h-6 text-white" />
+                <MessageCircle className="w-6 h-6 text-foreground" />
               </motion.div>
             )}
           </AnimatePresence>
         </motion.button>
       </div>
+      )}
     </div>
   );
 }

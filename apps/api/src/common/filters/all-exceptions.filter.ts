@@ -7,6 +7,10 @@ import {
   Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
+import {
+  isOAuthCallbackPath,
+  oauthFailureRedirectUrl,
+} from '../utils/oauth-callback.util';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -18,6 +22,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
+    const requestUrl = httpAdapter.getRequestUrl(ctx.getRequest());
 
     const httpStatus =
       exception instanceof HttpException
@@ -38,8 +43,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
           : (message as any).message || message,
       code: (message as any).code || (message as any).error || 'INTERNAL_ERROR',
       timestamp: new Date().toISOString(),
-      path: httpAdapter.getRequestUrl(ctx.getRequest()),
+      path: requestUrl,
     };
+
+    if (isOAuthCallbackPath(requestUrl)) {
+      const redirectUrl = oauthFailureRedirectUrl(exception);
+      this.logger.warn(
+        `OAuth callback failed, redirecting to login: ${redirectUrl}`,
+        (exception as Error)?.stack,
+      );
+      return response.redirect(302, redirectUrl);
+    }
 
     if (httpStatus >= 500) {
       this.logger.error(

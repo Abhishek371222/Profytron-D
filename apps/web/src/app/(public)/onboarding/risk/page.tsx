@@ -3,236 +3,316 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { 
- ShieldCheck, 
- Target, 
- Zap, 
- Activity, 
- ChevronRight, 
- Lock,
- ArrowRight,
- Brain,
- Cpu,
- Sparkles
+import {
+  ShieldCheck,
+  Target,
+  Zap,
+  ChevronRight,
+  Lock,
+  ArrowRight,
+  Brain,
+  Sparkles,
 } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { ChoiceCard } from '@/components/ui/ChoiceCard';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 import { toast } from 'sonner';
+import { usersApi } from '@/lib/api/users';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { LandingAmbientBackground } from '@/components/home/LandingAmbientBackground';
 
 const STEPS = [
- {
- id: 'capital',
- title: 'Capital Allocation',
- description: 'Determine your strategic threshold for institutional-grade exposure.',
- icon: Target,
- questions: [
- { id: 'amount', label: 'TARGET DEPLOYMENT VOLUME', options: ['<$10K', '$10K - $100K', '$100K - $1M', '$1M+'], weight: 1 },
- { id: 'source', label: 'LIQUIDITY ORIGIN', options: ['Personal Savings', 'Your Fund', 'Venture Capital', 'Treasury'], weight: 1 }
- ]
- },
- {
- id: 'aggressiveness',
- title: 'Neural Aggression',
- description: 'Calibrate the smart analysis execution frequency and risk sensitivity.',
- icon: Zap,
- questions: [
- { id: 'leverage', label: 'MAXIMAL LEVERAGE EXPOSURE', options: ['1x (Spot)', '3x - 5x', '10x - 20x', '50x+ (Hyper)'], weight: 3 },
- { id: 'drawdown', label: 'ADMITTED DRAWDOWN THRESHOLD', options: ['<2% Price movement', '5% Tactical', '15% Growth', '30%+ High Alpha'], weight: 3 }
- ]
- },
- {
- id: 'security',
- title: 'System Security',
- description: 'Activate biometric lockdown and emergency liquidation protocols.',
- icon: Lock,
- questions: [
- { id: 'mfa', label: 'SECURITY LOCKDOWN LEVEL', options: ['Standard MFA', 'Hardware Key (Yubikey)', 'Multi-Sig Approval', 'Air-Gapped Proxy'], weight: 2 },
- { id: 'killswitch', label: 'KILL-SWITCH ACTIVATION', options: ['Manual Only', '2% Equity Drop', '5% System Anomaly', 'Instant Logic Disconnect'], weight: 2 }
- ]
- }
+  {
+    id: 'capital',
+    title: 'Capital allocation',
+    description: 'Tell us how much you plan to deploy so we can size risk limits appropriately.',
+    icon: Target,
+    questions: [
+      {
+        id: 'amount',
+        label: 'How much do you plan to trade with?',
+        options: ['Under $10K', '$10K – $100K', '$100K – $1M', '$1M+'],
+      },
+      {
+        id: 'source',
+        label: 'Where is this capital coming from?',
+        options: ['Personal savings', 'Trading fund', 'Venture capital', 'Treasury'],
+      },
+    ],
+  },
+  {
+    id: 'aggressiveness',
+    title: 'Risk appetite',
+    description: 'We use this to tune leverage caps, drawdown alerts, and strategy recommendations.',
+    icon: Zap,
+    questions: [
+      {
+        id: 'leverage',
+        label: 'Maximum leverage you are comfortable with',
+        options: ['1× (spot only)', '3× – 5×', '10× – 20×', '50×+ (high risk)'],
+      },
+      {
+        id: 'drawdown',
+        label: 'Maximum drawdown before you pause',
+        options: ['Under 2%', 'Around 5%', 'Up to 15%', '30%+ (aggressive)'],
+      },
+    ],
+  },
+  {
+    id: 'security',
+    title: 'Safety controls',
+    description: 'Choose how strictly Profytron should protect your account.',
+    icon: Lock,
+    questions: [
+      {
+        id: 'mfa',
+        label: 'Preferred security level',
+        options: ['Standard MFA', 'Hardware key', 'Multi-sig approval', 'Air-gapped proxy'],
+      },
+      {
+        id: 'killswitch',
+        label: 'Auto kill-switch trigger',
+        options: ['Manual only', '2% equity drop', '5% anomaly detected', 'Instant disconnect'],
+      },
+    ],
+  },
 ];
 
- import { usersApi } from '@/lib/api/users';
+export default function RiskOnboardingPage() {
+  const router = useRouter();
+  const { isAuthenticated, isHydrating, user } = useAuthStore();
+  const [currentStep, setCurrentStep] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [isFinalizing, setIsFinalizing] = useState(false);
 
- export default function RiskOnboardingPage() {
- const router = useRouter();
- const [currentStep, setCurrentStep] = useState(0);
- const [answers, setAnswers] = useState<Record<string, string>>({});
- const [isFinalizing, setIsFinalizing] = useState(false);
+  React.useEffect(() => {
+    if (isHydrating) return;
+    if (!isAuthenticated) {
+      router.replace('/login?redirect=/onboarding/risk');
+    } else if (user?.onboardingCompleted) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, isHydrating, user?.onboardingCompleted, router]);
 
- const handleSelect = (questionId: string, option: string) => {
- setAnswers(prev => ({ ...prev, [questionId]: option }));
- };
+  const handleSelect = (questionId: string, option: string) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: option }));
+  };
 
- const handleNext = async () => {
- if (currentStep < STEPS.length - 1) {
- setCurrentStep(curr => curr + 1);
- } else {
- setIsFinalizing(true);
- try {
-   let score = 50;
-   // Extremely simple mock score calculation based on string length to simulate real analysis
-   Object.values(answers).forEach((val) => {
-     score += val.length; 
-   });
-   
-   score = Math.min(score, 100);
+  const handleNext = async () => {
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep((curr) => curr + 1);
+      return;
+    }
 
-   await usersApi.updateRiskProfile({
-     riskProfileJson: answers,
-     riskDnaScore: score
-   });
-   toast.success('Risk DNA synchronized', {
-     description: 'Your profile has been applied. Redirecting to dashboard.',
-   });
-   router.push('/dashboard');
- } catch (error) {
-   console.error('Failed to save risk DNA', error);
-   toast.error('Risk profile sync failed', {
-     description: 'Please retry in a few seconds.',
-   });
-   setIsFinalizing(false);
- }
- }
- };
+    setIsFinalizing(true);
+    try {
+      let score = 50;
+      Object.values(answers).forEach((val) => {
+        score += val.length;
+      });
+      score = Math.min(Math.round(score), 100);
 
- const step = STEPS[currentStep];
- const progress = ((currentStep + 1) / STEPS.length) * 100;
+      const updated = await usersApi.updateRiskProfile({
+        riskProfileJson: answers,
+        riskDnaScore: score,
+      });
 
- return (
- <div className="min-h-screen bg-[#050508] text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
- {/* Background Atmosphere */}
- <div className="absolute inset-0 pointer-events-none">
- <div className="absolute top-0 left-0 w-full h-[500px] bg-primary/5 blur-[150px] rounded-full" />
- <div className="absolute bottom-0 right-0 w-full h-[500px] bg-indigo-500/5 blur-[150px] rounded-full" />
- <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-5" />
- </div>
+      const token = useAuthStore.getState().accessToken;
+      if (token) {
+        useAuthStore.getState().login(token, updated);
+      }
+      if (typeof document !== 'undefined') {
+        document.cookie = 'onboarding_completed=1; path=/; max-age=604800; samesite=lax';
+      }
+      toast.success('Risk profile saved', {
+        description: 'Next: connect a paper account or browse strategies.',
+      });
+      router.push('/copy-trading?paper=1');
+    } catch (error: unknown) {
+      const axiosErr = error as {
+        response?: { data?: { error?: string }; status?: number };
+        message?: string;
+        code?: string;
+      };
+      const isNetwork =
+        !axiosErr?.response &&
+        (axiosErr?.code === 'ECONNREFUSED' ||
+          axiosErr?.code === 'ERR_NETWORK' ||
+          axiosErr?.message?.includes('Network Error'));
 
- <div className="max-w-xl w-full relative z-10">
- <AnimatePresence mode="wait">
- {!isFinalizing ? (
- <motion.div 
- key="form"
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- exit={{ opacity: 0, scale: 0.95 }}
- className="space-y-12"
- >
- {/* Header */}
- <div className="text-center space-y-4">
- <motion.div 
- layoutId="icon"
- className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(99,102,241,0.2)]"
- >
- <step.icon className="w-10 h-10 text-primary animate-pulse" />
- </motion.div>
- <div className="space-y-2">
- <h1 className="text-4xl font-semibold uppercase tracking-tight">{step.title}</h1>
- <p className="text-white/40 font-medium text-lg leading-relaxed">{step.description}</p>
- </div>
- </div>
+      console.error('Failed to save risk profile', error);
+      toast.error(
+        isNetwork
+          ? 'Cannot reach the server'
+          : (axiosErr?.response?.data?.error as string) || 'Could not save risk profile',
+        {
+          description: isNetwork
+            ? 'Start the API (port 4000) and try again.'
+            : 'Please retry in a few seconds.',
+        },
+      );
+      setIsFinalizing(false);
+    }
+  };
 
- {/* Progress Bar */}
- <div className="space-y-3">
- <div className="flex justify-between items-end text-xs font-semibold uppercase tracking-[0.4em] text-white/20">
- <span>System Registration</span>
- <span className="text-primary">{Math.round(progress)}% Complete</span>
- </div>
- <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
- <motion.div 
- initial={{ width: 0 }}
- animate={{ width: `${progress}%` }}
- className="h-full bg-primary shadow-[0_0_15px_rgba(99,102,241,0.5)]" 
- />
- </div>
- </div>
+  const step = STEPS[currentStep];
+  const progress = ((currentStep + 1) / STEPS.length) * 100;
+  const stepComplete = step.questions.every((q) => Boolean(answers[q.id]));
 
- {/* Questions */}
- <div className="space-y-10">
- {step.questions.map((q) => (
- <div key={q.id} className="space-y-6">
- <label className="text-sm font-semibold text-white/30 uppercase tracking-[0.3em] flex items-center gap-3">
- <Activity className="w-3 h-3 text-primary" />
- {q.label}
- </label>
- <div className="grid grid-cols-2 gap-4">
- {q.options.map((option) => (
- <button
- key={option}
- onClick={() => handleSelect(q.id, option)}
- className={cn(
-"h-16 rounded-2xl border transition-all duration-500 font-semibold text-xs uppercase tracking-widest relative overflow-hidden",
- answers[q.id] === option 
- ?"bg-primary border-primary text-white shadow-[0_0_30px_rgba(99,102,241,0.3)]" 
- :"bg-white/5 border-white/5 text-white/40 hover:border-white/20 hover:text-white"
- )}
- >
- <span className={cn("relative z-10", answers[q.id] === option ?"scale-110" :"")}>{option}</span>
- {answers[q.id] === option && (
- <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
- )}
- </button>
- ))}
- </div>
- </div>
- ))}
- </div>
+  if (isHydrating || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+          <p className="text-sm">Loading your profile…</p>
+        </div>
+      </div>
+    );
+  }
 
- {/* Action */}
- <Button 
- onClick={handleNext}
- disabled={step.questions.some(q => !answers[q.id])}
- className="w-full h-16 bg-white text-black hover:bg-white/90 rounded-2xl font-semibold uppercase tracking-widest text-lg group shadow-2xl disabled:opacity-30 disabled:grayscale transition-all"
- >
- {currentStep === STEPS.length - 1 ? 'Compute Risk DNA' : 'Synchronize Next Section'}
- <ArrowRight className="ml-3 w-5 h-5 group-hover:translate-x-2 transition-transform" />
- </Button>
- </motion.div>
- ) : (
- <motion.div 
- key="finalizing"
- initial={{ opacity: 0, scale: 0.95 }}
- animate={{ opacity: 1, scale: 1 }}
- className="text-center space-y-8"
- >
- <div className="relative">
- <div className="w-32 h-32 rounded-full border-4 border-white/5 mx-auto flex items-center justify-center relative border-t-primary animate-spin" />
- <div className="absolute inset-0 flex items-center justify-center">
- <Brain className="w-12 h-12 text-primary animate-pulse" />
- </div>
- </div>
- <div className="space-y-2">
- <h2 className="text-3xl font-semibold uppercase tracking-[0.2em]">Analyzing Profile DNA...</h2>
- <p className="text-white/30 text-lg font-medium leading-relaxed uppercase tracking-widest">Compiling institutional risk constraints and neural execution protocols.</p>
- </div>
- <div className="bg-white/5 border border-white/10 p-6 rounded-4xl space-y-4 max-w-sm mx-auto">
- <div className="flex items-center gap-3">
- <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
- <span className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">System Systems Engaged</span>
- </div>
- <div className="flex items-center gap-3">
- <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
- <span className="text-xs font-semibold text-primary uppercase tracking-widest">Hardware Keys Validated</span>
- </div>
- </div>
- </motion.div>
- )}
- </AnimatePresence>
- </div>
+  return (
+    <div className="relative min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
+      <LandingAmbientBackground />
 
- {/* Footer Branding */}
- <div className="absolute bottom-10 flex items-center gap-10 opacity-20 text-xs font-semibold uppercase tracking-[0.5em]">
- <div className="flex items-center gap-3">
- <Cpu className="w-4 h-4" />
- Safety Alert V4
- </div>
- <div className="flex items-center gap-3">
- <ShieldCheck className="w-4 h-4" />
- End-to-End Encryption
- </div>
- </div>
- </div>
- );
+      <div className="relative z-10 w-full max-w-2xl">
+        <AnimatePresence mode="wait">
+          {!isFinalizing ? (
+            <motion.div
+              key={`step-${currentStep}`}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+              className="dashboard-card p-6 sm:p-8 lg:p-10 space-y-8"
+            >
+              {/* Header */}
+              <div className="text-center space-y-4">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-primary/5 px-3 py-1 text-caption font-medium text-primary">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Risk DNA · Step {currentStep + 1} of {STEPS.length}
+                </div>
+                <motion.div
+                  layoutId="step-icon"
+                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 shadow-[var(--shadow-card)]"
+                >
+                  <step.icon className="h-8 w-8 text-primary" />
+                </motion.div>
+                <div className="space-y-2">
+                  <h1 className="text-heading-3 font-bold tracking-tight text-foreground">
+                    {step.title}
+                  </h1>
+                  <p className="text-body text-muted-foreground max-w-md mx-auto leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Progress */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-caption text-muted-foreground">
+                  <span>Profile completion</span>
+                  <span className="font-semibold text-primary">{Math.round(progress)}%</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-[var(--indigo)]"
+                  />
+                </div>
+              </div>
+
+              {/* Questions */}
+              <div className="space-y-8">
+                {step.questions.map((q) => (
+                  <div key={q.id} className="space-y-3">
+                    <p className="text-sm font-semibold text-foreground">{q.label}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {q.options.map((option) => (
+                        <ChoiceCard
+                          key={option}
+                          label={option}
+                          selected={answers[q.id] === option}
+                          onClick={() => handleSelect(q.id, option)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                {currentStep > 0 && (
+                  <Button
+                    variant="outline"
+                    className="sm:flex-1 h-12"
+                    onClick={() => setCurrentStep((c) => c - 1)}
+                  >
+                    Back
+                  </Button>
+                )}
+                <Button
+                  variant="primary"
+                  onClick={handleNext}
+                  disabled={!stepComplete}
+                  className={cn('h-12 text-base', currentStep === 0 ? 'w-full' : 'sm:flex-[2]')}
+                >
+                  {currentStep === STEPS.length - 1 ? 'Save risk profile' : 'Continue'}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="finalizing"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="dashboard-card p-10 text-center space-y-8"
+            >
+              <div className="relative mx-auto h-28 w-28">
+                <div className="absolute inset-0 rounded-full border-2 border-[var(--card-border)]" />
+                <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Brain className="h-10 w-10 text-primary" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-heading-4 font-bold">Building your risk profile</h2>
+                <p className="text-muted-foreground max-w-sm mx-auto">
+                  Calibrating limits, alerts, and strategy filters to match your answers.
+                </p>
+              </div>
+              <div className="premium-surface p-5 space-y-3 max-w-sm mx-auto text-left">
+                {['Analyzing capital allocation', 'Setting drawdown guardrails', 'Applying safety controls'].map(
+                  (line, i) => (
+                    <div key={line} className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <span
+                        className="h-2 w-2 rounded-full bg-primary animate-pulse"
+                        style={{ animationDelay: `${i * 200}ms` }}
+                      />
+                      {line}
+                    </div>
+                  ),
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Footer */}
+      <div className="relative z-10 mt-10 flex flex-wrap items-center justify-center gap-6 text-caption text-muted-foreground">
+        <span className="flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-primary" />
+          End-to-end encrypted
+        </span>
+        <span className="flex items-center gap-2">
+          <ChevronRight className="h-4 w-4" />
+          Takes under 2 minutes
+        </span>
+      </div>
+    </div>
+  );
 }

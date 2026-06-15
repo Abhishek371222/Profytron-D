@@ -15,7 +15,7 @@ Profytron is an institutional-grade algorithmic trading and portfolio management
 - AI Coach: Personalized trading coaching, trade-by-trade explanation, market regime analysis, coaching reports
 - Strategy Builder: Visual drag-and-drop node-based strategy creation with live backtesting
 - Strategy Marketplace: Browse, subscribe to, and deploy community-created strategies
-- Copy Trading: Automatically copy top traders' strategies from the leaderboard
+- Automated Bots: Purchase and enable trading bots from the marketplace; execution runs on your connected MT5 account
 - Live Trading: Real-time execution across 20+ broker integrations
 
 **Broker Integrations (20+ supported):**
@@ -33,7 +33,7 @@ Profytron is an institutional-grade algorithmic trading and portfolio management
 **Account & Payments:**
 - Wallet: Deposit / withdraw via Stripe
 - Subscription tiers for premium marketplace access
-- Leaderboard: Ranked traders to browse and copy
+- Leaderboard: Ranked traders to browse and follow
 
 **Security & Auth:**
 - Email/password login with optional 2FA

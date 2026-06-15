@@ -137,18 +137,18 @@ export default function PrivacyPage() {
   return (
     <PublicPageLayout>
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-0 right-1/3 w-[500px] h-62.5 bg-indigo-600/8 blur-[100px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-1/3 w-[500px] h-62.5 bg-primary/8 blur-[100px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-4xl relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
-              <Shield className="w-3 h-3 text-indigo-400" /> Legal
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-foreground/3 border border-border text-foreground/50 text-micro font-bold tracking-[0.4em] uppercase mb-8">
+              <Shield className="w-3 h-3 text-primary" /> Legal
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] text-white leading-tight mb-6">Privacy Policy</h1>
-            <div className="flex items-center gap-6 text-white/30 text-xs font-mono">
+            <h1 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] text-foreground leading-tight mb-6">Privacy Policy</h1>
+            <div className="flex items-center gap-6 text-foreground/30 text-xs font-mono">
               <span>Effective Date: April 12, 2026</span>
               <span>Last Updated: April 12, 2026</span>
             </div>
-            <p className="mt-6 text-white/50 leading-relaxed">
+            <p className="mt-6 text-foreground/50 leading-relaxed">
               This Privacy Policy describes how Profytron Technologies Pvt. Ltd. collects, uses, and protects your personal data. Please read it carefully before using the platform.
             </p>
           </div>
@@ -159,12 +159,12 @@ export default function PrivacyPage() {
           or can be implemented as simple <a> tags with IDs */}
       <section className="pb-8 sticky top-28 z-40">
         <div className="container mx-auto px-6 max-w-4xl">
-          <div className="flex flex-wrap gap-2 py-3 px-4 rounded-xl bg-black/60 backdrop-blur-xl border border-white/6">
+          <div className="flex flex-wrap gap-2 py-3 px-4 rounded-xl bg-black/60 backdrop-blur-xl border border-border">
             {sections.map((s, i) => (
               <a 
                 key={i} 
                 href={`#section-${i}`}
-                className="text-[10px] text-white/30 hover:text-indigo-400 font-mono transition-colors px-2 py-1"
+                className="text-micro text-foreground/30 hover:text-primary font-mono transition-colors px-2 py-1"
               >
                 §{i + 1}
               </a>
@@ -177,9 +177,9 @@ export default function PrivacyPage() {
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="flex flex-col gap-8">
             {sections.map((s, i) => (
-              <div key={i} id={`section-${i}`} className="p-8 rounded-2xl bg-white/2 border border-white/6 scroll-mt-32">
-                <h2 className="text-lg font-bold text-white mb-4 tracking-tight">{s.title}</h2>
-                <div className="text-white/55 text-sm leading-[1.85] whitespace-pre-line">{s.content}</div>
+              <div key={i} id={`section-${i}`} className="p-8 rounded-2xl bg-foreground/2 border border-border scroll-mt-32">
+                <h2 className="text-lg font-bold text-foreground mb-4 tracking-tight">{s.title}</h2>
+                <div className="text-foreground/55 text-sm leading-[1.85] whitespace-pre-line">{s.content}</div>
               </div>
             ))}
           </div>

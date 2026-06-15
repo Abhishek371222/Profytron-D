@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { InjectQueue } from '@nestjs/bull';
 import { TradingGateway } from './trading.gateway';
 import { MasterSyncService } from './master-sync.service';
+import { MarketService, type MarketSymbol } from '../market/market.service';
 import { randomUUID } from 'crypto';
 import { SubscriptionStatus } from '@prisma/client';
 
@@ -14,10 +15,19 @@ export class TradingService {
     private prisma: PrismaService,
     private gateway: TradingGateway,
     private masterSync: MasterSyncService,
+    private marketService: MarketService,
     @InjectQueue('trade_execution') private tradeQueue: any,
   ) {
-    // Start polling master accounts on app startup
-    this.masterSync.startPolling(3000);
+    const useCopyFactory =
+      process.env.METAAPI_TOKEN &&
+      process.env.COPYFACTORY_ENABLED !== 'false';
+    if (!useCopyFactory) {
+      this.masterSync.startPolling(3000);
+    } else {
+      this.logger.log(
+        'CopyFactory enabled — legacy master position polling disabled',
+      );
+    }
   }
 
   async processSignal(
@@ -32,8 +42,8 @@ export class TradingService {
 
     const signalId = randomUUID();
 
-    // Persist a durable signal audit entry until a dedicated signal model exists.
-    await this.prisma.auditLog.create({
+    // Persist signal audit off the critical path — fire-and-forget.
+    this.prisma.auditLog.create({
       data: {
         eventType: 'TRADING_SIGNAL_RECEIVED',
         userId: null,
@@ -47,18 +57,13 @@ export class TradingService {
         },
         triggeredBy: strategyId,
       },
-    });
+    }).catch((err: Error) => this.logger.error(`Audit write failed: ${err.message}`));
 
     const now = new Date();
 
-    // Find all users subscribed to this strategy who are currently active and non-expired.
-    // null expiresAt means lifetime or free subscription — always valid.
-    const subscriptions = await this.prisma.userStrategySubscription.findMany({
-      where: {
-        strategyId,
-        status: SubscriptionStatus.ACTIVE,
-        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
-      },
+    // Single query for ALL active subscriptions — then partition in JS (avoids double scan).
+    const allActiveSubs = await this.prisma.userStrategySubscription.findMany({
+      where: { strategyId, status: SubscriptionStatus.ACTIVE },
       select: {
         id: true,
         userId: true,
@@ -68,19 +73,16 @@ export class TradingService {
         maxDrawdownPct: true,
         excludedSymbolsJson: true,
         latencyLimitMs: true,
+        expiresAt: true,
       },
     });
 
-    // Explicitly track signal skips for subscriptions that are active but already expired.
-    const expiredSubscriptions =
-      await this.prisma.userStrategySubscription.findMany({
-        where: {
-          strategyId,
-          status: SubscriptionStatus.ACTIVE,
-          expiresAt: { not: null, lte: now },
-        },
-        select: { userId: true, expiresAt: true },
-      });
+    const expiredSubscriptions = allActiveSubs.filter(
+      (s) => s.expiresAt !== null && s.expiresAt <= now,
+    );
+    const subscriptions = allActiveSubs.filter(
+      (s) => s.expiresAt === null || s.expiresAt > now,
+    );
 
     if (expiredSubscriptions.length > 0) {
       await this.prisma.auditLog.createMany({
@@ -105,15 +107,23 @@ export class TradingService {
       (a, b) => (b.executionPriority ?? 0) - (a.executionPriority ?? 0),
     );
 
+    // Pre-compute drawdowns for ALL subscribers in a single DB round-trip,
+    // eliminating the N+1 query that previously hit the DB once per subscriber.
+    const userIdsNeedingDrawdown = orderedSubscriptions
+      .filter((s) => s.riskOverrideEnabled && s.maxDrawdownPct != null)
+      .map((s) => s.userId);
+    const drawdownMap = await this.buildDrawdownMap(userIdsNeedingDrawdown);
+
     const riskBlocked: Array<{ userId: string; reason: string }> = [];
     const queueJobs = [] as Promise<unknown>[];
 
     for (const [index, subscription] of orderedSubscriptions.entries()) {
-      const reason = await this.getRiskBlockReason(subscription.userId, {
+      const reason = this.getRiskBlockReason(subscription.userId, {
         pair,
         riskOverrideEnabled: subscription.riskOverrideEnabled,
         maxDrawdownPct: subscription.maxDrawdownPct,
         excludedSymbolsJson: subscription.excludedSymbolsJson,
+        drawdownPct: drawdownMap.get(subscription.userId) ?? 0,
       });
 
       if (reason) {
@@ -225,7 +235,7 @@ export class TradingService {
       throw new Error('Broker account is not marked as a master source');
     }
 
-    await this.prisma.auditLog.create({
+    this.prisma.auditLog.create({
       data: {
         eventType: 'MASTER_TRADING_SIGNAL_BROADCAST',
         userId: sourceAccount.userId,
@@ -241,7 +251,7 @@ export class TradingService {
         },
         triggeredBy: sourceAccount.id,
       },
-    });
+    }).catch((err: Error) => this.logger.error(`Audit write failed: ${err.message}`));
 
     return this.processSignal(
       input.strategyId,
@@ -259,7 +269,15 @@ export class TradingService {
     const [openTrades] = await Promise.all([
       this.prisma.trade.findMany({
         where: { userId, status: 'OPEN' },
-        select: { id: true, symbol: true, direction: true, openPrice: true, profit: true, brokerAccountId: true, brokerTicket: true },
+        select: {
+          id: true,
+          symbol: true,
+          direction: true,
+          openPrice: true,
+          profit: true,
+          brokerAccountId: true,
+          brokerTicket: true,
+        },
       }),
       this.prisma.auditLog.create({
         data: {
@@ -275,15 +293,23 @@ export class TradingService {
     if (openTrades.length > 0) {
       // For real broker positions: queue close_copy jobs so MetaAPI actually closes them
       // For paper/no-ticket trades: mark cancelled directly
-      const realTrades = openTrades.filter((t) => t.brokerAccountId && t.brokerTicket);
-      const paperTrades = openTrades.filter((t) => !t.brokerAccountId || !t.brokerTicket);
+      const realTrades = openTrades.filter(
+        (t) => t.brokerAccountId && t.brokerTicket,
+      );
+      const paperTrades = openTrades.filter(
+        (t) => !t.brokerAccountId || !t.brokerTicket,
+      );
 
       // Queue MetaAPI close for real positions
       await Promise.all(
         realTrades.map((trade) =>
           this.tradeQueue.add(
             'close_copy',
-            { tradeId: trade.id, userId, brokerAccountId: trade.brokerAccountId },
+            {
+              tradeId: trade.id,
+              userId,
+              brokerAccountId: trade.brokerAccountId,
+            },
             { priority: 1 },
           ),
         ),
@@ -293,7 +319,11 @@ export class TradingService {
       if (paperTrades.length > 0) {
         await this.prisma.trade.updateMany({
           where: { id: { in: paperTrades.map((t) => t.id) } },
-          data: { status: 'CANCELLED', closedAt: now, executionMode: 'EMERGENCY_STOP' },
+          data: {
+            status: 'CANCELLED',
+            closedAt: now,
+            executionMode: 'EMERGENCY_STOP',
+          },
         });
       }
 
@@ -308,7 +338,9 @@ export class TradingService {
             symbol: trade.symbol,
             direction: trade.direction,
             openPrice: trade.openPrice,
-            closedViaMetaApi: Boolean(trade.brokerAccountId && trade.brokerTicket),
+            closedViaMetaApi: Boolean(
+              trade.brokerAccountId && trade.brokerTicket,
+            ),
             closedAt: now.toISOString(),
           },
           triggeredBy: userId,
@@ -346,7 +378,12 @@ export class TradingService {
         lastLatencyMs: true,
         brokerAccountId: true,
         strategy: {
-          select: { name: true, category: true, riskLevel: true, monthlyPrice: true },
+          select: {
+            name: true,
+            category: true,
+            riskLevel: true,
+            monthlyPrice: true,
+          },
         },
       },
       orderBy: { subscribedAt: 'desc' },
@@ -368,7 +405,9 @@ export class TradingService {
       update.lotMultiplier = Math.min(Math.max(data.lotMultiplier, 0.01), 5.0);
     }
     if (data.isPaused !== undefined) {
-      update.status = data.isPaused ? SubscriptionStatus.PAUSED : SubscriptionStatus.ACTIVE;
+      update.status = data.isPaused
+        ? SubscriptionStatus.PAUSED
+        : SubscriptionStatus.ACTIVE;
     }
 
     return this.prisma.userStrategySubscription.update({
@@ -378,15 +417,66 @@ export class TradingService {
   }
 
   async getOpenTrades(userId: string) {
-    return this.prisma.trade.findMany({
+    const trades = await this.prisma.trade.findMany({
       where: { userId, status: 'OPEN' },
       select: {
-        id: true, symbol: true, direction: true, volume: true,
-        openPrice: true, fillPrice: true, profit: true, status: true,
-        openedAt: true, strategyId: true, brokerTicket: true, isPaper: true,
+        id: true,
+        symbol: true,
+        direction: true,
+        volume: true,
+        openPrice: true,
+        fillPrice: true,
+        profit: true,
+        status: true,
+        openedAt: true,
+        strategyId: true,
+        brokerTicket: true,
+        isPaper: true,
       },
       orderBy: { openedAt: 'desc' },
     });
+
+    return Promise.all(
+      trades.map(async (trade) => {
+        let profit = trade.profit;
+        if (profit == null) {
+          const marketSymbol = this.mapTradeSymbolToMarket(trade.symbol);
+          if (marketSymbol) {
+            try {
+              const quote = await this.marketService.getQuote(marketSymbol);
+              profit = this.estimateUnrealizedPnl(trade, quote.price);
+            } catch {
+              profit = 0;
+            }
+          } else {
+            profit = 0;
+          }
+        }
+        return { ...trade, profit, unrealizedPnl: profit };
+      }),
+    );
+  }
+
+  private mapTradeSymbolToMarket(symbol: string): MarketSymbol | null {
+    const normalized = symbol.toUpperCase().replace(/[^A-Z]/g, '');
+    if (normalized.includes('BTC')) return 'BTCUSDT';
+    if (normalized.includes('XAU') || normalized.includes('GOLD')) return 'XAUUSD';
+    if (normalized.includes('EUR')) return 'EURUSD';
+    if (this.marketService.supportedSymbols.includes(normalized as MarketSymbol)) {
+      return normalized as MarketSymbol;
+    }
+    return null;
+  }
+
+  private estimateUnrealizedPnl(
+    trade: { direction: string; volume: number; openPrice: number; fillPrice: number | null },
+    currentPrice: number,
+  ): number {
+    const entry = trade.fillPrice ?? trade.openPrice;
+    if (!entry || !currentPrice) return 0;
+    const dir = trade.direction === 'LONG' ? 1 : -1;
+    const multiplier = entry > 100 ? 1 : 100_000;
+    return Number((dir * (currentPrice - entry) * trade.volume * multiplier).toFixed(2));
   }
 
   async getTradeHistory(
@@ -403,9 +493,18 @@ export class TradingService {
     const rows = await this.prisma.trade.findMany({
       where,
       select: {
-        id: true, symbol: true, direction: true, volume: true,
-        openPrice: true, closePrice: true, profit: true, status: true,
-        openedAt: true, closedAt: true, strategyId: true, isPaper: true,
+        id: true,
+        symbol: true,
+        direction: true,
+        volume: true,
+        openPrice: true,
+        closePrice: true,
+        profit: true,
+        status: true,
+        openedAt: true,
+        closedAt: true,
+        strategyId: true,
+        isPaper: true,
       },
       orderBy: { closedAt: 'desc' },
       take: options.limit + 1,
@@ -415,7 +514,9 @@ export class TradingService {
     const data = hasMore ? rows.slice(0, options.limit) : rows;
     return {
       rows: data,
-      nextCursor: hasMore ? data[data.length - 1]?.closedAt?.toISOString() ?? null : null,
+      nextCursor: hasMore
+        ? (data[data.length - 1]?.closedAt?.toISOString() ?? null)
+        : null,
     };
   }
 
@@ -437,13 +538,18 @@ export class TradingService {
     return this.round(baseSlippageBps + 1 + crowdingFactor + slicePressure, 4);
   }
 
-  private async getRiskBlockReason(
+  /**
+   * Synchronous risk check — drawdown is pre-fetched via buildDrawdownMap().
+   * No DB call here; eliminates the N+1 query from processSignal().
+   */
+  private getRiskBlockReason(
     userId: string,
     input: {
       pair: string;
       riskOverrideEnabled: boolean;
       maxDrawdownPct: number | null;
       excludedSymbolsJson: unknown;
+      drawdownPct: number;
     },
   ) {
     const pair = input.pair.toUpperCase();
@@ -458,12 +564,57 @@ export class TradingService {
       return null;
     }
 
-    const drawdown = await this.calculateUserDrawdownPct(userId);
-    if (drawdown >= input.maxDrawdownPct) {
-      return `drawdown ${drawdown.toFixed(2)}% exceeds limit ${input.maxDrawdownPct}%`;
+    if (input.drawdownPct >= input.maxDrawdownPct) {
+      return `drawdown ${input.drawdownPct.toFixed(2)}% exceeds limit ${input.maxDrawdownPct}%`;
     }
 
     return null;
+  }
+
+  /**
+   * Batch-fetch max drawdown for multiple users in a single DB query.
+   * Returns a map of userId → drawdownPct.
+   */
+  private async buildDrawdownMap(userIds: string[]): Promise<Map<string, number>> {
+    if (userIds.length === 0) return new Map();
+
+    const trades = await this.prisma.trade.findMany({
+      where: {
+        userId: { in: userIds },
+        status: 'CLOSED',
+        profit: { not: null },
+      },
+      orderBy: { closedAt: 'asc' },
+      select: { userId: true, profit: true },
+    });
+
+    const byUser = new Map<string, number[]>();
+    for (const t of trades) {
+      const arr = byUser.get(t.userId) ?? [];
+      arr.push(t.profit ?? 0);
+      byUser.set(t.userId, arr);
+    }
+
+    const result = new Map<string, number>();
+    const baseEquity = 10000;
+    for (const [uid, profits] of byUser.entries()) {
+      let equity = baseEquity;
+      let peak = baseEquity;
+      let maxDrawdown = 0;
+      for (const p of profits) {
+        equity += p;
+        peak = Math.max(peak, equity);
+        const dd = peak > 0 ? ((peak - equity) / peak) * 100 : 0;
+        maxDrawdown = Math.max(maxDrawdown, dd);
+      }
+      result.set(uid, this.round(maxDrawdown, 4));
+    }
+
+    for (const uid of userIds) {
+      if (!result.has(uid)) result.set(uid, 0);
+    }
+
+    return result;
   }
 
   private normalizeExcludedSymbols(value: unknown) {
@@ -477,36 +628,6 @@ export class TradingService {
       }
     }
     return [];
-  }
-
-  private async calculateUserDrawdownPct(userId: string) {
-    const trades = await this.prisma.trade.findMany({
-      where: {
-        userId,
-        status: 'CLOSED',
-        profit: { not: null },
-      },
-      orderBy: { closedAt: 'asc' },
-      select: { profit: true },
-    });
-
-    if (trades.length === 0) {
-      return 0;
-    }
-
-    const baseEquity = 10000;
-    let equity = baseEquity;
-    let peak = baseEquity;
-    let maxDrawdown = 0;
-
-    for (const trade of trades) {
-      equity += trade.profit ?? 0;
-      peak = Math.max(peak, equity);
-      const drawdown = peak > 0 ? ((peak - equity) / peak) * 100 : 0;
-      maxDrawdown = Math.max(maxDrawdown, drawdown);
-    }
-
-    return this.round(maxDrawdown, 4);
   }
 
   private round(value: number, digits = 2) {

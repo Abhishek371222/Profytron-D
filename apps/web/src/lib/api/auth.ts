@@ -10,8 +10,8 @@ export const authApi = {
   },
 
   async verifyEmail(data: { email: string; otp: string }) {
-    const res = await apiClient.post<{ accessToken: string; user: User }>('/auth/verify-email', data);
-    return unwrapApiResponse<{ accessToken: string; user: User }>(res.data);
+    const res = await apiClient.post<{ accessToken: string; user: User; selectedPlan?: string | null }>('/auth/verify-email', data);
+    return unwrapApiResponse<{ accessToken: string; user: User; selectedPlan?: string | null }>(res.data);
   },
 
   async login(data: any) {

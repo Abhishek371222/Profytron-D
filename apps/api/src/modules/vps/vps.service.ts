@@ -19,7 +19,11 @@ export class VpsService {
 
   constructor(private prisma: PrismaService) {}
 
-  private getPricing(provider: string, cpuCores: number, memoryGb: number): number {
+  private getPricing(
+    provider: string,
+    cpuCores: number,
+    memoryGb: number,
+  ): number {
     const providerKey = provider.toUpperCase();
     const sizeKey = `${cpuCores}cpu-${memoryGb}gb`;
     return VPS_PRICING[providerKey]?.[sizeKey] ?? 20;
@@ -31,7 +35,9 @@ export class VpsService {
     const monthlyPrice = this.getPricing(provider, cpuCores, memoryGb);
     const instanceRef = `profytron-${userId.slice(0, 8)}-${Date.now()}`;
 
-    this.logger.log(`Provisioning VPS on ${provider} for user ${userId} [${cpuCores}CPU/${memoryGb}GB @ $${monthlyPrice}/mo]`);
+    this.logger.log(
+      `Provisioning VPS on ${provider} for user ${userId} [${cpuCores}CPU/${memoryGb}GB @ $${monthlyPrice}/mo]`,
+    );
 
     const account = await this.prisma.vpsAccount.create({
       data: {
@@ -62,7 +68,9 @@ export class VpsService {
   }
 
   async startVps(vpsId: string, userId: string) {
-    const vps = await this.prisma.vpsAccount.findUnique({ where: { id: vpsId } });
+    const vps = await this.prisma.vpsAccount.findUnique({
+      where: { id: vpsId },
+    });
     if (!vps) throw new NotFoundException('VPS instance not found');
     if (vps.userId !== userId) throw new ForbiddenException('Access denied');
 
@@ -74,7 +82,9 @@ export class VpsService {
   }
 
   async stopVps(vpsId: string, userId: string) {
-    const vps = await this.prisma.vpsAccount.findUnique({ where: { id: vpsId } });
+    const vps = await this.prisma.vpsAccount.findUnique({
+      where: { id: vpsId },
+    });
     if (!vps) throw new NotFoundException('VPS instance not found');
     if (vps.userId !== userId) throw new ForbiddenException('Access denied');
 
@@ -93,7 +103,9 @@ export class VpsService {
   }
 
   async createBotInstance(vpsId: string, strategyId: string, name: string) {
-    const vps = await this.prisma.vpsAccount.findUnique({ where: { id: vpsId } });
+    const vps = await this.prisma.vpsAccount.findUnique({
+      where: { id: vpsId },
+    });
     if (!vps) throw new NotFoundException('VPS instance not found');
 
     this.logger.log(`Creating bot instance "${name}" on VPS ${vpsId}`);
@@ -104,10 +116,14 @@ export class VpsService {
   }
 
   async startBot(botId: string) {
-    const bot = await this.prisma.botInstance.findUnique({ where: { id: botId } });
+    const bot = await this.prisma.botInstance.findUnique({
+      where: { id: botId },
+    });
     if (!bot) throw new NotFoundException('Bot instance not found');
 
-    const vps = await this.prisma.vpsAccount.findUnique({ where: { id: bot.vpsId } });
+    const vps = await this.prisma.vpsAccount.findUnique({
+      where: { id: bot.vpsId },
+    });
     if (!vps || vps.status !== 'RUNNING') {
       throw new ForbiddenException('VPS must be running before starting a bot');
     }
@@ -124,7 +140,9 @@ export class VpsService {
   }
 
   async stopBot(botId: string) {
-    const bot = await this.prisma.botInstance.findUnique({ where: { id: botId } });
+    const bot = await this.prisma.botInstance.findUnique({
+      where: { id: botId },
+    });
     if (!bot) throw new NotFoundException('Bot instance not found');
 
     this.logger.log(`Stopping bot ${botId}`);
@@ -142,7 +160,9 @@ export class VpsService {
   }
 
   async deleteVps(vpsId: string, userId: string) {
-    const vps = await this.prisma.vpsAccount.findUnique({ where: { id: vpsId } });
+    const vps = await this.prisma.vpsAccount.findUnique({
+      where: { id: vpsId },
+    });
     if (!vps) throw new NotFoundException('VPS instance not found');
     if (vps.userId !== userId) throw new ForbiddenException('Access denied');
     if (vps.status === 'RUNNING') {

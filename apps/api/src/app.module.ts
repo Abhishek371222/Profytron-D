@@ -31,10 +31,14 @@ import { SupportModule } from './modules/support/support.module';
 import { StrategyBuilderModule } from './modules/strategy-builder/strategy-builder.module';
 import { AiRiskModule } from './modules/ai-risk/ai-risk.module';
 import { VpsModule } from './modules/vps/vps.module';
+import { GrowthModule } from './modules/growth/growth.module';
+import { AgentsModule } from './modules/agents/agents.module';
 import { PreferencesModule } from './modules/preferences/preferences.module';
 import { JournalModule } from './modules/journal/journal.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { BrokerIntegrationModule } from './modules/broker/broker-integration.module';
+import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
+import { ApiKeysModule } from './modules/api-keys/api-keys.module';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 
 const parseRedisConfig = () => {
@@ -103,10 +107,14 @@ const parseRedisConfig = () => {
     StrategyBuilderModule,
     AiRiskModule,
     VpsModule,
+    GrowthModule,
+    AgentsModule,
     PreferencesModule,
     JournalModule,
     TelegramModule,
     BrokerIntegrationModule,
+    FeatureFlagsModule,
+    ApiKeysModule,
   ],
   controllers: [AppController],
   providers: [

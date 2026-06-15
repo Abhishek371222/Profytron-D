@@ -26,10 +26,10 @@ const TYPE_CONFIG: Record<
   GlobalSearchItem["type"],
   { label: string; icon: LucideIcon; color: string; bg: string }
 > = {
-  strategy:    { label: "Strategy",    icon: TrendingUp,    color: "text-emerald-400", bg: "bg-emerald-400/[0.07] border-emerald-400/20" },
-  marketplace: { label: "Marketplace", icon: ShoppingBag,   color: "text-indigo-400",  bg: "bg-indigo-400/[0.07] border-indigo-400/20"  },
-  creator:     { label: "Creator",     icon: User,          color: "text-violet-400",  bg: "bg-violet-400/[0.07] border-violet-400/20"  },
-  page:        { label: "Page",        icon: LayoutDashboard, color: "text-cyan-400", bg: "bg-cyan-400/[0.07] border-cyan-400/20"      },
+  strategy:    { label: "Strategy",    icon: TrendingUp,    color: "text-chart-3", bg: "bg-chart-3/[0.07] border-chart-3/20" },
+  marketplace: { label: "Marketplace", icon: ShoppingBag,   color: "text-primary",  bg: "bg-primary/[0.07] border-primary/20"  },
+  creator:     { label: "Creator",     icon: User,          color: "text-chart-2",  bg: "bg-chart-2/[0.07] border-chart-2/20"  },
+  page:        { label: "Page",        icon: LayoutDashboard, color: "text-chart-5", bg: "bg-chart-5/[0.07] border-chart-5/20"      },
 };
 
 const QUICK_LINKS: { title: string; href: string; icon: LucideIcon; hint: string }[] = [
@@ -105,17 +105,17 @@ export function GlobalCommandPalette() {
         showCloseButton={false}
       >
         {/* Top hairline */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
         {/* Ambient glow */}
-        <div className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 w-64 h-24 rounded-full bg-indigo-500/[0.08] blur-2xl" />
+        <div className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 w-64 h-24 rounded-full bg-primary/[0.08] blur-2xl" />
 
         {/* Search input */}
         <div className="relative flex items-center gap-3 border-b border-white/[0.07] px-4 py-3.5">
           <div className="relative">
             {loading ? (
-              <Loader2 className="w-4 h-4 text-indigo-400 animate-spin" />
+              <Loader2 className="w-4 h-4 text-primary animate-spin" />
             ) : (
-              <Search className="w-4 h-4 text-white/30" />
+              <Search className="w-4 h-4 text-foreground/30" />
             )}
           </div>
           <input
@@ -123,10 +123,10 @@ export function GlobalCommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search strategies, marketplace, creators, pages..."
-            className="flex-1 bg-transparent text-[13px] font-medium text-white outline-none placeholder:text-white/20"
+            className="flex-1 bg-transparent text-body-sm font-medium text-foreground outline-none placeholder:text-foreground/20"
           />
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.07] bg-white/[0.03]">
-            <span className="text-[10px] text-white/20 font-mono">ESC</span>
+          <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.07] bg-muted/3">
+            <span className="text-micro text-foreground/20 font-mono">ESC</span>
           </div>
         </div>
 
@@ -134,7 +134,7 @@ export function GlobalCommandPalette() {
         <div className="max-h-[420px] overflow-y-auto no-scrollbar">
           {showQuickLinks ? (
             <div className="p-3">
-              <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.25em] px-2 mb-2">Quick Access</p>
+              <p className="text-micro font-bold text-foreground/20 uppercase tracking-[0.25em] px-2 mb-2">Quick Access</p>
               <div className="grid grid-cols-2 gap-1.5">
                 {QUICK_LINKS.map((item, idx) => {
                   const Icon = item.icon;
@@ -145,14 +145,14 @@ export function GlobalCommandPalette() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.04 }}
                       onClick={() => navigate(item.href)}
-                      className="group flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.05] hover:border-indigo-400/20 transition-all text-left"
+                      className="group flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] bg-muted/2 hover:bg-muted/5 hover:border-primary/20 transition-all text-left"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center shrink-0 group-hover:bg-indigo-500/10 group-hover:border-indigo-400/20 transition-all">
-                        <Icon className="w-3.5 h-3.5 text-white/35 group-hover:text-indigo-400 transition-colors" />
+                      <div className="w-8 h-8 rounded-xl bg-muted/4 border border-white/[0.06] flex items-center justify-center shrink-0 group-hover:bg-primary/10 group-hover:border-primary/20 transition-all">
+                        <Icon className="w-3.5 h-3.5 text-foreground/35 group-hover:text-primary transition-colors" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[12px] font-semibold text-white/70 group-hover:text-white transition-colors">{item.title}</p>
-                        <p className="text-[10px] text-white/20 uppercase tracking-widest">{item.hint}</p>
+                        <p className="text-caption font-semibold text-foreground/70 group-hover:text-foreground transition-colors">{item.title}</p>
+                        <p className="text-micro text-foreground/20 uppercase tracking-widest">{item.hint}</p>
                       </div>
                     </motion.button>
                   );
@@ -161,42 +161,42 @@ export function GlobalCommandPalette() {
 
               {/* Keyboard hint */}
               <div className="flex items-center justify-center gap-3 mt-4 pt-3 border-t border-white/[0.04]">
-                <div className="flex items-center gap-1 text-[10px] text-white/15">
+                <div className="flex items-center gap-1 text-micro text-foreground/15">
                   <Command className="w-2.5 h-2.5" />
                   <span>K</span>
                   <span className="ml-1">to open</span>
                 </div>
-                <div className="w-px h-3 bg-white/10" />
-                <span className="text-[10px] text-white/15">↵ to navigate</span>
-                <div className="w-px h-3 bg-white/10" />
-                <span className="text-[10px] text-white/15">ESC to close</span>
+                <div className="w-px h-3 bg-foreground/10" />
+                <span className="text-micro text-foreground/15">↵ to navigate</span>
+                <div className="w-px h-3 bg-foreground/10" />
+                <span className="text-micro text-foreground/15">ESC to close</span>
               </div>
             </div>
           ) : loading ? (
             <div className="flex flex-col items-center gap-3 py-12">
-              <div className="relative w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+              <div className="relative w-10 h-10 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                 >
-                  <Search className="w-4 h-4 text-indigo-400" />
+                  <Search className="w-4 h-4 text-primary" />
                 </motion.div>
               </div>
-              <p className="text-[11px] text-white/25 uppercase tracking-[0.2em]">Searching...</p>
+              <p className="text-caption text-foreground/25 uppercase tracking-[0.2em]">Searching...</p>
             </div>
           ) : results.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-12">
-              <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
-                <Hash className="w-5 h-5 text-white/15" />
+              <div className="w-12 h-12 rounded-2xl bg-muted/3 border border-white/[0.06] flex items-center justify-center">
+                <Hash className="w-5 h-5 text-foreground/15" />
               </div>
               <div className="text-center">
-                <p className="text-[12px] font-semibold text-white/30">No results found</p>
-                <p className="text-[10px] text-white/15 mt-0.5">Try broader terms like "momentum" or "analytics"</p>
+                <p className="text-caption font-semibold text-foreground/30">No results found</p>
+                <p className="text-micro text-foreground/15 mt-0.5">Try broader terms like "momentum" or "analytics"</p>
               </div>
             </div>
           ) : (
             <div className="p-2 space-y-0.5">
-              <p className="text-[9px] font-bold text-white/15 uppercase tracking-[0.25em] px-3 py-1">
+              <p className="text-micro font-bold text-foreground/15 uppercase tracking-[0.25em] px-3 py-1">
                 {results.length} result{results.length !== 1 ? "s" : ""}
               </p>
               <AnimatePresence initial={false}>
@@ -210,25 +210,25 @@ export function GlobalCommandPalette() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.025 }}
                       onClick={() => navigate(item.href)}
-                      className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent hover:bg-white/[0.04] hover:border-indigo-400/15 transition-all text-left"
+                      className="group w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent hover:bg-muted/4 hover:border-primary/15 transition-all text-left"
                     >
                       <div className={cn("w-8 h-8 rounded-xl border flex items-center justify-center shrink-0", cfg.bg)}>
                         <TypeIcon className={cn("w-3.5 h-3.5", cfg.color)} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[13px] font-semibold text-white/80 group-hover:text-white transition-colors truncate">
+                          <span className="text-body-sm font-semibold text-foreground/80 group-hover:text-foreground transition-colors truncate">
                             {item.title}
                           </span>
-                          <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-md border shrink-0 uppercase tracking-widest", cfg.bg, cfg.color)}>
+                          <span className={cn("text-micro font-bold px-1.5 py-0.5 rounded-md border shrink-0 uppercase tracking-widest", cfg.bg, cfg.color)}>
                             {cfg.label}
                           </span>
                         </div>
                         {item.subtitle && (
-                          <p className="text-[11px] text-white/30 mt-0.5 truncate">{item.subtitle}</p>
+                          <p className="text-caption text-foreground/30 mt-0.5 truncate">{item.subtitle}</p>
                         )}
                       </div>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-white/15 group-hover:text-indigo-300 shrink-0 transition-colors" />
+                      <ArrowUpRight className="w-3.5 h-3.5 text-foreground/15 group-hover:text-primary shrink-0 transition-colors" />
                     </motion.button>
                   );
                 })}

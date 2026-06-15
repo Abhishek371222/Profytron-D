@@ -3,6 +3,9 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { BarChart3, Gauge, Layers3, Sparkles } from "lucide-react";
+import { WobbleCard } from "@/components/saasfly/wobble-card";
+import { GlowingEffect } from "@/components/saasfly/glowing-effect";
+import { AnimatedGradientText } from "@/components/saasfly/animated-gradient-text";
 
 function useCountUp(target: number, duration = 1.8, startOnView = true) {
   const [value, setValue] = useState(0);
@@ -33,12 +36,12 @@ const pillars = [
     metric: "4.6×",
     metricLabel: "faster review",
     accent: "violet",
-    border: "border-violet-400/20",
+    border: "border-chart-2/20",
     glow: "rgba(167,139,250,0.15)",
-    iconColor: "text-violet-400",
-    iconBg: "bg-violet-400/10 border-violet-400/20",
-    barColor: "from-violet-400 to-violet-600",
-    gradBg: "from-violet-500/[0.07] to-transparent",
+    iconColor: "text-chart-2",
+    iconBg: "bg-chart-2/10 border-chart-2/20",
+    barColor: "from-chart-2 to-chart-2",
+    gradBg: "from-chart-2/[0.07] to-transparent",
     countTarget: 46,
   },
   {
@@ -49,12 +52,12 @@ const pillars = [
     metric: "< 50",
     metricLabel: "ms routing",
     accent: "emerald",
-    border: "border-emerald-400/20",
+    border: "border-chart-3/20",
     glow: "rgba(52,211,153,0.15)",
-    iconColor: "text-emerald-400",
-    iconBg: "bg-emerald-400/10 border-emerald-400/20",
-    barColor: "from-emerald-400 to-emerald-600",
-    gradBg: "from-emerald-500/[0.07] to-transparent",
+    iconColor: "text-chart-3",
+    iconBg: "bg-chart-3/10 border-chart-3/20",
+    barColor: "from-chart-3 to-chart-3",
+    gradBg: "from-chart-3/[0.07] to-transparent",
     countTarget: 50,
   },
   {
@@ -65,96 +68,74 @@ const pillars = [
     metric: "10+",
     metricLabel: "block types",
     accent: "cyan",
-    border: "border-cyan-400/20",
+    border: "border-chart-5/20",
     glow: "rgba(34,211,238,0.15)",
-    iconColor: "text-cyan-400",
-    iconBg: "bg-cyan-400/10 border-cyan-400/20",
-    barColor: "from-cyan-400 to-cyan-600",
-    gradBg: "from-cyan-500/[0.07] to-transparent",
+    iconColor: "text-chart-5",
+    iconBg: "bg-chart-5/10 border-chart-5/20",
+    barColor: "from-chart-5 to-chart-5",
+    gradBg: "from-chart-5/[0.07] to-transparent",
     countTarget: 10,
   },
 ];
 
 function PillarCard({ pillar, index }: { pillar: typeof pillars[0]; index: number }) {
-  const [hovered, setHovered] = useState(false);
   const Icon = pillar.icon;
 
   return (
-    <motion.article
+    <motion.div
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.6, delay: index * 0.1, ease: [0.23, 1, 0.32, 1] }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      className={`group relative overflow-hidden rounded-[24px] border ${pillar.border} bg-white/[0.02] p-7 cursor-default transition-all duration-500`}
-      style={{
-        boxShadow: hovered ? `0 20px 60px ${pillar.glow}, 0 0 0 1px rgba(255,255,255,0.06)` : "none",
-        transform: hovered ? "translateY(-6px)" : "translateY(0)",
-      }}
     >
-      {/* Background gradient */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${pillar.gradBg} opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
-      {/* Shimmer on hover */}
-      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.07),transparent_35%)] opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none" />
-      {/* Top accent line */}
-      <motion.div
-        animate={{ opacity: hovered ? 1 : 0.3, scaleX: hovered ? 1 : 0.6 }}
-        transition={{ duration: 0.4 }}
-        className={`absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-current to-transparent ${pillar.iconColor} pointer-events-none`}
-        style={{ originX: "50%" }}
-      />
+      <WobbleCard
+        containerClassName={`landing-glass-card border ${pillar.border} cursor-default`}
+        className="p-7 h-full"
+      >
+        {/* SaaSfly GlowingEffect */}
+        <GlowingEffect variant="default" spread={22} proximity={50} />
 
-      <div className="relative z-10">
-        {/* Icon */}
-        <motion.div
-          animate={{ rotate: hovered ? [0, -8, 8, 0] : 0 }}
-          transition={{ duration: 0.6 }}
-          className={`inline-flex w-12 h-12 items-center justify-center rounded-2xl border ${pillar.iconBg} mb-6`}
-        >
-          <Icon className={`w-5 h-5 ${pillar.iconColor}`} />
-        </motion.div>
+        {/* Background gradient */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${pillar.gradBg} opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[24px]`} />
+        {/* Top accent line */}
+        <div className={`absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-current to-transparent ${pillar.iconColor} pointer-events-none rounded-t-[24px]`} />
 
-        {/* Title */}
-        <h3 className="text-xl font-bold tracking-tight text-white mb-3">{pillar.title}</h3>
-        <p className="text-sm leading-relaxed text-white/55 mb-6">{pillar.description}</p>
-
-        {/* Metric */}
-        <div className="flex items-end gap-2 mb-4">
-          <span className={`text-3xl font-extrabold font-mono tracking-tight ${pillar.iconColor}`}>
-            {pillar.metric}
-          </span>
-          <span className="text-[11px] text-white/35 uppercase tracking-widest mb-1 font-semibold">
-            {pillar.metricLabel}
-          </span>
+        <div className="relative z-10">
+          <div className={`inline-flex w-12 h-12 items-center justify-center rounded-2xl border ${pillar.iconBg} mb-6`}>
+            <Icon className={`w-5 h-5 ${pillar.iconColor}`} />
+          </div>
+          <h3 className="text-xl font-bold tracking-tight text-foreground mb-3">{pillar.title}</h3>
+          <p className="text-sm leading-relaxed text-foreground/55 mb-6">{pillar.description}</p>
+          <div className="flex items-end gap-2 mb-4">
+            <span className={`text-3xl font-extrabold font-mono tracking-tight ${pillar.iconColor}`}>{pillar.metric}</span>
+            <span className="text-caption text-foreground/35 uppercase tracking-widest mb-1 font-semibold">{pillar.metricLabel}</span>
+          </div>
+          <div className="h-1 w-full rounded-full bg-muted/6 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: `${Math.min(100, pillar.countTarget * 8)}%` }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 + index * 0.1, duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
+              className={`h-full rounded-full bg-gradient-to-r ${pillar.barColor}`}
+            />
+          </div>
         </div>
-
-        {/* Animated bar */}
-        <div className="h-1 w-full rounded-full bg-white/[0.06] overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            whileInView={{ width: `${Math.min(100, pillar.countTarget * 8)}%` }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 + index * 0.1, duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-            className={`h-full rounded-full bg-gradient-to-r ${pillar.barColor}`}
-          />
-        </div>
-      </div>
-    </motion.article>
+      </WobbleCard>
+    </motion.div>
   );
 }
 
 export function ValuePillars() {
   return (
-    <section className="relative py-24 md:py-28 overflow-hidden" aria-labelledby="value-pillars-title">
+    <section className="relative py-16 sm:py-24 md:py-28 overflow-x-hidden" aria-labelledby="value-pillars-title">
       {/* Ambient glows */}
       <div className="pointer-events-none absolute inset-0 opacity-50">
-        <div className="absolute -top-20 left-1/2 h-48 w-56 -translate-x-1/2 rounded-full bg-violet-500/15 blur-[80px]" />
-        <div className="absolute bottom-0 left-20 h-36 w-44 rounded-full bg-emerald-500/10 blur-[60px]" />
-        <div className="absolute bottom-0 right-20 h-36 w-44 rounded-full bg-cyan-500/10 blur-[60px]" />
+        <div className="absolute -top-20 left-1/2 h-48 w-56 -translate-x-1/2 rounded-full bg-chart-2/15 blur-[80px]" />
+        <div className="absolute bottom-0 left-20 h-36 w-44 rounded-full bg-chart-3/10 blur-[60px]" />
+        <div className="absolute bottom-0 right-20 h-36 w-44 rounded-full bg-chart-5/10 blur-[60px]" />
       </div>
 
-      <div className="container relative z-10 mx-auto px-6">
+      <div className="page-container relative z-10">
         {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -163,13 +144,15 @@ export function ValuePillars() {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="mx-auto mb-14 max-w-3xl text-center"
         >
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.28em] text-white/60">
-            <Sparkles className="h-3.5 w-3.5 text-violet-300" />
-            Product Experience
-          </p>
+          <div className="mb-4 flex justify-center">
+            <AnimatedGradientText className="text-foreground/70">
+              <Sparkles className="h-3.5 w-3.5 text-chart-2 mr-2" />
+              <span className="text-caption font-bold uppercase tracking-[0.28em]">Product Experience</span>
+            </AnimatedGradientText>
+          </div>
           <h2
             id="value-pillars-title"
-            className="text-4xl font-extrabold leading-tight tracking-[-0.02em] text-white sm:text-5xl"
+            className="text-heading-1 sm:text-display-1 font-extrabold leading-tight tracking-tight text-foreground text-balance"
           >
             Built For Speed,{" "}
             <span
@@ -179,7 +162,7 @@ export function ValuePillars() {
               Clarity, and Control
             </span>
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-white/50 sm:text-lg max-w-2xl mx-auto">
+          <p className="mt-4 text-base leading-relaxed text-foreground/50 sm:text-lg max-w-2xl mx-auto">
             A cleaner visual hierarchy and data grouping reduce cognitive load
             so you focus on trading decisions — not navigating dashboards.
           </p>

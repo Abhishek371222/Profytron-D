@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
+import { isAdminUser } from '../utils';
 
 const isMockApiEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_API === 'true';
 const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
@@ -84,6 +85,28 @@ apiClient.interceptors.response.use(
         const data = unwrapApiResponse<{ accessToken: string }>(response.data);
 
         useAuthStore.getState().setToken(data.accessToken);
+
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('profytron_access', data.accessToken);
+        }
+
+        try {
+          const meRes = await apiClient.get('/users/me', {
+            headers: { Authorization: `Bearer ${data.accessToken}` },
+          });
+          const user = unwrapApiResponse<any>(meRes.data);
+          if (typeof window !== 'undefined' && user) {
+            const onboardingFlag =
+              isAdminUser(user) || user.onboardingCompleted ? '1' : '0';
+            document.cookie = `onboarding_completed=${onboardingFlag}; path=/; max-age=604800; samesite=lax`;
+            if (user.role) {
+              document.cookie = `user_role=${user.role}; path=/; max-age=604800; samesite=lax`;
+            }
+            useAuthStore.setState({ user });
+          }
+        } catch {
+          /* optional profile sync */
+        }
 
         originalRequest.headers = {
           ...originalRequest.headers,

@@ -1,46 +1,43 @@
 import type { Metadata, Viewport } from"next";
-import { Syne, DM_Sans, JetBrains_Mono, Instrument_Serif } from"next/font/google";
+import { Suspense } from "react";
+import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import"@/styles/globals.css";
 import"@/styles/animations.css";
-import { TooltipProvider } from"@/components/ui/tooltip";
-import { AuthProvider } from "@/components/AuthProvider";
-import { MSWProvider } from "@/components/providers/MSWProvider";
 import { WebVitalsProvider } from "@/components/providers/WebVitalsProvider";
+import { PostHogProvider } from "@/components/providers/PostHogProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { LazyChatbotWidget } from "@/components/chatbot/LazyChatbotWidget";
+import { JsonLd } from "@/components/seo/JsonLd";
 
-const syne = Syne({
- subsets: ["latin"],
- variable: "--font-syne",
- display: "swap",
- preload: true,
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: true,
 });
 
-const dmSans = DM_Sans({
- subsets: ["latin"],
- variable: "--font-dm-sans",
- display: "swap",
- preload: true,
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+  preload: true,
 });
 
 const jetbrainsMono = JetBrains_Mono({
- subsets: ["latin"],
- variable: "--font-mono",
- display: "swap",
- preload: false,
-});
-
-const instrumentSerif = Instrument_Serif({
- subsets: ["latin"],
- weight: "400",
- variable: "--font-accent",
- display: "swap",
- preload: false,
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
-  title: "PROFYTRON | Ultimate Fintech Intelligence",
-  description:
-    "Experience the next generation of algorithmic trading and institutional-grade portfolio management.",
   metadataBase: new URL("https://profytron.com"),
+  title: {
+    default: "Profytron — Algorithmic Trading Platform for Indian Traders",
+    template: "%s | Profytron",
+  },
+  description:
+    "Profytron is India's most advanced algorithmic trading platform. Copy top strategies, deploy AI-powered bots, and manage your portfolio with institutional-grade tools. Free trial available.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -50,38 +47,59 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Profytron",
-    title: "PROFYTRON | Ultimate Fintech Intelligence",
+    title: "Profytron — Algorithmic Trading Platform for Indian Traders",
     description:
-      "The world's most advanced algorithmic trading and copy trading platform.",
-    images: [{ url: "/images/hero-core.png", width: 1200, height: 630 }],
+      "Copy top strategies, deploy AI-powered trading bots, and grow your portfolio with institutional-grade tools. Join 5,000+ traders on Profytron.",
+    images: [
+      {
+        url: "/hero/hero-trading-3d.png",
+        width: 1200,
+        height: 630,
+        alt: "Profytron trading dashboard showing AI analytics and live portfolio",
+      },
+    ],
+    locale: "en_IN",
+    url: "https://profytron.com",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PROFYTRON | Fintech Intelligence",
-    description: "Algorithmic trading, copy trading, and AI coaching.",
-    images: ["/images/hero-core.png"],
+    site: "@profytron",
+    title: "Profytron — Algo Trading Platform",
+    description:
+      "AI-powered copy trading, strategy marketplace, and portfolio analytics for Indian traders.",
+    images: ["/hero/hero-trading-3d.png"],
   },
   keywords: [
-    "forex trading",
-    "copy trading",
-    "algo trading",
+    "algorithmic trading India",
+    "copy trading platform",
+    "forex trading bots",
+    "MT4 MT5 copy trading",
     "AI trading coach",
-    "XAUUSD",
-    "crypto trading",
+    "trading strategy marketplace",
+    "XAUUSD trading",
+    "automated trading India",
+    "portfolio analytics",
     "trading platform India",
+    "algo trading",
+    "prop trading platform",
   ],
+  authors: [{ name: "Profytron", url: "https://profytron.com" }],
+  creator: "Profytron",
+  publisher: "Profytron",
+  category: "finance",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#050508" },
-    { media: "(prefers-color-scheme: light)", color: "#6366f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#0F172A" },
+    { media: "(prefers-color-scheme: light)", color: "#2563EB" },
   ],
 };
-
-import QueryProvider from "@/components/providers/QueryProvider";
-import { ChatbotWidget } from "@/components/chatbot/ChatbotWidget";
-import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -89,18 +107,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');var d=t==='dark'||(t!=='light'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body
-        className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${instrumentSerif.variable} font-body bg-bg-base text-slate-50 antialiased selection:bg-p/30 selection:text-white`}
+        className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} font-sans text-body bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground`}
       >
-        <QueryProvider>
-          <WebVitalsProvider />
-          <MSWProvider>
-            <AuthProvider><TooltipProvider>{children}</TooltipProvider></AuthProvider>
-          </MSWProvider>
-        </QueryProvider>
-        <ChatbotWidget />
-        <Toaster richColors position="top-right" theme="dark" />
+        <ThemeProvider>
+        <WebVitalsProvider />
+        <JsonLd type="organization" />
+        <JsonLd type="software" />
+        <Suspense fallback={null}>
+          <PostHogProvider>{children}</PostHogProvider>
+        </Suspense>
+        <LazyChatbotWidget />
+        </ThemeProvider>
       </body>
     </html>
   );

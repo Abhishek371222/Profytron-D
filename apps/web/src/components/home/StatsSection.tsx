@@ -51,10 +51,10 @@ const stats = [
 ];
 
 const ACCENT_COLORS: Record<string, string> = {
-  violet:  "text-violet-400",
-  cyan:    "text-cyan-400",
-  emerald: "text-emerald-400",
-  indigo:  "text-indigo-400",
+  violet:  "text-chart-2",
+  cyan:    "text-chart-5",
+  emerald: "text-chart-3",
+  indigo:  "text-primary",
 };
 
 const ACCENT_GLOW: Record<string, string> = {
@@ -66,13 +66,7 @@ const ACCENT_GLOW: Record<string, string> = {
 
 export function StatsSection() {
   return (
-    <section className="pt-24 pb-32 bg-black relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-[-10%] w-[40vw] h-[40vw] bg-indigo-500/[0.06] blur-[160px] rounded-full -translate-y-1/2" />
-        <div className="absolute top-1/2 right-[-10%] w-[40vw] h-[40vw] bg-violet-500/[0.04] blur-[160px] rounded-full -translate-y-1/2" />
-      </div>
-
+    <section className="pt-24 pb-32 bg-transparent relative overflow-hidden">
       {/* Top divider */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
 
@@ -121,7 +115,7 @@ export function StatsSection() {
                 className={cn("h-[1.5px] rounded-full mb-4", `bg-gradient-to-r from-transparent via-current to-transparent`, ACCENT_COLORS[stat.accent], "opacity-50 group-hover:opacity-100 transition-opacity")}
               />
 
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/30 group-hover:text-white/55 transition-colors duration-500 max-w-[160px] leading-relaxed">
+              <p className="text-caption font-bold uppercase tracking-[0.22em] text-foreground/30 group-hover:text-foreground/55 transition-colors duration-500 max-w-[160px] leading-relaxed">
                 {stat.label}
               </p>
             </motion.div>
@@ -130,16 +124,26 @@ export function StatsSection() {
       </div>
 
       {/* Bottom divider */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-400/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
     </section>
   );
 }
 
 /* ── Live ticker bar (unchanged API) ── */
-export function LiveTicker() {
-  const { quotes, wsConnected } = useLiveMarketFeed(["BTCUSDT", "EURUSD", "XAUUSD"]);
+const FALLBACK_TICKER = [
+  { id: "BTCUSDT", pair: "BTC/USDT", type: "buy", price: "67,342.00", change: 2.41 },
+  { id: "EURUSD", pair: "EUR/USD", type: "buy", price: "1.08420", change: 0.18 },
+  { id: "XAUUSD", pair: "XAU/USD", type: "buy", price: "2,341.50", change: 0.32 },
+] as const;
 
-  const trades = Object.values(quotes)
+export function LiveTicker() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(containerRef, { margin: "200px 0px" });
+  const { quotes, wsConnected } = useLiveMarketFeed(["BTCUSDT", "EURUSD", "XAUUSD"], {
+    enabled: inView,
+  });
+
+  const liveTrades = Object.values(quotes)
     .filter(Boolean)
     .map((quote) => ({
       id: quote!.symbol,
@@ -157,31 +161,33 @@ export function LiveTicker() {
       change: quote!.change24hPct,
     }));
 
-  return (
-    <div className="flex flex-col items-center w-full relative z-20">
-      <div className="w-full bg-black/80 backdrop-blur-3xl border-y border-white/[0.05] py-5 overflow-hidden relative group z-0">
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-black z-10 pointer-events-none" />
+  const trades = liveTrades.length > 0 ? liveTrades : [...FALLBACK_TICKER];
 
-        <div className="container mx-auto px-6 flex items-center gap-12">
-          <div className="flex items-center gap-6 shrink-0 z-20">
+  return (
+    <div ref={containerRef} className="flex flex-col items-center w-full relative z-20">
+      <div className="w-full surface-muted border-y border-border py-4 sm:py-5 overflow-hidden relative group z-0">
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background z-10 pointer-events-none" />
+
+        <div className="page-container flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-8">
+          <div className="flex items-center gap-4 sm:gap-6 shrink-0 z-20">
             <motion.div
               animate={{ opacity: [0.4, 0.85, 0.4] }}
               transition={{ duration: 3, repeat: Infinity }}
-              className="flex items-center gap-3 px-5 py-2 rounded-xl bg-black/80 border border-white/[0.06] backdrop-blur-xl shadow-lg"
+              className="flex items-center gap-3 px-4 py-2 rounded-xl bg-card border border-border shadow-sm"
             >
               <motion.div
                 animate={{ opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-2 h-2 rounded-full bg-indigo-400"
+                className="w-2 h-2 rounded-full bg-primary"
                 style={{ boxShadow: "0 0 8px #6366f1" }}
               />
-              <span className="text-[10px] text-white/45 font-mono uppercase tracking-widest">
+              <span className="text-caption text-muted-foreground font-mono uppercase tracking-wide">
                 {wsConnected ? "Streaming live (WS)" : "Live market data"}
               </span>
             </motion.div>
           </div>
 
-          <div className="flex-1 flex items-center gap-14 z-20 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="flex-1 flex items-center gap-8 sm:gap-14 z-20 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] w-full">
             <AnimatePresence mode="popLayout">
               {trades.map((trade) => (
                 <motion.div
@@ -191,24 +197,24 @@ export function LiveTicker() {
                   exit={{ opacity: 0, x: -20 }}
                   className="flex items-center gap-4 text-sm whitespace-nowrap"
                 >
-                  <span className="font-bold text-white tracking-tight uppercase">{trade.pair}</span>
+                  <span className="font-bold text-foreground tracking-tight uppercase">{trade.pair}</span>
                   <div
                     className={cn(
-                      "px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase tracking-[0.1em]",
+                      "px-2.5 py-1 rounded-lg text-caption font-bold uppercase tracking-[0.1em]",
                       trade.type === "buy"
-                        ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
-                        : "bg-white/[0.04] text-white/35 border border-white/[0.08]",
+                        ? "bg-primary/10 text-primary border border-primary/20"
+                        : "bg-muted text-muted-foreground border border-border",
                     )}
                   >
                     {trade.type}
                   </div>
-                  <span className="text-white font-mono text-sm font-bold tracking-tight">
-                    <span className="text-indigo-400">{trade.price}</span>{" "}
-                    <span className={trade.change >= 0 ? "text-emerald-400" : "text-rose-400"}>
+                  <span className="text-foreground font-mono text-sm font-bold tracking-tight">
+                    <span className="text-primary">{trade.price}</span>{" "}
+                    <span className={trade.change >= 0 ? "text-chart-3" : "text-destructive"}>
                       {trade.change >= 0 ? "+" : ""}{trade.change.toFixed(2)}%
                     </span>
                   </span>
-                  <div className="w-px h-5 bg-white/[0.06] mx-1" />
+                  <div className="w-px h-5 bg-muted/6 mx-1" />
                 </motion.div>
               ))}
             </AnimatePresence>

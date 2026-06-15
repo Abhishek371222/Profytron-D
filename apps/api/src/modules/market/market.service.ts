@@ -1,4 +1,8 @@
-import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { RedisService } from '../auth/redis.service';
 
 export type MarketSymbol = 'BTCUSDT' | 'EURUSD' | 'XAUUSD';
@@ -112,6 +116,13 @@ export class MarketService {
     return quote;
   }
 
+  async getAllQuotes() {
+    const quotes = await Promise.all(
+      this.supportedSymbols.map((symbol) => this.getQuote(symbol)),
+    );
+    return quotes;
+  }
+
   async getOHLC(symbol: MarketSymbol, timeframe: MarketTimeframe, limit = 220) {
     const safeLimit = Math.max(20, Math.min(500, Math.floor(limit || 220)));
 
@@ -122,9 +133,7 @@ export class MarketService {
 
     const cached = await this.redis.get(cacheKey);
     if (cached) {
-      this.logger.debug(
-        `Cache hit: OHLC ${symbol}/${timeframe}/${safeLimit}`,
-      );
+      this.logger.debug(`Cache hit: OHLC ${symbol}/${timeframe}/${safeLimit}`);
       return JSON.parse(cached);
     }
 
@@ -152,7 +161,11 @@ export class MarketService {
       );
     }
 
-    const syntheticResult = this.buildSyntheticOHLC(symbol, timeframe, safeLimit);
+    const syntheticResult = this.buildSyntheticOHLC(
+      symbol,
+      timeframe,
+      safeLimit,
+    );
     // Cache synthetic data with the same TTL to avoid re-generating on every request
     await this.redis.set(cacheKey, JSON.stringify(syntheticResult), ttl);
     return syntheticResult;

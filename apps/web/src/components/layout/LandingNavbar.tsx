@@ -1,177 +1,233 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ArrowRight, Zap } from 'lucide-react';
+import { Menu, X, ArrowRight, Zap, ChevronDown, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Magnetic } from '@/components/ui/Interactions';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { LandingDashboardLink, LandingPrimaryLink } from '@/components/home/LandingButtons';
 
 const navLinks = [
- { name: 'Capabilities', href: '#features' },
- { name: 'How it Works', href: '#how-it-works' },
- { name: 'Pricing', href: '#pricing' },
- { name: 'Reviews', href: '#testimonials' },
+  { name: 'Product', href: '#features' },
+  { name: 'Capabilities', href: '#features' },
+  { name: 'Solutions', href: '#how-it-works' },
+  { name: 'Resources', href: '/docs' },
+  { name: 'Pricing', href: '#pricing' },
+  { name: 'Company', href: '/about' },
 ];
 
+function scrollToHash(href: string) {
+  if (!href.startsWith('#')) {
+    window.location.href = href;
+    return;
+  }
+  const id = href.replace('#', '');
+  const el = document.getElementById(id);
+  if (el) {
+    const top = el.getBoundingClientRect().top + window.scrollY - 88;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+}
+
+function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
+  const { isAuthenticated, user, isHydrating } = useAuthStore();
+  const displayName =
+    user?.fullName || user?.name || user?.email?.split('@')?.[0] || 'Account';
+
+  if (isHydrating) {
+    return (
+      <div className={cn('flex items-center gap-2', mobile && 'w-full')}>
+        <div className={cn('h-10 rounded-[14px] bg-muted/40 animate-pulse', mobile ? 'w-full' : 'w-28')} />
+      </div>
+    );
+  }
+
+  if (isAuthenticated && user) {
+    if (mobile) {
+      return (
+        <div className="flex flex-col gap-3 w-full">
+          <div className="flex items-center gap-3 px-1 py-1">
+            <UserAvatar name={displayName} size="sm" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            </div>
+          </div>
+          <Link href="/dashboard" onClick={onNavigate} className="w-full">
+            <Button className="w-full h-11 rounded-[14px] bg-primary text-primary-foreground font-semibold gap-2">
+              <LayoutDashboard className="w-4 h-4" />
+              Open Dashboard
+            </Button>
+          </Link>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <Link
+          href="/dashboard"
+          className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-muted/60 transition-colors min-w-0 max-w-[180px]"
+        >
+          <UserAvatar name={displayName} size="sm" />
+          <span className="text-sm font-medium text-foreground truncate">{displayName}</span>
+        </Link>
+        <LandingDashboardLink className="h-10 px-5 text-sm" />
+      </>
+    );
+  }
+
+  if (mobile) {
+    return (
+      <div className="flex flex-col gap-3 w-full">
+        <Link href="/login" onClick={onNavigate} className="w-full">
+          <Button variant="outline" className="w-full h-11 rounded-[14px]">
+            Sign In
+          </Button>
+        </Link>
+        <Link href="/register" onClick={onNavigate} className="w-full">
+          <Button className="w-full h-11 rounded-[14px] bg-primary text-primary-foreground font-semibold">
+            Get Started
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Link href="/login">
+        <Button variant="ghost" className="font-medium text-sm text-muted-foreground hover:text-foreground h-10">
+          Sign In
+        </Button>
+      </Link>
+      <LandingPrimaryLink href="/register" className="h-10 px-5 text-sm">
+        Get Started
+        <ArrowRight className="w-4 h-4 shrink-0" />
+      </LandingPrimaryLink>
+    </>
+  );
+}
+
 export function LandingNavbar() {
- const [mounted, setMounted] = useState(false);
- const [isScrolled, setIsScrolled] = useState(false);
- const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isHydrating } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
- // Set mounted state to true once client is ready
- useEffect(() => {
- setMounted(true);
- }, []);
+  useEffect(() => setMounted(true), []);
 
- useEffect(() => {
- if (!mounted) return;
- 
- const handleScroll = () => {
- setIsScrolled(window.scrollY > 20);
- };
- window.addEventListener('scroll', handleScroll, { passive: true });
- handleScroll();
- return () => window.removeEventListener('scroll', handleScroll);
- }, [mounted]);
+  useEffect(() => {
+    if (!mounted) return;
+    const handleScroll = () => setIsScrolled(window.scrollY > 16);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [mounted]);
 
- return (
- <nav
- className={cn(
- 'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
- isScrolled ? 'py-3' : 'py-8'
- )}
- role="navigation"
- aria-label="Main navigation"
- >
- <div className="container mx-auto px-6">
- <div 
- className={cn(
-"flex items-center justify-between transition-all duration-500 px-6 py-3 rounded-3xl border border-transparent w-full",
- isScrolled && mounted
- ?"glass-ultra shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border-white/10" 
- :"bg-transparent"
- )}
- >
- {/* Logo */}
- <a href="/" className="flex items-center gap-3 group" aria-label="Profytron Home">
- <div className="w-11 h-11 bg-primary/20 rounded-[14px] flex items-center justify-center border border-primary/30 group-hover:bg-primary/30 transition-all duration-500 shadow-[0_0_20px_rgba(99,102,241,0.2)] group-hover:rotate-[15deg] group-hover:scale-110">
- <Zap className="w-6 h-6 text-primary fill-primary" aria-hidden="true" />
- </div>
- <span className="text-2xl font-display font-semibold tracking-tight text-white group-hover:text-primary transition-colors">
- PROFY<span className="text-primary group-hover:text-white transition-colors duration-500">TRON</span>
- </span>
- </a>
+  const homeHref = '/';
 
- {/* Desktop Navigation */}
- <div className="hidden lg:flex items-center gap-8 bg-black/35 border border-white/10 py-2 px-8 rounded-full backdrop-blur-3xl shadow-inner">
- {navLinks.map((link) => (
- <Magnetic key={link.name} strength={0.2}>
- <a
- href={link.href}
- onClick={(e) => {
- e.preventDefault();
- const targetId = link.href.replace(/.*\#/, "");
- const elem = document.getElementById(targetId);
- if (elem) {
- const top = elem.getBoundingClientRect().top + window.scrollY - 100;
- window.scrollTo({ top, behavior: "smooth" });
- }
- }}
- className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60 hover:text-primary transition-all duration-300 relative group/link cursor-pointer"
- >
- {link.name}
- <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-500 group-hover/link:w-full" />
- </a>
- </Magnetic>
- ))}
- </div>
+  return (
+    <nav
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        isScrolled ? 'py-2' : 'py-4 sm:py-5',
+      )}
+      role="navigation"
+      aria-label="Main navigation"
+    >
+      <div className="page-container max-w-7xl">
+        <div
+          className={cn(
+            'flex items-center justify-between px-4 sm:px-5 py-2.5 rounded-[14px] border transition-all duration-300',
+            isScrolled && mounted
+              ? 'glass-navbar shadow-sm border-[var(--card-border)]'
+              : 'bg-transparent border-transparent',
+          )}
+        >
+          <Link href={homeHref} className="flex items-center gap-2.5 group shrink-0" aria-label="Profytron Home">
+            <div className="w-9 h-9 bg-primary/10 rounded-[10px] flex items-center justify-center border border-primary/15">
+              <Zap className="w-4 h-4 text-primary fill-primary/20" aria-hidden />
+            </div>
+            <span className="text-lg font-bold tracking-tight text-foreground">
+              PROFY<span className="text-primary">TRON</span>
+            </span>
+          </Link>
 
- {/* Desktop Actions */}
- <div className="hidden md:flex items-center gap-4">
- <Magnetic strength={0.1}>
- <a href="/login">
- <Button variant="ghost" className="hover:bg-white/5 font-semibold text-xs tracking-[0.2em] uppercase text-white/60 hover:text-white">
- Sign In
- </Button>
- </a>
- </Magnetic>
- <Magnetic strength={0.25}>
- <a href="/register">
- <Button className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-xs px-8 h-12 rounded-[14px] group transition-all duration-500 shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.6)] relative overflow-hidden uppercase tracking-widest">
- <span className="relative z-10 flex items-center gap-2">
- Get Started
- <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
- </span>
- <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
- </Button>
- </a>
- </Magnetic>
- </div>
+          <div className="hidden xl:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToHash(link.href);
+                }}
+                className="flex items-center gap-0.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
+              >
+                {link.name}
+                {['Product', 'Solutions', 'Resources'].includes(link.name) && (
+                  <ChevronDown className="w-3.5 h-3.5 opacity-50" />
+                )}
+              </a>
+            ))}
+          </div>
 
- {/* Mobile Toggle */}
- <button
- className="lg:hidden w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white transition-colors"
- onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
- aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
- aria-expanded={mobileMenuOpen}
- >
- {mobileMenuOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
- </button>
- </div>
- </div>
+          <div className="hidden md:flex items-center gap-2.5">
+            <ThemeToggle size="sm" />
+            <AuthActions />
+          </div>
 
- {/* Mobile Menu */}
- <AnimatePresence>
- {mobileMenuOpen && (
- <motion.div
- initial={{ opacity: 0, y: -20 }}
- animate={{ opacity: 1, y: 0 }}
- exit={{ opacity: 0, y: -20 }}
- transition={{ type:"spring", damping: 25, stiffness: 200 }}
- className="absolute top-[80px] left-6 right-6 glass-ultra rounded-3xl p-6 sm:p-8 lg:hidden flex flex-col gap-5 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] border-white/10 max-h-[calc(100dvh-100px)] overflow-y-auto"
- >
- {navLinks.map((link, idx) => (
- <motion.div
- initial={{ opacity: 0, x: -20 }}
- animate={{ opacity: 1, x: 0 }}
- transition={{ delay: idx * 0.1 }}
- key={link.name}
- >
- <a
- href={link.href}
- className="text-xl font-display font-bold text-white/70 hover:text-primary transition-colors flex items-center justify-between group cursor-pointer"
- onClick={(e) => {
- e.preventDefault();
- setMobileMenuOpen(false);
- const targetId = link.href.replace(/.*\#/, "");
- const elem = document.getElementById(targetId);
- if (elem) {
- const top = elem.getBoundingClientRect().top + window.scrollY - 100;
- window.scrollTo({ top, behavior: "smooth" });
- }
- }}
- >
- {link.name}
- <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all text-primary" />
- </a>
- </motion.div>
- ))}
- <div className="flex flex-col gap-3 pt-6 border-t border-white/5">
- <a href="/login" onClick={() => setMobileMenuOpen(false)}>
- <Button variant="outline" className="w-full h-14 text-sm font-semibold uppercase tracking-widest rounded-[14px] border-white/10 bg-white/5 text-white">
- Sign In
- </Button>
- </a>
- <a href="/register" onClick={() => setMobileMenuOpen(false)}>
- <Button className="w-full h-14 text-sm font-semibold uppercase tracking-widest rounded-[14px] bg-primary text-white shadow-lg shadow-primary/20">
- Get Started
- </Button>
- </a>
- </div>
- </motion.div>
- )}
- </AnimatePresence>
- </nav>
- );
+          <button
+            className="xl:hidden w-10 h-10 rounded-[10px] border border-[var(--card-border)] bg-card flex items-center justify-center text-muted-foreground"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            className="absolute top-[72px] left-4 right-4 sm:left-6 sm:right-6 bg-card rounded-[20px] p-6 xl:hidden flex flex-col gap-4 shadow-lg border border-[var(--card-border)] max-h-[calc(100dvh-90px)] overflow-y-auto"
+          >
+            {navLinks.map((link, idx) => (
+              <motion.a
+                key={link.name}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.05 }}
+                href={link.href}
+                className="text-base font-semibold text-foreground/90 hover:text-primary py-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setMobileMenuOpen(false);
+                  scrollToHash(link.href);
+                }}
+              >
+                {link.name}
+              </motion.a>
+            ))}
+            <div className="flex flex-col gap-3 pt-4 border-t border-border">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Theme</span>
+                <ThemeToggle size="sm" />
+              </div>
+              <AuthActions mobile onNavigate={() => setMobileMenuOpen(false)} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
+  );
 }

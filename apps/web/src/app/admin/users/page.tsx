@@ -75,24 +75,24 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">User Management</h1>
-        <p className="text-sm text-slate-400">Real users from the admin API.</p>
+        <h1 className="text-2xl font-semibold text-foreground">User Management</h1>
+        <p className="text-sm text-muted-foreground">Real users from the admin API.</p>
       </div>
 
       <div className="relative max-w-xl">
-        <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+        <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-foreground0" />
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search users by name, email, id"
-          className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2 pl-9 pr-3 text-sm text-white outline-none focus:border-red-500"
+          className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2 pl-9 pr-3 text-sm text-foreground outline-none focus:border-red-500"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[2fr_1fr]">
         <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-slate-800 bg-slate-950 text-xs text-slate-400">
+            <thead className="border-b border-slate-800 bg-slate-950 text-xs text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">User</th>
                 <th className="px-4 py-3">Plan</th>
@@ -104,11 +104,11 @@ export default function AdminUsersPage() {
             <tbody>
               {usersQuery.isLoading ? (
                 <tr>
-                  <td className="px-4 py-4 text-slate-400" colSpan={5}>Loading users...</td>
+                  <td className="px-4 py-4 text-muted-foreground" colSpan={5}>Loading users...</td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-4 text-slate-400" colSpan={5}>No users found.</td>
+                  <td className="px-4 py-4 text-muted-foreground" colSpan={5}>No users found.</td>
                 </tr>
               ) : (
                 filteredUsers.map((user) => (
@@ -118,17 +118,17 @@ export default function AdminUsersPage() {
                     onClick={() => setSelectedUserId(user.id)}
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium text-white">{user.fullName}</div>
-                      <div className="text-xs text-slate-400">{user.email}</div>
+                      <div className="font-medium text-foreground">{user.fullName}</div>
+                      <div className="text-xs text-muted-foreground">{user.email}</div>
                     </td>
-                    <td className="px-4 py-3 text-slate-300">{user.subscriptionTier}</td>
-                    <td className="px-4 py-3 text-slate-300">{user.role}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{user.subscriptionTier}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{user.role}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`rounded px-2 py-1 text-xs font-medium ${
                           user.isSuspended
                             ? 'border border-red-500/30 bg-red-500/10 text-red-400'
-                            : 'border border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                            : 'border border-chart-3/30 bg-chart-3/10 text-chart-3'
                         }`}
                       >
                         {user.isSuspended ? 'SUSPENDED' : 'ACTIVE'}
@@ -142,8 +142,8 @@ export default function AdminUsersPage() {
                         }}
                         className={`rounded px-3 py-1.5 text-xs font-medium ${
                           user.isSuspended
-                            ? 'bg-emerald-600 text-white hover:bg-emerald-500'
-                            : 'bg-red-600 text-white hover:bg-red-500'
+                            ? 'bg-chart-3 text-foreground hover:bg-chart-3'
+                            : 'bg-red-600 text-foreground hover:bg-red-500'
                         }`}
                       >
                         {user.isSuspended ? 'Unsuspend' : 'Suspend'}
@@ -157,11 +157,11 @@ export default function AdminUsersPage() {
         </div>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-          <h2 className="mb-3 text-sm font-medium text-slate-300">User Detail</h2>
+          <h2 className="mb-3 text-sm font-medium text-muted-foreground">User Detail</h2>
           {!selectedUserId ? (
-            <p className="text-sm text-slate-500">Select a user to view details.</p>
+            <p className="text-sm text-foreground0">Select a user to view details.</p>
           ) : selectedUserQuery.isLoading ? (
-            <p className="text-sm text-slate-500">Loading user detail...</p>
+            <p className="text-sm text-foreground0">Loading user detail...</p>
           ) : selectedUserQuery.isError ? (
             <p className="text-sm text-red-400">Unable to load user detail.</p>
           ) : (
@@ -192,8 +192,8 @@ export default function AdminUsersPage() {
 function DetailRow({ label, value }: { label: string; value: string | undefined }) {
   return (
     <div className="flex items-center justify-between rounded bg-slate-950 px-3 py-2">
-      <span className="text-slate-400">{label}</span>
-      <span className="font-medium text-white">{value ?? '-'}</span>
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium text-foreground">{value ?? '-'}</span>
     </div>
   );
 }

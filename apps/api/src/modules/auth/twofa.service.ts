@@ -3,14 +3,21 @@ import { TOTP } from 'otplib';
 import * as qrcode from 'qrcode';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from './redis.service';
 import { appError, ErrorCode } from '../../common/errors';
+
+const TOTP_ATTEMPT_KEY = (userId: string) => `auth:2fa:attempts:${userId}`;
+const MAX_2FA_ATTEMPTS = 10;
 
 @Injectable()
 export class TwoFaService {
   private readonly logger = new Logger(TwoFaService.name);
   private totp: TOTP;
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    private redisService: RedisService,
+  ) {
     this.totp = new TOTP({
       period: 30,
       digits: 6,
@@ -115,12 +122,13 @@ export class TwoFaService {
       );
     }
 
+    // Null out secret and codes so they cannot be reused after 2FA is off
     await this.prisma.user.update({
       where: { id: userId },
       data: {
         twoFactorEnabled: false,
-        twoFactorSecret: undefined,
-        twoFactorBackupCodes: undefined,
+        twoFactorSecret: null,
+        twoFactorBackupCodes: [],
       },
     });
 
@@ -155,6 +163,47 @@ export class TwoFaService {
     });
 
     return { backupCodes: newBackupCodes };
+  }
+
+  /**
+   * Called during the 2FA login challenge. Verifies TOTP or consumes a
+   * one-time backup code. Rate-limited to prevent brute-force.
+   */
+  async verifyForLogin(userId: string, token: string): Promise<boolean> {
+    const attemptKey = TOTP_ATTEMPT_KEY(userId);
+    const attempts = parseInt((await this.redisService.get(attemptKey)) ?? '0', 10);
+    if (attempts >= MAX_2FA_ATTEMPTS) {
+      appError(HttpStatus.TOO_MANY_REQUESTS, 'Too many 2FA attempts. Try again later.', ErrorCode.RATE_LIMIT_EXCEEDED);
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { twoFactorSecret: true, twoFactorBackupCodes: true },
+    });
+    if (!user?.twoFactorSecret) return false;
+
+    const valid = await this.totp.verify(token, { secret: user.twoFactorSecret });
+    if (valid) {
+      await this.redisService.del(attemptKey);
+      return true;
+    }
+
+    const backupCodes = (user.twoFactorBackupCodes as string[]) ?? [];
+    const codeIndex = backupCodes.indexOf(token.toUpperCase());
+    if (codeIndex !== -1) {
+      // Consume the backup code — remove it so it cannot be reused
+      const remaining = backupCodes.filter((_, i) => i !== codeIndex);
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { twoFactorBackupCodes: remaining },
+      });
+      await this.redisService.del(attemptKey);
+      return true;
+    }
+
+    // Wrong code — increment attempt counter (15-minute window)
+    await this.redisService.set(attemptKey, String(attempts + 1), 15 * 60);
+    return false;
   }
 
   async verifyToken(secret: string, token: string): Promise<boolean> {

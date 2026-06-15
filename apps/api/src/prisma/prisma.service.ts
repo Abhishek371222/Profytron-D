@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
@@ -17,7 +22,9 @@ export class PrismaService
         return;
       } catch (err) {
         if (attempt === maxRetries) throw err;
-        this.logger.warn(`DB connect attempt ${attempt}/${maxRetries} failed, retrying in ${retryDelayMs}ms...`);
+        this.logger.warn(
+          `DB connect attempt ${attempt}/${maxRetries} failed, retrying in ${retryDelayMs}ms...`,
+        );
         await new Promise((r) => setTimeout(r, retryDelayMs));
       }
     }

@@ -5,20 +5,35 @@ import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { analyticsApi } from '@/lib/api/analytics';
 import { cn } from '@/lib/utils';
-import { RefreshCcw, Globe, Crown, Medal, Award, TrendingUp, TrendingDown, Zap, AlertTriangle } from 'lucide-react';
+import {
+  Globe,
+  Crown,
+  Medal,
+  Award,
+  TrendingUp,
+  TrendingDown,
+  Zap,
+  AlertTriangle,
+} from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AnalyticsInfoBanner,
+  AnalyticsPageHeader,
+  ChartCard,
+  StatCard,
+} from '../_components/AnalyticsShared';
 
 const IMPACT_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
-  HIGH: { label: 'High', color: 'text-rose-400', bg: 'bg-rose-400/10', border: 'border-rose-400/20' },
-  MEDIUM: { label: 'Medium', color: 'text-amber-400', bg: 'bg-amber-400/10', border: 'border-amber-400/20' },
-  LOW: { label: 'Low', color: 'text-emerald-400', bg: 'bg-emerald-400/10', border: 'border-emerald-400/20' },
+  HIGH: { label: 'High', color: 'text-destructive', bg: 'bg-destructive/10', border: 'border-destructive/20' },
+  MEDIUM: { label: 'Medium', color: 'text-chart-4', bg: 'bg-chart-4/10', border: 'border-chart-4/20' },
+  LOW: { label: 'Low', color: 'text-chart-3', bg: 'bg-chart-3/10', border: 'border-chart-3/20' },
 };
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return <Crown className="w-4 h-4 text-yellow-400" />;
-  if (rank === 2) return <Medal className="w-4 h-4 text-slate-300" />;
-  if (rank === 3) return <Award className="w-4 h-4 text-amber-500" />;
-  return <span className="text-[11px] font-bold text-white/30">#{rank}</span>;
+  if (rank === 1) return <Crown className="w-4 h-4 text-yellow-500" />;
+  if (rank === 2) return <Medal className="w-4 h-4 text-muted-foreground" />;
+  if (rank === 3) return <Award className="w-4 h-4 text-chart-4" />;
+  return <span className="text-xs font-bold text-muted-foreground">#{rank}</span>;
 }
 
 export default function GlobalAnalyticsPage() {
@@ -28,14 +43,14 @@ export default function GlobalAnalyticsPage() {
     queryKey: ['analytics', 'global'],
     queryFn: () => analyticsApi.getGlobal(),
     staleTime: 300_000,
-    refetchInterval: 60_000,
+    refetchOnWindowFocus: false,
   });
 
   const leaderboardQuery = useQuery({
     queryKey: ['analytics', 'leaderboard'],
     queryFn: () => analyticsApi.getLeaderboard(10),
     staleTime: 60_000,
-    refetchInterval: 30_000,
+    refetchOnWindowFocus: false,
   });
 
   const global = globalQuery.data;
@@ -60,101 +75,67 @@ export default function GlobalAnalyticsPage() {
   const macroEvents = global?.macroEvents ?? [];
   const sectorRotation = global?.sectorRotation ?? [];
   const leaderRows = leaderboard?.rows ?? [];
+  const hasData = Boolean(regimeLabel || macroEvents.length || sectorRotation.length || leaderRows.length);
 
   return (
-    <div className="space-y-5 pb-10">
-      {/* ── Header ── */}
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-[26px] border border-violet-500/20 bg-gradient-to-br from-violet-500/[0.05] to-transparent p-5 md:p-6"
-      >
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/40 to-transparent" />
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-2xl bg-violet-400/10 border border-violet-400/20 flex items-center justify-center shrink-0">
-              <Globe className="w-5 h-5 text-violet-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white tracking-tight">Smart Analysis</h1>
-              <p className="text-sm text-white/40 mt-0.5">
-                Macro signals, sector rotation, and leaderboard dynamics powered by real analytics.
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={refreshData}
-            className="flex items-center gap-2 h-9 px-4 rounded-xl border border-white/[0.08] bg-white/[0.03] text-[11px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white hover:border-white/20 transition-all"
-          >
-            <RefreshCcw className="w-3.5 h-3.5" />
-            Refresh
-          </button>
-        </div>
-      </motion.div>
+    <div className="space-y-5 pb-8">
+      <AnalyticsPageHeader
+        title="Smart Analysis"
+        description="Macro signals, sector rotation, and leaderboard dynamics powered by real analytics."
+        icon={Globe}
+        iconBg="bg-primary/10 text-primary"
+        onRefresh={refreshData}
+      />
 
-      {/* ── Market Regime Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="rounded-[18px] border border-violet-400/15 bg-violet-400/[0.04] p-5"
-        >
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-1">Market Regime</p>
-          <p className="text-xl font-bold text-white">{regimeLabel ?? '—'}</p>
-          {regimeLabel && (
-            <div className="flex items-center gap-1.5 mt-2">
-              <Zap className="w-3 h-3 text-violet-400" />
-              <span className="text-[10px] text-violet-400/70 font-semibold uppercase tracking-widest">Active signal</span>
-            </div>
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-[18px] border border-cyan-400/15 bg-cyan-400/[0.04] p-5"
-        >
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-1">Regime Confidence</p>
-          <p className="text-xl font-bold text-cyan-400">{regimeConfidence !== null ? `${regimeConfidence}%` : '—'}</p>
-          {regimeConfidence !== null && (
-            <div className="h-1 rounded-full bg-white/5 overflow-hidden mt-3">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${regimeConfidence}%` }}
-                transition={{ delay: 0.4, duration: 0.8, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-cyan-400 to-cyan-600 rounded-full"
-              />
-            </div>
-          )}
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="rounded-[18px] border border-amber-400/15 bg-amber-400/[0.04] p-5"
-        >
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-1">Macro Events</p>
-          <p className="text-xl font-bold text-amber-400">{macroEvents.length > 0 ? macroEvents.length : '—'}</p>
-          {macroEvents.length > 0 && (
-            <p className="text-[10px] text-white/30 mt-2 uppercase tracking-widest">{macroEvents.length} active signals</p>
-          )}
-        </motion.div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard
+          label="Market Regime"
+          value={regimeLabel ?? '—'}
+          icon={Zap}
+          iconBg="bg-chart-3/10 text-chart-3"
+          valueClass="text-foreground capitalize"
+        />
+        <StatCard
+          label="Regime Confidence"
+          value={regimeConfidence !== null ? `${regimeConfidence.toFixed(2)}%` : '—'}
+          icon={Globe}
+          iconBg="bg-primary/10 text-primary"
+          valueClass="text-primary"
+          delay={0.05}
+        />
+        <StatCard
+          label="Macro Events"
+          value={macroEvents.length > 0 ? macroEvents.length : '—'}
+          icon={AlertTriangle}
+          iconBg="bg-chart-4/10 text-chart-4"
+          valueClass="text-chart-4"
+          delay={0.1}
+        />
       </div>
 
-      {/* ── Content Grid ── */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        {/* Macro Event Feed */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="rounded-[22px] border border-white/[0.07] bg-white/[0.025] p-5"
-        >
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-0.5">Macro</p>
-          <p className="text-base font-bold text-white mb-4">Event Feed</p>
+      {regimeConfidence !== null && (
+        <div className="dashboard-card p-4 space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted-foreground uppercase tracking-wide font-medium">Confidence</span>
+            <span className="font-semibold tabular-nums text-foreground">{regimeConfidence.toFixed(2)}%</span>
+          </div>
+          <div className="h-2 rounded-full bg-primary/10 overflow-hidden">
+            <motion.div
+              className="h-full rounded-full bg-primary"
+              initial={{ width: 0 }}
+              animate={{ width: `${regimeConfidence}%` }}
+              transition={{ duration: 0.9, ease: 'easeOut' }}
+            />
+          </div>
+        </div>
+      )}
+
+      {!hasData && !globalQuery.isLoading && !leaderboardQuery.isLoading && (
+        <AnalyticsInfoBanner message="Global analytics populate as market data and platform activity grow. Regime signals update in real time when available." />
+      )}
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <ChartCard eyebrow="Macro" title="Event Feed" delay={0.1}>
           <div className="space-y-2.5 max-h-[380px] overflow-y-auto no-scrollbar">
             {macroEvents.length > 0 ? (
               macroEvents.map((event, i) => {
@@ -165,20 +146,23 @@ export default function GlobalAnalyticsPage() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.15 + i * 0.04 }}
-                    className={cn(
-                      'rounded-[14px] border p-3 transition-all',
-                      impact.border,
-                      impact.bg,
-                      'hover:border-opacity-50',
-                    )}
+                    className={cn('rounded-xl border p-3 transition-colors', impact.border, impact.bg)}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <p className="text-sm font-semibold text-white leading-snug">{event.event}</p>
-                      <span className={cn('text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg shrink-0', impact.bg, impact.color, 'border', impact.border)}>
+                      <p className="text-sm font-semibold text-foreground leading-snug">{event.event}</p>
+                      <span
+                        className={cn(
+                          'text-[10px] font-bold uppercase px-2 py-0.5 rounded-full shrink-0',
+                          impact.bg,
+                          impact.color,
+                          'border',
+                          impact.border,
+                        )}
+                      >
                         {impact.label}
                       </span>
                     </div>
-                    <p className="text-[10px] text-white/30 mt-1.5 uppercase tracking-widest">
+                    <p className="text-xs text-muted-foreground mt-1.5">
                       {new Date(event.timestamp).toLocaleString()}
                     </p>
                   </motion.div>
@@ -186,24 +170,16 @@ export default function GlobalAnalyticsPage() {
               })
             ) : (
               !globalQuery.isLoading && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/[0.06] bg-white/[0.02]">
-                  <AlertTriangle className="w-3.5 h-3.5 text-white/20 shrink-0" />
-                  <p className="text-[10px] text-white/20 uppercase tracking-widest">No macro events yet</p>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[var(--card-border)] bg-muted0">
+                  <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <p className="text-xs text-muted-foreground">No macro events yet</p>
                 </div>
               )
             )}
           </div>
-        </motion.div>
+        </ChartCard>
 
-        {/* Sector Rotation */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="rounded-[22px] border border-white/[0.07] bg-white/[0.025] p-5"
-        >
-          <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-0.5">Sectors</p>
-          <p className="text-base font-bold text-white mb-4">Rotation Snapshot</p>
+        <ChartCard eyebrow="Sectors" title="Rotation Snapshot" delay={0.15}>
           <div className="space-y-2.5 max-h-[380px] overflow-y-auto no-scrollbar">
             {sectorRotation.length > 0 ? (
               sectorRotation.map((row) => {
@@ -211,25 +187,24 @@ export default function GlobalAnalyticsPage() {
                 return (
                   <div
                     key={row.strategyId}
-                    className="rounded-[14px] border border-white/[0.05] bg-white/[0.02] p-3 hover:border-white/10 transition-all"
+                    className="rounded-xl border border-[var(--card-border)] bg-muted/20 p-3 hover:border-primary/15 transition-colors"
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-bold text-white/70 font-mono">{row.strategyId.slice(0, 10)}…</span>
-                      <span className={cn('text-sm font-bold', isPos ? 'text-emerald-400' : 'text-rose-400')}>
+                      <span className="text-xs font-bold text-foreground font-mono">
+                        {row.strategyId.slice(0, 10)}…
+                      </span>
+                      <span className={cn('text-sm font-bold tabular-nums', isPos ? 'text-chart-3' : 'text-destructive')}>
                         {isPos ? '+' : ''}${row.netPnl.toLocaleString()}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-[10px] text-white/25 uppercase tracking-widest">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <span>Sharpe {row.sharpeRatio}</span>
                       <span>DD {row.drawdown}%</span>
                       <span>WR {row.winRate}%</span>
                     </div>
-                    <div className="h-0.5 rounded-full bg-white/5 overflow-hidden mt-2.5">
+                    <div className="h-1.5 rounded-full bg-primary/10 overflow-hidden mt-2.5">
                       <div
-                        className={cn(
-                          'h-full rounded-full',
-                          isPos ? 'bg-gradient-to-r from-emerald-400 to-emerald-600' : 'bg-gradient-to-r from-rose-400 to-rose-600',
-                        )}
+                        className={cn('h-full rounded-full', isPos ? 'bg-chart-3' : 'bg-destructive')}
                         style={{ width: `${Math.min(100, Math.abs(row.winRate))}%` }}
                       />
                     </div>
@@ -238,25 +213,17 @@ export default function GlobalAnalyticsPage() {
               })
             ) : (
               !globalQuery.isLoading && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/[0.06] bg-white/[0.02]">
-                  <AlertTriangle className="w-3.5 h-3.5 text-white/20 shrink-0" />
-                  <p className="text-[10px] text-white/20 uppercase tracking-widest">No sector data yet</p>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[var(--card-border)] bg-muted0">
+                  <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <p className="text-xs text-muted-foreground">No sector data yet</p>
                 </div>
               )
             )}
           </div>
-        </motion.div>
+        </ChartCard>
       </div>
 
-      {/* ── Leaderboard ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="rounded-[22px] border border-white/[0.07] bg-white/[0.025] p-5"
-      >
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 mb-0.5">Rankings</p>
-        <p className="text-base font-bold text-white mb-4">Global Leaderboard</p>
+      <ChartCard eyebrow="Rankings" title="Global Leaderboard" delay={0.2}>
         {leaderRows.length > 0 ? (
           <div className="space-y-2">
             {leaderRows.map((row, i) => {
@@ -269,28 +236,28 @@ export default function GlobalAnalyticsPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.25 + i * 0.04 }}
                   className={cn(
-                    'flex items-center gap-3 rounded-[14px] border p-3 transition-all',
+                    'flex items-center gap-3 rounded-xl border p-3 transition-colors',
                     isTop3
-                      ? 'border-yellow-400/10 bg-yellow-400/[0.025] hover:border-yellow-400/20'
-                      : 'border-white/[0.05] bg-white/[0.02] hover:border-white/10',
+                      ? 'border-yellow-400/25 bg-yellow-50/50 hover:border-yellow-400/40'
+                      : 'border-[var(--card-border)] bg-muted/20 hover:border-primary/15',
                   )}
                 >
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/[0.04] border border-white/[0.06] shrink-0">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-card border border-[var(--card-border)] shrink-0">
                     <RankBadge rank={row.rank} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{row.username}</p>
-                    <p className="text-[10px] text-white/30 uppercase tracking-widest">{row.totalTrades} trades</p>
+                    <p className="text-sm font-bold text-foreground truncate">{row.username}</p>
+                    <p className="text-xs text-muted-foreground">{row.totalTrades} trades</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className={cn('text-sm font-bold', isPos ? 'text-emerald-400' : 'text-rose-400')}>
+                    <p className={cn('text-sm font-bold tabular-nums', isPos ? 'text-chart-3' : 'text-destructive')}>
                       {isPos ? '+' : ''}${row.totalPnl.toLocaleString()}
                     </p>
                     <div className="flex items-center justify-end gap-1 mt-0.5">
                       {isPos ? (
-                        <TrendingUp className="w-3 h-3 text-emerald-400/50" />
+                        <TrendingUp className="w-3 h-3 text-chart-3/60" />
                       ) : (
-                        <TrendingDown className="w-3 h-3 text-rose-400/50" />
+                        <TrendingDown className="w-3 h-3 text-destructive/60" />
                       )}
                     </div>
                   </div>
@@ -300,13 +267,13 @@ export default function GlobalAnalyticsPage() {
           </div>
         ) : (
           !leaderboardQuery.isLoading && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-amber-400/15 bg-amber-400/5 w-fit">
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <p className="text-[10px] text-amber-300/70">No leaderboard entries yet.</p>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-amber-200/80 bg-amber-50 w-fit">
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+              <p className="text-xs text-amber-900/80">No leaderboard entries yet.</p>
             </div>
           )
         )}
-      </motion.div>
+      </ChartCard>
     </div>
   );
 }

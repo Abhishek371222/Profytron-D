@@ -43,7 +43,9 @@ export class TradingController {
 
   @Get('subscriptions')
   @ApiResponse({ status: 200, description: 'OK' })
-  @ApiOperation({ summary: 'List all copy trading subscriptions for current user' })
+  @ApiOperation({
+    summary: 'List all copy trading subscriptions for current user',
+  })
   async getMySubscriptions(@Req() req: RequestWithUser) {
     return this.tradingService.getMySubscriptions(req.user.id);
   }
@@ -51,7 +53,9 @@ export class TradingController {
   @Patch('subscriptions/:id')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not found' })
-  @ApiOperation({ summary: 'Update lot multiplier or pause/resume a subscription' })
+  @ApiOperation({
+    summary: 'Update lot multiplier or pause/resume a subscription',
+  })
   async updateSubscription(
     @Req() req: RequestWithUser,
     @Param('id') id: string,
@@ -59,21 +63,26 @@ export class TradingController {
     @Body('isPaused') isPaused?: boolean,
   ) {
     return this.tradingService.updateSubscription(req.user.id, id, {
-      lotMultiplier: lotMultiplier !== undefined ? Number(lotMultiplier) : undefined,
+      lotMultiplier:
+        lotMultiplier !== undefined ? Number(lotMultiplier) : undefined,
       isPaused,
     });
   }
 
   @Get('trades/open')
   @ApiResponse({ status: 200, description: 'OK' })
-  @ApiOperation({ summary: 'Get all currently open trades for the authenticated user' })
+  @ApiOperation({
+    summary: 'Get all currently open trades for the authenticated user',
+  })
   async getOpenTrades(@Req() req: RequestWithUser) {
     return this.tradingService.getOpenTrades(req.user.id);
   }
 
   @Get('trades/history')
   @ApiResponse({ status: 200, description: 'OK' })
-  @ApiOperation({ summary: 'Paginated closed trade history for the authenticated user' })
+  @ApiOperation({
+    summary: 'Paginated closed trade history for the authenticated user',
+  })
   async getTradeHistory(
     @Req() req: RequestWithUser,
     @Query('limit') limit?: string,

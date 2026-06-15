@@ -1,12 +1,22 @@
-import { Injectable, Logger, HttpStatus, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  HttpStatus,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { appError, ErrorCode } from '../../common/errors';
+import { AgentEventService } from '../agents/agent-event.service';
+import { AGENT_EVENTS } from '../agents/agent.types';
 
 @Injectable()
 export class SupportService {
   private readonly logger = new Logger(SupportService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private agentEvents: AgentEventService,
+  ) {}
 
   async createTicket(
     userId: string,
@@ -23,6 +33,16 @@ export class SupportService {
         status: 'OPEN',
         priority: 'MEDIUM',
       },
+    }).then(async (ticket) => {
+      void this.agentEvents.emit({
+        type: AGENT_EVENTS.SUPPORT_TICKET_CREATED,
+        entityType: 'ticket',
+        entityId: ticket.id,
+        userId,
+        payload: { subject, category, description: description.slice(0, 500) },
+        idempotencyKey: `ticket:${ticket.id}`,
+      });
+      return ticket;
     });
   }
 
@@ -65,12 +85,24 @@ export class SupportService {
       );
 
     // Only the ticket owner or admins can respond
-    if (!isAdmin && ticket!.userId !== userId) {
+    if (!isAdmin && ticket.userId !== userId) {
       throw new ForbiddenException('You do not have access to this ticket');
     }
 
     return this.prisma.supportTicketResponse.create({
       data: { ticketId, userId, message, isAdmin },
+    }).then(async (response) => {
+      if (!isAdmin) {
+        void this.agentEvents.emit({
+          type: AGENT_EVENTS.SUPPORT_MESSAGE_RECEIVED,
+          entityType: 'ticket',
+          entityId: ticketId,
+          userId,
+          payload: { message: message.slice(0, 500), responseId: response.id },
+          idempotencyKey: `ticket-msg:${response.id}`,
+        });
+      }
+      return response;
     });
   }
 

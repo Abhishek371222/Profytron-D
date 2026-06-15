@@ -27,8 +27,7 @@ export class AuditInterceptor implements NestInterceptor {
     const shouldAudit =
       AUDIT_METHODS.has(method) &&
       AUDIT_PREFIXES.some(
-        (prefix) =>
-          url.startsWith(`/api${prefix}`) || url.startsWith(prefix),
+        (prefix) => url.startsWith(`/api${prefix}`) || url.startsWith(prefix),
       );
 
     if (!shouldAudit) return next.handle();
@@ -50,7 +49,11 @@ export class AuditInterceptor implements NestInterceptor {
               data: {
                 eventType: `HTTP_${method}_${normalized}`,
                 userId,
-                detailsJson: { path: url.split('?')[0], method, durationMs: Date.now() - start },
+                detailsJson: {
+                  path: url.split('?')[0],
+                  method,
+                  durationMs: Date.now() - start,
+                },
                 triggeredBy: userId ?? 'ANONYMOUS',
                 ipAddress: ip,
                 userAgent: (headers['user-agent'] as string) ?? null,

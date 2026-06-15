@@ -9,7 +9,7 @@ const posts = [
   {
     id: 'backtesting-lies',
     category: 'Strategy Engineering',
-    tag: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-300',
+    tag: 'bg-primary/10 border-primary/20 text-primary',
     title: 'Why Your Backtest Is Probably Lying to You',
     excerpt:
       'Survivorship bias, look-ahead bias, and overfitting are the three silent killers of algorithmic strategies. Here\'s how we think about them at Profytron.',
@@ -56,7 +56,7 @@ The goal isn't to make your backtest look good. It's to make your live performan
   {
     id: 'llm-trading-signals',
     category: 'Signal AI',
-    tag: 'bg-cyan-500/10 border-cyan-500/20 text-cyan-300',
+    tag: 'bg-chart-5/10 border-chart-5/20 text-chart-5',
     title: 'How LLMs Are Changing the Signal Pipeline in 2026',
     excerpt:
       'Large language models have moved from research curiosity to production infrastructure in finance. Here\'s how modern signal pipelines actually use them — and where they still fall short.',
@@ -101,7 +101,7 @@ The industry is making progress on explainable AI for financial models, but it's
   {
     id: 'colocation-real-talk',
     category: 'Infrastructure',
-    tag: 'bg-violet-500/10 border-violet-500/20 text-violet-300',
+    tag: 'bg-chart-2/10 border-chart-2/20 text-chart-2',
     title: 'Colocation in 2026: What\'s Still an Edge and What Isn\'t',
     excerpt:
       'NY4 and LD4 are the two most important data centers in global electronic trading. But in 2026, proximity alone is no longer enough. Here\'s what we learned building our execution infrastructure.',
@@ -151,21 +151,21 @@ export default function BlogPage() {
     <PublicPageLayout>
       {/* Hero */}
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-indigo-600/8 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-primary/8 blur-[120px] rounded-full pointer-events-none" />
         <div className="container mx-auto px-6 max-w-5xl relative z-10">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/3 border border-white/10 text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase mb-8">
-              <BookOpen className="w-3 h-3 text-indigo-400" /> Signal_Log
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-foreground/3 border border-border text-foreground/50 text-micro font-bold tracking-[0.4em] uppercase mb-8">
+              <BookOpen className="w-3 h-3 text-primary" /> Signal_Log
             </div>
-            <h1 className="text-6xl md:text-7xl font-bold tracking-[-0.03em] text-white leading-[1] mb-6">
+            <h1 className="text-6xl md:text-7xl font-bold tracking-[-0.03em] text-foreground leading-[1] mb-6">
               The Profytron<br />
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-cyan-400">Blog.</span>
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-chart-5">Blog.</span>
             </h1>
-            <p className="text-lg text-white/50 max-w-xl font-medium leading-relaxed">
+            <p className="text-lg text-foreground/50 max-w-xl font-medium leading-relaxed">
               Technical writing from the team — on algo trading, market microstructure, and the AI powering modern execution.
             </p>
-            <div className="flex items-center gap-2 mt-5 text-white/20 text-xs font-mono">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400/60" />
+            <div className="flex items-center gap-2 mt-5 text-foreground/20 text-xs font-mono">
+              <div className="w-1.5 h-1.5 rounded-full bg-chart-3/60" />
               {posts.length} articles published
             </div>
           </motion.div>
@@ -178,24 +178,24 @@ export default function BlogPage() {
           <motion.button
             onClick={() => setOpenPost(posts[0])}
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="w-full text-left group relative p-10 md:p-12 rounded-3xl bg-linear-to-br from-indigo-600/10 to-indigo-600/0 border border-indigo-500/20 hover:border-indigo-500/40 transition-all overflow-hidden cursor-pointer"
+            className="w-full text-left group relative p-10 md:p-12 rounded-3xl bg-linear-to-br from-primary/10 to-primary/0 border border-primary/20 hover:border-primary/40 transition-all overflow-hidden cursor-pointer"
           >
-            <div className="absolute top-0 right-0 w-[400px] h-[300px] bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[400px] h-[300px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
             <div className="relative z-10 max-w-2xl">
               <div className="flex items-center gap-4 mb-6">
-                <span className={`px-3 py-1 rounded-full border text-[10px] font-bold uppercase tracking-widest ${posts[0].tag}`}>
+                <span className={`px-3 py-1 rounded-full border text-micro font-bold uppercase tracking-widest ${posts[0].tag}`}>
                   {posts[0].category}
                 </span>
-                <span className="text-white/25 text-xs font-mono flex items-center gap-1.5">
+                <span className="text-foreground/25 text-xs font-mono flex items-center gap-1.5">
                   <Clock className="w-3 h-3" />{posts[0].readTime}
                 </span>
-                <span className="text-white/25 text-xs font-mono">{posts[0].date}</span>
+                <span className="text-foreground/25 text-xs font-mono">{posts[0].date}</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-5 group-hover:text-indigo-200 transition-colors leading-snug">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight mb-5 group-hover:text-indigo-200 transition-colors leading-snug">
                 {posts[0].title}
               </h2>
-              <p className="text-white/55 leading-relaxed mb-8 text-base">{posts[0].excerpt}</p>
-              <div className="inline-flex items-center gap-2 text-indigo-400 font-semibold text-sm group-hover:gap-3 transition-all">
+              <p className="text-foreground/55 leading-relaxed mb-8 text-base">{posts[0].excerpt}</p>
+              <div className="inline-flex items-center gap-2 text-primary font-semibold text-sm group-hover:gap-3 transition-all">
                 Read Article <ArrowRight className="w-4 h-4" />
               </div>
             </div>
@@ -213,18 +213,18 @@ export default function BlogPage() {
                 onClick={() => setOpenPost(post)}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }} viewport={{ once: true }}
-                className="text-left group p-8 rounded-2xl bg-white/2 border border-white/6 hover:border-indigo-500/30 hover:bg-white/4 transition-all flex flex-col cursor-pointer"
+                className="text-left group p-8 rounded-2xl bg-foreground/2 border border-border hover:border-primary/30 hover:bg-foreground/4 transition-all flex flex-col cursor-pointer"
               >
                 <div className="flex items-center gap-3 mb-5">
-                  <span className={`px-2.5 py-1 rounded-full border text-[9px] font-bold uppercase tracking-widest ${post.tag}`}>
+                  <span className={`px-2.5 py-1 rounded-full border text-micro font-bold uppercase tracking-widest ${post.tag}`}>
                     {post.category}
                   </span>
                 </div>
-                <h3 className="font-bold text-white text-xl leading-snug mb-3 group-hover:text-indigo-200 transition-colors flex-1">
+                <h3 className="font-bold text-foreground text-xl leading-snug mb-3 group-hover:text-indigo-200 transition-colors flex-1">
                   {post.title}
                 </h3>
-                <p className="text-white/40 text-sm leading-relaxed mb-6 line-clamp-3">{post.excerpt}</p>
-                <div className="flex items-center justify-between text-xs text-white/25 font-mono border-t border-white/5 pt-4">
+                <p className="text-foreground/40 text-sm leading-relaxed mb-6 line-clamp-3">{post.excerpt}</p>
+                <div className="flex items-center justify-between text-xs text-foreground/25 font-mono border-t border-border pt-4">
                   <div className="flex items-center gap-1.5"><Clock className="w-3 h-3" />{post.readTime}</div>
                   <span>{post.date}</span>
                 </div>
@@ -248,39 +248,39 @@ export default function BlogPage() {
             <motion.div
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 250 }}
-              className="fixed right-0 top-0 bottom-0 w-full max-w-2xl bg-[#0a0a10] border-l border-white/8 z-50 overflow-y-auto"
+              className="fixed right-0 top-0 bottom-0 w-full max-w-2xl bg-[#0a0a10] border-l border-border z-50 overflow-y-auto"
             >
               <div className="p-8 md:p-12">
                 {/* Close */}
                 <button onClick={() => setOpenPost(null)}
-                  className="flex items-center gap-2 text-white/30 hover:text-white text-xs font-mono uppercase tracking-widest mb-10 transition-colors group">
+                  className="flex items-center gap-2 text-foreground/30 hover:text-foreground text-xs font-mono uppercase tracking-widest mb-10 transition-colors group">
                   <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Back
                 </button>
 
                 {/* Meta */}
                 <div className="flex items-center gap-4 mb-6">
-                  <span className={`px-3 py-1 rounded-full border text-[9px] font-bold uppercase tracking-widest ${openPost.tag}`}>
+                  <span className={`px-3 py-1 rounded-full border text-micro font-bold uppercase tracking-widest ${openPost.tag}`}>
                     {openPost.category}
                   </span>
-                  <span className="text-white/25 text-xs font-mono flex items-center gap-1.5">
+                  <span className="text-foreground/25 text-xs font-mono flex items-center gap-1.5">
                     <Clock className="w-3 h-3" />{openPost.readTime}
                   </span>
-                  <span className="text-white/25 text-xs font-mono">{openPost.date}</span>
+                  <span className="text-foreground/25 text-xs font-mono">{openPost.date}</span>
                 </div>
 
                 {/* Title */}
-                <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-6 leading-snug">
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight mb-6 leading-snug">
                   {openPost.title}
                 </h1>
 
-                <div className="h-px w-full bg-white/7 mb-8" />
+                <div className="h-px w-full bg-foreground/7 mb-8" />
 
                 {/* Article body */}
-                <div className="prose-custom text-white/65 text-[15px] leading-[1.9] space-y-5">
+                <div className="prose-custom text-foreground/65 text-body leading-[1.9] space-y-5">
                   {openPost.content.split('\n\n').map((block, i) => {
                     if (block.startsWith('## ')) {
                       return (
-                        <h2 key={i} className="text-xl font-bold text-white mt-10 mb-3 tracking-tight">
+                        <h2 key={i} className="text-xl font-bold text-foreground mt-10 mb-3 tracking-tight">
                           {block.replace('## ', '')}
                         </h2>
                       );
@@ -288,10 +288,10 @@ export default function BlogPage() {
                     // Bold inline (** **)
                     const parts = block.split(/(\*\*[^*]+\*\*)/g);
                     return (
-                      <p key={i} className="text-white/65 leading-[1.9]">
+                      <p key={i} className="text-foreground/65 leading-[1.9]">
                         {parts.map((part, j) =>
                           part.startsWith('**') && part.endsWith('**')
-                            ? <strong key={j} className="text-white/85 font-semibold">{part.slice(2, -2)}</strong>
+                            ? <strong key={j} className="text-foreground/85 font-semibold">{part.slice(2, -2)}</strong>
                             : part
                         )}
                       </p>
@@ -299,8 +299,8 @@ export default function BlogPage() {
                   })}
                 </div>
 
-                <div className="mt-12 pt-8 border-t border-white/6">
-                  <p className="text-white/25 text-xs font-mono">PROFYTRON SIGNAL LOG · {openPost.date}</p>
+                <div className="mt-12 pt-8 border-t border-border">
+                  <p className="text-foreground/25 text-xs font-mono">PROFYTRON SIGNAL LOG · {openPost.date}</p>
                 </div>
               </div>
             </motion.div>

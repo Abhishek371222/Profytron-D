@@ -31,8 +31,12 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return service status', () => {
+      expect(appController.getStatus()).toEqual({
+        status: 'ok',
+        version: '1.0.0',
+        prefix: 'v1',
+      });
     });
   });
 });

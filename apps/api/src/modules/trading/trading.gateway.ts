@@ -8,6 +8,7 @@ import {
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
+import { RedisService } from '../auth/redis.service';
 
 const wsAllowedOrigins = (
   process.env.CORS_ORIGIN ||
@@ -34,24 +35,39 @@ export class TradingGateway
   private readonly logger = new Logger(TradingGateway.name);
   private connectedClients: Map<string, string> = new Map(); // socketId -> userId
 
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    private jwtService: JwtService,
+    private redisService: RedisService,
+  ) {}
 
   async handleConnection(client: Socket) {
-    const token =
+    const raw =
       client.handshake.auth.token || client.handshake.headers.authorization;
-    if (!token) {
+    if (!raw) {
       client.disconnect();
       return;
     }
 
     try {
-      const payload = this.jwtService.verify(token.replace('Bearer ', ''), {
+      const token = (raw as string).replace('Bearer ', '');
+      const payload = this.jwtService.verify(token, {
         secret: process.env.JWT_ACCESS_SECRET,
+        algorithms: ['HS256'],
       });
-      this.connectedClients.set(client.id, payload.sub);
+
+      // Reject tokens that have been explicitly revoked (post-logout, password-reset)
+      if (payload.jti) {
+        const isBlacklisted = await this.redisService.exists(`auth:blacklist:${payload.jti}`);
+        if (isBlacklisted) {
+          client.disconnect();
+          return;
+        }
+      }
+
+      this.connectedClients.set(client.id, payload.sub as string);
       client.join(`user:${payload.sub}`);
-      this.logger.log(`User ${payload.sub} connected`);
-    } catch (e) {
+      this.logger.log(`User ${payload.sub as string} connected`);
+    } catch {
       client.disconnect();
     }
   }
