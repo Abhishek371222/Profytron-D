@@ -13,6 +13,14 @@ import { Throttle } from '@nestjs/throttler';
 import { TradingService } from './trading.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
+  CloseTradeDto,
+  ModifyTradeDto,
+  BreakEvenDto,
+  TrailingStopDto,
+  BulkCloseDto,
+  ManualOrderDto,
+} from './dto/trade-actions.dto';
+import {
   ApiTags,
   ApiBearerAuth,
   ApiOperation,
@@ -39,6 +47,72 @@ export class TradingController {
   @ApiOperation({ summary: 'Immediately halt and close all active trades' })
   async emergencyStop(@Req() req: RequestWithUser) {
     return this.tradingService.emergencyStop(req.user.id);
+  }
+
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
+  @Post('trades/order')
+  @ApiResponse({ status: 201, description: 'Order queued' })
+  @ApiOperation({ summary: 'Place a manual market order' })
+  async placeOrder(@Req() req: RequestWithUser, @Body() dto: ManualOrderDto) {
+    return this.tradingService.placeManualOrder(req.user.id, dto);
+  }
+
+  @Throttle({ default: { ttl: 60000, limit: 60 } })
+  @Post('trades/bulk-close')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({
+    summary: 'Bulk close trades (all / buys / sells / profitable / losing)',
+  })
+  async bulkClose(@Req() req: RequestWithUser, @Body() dto: BulkCloseDto) {
+    return this.tradingService.bulkClose(req.user.id, dto.scope);
+  }
+
+  @Throttle({ default: { ttl: 60000, limit: 60 } })
+  @Post('trades/:id/close')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Close (or partially close) an open trade' })
+  async closeTrade(
+    @Req() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() dto: CloseTradeDto,
+  ) {
+    return this.tradingService.closeTrade(req.user.id, id, dto.volume);
+  }
+
+  @Throttle({ default: { ttl: 60000, limit: 60 } })
+  @Patch('trades/:id/modify')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Modify stop-loss / take-profit of an open trade' })
+  async modifyTrade(
+    @Req() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() dto: ModifyTradeDto,
+  ) {
+    return this.tradingService.modifyTrade(req.user.id, id, dto);
+  }
+
+  @Throttle({ default: { ttl: 60000, limit: 60 } })
+  @Post('trades/:id/break-even')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Move stop-loss to break-even' })
+  async breakEven(
+    @Req() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() dto: BreakEvenDto,
+  ) {
+    return this.tradingService.breakEven(req.user.id, id, dto.offsetPips);
+  }
+
+  @Throttle({ default: { ttl: 60000, limit: 60 } })
+  @Post('trades/:id/trailing-stop')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Attach a trailing stop to an open trade' })
+  async trailingStop(
+    @Req() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() dto: TrailingStopDto,
+  ) {
+    return this.tradingService.setTrailingStop(req.user.id, id, dto.distance);
   }
 
   @Get('subscriptions')

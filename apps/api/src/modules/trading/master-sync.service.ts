@@ -4,8 +4,10 @@ import type { Queue } from 'bull';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MetaTraderAdapter } from '../broker/adapters/metatrader.adapter';
 import { CryptoService } from '../../common/crypto.service';
-import { SubscriptionStatus } from '@prisma/client';
+import { RedisService } from '../auth/redis.service';
+import { SubscriptionStatus, TradeEventType } from '@prisma/client';
 import { isPaidCopySubscription } from '../../common/utils/copy-subscription.util';
+import { CopyLedgerService } from './copy-ledger.service';
 
 interface CachedPosition {
   id: string;
@@ -13,19 +15,40 @@ interface CachedPosition {
   type: string;
   volume: number;
   openPrice: number;
+  stopLoss?: number | null;
+  takeProfit?: number | null;
 }
 
+const SNAPSHOT_TTL_SECONDS = 60 * 60 * 24; // keep snapshots a day
+const snapshotKey = (accountId: string) => `mastersync:positions:${accountId}`;
+
+/**
+ * Real-time master-trade detection.
+ *
+ * Detects OPEN, CLOSE and MODIFY (SL/TP/volume) changes on each master account
+ * and fans the change out to paid followers. Snapshot state is persisted to
+ * Redis so detection survives process restarts and can run behind multiple
+ * instances without losing closes or re-firing opens.
+ *
+ * This polls the MetaApi REST positions endpoint. To upgrade to true websocket
+ * streaming, swap `mtAdapter.getPositions` for a streaming connection's
+ * synchronization listener — the diff/fan-out logic below stays identical.
+ */
 @Injectable()
 export class MasterSyncService implements OnModuleDestroy {
   private readonly logger = new Logger(MasterSyncService.name);
   private lastPositions = new Map<string, Map<string, CachedPosition>>();
   private pollTimer: NodeJS.Timeout | null = null;
   private polling = false;
+  /** Unique per-process token for the master-poll leader lease. */
+  private readonly instanceId = `${process.pid}-${Math.random().toString(36).slice(2, 10)}`;
 
   constructor(
     private prisma: PrismaService,
     private mtAdapter: MetaTraderAdapter,
     private crypto: CryptoService,
+    private redis: RedisService,
+    private ledger: CopyLedgerService,
     @InjectQueue('trade_execution') private tradeQueue: Queue,
   ) {}
 
@@ -42,6 +65,13 @@ export class MasterSyncService implements OnModuleDestroy {
 
   private async pollAllMasters() {
     if (this.polling) return;
+    // Only one instance polls masters when scaled horizontally (leader lease).
+    const isLeader = await this.redis.tryRenewableLock(
+      'mastersync:leader',
+      this.instanceId,
+      10,
+    );
+    if (!isLeader) return;
     this.polling = true;
     try {
       const masterAccounts = await this.prisma.brokerAccount.findMany({
@@ -56,6 +86,46 @@ export class MasterSyncService implements OnModuleDestroy {
       this.logger.error(`Poll cycle error: ${err.message}`);
     } finally {
       this.polling = false;
+    }
+  }
+
+  /** Load a master's last snapshot, preferring memory then Redis. */
+  private async loadSnapshot(
+    accountId: string,
+  ): Promise<Map<string, CachedPosition>> {
+    const inMemory = this.lastPositions.get(accountId);
+    if (inMemory) return inMemory;
+    try {
+      const raw = await this.redis.get(snapshotKey(accountId));
+      if (raw) {
+        const arr = JSON.parse(raw) as CachedPosition[];
+        const map = new Map(arr.map((p) => [p.id, p]));
+        this.lastPositions.set(accountId, map);
+        return map;
+      }
+    } catch (err) {
+      this.logger.warn(
+        `Snapshot load failed for ${accountId}: ${(err as Error).message}`,
+      );
+    }
+    return new Map<string, CachedPosition>();
+  }
+
+  private async saveSnapshot(
+    accountId: string,
+    map: Map<string, CachedPosition>,
+  ) {
+    this.lastPositions.set(accountId, map);
+    try {
+      await this.redis.set(
+        snapshotKey(accountId),
+        JSON.stringify([...map.values()]),
+        SNAPSHOT_TTL_SECONDS,
+      );
+    } catch (err) {
+      this.logger.warn(
+        `Snapshot save failed for ${accountId}: ${(err as Error).message}`,
+      );
     }
   }
 
@@ -88,6 +158,8 @@ export class MasterSyncService implements OnModuleDestroy {
         type: p.type,
         volume: p.volume,
         openPrice: p.openPrice,
+        stopLoss: p.stopLoss ?? null,
+        takeProfit: p.takeProfit ?? null,
       }));
     } catch (err) {
       this.logger.warn(
@@ -96,36 +168,43 @@ export class MasterSyncService implements OnModuleDestroy {
       return;
     }
 
-    const prev =
-      this.lastPositions.get(account.id) ?? new Map<string, CachedPosition>();
+    const prev = await this.loadSnapshot(account.id);
     const currentMap = new Map(currentPositions.map((p) => [p.id, p]));
 
-    // Detect new positions (opened on master)
+    // Opened on master
     for (const [id, pos] of currentMap) {
       if (!prev.has(id)) {
         await this.fanOutOpenSignal(account.id, pos);
       }
     }
 
-    // Detect closed positions (gone from master)
-    for (const [id] of prev) {
-      if (!currentMap.has(id)) {
-        await this.fanOutCloseSignal(account.id, id);
+    // Modified on master (SL / TP / volume change to an existing position)
+    for (const [id, pos] of currentMap) {
+      const before = prev.get(id);
+      if (before && this.isModified(before, pos)) {
+        await this.fanOutModifySignal(account.id, before, pos);
       }
     }
 
-    this.lastPositions.set(account.id, currentMap);
+    // Closed on master
+    for (const [id, pos] of prev) {
+      if (!currentMap.has(id)) {
+        await this.fanOutCloseSignal(account.id, id, pos);
+      }
+    }
+
+    await this.saveSnapshot(account.id, currentMap);
   }
 
-  private async fanOutOpenSignal(
-    masterBrokerAccountId: string,
-    pos: CachedPosition,
-  ) {
-    const signalType = pos.type === 'POSITION_TYPE_BUY' ? 'BUY' : 'SELL';
-    this.logger.log(
-      `Master ${masterBrokerAccountId} opened ${signalType} ${pos.symbol} @${pos.openPrice} vol=${pos.volume}`,
+  private isModified(a: CachedPosition, b: CachedPosition): boolean {
+    return (
+      (a.stopLoss ?? null) !== (b.stopLoss ?? null) ||
+      (a.takeProfit ?? null) !== (b.takeProfit ?? null) ||
+      a.volume !== b.volume
     );
+  }
 
+  private async findActivePaidSubscribers(masterBrokerAccountId: string) {
     const now = new Date();
     const subscriptions = await this.prisma.userStrategySubscription.findMany({
       where: {
@@ -147,11 +226,32 @@ export class MasterSyncService implements OnModuleDestroy {
       },
       orderBy: { executionPriority: 'desc' },
     });
+    return subscriptions.filter((sub) => isPaidCopySubscription(sub, now));
+  }
 
-    const paidSubscribers = subscriptions.filter((sub) =>
-      isPaidCopySubscription(sub, now),
+  private async fanOutOpenSignal(
+    masterBrokerAccountId: string,
+    pos: CachedPosition,
+  ) {
+    const signalType = pos.type === 'POSITION_TYPE_BUY' ? 'BUY' : 'SELL';
+    this.logger.log(
+      `Master ${masterBrokerAccountId} opened ${signalType} ${pos.symbol} @${pos.openPrice} vol=${pos.volume}`,
     );
 
+    await this.ledger.recordEvent({
+      type: TradeEventType.SIGNAL_RECEIVED,
+      masterAccountId: masterBrokerAccountId,
+      masterPositionId: pos.id,
+      symbol: pos.symbol,
+      side: signalType,
+      volume: pos.volume,
+      price: pos.openPrice,
+      stopLoss: pos.stopLoss ?? null,
+      takeProfit: pos.takeProfit ?? null,
+    });
+
+    const paidSubscribers =
+      await this.findActivePaidSubscribers(masterBrokerAccountId);
     if (paidSubscribers.length === 0) return;
 
     for (const sub of paidSubscribers) {
@@ -168,6 +268,8 @@ export class MasterSyncService implements OnModuleDestroy {
           price: pos.openPrice,
           masterVolume: pos.volume,
           lotMultiplier: sub.lotMultiplier ?? 1.0,
+          stopLoss: pos.stopLoss ?? undefined,
+          takeProfit: pos.takeProfit ?? undefined,
           queuedAt: new Date().toISOString(),
           executionMode: 'COPY_TRADE',
         },
@@ -176,13 +278,75 @@ export class MasterSyncService implements OnModuleDestroy {
     }
   }
 
+  private async fanOutModifySignal(
+    masterBrokerAccountId: string,
+    before: CachedPosition,
+    after: CachedPosition,
+  ) {
+    this.logger.log(
+      `Master ${masterBrokerAccountId} modified position ${after.id} (SL ${before.stopLoss}->${after.stopLoss}, TP ${before.takeProfit}->${after.takeProfit})`,
+    );
+
+    await this.ledger.recordEvent({
+      type: TradeEventType.POSITION_MODIFIED,
+      masterAccountId: masterBrokerAccountId,
+      masterPositionId: after.id,
+      symbol: after.symbol,
+      stopLoss: after.stopLoss ?? null,
+      takeProfit: after.takeProfit ?? null,
+      details: {
+        prevStopLoss: before.stopLoss ?? null,
+        prevTakeProfit: before.takeProfit ?? null,
+        prevVolume: before.volume,
+        newVolume: after.volume,
+      },
+    });
+
+    // Only SL/TP changes propagate to followers (volume scaling differs per
+    // follower and is set at open). Skip if neither SL nor TP changed.
+    if (
+      (before.stopLoss ?? null) === (after.stopLoss ?? null) &&
+      (before.takeProfit ?? null) === (after.takeProfit ?? null)
+    ) {
+      return;
+    }
+
+    const openTrades = await this.prisma.trade.findMany({
+      where: {
+        status: 'OPEN',
+        executionMetadataJson: {
+          path: ['masterPositionId'],
+          equals: after.id,
+        },
+      },
+      select: { id: true, userId: true },
+    });
+
+    for (const trade of openTrades) {
+      await this.tradeQueue.add('modify_trade', {
+        tradeId: trade.id,
+        userId: trade.userId,
+        ...(after.stopLoss != null ? { stopLoss: after.stopLoss } : {}),
+        ...(after.takeProfit != null ? { takeProfit: after.takeProfit } : {}),
+      });
+    }
+  }
+
   private async fanOutCloseSignal(
     masterBrokerAccountId: string,
     masterPositionId: string,
+    pos?: CachedPosition,
   ) {
     this.logger.log(
       `Master ${masterBrokerAccountId} closed position ${masterPositionId}`,
     );
+
+    await this.ledger.recordEvent({
+      type: TradeEventType.POSITION_CLOSED,
+      masterAccountId: masterBrokerAccountId,
+      masterPositionId,
+      symbol: pos?.symbol ?? null,
+    });
 
     // Find all open trades that were copy-opened from this master position
     const openTrades = await this.prisma.trade.findMany({

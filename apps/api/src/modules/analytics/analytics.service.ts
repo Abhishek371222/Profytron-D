@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
+import { WalletService } from '../wallet/wallet.service';
 
 type RangeKey = '1d' | '1w' | '1m' | '3m' | '1y' | 'all';
 
@@ -33,9 +34,33 @@ export class AnalyticsService {
   constructor(
     private prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly walletService: WalletService,
   ) {}
 
-  private readonly baseEquity = 100_000;
+  private async getDefaultBrokerAccount(userId: string) {
+    return this.prisma.brokerAccount.findFirst({
+      where: { userId, isDefault: true, isActive: true },
+      select: { id: true, initialEquity: true },
+    });
+  }
+
+  private async getDefaultBrokerAccountId(userId: string): Promise<string | null> {
+    const account = await this.getDefaultBrokerAccount(userId);
+    return account?.id ?? null;
+  }
+
+  private async resolveEquityBase(userId: string): Promise<number> {
+    const defaultAccount = await this.getDefaultBrokerAccount(userId);
+    if (
+      defaultAccount?.initialEquity != null &&
+      defaultAccount.initialEquity > 0
+    ) {
+      return defaultAccount.initialEquity;
+    }
+    const wallet = await this.walletService.getBalance(userId);
+    if (wallet.total > 0) return wallet.total;
+    return 0;
+  }
 
   private rangeStart(range: RangeKey): Date | null {
     const now = new Date();
@@ -81,7 +106,7 @@ export class AnalyticsService {
     return sorted[idx] ?? 0;
   }
 
-  private buildEquityCurve(trades: ClosedTradeRow[]) {
+  private buildEquityCurve(trades: ClosedTradeRow[], baseEquity: number) {
     const buckets = new Map<string, number>();
     for (const trade of trades) {
       if (!trade.closedAt) continue;
@@ -90,7 +115,7 @@ export class AnalyticsService {
     }
 
     const dates = [...buckets.keys()].sort();
-    let equity = this.baseEquity;
+    let equity = baseEquity;
     let peak = equity;
 
     return dates.map((date) => {
@@ -150,11 +175,13 @@ export class AnalyticsService {
     range: RangeKey,
   ): Promise<ClosedTradeRow[]> {
     const start = this.rangeStart(range);
+    const defaultAccount = await this.getDefaultBrokerAccount(userId);
     return this.prisma.trade.findMany({
       where: {
         userId,
         status: 'CLOSED',
         closedAt: start ? { gte: start } : undefined,
+        ...(defaultAccount?.id ? { brokerAccountId: defaultAccount.id } : {}),
       },
       orderBy: { closedAt: 'asc' },
       // Explicit select — excludes executionMetadataJson, aiExplanation,
@@ -189,6 +216,7 @@ export class AnalyticsService {
     }
 
     const trades = await this.getClosedTrades(userId, range);
+    const baseEquity = await this.resolveEquityBase(userId);
 
     if (trades.length === 0) {
       return {
@@ -203,8 +231,9 @@ export class AnalyticsService {
         avgLoss: 0,
         maxDrawdown: 0,
         equityCurve: [],
-        allTimeHigh: this.baseEquity,
+        allTimeHigh: baseEquity,
         bestMonth: 0,
+        equityBase: this.round(baseEquity),
       };
     }
 
@@ -223,14 +252,14 @@ export class AnalyticsService {
     const sharpe = this.computeSharpe(pnlSeries);
     const sortino = this.computeSortino(pnlSeries);
 
-    const equityCurve = this.buildEquityCurve(trades);
+    const equityCurve = this.buildEquityCurve(trades, baseEquity);
     const maxDrawdown = equityCurve.reduce(
       (max, point) => Math.max(max, point.drawdownPct),
       0,
     );
     const allTimeHigh = equityCurve.reduce(
       (max, point) => Math.max(max, point.equity),
-      this.baseEquity,
+      baseEquity,
     );
 
     const monthlyPnl = new Map<string, number>();
@@ -258,6 +287,7 @@ export class AnalyticsService {
       allTimeHigh: this.round(allTimeHigh),
       bestMonth: this.round(bestMonth),
       equityCurve,
+      equityBase: this.round(baseEquity),
     };
 
     await this.redis.set(cacheKey, JSON.stringify(stats), TTL_ANALYTICS);
@@ -266,6 +296,7 @@ export class AnalyticsService {
 
   async getMonthlyReturns(userId: string) {
     const trades = await this.getClosedTrades(userId, 'all');
+    const baseEquity = await this.resolveEquityBase(userId);
     const monthly = new Map<string, number>();
 
     for (const trade of trades) {
@@ -275,7 +306,7 @@ export class AnalyticsService {
     }
 
     const sortedMonths = [...monthly.keys()].sort();
-    let rollingEquity = this.baseEquity;
+    let rollingEquity = baseEquity;
 
     const months = sortedMonths.map((month) => {
       const pnl = monthly.get(month) ?? 0;
@@ -339,6 +370,7 @@ export class AnalyticsService {
     }
 
     const trades = await this.getClosedTrades(userId, range);
+    const baseEquity = await this.resolveEquityBase(userId);
     const groups = new Map<string, { name: string; pnl: number[] }>();
 
     for (const trade of trades) {
@@ -356,6 +388,7 @@ export class AnalyticsService {
       const total = pnl.reduce((s, v) => s + v, 0);
       const curve = this.buildEquityCurve(
         trades.filter((t) => (t.strategyId ?? 'manual') === id),
+        baseEquity,
       );
 
       return {
@@ -413,8 +446,9 @@ export class AnalyticsService {
     }
 
     const trades = await this.getClosedTrades(userId, range);
+    const baseEquity = await this.resolveEquityBase(userId);
     const pnl = trades.map((t) => t.profit ?? 0);
-    const curve = this.buildEquityCurve(trades);
+    const curve = this.buildEquityCurve(trades, baseEquity);
 
     const heatmapByDayHour = new Map<string, number>();
     for (const trade of trades) {

@@ -1,17 +1,10 @@
 'use client';
 
 import React from 'react';
-import { io, type Socket } from 'socket.io-client';
 import { useQueryClient } from '@tanstack/react-query';
+import { invalidateAccountQueries } from '@/lib/queries/account-queries';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
-
-const toWsBaseUrl = (raw?: string): string => {
-  const fallback = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:4000';
-  const value = (raw || fallback).trim();
-  if (value.startsWith('ws://')) return `http://${value.slice(5)}`;
-  if (value.startsWith('wss://')) return `https://${value.slice(6)}`;
-  return value;
-};
+import { acquireTradingSocket, onTradingEvent } from '@/lib/realtime/trading-socket';
 
 /** Subscribes to trading WebSocket events and invalidates dashboard queries in real time. */
 export function useDashboardRealtime(enabled = true) {
@@ -24,42 +17,31 @@ export function useDashboardRealtime(enabled = true) {
     const token = useAuthStore.getState().accessToken;
     if (!token) return;
 
-    const wsBase = toWsBaseUrl(process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_BACKEND_URL);
-    const socket: Socket = io(`${wsBase}/trading`, {
-      transports: ['websocket', 'polling'],
-      auth: { token },
-    });
+    const release = acquireTradingSocket(token);
 
-    const invalidate = (...keys: string[]) => {
-      keys.forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }));
-    };
+    const invalidate = (() => {
+      let timer: ReturnType<typeof setTimeout> | null = null;
+      return (...keys: string[]) => {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          keys.forEach((key) => queryClient.invalidateQueries({ queryKey: [key] }));
+        }, 400);
+      };
+    })();
 
-    socket.on('connect', () => {
-      socket.emit('subscribe_prices');
-    });
-
-    socket.on('trade_opened', () => {
-      invalidate('open-trades', 'portfolio', 'dashboard-risk', 'my-strategies');
-    });
-
-    socket.on('trade_closed', () => {
-      invalidate('open-trades', 'portfolio', 'dashboard-risk', 'wallet-balance');
-    });
-
-    socket.on('emergency_stop_triggered', () => {
-      invalidate('open-trades', 'portfolio', 'dashboard-risk');
-    });
-
-    socket.on('strategy_activated', () => {
-      invalidate('my-strategies');
-    });
-
-    socket.on('new_notification', () => {
-      invalidate('notifications-unread');
-    });
+    const unsubs = [
+      onTradingEvent('trade_opened', () => invalidateAccountQueries(queryClient)),
+      onTradingEvent('trade_closed', () => invalidateAccountQueries(queryClient)),
+      onTradingEvent('emergency_stop_triggered', () => {
+        invalidate('open-trades', 'portfolio', 'dashboard-risk');
+      }),
+      onTradingEvent('strategy_activated', () => invalidate('my-strategies')),
+      onTradingEvent('new_notification', () => invalidate('notifications-unread')),
+    ];
 
     return () => {
-      socket.disconnect();
+      unsubs.forEach((off) => off());
+      release();
     };
   }, [enabled, isAuthenticated, queryClient]);
 }

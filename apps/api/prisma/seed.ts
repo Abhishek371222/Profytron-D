@@ -177,6 +177,7 @@ async function main() {
       credentialsEncrypted: 'mock-enc-creds',
       isPaperTrading: true,
       isDefault: true,
+      initialEquity: 150_000,
     }
   });
 

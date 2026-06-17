@@ -172,10 +172,12 @@ export function DashboardMarketCards({
   quotes,
   isLoading = false,
   live = false,
+  showConnectHint = false,
 }: {
   quotes: Record<string, Quote | undefined>;
   isLoading?: boolean;
   live?: boolean;
+  showConnectHint?: boolean;
 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -224,6 +226,8 @@ export function DashboardMarketCards({
                       <div className="flex items-baseline gap-2 mt-1.5 flex-wrap">
                         {q ? (
                           <AnimatedPrice value={q.price} formatted={formattedPrice} />
+                        ) : showConnectHint ? (
+                          <span className="text-sm font-medium text-muted-foreground">Connect account</span>
                         ) : (
                           <span className="text-xl font-bold text-foreground">—</span>
                         )}

@@ -1,48 +1,56 @@
 "use client";
 
 import React from "react";
-import { ArrowRight, Play, Check } from "lucide-react";
+import { ArrowRight, Play, Check, Sparkles } from "lucide-react";
 import { TrustBadges } from "@/components/trust/TrustBadges";
-import { AuroraBackground } from "@/components/animations/AuroraBackground";
-import { MouseSpotlight } from "@/components/animations/MouseSpotlight";
 import { StaggerFadeUp, StaggerItem } from "@/components/animations/StaggerFadeUp";
-import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
 import { HeroDashboardPreview } from "@/components/home/HeroDashboardPreview";
+import { HeroStatsRow } from "@/components/home/HeroStatsRow";
+import { HeroFeatureStrip } from "@/components/home/HeroFeatureStrip";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { LandingDashboardLink, LandingPrimaryLink, LandingSecondaryLink } from "@/components/home/LandingButtons";
+import { useMounted } from "@/lib/hooks/useMounted";
 
 const TRIAL_POINTS = ["No Credit Card", "7-Day Trial", "Cancel Anytime"];
 
 export function HeroSection() {
-  const { isAuthenticated, isHydrating } = useAuthStore();
+  const mounted = useMounted();
+  const { isAuthenticated } = useAuthStore();
 
   return (
-    <section className="relative min-h-[min(100dvh,920px)] flex items-center overflow-x-hidden">
-      <AuroraBackground />
-      <MouseSpotlight />
+    <section className="relative overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background">
+      {/* Soft hero glow — matches reference light lavender/blue wash */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 dark:opacity-100 opacity-100"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59,91,255,0.12) 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 90% 20%, rgba(139,92,246,0.08) 0%, transparent 50%)",
+        }}
+      />
 
-      <div className="page-container relative z-10 pt-28 pb-16 sm:pt-32 sm:pb-20 lg:pb-24">
-        <div className="flex flex-col lg:flex-row items-center lg:items-center gap-12 lg:gap-10 xl:gap-14">
-          <div className="flex-1 w-full min-w-0 max-w-[600px] lg:max-w-[540px]">
+      <div className="page-container relative z-10 pt-28 pb-14 sm:pt-32 sm:pb-16 lg:pb-20">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-10 lg:gap-12 xl:gap-16">
+          <div className="flex-1 w-full min-w-0 max-w-[600px] lg:max-w-[520px] xl:max-w-[560px]">
             <StaggerFadeUp>
               <StaggerItem>
-                <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5 mb-6">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span className="text-xs font-semibold text-primary tracking-wide">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.07] px-3.5 py-1.5 mb-6">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs font-semibold text-primary">
                     AI-powered algorithmic trading platform
                   </span>
                 </div>
               </StaggerItem>
 
               <StaggerItem>
-                <h1 className="hero-headline text-hero text-foreground text-balance mb-5 sm:mb-6">
+                <h1 className="hero-headline text-[clamp(2.5rem,5vw,4.25rem)] text-foreground text-balance mb-5 sm:mb-6">
                   Stop Trading{" "}
                   <span className="text-gradient-hero">Manually.</span>
                 </h1>
               </StaggerItem>
 
               <StaggerItem>
-                <p className="text-body-lg text-muted-foreground leading-relaxed max-w-[520px] mb-7 sm:mb-8">
+                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-[520px] mb-7 sm:mb-8">
                   Build and deploy automated strategies in minutes. Profytron handles execution,
                   AI risk management, and portfolio analytics — 24/7, without you watching the screen.
                 </p>
@@ -50,7 +58,7 @@ export function HeroSection() {
 
               <StaggerItem>
                 <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-5">
-                  {!isHydrating && isAuthenticated ? (
+                  {mounted && isAuthenticated ? (
                     <LandingDashboardLink />
                   ) : (
                     <LandingPrimaryLink href="/register?plan=starter">
@@ -74,8 +82,11 @@ export function HeroSection() {
               <StaggerItem>
                 <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6">
                   {TRIAL_POINTS.map((t) => (
-                    <span key={t} className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium whitespace-nowrap">
-                      <Check className="w-3.5 h-3.5 text-[var(--success)] shrink-0" />
+                    <span
+                      key={t}
+                      className="flex items-center gap-1.5 text-sm text-muted-foreground font-medium whitespace-nowrap"
+                    >
+                      <Check className="w-4 h-4 text-[var(--success)] shrink-0" />
                       {t}
                     </span>
                   ))}
@@ -83,38 +94,18 @@ export function HeroSection() {
               </StaggerItem>
 
               <StaggerItem>
-                <TrustBadges compact className="mb-8" />
-              </StaggerItem>
-
-              <StaggerItem>
-                <div className="flex flex-wrap items-center gap-8 sm:gap-12 pt-6 border-t border-border">
-                  <div>
-                    <p className="text-sm text-muted-foreground font-medium mb-1">Active Traders</p>
-                    <p className="text-2xl font-bold text-foreground tabular-nums">
-                      <AnimatedCounter value={12000} suffix="+" />
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground font-medium mb-1">Volume Traded</p>
-                    <p className="text-2xl font-bold text-foreground tabular-nums">
-                      <AnimatedCounter value={1.2} prefix="$" suffix="B+" decimals={1} />
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground font-medium mb-1">Uptime</p>
-                    <p className="text-2xl font-bold text-foreground tabular-nums">
-                      <AnimatedCounter value={99.99} suffix="%" decimals={2} />
-                    </p>
-                  </div>
-                </div>
+                <TrustBadges compact className="max-w-xl" />
               </StaggerItem>
             </StaggerFadeUp>
           </div>
 
-          <div className="w-full lg:flex-1 flex justify-center lg:justify-end min-w-0">
+          <div className="w-full lg:flex-1 flex justify-center lg:justify-end min-w-0 lg:pt-2">
             <HeroDashboardPreview />
           </div>
         </div>
+
+        <HeroStatsRow />
+        <HeroFeatureStrip />
       </div>
     </section>
   );

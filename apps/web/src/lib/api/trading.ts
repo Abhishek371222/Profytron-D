@@ -42,6 +42,21 @@ export interface TradeHistoryRow {
   isPaper: boolean;
 }
 
+export type BulkCloseScope = 'ALL' | 'BUYS' | 'SELLS' | 'PROFITABLE' | 'LOSING';
+
+export interface ModifyTradePayload {
+  stopLoss?: number;
+  takeProfit?: number;
+}
+
+export interface ManualOrderPayload {
+  symbol: string;
+  side: 'BUY' | 'SELL';
+  volume: number;
+  stopLoss?: number;
+  takeProfit?: number;
+}
+
 export const tradingApi = {
   async emergencyStop() {
     const res = await apiClient.post('/trading/emergency-stop');
@@ -51,6 +66,40 @@ export const tradingApi = {
   async getOpenTrades(): Promise<OpenTrade[]> {
     const res = await apiClient.get('/trading/trades/open');
     return unwrap<OpenTrade[]>(res.data);
+  },
+
+  /** Close fully (omit volume) or partially (volume in lots, < position size). */
+  async closeTrade(id: string, volume?: number) {
+    const res = await apiClient.post(`/trading/trades/${id}/close`, volume != null ? { volume } : {});
+    return unwrap<any>(res.data);
+  },
+
+  async modifyTrade(id: string, payload: ModifyTradePayload) {
+    const res = await apiClient.patch(`/trading/trades/${id}/modify`, payload);
+    return unwrap<any>(res.data);
+  },
+
+  async breakEven(id: string, offsetPips?: number) {
+    const res = await apiClient.post(
+      `/trading/trades/${id}/break-even`,
+      offsetPips != null ? { offsetPips } : {},
+    );
+    return unwrap<any>(res.data);
+  },
+
+  async setTrailingStop(id: string, distance: number) {
+    const res = await apiClient.post(`/trading/trades/${id}/trailing-stop`, { distance });
+    return unwrap<any>(res.data);
+  },
+
+  async bulkClose(scope: BulkCloseScope) {
+    const res = await apiClient.post('/trading/trades/bulk-close', { scope });
+    return unwrap<any>(res.data);
+  },
+
+  async placeManualOrder(payload: ManualOrderPayload) {
+    const res = await apiClient.post('/trading/trades/order', payload);
+    return unwrap<any>(res.data);
   },
 
   async getTradeHistory(params?: { limit?: number; cursor?: string; symbol?: string }): Promise<{ rows: TradeHistoryRow[]; nextCursor: string | null }> {

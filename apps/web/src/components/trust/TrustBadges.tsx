@@ -34,7 +34,7 @@ export function TrustBadges({
           key={label}
           role="listitem"
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-full border border-border bg-card text-muted-foreground shadow-sm",
+            "inline-flex items-center gap-1.5 rounded-full border border-primary/10 bg-white dark:bg-card text-muted-foreground",
             compact ? "px-2.5 py-1 text-caption font-medium normal-case tracking-normal" : "px-3 py-1.5 text-caption font-medium",
           )}
         >

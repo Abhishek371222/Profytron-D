@@ -4,7 +4,7 @@ import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Loader2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { copyTradingApi } from '@/lib/api/copy-trading';
+import { copyTradingApi, type SizingMode } from '@/lib/api/copy-trading';
 import { formatBotName } from '@/lib/bot-labels';
 import { toast } from 'sonner';
 
@@ -14,9 +14,17 @@ interface Props {
     lotMultiplier: number;
     status: string;
     strategy?: { name: string };
+    sizingMode?: SizingMode;
+    fixedLot?: number | null;
   };
   onClose: () => void;
 }
+
+const SIZING_MODES: { id: SizingMode; label: string; hint: string }[] = [
+  { id: 'MULTIPLIER', label: 'Multiplier', hint: 'Scale the master’s lot by a fixed factor.' },
+  { id: 'EQUITY_RATIO', label: 'Equity ratio', hint: 'Size relative to your equity vs the master’s.' },
+  { id: 'FIXED', label: 'Fixed lot', hint: 'Trade the same lot on every copied signal.' },
+];
 
 const PLAN_MAX_LOT: Record<string, number> = {
   'Basic Bot': 0.5,
@@ -32,13 +40,25 @@ const PLAN_MAX_LOT: Record<string, number> = {
 export function CopySettingsSheet({ subscription, onClose }: Props) {
   const maxLot = PLAN_MAX_LOT[subscription.strategy?.name ?? ''] ?? 2.0;
   const [lotMultiplier, setLotMultiplier] = React.useState(subscription.lotMultiplier ?? 1.0);
+  const [sizingMode, setSizingMode] = React.useState<SizingMode>(
+    subscription.sizingMode ?? 'MULTIPLIER',
+  );
+  const [fixedLot, setFixedLot] = React.useState(subscription.fixedLot ?? 0.1);
   const [isPaused, setIsPaused] = React.useState(subscription.status === 'PAUSED');
   const [saving, setSaving] = React.useState(false);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await copyTradingApi.updateSubscription(subscription.id, { lotMultiplier, isPaused });
+      await copyTradingApi.setSizing(subscription.id, {
+        sizingMode,
+        multiplier: lotMultiplier,
+        fixedLot: sizingMode === 'FIXED' ? fixedLot : undefined,
+      });
+      // Pause/resume is owned by the subscription endpoint.
+      if (isPaused !== (subscription.status === 'PAUSED')) {
+        await copyTradingApi.updateSubscription(subscription.id, { isPaused });
+      }
       toast.success('Settings saved');
       onClose();
     } catch (err: any) {
@@ -77,29 +97,79 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-            {/* Lot multiplier */}
+            {/* Sizing mode */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium text-text-primary">Lot Multiplier</label>
-                <span className="text-sm font-semibold text-chart-2">{lotMultiplier.toFixed(2)}x</span>
-              </div>
-              <input
-                type="range"
-                min={0.01}
-                max={maxLot}
-                step={0.01}
-                value={lotMultiplier}
-                onChange={(e) => setLotMultiplier(Number(e.target.value))}
-                className="w-full accent-chart-2"
-              />
-              <div className="flex justify-between text-xs text-text-muted mt-1">
-                <span>0.01x</span>
-                <span>{maxLot}x (plan max)</span>
+              <label className="text-sm font-medium text-text-primary">Position sizing</label>
+              <div className="grid grid-cols-3 gap-1.5 mt-2 p-1 rounded-xl border border-border-default bg-foreground/5">
+                {SIZING_MODES.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    onClick={() => setSizingMode(m.id)}
+                    className={`rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
+                      sizingMode === m.id
+                        ? 'bg-chart-2 text-white shadow'
+                        : 'text-text-secondary hover:text-text-primary'
+                    }`}
+                  >
+                    {m.label}
+                  </button>
+                ))}
               </div>
               <p className="text-xs text-text-secondary mt-2">
-                When the operator bot opens 1.0 lot, your bot trades {lotMultiplier.toFixed(2)} lot.
+                {SIZING_MODES.find((m) => m.id === sizingMode)?.hint}
               </p>
             </div>
+
+            {/* Fixed lot input */}
+            {sizingMode === 'FIXED' ? (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-text-primary">Fixed lot size</label>
+                  <span className="text-sm font-semibold text-chart-2">{fixedLot.toFixed(2)}</span>
+                </div>
+                <input
+                  type="number"
+                  min={0.01}
+                  max={maxLot}
+                  step={0.01}
+                  value={fixedLot}
+                  onChange={(e) => setFixedLot(Number(e.target.value))}
+                  className="w-full rounded-lg border border-border-default bg-bg-base px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-chart-2/40"
+                />
+                <p className="text-xs text-text-secondary mt-2">
+                  Every copied trade opens exactly {fixedLot.toFixed(2)} lot, regardless of the master’s size.
+                </p>
+              </div>
+            ) : (
+              /* Lot multiplier (MULTIPLIER + EQUITY_RATIO) */
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-text-primary">
+                    {sizingMode === 'EQUITY_RATIO' ? 'Risk multiplier' : 'Lot Multiplier'}
+                  </label>
+                  <span className="text-sm font-semibold text-chart-2">{lotMultiplier.toFixed(2)}x</span>
+                </div>
+                <input
+                  type="range"
+                  min={0.01}
+                  max={maxLot}
+                  step={0.01}
+                  value={lotMultiplier}
+                  onChange={(e) => setLotMultiplier(Number(e.target.value))}
+                  className="w-full accent-chart-2"
+                />
+                <div className="flex justify-between text-xs text-text-muted mt-1">
+                  <span>0.01x</span>
+                  <span>{maxLot}x (plan max)</span>
+                </div>
+                <p className="text-xs text-text-secondary mt-2">
+                  {sizingMode === 'EQUITY_RATIO'
+                    ? `Lots scale with your equity vs the master’s, then ×${lotMultiplier.toFixed(2)}.`
+                    : `When the operator bot opens 1.0 lot, your bot trades ${lotMultiplier.toFixed(2)} lot.`}
+                </p>
+              </div>
+            )}
 
             {/* Pause toggle */}
             <div className="flex items-center justify-between p-4 rounded-xl border border-border-default">

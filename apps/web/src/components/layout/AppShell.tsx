@@ -9,7 +9,6 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import { useUIStore } from "@/lib/stores/useUIStore";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { AuroraBackground } from "@/components/animations/AuroraBackground";
 
 const AIAssistantOrb = dynamic(
   () => import("@/components/ai/AIAssistantOrb").then((m) => ({ default: m.AIAssistantOrb })),
@@ -20,10 +19,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const pathname = usePathname();
   const [mounted, setMounted] = React.useState(false);
+  const [showOrb, setShowOrb] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
+    let idleId: number | undefined;
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(() => setShowOrb(true), { timeout: 4000 });
+    } else {
+      idleId = globalThis.setTimeout(() => setShowOrb(true), 2000) as unknown as number;
+    }
+    return () => {
+      if (typeof window === 'undefined') return;
+      if ('cancelIdleCallback' in window && 'requestIdleCallback' in window) {
+        window.cancelIdleCallback(idleId as number);
+      } else {
+        globalThis.clearTimeout(idleId);
+      }
+    };
   }, []);
 
   React.useEffect(() => {
@@ -57,7 +71,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
       suppressHydrationWarning
     >
-      {mounted && <AuroraBackground className="fixed inset-0 z-0 opacity-[0.06] pointer-events-none" />}
+      {mounted && !isBuilder && (
+        <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,rgba(59,91,255,0.04)_0%,transparent_55%)]" />
+      )}
 
       {isMobile && sidebarOpen && (
         <button
@@ -69,7 +85,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div
         className={cn(
-          "transition-all duration-500 flex z-40 shrink-0",
+          "transition-transform duration-300 flex z-40 shrink-0 will-change-transform",
           isMobile
             ? cn("fixed inset-y-0 left-0", sidebarOpen ? "translate-x-0" : "-translate-x-full")
             : "sticky top-0 h-[100dvh]",
@@ -110,10 +126,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <GlobalCommandPalette />
       <MobileBottomNav />
-      {mounted && pathname === '/dashboard' && (
+      {mounted && showOrb && pathname === '/dashboard' && (
         <AIAssistantOrb className="xl:hidden" />
       )}
-      {mounted && pathname !== '/dashboard' && <AIAssistantOrb />}
+      {mounted && showOrb && pathname !== '/dashboard' && <AIAssistantOrb />}
     </div>
   );
 }

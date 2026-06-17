@@ -14,11 +14,11 @@ export class MarketPriceBroadcastService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.logger.log('Market price broadcast service started (3s interval)');
+    this.logger.log('Market price broadcast service started (8s interval)');
     void this.broadcast();
   }
 
-  @Interval(3000)
+  @Interval(8000)
   async broadcast() {
     if (this.broadcasting) return;
     this.broadcasting = true;

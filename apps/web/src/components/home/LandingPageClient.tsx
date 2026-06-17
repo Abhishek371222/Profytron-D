@@ -66,7 +66,7 @@ export function LandingPageClient() {
   return (
     <AppProviders>
     <LenisProvider>
-      <main className="relative min-h-screen bg-background overflow-x-hidden">
+      <main className="relative min-h-screen bg-[var(--bg-secondary)] dark:bg-background overflow-x-hidden">
         <div className="relative z-10">
           <LandingNavbar />
           <HeroSection />
@@ -103,12 +103,12 @@ export function LandingPageClient() {
             <PricingSection />
           </SectionRevealer>
 
-          <SectionRevealer delay={0.08}>
-            <FaqSection />
+          <SectionRevealer delay={0.1}>
+            <CTABanner />
           </SectionRevealer>
 
-          <SectionRevealer delay={0.12}>
-            <CTABanner />
+          <SectionRevealer delay={0.08}>
+            <FaqSection />
           </SectionRevealer>
 
           <Footer />

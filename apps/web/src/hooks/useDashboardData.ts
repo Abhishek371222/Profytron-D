@@ -10,7 +10,10 @@ import { brokerApi } from '@/lib/api/broker';
 import { riskApi } from '@/lib/api/risk';
 import { useLiveMarketFeed } from '@/hooks/useLiveMarketFeed';
 import { useDashboardRealtime } from '@/hooks/useDashboardRealtime';
+import { useAccountContext } from '@/hooks/useAccountContext';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { invalidateAccountQueries } from '@/lib/queries/account-queries';
+import { useQueryClient } from '@tanstack/react-query';
 
 export type AnalyticsRange = '1d' | '1w' | '1m' | '3m' | '1y' | 'all';
 
@@ -24,7 +27,9 @@ const RANGE_MAP: Record<string, AnalyticsRange> = {
 };
 
 export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
+  const queryClient = useQueryClient();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { hasBrokerAccount, defaultAccount, isPaper, brokerAccountsQuery } = useAccountContext();
   const apiRange = RANGE_MAP[chartRange] ?? '1m';
   const [skeletonCapReached, setSkeletonCapReached] = React.useState(false);
 
@@ -37,7 +42,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
 
   const { quotes, priceHistory, wsConnected, refresh: refreshQuotes } = useLiveMarketFeed(
     ['BTCUSDT', 'EURUSD', 'XAUUSD'],
-    { enabled: isAuthenticated },
+    { enabled: isAuthenticated, allowFallback: !hasBrokerAccount },
   );
 
   const portfolioQuery = useQuery({
@@ -46,6 +51,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     staleTime: 60_000,
     refetchOnWindowFocus: false,
     enabled: isAuthenticated,
+    placeholderData: (prev) => prev,
   });
 
   const walletQuery = useQuery({
@@ -54,6 +60,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     staleTime: 60_000,
     refetchOnWindowFocus: false,
     enabled: isAuthenticated,
+    placeholderData: (prev) => prev,
   });
 
   const openTradesQuery = useQuery({
@@ -93,17 +100,12 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     enabled: isAuthenticated,
   });
 
-  const brokerAccountsQuery = useQuery({
-    queryKey: ['broker-accounts'],
-    queryFn: () => brokerApi.getBrokerAccounts(),
-    staleTime: 60_000,
-    enabled: isAuthenticated,
-  });
+  const brokerAccountsQueryLocal = brokerAccountsQuery;
 
   const brokerEquityQuery = useQuery({
     queryKey: ['broker-equity'],
     queryFn: async () => {
-      const accounts = brokerAccountsQuery.data ?? [];
+      const accounts = brokerAccountsQueryLocal.data ?? [];
       const results = await Promise.all(
         accounts.map((a: { id: string }) =>
           brokerApi.testConnection(a.id).catch(() => null),
@@ -115,7 +117,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
         0,
       );
     },
-    enabled: isAuthenticated && (brokerAccountsQuery.data?.length ?? 0) > 0,
+    enabled: isAuthenticated && (brokerAccountsQueryLocal.data?.length ?? 0) > 0,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
   });
@@ -123,6 +125,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   const portfolio = portfolioQuery.data;
   const walletTotal = walletQuery.data?.total ?? 0;
   const brokerEquity = brokerEquityQuery.data ?? 0;
+  const equityBase = Number(portfolio?.equityBase ?? defaultAccount?.initialEquity ?? 0);
   const portfolioValue = walletTotal + brokerEquity;
   const winRate = portfolio?.winRate ?? 0;
   const bestMonth = portfolio?.bestMonth ?? 0;
@@ -149,7 +152,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     },
     {
       label: 'Best Mo.',
-      score: Math.min(bestMonth * 6, 100),
+      score: equityBase > 0 ? Math.min((bestMonth / equityBase) * 100, 100) : 0,
       color: '#F59E0B',
     },
     {
@@ -169,11 +172,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   }, [quotes, priceHistory]);
 
   const refreshAll = () => {
-    portfolioQuery.refetch();
-    openTradesQuery.refetch();
-    riskQuery.refetch();
-    walletQuery.refetch();
-    strategiesQuery.refetch();
+    invalidateAccountQueries(queryClient);
     refreshQuotes();
   };
 
@@ -184,6 +183,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     portfolioQuery,
     portfolio,
     portfolioValue,
+    equityBase,
     winRate,
     bestMonth,
     openTrades: openTradesQuery.data ?? [],
@@ -191,6 +191,12 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     performanceBars,
     risk: riskQuery.data,
     riskQuery,
+    hasBrokerAccount,
+    defaultBrokerAccount: defaultAccount,
+    isPaper,
+    brokerAccountsQuery: brokerAccountsQueryLocal,
+    brokerEquityQuery,
+    quotesLoading: hasBrokerAccount && Object.keys(quotes).length === 0,
     isLoading:
       !skeletonCapReached &&
       (portfolioQuery.isPending || openTradesQuery.isPending || riskQuery.isPending) &&

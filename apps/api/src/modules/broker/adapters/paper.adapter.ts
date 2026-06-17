@@ -36,4 +36,19 @@ export class PaperBrokerAdapter {
     );
     return { success: true, ticket, close_price: 0, profit: 0 };
   }
+
+  async modifyTrade(
+    _ticket: string,
+    _changes: { stopLoss?: number; takeProfit?: number },
+  ) {
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    return { success: true };
+  }
+
+  async closePartial(ticket: string, _volume: number) {
+    await new Promise((resolve) =>
+      setTimeout(resolve, Math.random() * 150 + 30),
+    );
+    return { success: true, ticket, close_price: 0, profit: 0 };
+  }
 }

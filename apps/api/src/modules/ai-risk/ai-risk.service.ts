@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import type { Queue } from 'bull';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { SubscriptionStatus } from '@prisma/client';
 
 /** Cache TTL in seconds */
 const TTL_RISK_SCORE = 2 * 60; // 2 minutes — score is derived from closed trades
@@ -18,6 +21,23 @@ const RISK_METRICS_FALLBACK = {
   profitFactor: 0,
 };
 
+export type RiskBreachCode =
+  | 'MAX_OPEN_TRADES'
+  | 'DAILY_LOSS_USD'
+  | 'DAILY_LOSS_PCT'
+  | 'MAX_DRAWDOWN';
+
+export interface RiskEvaluation {
+  allowed: boolean;
+  code?: RiskBreachCode;
+  reason?: string;
+  /** True when the breach should halt all trading (close + pause), not just block a new entry. */
+  hardStop?: boolean;
+}
+
+/** Equity baseline used when an account has no recorded initial equity. */
+const DEFAULT_BASE_EQUITY = 10_000;
+
 @Injectable()
 export class AiRiskService {
   private readonly logger = new Logger(AiRiskService.name);
@@ -25,6 +45,7 @@ export class AiRiskService {
   constructor(
     private prisma: PrismaService,
     private readonly redis: RedisService,
+    @InjectQueue('trade_execution') private readonly tradeQueue: Queue,
   ) {}
 
   async createRiskPolicy(userId: string, policy: any) {
@@ -100,27 +121,201 @@ export class AiRiskService {
     return false;
   }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  /**
+   * Deterministic pre-trade risk gate. Called from the trade execution worker
+   * BEFORE a position is opened. Returns `{ allowed: false }` with a reason
+   * when a configured limit would be breached. No policy → always allowed.
+   */
+  async evaluatePreTrade(userId: string): Promise<RiskEvaluation> {
+    const policy = await this.getRiskPolicy(userId);
+    if (!policy) return { allowed: true };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [openTrades, todaysClosed, baseEquity] = await Promise.all([
+      this.prisma.trade.findMany({
+        where: { userId, status: 'OPEN' },
+        select: { id: true },
+      }),
+      this.prisma.trade.findMany({
+        where: { userId, status: 'CLOSED', closedAt: { gte: today } },
+        select: { profit: true },
+      }),
+      this.resolveBaseEquity(userId),
+    ]);
+
+    // 1. Max open positions
+    if (
+      policy.maxOpenTrades != null &&
+      openTrades.length >= policy.maxOpenTrades
+    ) {
+      return {
+        allowed: false,
+        code: 'MAX_OPEN_TRADES',
+        reason: `Max open trades reached (${openTrades.length}/${policy.maxOpenTrades})`,
+      };
+    }
+
+    const dailyLoss = todaysClosed
+      .filter((t) => (t.profit ?? 0) < 0)
+      .reduce((sum, t) => sum + Math.abs(t.profit ?? 0), 0);
+
+    // 2. Daily loss in USD
+    if (policy.maxDailyLossUsd != null && dailyLoss >= policy.maxDailyLossUsd) {
+      return {
+        allowed: false,
+        code: 'DAILY_LOSS_USD',
+        reason: `Daily loss limit hit ($${dailyLoss.toFixed(2)} / $${policy.maxDailyLossUsd})`,
+        hardStop: true,
+      };
+    }
+
+    // 3. Daily loss as % of equity
+    if (policy.maxDailyLossPct != null) {
+      const lossPct = baseEquity > 0 ? (dailyLoss / baseEquity) * 100 : 0;
+      if (lossPct >= policy.maxDailyLossPct) {
+        return {
+          allowed: false,
+          code: 'DAILY_LOSS_PCT',
+          reason: `Daily loss limit hit (${lossPct.toFixed(1)}% / ${policy.maxDailyLossPct}%)`,
+          hardStop: true,
+        };
+      }
+    }
+
+    // 4. Max drawdown
+    if (policy.maxDrawdownPct != null) {
+      const dd = await this.currentDrawdownPct(userId, baseEquity);
+      if (dd >= policy.maxDrawdownPct) {
+        return {
+          allowed: false,
+          code: 'MAX_DRAWDOWN',
+          reason: `Max drawdown breached (${dd.toFixed(1)}% / ${policy.maxDrawdownPct}%)`,
+          hardStop: true,
+        };
+      }
+    }
+
+    return { allowed: true };
+  }
+
+  /** Resolve an equity baseline for % limits from the user's default broker account. */
+  private async resolveBaseEquity(userId: string): Promise<number> {
+    const account = await this.prisma.brokerAccount.findFirst({
+      where: { userId, isActive: true },
+      orderBy: [{ isDefault: 'desc' }, { connectedAt: 'desc' }],
+      select: { initialEquity: true },
+    });
+    const eq = account?.initialEquity ?? 0;
+    return eq > 0 ? eq : DEFAULT_BASE_EQUITY;
+  }
+
+  private async currentDrawdownPct(
+    userId: string,
+    baseEquity: number,
+  ): Promise<number> {
+    const trades = await this.prisma.trade.findMany({
+      where: { userId, status: { in: ['OPEN', 'CLOSED'] } },
+      orderBy: { openedAt: 'asc' },
+      select: { profit: true },
+    });
+    let peak = baseEquity;
+    let running = baseEquity;
+    let maxDd = 0;
+    for (const t of trades) {
+      running += t.profit ?? 0;
+      if (running > peak) peak = running;
+      const dd = peak > 0 ? ((peak - running) / peak) * 100 : 0;
+      maxDd = Math.max(maxDd, dd);
+    }
+    return maxDd;
+  }
+
+  /**
+   * Hard risk stop: pause the user's active copy subscriptions and queue a
+   * close for every open position. Idempotent — safe to call repeatedly.
+   */
+  async enforceRiskStop(userId: string, evaluation: RiskEvaluation) {
+    const [openTrades, pausedResult] = await Promise.all([
+      this.prisma.trade.findMany({
+        where: { userId, status: 'OPEN' },
+        select: { id: true },
+      }),
+      this.prisma.userStrategySubscription.updateMany({
+        where: { userId, status: SubscriptionStatus.ACTIVE },
+        data: { status: SubscriptionStatus.PAUSED },
+      }),
+    ]);
+
+    for (const trade of openTrades) {
+      await this.tradeQueue.add(
+        'close_trade',
+        { tradeId: trade.id, userId },
+        { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+      );
+    }
+
+    await this.prisma.auditLog.create({
+      data: {
+        eventType: 'RISK_LIMIT_TRIGGERED',
+        userId,
+        detailsJson: {
+          code: evaluation.code ?? null,
+          reason: evaluation.reason ?? null,
+          closedTrades: openTrades.length,
+          pausedSubscriptions: pausedResult.count,
+        },
+        triggeredBy: 'SYSTEM',
+      },
+    });
+
+    await this.prisma.notification
+      .create({
+        data: {
+          userId,
+          type: 'WARNING',
+          title: 'Trading halted by risk limit',
+          body:
+            evaluation.reason ??
+            'A risk limit was breached. Copying is paused and open positions are being closed.',
+          actionUrl: '/dashboard',
+        },
+      })
+      .catch(() => undefined);
+
+    this.logger.warn(
+      `Risk stop enforced for ${userId}: ${evaluation.reason} — closed ${openTrades.length} trade(s), paused ${pausedResult.count} subscription(s)`,
+    );
+
+    return {
+      closedTrades: openTrades.length,
+      pausedSubscriptions: pausedResult.count,
+    };
+  }
+
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async monitorRiskPolicies() {
     try {
       const policies = await this.prisma.aiRiskPolicy.findMany({
         where: {
-          OR: [{ autoStopAfterLoss: true }, { maxDrawdownPct: { not: null } }],
+          OR: [
+            { autoStopAfterLoss: true },
+            { maxDrawdownPct: { not: null } },
+            { maxDailyLossUsd: { not: null } },
+            { maxDailyLossPct: { not: null } },
+          ],
         },
+        select: { userId: true, autoStopAfterLoss: true },
       });
 
       for (const policy of policies) {
-        const shouldStop = await this.stopTradingIfNeeded(policy.userId);
-        if (shouldStop) {
-          await this.prisma.auditLog.create({
-            data: {
-              eventType: 'RISK_LIMIT_TRIGGERED',
-              userId: policy.userId,
-              detailsJson: { policyId: policy.id },
-              triggeredBy: 'SYSTEM',
-            },
-          });
-        }
+        const evaluation = await this.evaluatePreTrade(policy.userId);
+        // Only auto-close on hard stops (loss/drawdown), and only when the user
+        // opted into auto-stop. Max-open-trades just blocks new entries.
+        if (evaluation.allowed || !evaluation.hardStop) continue;
+        if (!policy.autoStopAfterLoss) continue;
+        await this.enforceRiskStop(policy.userId, evaluation);
       }
     } catch (error) {
       this.logger.warn(

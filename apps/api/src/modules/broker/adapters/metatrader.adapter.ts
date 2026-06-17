@@ -48,6 +48,12 @@ export class MetaTraderAdapter {
   private readonly http: AxiosInstance;
   /** accountId -> region cache to avoid re-reading the account on every call. */
   private readonly regionCache = new Map<string, string>();
+  /** accountId -> { equity, at } short-lived cache for live equity reads. */
+  private readonly equityCache = new Map<
+    string,
+    { equity: number; at: number }
+  >();
+  private readonly EQUITY_TTL_MS = 30_000;
 
   constructor() {
     this.token = process.env.METAAPI_TOKEN;
@@ -255,6 +261,65 @@ export class MetaTraderAdapter {
     );
   }
 
+  /** Modify the stop-loss / take-profit of an open position. */
+  async modifyPosition(
+    metaApiAccountId: string,
+    positionId: string,
+    changes: { stopLoss?: number; takeProfit?: number },
+    region?: string,
+  ): Promise<void> {
+    if (!this.isLive) return;
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    await this.http.post(
+      `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/trade`,
+      {
+        actionType: 'POSITION_MODIFY',
+        positionId,
+        ...(changes.stopLoss != null ? { stopLoss: changes.stopLoss } : {}),
+        ...(changes.takeProfit != null
+          ? { takeProfit: changes.takeProfit }
+          : {}),
+      },
+      { headers: this.headers() },
+    );
+  }
+
+  /** Partially close an open position by closing `volume` lots of it. */
+  async closePositionPartial(
+    metaApiAccountId: string,
+    positionId: string,
+    volume: number,
+    region?: string,
+  ): Promise<{ orderId?: string }> {
+    if (!this.isLive) return { orderId: `mock-partial-${Date.now()}` };
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    const res = await this.http.post(
+      `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/trade`,
+      { actionType: 'POSITION_PARTIAL', positionId, volume },
+      { headers: this.headers() },
+    );
+    return { orderId: res.data?.orderId };
+  }
+
+  /** Fetch a single open position by id (used for break-even / trailing). */
+  async getPosition(
+    metaApiAccountId: string,
+    positionId: string,
+    region?: string,
+  ): Promise<any | null> {
+    if (!this.isLive) return null;
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    try {
+      const res = await this.http.get(
+        `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/positions/${positionId}`,
+        { headers: this.headers() },
+      );
+      return res.data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   /**
    * Fetch all currently open positions for an account.
    * Returns raw MetaAPI position objects.
@@ -270,6 +335,36 @@ export class MetaTraderAdapter {
       { headers: this.headers() },
     );
     return Array.isArray(res.data) ? res.data : [];
+  }
+
+  /**
+   * Current account equity, cached per account for `EQUITY_TTL_MS` to avoid
+   * hammering the client API during high-frequency copy fan-out. Returns null
+   * when unavailable so callers can fall back to a recorded baseline.
+   */
+  async getLiveEquity(
+    metaApiAccountId: string,
+    region?: string,
+  ): Promise<number | null> {
+    if (!this.isLive || !metaApiAccountId) return null;
+    const cached = this.equityCache.get(metaApiAccountId);
+    if (cached && Date.now() - cached.at < this.EQUITY_TTL_MS) {
+      return cached.equity;
+    }
+    try {
+      const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+      const d = await this.fetchAccountInformation(
+        metaApiAccountId,
+        resolvedRegion,
+      );
+      const equity = typeof d?.equity === 'number' ? d.equity : null;
+      if (equity != null) {
+        this.equityCache.set(metaApiAccountId, { equity, at: Date.now() });
+      }
+      return equity;
+    } catch {
+      return cached?.equity ?? null;
+    }
   }
 
   /** Assign CopyFactory PROVIDER or SUBSCRIBER role to an existing MetaAPI account. */

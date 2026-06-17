@@ -18,7 +18,6 @@ import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import { NotificationDropdown } from "@/components/ui/NotificationDropdown";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 const TIER_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
   FREE:    { bg: "bg-muted/6",         text: "text-foreground/40",     dot: "bg-foreground/30"     },
@@ -34,25 +33,32 @@ export function TopBar() {
   const { setCommandPaletteOpen, toggleSidebar, setDepositIntent } = useUIStore();
   const { data: currentUser } = useCurrentUser();
   const [searchFocused, setSearchFocused] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const openDeposit = () => {
     setDepositIntent(true);
     router.push("/wallet");
   };
 
-  const resolvedUser = currentUser || user;
+  const resolvedUser = mounted ? currentUser || user : null;
 
-  const displayName =
-    resolvedUser?.fullName ||
-    resolvedUser?.name ||
-    resolvedUser?.email?.split("@")?.[0] ||
-    "Operative";
-  const displayTier =
-    resolvedUser?.subscriptionTier ||
-    resolvedUser?.tier ||
-    (typeof resolvedUser?.role === "string" ? resolvedUser.role.toUpperCase() : null) ||
-    "FREE";
-  const displayAvatar = resolvedUser?.avatarUrl || resolvedUser?.avatar || null;
+  const displayName = mounted
+    ? resolvedUser?.fullName ||
+      resolvedUser?.name ||
+      resolvedUser?.email?.split("@")?.[0] ||
+      "Operative"
+    : "…";
+  const displayTier = mounted
+    ? resolvedUser?.subscriptionTier ||
+      resolvedUser?.tier ||
+      (typeof resolvedUser?.role === "string" ? resolvedUser.role.toUpperCase() : null) ||
+      "FREE"
+    : "FREE";
+  const displayAvatar = mounted ? resolvedUser?.avatarUrl || resolvedUser?.avatar || null : null;
 
   const tierStyle = TIER_STYLES[displayTier] ?? TIER_STYLES.FREE;
 
@@ -62,7 +68,7 @@ export function TopBar() {
   };
 
   return (
-    <header className="relative h-16 sm:h-[68px] w-full flex items-center justify-between px-3 sm:px-5 lg:px-6 z-30 gap-2 sm:gap-4">
+    <header suppressHydrationWarning className="relative h-16 sm:h-[68px] w-full flex items-center justify-between px-3 sm:px-5 lg:px-6 z-30 gap-2 sm:gap-4">
       {/* Glass backdrop */}
       <div className="absolute inset-0 glass-navbar border-b border-[var(--card-border)]" />
 
@@ -82,14 +88,13 @@ export function TopBar() {
           <Menu className="w-[18px] h-[18px]" />
         </button>
 
-        <motion.button
-          animate={searchFocused ? { scale: 1.01 } : { scale: 1 }}
-          transition={{ duration: 0.15 }}
+        <button
+          type="button"
           onClick={() => setCommandPaletteOpen(true)}
           className={cn(
             "relative w-full min-w-0 flex items-center gap-2.5 px-3.5 h-10 sm:h-[42px] rounded-xl transition-all duration-200 group overflow-hidden",
             searchFocused
-              ? "bg-primary/[0.06] border border-primary/30 shadow-[0_0_20px_rgba(99,102,241,0.12)]"
+              ? "bg-primary/[0.06] border border-primary/30 shadow-[0_0_20px_rgba(99,102,241,0.12)] scale-[1.01]"
               : "bg-card border border-border hover:bg-muted",
           )}
           onMouseEnter={() => setSearchFocused(true)}
@@ -112,7 +117,7 @@ export function TopBar() {
             <Command className="w-2.5 h-2.5" />
             <span>K</span>
           </div>
-        </motion.button>
+        </button>
       </div>
 
       {/* ─── Right: Quick actions + Notifications + User ─── */}

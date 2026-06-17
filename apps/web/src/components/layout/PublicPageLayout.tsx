@@ -1,16 +1,17 @@
 import { PublicNavbar } from '@/components/layout/PublicNavbar';
 import { Footer } from '@/components/home/Footer';
-import { CursorWrapper } from '@/components/layout/CursorWrapper';
 import { AmbientBackground } from '@/components/ui/AmbientBackground';
 
 export function PublicPageLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen bg-background overflow-x-hidden relative">
-      <CursorWrapper />
+    <div className="min-h-screen bg-background text-foreground relative isolate">
       <AmbientBackground variant="landing" position="fixed" />
+      {/* Navbar outside scroll/overflow ancestors so position:fixed stays viewport-locked */}
       <PublicNavbar />
-      <div className="relative z-10 pt-28">{children}</div>
-      <Footer />
-    </main>
+      <main className="relative z-10">
+        <div className="pt-[calc(5.25rem+env(safe-area-inset-top,0px))]">{children}</div>
+        <Footer />
+      </main>
+    </div>
   );
 }

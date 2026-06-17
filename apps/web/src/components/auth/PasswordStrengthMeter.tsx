@@ -28,26 +28,26 @@ export const PasswordStrengthMeter = ({ password ="" }: PasswordStrengthMeterPro
 
  const current = segments[score] || segments[0];
 
- return (
- <div className="space-y-2 py-2">
- <div className="flex justify-between items-center px-1">
- <span className="text-xs uppercase tracking-widest font-semibold text-foreground/30">Security Strength</span>
- <span className={cn("text-xs uppercase tracking-widest font-semibold", current.color.replace('bg-', 'text-'))}>
- {current.label}
- </span>
- </div>
+  return (
+    <div className="space-y-2 py-1">
+      <div className="flex justify-between items-center px-1">
+        <span className="text-[11px] uppercase tracking-wider font-medium text-slate-400">Password strength</span>
+        <span className={cn("text-[11px] uppercase tracking-wider font-semibold", current.color.replace('bg-', 'text-'))}>
+          {password ? current.label : '—'}
+        </span>
+      </div>
 
- <div className="flex gap-1.5 h-1">
- {[1, 2, 3, 4].map((i) => (
- <div 
- key={i}
- className={cn(
-"flex-1 rounded-full transition-all duration-500 bg-foreground/5",
- i <= score && current.color
- )}
- />
- ))}
- </div>
- </div>
- );
+      <div className="flex gap-1.5 h-1">
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className={cn(
+              'flex-1 rounded-full transition-all duration-500',
+              i <= score ? current.color : 'bg-slate-200',
+            )}
+          />
+        ))}
+      </div>
+    </div>
+  );
 };

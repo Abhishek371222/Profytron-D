@@ -1,9 +1,15 @@
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
 import { PricingPlansGrid } from '@/components/pricing/PricingPlansGrid';
+import type { Metadata } from 'next';
+import { pageSeo } from '@/lib/seo/page-metadata';
+import { JsonLd } from '@/components/seo/JsonLd';
+
+export const metadata: Metadata = pageSeo.pricing;
 
 export default function PricingPage() {
   return (
     <PublicPageLayout>
+      <JsonLd type="product" />
       <main className="min-h-screen text-foreground px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">

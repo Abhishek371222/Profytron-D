@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bull';
 import { AiRiskService } from './ai-risk.service';
 import { AiRiskController } from './ai-risk.controller';
 import { RedisModule } from '../auth/redis.module';
 
 @Module({
-  imports: [RedisModule],
+  imports: [RedisModule, BullModule.registerQueue({ name: 'trade_execution' })],
   controllers: [AiRiskController],
   providers: [AiRiskService],
   exports: [AiRiskService],

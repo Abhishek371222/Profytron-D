@@ -14,14 +14,15 @@ const InstagramIcon = ({ className }: { className?: string }) => (
 
 const footerLinks = {
   Product: [
-    { name: "Features", href: "#features" },
-    { name: "Strategy Library", href: "/strategies" },
-    { name: "Visual Builder", href: "/strategies/builder" },
-    { name: "Marketplace", href: "/marketplace" },
-    { name: "Pricing", href: "#pricing" },
+    { name: "Features", href: "/#features" },
+    { name: "Strategy Marketplace", href: "/register" },
+    { name: "Visual Builder", href: "/register" },
+    { name: "Copy Trading", href: "/register" },
+    { name: "Pricing", href: "/#pricing" },
   ],
   Company: [
     { name: "About Us", href: "/about" },
+    { name: "Contact", href: "/contact" },
     { name: "Careers", href: "/careers" },
     { name: "Blog", href: "/blog" },
   ],
@@ -86,18 +87,18 @@ export function Footer() {
           <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12">
             {Object.entries(footerLinks).map(([title, links]) => (
               <div key={title} className="flex flex-col gap-3 md:gap-6">
-                <h6 className="font-semibold text-foreground text-sm tracking-tight">
+                <p className="font-semibold text-foreground text-sm tracking-tight">
                   {title}
-                </h6>
+                </p>
                 <ul className="flex flex-col gap-3 md:gap-4">
                   {links.map((link) => (
                     <li key={link.name}>
-                      <a
+                      <Link
                         href={link.href}
                         className="text-foreground/40 hover:text-foreground transition-colors text-sm font-medium inline-flex items-center"
                       >
                         {link.name}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>

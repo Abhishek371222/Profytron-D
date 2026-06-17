@@ -8,8 +8,8 @@
 
 :root {
   /* Brand — Profytron Premium */
-  --primary: #3B5BFF;
-  --primary-hover: #2F4EFF;
+  --primary: #3B46FF;
+  --primary-hover: #2F38E8;
   --primary-light: #EEF2FF;
   --primary-foreground: #FFFFFF;
   --ring: #3B5BFF;
@@ -26,7 +26,7 @@
 
   /* Surfaces — Light */
   --background: #FFFFFF;
-  --bg-secondary: #F8F9FE;
+  --bg-secondary: #F8F9FC;
   --card: #FFFFFF;
   --card-foreground: #0F172A;
   --popover: #FFFFFF;
@@ -146,8 +146,8 @@
   --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
 
   /* Gradients */
-  --gradient-hero: linear-gradient(135deg, #3B5BFF, #6366F1);
-  --gradient-hero-word: linear-gradient(90deg, #3B5BFF, #6366F1, #8B5CF6);
+  --gradient-hero: linear-gradient(135deg, #3B46FF, #6366F1);
+  --gradient-hero-word: linear-gradient(90deg, #3B46FF 0%, #4F46E5 50%, #6366F1 100%);
   --gradient-cta: linear-gradient(135deg, #3B5BFF, #7C3AED);
   --gradient-success: linear-gradient(135deg, #10B981, #22C55E);
   --glow-hero: radial-gradient(circle at top center, rgba(59, 91, 255, 0.08), transparent 60%);

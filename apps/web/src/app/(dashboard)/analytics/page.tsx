@@ -1,17 +1,9 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import Link from 'next/link';
 import {
@@ -29,6 +21,17 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { buildSparklinePoints } from '@/components/dashboard/DashboardMarketCards';
+
+const AnalyticsEquityChart = dynamic(
+  () =>
+    import('@/components/analytics/AnalyticsEquityChart').then((m) => ({
+      default: m.AnalyticsEquityChart,
+    })),
+  {
+    ssr: false,
+    loading: () => <div className="h-[280px] rounded-xl bg-muted/40 animate-pulse" />,
+  },
+);
 
 const RANGE_OPTIONS: { key: AnalyticsRange; label: string }[] = [
   { key: '1d', label: '1D' },
@@ -149,18 +152,6 @@ function MiniSparkline({ data, positive }: { data: number[]; positive: boolean }
       <path d={fill} fill={`url(#${id})`} />
       <path d={line} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
     </svg>
-  );
-}
-
-function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="rounded-xl border border-[var(--card-border)] bg-card px-3 py-2 shadow-lg">
-      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
-      <p className="text-sm font-bold text-foreground tabular-nums">
-        ${Number(payload[0]?.value ?? 0).toLocaleString()}
-      </p>
-    </div>
   );
 }
 
@@ -326,44 +317,8 @@ export default function AnalyticsPage() {
             )}
           </div>
 
-          <div className="h-[280px] relative">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <AreaChart data={equityCurve} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-                <defs>
-                  <linearGradient id="analyticsEqFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3B5BFF" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="#3B5BFF" stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.06)" vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fill: '#94A3B8', fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => {
-                    const d = new Date(v);
-                    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-                  }}
-                />
-                <YAxis
-                  tick={{ fill: '#94A3B8', fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-                  width={44}
-                />
-                <Tooltip content={<ChartTooltip />} />
-                <Area
-                  type="monotone"
-                  dataKey="equity"
-                  stroke="#3B5BFF"
-                  fill="url(#analyticsEqFill)"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="relative">
+            <AnalyticsEquityChart data={equityCurve} />
 
             {!equityCurve.length && !isLoading && (
               <div className="absolute inset-0 flex items-center justify-center bg-card/60 backdrop-blur-[1px]">

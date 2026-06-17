@@ -90,6 +90,7 @@ export class BrokerService {
           serverName,
           isPaperTrading: brokerName === 'PAPER',
           isDefault,
+          initialEquity: Number(connectionResult.equity ?? connectionResult.balance ?? 0) || null,
           // store MetaAPI account ID for future use if available
           ...(connectionResult.metaApiAccountId &&
             {

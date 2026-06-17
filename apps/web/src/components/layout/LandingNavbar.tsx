@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { LandingDashboardLink, LandingPrimaryLink } from '@/components/home/LandingButtons';
+import { useMounted } from '@/lib/hooks/useMounted';
 
 const navLinks = [
   { name: 'Product', href: '#features' },
@@ -34,19 +35,14 @@ function scrollToHash(href: string) {
 }
 
 function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
-  const { isAuthenticated, user, isHydrating } = useAuthStore();
+  const mounted = useMounted();
+  const { isAuthenticated, user } = useAuthStore();
   const displayName =
     user?.fullName || user?.name || user?.email?.split('@')?.[0] || 'Account';
 
-  if (isHydrating) {
-    return (
-      <div className={cn('flex items-center gap-2', mobile && 'w-full')}>
-        <div className={cn('h-10 rounded-[14px] bg-muted/40 animate-pulse', mobile ? 'w-full' : 'w-28')} />
-      </div>
-    );
-  }
+  const showAuthenticated = mounted && isAuthenticated && user;
 
-  if (isAuthenticated && user) {
+  if (showAuthenticated) {
     if (mobile) {
       return (
         <div className="flex flex-col gap-3 w-full">
@@ -114,12 +110,9 @@ function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: ()
 }
 
 export function LandingNavbar() {
-  const { isHydrating } = useAuthStore();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!mounted) return;
@@ -153,9 +146,14 @@ export function LandingNavbar() {
             <div className="w-9 h-9 bg-primary/10 rounded-[10px] flex items-center justify-center border border-primary/15">
               <Zap className="w-4 h-4 text-primary fill-primary/20" aria-hidden />
             </div>
-            <span className="text-lg font-bold tracking-tight text-foreground">
-              PROFY<span className="text-primary">TRON</span>
-            </span>
+            <div className="flex flex-col leading-none">
+              <span className="text-base sm:text-lg font-bold tracking-tight text-foreground">
+                PROFY<span className="text-primary">TRON</span>
+              </span>
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground mt-1">
+                Trading OS
+              </span>
+            </div>
           </Link>
 
           <div className="hidden xl:flex items-center gap-1">

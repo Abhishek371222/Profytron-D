@@ -39,6 +39,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
 import { BrokerIntegrationModule } from './modules/broker/broker-integration.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { ApiKeysModule } from './modules/api-keys/api-keys.module';
+import { CopyModule } from './modules/copy/copy.module';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 
 const parseRedisConfig = () => {
@@ -115,6 +116,7 @@ const parseRedisConfig = () => {
     BrokerIntegrationModule,
     FeatureFlagsModule,
     ApiKeysModule,
+    CopyModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,195 +1,218 @@
 "use client";
 
-import React from "react";
 import { motion } from "framer-motion";
-import { Star, Quote } from "lucide-react";
-import { FadeUp } from "@/components/animations";
-import { AnimatedGradientText } from "@/components/saasfly/animated-gradient-text";
-import { Marquee } from "@/components/saasfly/marquee";
+import { Star, Quote, BadgeCheck, Shield } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type BadgeTone = "violet" | "emerald" | "rose" | "blue" | "amber";
 
 const testimonials = [
   {
-    quote: "PROFYTRON has completely transformed how our prop desk handles HFT execution. The speed is incomparable to anything else I've used.",
+    quote:
+      "PROFYTRON has completely transformed how our prop desk handles HFT execution. The speed is incomparable.",
     author: "Jameson Vane",
-    role: "Chief Strategy Officer",
     company: "Vanguard Alpha",
     metrics: "+42% Alpha",
-    rating: 5,
-    color: "from-chart-2/15 to-transparent",
-    border: "border-chart-2/20",
+    badge: "emerald" as BadgeTone,
   },
   {
-    quote: "The visual strategy builder is a masterclass in UX. We've reduced our concept-to-production time by over 70% since switching.",
+    quote:
+      "The visual strategy builder reduced our concept-to-production time by over 70% since switching.",
     author: "Elena Soros",
-    role: "Quant Researcher",
     company: "Nexus Capital",
     metrics: "−70% Dev Time",
-    rating: 5,
-    color: "from-chart-5/15 to-transparent",
-    border: "border-chart-5/20",
+    badge: "blue" as BadgeTone,
   },
   {
-    quote: "Security and compliance were our primary concerns. PROFYTRON delivered a bank-grade environment that our risk team fully trusts.",
+    quote:
+      "Bank-grade environment that our risk team fully trusts. Compliance review was the fastest we've seen.",
     author: "Marcus Chen",
-    role: "Head of Infrastructure",
     company: "Standard Trading",
     metrics: "SOC-2 Verified",
-    rating: 5,
-    color: "from-chart-3/15 to-transparent",
-    border: "border-chart-3/20",
+    badge: "violet" as BadgeTone,
   },
   {
-    quote: "Finally an algo platform that doesn't feel like it was built in 2012. The analytics dashboard alone is worth switching for.",
+    quote:
+      "Finally an algo platform that doesn't feel legacy. The analytics dashboard alone is worth switching for.",
     author: "Priya Sharma",
-    role: "Portfolio Manager",
     company: "Delta Quant",
     metrics: "+28% Efficiency",
-    rating: 5,
-    color: "from-chart-4/15 to-transparent",
-    border: "border-chart-4/20",
+    badge: "emerald" as BadgeTone,
   },
   {
-    quote: "Deployed three strategies in one afternoon. The backtest fidelity against tick data is genuinely institutional grade.",
+    quote:
+      "Deployed three strategies in one afternoon. Backtest fidelity against tick data is institutional grade.",
     author: "Tom Wexler",
-    role: "Independent Trader",
     company: "Wexler Capital",
     metrics: "3 Strategies Live",
-    rating: 5,
-    color: "from-primary/15 to-transparent",
-    border: "border-primary/20",
+    badge: "violet" as BadgeTone,
   },
   {
-    quote: "The risk sentinel saved my account during the flash crash. Automated circuit breakers fired before I even saw the candle.",
+    quote:
+      "The risk sentinel saved my account during the flash crash. Circuit breakers fired before I saw the candle.",
     author: "Rena Park",
-    role: "Algo Developer",
     company: "Arc Systems",
     metrics: "Capital Protected",
-    rating: 5,
-    color: "from-destructive/15 to-transparent",
-    border: "border-destructive/20",
+    badge: "rose" as BadgeTone,
+  },
+  {
+    quote:
+      "Latency under 50ms on our NY4 routes. Execution quality matches what we had in-house at a fraction of cost.",
+    author: "Omar Haddad",
+    company: "Pulse Markets",
+    metrics: "< 50ms Routing",
+    badge: "blue" as BadgeTone,
+  },
+  {
+    quote:
+      "Onboarded 14 junior traders onto copy workflows in a week. Governance controls are exactly what we needed.",
+    author: "Sofia Lind",
+    company: "Northstar Desk",
+    metrics: "14 Seats Live",
+    badge: "violet" as BadgeTone,
+  },
+  {
+    quote:
+      "Our Sharpe improved within the first month. Risk caps and kill-switches are first-class, not bolted on.",
+    author: "Daniel Okoye",
+    company: "Meridian Flow",
+    metrics: "+1.8 Sharpe",
+    badge: "emerald" as BadgeTone,
+  },
+  {
+    quote:
+      "Support resolved a broker API issue in under an hour. That level of ops maturity is rare in retail-facing tools.",
+    author: "Hannah Weiss",
+    company: "Weiss Quant",
+    metrics: "24/7 Support",
+    badge: "amber" as BadgeTone,
   },
 ];
 
-const ROW_B = [...testimonials.slice(3), ...testimonials.slice(0, 3)];
+const badgeStyles: Record<BadgeTone, string> = {
+  violet: "bg-violet-500/10 text-violet-600 border-violet-500/20",
+  emerald: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  rose: "bg-rose-500/10 text-rose-600 border-rose-500/20",
+  blue: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  amber: "bg-amber-500/10 text-amber-700 border-amber-500/20",
+};
 
-function TestimonialCard({ t }: { t: typeof testimonials[0] }) {
+function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
   return (
-    <div
-      className={`relative flex-shrink-0 w-[340px] rounded-[22px] border ${t.border} bg-muted/2 p-6 mx-3 overflow-hidden group hover:bg-muted/4 transition-all duration-500 hover:scale-[1.02]`}
-      style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.3)" }}
-    >
-      {/* Top gradient overlay */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${t.color} opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
-      {/* Top shine line */}
-      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent`} />
-
-      <div className="relative z-10">
-        {/* Metrics badge */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex gap-1">
-            {Array.from({ length: t.rating }).map((_, i) => (
-              <Star key={i} className="w-3.5 h-3.5 fill-chart-4 text-chart-4" />
-            ))}
-          </div>
-          <span className="text-micro font-bold uppercase tracking-widest text-foreground/40 bg-foreground/5 border border-white/[0.08] px-2.5 py-1 rounded-lg">
-            {t.metrics}
-          </span>
+    <article className="rounded-[18px] border border-[var(--card-border)] bg-card p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex gap-0.5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+          ))}
         </div>
+        <span
+          className={cn(
+            "text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md border shrink-0",
+            badgeStyles[t.badge],
+          )}
+        >
+          {t.metrics}
+        </span>
+      </div>
 
-        {/* Quote */}
-        <Quote className="w-7 h-7 text-foreground/8 mb-3 -ml-1" />
-        <p className="text-body leading-relaxed text-foreground/65 font-medium mb-5 group-hover:text-foreground/85 transition-colors duration-400">
-          {t.quote}
-        </p>
+      <Quote className="w-5 h-5 text-primary/30 mb-2 shrink-0" />
+      <p className="text-sm text-foreground/80 leading-relaxed flex-1 mb-4">{t.quote}</p>
 
-        {/* Author */}
-        <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
-          <div className="w-9 h-9 rounded-xl bg-muted/6 border border-border flex items-center justify-center shrink-0">
-            <span className="text-sm font-bold text-foreground/60">{t.author[0]}</span>
-          </div>
-          <div>
-            <p className="text-caption font-bold text-foreground tracking-wide">{t.author}</p>
-            <p className="text-micro text-foreground/35 uppercase tracking-widest">{t.company}</p>
-          </div>
+      <div className="flex items-center gap-2.5 pt-3 border-t border-[var(--card-border)]">
+        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
+          {t.author[0]}
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-foreground truncate">{t.author}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground truncate">
+            {t.company}
+          </p>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
-
 export function Testimonials() {
   return (
-    <section id="testimonials" className="py-16 sm:py-24 lg:py-28 relative overflow-x-hidden bg-transparent border-t border-border">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(99,102,241,0.07)_0%,transparent_65%)]" />
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
-            backgroundSize: "64px 64px",
-          }}
-        />
-      </div>
+    <section
+      id="testimonials"
+      className="py-16 sm:py-24 relative overflow-hidden bg-[var(--bg-secondary)] dark:bg-background border-t border-[var(--card-border)]"
+    >
+      <div className="page-container max-w-[1280px]">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(280px,360px)_1fr] gap-10 xl:gap-14 items-start">
+          {/* Left — trust column */}
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="lg:sticky lg:top-28"
+          >
+            <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-6">
+              <BadgeCheck className="w-3.5 h-3.5" />
+              Verification Logs
+            </span>
 
-      <div className="page-container relative z-10 mb-10 sm:mb-16">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 sm:gap-8">
-          <FadeUp>
-            <div className="mb-6">
-              <AnimatedGradientText className="text-foreground/70">
-                <span className="w-1.5 h-1.5 rounded-full bg-chart-2 animate-pulse mr-2 inline-block" />
-                <span className="text-micro font-bold uppercase tracking-[0.4em]">Verification Logs</span>
-              </AnimatedGradientText>
-            </div>
-            <h2 className="text-heading-1 sm:text-display-1 font-bold leading-tight tracking-tight text-foreground text-balance">
+            <h2 className="text-3xl sm:text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground mb-4">
               Validated by the{" "}
-              <span
-                className="text-transparent bg-clip-text"
-                style={{
-                  backgroundImage: "linear-gradient(135deg, #a855f7, #6366f1, #22d3ee)",
-                }}
-              >
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400">
                 Industry Elite.
               </span>
             </h2>
-          </FadeUp>
-          <FadeUp delay={0.15} className="hidden md:block shrink-0">
-            <p className="text-foreground/40 text-base font-medium max-w-xs text-right leading-relaxed">
-              Trusted by quantitative firms and prop desks who can't afford to be wrong.
+
+            <p className="text-base text-muted-foreground leading-relaxed mb-8">
+              Trusted by quantitative firms and prop desks who can&apos;t afford to be wrong.
             </p>
-          </FadeUp>
+
+            <div className="rounded-[20px] border border-[var(--card-border)] bg-card p-6 shadow-[0_8px_32px_rgba(15,23,42,0.06)]">
+              <div className="flex gap-1 mb-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <p className="text-2xl font-bold text-foreground">
+                4.9<span className="text-lg text-muted-foreground font-semibold">/5</span>
+                <span className="text-base font-medium text-muted-foreground ml-2">Average Rating</span>
+              </p>
+              <p className="text-sm text-muted-foreground mt-1 mb-6">From 2,500+ verified reviews</p>
+
+              <div className="pt-5 border-t border-[var(--card-border)]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-3">
+                  Verified by
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {["SOC 2", "ISO 27001", "GDPR"].map((cert) => (
+                    <span
+                      key={cert}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--card-border)] bg-[var(--bg-secondary)] px-3 py-1.5 text-xs font-semibold text-foreground"
+                    >
+                      <Shield className="w-3.5 h-3.5 text-primary" />
+                      {cert}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Right — testimonial grid (2 rows × 5 on wide screens) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-3 sm:gap-4">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={t.author}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{ duration: 0.4, delay: (i % 5) * 0.05 }}
+              >
+                <TestimonialCard t={t} />
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
-
-      <div className="space-y-5 relative z-10" role="region" aria-label="Customer testimonials">
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#030303] to-transparent z-20" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#030303] to-transparent z-20" />
-
-        <Marquee pauseOnHover repeat={2} className="[--duration:50s] [--gap:0rem]">
-          {testimonials.map((t, i) => (
-            <TestimonialCard key={`row-a-${i}`} t={t} />
-          ))}
-        </Marquee>
-        <Marquee pauseOnHover reverse repeat={2} className="[--duration:40s] [--gap:0rem]">
-          {ROW_B.map((t, i) => (
-            <TestimonialCard key={`row-b-${i}`} t={t} />
-          ))}
-        </Marquee>
-      </div>
-
-      {/* Bottom CTA hint */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.3, duration: 0.6 }}
-        className="text-center mt-14 relative z-10"
-      >
-        <p className="text-sm text-foreground/30 font-medium">
-          Join <span className="text-foreground/60 font-bold">12,000+</span> traders who made the switch
-        </p>
-      </motion.div>
     </section>
   );
 }

@@ -1,175 +1,193 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { BarChart3, Gauge, Layers3, Sparkles } from "lucide-react";
-import { WobbleCard } from "@/components/saasfly/wobble-card";
-import { GlowingEffect } from "@/components/saasfly/glowing-effect";
-import { AnimatedGradientText } from "@/components/saasfly/animated-gradient-text";
-
-function useCountUp(target: number, duration = 1.8, startOnView = true) {
-  const [value, setValue] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
-
-  useEffect(() => {
-    if (!inView && startOnView) return;
-    let start = 0;
-    const step = target / (duration * 60);
-    const id = setInterval(() => {
-      start += step;
-      if (start >= target) { setValue(target); clearInterval(id); }
-      else setValue(Math.floor(start));
-    }, 1000 / 60);
-    return () => clearInterval(id);
-  }, [inView, target, duration, startOnView]);
-
-  return { ref, value };
-}
+import { motion } from "framer-motion";
+import {
+  BarChart3,
+  Gauge,
+  Layers3,
+  Zap,
+  SlidersHorizontal,
+  ShieldCheck,
+  Puzzle,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const pillars = [
   {
     title: "Decision Clarity",
     description:
-      "Signals are grouped by confidence and regime so you can prioritize action in seconds, not minutes.",
+      "Signals are organized by confidence and regime so you can prioritize actions in seconds, not minutes.",
     icon: BarChart3,
     metric: "4.6×",
-    metricLabel: "faster review",
-    accent: "violet",
-    border: "border-chart-2/20",
-    glow: "rgba(167,139,250,0.15)",
-    iconColor: "text-chart-2",
-    iconBg: "bg-chart-2/10 border-chart-2/20",
-    barColor: "from-chart-2 to-chart-2",
-    gradBg: "from-chart-2/[0.07] to-transparent",
-    countTarget: 46,
+    metricLabel: "Faster Review",
+    metricIcon: SlidersHorizontal,
+    metricGradient: true,
+    iconBg: "bg-violet-500/10 border-violet-500/15",
+    iconColor: "text-violet-600",
+    barClass: "bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400",
+    barWidth: "72%",
   },
   {
     title: "Execution Discipline",
     description:
-      "Pre-trade checks, slippage tolerance, and exposure limits are embedded into every execution flow.",
+      "Pre-built checks, stepwise logic, and exposure limits are embedded into every execution flow.",
     icon: Gauge,
     metric: "< 50",
-    metricLabel: "ms routing",
-    accent: "emerald",
-    border: "border-chart-3/20",
-    glow: "rgba(52,211,153,0.15)",
-    iconColor: "text-chart-3",
-    iconBg: "bg-chart-3/10 border-chart-3/20",
-    barColor: "from-chart-3 to-chart-3",
-    gradBg: "from-chart-3/[0.07] to-transparent",
-    countTarget: 50,
+    metricLabel: "Misrouting",
+    metricIcon: ShieldCheck,
+    metricGradient: false,
+    metricColor: "text-emerald-500",
+    iconBg: "bg-emerald-500/10 border-emerald-500/15",
+    iconColor: "text-emerald-600",
+    barClass: "bg-emerald-500",
+    barWidth: "58%",
   },
   {
     title: "Composable Workflows",
     description:
-      "Build, backtest, and deploy with modular logic blocks that remain readable as strategies scale.",
+      "Build, backtest, and deploy with modular logic blocks that remain reusable as strategies scale.",
     icon: Layers3,
     metric: "10+",
-    metricLabel: "block types",
-    accent: "cyan",
-    border: "border-chart-5/20",
-    glow: "rgba(34,211,238,0.15)",
-    iconColor: "text-chart-5",
-    iconBg: "bg-chart-5/10 border-chart-5/20",
-    barColor: "from-chart-5 to-chart-5",
-    gradBg: "from-chart-5/[0.07] to-transparent",
-    countTarget: 10,
+    metricLabel: "Block Types",
+    metricIcon: Puzzle,
+    metricGradient: true,
+    iconBg: "bg-violet-500/10 border-violet-500/15",
+    iconColor: "text-violet-600",
+    barClass: "bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400",
+    barWidth: "86%",
   },
-];
+] as const;
 
-function PillarCard({ pillar, index }: { pillar: typeof pillars[0]; index: number }) {
+function PillarCard({
+  pillar,
+  index,
+}: {
+  pillar: (typeof pillars)[number];
+  index: number;
+}) {
   const Icon = pillar.icon;
+  const MetricIcon = pillar.metricIcon;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 28 }}
+    <motion.article
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.23, 1, 0.32, 1] }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.55, delay: index * 0.1, ease: [0.23, 1, 0.32, 1] }}
+      className="h-full rounded-[24px] border border-[var(--card-border)] bg-card p-7 shadow-[0_10px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_16px_48px_rgba(15,23,42,0.08)] transition-shadow"
     >
-      <WobbleCard
-        containerClassName={`landing-glass-card border ${pillar.border} cursor-default`}
-        className="p-7 h-full"
+      <div
+        className={cn(
+          "inline-flex w-12 h-12 items-center justify-center rounded-2xl border mb-6",
+          pillar.iconBg,
+        )}
       >
-        {/* SaaSfly GlowingEffect */}
-        <GlowingEffect variant="default" spread={22} proximity={50} />
+        <Icon className={cn("w-5 h-5", pillar.iconColor)} />
+      </div>
 
-        {/* Background gradient */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${pillar.gradBg} opacity-60 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[24px]`} />
-        {/* Top accent line */}
-        <div className={`absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-current to-transparent ${pillar.iconColor} pointer-events-none rounded-t-[24px]`} />
+      <h3 className="text-xl font-bold tracking-tight text-foreground mb-3">
+        {pillar.title}
+      </h3>
+      <p className="text-sm leading-relaxed text-muted-foreground mb-8 min-h-[4.5rem]">
+        {pillar.description}
+      </p>
 
-        <div className="relative z-10">
-          <div className={`inline-flex w-12 h-12 items-center justify-center rounded-2xl border ${pillar.iconBg} mb-6`}>
-            <Icon className={`w-5 h-5 ${pillar.iconColor}`} />
-          </div>
-          <h3 className="text-xl font-bold tracking-tight text-foreground mb-3">{pillar.title}</h3>
-          <p className="text-sm leading-relaxed text-foreground/55 mb-6">{pillar.description}</p>
-          <div className="flex items-end gap-2 mb-4">
-            <span className={`text-3xl font-extrabold font-mono tracking-tight ${pillar.iconColor}`}>{pillar.metric}</span>
-            <span className="text-caption text-foreground/35 uppercase tracking-widest mb-1 font-semibold">{pillar.metricLabel}</span>
-          </div>
-          <div className="h-1 w-full rounded-full bg-muted/6 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              whileInView={{ width: `${Math.min(100, pillar.countTarget * 8)}%` }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 + index * 0.1, duration: 1.2, ease: [0.23, 1, 0.32, 1] }}
-              className={`h-full rounded-full bg-gradient-to-r ${pillar.barColor}`}
-            />
-          </div>
-        </div>
-      </WobbleCard>
-    </motion.div>
+      <div className="flex items-end justify-between gap-3 mb-4">
+        <span
+          className={cn(
+            "text-3xl sm:text-[2rem] font-extrabold tracking-tight leading-none",
+            pillar.metricGradient
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400"
+              : pillar.metricColor,
+          )}
+        >
+          {pillar.metric}
+        </span>
+        <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground pb-1">
+          <MetricIcon className="w-3.5 h-3.5 shrink-0 opacity-70" />
+          {pillar.metricLabel}
+        </span>
+      </div>
+
+      <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: pillar.barWidth }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.35 + index * 0.1, duration: 1.1, ease: [0.23, 1, 0.32, 1] }}
+          className={cn("h-full rounded-full", pillar.barClass)}
+        />
+      </div>
+    </motion.article>
   );
 }
 
 export function ValuePillars() {
   return (
-    <section className="relative py-16 sm:py-24 md:py-28 overflow-x-hidden" aria-labelledby="value-pillars-title">
-      {/* Ambient glows */}
-      <div className="pointer-events-none absolute inset-0 opacity-50">
-        <div className="absolute -top-20 left-1/2 h-48 w-56 -translate-x-1/2 rounded-full bg-chart-2/15 blur-[80px]" />
-        <div className="absolute bottom-0 left-20 h-36 w-44 rounded-full bg-chart-3/10 blur-[60px]" />
-        <div className="absolute bottom-0 right-20 h-36 w-44 rounded-full bg-chart-5/10 blur-[60px]" />
+    <section
+      className="relative py-20 sm:py-28 overflow-hidden bg-[var(--bg-secondary)] dark:bg-background"
+      aria-labelledby="value-pillars-title"
+    >
+      {/* Dot grid — top left */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-8 left-4 sm:left-12 w-48 h-48 opacity-40"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, color-mix(in srgb, var(--muted-foreground) 35%, transparent) 1px, transparent 1px)",
+          backgroundSize: "14px 14px",
+        }}
+      />
+
+      {/* Purple glow + curved accent — top right */}
+      <div aria-hidden className="pointer-events-none absolute -top-16 right-0 w-[min(520px,70vw)] h-[320px]">
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-violet-500/15 blur-[80px]" />
+        <svg
+          viewBox="0 0 400 200"
+          className="absolute top-4 right-0 w-full h-auto text-violet-400/25"
+          fill="none"
+        >
+          <path
+            d="M20 180 C120 40, 280 20, 380 60"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
       </div>
 
       <div className="page-container relative z-10">
-        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="mx-auto mb-14 max-w-3xl text-center"
+          transition={{ duration: 0.55 }}
+          className="mx-auto mb-14 sm:mb-16 max-w-3xl text-center"
         >
-          <div className="mb-4 flex justify-center">
-            <AnimatedGradientText className="text-foreground/70">
-              <Sparkles className="h-3.5 w-3.5 text-chart-2 mr-2" />
-              <span className="text-caption font-bold uppercase tracking-[0.28em]">Product Experience</span>
-            </AnimatedGradientText>
+          <div className="mb-5 flex justify-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/[0.06] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-violet-600 dark:text-violet-400">
+              <Zap className="h-3.5 w-3.5" />
+              Product Experience
+            </span>
           </div>
+
           <h2
             id="value-pillars-title"
-            className="text-heading-1 sm:text-display-1 font-extrabold leading-tight tracking-tight text-foreground text-balance"
+            className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-[1.1] tracking-tight text-foreground text-balance"
           >
             Built For Speed,{" "}
-            <span
-              className="text-transparent bg-clip-text"
-              style={{ backgroundImage: "linear-gradient(135deg, #a78bfa, #6366f1, #22d3ee)" }}
-            >
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400">
               Clarity, and Control
             </span>
           </h2>
-          <p className="mt-4 text-base leading-relaxed text-foreground/50 sm:text-lg max-w-2xl mx-auto">
-            A cleaner visual hierarchy and data grouping reduce cognitive load
-            so you focus on trading decisions — not navigating dashboards.
+
+          <p className="mt-5 text-base sm:text-lg leading-relaxed text-muted-foreground max-w-2xl mx-auto">
+            A cleaner visual hierarchy and data grouping reduce cognitive load so you focus on
+            trading decisions — not navigating dashboards.
           </p>
         </motion.div>
 
-        {/* Cards */}
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-3">
           {pillars.map((pillar, i) => (
             <PillarCard key={pillar.title} pillar={pillar} index={i} />
           ))}

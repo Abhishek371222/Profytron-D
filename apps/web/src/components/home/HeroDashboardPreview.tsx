@@ -29,7 +29,7 @@ const NAV: { id: DemoTab; label: string; icon: React.ElementType }[] = [
 
 const TOP_STATS = {
   overview: [
-    { label: "Total Profit", value: "$128,420.00", change: "+12.54%", up: true },
+    { label: "Total P&L", value: "₹4.82Cr", change: "+12.54%", up: true },
     { label: "Win Rate", value: "73.4%", change: "+8.21%", up: true },
     { label: "Sharpe Ratio", value: "2.14", change: "+0.31", up: true },
     { label: "Max Drawdown", value: "-4.2%", change: "+1.12%", up: false },
@@ -93,13 +93,16 @@ const BOTTOM_STATS = {
   ],
 };
 
-const TITLES: Record<DemoTab, string> = {
-  overview: "Overview",
-  analytics: "Analytics",
-  strategies: "Strategies",
-  bots: "Trading Bots",
-  portfolio: "Portfolio",
-};
+function tabTitle(tab: DemoTab, overviewTitle: string): string {
+  if (tab === "overview") return overviewTitle;
+  const labels: Record<Exclude<DemoTab, "overview">, string> = {
+    analytics: "Analytics",
+    strategies: "Strategies",
+    bots: "Trading Bots",
+    portfolio: "Portfolio",
+  };
+  return labels[tab];
+}
 
 function StatCard({
   label,
@@ -134,7 +137,13 @@ function BottomStat({ label, value, sub }: { label: string; value: string; sub: 
   );
 }
 
-export function HeroDashboardPreview() {
+export function HeroDashboardPreview({
+  showHint = true,
+  overviewTitle = "Overview",
+}: {
+  showHint?: boolean;
+  overviewTitle?: string;
+}) {
   const [tab, setTab] = React.useState<DemoTab>("overview");
 
   return (
@@ -150,7 +159,7 @@ export function HeroDashboardPreview() {
       >
         <div className="flex min-h-[380px] sm:min-h-[420px]">
           {/* Sidebar */}
-          <aside className="hidden sm:flex flex-col w-[148px] shrink-0 border-r border-[var(--card-border)] bg-[var(--sidebar)] py-4 px-2 gap-0.5">
+          <aside className="hidden sm:flex flex-col w-[148px] shrink-0 border-r border-[var(--card-border)] bg-[#EEF2FF]/80 dark:bg-[var(--sidebar)] py-4 px-2 gap-0.5">
             {NAV.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -201,10 +210,17 @@ export function HeroDashboardPreview() {
                     exit={{ opacity: 0, y: -6 }}
                     className="text-sm font-bold text-foreground"
                   >
-                    {TITLES[tab]}
+                    {tabTitle(tab, overviewTitle)}
                   </motion.h3>
                 </AnimatePresence>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Welcome back, Alex</p>
+                {tab === "overview" ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[var(--success)]/10 px-2 py-0.5 mt-1 text-[9px] font-semibold text-[var(--success)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--success)]" />
+                    Live
+                  </span>
+                ) : (
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Welcome back, Alex</p>
+                )}
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
@@ -274,9 +290,11 @@ export function HeroDashboardPreview() {
         </div>
       </div>
 
-      <p className="text-center text-caption text-muted-foreground mt-3 hidden sm:block">
-        Click sidebar tabs to explore — Analytics, Strategies, Bots, Portfolio
-      </p>
+      {showHint && (
+        <p className="text-center text-caption text-muted-foreground mt-3 hidden sm:block">
+          Click sidebar tabs to explore — Analytics, Strategies, Bots, Portfolio
+        </p>
+      )}
     </motion.div>
   );
 }

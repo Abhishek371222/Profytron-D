@@ -22,6 +22,7 @@ export interface PortfolioAnalytics {
   maxDrawdown: number;
   allTimeHigh: number;
   bestMonth: number;
+  equityBase?: number;
   equityCurve: Array<{ date: string; equity: number; drawdownPct: number }>;
 }
 

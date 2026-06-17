@@ -21,7 +21,7 @@ export function LandingPrimaryLink({
       className={cn(
         'inline-flex items-center justify-center gap-2 h-12 px-7 rounded-[14px]',
         'bg-primary text-white font-semibold text-sm whitespace-nowrap',
-        'shadow-[0_8px_24px_rgba(59,91,255,0.28)]',
+        'shadow-[0_8px_24px_rgba(59,70,255,0.25)]',
         'hover:bg-[var(--primary-hover)] transition-colors',
         className,
       )}

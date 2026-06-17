@@ -1,9 +1,13 @@
 'use client';
 
 import React from 'react';
-import { io, type Socket } from 'socket.io-client';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import {
+  acquireTradingSocket,
+  isTradingSocketConnected,
+  onPriceUpdate,
+} from '@/lib/realtime/trading-socket';
 
 export type SupportedSymbol = 'BTCUSDT' | 'EURUSD' | 'XAUUSD';
 
@@ -93,6 +97,8 @@ const fetchQuoteWithFallback = async (symbol: SupportedSymbol): Promise<LiveQuot
 type LiveMarketFeedOptions = {
   /** When false, skips REST polling and WebSocket connection. */
   enabled?: boolean;
+  /** When false, never seed synthetic quotes (user has a connected broker account). */
+  allowFallback?: boolean;
 };
 
 export function useLiveMarketFeed(
@@ -100,12 +106,14 @@ export function useLiveMarketFeed(
   options: LiveMarketFeedOptions = {},
 ) {
   const enabled = options.enabled ?? true;
-  const [quotes, setQuotes] = React.useState<LiveQuoteMap>(() => (enabled ? { ...FALLBACK_QUOTES } : {}));
+  const allowFallback = options.allowFallback ?? true;
+  const [quotes, setQuotes] = React.useState<LiveQuoteMap>(() =>
+    enabled && allowFallback ? { ...FALLBACK_QUOTES } : {},
+  );
   const [priceHistory, setPriceHistory] = React.useState<Partial<Record<SupportedSymbol, number[]>>>({});
   const [wsConnected, setWsConnected] = React.useState(false);
   const [lastWsAt, setLastWsAt] = React.useState(0);
   const [wsLive, setWsLive] = React.useState(false);
-  const socketRef = React.useRef<Socket | null>(null);
 
   const appendHistory = React.useCallback((updates: LiveQuoteMap) => {
     setPriceHistory((prev) => {
@@ -160,19 +168,19 @@ export function useLiveMarketFeed(
     if (Object.keys(next).length > 0) {
       setQuotes((prev) => ({ ...prev, ...next }));
       appendHistory(next);
-    } else {
+    } else if (allowFallback) {
       setQuotes((prev) => (Object.keys(prev).length ? prev : FALLBACK_QUOTES));
       appendHistory(FALLBACK_QUOTES);
     }
-  }, [stableSymbols, appendHistory]);
+  }, [stableSymbols, appendHistory, allowFallback]);
 
-  // REST polling — always runs; WebSocket overlays fresher ticks on top.
   React.useEffect(() => {
     if (!enabled) return;
     pollOnce();
-    const timer = window.setInterval(pollOnce, 60_000);
+    const pollMs = wsLive ? 120_000 : 60_000;
+    const timer = window.setInterval(pollOnce, pollMs);
     return () => window.clearInterval(timer);
-  }, [pollOnce, enabled]);
+  }, [pollOnce, enabled, wsLive]);
 
   React.useEffect(() => {
     if (!enabled) return;
@@ -180,24 +188,10 @@ export function useLiveMarketFeed(
     const token = useAuthStore.getState().accessToken;
     if (!token) return;
 
-    const wsBase = toWsBaseUrl(process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_BACKEND_URL);
-    const socket = io(`${wsBase}/trading`, {
-      transports: ['websocket', 'polling'],
-      auth: { token },
-    });
+    const release = acquireTradingSocket(token);
+    setWsConnected(isTradingSocketConnected());
 
-    socketRef.current = socket;
-
-    socket.on('connect', () => {
-      setWsConnected(true);
-      socket.emit('subscribe_prices');
-    });
-
-    socket.on('disconnect', () => {
-      setWsConnected(false);
-    });
-
-    socket.on('price_update', (payload: unknown) => {
+    const unsubPrice = onPriceUpdate((payload: unknown) => {
       const updates: LiveQuoteMap = {};
 
       if (Array.isArray(payload)) {
@@ -224,15 +218,15 @@ export function useLiveMarketFeed(
 
       if (Object.keys(updates).length > 0) {
         setLastWsAt(Date.now());
+        setWsConnected(true);
         setQuotes((prev) => ({ ...prev, ...updates }));
         appendHistory(updates);
       }
     });
 
     return () => {
-      socket.emit('unsubscribe_prices');
-      socket.disconnect();
-      socketRef.current = null;
+      unsubPrice();
+      release();
       setWsConnected(false);
       setLastWsAt(0);
     };

@@ -1,9 +1,20 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { InjectQueue } from '@nestjs/bull';
 import { TradingGateway } from './trading.gateway';
 import { MasterSyncService } from './master-sync.service';
+import { TrailingStopService } from './trailing-stop.service';
 import { MarketService, type MarketSymbol } from '../market/market.service';
+import {
+  mapTradeSymbolToMarket as mapSymbol,
+  estimateUnrealizedPnl as estimatePnl,
+} from './utils/pnl.util';
+import type { BulkCloseScope, ManualOrderDto } from './dto/trade-actions.dto';
 import { randomUUID } from 'crypto';
 import { SubscriptionStatus } from '@prisma/client';
 
@@ -16,6 +27,7 @@ export class TradingService {
     private gateway: TradingGateway,
     private masterSync: MasterSyncService,
     private marketService: MarketService,
+    private trailingStop: TrailingStopService,
     @InjectQueue('trade_execution') private tradeQueue: any,
   ) {
     const useCopyFactory =
@@ -26,6 +38,11 @@ export class TradingService {
     } else {
       this.logger.log(
         'CopyFactory enabled — legacy master position polling disabled',
+      );
+    }
+    if (process.env.TRAILING_STOP_ENABLED !== 'false') {
+      this.trailingStop.startPolling(
+        Number(process.env.TRAILING_STOP_INTERVAL_MS) || 5000,
       );
     }
   }
@@ -362,6 +379,147 @@ export class TradingService {
     };
   }
 
+  async closeTrade(userId: string, tradeId: string, volume?: number) {
+    const trade = await this.prisma.trade.findFirst({
+      where: { id: tradeId, userId, status: 'OPEN' },
+      select: { id: true, volume: true },
+    });
+    if (!trade) throw new NotFoundException('Open trade not found');
+    if (volume != null && (volume <= 0 || volume > trade.volume)) {
+      throw new BadRequestException('Invalid partial close volume');
+    }
+    await this.tradeQueue.add(
+      'close_trade',
+      { tradeId, userId, volume: volume ?? undefined },
+      { priority: 1 },
+    );
+    return {
+      success: true,
+      tradeId,
+      mode: volume != null && volume < trade.volume ? 'PARTIAL' : 'FULL',
+    };
+  }
+
+  async modifyTrade(
+    userId: string,
+    tradeId: string,
+    changes: { stopLoss?: number; takeProfit?: number },
+  ) {
+    await this.assertOpenTrade(userId, tradeId);
+    await this.tradeQueue.add('modify_trade', {
+      tradeId,
+      userId,
+      stopLoss: changes.stopLoss,
+      takeProfit: changes.takeProfit,
+    });
+    return { success: true, tradeId };
+  }
+
+  async breakEven(userId: string, tradeId: string, offsetPips?: number) {
+    await this.assertOpenTrade(userId, tradeId);
+    await this.tradeQueue.add('break_even', {
+      tradeId,
+      userId,
+      offsetPips: offsetPips ?? 0,
+    });
+    return { success: true, tradeId };
+  }
+
+  async setTrailingStop(userId: string, tradeId: string, distance: number) {
+    await this.assertOpenTrade(userId, tradeId);
+    await this.tradeQueue.add('trailing_stop', {
+      tradeId,
+      userId,
+      distance,
+      active: true,
+    });
+    return { success: true, tradeId, distance };
+  }
+
+  async bulkClose(userId: string, scope: BulkCloseScope) {
+    const open = await this.getOpenTrades(userId);
+    const selected = open.filter((t) => {
+      switch (scope) {
+        case 'BUYS':
+          return t.direction === 'LONG';
+        case 'SELLS':
+          return t.direction === 'SHORT';
+        case 'PROFITABLE':
+          return (t.profit ?? 0) > 0;
+        case 'LOSING':
+          return (t.profit ?? 0) < 0;
+        case 'ALL':
+        default:
+          return true;
+      }
+    });
+    await Promise.all(
+      selected.map((t) =>
+        this.tradeQueue.add(
+          'close_trade',
+          { tradeId: t.id, userId },
+          { priority: 1 },
+        ),
+      ),
+    );
+    return { success: true, scope, queued: selected.length };
+  }
+
+  async placeManualOrder(userId: string, dto: ManualOrderDto) {
+    const account = await this.prisma.brokerAccount.findFirst({
+      where: { userId, isActive: true },
+      orderBy: [{ isDefault: 'desc' }, { connectedAt: 'desc' }],
+      select: { id: true },
+    });
+    if (!account) {
+      throw new BadRequestException('Connect a broker account first');
+    }
+
+    let price = 0;
+    const marketSymbol = this.mapTradeSymbolToMarket(dto.symbol);
+    if (marketSymbol) {
+      try {
+        const q = await this.marketService.getQuote(marketSymbol);
+        price = typeof q?.price === 'number' ? q.price : 0;
+      } catch {
+        /* best-effort fill price; processor will still record the order */
+      }
+    }
+
+    await this.tradeQueue.add(
+      'execute_trade',
+      {
+        userId,
+        strategyId: null,
+        type: dto.side,
+        pair: dto.symbol.toUpperCase(),
+        price,
+        requestedPrice: price,
+        volume: dto.volume,
+        stopLoss: dto.stopLoss,
+        takeProfit: dto.takeProfit,
+        queuedAt: new Date().toISOString(),
+        executionMode: 'MANUAL',
+      },
+      { priority: 1 },
+    );
+    return {
+      success: true,
+      symbol: dto.symbol.toUpperCase(),
+      side: dto.side,
+      volume: dto.volume,
+    };
+  }
+
+  private async assertOpenTrade(userId: string, tradeId: string) {
+    const trade = await this.prisma.trade.findFirst({
+      where: { id: tradeId, userId, status: 'OPEN' },
+      select: { id: true },
+    });
+    if (!trade) throw new NotFoundException('Open trade not found');
+    return trade;
+  }
+
   async getMySubscriptions(userId: string) {
     return this.prisma.userStrategySubscription.findMany({
       where: { userId },
@@ -417,8 +575,16 @@ export class TradingService {
   }
 
   async getOpenTrades(userId: string) {
+    const defaultBrokerId = await this.prisma.brokerAccount.findFirst({
+      where: { userId, isDefault: true, isActive: true },
+      select: { id: true },
+    });
     const trades = await this.prisma.trade.findMany({
-      where: { userId, status: 'OPEN' },
+      where: {
+        userId,
+        status: 'OPEN',
+        ...(defaultBrokerId ? { brokerAccountId: defaultBrokerId.id } : {}),
+      },
       select: {
         id: true,
         symbol: true,
@@ -436,47 +602,48 @@ export class TradingService {
       orderBy: { openedAt: 'desc' },
     });
 
-    return Promise.all(
-      trades.map(async (trade) => {
+    const needsQuote = trades.some((t) => t.profit == null);
+    const quoteBySymbol = new Map<string, number>();
+    if (needsQuote) {
+      try {
+        const quotes = await this.marketService.getAllQuotes();
+        for (const q of quotes) {
+          quoteBySymbol.set(q.symbol, q.price);
+        }
+      } catch {
+        // Fall through — unrealized PnL defaults to 0 per trade.
+      }
+    }
+
+    return trades.map((trade) => {
         let profit = trade.profit;
         if (profit == null) {
           const marketSymbol = this.mapTradeSymbolToMarket(trade.symbol);
           if (marketSymbol) {
-            try {
-              const quote = await this.marketService.getQuote(marketSymbol);
-              profit = this.estimateUnrealizedPnl(trade, quote.price);
-            } catch {
-              profit = 0;
-            }
+            const quote = quoteBySymbol.get(marketSymbol);
+            profit = quote != null ? this.estimateUnrealizedPnl(trade, quote) : 0;
           } else {
             profit = 0;
           }
         }
         return { ...trade, profit, unrealizedPnl: profit };
-      }),
-    );
+      });
   }
 
   private mapTradeSymbolToMarket(symbol: string): MarketSymbol | null {
-    const normalized = symbol.toUpperCase().replace(/[^A-Z]/g, '');
-    if (normalized.includes('BTC')) return 'BTCUSDT';
-    if (normalized.includes('XAU') || normalized.includes('GOLD')) return 'XAUUSD';
-    if (normalized.includes('EUR')) return 'EURUSD';
-    if (this.marketService.supportedSymbols.includes(normalized as MarketSymbol)) {
-      return normalized as MarketSymbol;
-    }
-    return null;
+    return mapSymbol(symbol, this.marketService.supportedSymbols);
   }
 
   private estimateUnrealizedPnl(
-    trade: { direction: string; volume: number; openPrice: number; fillPrice: number | null },
+    trade: {
+      direction: string;
+      volume: number;
+      openPrice: number;
+      fillPrice: number | null;
+    },
     currentPrice: number,
   ): number {
-    const entry = trade.fillPrice ?? trade.openPrice;
-    if (!entry || !currentPrice) return 0;
-    const dir = trade.direction === 'LONG' ? 1 : -1;
-    const multiplier = entry > 100 ? 1 : 100_000;
-    return Number((dir * (currentPrice - entry) * trade.volume * multiplier).toFixed(2));
+    return estimatePnl(trade, currentPrice);
   }
 
   async getTradeHistory(

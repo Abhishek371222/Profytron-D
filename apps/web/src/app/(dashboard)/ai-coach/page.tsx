@@ -25,63 +25,54 @@ import {
 } from '@/components/dashboard/DashboardPrimitives';
 import { Magnetic } from '@/components/ui/Interactions';
 import { aiApi, type CoachingReport } from '@/lib/api/ai';
+import { useCoachContext } from '@/hooks/useCoachContext';
 import { toast } from 'sonner';
 
-const INSIGHTS = [
-  {
-    id: 1,
-    type: 'good',
-    icon: TrendingUp,
-    title: 'Strong Discipline',
-    body: 'Risk management validated. 14 consecutive sessions with discipline maintained.',
-    stat: '+14 streak',
+type InsightCard = {
+  id: string;
+  type: 'good' | 'warning' | 'danger' | 'info';
+  icon: typeof TrendingUp;
+  title: string;
+  body: string;
+  stat: string;
+  tip?: string;
+  color: string;
+  border: string;
+  bg: string;
+  iconBg: string;
+  glow: string;
+};
+
+const INSIGHT_STYLES = {
+  good: {
     color: 'text-chart-3',
     border: 'border-chart-3/20',
     bg: 'bg-chart-3/[0.04]',
     iconBg: 'bg-chart-3/10 border-chart-3/25',
     glow: 'rgba(52,211,153,0.15)',
   },
-  {
-    id: 2,
-    type: 'warning',
-    icon: AlertTriangle,
-    title: 'Strategy Variance',
-    body: 'Trade size deviates from plan. 4 tactical overrides post-drawdown detected.',
-    tip: 'Stick to your framework for 14 days.',
-    stat: '4 overrides',
+  warning: {
     color: 'text-chart-4',
     border: 'border-chart-4/20',
     bg: 'bg-chart-4/[0.04]',
     iconBg: 'bg-chart-4/10 border-chart-4/25',
     glow: 'rgba(251,191,36,0.12)',
   },
-  {
-    id: 3,
-    type: 'danger',
-    icon: AlertCircle,
-    title: 'Emotional Pressure',
-    body: '23 manual overrides detected. Psychological fatigue elevated.',
-    stat: '↑ High risk',
+  danger: {
     color: 'text-destructive',
     border: 'border-destructive/20',
     bg: 'bg-destructive/[0.04]',
     iconBg: 'bg-destructive/10 border-destructive/25',
     glow: 'rgba(248,113,113,0.12)',
   },
-  {
-    id: 4,
-    type: 'info',
-    icon: Activity,
-    title: 'Peak Window',
-    body: 'Best performance (84% win rate) between 10:00–12:00 IST.',
-    stat: '84% win rate',
+  info: {
     color: 'text-chart-5',
     border: 'border-chart-5/20',
     bg: 'bg-chart-5/[0.04]',
     iconBg: 'bg-chart-5/10 border-chart-5/25',
     glow: 'rgba(34,211,238,0.12)',
   },
-];
+} as const;
 
 const SUGGESTIONS = [
   { label: 'Analyze exposure', icon: Target },
@@ -93,19 +84,98 @@ const SUGGESTIONS = [
 
 type ChatMessage = { id: string; role: 'ai' | 'user'; text: string };
 
-const INITIAL_MESSAGES: ChatMessage[] = [
-  {
-    id: '1',
-    role: 'ai',
-    text: "You're all set. Portfolio is up $3,240 today. MomentumPro v4 is performing well. Want me to dig into anything?",
-  },
-];
-
 const SCORE_BARS = [0.4, 0.7, 1, 0.6, 0.8, 0.3, 0.9];
+
+function buildInsights(
+  hasBrokerAccount: boolean,
+  winRate: number,
+  portfolio: { totalProfit?: number; maxDrawdown?: number; totalTrades?: number; sharpeRatio?: number } | null | undefined,
+  report: CoachingReport | null,
+): InsightCard[] {
+  if (!hasBrokerAccount) {
+    const style = INSIGHT_STYLES.info;
+    return [{
+      id: 'connect',
+      type: 'info',
+      icon: Activity,
+      title: 'Connect Your Account',
+      body: 'Link a broker or paper account to unlock coaching based on your real trade history and risk metrics.',
+      stat: 'Setup',
+      ...style,
+    }];
+  }
+
+  const insights: InsightCard[] = [];
+  const profit = portfolio?.totalProfit ?? 0;
+
+  if (winRate >= 50) {
+    insights.push({
+      id: 'win-rate',
+      type: 'good',
+      icon: TrendingUp,
+      title: 'Win Rate',
+      body: `Your closed trades show a ${winRate.toFixed(1)}% win rate on your default account.`,
+      stat: `${winRate.toFixed(1)}%`,
+      ...INSIGHT_STYLES.good,
+    });
+  }
+
+  if ((portfolio?.maxDrawdown ?? 0) > 8) {
+    insights.push({
+      id: 'drawdown',
+      type: 'warning',
+      icon: AlertTriangle,
+      title: 'Drawdown Alert',
+      body: `Peak-to-trough drawdown is ${(portfolio?.maxDrawdown ?? 0).toFixed(1)}%. Review position sizing and stop-loss rules.`,
+      tip: 'Consider reducing risk per trade until drawdown recovers.',
+      stat: `${(portfolio?.maxDrawdown ?? 0).toFixed(1)}% DD`,
+      ...INSIGHT_STYLES.warning,
+    });
+  }
+
+  if (profit !== 0) {
+    insights.push({
+      id: 'pnl',
+      type: profit > 0 ? 'good' : 'danger',
+      icon: profit > 0 ? TrendingUp : AlertCircle,
+      title: profit > 0 ? 'Net Profit' : 'Net Loss',
+      body: `Period P&L on your default account is ${profit >= 0 ? '+' : ''}$${Math.abs(profit).toLocaleString('en-US', { maximumFractionDigits: 0 })}.`,
+      stat: profit >= 0 ? `+$${Math.abs(profit).toLocaleString()}` : `-$${Math.abs(profit).toLocaleString()}`,
+      ...(profit > 0 ? INSIGHT_STYLES.good : INSIGHT_STYLES.danger),
+    });
+  }
+
+  if (report?.winRate != null && insights.length < 3) {
+    insights.push({
+      id: 'report',
+      type: 'info',
+      icon: Activity,
+      title: 'Coaching Snapshot',
+      body: 'Coaching metrics loaded from your latest closed-trade sample.',
+      stat: `${report.winRate}% WR`,
+      ...INSIGHT_STYLES.info,
+    });
+  }
+
+  if (insights.length === 0) {
+    insights.push({
+      id: 'empty',
+      type: 'info',
+      icon: Activity,
+      title: 'Building History',
+      body: 'Your account is connected. Insights will appear as you close more trades.',
+      stat: `${portfolio?.totalTrades ?? 0} trades`,
+      ...INSIGHT_STYLES.info,
+    });
+  }
+
+  return insights.slice(0, 3);
+}
 
 export default function AICoachPage() {
   const router = useRouter();
-  const [messages, setMessages] = React.useState<ChatMessage[]>(INITIAL_MESSAGES);
+  const { portfolio, winRate, openTrades, hasBrokerAccount } = useCoachContext();
+  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = React.useState('');
   const [isTyping, setIsTyping] = React.useState(false);
   const [report, setReport] = React.useState<CoachingReport | null>(null);
@@ -120,6 +190,19 @@ export default function AICoachPage() {
       toast.error("Can't load report right now");
     });
   }, []);
+
+  const insights = React.useMemo(
+    () => buildInsights(hasBrokerAccount, winRate, portfolio, report),
+    [hasBrokerAccount, winRate, portfolio, report],
+  );
+
+  React.useEffect(() => {
+    const profit = portfolio?.totalProfit ?? 0;
+    const text = hasBrokerAccount
+      ? `Your default account shows ${winRate.toFixed(1)}% win rate with ${profit >= 0 ? '+' : ''}$${Math.abs(profit).toLocaleString('en-US', { maximumFractionDigits: 0 })} period P&L. ${openTrades.length} open position(s). What would you like to review?`
+      : 'Connect a broker or paper account to get coaching based on your real trading data.';
+    setMessages([{ id: 'welcome', role: 'ai', text }]);
+  }, [hasBrokerAccount, portfolio?.totalProfit, winRate, openTrades.length]);
 
   const handleSend = React.useCallback(async (text: string) => {
     if (!text.trim()) return;
@@ -194,7 +277,7 @@ export default function AICoachPage() {
 
         {/* Insights — fixed height, no inner scroll */}
         <div className="flex-1 min-h-0 space-y-2">
-          {INSIGHTS.slice(0, 3).map((insight, idx) => {
+          {insights.map((insight, idx) => {
             const Icon = insight.icon;
             return (
               <motion.div

@@ -3,47 +3,19 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Cell } from 'recharts';
 
-const PerformanceBarChart = React.memo(function PerformanceBarChart({
-  data,
-}: {
-  data: { label: string; display: string; score: number; color: string }[];
-}) {
-  return (
-    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
-      <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 0 }}>
-        <CartesianGrid strokeDasharray="2 4" stroke="rgba(255,255,255,0.04)" horizontal={false} />
-        <XAxis type="number" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 9, fontWeight: 700 }} axisLine={false} tickLine={false} />
-        <YAxis type="category" dataKey="label" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} width={64} />
-        <Tooltip
-          content={({ active, payload }) => {
-            if (!active || !payload?.length) return null;
-            const pt = payload[0].payload as { label: string; display: string; score: number };
-            return (
-              <div className="rounded-xl border border-border bg-card/95 px-3 py-2 shadow-xl backdrop-blur-xl">
-                <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30">{pt.label}</p>
-                <p className="mt-0.5 text-sm font-bold text-foreground">{pt.display}</p>
-                <p className="text-micro text-foreground/25">Score {Math.round(pt.score)}/100</p>
-              </div>
-            );
-          }}
-        />
-        <Bar dataKey="score" radius={[0, 8, 8, 0]}>
-          {data.map((entry) => (
-            <Cell key={entry.label} fill={entry.color} fillOpacity={0.88} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  );
-});
+const PerformanceBarChart = dynamic(
+  () => import('@/components/dashboard/DashboardPerformanceBarChart'),
+  { ssr: false, loading: () => <div className="h-full w-full rounded-2xl bg-muted/30 animate-pulse" /> },
+);
 import {
   TrendingUp, TrendingDown, Zap, Shield, ArrowUpRight, ArrowDownRight,
   Activity, Clock, Target, Brain, X, Info,
   ChevronRight, Download, RefreshCcw, Wallet, Trophy,
 } from '@/components/ui/icons';
+import { Link2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -51,9 +23,15 @@ import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { tradingApi } from '@/lib/api/trading';
 import { toast } from 'sonner';
 import { useDashboardData } from '@/hooks/useDashboardData';
+import { invalidateAccountQueries } from '@/lib/queries/account-queries';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import { DashboardMarketCards } from '@/components/dashboard/DashboardMarketCards';
 import { DashboardRightRail } from '@/components/dashboard/DashboardRightRail';
+import { TradeActionsModal, type TradeActionMode, type ActionTrade } from '@/components/trading/TradeActionsModal';
+import { ManualOrderModal } from '@/components/trading/ManualOrderModal';
+import { PositionActionsMenu, BulkCloseBar } from '@/components/trading/PositionActions';
+import { useTradeActions } from '@/hooks/useTradeActions';
+import { Plus } from 'lucide-react';
 
 const EquityChart = dynamic(
   () => import('@/components/charts/LiveCandlesChart').then((m) => m.LiveCandlesChart),
@@ -272,7 +250,7 @@ function KpiCard({ label, value, prefix = '', suffix = '', decimals = 2, trend, 
 // ─────────────────────────────────────────────────────────────────────────────
 // Trade row
 // ─────────────────────────────────────────────────────────────────────────────
-function TradeRow({ trade, onExplain }: { trade: any; onExplain: (t: any) => void }) {
+function TradeRow({ trade, onExplain, onAction }: { trade: any; onExplain: (t: any) => void; onAction: (t: any, mode: TradeActionMode) => void }) {
   const isLong = trade.type === 'Long';
   const isProfit = trade.pnl >= 0;
   // Compute trade age on the client after mount so render stays pure (no Date.now during render).
@@ -343,7 +321,7 @@ function TradeRow({ trade, onExplain }: { trade: any; onExplain: (t: any) => voi
       </div>
 
       {/* Action */}
-      <div className="flex justify-end">
+      <div className="flex justify-end items-center gap-1" onClick={(e) => e.stopPropagation()}>
         <Button
           variant="ghost" size="sm"
           onClick={(e) => { e.stopPropagation(); onExplain(trade); }}
@@ -352,6 +330,7 @@ function TradeRow({ trade, onExplain }: { trade: any; onExplain: (t: any) => voi
           <Brain className="w-3 h-3" />
           AI
         </Button>
+        <PositionActionsMenu onAction={(mode) => onAction(trade, mode)} />
       </div>
     </motion.div>
   );
@@ -462,11 +441,31 @@ function RiskMonitor({
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const [chartRange, setChartRange] = React.useState<'1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL'>('1M');
   const [isExportingCsv, setIsExportingCsv] = React.useState(false);
   const [selectedTrade, setSelectedTrade] = React.useState<any>(null);
   const [dateLabel, setDateLabel] = React.useState('');
   const [greeting, setGreeting] = React.useState('Good morning');
+  const [actionTrade, setActionTrade] = React.useState<ActionTrade | null>(null);
+  const [actionMode, setActionMode] = React.useState<TradeActionMode | null>(null);
+  const [manualOrderOpen, setManualOrderOpen] = React.useState(false);
+
+  const { closeTrade } = useTradeActions();
+
+  const toActionTrade = (t: any): ActionTrade => ({
+    id: t.id,
+    asset: t.asset,
+    type: t.type,
+    amount: Number(t.amount) || 0,
+    entry: Number(t.entry) || 0,
+    pnl: Number(t.pnl) || 0,
+  });
+
+  const openTradeAction = (t: any, mode: TradeActionMode) => {
+    setActionTrade(toActionTrade(t));
+    setActionMode(mode);
+  };
 
   const { data: currentUser } = useCurrentUser();
 
@@ -483,6 +482,12 @@ export default function DashboardPage() {
     risk,
     isLoading: isDashboardLoading,
     refreshAll,
+    hasBrokerAccount,
+    quotesLoading,
+    portfolioValue,
+    portfolio,
+    defaultBrokerAccount,
+    isPaper,
   } = useDashboardData(chartRange);
 
   const btcQuote = quotes.BTCUSDT;
@@ -516,9 +521,7 @@ export default function DashboardPage() {
   const killSwitchMutation = useMutation({
     mutationFn: () => tradingApi.emergencyStop(),
     onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: ['open-trades'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-risk'] });
-      queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+      invalidateAccountQueries(queryClient);
       const msg = result.status === 'NO_OPEN_TRADES'
         ? 'No open trades found.'
         : `Closed ${result.closedTrades} open trade(s).`;
@@ -561,8 +564,10 @@ export default function DashboardPage() {
 
   const handleManualClose = () => {
     if (!selectedTrade) { toast.message('Select a trade first'); return; }
-    toast.success('Close order queued', { description: `${selectedTrade.asset} submitted for review.` });
-    setSelectedTrade(null);
+    closeTrade.mutate(
+      { id: selectedTrade.id },
+      { onSettled: () => setSelectedTrade(null) },
+    );
   };
 
   // ── Greeting ───────────────────────────────────────────────────────────────
@@ -607,13 +612,47 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {!hasBrokerAccount && (
+        <div className="dashboard-card border border-primary/20 bg-primary/[0.04] p-5 dashboard-enter">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
+                <Link2 className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Connect your first account</p>
+                <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+                  Link a paper or live broker account once. Portfolio value, win rate, open positions, and analytics will all come from that account — no demo placeholders.
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => router.push('/copy-trading')}
+              className="shrink-0 gap-2"
+            >
+              <Zap className="w-4 h-4" />
+              Connect Account
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {hasBrokerAccount && defaultBrokerAccount && (
+        <p className="text-xs text-muted-foreground -mt-2 dashboard-enter">
+          Data scoped to your {isPaper ? 'paper' : 'live'} account
+          {defaultBrokerAccount.accountNumberLast4 ? ` ····${defaultBrokerAccount.accountNumberLast4}` : ''}
+          {portfolioValue > 0 ? ` · Portfolio ${portfolioValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}` : ''}
+        </p>
+      )}
+
       {/* ── 2. MAIN GRID ──────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-6 items-start">
         <div className="space-y-5 min-w-0">
           <DashboardMarketCards
             quotes={marketQuotesWithSpark}
-            isLoading={isDashboardLoading && !btcQuote}
+            isLoading={(isDashboardLoading && !btcQuote) || quotesLoading}
             live={wsConnected || !!btcQuote}
+            showConnectHint={!hasBrokerAccount}
           />
 
           {/* Trading chart — mockup layout */}
@@ -684,10 +723,22 @@ export default function DashboardPage() {
                     </span>
                   )}
                 </div>
-                <Link href="/history" className="text-caption font-medium text-primary hover:underline">
-                  View All →
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setManualOrderOpen(true)}
+                    className="gap-1.5"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    New Order
+                  </Button>
+                  <Link href="/history" className="text-caption font-medium text-primary hover:underline">
+                    View All →
+                  </Link>
+                </div>
               </div>
+              {activeTrades.length > 0 && <BulkCloseBar />}
               <div className="overflow-x-auto">
                 <div className="min-w-[640px]">
                   <div className="grid grid-cols-7 px-5 py-2.5 bg-muted/40 border-b border-[var(--card-border)]">
@@ -697,7 +748,7 @@ export default function DashboardPage() {
                   </div>
                   {activeTrades.length > 0 ? (
                     activeTrades.map((trade) => (
-                      <TradeRow key={trade.id} trade={trade} onExplain={setSelectedTrade} />
+                      <TradeRow key={trade.id} trade={trade} onExplain={setSelectedTrade} onAction={openTradeAction} />
                     ))
                   ) : (
                     <div className="flex flex-col items-center justify-center py-12 text-center px-4">
@@ -865,9 +916,10 @@ export default function DashboardPage() {
               <div className="px-7 py-5 border-t border-border">
                 <Button
                   onClick={handleManualClose}
-                  variant="primary"
+                  variant="destructive"
                   size="lg"
                   className="w-full"
+                  isLoading={closeTrade.isPending}
                 >
                   Execute Manual Close
                 </Button>
@@ -876,6 +928,17 @@ export default function DashboardPage() {
           </>
         )}
       </AnimatePresence>
+
+      {/* ── TRADE ACTION MODALS ─────────────────────────────────────────────── */}
+      <TradeActionsModal
+        trade={actionTrade}
+        mode={actionMode}
+        onClose={() => {
+          setActionTrade(null);
+          setActionMode(null);
+        }}
+      />
+      <ManualOrderModal open={manualOrderOpen} onOpenChange={setManualOrderOpen} />
     </div>
   );
 }

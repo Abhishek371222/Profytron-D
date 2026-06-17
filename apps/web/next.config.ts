@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
       "@tanstack/react-query",
       "sonner",
       "reactflow",
+      "gsap",
+      "lenis",
+      "date-fns",
+      "socket.io-client",
     ],
   },
 
@@ -46,6 +50,14 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "avatars.githubusercontent.com", port: "", pathname: "/**" },
       { protocol: "https", hostname: "*.supabase.co", port: "", pathname: "/storage/**" },
     ],
+  },
+
+  async redirects() {
+    return [
+      { source: '/documentation', destination: '/docs', permanent: true },
+      { source: '/signup', destination: '/register', permanent: true },
+      { source: '/press', destination: '/', permanent: true },
+    ];
   },
 
   async rewrites() {

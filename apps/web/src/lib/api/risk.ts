@@ -15,6 +15,17 @@ export type RiskScore = {
   label: 'LOW' | 'MEDIUM' | 'HIGH';
 };
 
+export type RiskPolicy = {
+  maxDailyLossUsd?: number | null;
+  maxDailyLossPct?: number | null;
+  maxDrawdownPct?: number | null;
+  autoStopAfterLoss?: boolean;
+  autoStopAfterWin?: boolean;
+  riskPerTradePct?: number | null;
+  maxOpenTrades?: number | null;
+  minWinRate?: number | null;
+};
+
 export const riskApi = {
   async getDashboard(): Promise<DashboardRisk> {
     const res = await apiClient.get('/risk/dashboard');
@@ -26,8 +37,13 @@ export const riskApi = {
     return unwrapApiResponse<RiskScore>(res.data);
   },
 
-  async getPolicy() {
+  async getPolicy(): Promise<RiskPolicy | null> {
     const res = await apiClient.get('/risk/policy');
-    return unwrapApiResponse<any>(res.data);
+    return unwrapApiResponse<RiskPolicy | null>(res.data);
+  },
+
+  async updatePolicy(policy: RiskPolicy): Promise<RiskPolicy> {
+    const res = await apiClient.put('/risk/policy', policy);
+    return unwrapApiResponse<RiskPolicy>(res.data);
   },
 };

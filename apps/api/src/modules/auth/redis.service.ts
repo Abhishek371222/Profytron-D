@@ -187,6 +187,38 @@ export class RedisService {
     }
   }
 
+  /**
+   * Renewable leader lease. Returns true if this caller holds the lock for
+   * `key` (either freshly acquired or renewed because it already owns it).
+   * Used so that only one API instance runs singleton work (e.g. master-trade
+   * polling) when the app is scaled horizontally. If Redis is unavailable we
+   * assume a single instance and grant the lock.
+   */
+  async tryRenewableLock(
+    key: string,
+    token: string,
+    ttlSeconds: number,
+  ): Promise<boolean> {
+    try {
+      const acquired = await this.redis.set(
+        key,
+        token,
+        'EX',
+        ttlSeconds,
+        'NX',
+      );
+      if (acquired === 'OK') return true;
+      const current = await this.redis.get(key);
+      if (current === token) {
+        await this.redis.expire(key, ttlSeconds);
+        return true;
+      }
+      return false;
+    } catch {
+      return true;
+    }
+  }
+
   async ping(): Promise<boolean> {
     try {
       const response = await this.redis.ping();

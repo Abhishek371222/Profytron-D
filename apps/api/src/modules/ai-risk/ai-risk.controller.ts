@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put, Req, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -7,6 +7,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AiRiskService } from './ai-risk.service';
+import { UpsertRiskPolicyDto } from './dto/risk-policy.dto';
 
 @ApiTags('Risk')
 @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -41,6 +42,17 @@ export class AiRiskController {
   @ApiOperation({ summary: 'Get your current AI risk policy' })
   async getPolicy(@Req() req: any) {
     return this.aiRiskService.getRiskPolicy(req.user.id);
+  }
+
+  @Put('policy')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({
+    summary:
+      'Create or update your risk policy (daily loss, drawdown, max open trades, auto-stop)',
+  })
+  async upsertPolicy(@Req() req: any, @Body() dto: UpsertRiskPolicyDto) {
+    const userId = req.user.userId ?? req.user.id;
+    return this.aiRiskService.createRiskPolicy(userId, dto);
   }
 
   @Get('dashboard')
