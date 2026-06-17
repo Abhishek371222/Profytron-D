@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Trivy Filesystem Scan
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd7151715ea6cc042cbe17d557f3c5
+      - uses: actions/checkout@v4
 
       - name: Run Trivy filesystem scan
         uses: aquasecurity/trivy-action@master
@@ -30,7 +30,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Upload to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-fs.sarif'
 
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Trivy Docker Image Scan
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd7151715ea6cc042cbe17d557f3c5
+      - uses: actions/checkout@v4
 
       - name: Build API image for scanning
         run: docker build -t profytron-api:test -f apps/api/Dockerfile .
@@ -52,7 +52,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Upload to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-docker.sarif'
 
@@ -60,11 +60,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Dependency Vulnerability Check
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd7151715ea6cc042cbe17d557f3c5
+      - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@894f6b4e07ea6eaa2fb49cffdb94295f8afb5798
+      - uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@60edb5dd545a775178fba37f25c003366ad50cc24
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
@@ -87,15 +87,15 @@ jobs:
       matrix:
         language: ['javascript', 'typescript']
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd7151715ea6cc042cbe17d557f3c5
+      - uses: actions/checkout@v4
 
-      - uses: github/codeql-action/init@v2
+      - uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
 
-      - uses: pnpm/action-setup@894f6b4e07ea6eaa2fb49cffdb94295f8afb5798
+      - uses: pnpm/action-setup@v4
 
-      - uses: actions/setup-node@60edb5dd545a775178fba37f25c003366ad50cc24
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
@@ -104,13 +104,13 @@ jobs:
 
       - run: pnpm build
 
-      - uses: github/codeql-action/analyze@v2
+      - uses: github/codeql-action/analyze@v3
 
   secret-scanning:
     runs-on: ubuntu-latest
     name: Secret Detection
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd7151715ea6cc042cbe17d557f3c5
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -128,20 +128,20 @@ jobs:
     container:
       image: returntocorp/semgrep
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd7151715ea6cc042cbe17d557f3c5
+      - uses: actions/checkout@v4
 
       - name: Run Semgrep
         run: |
           semgrep --config=p/security-audit \
                   --config=p/owasp-top-ten \
                   --config=p/typescript \
-                  --json \
-                  --output=semgrep-results.json \
+                  --sarif \
+                  --output=semgrep-results.sarif \
                   apps/
         continue-on-error: true
 
       - name: Upload Semgrep results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'semgrep-results.json'
+          sarif_file: 'semgrep-results.sarif'
         if: always()
