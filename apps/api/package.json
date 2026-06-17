@@ -69,8 +69,8 @@
     "stripe": "^22.0.1",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^13.0.0",
-    "@sentry/nestjs": "^8.0.0",
-    "@sentry/profiling-node": "^8.0.0",
+    "@sentry/nestjs": "^10.57.0",
+    "@sentry/profiling-node": "^10.57.0",
     "winston": "^3.19.0"
   },
   "devDependencies": {
