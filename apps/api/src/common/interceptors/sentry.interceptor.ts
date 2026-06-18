@@ -9,6 +9,7 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Request } from 'express';
+import * as Sentry from '@sentry/nestjs';
 
 const logger = new Logger('SentryInterceptor');
 
@@ -23,8 +24,6 @@ export class SentryInterceptor implements NestInterceptor {
         }
 
         try {
-          // Dynamic import so the app doesn't crash if Sentry isn't installed yet
-          const Sentry = require('@sentry/nestjs');
           if (Sentry?.captureException) {
             const req = context.switchToHttp().getRequest<Request>();
             Sentry.withScope((scope: any) => {

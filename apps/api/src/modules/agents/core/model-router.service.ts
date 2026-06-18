@@ -97,6 +97,8 @@ export class ModelRouterService {
         lastError = error;
       }
     }
-    throw lastError ?? new Error('All model tiers failed');
+    throw lastError instanceof Error
+      ? lastError
+      : new Error('All model tiers failed');
   }
 }

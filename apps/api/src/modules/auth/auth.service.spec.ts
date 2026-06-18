@@ -4,6 +4,10 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from './redis.service';
 import { EmailService } from '../email/email.service';
 import { JwtService } from '@nestjs/jwt';
+import { AffiliatesService } from '../affiliates/affiliates.service';
+import { ActivationService } from '../growth/activation.service';
+import { AgentEventService } from '../agents/agent-event.service';
+import { TwoFaService } from './twofa.service';
 import { HttpException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
@@ -59,6 +63,16 @@ describe('AuthService (UNIT TESTS)', () => {
             auditLog: {
               create: jest.fn(),
             },
+            affiliate: {
+              create: jest.fn().mockResolvedValue({ id: 'aff-1' }),
+            },
+            subscriptionPlan: {
+              findFirst: jest.fn().mockResolvedValue(null),
+            },
+            userSubscription: {
+              findFirst: jest.fn().mockResolvedValue(null),
+              create: jest.fn(),
+            },
           },
         },
         {
@@ -82,6 +96,30 @@ describe('AuthService (UNIT TESTS)', () => {
           useValue: {
             sign: jest.fn().mockReturnValue('jwt-token-123'),
             verify: jest.fn(),
+          },
+        },
+        {
+          provide: AffiliatesService,
+          useValue: {
+            processReferral: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: ActivationService,
+          useValue: {
+            track: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: AgentEventService,
+          useValue: {
+            emit: jest.fn().mockResolvedValue(undefined),
+          },
+        },
+        {
+          provide: TwoFaService,
+          useValue: {
+            verifyForLogin: jest.fn().mockResolvedValue(true),
           },
         },
       ],
@@ -181,7 +219,11 @@ describe('AuthService (UNIT TESTS)', () => {
     it('should verify email with correct OTP', async () => {
       const dto = { email: 'test@example.com', otp: '123456' };
 
-      (redisService.get as jest.Mock).mockResolvedValue('123456');
+      // verifyEmail first reads an OTP-attempts counter; return the stored OTP for
+      // the OTP key and a clean (null) counter for the attempts key.
+      (redisService.get as jest.Mock).mockImplementation((key: string) =>
+        Promise.resolve(key.includes('attempts') ? null : '123456'),
+      );
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
       (prismaService.user.update as jest.Mock).mockResolvedValue({
         ...mockUser,

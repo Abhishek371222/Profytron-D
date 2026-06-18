@@ -307,7 +307,9 @@ export class AgentExecutorService {
   }
 
   private async runSupport(job: AgentJobPayload): Promise<AgentRunOutput> {
-    const subject = String(job.payload?.subject ?? job.payload?.message ?? '');
+    const subject = (job.payload?.subject ??
+      job.payload?.message ??
+      '') as string;
     const kb = await this.rollups.searchKnowledge(subject, 3);
     if (kb.length > 0 && subject.length > 0) {
       const match = kb[0];
@@ -610,7 +612,7 @@ export class AgentExecutorService {
   }
 
   private formatCeoFallback(metrics: Record<string, unknown>): string {
-    return `MRR: ₹${metrics.mrr ?? 0} | Users: ${metrics.totalUsers ?? 0} | Activation: ${metrics.activationRate ?? '0%'}`;
+    return `MRR: ₹${Number(metrics.mrr ?? 0)} | Users: ${Number(metrics.totalUsers ?? 0)} | Activation: ${(metrics.activationRate as string | undefined) ?? '0%'}`;
   }
 
   private async finish(

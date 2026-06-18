@@ -12,7 +12,11 @@ export function isDatabaseUnreachableError(exception: unknown): boolean {
     return exception.code === 'P1001';
   }
   const message =
-    exception instanceof Error ? exception.message : String(exception ?? '');
+    exception instanceof Error
+      ? exception.message
+      : typeof exception === 'string'
+        ? exception
+        : '';
   return (
     message.includes("Can't reach database server") ||
     message.includes('Connection refused') ||

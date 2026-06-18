@@ -4,7 +4,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AgentEventType } from './agent.types';
 
 export interface EmitAgentEventInput {
-  type: AgentEventType | string;
+  // `string & {}` keeps the named-event autocomplete without collapsing the union to `string`.
+  type: AgentEventType | (string & {});
   entityType: string;
   entityId: string;
   userId?: string;

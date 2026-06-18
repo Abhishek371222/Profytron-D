@@ -32,7 +32,7 @@ export class RuleEngineService {
       };
     }
     if (job.eventType === AGENT_EVENTS.PAYMENT_FAILED) {
-      const code = String(job.payload?.errorCode ?? 'unknown');
+      const code = (job.payload?.errorCode as string | undefined) ?? 'unknown';
       const template = code.includes('insufficient')
         ? 'wallet_low'
         : 'payment_retry_dunning';

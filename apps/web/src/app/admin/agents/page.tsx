@@ -75,9 +75,10 @@ export default function AdminAgentsPage() {
   const data = dashQuery.data;
   const activity = activityQuery.data;
 
+  const agentSummaries = data?.agentSummaries;
   const sortedSummaries = React.useMemo(() => {
-    if (!data?.agentSummaries) return [];
-    const byType = new Map(data.agentSummaries.map((a) => [a.agentType, a]));
+    if (!agentSummaries) return [];
+    const byType = new Map(agentSummaries.map((a) => [a.agentType, a]));
     return AGENT_ORDER.map(
       (type) =>
         byType.get(type) ?? {
@@ -88,7 +89,7 @@ export default function AdminAgentsPage() {
           updatedAt: null,
         },
     );
-  }, [data?.agentSummaries]);
+  }, [agentSummaries]);
 
   const reportsReady = sortedSummaries.filter((a) => a.summary?.trim()).length;
   const batchProgress = React.useMemo(() => {

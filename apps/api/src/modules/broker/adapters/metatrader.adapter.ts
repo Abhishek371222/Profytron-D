@@ -306,7 +306,7 @@ export class MetaTraderAdapter {
     metaApiAccountId: string,
     positionId: string,
     region?: string,
-  ): Promise<any | null> {
+  ): Promise<any> {
     if (!this.isLive) return null;
     const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
     try {

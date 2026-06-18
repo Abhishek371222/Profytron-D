@@ -3,6 +3,8 @@ import { TradingService } from './trading.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TradingGateway } from './trading.gateway';
 import { MasterSyncService } from './master-sync.service';
+import { TrailingStopService } from './trailing-stop.service';
+import { MarketService } from '../market/market.service';
 import { getQueueToken } from '@nestjs/bull';
 
 describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
@@ -55,6 +57,20 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
           },
         },
         {
+          provide: MarketService,
+          useValue: {
+            getQuote: jest.fn(),
+            getAllQuotes: jest.fn().mockResolvedValue([]),
+            supportedSymbols: [],
+          },
+        },
+        {
+          provide: TrailingStopService,
+          useValue: {
+            startPolling: jest.fn(),
+          },
+        },
+        {
           provide: getQueueToken('trade_execution'),
           useValue: mockQueue,
         },
@@ -64,6 +80,21 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
     tradingService = module.get<TradingService>(TradingService);
     prismaService = module.get<PrismaService>(PrismaService);
     tradingGateway = module.get<TradingGateway>(TradingGateway);
+  });
+
+  // Helper producing a fully-shaped active subscription row as returned by the
+  // single `findMany` the service now issues (it partitions by expiresAt in JS).
+  const makeSub = (overrides: Record<string, unknown> = {}) => ({
+    id: 'sub-1',
+    userId: 'user-1',
+    executionPriority: 0,
+    slippageBps: 0,
+    riskOverrideEnabled: false,
+    maxDrawdownPct: null,
+    excludedSymbolsJson: null,
+    latencyLimitMs: null,
+    expiresAt: null,
+    ...overrides,
   });
 
   describe('1. SIGNAL PROCESSING', () => {
@@ -79,9 +110,9 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
       (prismaService.auditLog.create as jest.Mock).mockResolvedValue({
         id: 'log-1',
       });
-      (prismaService.userStrategySubscription.findMany as jest.Mock)
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([]);
+      (
+        prismaService.userStrategySubscription.findMany as jest.Mock
+      ).mockResolvedValue([]);
 
       const result = await tradingService.processSignal(
         signalData.strategyId,
@@ -97,16 +128,13 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
           triggeredBy: strategyId,
         }),
       });
+      // Service now fetches all ACTIVE subscriptions in one query and partitions
+      // expired vs. live in memory (no OR clause).
       expect(
         prismaService.userStrategySubscription.findMany,
-      ).toHaveBeenNthCalledWith(
-        1,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: {
-            strategyId,
-            status: 'ACTIVE',
-            OR: [{ expiresAt: null }, { expiresAt: { gt: expect.any(Date) } }],
-          },
+          where: { strategyId, status: 'ACTIVE' },
           select: expect.objectContaining({
             id: true,
             userId: true,
@@ -116,6 +144,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
             maxDrawdownPct: true,
             excludedSymbolsJson: true,
             latencyLimitMs: true,
+            expiresAt: true,
           }),
         }),
       );
@@ -123,14 +152,17 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
 
     it('should notify all subscribed users of signal', async () => {
       const strategyId = 'strat-123';
-      const subscribers = [{ userId: 'user-1' }, { userId: 'user-2' }];
+      const subscribers = [
+        makeSub({ id: 'sub-1', userId: 'user-1' }),
+        makeSub({ id: 'sub-2', userId: 'user-2' }),
+      ];
 
       (prismaService.auditLog.create as jest.Mock).mockResolvedValue({
         id: 'log-1',
       });
-      (prismaService.userStrategySubscription.findMany as jest.Mock)
-        .mockResolvedValueOnce(subscribers)
-        .mockResolvedValueOnce([]);
+      (
+        prismaService.userStrategySubscription.findMany as jest.Mock
+      ).mockResolvedValue(subscribers);
 
       await tradingService.processSignal(strategyId, 'BUY', 'BTCUSD', 45000);
 
@@ -147,14 +179,15 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
       (prismaService.auditLog.createMany as jest.Mock).mockResolvedValue({
         count: 1,
       });
-      (prismaService.userStrategySubscription.findMany as jest.Mock)
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([
-          {
-            userId: 'user-expired',
-            expiresAt: new Date(Date.now() - 60_000),
-          },
-        ]);
+      (
+        prismaService.userStrategySubscription.findMany as jest.Mock
+      ).mockResolvedValue([
+        makeSub({
+          id: 'sub-expired',
+          userId: 'user-expired',
+          expiresAt: new Date(Date.now() - 60_000),
+        }),
+      ]);
 
       await tradingService.processSignal(strategyId, 'SELL', 'BTCUSD', 42000);
 
@@ -178,20 +211,16 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
       (prismaService.auditLog.createMany as jest.Mock).mockResolvedValue({
         count: 1,
       });
-      (prismaService.userStrategySubscription.findMany as jest.Mock)
-        .mockResolvedValueOnce([
-          {
-            id: 'sub-1',
-            userId: 'user-1',
-            executionPriority: 0,
-            slippageBps: 0,
-            riskOverrideEnabled: true,
-            maxDrawdownPct: null,
-            excludedSymbolsJson: ['BTCUSD'],
-            latencyLimitMs: null,
-          },
-        ])
-        .mockResolvedValueOnce([]);
+      (
+        prismaService.userStrategySubscription.findMany as jest.Mock
+      ).mockResolvedValue([
+        makeSub({
+          id: 'sub-1',
+          userId: 'user-1',
+          riskOverrideEnabled: true,
+          excludedSymbolsJson: ['BTCUSD'],
+        }),
+      ]);
 
       const result = await tradingService.processSignal(
         strategyId,

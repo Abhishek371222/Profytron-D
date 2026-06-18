@@ -9,7 +9,7 @@ function fmtInr(n: unknown): string {
 }
 
 function fmtPct(n: unknown): string {
-  const s = String(n ?? '0');
+  const s = typeof n === 'string' ? n : String(Number(n ?? 0));
   return s.includes('%') ? s : `${s}%`;
 }
 
@@ -22,18 +22,18 @@ export function buildCeoSummary(metrics: Record<string, unknown>): string {
     `### Revenue`,
     `- **MRR:** ${fmtInr(mrr)}`,
     `- **ARR:** ${fmtInr(arr)}`,
-    `- **Paying users:** ${metrics.payingUsers ?? 0}`,
+    `- **Paying users:** ${Number(metrics.payingUsers ?? 0)}`,
     `- **ARPU:** ${fmtInr(metrics.arpu ?? 0)}`,
     ``,
     `### Users & activation`,
-    `- **Total users:** ${metrics.totalUsers ?? 0}`,
-    `- **New (30d):** ${metrics.newUsers30d ?? 0}`,
+    `- **Total users:** ${Number(metrics.totalUsers ?? 0)}`,
+    `- **New (30d):** ${Number(metrics.newUsers30d ?? 0)}`,
     `- **Activation rate:** ${fmtPct(metrics.activationRate)}`,
-    `- **Activated users:** ${metrics.activatedUsers ?? 0}`,
+    `- **Activated users:** ${Number(metrics.activatedUsers ?? 0)}`,
     ``,
     `### Deposits (30d)`,
     `- **Volume:** ${fmtInr(metrics.deposits30d)}`,
-    `- **Count:** ${metrics.depositCount30d ?? 0}`,
+    `- **Count:** ${Number(metrics.depositCount30d ?? 0)}`,
     ``,
     `### Priority actions`,
     `1. Review activation funnel if rate is below 25%`,
@@ -74,9 +74,9 @@ export function buildMarketingSummary(
     ``,
     `### Current metrics`,
     `- **MRR:** ${fmtInr(m.mrr)}`,
-    `- **New users today:** ${m.newUsers ?? 0}`,
+    `- **New users today:** ${Number(m.newUsers ?? 0)}`,
     `- **Activation rate:** ${fmtPct(m.activationRate)}`,
-    `- **Open support tickets:** ${m.supportTickets ?? 0}`,
+    `- **Open support tickets:** ${Number(m.supportTickets ?? 0)}`,
     ``,
     `### Campaign ideas (India market)`,
     `1. **Broker connect push** — retarget signups without MT5 linked`,
@@ -125,12 +125,12 @@ export function buildAnalyticsSummary(
       : `- **Day-over-day MRR change:** stable`,
     ``,
     `### Users`,
-    `- **New users (period):** ${snapshot.newUsers ?? 0}`,
+    `- **New users (period):** ${Number(snapshot.newUsers ?? 0)}`,
     `- **Activation rate:** ${fmtPct(snapshot.activationRate)}`,
     ``,
     `### Operations`,
     `- **Deposits (INR):** ${fmtInr(snapshot.depositsInr)}`,
-    `- **Open support tickets:** ${snapshot.supportTickets ?? 0}`,
+    `- **Open support tickets:** ${Number(snapshot.supportTickets ?? 0)}`,
     ``,
     `### Alerts`,
     delta != null && Math.abs(delta) >= 5
@@ -242,7 +242,7 @@ export function buildSupportSummary(input: {
     ``,
     `### Ticket`,
     `- **Subject:** ${input.subject || 'General inquiry'}`,
-    `- **Category:** ${input.payload.category ?? 'general'}`,
+    `- **Category:** ${(input.payload.category as string | undefined) ?? 'general'}`,
     `- **Reply source:** ${input.source}${input.kbSlug ? ` (${input.kbSlug})` : ''}`,
     ``,
     `### Draft reply`,
