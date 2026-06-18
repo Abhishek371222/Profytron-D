@@ -32,10 +32,9 @@ export class UsersService {
     private redisService: RedisService,
     private activationService: ActivationService,
   ) {
-    this.supabase = createClient(
-      process.env.SUPABASE_URL || '',
-      process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-    );
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    this.supabase = url && key ? createClient(url, key) : null;
   }
 
   async findByEmail(email: string) {

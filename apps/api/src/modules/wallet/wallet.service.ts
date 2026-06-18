@@ -40,7 +40,9 @@ export class WalletService {
     private readonly withdrawalQueue: Queue,
     private readonly emailService: EmailService,
   ) {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '');
+    this.stripe = process.env.STRIPE_SECRET_KEY
+      ? new Stripe(process.env.STRIPE_SECRET_KEY)
+      : null as any;
   }
 
   async sendWithdrawalOtp(userId: string): Promise<{ sent: boolean }> {

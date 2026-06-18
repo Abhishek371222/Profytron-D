@@ -39,10 +39,14 @@ export class AuthService {
     private agentEvents: AgentEventService,
     private twoFaService: TwoFaService,
   ) {
-    this.supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    );
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (supabaseUrl && supabaseKey) {
+      this.supabase = createClient(supabaseUrl, supabaseKey);
+    } else {
+      this.logger.warn('SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — Supabase auth flows disabled');
+      this.supabase = null as any;
+    }
   }
 
   private parseExpirySeconds(

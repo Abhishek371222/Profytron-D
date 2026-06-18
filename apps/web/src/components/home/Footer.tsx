@@ -63,17 +63,16 @@ export function Footer() {
               Building the future of trading success. Your edge, refined for tomorrow's markets.
             </p>
             <div className="flex gap-3">
-              {[
-                { icon: MessageSquare, href: 'https://discord.gg/profytron', label: 'Discord' },
-                { icon: InstagramIcon, href: 'https://www.instagram.com/profytron/', label: 'Instagram' },
-                { icon: Globe, href: '/', label: 'Website' },
-                { icon: Mail, href: 'mailto:hello@profytron.com', label: 'Email' },
-              ].map(({ icon: Icon, href, label }) => (
+              {([
+                { icon: MessageSquare, href: 'https://discord.gg/profytron', label: 'Discord', external: true },
+                { icon: InstagramIcon, href: 'https://www.instagram.com/profytron/', label: 'Instagram', external: true },
+                { icon: Globe, href: '/', label: 'Website', external: false },
+                { icon: Mail, href: 'mailto:hello@profytron.com', label: 'Email', external: false },
+              ] as const).map(({ icon: Icon, href, label, external }) => (
                 <a
                   key={label}
                   href={href}
-                  target={href.startsWith('http') ? '_blank' : undefined}
-                  rel={href.startsWith('http') ? 'noreferrer' : undefined}
+                  {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
                   aria-label={label}
                   className="w-10 h-10 rounded-full bg-foreground/2 border border-border flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/70 focus-visible:rounded-full"
                 >

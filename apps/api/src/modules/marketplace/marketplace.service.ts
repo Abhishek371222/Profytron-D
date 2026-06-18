@@ -29,9 +29,9 @@ export class MarketplaceService {
     private prisma: PrismaService,
     private activationService: ActivationService,
   ) {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2025-01-27' as any,
-    });
+    this.stripe = process.env.STRIPE_SECRET_KEY
+      ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27' as any })
+      : null as any;
   }
 
   async findAll(query: MarketplaceQueryDto, userId?: string) {

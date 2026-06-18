@@ -40,9 +40,9 @@ export class PaymentsService {
     private readonly agentEvents: AgentEventService,
     @Inject(REDIS_CLIENT) private readonly redis: IORedis,
   ) {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-      apiVersion: '2025-01-27' as any,
-    });
+    this.stripe = process.env.STRIPE_SECRET_KEY
+      ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27' as any })
+      : null as any;
 
     const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
     const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
