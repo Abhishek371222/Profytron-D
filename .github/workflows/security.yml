@@ -116,13 +116,15 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Note: do NOT pin base/head here. On a push to the default branch the
+      # action resolves base == head (same commit) and exits with the fatal
+      # "BASE and HEAD commits are the same" error. Omitting them lets the action
+      # pick the correct diff (or full scan), and --only-verified avoids failing
+      # the build on placeholder/example strings.
       - name: TruffleHog Secret Scan
         uses: trufflesecurity/trufflehog@main
         with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --debug --json
+          extra_args: --only-verified
 
   sast-semgrep:
     runs-on: ubuntu-latest

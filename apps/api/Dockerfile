@@ -1,46 +1,46 @@
+# ─── Build stage ──────────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
-# Copy workspace files
-COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
-COPY apps/api/package.json ./apps/api/package.json
+# Copy every workspace manifest + the lockfile first so that
+# `pnpm install --frozen-lockfile` can validate all importers and Docker can
+# cache the dependency layer independently of source changes.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json ./apps/api/
+COPY apps/web/package.json ./apps/web/
+COPY services/ai/package.json ./services/ai/
+COPY services/backtest/package.json ./services/backtest/
+COPY packages/types/package.json ./packages/types/
 
-# Install only API dependencies
-RUN pnpm install --filter api --frozen-lockfile 2>/dev/null || \
-    cd apps/api && npm install
+# Install API deps (+ its workspace deps). --ignore-scripts so the api
+# postinstall (prisma generate) does not run before the schema is copied.
+RUN pnpm install --frozen-lockfile --filter api... --ignore-scripts
 
+# API source (includes prisma/schema.prisma)
 COPY apps/api ./apps/api
-COPY packages ./packages 2>/dev/null || true
+
+WORKDIR /app/apps/api
+RUN pnpm exec prisma generate
+RUN pnpm run build
+
+# ─── Production stage ───────────────────────────────────────────────────────────
+FROM node:20-alpine AS runner
 
 WORKDIR /app/apps/api
 
-# Generate Prisma client
-RUN npx prisma generate
-
-# Build NestJS
-RUN npm run build
-
-# ─── Production stage ───────────────────────────────────────────────────────
-FROM node:20-alpine AS runner
-
-WORKDIR /app
-
 ENV NODE_ENV=production
 
-# Install only production deps
-COPY --from=builder /app/apps/api/package.json ./package.json
-RUN npm install --omit=dev --ignore-scripts
-
-# Copy built output + Prisma
+# Bring over installed deps (pnpm's virtual store lives at the workspace root,
+# with relative symlinks under apps/api/node_modules) plus the build output.
+COPY --from=builder /app/node_modules /app/node_modules
+COPY --from=builder /app/apps/api/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/apps/api/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/apps/api/prisma ./prisma
+COPY --from=builder /app/apps/api/package.json ./package.json
 
 EXPOSE 4000
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
