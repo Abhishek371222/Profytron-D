@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from"next";
 import { Suspense } from "react";
-import { Inter, Geist, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Geist, JetBrains_Mono } from "next/font/google";
 import"@/styles/globals.css";
 import"@/styles/animations.css";
 import { WebVitalsProvider } from "@/components/providers/WebVitalsProvider";
@@ -9,23 +9,9 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LazyChatbotWidget } from "@/components/chatbot/LazyChatbotWidget";
 import { JsonLd } from "@/components/seo/JsonLd";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-  preload: true,
-});
-
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-geist",
-  display: "swap",
-  preload: true,
-});
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
   display: "swap",
   preload: true,
 });
@@ -123,7 +109,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${geist.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} font-sans text-body bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground`}
+        className={`${geist.variable} ${jetbrainsMono.variable} font-sans text-body bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground`}
       >
         <ThemeProvider>
         <WebVitalsProvider />

@@ -75,8 +75,8 @@
   --sidebar-ring: #47a7aa;
 
   /* Typography */
-  --font-sans: var(--font-geist, "Geist"), var(--font-inter, "Inter"), system-ui, sans-serif;
-  --font-heading: var(--font-geist, "Geist"), var(--font-inter, "Inter"), var(--font-sans);
+  --font-sans: var(--font-geist, "Geist"), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-heading: var(--font-geist, "Geist"), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-jetbrains, "JetBrains Mono"), ui-monospace, monospace;
   --font-serif: var(--font-sans);
 
