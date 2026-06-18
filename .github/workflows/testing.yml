@@ -58,6 +58,9 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
+    - name: Generate Prisma client
+      run: pnpm --dir apps/api exec prisma generate
+
     - name: Type check API
       run: pnpm --dir apps/api exec tsc --noEmit -p tsconfig.build.json
 

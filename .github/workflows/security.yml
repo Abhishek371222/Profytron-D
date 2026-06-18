@@ -102,6 +102,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - run: pnpm --dir apps/api exec prisma generate
+
       - run: pnpm build
 
       - uses: github/codeql-action/analyze@v3
