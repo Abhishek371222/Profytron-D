@@ -161,7 +161,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default process.env.SENTRY_DSN
+const withSentry = process.env.SENTRY_DSN
   ? withSentryConfig(nextConfig, {
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,
@@ -171,3 +171,19 @@ export default process.env.SENTRY_DSN
       automaticVercelMonitors: false,
     })
   : nextConfig;
+
+// Bundle analyzer is opt-in and treated as an OPTIONAL dependency: it is only
+// require()'d when ANALYZE=true, so normal builds and CI (frozen lockfile) are
+// never affected. To use:  pnpm add -D @next/bundle-analyzer && ANALYZE=true pnpm build
+let finalConfig: NextConfig = withSentry;
+if (process.env.ANALYZE === "true") {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const withBundleAnalyzer = require("@next/bundle-analyzer")({ enabled: true });
+    finalConfig = withBundleAnalyzer(withSentry);
+  } catch {
+    console.warn("[next.config] ANALYZE=true but @next/bundle-analyzer is not installed. Run: pnpm add -D @next/bundle-analyzer");
+  }
+}
+
+export default finalConfig;
