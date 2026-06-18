@@ -42,6 +42,7 @@ import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module
 import { ApiKeysModule } from './modules/api-keys/api-keys.module';
 import { CopyModule } from './modules/copy/copy.module';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
+import { JwtAuthGuard } from './modules/auth/guards/auth.guard';
 
 const parseRedisConfig = () => {
   const redisUrl = getRedisConnectionUrl();
@@ -123,6 +124,7 @@ const parseRedisConfig = () => {
   controllers: [AppController],
   providers: [
     AppService,
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: AppThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
   ],

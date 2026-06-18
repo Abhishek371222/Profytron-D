@@ -5,6 +5,7 @@
   "scripts": {
     "dev:web": "pnpm --filter profytron dev",
     "dev:api": "pnpm --filter api start:dev",
+    "dev:api:prod": "pnpm --filter api build && pnpm --filter api start:prod",
     "dev:api:trace": "pnpm --filter api start:dev:trace",
     "dev:api:stable": "node tools/api-dev-supervisor.mjs",
     "diagnose:api:crash": "node tools/api-crash-report.mjs",

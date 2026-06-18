@@ -32,10 +32,13 @@ function bindSocketEvents(sock: Socket) {
   const tradeEvents = [
     'trade_opened',
     'trade_closed',
+    'trade_modified',
+    'trade_partially_closed',
+    'trade_failed',
+    'trade_blocked',
     'emergency_stop_triggered',
     'strategy_activated',
     'new_notification',
-    'transaction_update',
   ] as const;
 
   for (const event of tradeEvents) {
@@ -99,4 +102,14 @@ export function onTradingEvent(event: string, handler: EventHandler): () => void
 
 export function isTradingSocketConnected(): boolean {
   return Boolean(socket?.connected);
+}
+
+/** Reconnect the shared socket when the JWT is rotated (e.g. after refresh). */
+export function reconnectTradingSocket(token: string): void {
+  if (!token) return;
+  if (refCount > 0) {
+    connectSocket(token);
+  } else {
+    activeToken = null;
+  }
 }

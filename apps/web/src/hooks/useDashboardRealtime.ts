@@ -2,22 +2,25 @@
 
 import React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { invalidateAccountQueries } from '@/lib/queries/account-queries';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
-import { acquireTradingSocket, onTradingEvent } from '@/lib/realtime/trading-socket';
+import {
+  acquireTradingSocket,
+  onTradingEvent,
+  reconnectTradingSocket,
+} from '@/lib/realtime/trading-socket';
 
 /** Subscribes to trading WebSocket events and invalidates dashboard queries in real time. */
 export function useDashboardRealtime(enabled = true) {
   const queryClient = useQueryClient();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   React.useEffect(() => {
-    if (!enabled || !isAuthenticated) return;
+    if (!enabled || !isAuthenticated || !accessToken) return;
 
-    const token = useAuthStore.getState().accessToken;
-    if (!token) return;
-
-    const release = acquireTradingSocket(token);
+    const release = acquireTradingSocket(accessToken);
 
     const invalidate = (() => {
       let timer: ReturnType<typeof setTimeout> | null = null;
@@ -32,10 +35,34 @@ export function useDashboardRealtime(enabled = true) {
     const unsubs = [
       onTradingEvent('trade_opened', () => invalidateAccountQueries(queryClient)),
       onTradingEvent('trade_closed', () => invalidateAccountQueries(queryClient)),
-      onTradingEvent('emergency_stop_triggered', () => {
-        invalidate('open-trades', 'portfolio', 'dashboard-risk');
+      onTradingEvent('trade_modified', () => invalidateAccountQueries(queryClient)),
+      onTradingEvent('trade_partially_closed', () => invalidateAccountQueries(queryClient)),
+      onTradingEvent('trade_failed', (payload) => {
+        invalidateAccountQueries(queryClient);
+        const reason =
+          typeof payload === 'object' &&
+          payload !== null &&
+          'reason' in payload &&
+          typeof (payload as { reason?: string }).reason === 'string'
+            ? (payload as { reason: string }).reason
+            : 'Trade execution failed';
+        toast.error(reason);
       }),
-      onTradingEvent('strategy_activated', () => invalidate('my-strategies')),
+      onTradingEvent('trade_blocked', (payload) => {
+        invalidateAccountQueries(queryClient);
+        const reason =
+          typeof payload === 'object' &&
+          payload !== null &&
+          'reason' in payload &&
+          typeof (payload as { reason?: string }).reason === 'string'
+            ? (payload as { reason: string }).reason
+            : 'Trade blocked by risk policy';
+        toast.warning(reason);
+      }),
+      onTradingEvent('emergency_stop_triggered', () => {
+        invalidate('open-trades', 'portfolio', 'dashboard-risk', 'copy-subscriptions');
+      }),
+      onTradingEvent('strategy_activated', () => invalidate('my-strategies', 'copy-subscriptions')),
       onTradingEvent('new_notification', () => invalidate('notifications-unread')),
     ];
 
@@ -43,5 +70,7 @@ export function useDashboardRealtime(enabled = true) {
       unsubs.forEach((off) => off());
       release();
     };
-  }, [enabled, isAuthenticated, queryClient]);
+  }, [enabled, isAuthenticated, accessToken, queryClient]);
 }
+
+export { reconnectTradingSocket };

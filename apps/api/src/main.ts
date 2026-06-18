@@ -65,7 +65,22 @@ function validateEnv() {
   }
   if (isProduction) {
     for (const key of prodRequired) {
+      if (
+        key === 'UPSTASH_REDIS_REST_URL' ||
+        key === 'UPSTASH_REDIS_REST_TOKEN'
+      ) {
+        continue;
+      }
       if (!process.env[key]) missing.push(key);
+    }
+    const hasRedisUrl = Boolean(process.env.REDIS_URL?.trim());
+    const hasUpstash =
+      Boolean(process.env.UPSTASH_REDIS_REST_URL?.trim()) &&
+      Boolean(process.env.UPSTASH_REDIS_REST_TOKEN?.trim());
+    if (!hasRedisUrl && !hasUpstash) {
+      missing.push(
+        'REDIS_URL or UPSTASH_REDIS_REST_URL+UPSTASH_REDIS_REST_TOKEN',
+      );
     }
   }
 

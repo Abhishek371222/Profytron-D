@@ -3,9 +3,6 @@ import type { MarketSymbol } from '../../market/market.service';
 /**
  * Map a broker trade symbol (e.g. "EURUSD.pro", "XAUUSD", "BTCUSD") to one of
  * the market symbols we have quotes for. Returns null when unsupported.
- *
- * Extracted from TradingService so the service, the trade processor, and the
- * trailing-stop service all share one implementation.
  */
 export function mapTradeSymbolToMarket(
   symbol: string,
@@ -24,9 +21,6 @@ export function mapTradeSymbolToMarket(
 
 /**
  * Estimate unrealized PnL for an open trade given the current market price.
- * Uses fillPrice when available, falling back to openPrice. The multiplier
- * heuristic mirrors the original TradingService implementation: FX-style
- * sub-100 prices use a 100k contract multiplier, larger prices use 1.
  */
 export function estimateUnrealizedPnl(
   trade: {
@@ -44,4 +38,33 @@ export function estimateUnrealizedPnl(
   return Number(
     (dir * (currentPrice - entry) * trade.volume * multiplier).toFixed(2),
   );
+}
+
+/** Sum of absolute realized losses from closed trades (today or all-time). */
+export function computeDailyLossUsd(
+  closedTrades: Array<{ profit: number | null }>,
+): number {
+  return closedTrades
+    .filter((t) => (t.profit ?? 0) < 0)
+    .reduce((sum, t) => sum + Math.abs(t.profit ?? 0), 0);
+}
+
+/**
+ * Peak-to-trough drawdown percentage from a chronological PnL series.
+ * `startingEquity` is the balance before the first trade in the series.
+ */
+export function computeMaxDrawdownPct(
+  trades: Array<{ profit: number | null }>,
+  startingEquity: number,
+): number {
+  let peak = startingEquity;
+  let running = startingEquity;
+  let maxDd = 0;
+  for (const t of trades) {
+    running += t.profit ?? 0;
+    if (running > peak) peak = running;
+    const dd = peak > 0 ? ((peak - running) / peak) * 100 : 0;
+    maxDd = Math.max(maxDd, dd);
+  }
+  return maxDd;
 }

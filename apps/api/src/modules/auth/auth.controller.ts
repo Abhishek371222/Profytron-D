@@ -204,6 +204,12 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.supabaseLogin(dto);
+    if ('requiresTwoFa' in result && result.requiresTwoFa) {
+      return {
+        requiresTwoFa: true,
+        challengeToken: result.challengeToken,
+      };
+    }
     this.setSessionCookies(
       res,
       result.refreshTokenForCookie,
@@ -328,6 +334,12 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.verifyMagicLink(token);
+    if ('requiresTwoFa' in result && result.requiresTwoFa) {
+      return {
+        requiresTwoFa: true,
+        challengeToken: result.challengeToken,
+      };
+    }
     this.setSessionCookies(
       res,
       result.refreshTokenForCookie,
@@ -411,12 +423,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.githubCallback(req.user);
-    this.setSessionCookies(
-      res,
-      result.refreshTokenForCookie,
-      result.user?.role,
-      result.user?.onboardingCompleted,
-    );
+    if (result.refreshTokenForCookie) {
+      this.setSessionCookies(
+        res,
+        result.refreshTokenForCookie,
+        result.user?.role,
+        result.user?.onboardingCompleted,
+      );
+    }
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     // The access token is exchanged via a server-side one-time code rather than
     // a JS-readable cookie. The frontend calls GET /auth/oauth-token-exchange?code=
@@ -456,12 +470,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.googleCallback(req.user);
-    this.setSessionCookies(
-      res,
-      result.refreshTokenForCookie,
-      result.user?.role,
-      result.user?.onboardingCompleted,
-    );
+    if (result.refreshTokenForCookie) {
+      this.setSessionCookies(
+        res,
+        result.refreshTokenForCookie,
+        result.user?.role,
+        result.user?.onboardingCompleted,
+      );
+    }
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const dest = result.user?.onboardingCompleted
       ? process.env.FRONTEND_DASHBOARD_URL || `${frontendUrl}/dashboard`
@@ -483,7 +499,6 @@ export class AuthController {
   })
   async oauthTokenExchange(@Query('code') code: string) {
     if (!code) throw new NotFoundException('code is required');
-    const accessToken = await this.authService.exchangeOAuthCode(code);
-    return { accessToken };
+    return this.authService.exchangeOAuthCode(code);
   }
 }

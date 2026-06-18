@@ -15,6 +15,7 @@ import { MarketPriceBroadcastService } from './market-price-broadcast.service';
 import { AiRiskModule } from '../ai-risk/ai-risk.module';
 import { CopyLedgerService } from './copy-ledger.service';
 import { TradeDlqProcessor } from './trade-dlq.processor';
+import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { TradeDlqProcessor } from './trade-dlq.processor';
     TrailingStopService,
     MarketPriceBroadcastService,
     CopyLedgerService,
+    CopyFactoryPositionSyncService,
   ],
   exports: [
     TradingService,

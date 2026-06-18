@@ -14,7 +14,7 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
 import { CopyTradingService } from './copy.service';
 import { SetSizingDto, UpsertMasterProfileDto } from './dto/copy.dto';
 
@@ -31,6 +31,7 @@ export class CopyController {
 
   // ─── Public master discovery ───────────────────────────────────────────────
 
+  @Public()
   @Get('masters')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'List public master traders (leaderboard).' })
@@ -38,6 +39,7 @@ export class CopyController {
     return this.copyService.listPublicMasters(limit ? Number(limit) : 50);
   }
 
+  @Public()
   @Get('masters/:id')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not found' })

@@ -14,28 +14,37 @@ import { riskApi, type RiskPolicy } from '@/lib/api/risk';
 
 type FormState = {
   maxDailyLossUsd: string;
+  maxDailyLossPct: string;
   maxDrawdownPct: string;
   maxOpenTrades: string;
   riskPerTradePct: string;
+  minWinRate: string;
   autoStopAfterLoss: boolean;
+  autoStopAfterWin: boolean;
 };
 
 const EMPTY: FormState = {
   maxDailyLossUsd: '',
+  maxDailyLossPct: '',
   maxDrawdownPct: '',
   maxOpenTrades: '',
   riskPerTradePct: '',
+  minWinRate: '',
   autoStopAfterLoss: false,
+  autoStopAfterWin: false,
 };
 
 function policyToForm(p: RiskPolicy | null): FormState {
   if (!p) return EMPTY;
   return {
     maxDailyLossUsd: p.maxDailyLossUsd != null ? String(p.maxDailyLossUsd) : '',
+    maxDailyLossPct: p.maxDailyLossPct != null ? String(p.maxDailyLossPct) : '',
     maxDrawdownPct: p.maxDrawdownPct != null ? String(p.maxDrawdownPct) : '',
     maxOpenTrades: p.maxOpenTrades != null ? String(p.maxOpenTrades) : '',
     riskPerTradePct: p.riskPerTradePct != null ? String(p.riskPerTradePct) : '',
+    minWinRate: p.minWinRate != null ? String(p.minWinRate) : '',
     autoStopAfterLoss: !!p.autoStopAfterLoss,
+    autoStopAfterWin: !!p.autoStopAfterWin,
   };
 }
 
@@ -72,10 +81,13 @@ export default function TradingSettingsPage() {
     mutationFn: () =>
       riskApi.updatePolicy({
         maxDailyLossUsd: numOrUndef(form.maxDailyLossUsd) ?? null,
+        maxDailyLossPct: numOrUndef(form.maxDailyLossPct) ?? null,
         maxDrawdownPct: numOrUndef(form.maxDrawdownPct) ?? null,
         maxOpenTrades: numOrUndef(form.maxOpenTrades) ?? null,
         riskPerTradePct: numOrUndef(form.riskPerTradePct) ?? null,
+        minWinRate: numOrUndef(form.minWinRate) ?? null,
         autoStopAfterLoss: form.autoStopAfterLoss,
+        autoStopAfterWin: form.autoStopAfterWin,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['risk-policy'] });
@@ -109,6 +121,36 @@ export default function TradingSettingsPage() {
               placeholder="e.g. 500"
               value={form.maxDailyLossUsd}
               onChange={(e) => set('maxDailyLossUsd', e.target.value)}
+            />
+          </SettingsField>
+
+          <SettingsField
+            label="Max daily loss (%)"
+            hint="Blocks entries when today's loss exceeds this % of equity."
+          >
+            <SettingsInput
+              type="number"
+              inputMode="decimal"
+              min={0}
+              max={100}
+              placeholder="e.g. 5"
+              value={form.maxDailyLossPct}
+              onChange={(e) => set('maxDailyLossPct', e.target.value)}
+            />
+          </SettingsField>
+
+          <SettingsField
+            label="Min win rate (%)"
+            hint="Optional gate — blocks new trades when rolling win rate falls below this."
+          >
+            <SettingsInput
+              type="number"
+              inputMode="decimal"
+              min={0}
+              max={100}
+              placeholder="e.g. 40"
+              value={form.minWinRate}
+              onChange={(e) => set('minWinRate', e.target.value)}
             />
           </SettingsField>
 
@@ -167,6 +209,12 @@ export default function TradingSettingsPage() {
           description="Pause all active copy subscriptions and close open trades when a daily-loss or drawdown limit is hit."
           checked={form.autoStopAfterLoss}
           onChange={(v) => set('autoStopAfterLoss', v)}
+        />
+        <SettingsToggle
+          label="Auto-stop after daily win target"
+          description="Pause copying when today's realized profit exceeds your configured win threshold."
+          checked={form.autoStopAfterWin}
+          onChange={(v) => set('autoStopAfterWin', v)}
         />
       </SettingsSection>
 

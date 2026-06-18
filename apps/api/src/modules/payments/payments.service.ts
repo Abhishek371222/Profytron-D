@@ -281,10 +281,18 @@ export class PaymentsService {
     // Signature is valid — pull the authoritative amount from Razorpay so the
     // credited value can't be tampered with on the client.
     const order = await this.razorpay.orders.fetch(razorpay_order_id);
+    const orderNotes = (order.notes ?? {}) as Record<string, string>;
+    const orderUserId = orderNotes.userId;
+    if (orderUserId && orderUserId !== userId) {
+      throw new ForbiddenException(
+        'Payment order does not belong to the authenticated user.',
+      );
+    }
+    const creditUserId = orderUserId || userId;
     const amountRupees = Number(order.amount) / 100;
 
     await this.creditWallet(
-      userId,
+      creditUserId,
       amountRupees,
       'DEPOSIT',
       {
@@ -295,10 +303,9 @@ export class PaymentsService {
       `razorpay_payment_${razorpay_payment_id}`,
     );
 
-    const orderNotes = (order.notes ?? {}) as Record<string, string>;
     if (orderNotes.type === 'platform_subscription' && orderNotes.planId) {
       await this.activatePlatformSubscriptionFromPayment(
-        userId,
+        creditUserId,
         orderNotes.planId,
         orderNotes.billingCycle ?? 'MONTHLY',
         razorpay_payment_id,
@@ -306,19 +313,19 @@ export class PaymentsService {
       );
     } else {
       await this.activationService.track(
-        userId,
+        creditUserId,
         ACTIVATION_EVENTS.FIRST_WALLET_DEPOSIT,
         { amount: amountRupees },
       );
       await this.affiliatesService.processFirstDepositBonus(
-        userId,
+        creditUserId,
         amountRupees,
       );
-      await this.affiliatesService.calculateCommission(userId, amountRupees);
+      await this.affiliatesService.calculateCommission(creditUserId, amountRupees);
     }
 
     await this.notifications.create(
-      userId,
+      creditUserId,
       'Deposit Successful',
       `₹${amountRupees.toFixed(2)} has been added to your wallet.`,
       'SUCCESS',
@@ -424,6 +431,7 @@ export class PaymentsService {
       return { ok: true };
     } catch (error) {
       this.logger.error(`Stripe webhook failed for event ${event.id}`, error);
+      await this.redis.del(idempotencyKey).catch(() => undefined);
       throw error;
     }
   }
@@ -439,7 +447,13 @@ export class PaymentsService {
       .update(rawBody)
       .digest('hex');
 
-    if (digest !== signature) {
+    const provided = Buffer.from(signature);
+    const expected = Buffer.from(digest);
+    const signatureValid =
+      provided.length === expected.length &&
+      crypto.timingSafeEqual(provided, expected);
+
+    if (!signatureValid) {
       throw new ForbiddenException('Invalid Razorpay webhook signature');
     }
   }

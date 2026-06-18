@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Lock, Smartphone, Trash2, Download } from 'lucide-react';
+import { Lock, Smartphone, Trash2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { usersApi } from '@/lib/api/users';
+import { authApi } from '@/lib/api/auth';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
 import {
   SettingsSection,
   SettingsField,
@@ -27,11 +29,21 @@ const LEVEL_BADGE = {
 };
 
 export default function SecuritySettingsPage() {
-  const [is2faEnabled, setIs2faEnabled] = React.useState(false);
+  const user = useAuthStore((s) => s.user);
+  const [is2faEnabled, setIs2faEnabled] = React.useState(!!user?.twoFactorEnabled);
+  const [setupSecret, setSetupSecret] = React.useState<string | null>(null);
+  const [setupQr, setSetupQr] = React.useState<string | null>(null);
+  const [verifyToken, setVerifyToken] = React.useState('');
+  const [disableToken, setDisableToken] = React.useState('');
+  const [backupCodes, setBackupCodes] = React.useState<string[]>([]);
   const [currentPassword, setCurrentPassword] = React.useState('');
   const [newPassword, setNewPassword] = React.useState('');
   const [isChangingPassword, setIsChangingPassword] = React.useState(false);
   const [deleteConfirm, setDeleteConfirm] = React.useState('');
+
+  React.useEffect(() => {
+    setIs2faEnabled(!!user?.twoFactorEnabled);
+  }, [user?.twoFactorEnabled]);
 
   const { data: sessions, isLoading: sessionsLoading, refetch: refreshSessions } = useQuery({
     queryKey: ['userSessions'],
@@ -58,6 +70,51 @@ export default function SecuritySettingsPage() {
     }
   };
 
+  const begin2faSetup = async () => {
+    try {
+      const result = await authApi.setupTwoFactor();
+      setSetupSecret(result.secret);
+      setSetupQr(result.qrCode);
+      toast.message('Scan the QR code with your authenticator app');
+    } catch {
+      toast.error('Could not start 2FA setup');
+    }
+  };
+
+  const confirm2faSetup = async () => {
+    if (!verifyToken.trim()) {
+      toast.error('Enter the code from your authenticator');
+      return;
+    }
+    try {
+      const result = await authApi.verifyTwoFactorSetup(verifyToken.trim());
+      setBackupCodes(result.backupCodes ?? []);
+      setIs2faEnabled(true);
+      setSetupSecret(null);
+      setSetupQr(null);
+      setVerifyToken('');
+      toast.success('Two-factor authentication enabled');
+    } catch {
+      toast.error('Invalid verification code');
+    }
+  };
+
+  const disable2fa = async () => {
+    if (!disableToken.trim()) {
+      toast.error('Enter your authenticator or backup code');
+      return;
+    }
+    try {
+      await authApi.disableTwoFactor(disableToken.trim());
+      setIs2faEnabled(false);
+      setDisableToken('');
+      setBackupCodes([]);
+      toast.success('Two-factor authentication disabled');
+    } catch {
+      toast.error('Could not disable 2FA — check your code');
+    }
+  };
+
   return (
     <div className="space-y-8">
       <SettingsSection title="Access credentials" description="Update your login password.">
@@ -80,8 +137,53 @@ export default function SecuritySettingsPage() {
           label="Require 2FA on login"
           description="Use a time-based one-time password from your authenticator app."
           checked={is2faEnabled}
-          onChange={setIs2faEnabled}
+          onChange={(enabled) => {
+            if (enabled && !is2faEnabled) void begin2faSetup();
+            if (!enabled && is2faEnabled) {
+              toast.message('Enter a code below to disable 2FA');
+            }
+          }}
         />
+        {setupQr && (
+          <div className="mt-4 space-y-3 rounded-xl border border-[var(--card-border)] p-4">
+            <p className="text-sm text-muted-foreground">Scan this QR code, then enter the 6-digit code.</p>
+            <img src={setupQr} alt="2FA QR code" className="h-40 w-40 rounded-lg bg-white p-2" />
+            {setupSecret && (
+              <p className="text-xs font-mono text-muted-foreground break-all">Manual key: {setupSecret}</p>
+            )}
+            <SettingsInput
+              value={verifyToken}
+              onChange={(e) => setVerifyToken(e.target.value)}
+              placeholder="Authenticator code"
+            />
+            <DashButton onClick={confirm2faSetup} className="gap-2">
+              <Shield className="h-4 w-4" />
+              Confirm setup
+            </DashButton>
+          </div>
+        )}
+        {is2faEnabled && (
+          <div className="mt-4 space-y-3 max-w-md">
+            <SettingsField label="Code to disable 2FA">
+              <SettingsInput
+                value={disableToken}
+                onChange={(e) => setDisableToken(e.target.value)}
+                placeholder="TOTP or backup code"
+              />
+            </SettingsField>
+            <DashButton variant="outline" onClick={disable2fa}>
+              Disable 2FA
+            </DashButton>
+            {backupCodes.length > 0 && (
+              <div className="rounded-lg border border-[var(--card-border)] p-3 text-xs font-mono space-y-1">
+                <p className="font-semibold text-foreground mb-2">Backup codes (save securely)</p>
+                {backupCodes.map((code) => (
+                  <div key={code}>{code}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </SettingsSection>
 
       <SettingsSection title="Active sessions">

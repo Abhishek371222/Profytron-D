@@ -6,9 +6,11 @@ import {
   Req,
   UseGuards,
   Logger,
+  Headers,
+  ForbiddenException,
 } from '@nestjs/common';
 import { TelegramBotService } from './telegram-bot.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -30,8 +32,18 @@ export class TelegramController {
     summary: 'Telegram webhook — receives updates from Telegram',
   })
   @ApiResponse({ status: 200, description: 'OK' })
+  @Public()
   @Post('webhook')
-  async webhook(@Body() update: any) {
+  async webhook(
+    @Body() update: any,
+    @Headers('x-telegram-bot-api-secret-token') secretToken?: string,
+  ) {
+    const expected = process.env.TELEGRAM_WEBHOOK_SECRET;
+    if (expected) {
+      if (!secretToken || secretToken !== expected) {
+        throw new ForbiddenException('Invalid Telegram webhook secret');
+      }
+    }
     this.logger.debug(`[TELEGRAM] Webhook update received`);
     await this.telegramService.handleTelegramUpdate(update);
     return { ok: true };

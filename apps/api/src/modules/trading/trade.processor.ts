@@ -93,7 +93,7 @@ export class TradeProcessor {
       // ── Pre-trade risk gate ──────────────────────────────────────────────
       // Enforced for every entry (copy, signal, manual). Blocks the trade when
       // a configured limit is breached; hard breaches also halt + close.
-      const risk = await this.aiRisk.evaluatePreTrade(userId);
+      const risk = await this.aiRisk.evaluatePreTrade(userId, subscriptionId);
       if (!risk.allowed) {
         await this.prisma.auditLog
           .create({
@@ -185,8 +185,7 @@ export class TradeProcessor {
       }
 
       if (!brokerAccount) {
-        this.logger.error(`No broker account for user ${userId}`);
-        return;
+        throw new Error(`No broker account for user ${userId}`);
       }
 
       const direction =
@@ -273,6 +272,7 @@ export class TradeProcessor {
           );
           await this.ledger.recordExecution({
             followerUserId: userId,
+            subscriptionId: subscriptionId ?? null,
             masterPositionId: masterPositionId ?? null,
             symbol: pair,
             side: type,
@@ -330,6 +330,7 @@ export class TradeProcessor {
       if (subscriptionId || masterPositionId) {
         await this.ledger.recordExecution({
           followerUserId: userId,
+          subscriptionId: subscriptionId ?? null,
           followerTradeId: trade.id,
           masterPositionId: masterPositionId ?? null,
           followerTicket: brokerOrderId,
@@ -432,6 +433,10 @@ export class TradeProcessor {
     const { tradeId, userId, brokerAccountId } = job.data;
     this.logger.log(`Closing copy trade ${tradeId} for user ${userId}`);
 
+    if (!brokerAccountId) {
+      throw new Error(`close_copy missing brokerAccountId for trade ${tradeId}`);
+    }
+
     try {
       const trade = await this.prisma.trade.findUnique({
         where: { id: tradeId },
@@ -451,27 +456,23 @@ export class TradeProcessor {
         select: { credentialsEncrypted: true, isPaperTrading: true },
       });
 
-      if (!brokerAccount) return;
+      if (!brokerAccount) {
+        throw new Error(`No broker account ${brokerAccountId} for close_copy`);
+      }
 
       if (
         !brokerAccount.isPaperTrading &&
         this.mtAdapter.isLive &&
         trade.brokerTicket
       ) {
-        try {
-          const creds = JSON.parse(
-            this.crypto.decrypt(brokerAccount.credentialsEncrypted),
-          );
-          if (creds.metaApiAccountId) {
-            await this.mtAdapter.closePosition(
-              creds.metaApiAccountId,
-              trade.brokerTicket,
-              creds.metaApiRegion,
-            );
-          }
-        } catch (err) {
-          this.logger.error(
-            `MetaAPI close failed for trade ${tradeId}: ${err.message}`,
+        const creds = JSON.parse(
+          this.crypto.decrypt(brokerAccount.credentialsEncrypted),
+        );
+        if (creds.metaApiAccountId) {
+          await this.mtAdapter.closePosition(
+            creds.metaApiAccountId,
+            trade.brokerTicket,
+            creds.metaApiRegion,
           );
         }
       }
@@ -486,6 +487,7 @@ export class TradeProcessor {
       this.logger.error(
         `Failed to close copy trade ${tradeId}: ${error.message}`,
       );
+      throw error;
     }
   }
 
@@ -531,18 +533,12 @@ export class TradeProcessor {
 
       if (isPartial) {
         if (isLiveBroker && creds?.metaApiAccountId && trade.brokerTicket) {
-          try {
-            await this.mtAdapter.closePositionPartial(
-              creds.metaApiAccountId,
-              trade.brokerTicket,
-              closeVolume,
-              creds.metaApiRegion,
-            );
-          } catch (err) {
-            this.logger.error(
-              `MetaAPI partial close failed for ${tradeId}: ${err.message}`,
-            );
-          }
+          await this.mtAdapter.closePositionPartial(
+            creds.metaApiAccountId,
+            trade.brokerTicket,
+            closeVolume,
+            creds.metaApiRegion,
+          );
         }
 
         const sliceProfit = estimateUnrealizedPnl(
@@ -596,17 +592,11 @@ export class TradeProcessor {
 
       // Full close
       if (isLiveBroker && creds?.metaApiAccountId && trade.brokerTicket) {
-        try {
-          await this.mtAdapter.closePosition(
-            creds.metaApiAccountId,
-            trade.brokerTicket,
-            creds.metaApiRegion,
-          );
-        } catch (err) {
-          this.logger.error(
-            `MetaAPI close failed for ${tradeId}: ${err.message}`,
-          );
-        }
+        await this.mtAdapter.closePosition(
+          creds.metaApiAccountId,
+          trade.brokerTicket,
+          creds.metaApiRegion,
+        );
       }
 
       const profit =
@@ -638,6 +628,7 @@ export class TradeProcessor {
       }
     } catch (error) {
       this.logger.error(`Failed to close trade ${tradeId}: ${error.message}`);
+      throw error;
     }
   }
 
@@ -666,6 +657,7 @@ export class TradeProcessor {
       await this.applyModify(trade, account, { stopLoss, takeProfit });
     } catch (error) {
       this.logger.error(`Failed to modify trade ${tradeId}: ${error.message}`);
+      throw error;
     }
   }
 
@@ -703,6 +695,7 @@ export class TradeProcessor {
       this.logger.error(
         `Failed to set break-even for ${tradeId}: ${error.message}`,
       );
+      throw error;
     }
   }
 
@@ -737,6 +730,7 @@ export class TradeProcessor {
       this.logger.error(
         `Failed to set trailing stop for ${tradeId}: ${error.message}`,
       );
+      throw error;
     }
   }
 

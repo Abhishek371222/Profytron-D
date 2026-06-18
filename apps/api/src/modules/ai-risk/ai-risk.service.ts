@@ -5,6 +5,10 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { SubscriptionStatus } from '@prisma/client';
+import {
+  computeDailyLossUsd,
+  computeMaxDrawdownPct,
+} from '../trading/utils/pnl.util';
 
 /** Cache TTL in seconds */
 const TTL_RISK_SCORE = 2 * 60; // 2 minutes — score is derived from closed trades
@@ -126,7 +130,10 @@ export class AiRiskService {
    * BEFORE a position is opened. Returns `{ allowed: false }` with a reason
    * when a configured limit would be breached. No policy → always allowed.
    */
-  async evaluatePreTrade(userId: string): Promise<RiskEvaluation> {
+  async evaluatePreTrade(
+    userId: string,
+    subscriptionId?: string,
+  ): Promise<RiskEvaluation> {
     const policy = await this.getRiskPolicy(userId);
     if (!policy) return { allowed: true };
 
@@ -157,9 +164,29 @@ export class AiRiskService {
       };
     }
 
-    const dailyLoss = todaysClosed
-      .filter((t) => (t.profit ?? 0) < 0)
-      .reduce((sum, t) => sum + Math.abs(t.profit ?? 0), 0);
+    const dailyLoss = computeDailyLossUsd(todaysClosed);
+
+    if (subscriptionId) {
+      const copyRel = await this.prisma.copyRelationship.findFirst({
+        where: {
+          subscriptionId,
+          followerUserId: userId,
+          status: 'ACTIVE',
+        },
+        select: { dailyLossLimitUsd: true },
+      });
+      if (
+        copyRel?.dailyLossLimitUsd != null &&
+        dailyLoss >= copyRel.dailyLossLimitUsd
+      ) {
+        return {
+          allowed: false,
+          code: 'DAILY_LOSS_USD',
+          reason: `Copy daily loss limit hit ($${dailyLoss.toFixed(2)} / $${copyRel.dailyLossLimitUsd})`,
+          hardStop: true,
+        };
+      }
+    }
 
     // 2. Daily loss in USD
     if (policy.maxDailyLossUsd != null && dailyLoss >= policy.maxDailyLossUsd) {
@@ -220,16 +247,7 @@ export class AiRiskService {
       orderBy: { openedAt: 'asc' },
       select: { profit: true },
     });
-    let peak = baseEquity;
-    let running = baseEquity;
-    let maxDd = 0;
-    for (const t of trades) {
-      running += t.profit ?? 0;
-      if (running > peak) peak = running;
-      const dd = peak > 0 ? ((peak - running) / peak) * 100 : 0;
-      maxDd = Math.max(maxDd, dd);
-    }
-    return maxDd;
+    return computeMaxDrawdownPct(trades, baseEquity);
   }
 
   /**

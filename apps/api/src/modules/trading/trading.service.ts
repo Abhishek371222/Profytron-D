@@ -9,6 +9,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { TradingGateway } from './trading.gateway';
 import { MasterSyncService } from './master-sync.service';
 import { TrailingStopService } from './trailing-stop.service';
+import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
 import { MarketService, type MarketSymbol } from '../market/market.service';
 import {
   mapTradeSymbolToMarket as mapSymbol,
@@ -17,6 +18,7 @@ import {
 import type { BulkCloseScope, ManualOrderDto } from './dto/trade-actions.dto';
 import { randomUUID } from 'crypto';
 import { SubscriptionStatus } from '@prisma/client';
+import { isPaidCopySubscription } from '../../common/utils/copy-subscription.util';
 
 @Injectable()
 export class TradingService {
@@ -28,6 +30,7 @@ export class TradingService {
     private masterSync: MasterSyncService,
     private marketService: MarketService,
     private trailingStop: TrailingStopService,
+    private copyFactoryPositionSync: CopyFactoryPositionSyncService,
     @InjectQueue('trade_execution') private tradeQueue: any,
   ) {
     const useCopyFactory =
@@ -38,6 +41,7 @@ export class TradingService {
       this.logger.log(
         'CopyFactory enabled — legacy master position polling disabled',
       );
+      this.copyFactoryPositionSync.startPolling(5000);
     }
     if (process.env.TRAILING_STOP_ENABLED !== 'false') {
       this.trailingStop.startPolling(
@@ -87,6 +91,7 @@ export class TradingService {
       select: {
         id: true,
         userId: true,
+        status: true,
         executionPriority: true,
         slippageBps: true,
         riskOverrideEnabled: true,
@@ -94,6 +99,9 @@ export class TradingService {
         excludedSymbolsJson: true,
         latencyLimitMs: true,
         expiresAt: true,
+        trialEndsAt: true,
+        stripeSubId: true,
+        planType: true,
       },
     });
 
@@ -101,7 +109,9 @@ export class TradingService {
       (s) => s.expiresAt !== null && s.expiresAt <= now,
     );
     const subscriptions = allActiveSubs.filter(
-      (s) => s.expiresAt === null || s.expiresAt > now,
+      (s) =>
+        (s.expiresAt === null || s.expiresAt > now) &&
+        isPaidCopySubscription(s),
     );
 
     if (expiredSubscriptions.length > 0) {
@@ -381,6 +391,8 @@ export class TradingService {
     return {
       success: true,
       userId,
+      timestamp: now.toISOString(),
+      status: openTrades.length === 0 ? 'NO_OPEN_TRADES' : 'SUCCESS',
       closedTrades: closedCount,
       stoppedAt: now.toISOString(),
     };
@@ -581,16 +593,12 @@ export class TradingService {
     });
   }
 
-  async getOpenTrades(userId: string) {
-    const defaultBrokerId = await this.prisma.brokerAccount.findFirst({
-      where: { userId, isDefault: true, isActive: true },
-      select: { id: true },
-    });
+  async getOpenTrades(userId: string, brokerAccountId?: string) {
     const trades = await this.prisma.trade.findMany({
       where: {
         userId,
         status: 'OPEN',
-        ...(defaultBrokerId ? { brokerAccountId: defaultBrokerId.id } : {}),
+        ...(brokerAccountId ? { brokerAccountId } : {}),
       },
       select: {
         id: true,

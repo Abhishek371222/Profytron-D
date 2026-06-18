@@ -91,6 +91,15 @@ apiClient.interceptors.response.use(
         }
 
         try {
+          const { reconnectTradingSocket } = await import(
+            '@/lib/realtime/trading-socket'
+          );
+          reconnectTradingSocket(data.accessToken);
+        } catch {
+          /* socket optional */
+        }
+
+        try {
           const meRes = await apiClient.get('/users/me', {
             headers: { Authorization: `Bearer ${data.accessToken}` },
           });

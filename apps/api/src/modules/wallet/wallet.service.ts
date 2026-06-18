@@ -453,6 +453,19 @@ export class WalletService {
     this.logger.log(`Processing Stripe Webhook Event`);
     const event = payload;
 
+    const paymentsHandled = new Set([
+      'checkout.session.completed',
+      'invoice.payment_succeeded',
+      'invoice.payment_failed',
+      'customer.subscription.deleted',
+    ]);
+    if (paymentsHandled.has(event.type)) {
+      this.logger.log(
+        `Skipping ${event.type} — canonical handler is /v1/webhooks/stripe`,
+      );
+      return { received: true, ignored: true, delegatedToPayments: true };
+    }
+
     if (event.type === 'payment_intent.succeeded') {
       const intent = event.data.object;
       const userId = intent.metadata.userId;

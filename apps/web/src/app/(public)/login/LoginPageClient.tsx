@@ -31,6 +31,8 @@ function LoginPageContent() {
   const router = useRouter();
   const { login, isLoading } = useAuthStore();
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [twoFaChallenge, setTwoFaChallenge] = React.useState<string | null>(null);
+  const [twoFaCode, setTwoFaCode] = React.useState('');
 
   const authError = searchParams.get('error');
   const expired = searchParams.get('expired');
@@ -63,6 +65,10 @@ function LoginPageContent() {
     setErrorMessage(null);
     try {
       const response = await authApi.login(data);
+      if ('requiresTwoFa' in response && response.requiresTwoFa) {
+        setTwoFaChallenge(response.challengeToken);
+        return;
+      }
       login(response.accessToken, response.user);
       router.replace(resolvePostLoginRedirect(response.user, redirectTo));
     } catch (error: unknown) {
@@ -131,6 +137,32 @@ function LoginPageContent() {
       const err = error as { response?: { data?: { error?: string } }; message?: string };
       const message = err?.response?.data?.error || err?.message || 'Could not send recovery email.';
       toast.error('Recovery request failed', { description: message });
+    }
+  };
+
+  const handleCompleteTwoFa = async () => {
+    if (!twoFaChallenge || !twoFaCode.trim()) {
+      toast.error('Enter your authenticator code');
+      return;
+    }
+    setErrorMessage(null);
+    try {
+      const response = await authApi.completeTwoFactorLogin({
+        challengeToken: twoFaChallenge,
+        code: twoFaCode.trim(),
+      });
+      login(response.accessToken, response.user);
+      router.replace(resolvePostLoginRedirect(response.user, redirectTo));
+    } catch (error: unknown) {
+      const message =
+        typeof error === 'object' &&
+        error !== null &&
+        'response' in error &&
+        typeof (error as { response?: { data?: { error?: string } } }).response?.data
+          ?.error === 'string'
+          ? (error as { response: { data: { error: string } } }).response.data.error
+          : 'Invalid 2FA code';
+      setErrorMessage(message);
     }
   };
 
@@ -261,22 +293,40 @@ function LoginPageContent() {
                       {...register('password')}
                       error={errors.password?.message}
                       className="bg-input/70"
+                      disabled={!!twoFaChallenge}
                     />
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={handleForgotPassword}
-                        className="text-caption font-semibold text-primary transition-colors hover:brightness-110"
-                      >
-                        Forgot password?
-                      </button>
-                    </div>
+                    {!twoFaChallenge && (
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={handleForgotPassword}
+                          className="text-caption font-semibold text-primary transition-colors hover:brightness-110"
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
 
+                {twoFaChallenge && (
+                  <motion.div variants={itemVariants}>
+                    <FloatingLabelInput
+                      label="Authenticator code"
+                      type="text"
+                      inputMode="numeric"
+                      icon={Shield}
+                      value={twoFaCode}
+                      onChange={(e) => setTwoFaCode(e.target.value)}
+                      className="bg-input/70"
+                    />
+                  </motion.div>
+                )}
+
                 <motion.div variants={itemVariants} className="pt-2">
                   <Button
-                    type="submit"
+                    type={twoFaChallenge ? 'button' : 'submit'}
+                    onClick={twoFaChallenge ? handleCompleteTwoFa : undefined}
                     disabled={isLoading}
                     className="relative h-12 w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary to-chart-2 text-body font-semibold text-primary-foreground transition-all hover:brightness-110"
                   >
@@ -285,6 +335,10 @@ function LoginPageContent() {
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Signing in...
+                        </>
+                      ) : twoFaChallenge ? (
+                        <>
+                          Verify 2FA <Shield className="h-4 w-4" />
                         </>
                       ) : (
                         <>

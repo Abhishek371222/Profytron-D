@@ -1,7 +1,10 @@
 import { apiClient, unwrapApiResponse } from './client';
 
-// Inline until workspace types are resolved
 type User = any;
+
+export type LoginResponse =
+  | { accessToken: string; user: User }
+  | { requiresTwoFa: true; challengeToken: string };
 
 export const authApi = {
   async register(data: any) {
@@ -14,9 +17,37 @@ export const authApi = {
     return unwrapApiResponse<{ accessToken: string; user: User; selectedPlan?: string | null }>(res.data);
   },
 
-  async login(data: any) {
-    const res = await apiClient.post<{ accessToken: string; user: User }>('/auth/login', data);
+  async login(data: any): Promise<LoginResponse> {
+    const res = await apiClient.post<LoginResponse>('/auth/login', data);
+    return unwrapApiResponse<LoginResponse>(res.data);
+  },
+
+  async completeTwoFactorLogin(data: { challengeToken: string; code: string }) {
+    const res = await apiClient.post<{ accessToken: string; user: User }>(
+      '/auth/2fa/complete-login',
+      data,
+    );
     return unwrapApiResponse<{ accessToken: string; user: User }>(res.data);
+  },
+
+  async setupTwoFactor() {
+    const res = await apiClient.post('/auth/2fa/setup');
+    return unwrapApiResponse<{ secret: string; qrCode: string }>(res.data);
+  },
+
+  async verifyTwoFactorSetup(token: string) {
+    const res = await apiClient.post('/auth/2fa/verify-setup', { token });
+    return unwrapApiResponse<{ backupCodes: string[] }>(res.data);
+  },
+
+  async disableTwoFactor(token: string) {
+    const res = await apiClient.post('/auth/2fa/disable', { token });
+    return unwrapApiResponse<{ success: boolean }>(res.data);
+  },
+
+  async regenerateBackupCodes(token: string) {
+    const res = await apiClient.post('/auth/2fa/backup-codes', { token });
+    return unwrapApiResponse<{ backupCodes: string[] }>(res.data);
   },
 
   async logout() {

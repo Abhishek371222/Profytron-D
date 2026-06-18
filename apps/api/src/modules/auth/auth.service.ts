@@ -744,35 +744,48 @@ export class AuthService {
 
     this.logger.log(`Google user synced: ${user.id} (${user.email})`);
 
-    const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    const session = await this.issueSessionOrTwoFaChallenge(user);
+    if (session.requiresTwoFa) {
+      const oauthCode = await this.storeOAuthExchangePayload(
+        `2fa:${session.challengeToken}`,
+      );
+      return {
+        oauthCode,
+        user: this.sanitizeUser(user),
+        requiresTwoFa: true as const,
+        challengeToken: session.challengeToken,
+      };
+    }
 
-    const oauthCode = randomUUID();
-    await this.redisService.set(
-      `auth:oauth:code:${oauthCode}`,
-      tokens.accessToken,
-      60,
+    const oauthCode = await this.storeOAuthExchangePayload(
+      session.tokens.accessToken,
     );
 
     return {
       oauthCode,
       user: this.sanitizeUser(user),
-      refreshTokenForCookie: tokens.refreshToken,
+      refreshTokenForCookie: session.tokens.refreshToken,
     };
   }
 
-  async exchangeOAuthCode(code: string): Promise<string> {
-    const accessToken = await this.redisService.getdel(
-      `auth:oauth:code:${code}`,
-    );
-    if (!accessToken) {
+  async exchangeOAuthCode(
+    code: string,
+  ): Promise<
+    | { accessToken: string }
+    | { requiresTwoFa: true; challengeToken: string }
+  > {
+    const stored = await this.redisService.getdel(`auth:oauth:code:${code}`);
+    if (!stored) {
       appError(
         HttpStatus.UNAUTHORIZED,
         'Invalid or expired OAuth code',
         ErrorCode.INVALID_CREDENTIALS,
       );
     }
-    return accessToken;
+    if (stored.startsWith('2fa:')) {
+      return { requiresTwoFa: true, challengeToken: stored.slice(4) };
+    }
+    return { accessToken: stored };
   }
 
   async supabaseLogin(dto: SupabaseLoginDto) {
@@ -834,14 +847,45 @@ export class AuthService {
     );
 
     // 3. Issue local tokens
-    const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    const session = await this.issueSessionOrTwoFaChallenge(user);
+    if (session.requiresTwoFa) {
+      return {
+        requiresTwoFa: true as const,
+        challengeToken: session.challengeToken,
+      };
+    }
 
     return {
-      accessToken: tokens.accessToken,
+      accessToken: session.tokens.accessToken,
       user: this.sanitizeUser(user),
-      refreshTokenForCookie: tokens.refreshToken,
+      refreshTokenForCookie: session.tokens.refreshToken,
     };
+  }
+
+  private async issueSessionOrTwoFaChallenge(user: {
+    id: string;
+    email: string;
+    role: string;
+    twoFactorEnabled?: boolean;
+  }) {
+    if (user.twoFactorEnabled) {
+      const challengeToken = randomUUID();
+      await this.redisService.set(
+        `auth:2fa:challenge:${challengeToken}`,
+        user.id,
+        5 * 60,
+      );
+      return { requiresTwoFa: true as const, challengeToken };
+    }
+    const tokens = await this.generateTokenPair(user.id, user.email, user.role);
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    return { requiresTwoFa: false as const, tokens };
+  }
+
+  private async storeOAuthExchangePayload(payload: string): Promise<string> {
+    const oauthCode = randomUUID();
+    await this.redisService.set(`auth:oauth:code:${oauthCode}`, payload, 60);
+    return oauthCode;
   }
 
   private async generateTokenPair(userId: string, email: string, role: string) {
@@ -916,12 +960,19 @@ export class AuthService {
       data: { emailVerified: true, lastLoginAt: new Date() },
     });
 
-    const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    const session = await this.issueSessionOrTwoFaChallenge(user);
+    if (session.requiresTwoFa) {
+      return {
+        requiresTwoFa: true as const,
+        challengeToken: session.challengeToken,
+        user: this.sanitizeUser(user),
+      };
+    }
+
     return {
-      accessToken: tokens.accessToken,
+      accessToken: session.tokens.accessToken,
       user: this.sanitizeUser(user),
-      refreshTokenForCookie: tokens.refreshToken,
+      refreshTokenForCookie: session.tokens.refreshToken,
     };
   }
 
@@ -962,20 +1013,27 @@ export class AuthService {
       });
     }
 
-    const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    const session = await this.issueSessionOrTwoFaChallenge(user);
+    if (session.requiresTwoFa) {
+      const oauthCode = await this.storeOAuthExchangePayload(
+        `2fa:${session.challengeToken}`,
+      );
+      return {
+        oauthCode,
+        user: this.sanitizeUser(user),
+        requiresTwoFa: true as const,
+        challengeToken: session.challengeToken,
+      };
+    }
 
-    const oauthCode = randomUUID();
-    await this.redisService.set(
-      `auth:oauth:code:${oauthCode}`,
-      tokens.accessToken,
-      60,
+    const oauthCode = await this.storeOAuthExchangePayload(
+      session.tokens.accessToken,
     );
 
     return {
       oauthCode,
       user: this.sanitizeUser(user),
-      refreshTokenForCookie: tokens.refreshToken,
+      refreshTokenForCookie: session.tokens.refreshToken,
     };
   }
 

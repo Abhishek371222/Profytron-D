@@ -53,6 +53,7 @@ export class CopyLedgerService {
   async recordExecution(input: {
     followerUserId: string;
     followerTradeId?: string | null;
+    subscriptionId?: string | null;
     masterPositionId?: string | null;
     masterTicket?: string | null;
     followerTicket?: string | null;
@@ -68,10 +69,24 @@ export class CopyLedgerService {
     errorReason?: string | null;
   }): Promise<void> {
     try {
+      let copyRelationshipId: string | null = null;
+      if (input.subscriptionId) {
+        const rel = await this.prisma.copyRelationship.findFirst({
+          where: {
+            subscriptionId: input.subscriptionId,
+            followerUserId: input.followerUserId,
+            status: 'ACTIVE',
+          },
+          select: { id: true },
+        });
+        copyRelationshipId = rel?.id ?? null;
+      }
+
       await this.prisma.tradeExecution.create({
         data: {
           followerUserId: input.followerUserId,
           followerTradeId: input.followerTradeId ?? null,
+          copyRelationshipId,
           masterPositionId: input.masterPositionId ?? null,
           masterTicket: input.masterTicket ?? null,
           followerTicket: input.followerTicket ?? null,

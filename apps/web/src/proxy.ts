@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { updateSession } from '@/utils/supabase/middleware';
 
 const protectedRoutes = [
+  '/copy-trading',
   '/dashboard',
   '/strategies',
   '/marketplace',

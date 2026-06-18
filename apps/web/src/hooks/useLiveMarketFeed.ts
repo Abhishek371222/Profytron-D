@@ -21,10 +21,7 @@ export type LiveQuote = {
 
 type LiveQuoteMap = Partial<Record<SupportedSymbol, LiveQuote>>;
 
-const REST_CANDIDATE_PATHS = [
-  '/market/quote',
-  '/market/ticker',
-];
+const REST_CANDIDATE_PATHS = ['/market/quote'];
 
 const SUPPORTED_SYMBOLS: SupportedSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'];
 
@@ -107,6 +104,7 @@ export function useLiveMarketFeed(
 ) {
   const enabled = options.enabled ?? true;
   const allowFallback = options.allowFallback ?? true;
+  const accessToken = useAuthStore((s) => s.accessToken);
   const [quotes, setQuotes] = React.useState<LiveQuoteMap>(() =>
     enabled && allowFallback ? { ...FALLBACK_QUOTES } : {},
   );
@@ -185,7 +183,7 @@ export function useLiveMarketFeed(
   React.useEffect(() => {
     if (!enabled) return;
 
-    const token = useAuthStore.getState().accessToken;
+    const token = accessToken ?? useAuthStore.getState().accessToken;
     if (!token) return;
 
     const release = acquireTradingSocket(token);
@@ -230,7 +228,7 @@ export function useLiveMarketFeed(
       setWsConnected(false);
       setLastWsAt(0);
     };
-  }, [stableSymbols, enabled, appendHistory]);
+  }, [stableSymbols, enabled, appendHistory, accessToken]);
 
   React.useEffect(() => {
     if (!enabled) {

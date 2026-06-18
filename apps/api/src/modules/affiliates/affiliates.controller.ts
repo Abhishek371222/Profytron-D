@@ -8,7 +8,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { AffiliatesService } from './affiliates.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -23,6 +23,7 @@ import {
 export class AffiliatesController {
   constructor(private readonly affiliatesService: AffiliatesService) {}
 
+  @Public()
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({ summary: 'Track a referral link click' })
@@ -49,6 +50,7 @@ export class AffiliatesController {
     return this.affiliatesService.getAffiliateDashboard(req.user.id);
   }
 
+  @Public()
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 404, description: 'Not found' })
   @ApiOperation({

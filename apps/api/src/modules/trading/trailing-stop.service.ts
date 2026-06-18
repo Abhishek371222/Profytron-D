@@ -99,10 +99,13 @@ export class TrailingStopService implements OnModuleDestroy {
         if (!improves) continue;
 
         const decimals = price > 100 ? 2 : 5;
+        const roundedSl = Number(desiredSl.toFixed(decimals));
+        if (t.stopLoss != null && roundedSl === t.stopLoss) continue;
+
         await this.tradeQueue.add('modify_trade', {
           tradeId: t.id,
           userId: t.userId,
-          stopLoss: Number(desiredSl.toFixed(decimals)),
+          stopLoss: roundedSl,
         });
       }
     } catch (err) {

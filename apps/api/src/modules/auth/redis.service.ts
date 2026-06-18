@@ -209,7 +209,7 @@ export class RedisService {
       }
       return false;
     } catch {
-      return true;
+      return false;
     }
   }
 

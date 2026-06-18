@@ -92,6 +92,20 @@ export default function CopyTradingPage() {
     refetchOnWindowFocus: false,
   });
 
+  const { data: masters = [] } = useQuery({
+    queryKey: ['copy-masters'],
+    queryFn: () => copyTradingApi.listMasters(20),
+    staleTime: 120_000,
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: relationships = [] } = useQuery({
+    queryKey: ['copy-relationships'],
+    queryFn: () => copyTradingApi.getMyRelationships(),
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+
   const { data: mpData } = useQuery({
     queryKey: ['marketplace-bots'],
     queryFn: () => marketplaceApi.getMarketplace({ limit: 50 }),
@@ -146,6 +160,47 @@ export default function CopyTradingPage() {
           accounts={brokers}
           onConnect={() => setConnectOpen(true)}
         />
+      )}
+
+      {masters.length > 0 && (
+        <div>
+          <DashSectionTitle className="mb-4">Public master traders</DashSectionTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {masters.slice(0, 6).map((master) => (
+              <div
+                key={master.id}
+                className="rounded-xl border border-[var(--card-border)] p-4 flex items-center justify-between"
+              >
+                <div>
+                  <p className="font-medium text-foreground">{master.displayName}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    ROI {master.roiPct?.toFixed?.(1) ?? master.roiPct}% · Win {master.winRate?.toFixed?.(0) ?? master.winRate}%
+                  </p>
+                </div>
+                <span className="text-xs text-muted-foreground">{master.followersCount} followers</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {relationships.length > 0 && (
+        <div>
+          <DashSectionTitle className="mb-4">Your copy relationships</DashSectionTitle>
+          <div className="space-y-2">
+            {relationships.map((rel: any) => (
+              <div
+                key={rel.id}
+                className="rounded-xl border border-[var(--card-border)] px-4 py-3 flex items-center justify-between text-sm"
+              >
+                <span className="font-medium">{rel.masterProfile?.displayName ?? 'Master'}</span>
+                <span className={cn('px-2 py-0.5 rounded-md text-xs border', STATUS_STYLES[rel.status] ?? STATUS_STYLES.INACTIVE)}>
+                  {rel.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Plan cards */}

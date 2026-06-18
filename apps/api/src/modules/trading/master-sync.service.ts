@@ -171,6 +171,8 @@ export class MasterSyncService implements OnModuleDestroy {
     const prev = await this.loadSnapshot(account.id);
     const currentMap = new Map(currentPositions.map((p) => [p.id, p]));
 
+    await this.saveSnapshot(account.id, currentMap);
+
     // Opened on master
     for (const [id, pos] of currentMap) {
       if (!prev.has(id)) {
@@ -192,8 +194,6 @@ export class MasterSyncService implements OnModuleDestroy {
         await this.fanOutCloseSignal(account.id, id, pos);
       }
     }
-
-    await this.saveSnapshot(account.id, currentMap);
   }
 
   private isModified(a: CachedPosition, b: CachedPosition): boolean {
@@ -274,7 +274,11 @@ export class MasterSyncService implements OnModuleDestroy {
           queuedAt: new Date().toISOString(),
           executionMode: 'COPY_TRADE',
         },
-        { priority: Math.max(1, 100 - (sub.executionPriority ?? 0)) },
+        {
+          jobId: `copy-open:${masterBrokerAccountId}:${pos.id}:${sub.userId}`,
+          removeOnComplete: true,
+          priority: Math.max(1, 100 - (sub.executionPriority ?? 0)),
+        },
       );
     }
   }
@@ -303,14 +307,12 @@ export class MasterSyncService implements OnModuleDestroy {
       },
     });
 
-    // Only SL/TP changes propagate to followers (volume scaling differs per
-    // follower and is set at open). Skip if neither SL nor TP changed.
-    if (
+    // Volume decrease → partial/full close on followers; SL/TP propagate separately.
+    const slTpUnchanged =
       (before.stopLoss ?? null) === (after.stopLoss ?? null) &&
-      (before.takeProfit ?? null) === (after.takeProfit ?? null)
-    ) {
-      return;
-    }
+      (before.takeProfit ?? null) === (after.takeProfit ?? null);
+    const volumeDecreased =
+      after.volume < before.volume && before.volume > 0;
 
     const openTrades = await this.prisma.trade.findMany({
       where: {
@@ -320,16 +322,51 @@ export class MasterSyncService implements OnModuleDestroy {
           equals: after.id,
         },
       },
-      select: { id: true, userId: true },
+      select: { id: true, userId: true, volume: true },
     });
 
+    if (volumeDecreased) {
+      const masterCloseRatio = (before.volume - after.volume) / before.volume;
+      for (const trade of openTrades) {
+        const closeVolume = Number(
+          Math.max(0.01, trade.volume * masterCloseRatio).toFixed(2),
+        );
+        const isFullClose = closeVolume >= trade.volume - 0.001;
+        await this.tradeQueue.add(
+          'close_trade',
+          {
+            tradeId: trade.id,
+            userId: trade.userId,
+            ...(isFullClose
+              ? {}
+              : { partial: true, closeVolume }),
+          },
+          {
+            jobId: `copy-vol:${after.id}:${trade.id}:${after.volume}`,
+            removeOnComplete: true,
+          },
+        );
+      }
+    }
+
+    if (slTpUnchanged) {
+      return;
+    }
+
     for (const trade of openTrades) {
-      await this.tradeQueue.add('modify_trade', {
-        tradeId: trade.id,
-        userId: trade.userId,
-        ...(after.stopLoss != null ? { stopLoss: after.stopLoss } : {}),
-        ...(after.takeProfit != null ? { takeProfit: after.takeProfit } : {}),
-      });
+      await this.tradeQueue.add(
+        'modify_trade',
+        {
+          tradeId: trade.id,
+          userId: trade.userId,
+          ...(after.stopLoss != null ? { stopLoss: after.stopLoss } : {}),
+          ...(after.takeProfit != null ? { takeProfit: after.takeProfit } : {}),
+        },
+        {
+          jobId: `copy-mod:${after.id}:${trade.id}:${after.stopLoss}:${after.takeProfit}`,
+          removeOnComplete: true,
+        },
+      );
     }
   }
 
