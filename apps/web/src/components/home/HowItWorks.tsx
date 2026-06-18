@@ -70,6 +70,9 @@ const themeStyles = {
 const TESTIMONIAL_QUOTE =
   "“The most sophisticated execution architecture I’ve seen delivered outside of a tier-1 firm.”";
 
+const INTRO_COPY =
+  "We’ve distilled decades of quantitative research into four actionable segments. Experience institutional deployment without the infrastructure overhead.";
+
 function TimelineStep({
   step,
   index,
@@ -161,8 +164,7 @@ export function HowItWorks() {
             </h2>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-lg mb-10">
-              We&apos;ve distilled decades of quantitative research into four actionable
-              segments. Experience institutional deployment without the infrastructure overhead.
+              {INTRO_COPY}
             </p>
 
             {/* Testimonial */}
