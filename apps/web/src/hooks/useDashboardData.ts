@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -143,7 +143,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     {
       label: 'Sharpe',
       score: Math.min(((portfolio?.sharpeRatio ?? 0) / 3) * 100, 100),
-      color: '#3B5BFF',
+      color: '#47a7aa',
     },
     {
       label: 'Win Rate',

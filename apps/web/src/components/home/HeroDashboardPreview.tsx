@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -155,7 +155,7 @@ export function HeroDashboardPreview({
     >
       <div
         className="relative rounded-[20px] border border-[var(--card-border)] bg-card overflow-hidden shadow-card-premium glass-sweep"
-        style={{ boxShadow: "0 10px 30px rgba(15,23,42,0.05), 0 20px 60px rgba(59,91,255,0.08)" }}
+        style={{ boxShadow: "0 10px 30px rgba(15,23,42,0.05), 0 20px 60px rgba(71,167,170,0.08)" }}
       >
         <div className="flex min-h-[380px] sm:min-h-[420px]">
           {/* Sidebar */}

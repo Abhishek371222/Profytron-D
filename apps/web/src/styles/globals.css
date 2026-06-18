@@ -8,19 +8,26 @@
 
 :root {
   /* Brand — Profytron Premium */
-  --primary: #3B46FF;
-  --primary-hover: #2F38E8;
-  --primary-light: #EEF2FF;
+  --primary: #47a7aa;
+  --primary-hover: #3d9194;
+  --primary-light: #e6f4f4;
   --primary-foreground: #FFFFFF;
-  --ring: #3B5BFF;
+  --ring: #47a7aa;
 
-  --indigo: #6366F1;
-  --violet: #8B5CF6;
-  --purple: #7C3AED;
+  /* Brand greens — depth palette */
+  --brand-green: #1e6d48;
+  --brand-darkgreen: #0f401a;
+  --brand-teal: #47a7aa;
+  --brand-teal-dark: #3d9194;
 
-  --success: #16A34A;
+  /* Legacy accent shims */
+  --indigo: #47a7aa;
+  --violet: #1e6d48;
+  --purple: #0f401a;
+
+  --success: #10b981;
   --warning: #F59E0B;
-  --destructive: #DC2626;
+  --destructive: #ef4444;
   --destructive-foreground: #FFFFFF;
   --info: #0891B2;
 
@@ -37,7 +44,7 @@
   --secondary-foreground: #0F172A;
   --muted: #F1F5F9;
   --accent: #EFF6FF;
-  --accent-foreground: #1D4ED8;
+  --accent-foreground: #1e6d48;
   --input: #FFFFFF;
 
   /* Text — Light */
@@ -52,24 +59,24 @@
   --input-border: #D1D5DB;
 
   /* Charts */
-  --chart-1: #3B5BFF;
-  --chart-2: #6366F1;
-  --chart-3: #16A34A;
+  --chart-1: #47a7aa;
+  --chart-2: #1e6d48;
+  --chart-3: #10b981;
   --chart-4: #F59E0B;
-  --chart-5: #8B5CF6;
+  --chart-5: #3d9194;
 
   /* Sidebar tokens */
   --sidebar-foreground: #0F172A;
-  --sidebar-primary: #2563EB;
+  --sidebar-primary: #47a7aa;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #DBEAFE;
-  --sidebar-accent-foreground: #1D4ED8;
+  --sidebar-accent: #d9f0f1;
+  --sidebar-accent-foreground: #1e6d48;
   --sidebar-border: #E5E7EB;
-  --sidebar-ring: #2563EB;
+  --sidebar-ring: #47a7aa;
 
   /* Typography */
-  --font-sans: var(--font-inter, "Inter"), system-ui, sans-serif;
-  --font-heading: var(--font-inter, "Inter"), var(--font-sans);
+  --font-sans: var(--font-geist, "Geist"), var(--font-inter, "Inter"), system-ui, sans-serif;
+  --font-heading: var(--font-geist, "Geist"), var(--font-inter, "Inter"), var(--font-sans);
   --font-mono: var(--font-jetbrains, "JetBrains Mono"), ui-monospace, monospace;
   --font-serif: var(--font-sans);
 
@@ -112,12 +119,13 @@
   --r-full: 9999px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
-  --shadow-card: 0 10px 30px rgba(15, 23, 42, 0.05);
-  --shadow-cta: 0 10px 30px rgba(59, 91, 255, 0.25);
-  --shadow-cta-hover: 0 15px 40px rgba(59, 91, 255, 0.35);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.09), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.11), 0 4px 8px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover: 0 4px 12px rgba(15, 23, 42, 0.07), 0 16px 40px rgba(15, 23, 42, 0.07);
+  --shadow-cta: 0 10px 30px rgba(71, 167, 170, 0.28);
+  --shadow-cta-hover: 0 16px 48px rgba(71, 167, 170, 0.40);
   --theme-shadow: var(--shadow-sm);
 
   /* Spacing scale */
@@ -146,34 +154,36 @@
   --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
 
   /* Gradients */
-  --gradient-hero: linear-gradient(135deg, #3B46FF, #6366F1);
-  --gradient-hero-word: linear-gradient(90deg, #3B46FF 0%, #4F46E5 50%, #6366F1 100%);
-  --gradient-cta: linear-gradient(135deg, #3B5BFF, #7C3AED);
-  --gradient-success: linear-gradient(135deg, #10B981, #22C55E);
-  --glow-hero: radial-gradient(circle at top center, rgba(59, 91, 255, 0.08), transparent 60%);
+  --gradient-hero: linear-gradient(135deg, #47a7aa 0%, #1e6d48 100%);
+  --gradient-hero-word: linear-gradient(90deg, #47a7aa 0%, #2d9468 50%, #1e6d48 100%);
+  --gradient-cta: linear-gradient(135deg, #47a7aa 0%, #0f401a 100%);
+  --gradient-brand: linear-gradient(135deg, #47a7aa 0%, #1e6d48 60%, #0f401a 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --glow-hero: radial-gradient(circle at top center, rgba(71, 167, 170, 0.10), transparent 60%);
+  --glow-teal: radial-gradient(circle at center, rgba(71, 167, 170, 0.15), transparent 60%);
 
   /* Legacy bridge */
   --bg-base: var(--background);
   --bg-card: var(--card);
   --bg-elevated: var(--bg-secondary);
   --bg-overlay: color-mix(in srgb, var(--card) 96%, transparent);
-  --bg-glass: color-mix(in srgb, var(--card) 90%, transparent);
+  --bg-glass: color-mix(in srgb, var(--card) 92%, transparent);
   --p: var(--primary);
-  --p-rgb: 59, 91, 255;
+  --p-rgb: 71, 167, 170;
   --p-light: var(--primary-light);
   --p-dark: var(--primary-hover);
   --s: var(--success);
-  --s-light: #22C55E;
+  --s-light: #34d399;
   --danger: var(--destructive);
   --border-faint: var(--border);
   --border-subtle: var(--border);
   --border-default: var(--border);
   --border-hover: color-mix(in srgb, var(--primary) 40%, var(--border));
   --border-glow: var(--primary);
-  --glow-p: var(--shadow-md);
-  --glow-s: var(--shadow-sm);
-  --glow-ok: var(--shadow-sm);
-  --glow-bad: var(--shadow-sm);
+  --glow-p: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
+  --glow-s: 0 0 0 3px color-mix(in srgb, var(--success) 15%, transparent);
+  --glow-ok: 0 0 0 3px color-mix(in srgb, var(--success) 15%, transparent);
+  --glow-bad: 0 0 0 3px color-mix(in srgb, var(--destructive) 15%, transparent);
 
   --dashboard-p: clamp(0.75rem, 1.6vw, 1.5rem);
   --card-p: clamp(0.85rem, 1.25vw, 1.25rem);
@@ -185,55 +195,72 @@
 }
 
 .dark {
-  --primary: #5B7AFF;
-  --primary-hover: #3B5BFF;
-  --primary-light: #1E3A5F;
+  --primary: #47a7aa;
+  --primary-hover: #5bbec1;
+  --primary-light: #0d2d2e;
   --primary-foreground: #FFFFFF;
-  --ring: #3B82F6;
+  --ring: #47a7aa;
 
-  --success: #22C55E;
-  --destructive: #EF4444;
+  --success: #34d399;
+  --destructive: #f87171;
+  --warning: #fbbf24;
 
-  --background: #0F172A;
-  --bg-secondary: #111827;
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
-  --popover: #1E293B;
-  --popover-foreground: #F8FAFC;
-  --sidebar: #020617;
-  --navbar: #111827;
+  /* Deep space blue backgrounds */
+  --background: #0b1020;
+  --bg-secondary: #0f172a;
+  --card: #111827;
+  --card-foreground: #f1f5f9;
+  --card-border: #1e293b;
+  --popover: #111827;
+  --popover-foreground: #f1f5f9;
+  --sidebar: #050816;
+  --navbar: rgba(11, 16, 32, 0.85);
   --secondary: #111827;
-  --secondary-foreground: #F8FAFC;
-  --muted: #1E293B;
-  --accent: #1E3A5F;
-  --accent-foreground: #93C5FD;
-  --input: #1E293B;
+  --secondary-foreground: #f1f5f9;
+  --muted: #1e293b;
+  --accent: #0d2d2e;
+  --accent-foreground: #47a7aa;
+  --input: #1e293b;
 
-  --foreground: #F8FAFC;
-  --muted-foreground: #94A3B8;
-  --text-muted: #64748B;
+  --foreground: #f8fafc;
+  --muted-foreground: #94a3b8;
+  --text-muted: #64748b;
   --text-disabled: #475569;
 
-  --border: #334155;
+  --border: #1e293b;
 
-  --chart-1: #3B82F6;
-  --chart-2: #6366F1;
-  --chart-3: #22C55E;
-  --chart-4: #F59E0B;
-  --chart-5: #06B6D4;
+  --chart-1: #47a7aa;
+  --chart-2: #34d399;
+  --chart-3: #6ee7b7;
+  --chart-4: #fbbf24;
+  --chart-5: #7dd3da;
 
-  --sidebar-foreground: #F8FAFC;
-  --sidebar-primary: #3B82F6;
-  --sidebar-border: #334155;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #47a7aa;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #0d2d2e;
+  --sidebar-accent-foreground: #47a7aa;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #47a7aa;
 
   --bg-elevated: #111827;
-  --p-rgb: 59, 130, 246;
-  --p-light: #60A5FA;
-  --p-dark: #2563EB;
+  --p-rgb: 71, 167, 170;
+  --p-light: #7dd3da;
+  --p-dark: #3d9194;
+  --s-light: #6ee7b7;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.30);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.20);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.30);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.30), 0 8px 24px rgba(0, 0, 0, 0.20);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.40), 0 16px 40px rgba(0, 0, 0, 0.30);
+  --shadow-cta: 0 10px 30px rgba(71, 167, 170, 0.30);
+  --shadow-cta-hover: 0 16px 48px rgba(71, 167, 170, 0.45);
+
+  --gradient-hero: linear-gradient(135deg, #47a7aa 0%, #1e6d48 100%);
+  --gradient-hero-word: linear-gradient(90deg, #47a7aa 0%, #2d9468 50%, #34d399 100%);
+  --gradient-cta: linear-gradient(135deg, #47a7aa 0%, #1e6d48 100%);
+  --glow-hero: radial-gradient(circle at top center, rgba(71, 167, 170, 0.12), transparent 60%);
 }
 
 @theme inline {
@@ -279,6 +306,10 @@
   --font-serif: var(--font-heading);
   --color-bg-base: var(--background);
   --color-bg-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-brand-green: var(--brand-green);
+  --color-brand-darkgreen: var(--brand-darkgreen);
+  --color-brand-teal: var(--brand-teal);
   --color-bg-elevated: var(--bg-elevated);
   --color-p: var(--primary);
   --color-p-light: var(--p-light);
@@ -845,6 +876,153 @@ body::before {
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid var(--border-subtle);
+  }
+
+  /* ── Premium card with hover lift ─────────────────────── */
+  .card-hover {
+    transition:
+      transform 0.25s var(--ease-smooth),
+      box-shadow 0.25s var(--ease-smooth),
+      border-color 0.25s ease;
+    will-change: transform;
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: color-mix(in srgb, var(--primary) 20%, var(--card-border));
+  }
+
+  /* ── Button micro-interactions ─────────────────────────── */
+  .btn-lift {
+    transition:
+      transform 0.15s var(--ease-spring),
+      box-shadow 0.15s ease,
+      filter 0.15s ease;
+    will-change: transform;
+  }
+  .btn-lift:hover:not(:disabled) {
+    transform: scale(1.03) translateY(-1px);
+    box-shadow: var(--shadow-cta-hover);
+  }
+  .btn-lift:active:not(:disabled) {
+    transform: scale(0.97);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* ── Input focus glow ──────────────────────────────────── */
+  .input-glow {
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
+  }
+  .input-glow:focus,
+  .input-glow:focus-within {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent) !important;
+    outline: none;
+  }
+
+  /* ── Gradient text utility ─────────────────────────────── */
+  .text-gradient-brand,
+  .text-gradient-hero {
+    background: var(--gradient-hero-word);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .text-gradient-cta {
+    background: var(--gradient-cta);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .hero-headline {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    letter-spacing: var(--tracking-hero);
+    line-height: 1.08;
+  }
+
+  /* ── Glow badge / chip ─────────────────────────────────── */
+  .badge-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    background: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--primary);
+    border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  }
+
+  /* ── Shimmer skeleton ──────────────────────────────────── */
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--muted) 0%,
+      color-mix(in srgb, var(--muted) 60%, var(--card)) 50%,
+      var(--muted) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  /* ── Ambient glow orb (decorative) ────────────────────── */
+  .orb-teal {
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(71, 167, 170, 0.35) 0%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  .orb-green {
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(30, 109, 72, 0.30) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+  }
+
+  /* ── KPI stat card ─────────────────────────────────────── */
+  .kpi-card {
+    background: var(--card);
+    border: 1px solid var(--card-border, var(--border));
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 1.25rem 1.5rem;
+    transition:
+      transform 0.25s var(--ease-smooth),
+      box-shadow 0.25s var(--ease-smooth);
+    will-change: transform;
+  }
+  .kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* ── Premium surface with subtle inner glow ────────────── */
+  .surface-glow {
+    box-shadow:
+      var(--shadow-card),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+  .dark .surface-glow {
+    box-shadow:
+      var(--shadow-card),
+      inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  /* ── Focus ring (global override for teal) ─────────────── */
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
   }
 
   .glass-strong {

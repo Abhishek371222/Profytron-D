@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -41,7 +41,7 @@ function OrbitVisual() {
         className="absolute w-2 h-2 rounded-full bg-primary top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         animate={{ x: [0, 48, 0, -48, 0], y: [-56, 0, 56, 0, -56] }}
         transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-        style={{ boxShadow: "0 0 12px rgba(59,70,255,0.5)" }}
+        style={{ boxShadow: "0 0 12px rgba(71,167,170,0.5)" }}
       />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-2 h-2 rounded-full bg-primary/40" />
@@ -64,7 +64,7 @@ function RadarVis() {
         className="absolute inset-0 rounded-full"
         style={{
           background:
-            "conic-gradient(from 0deg, transparent 70%, rgba(59,70,255,0.2) 88%, transparent 100%)",
+            "conic-gradient(from 0deg, transparent 70%, rgba(71,167,170,0.2) 88%, transparent 100%)",
         }}
         animate={{ rotate: 360 }}
         transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
@@ -94,10 +94,10 @@ function SafetyBars() {
         <div key={row.label}>
           <div className="flex justify-between text-[11px] text-muted-foreground mb-1.5">
             <span>{row.label}</span>
-            <span className="font-semibold text-violet-600">{row.val}</span>
+            <span className="font-semibold text-[#47a7aa]">{row.val}</span>
           </div>
           <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-400" style={{ width: row.width }} />
+            <div className="h-full rounded-full bg-gradient-to-r from-[#47a7aa] to-[#5bbec1]" style={{ width: row.width }} />
           </div>
         </div>
       ))}
@@ -122,8 +122,8 @@ function StrategyCanvasMini() {
           EXPORT → DEPLOY
         </div>
         <svg className="absolute inset-0 w-full h-full pointer-events-none" fill="none">
-          <path d="M 52 28 Q 90 30 118 52" stroke="rgba(59,70,255,0.35)" strokeWidth="1.5" strokeDasharray="4 3" />
-          <path d="M 58 78 Q 95 55 118 52" stroke="rgba(59,70,255,0.25)" strokeWidth="1.5" strokeDasharray="4 3" />
+          <path d="M 52 28 Q 90 30 118 52" stroke="rgba(71,167,170,0.35)" strokeWidth="1.5" strokeDasharray="4 3" />
+          <path d="M 58 78 Q 95 55 118 52" stroke="rgba(71,167,170,0.25)" strokeWidth="1.5" strokeDasharray="4 3" />
         </svg>
       </div>
     </div>
@@ -188,7 +188,7 @@ export function FeaturesSection() {
           backgroundSize: "48px 48px",
         }}
       />
-      <div className="pointer-events-none absolute top-1/3 right-0 w-96 h-96 rounded-full bg-violet-500/10 blur-[100px]" />
+      <div className="pointer-events-none absolute top-1/3 right-0 w-96 h-96 rounded-full bg-[#47a7aa]/10 blur-[100px]" />
 
       <div className="page-container relative z-10 max-w-[1280px]">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-16 items-start">
@@ -200,14 +200,14 @@ export function FeaturesSection() {
             transition={{ duration: 0.55 }}
             className="lg:sticky lg:top-28"
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#47a7aa]/25 bg-[#47a7aa]/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#47a7aa] dark:text-[#5bbec1] mb-6">
               <Sparkles className="w-3.5 h-3.5" />
               Features
             </span>
 
             <h2 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.08] tracking-tight text-foreground mb-5">
               Built for Total{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]">
                 Market Dominance.
               </span>
             </h2>
@@ -272,7 +272,7 @@ export function FeaturesSection() {
               <svg
                 aria-hidden
                 viewBox="0 0 400 80"
-                className="absolute -right-4 sm:right-0 top-1/2 w-[min(280px,55vw)] h-16 text-violet-400/30 -z-10 hidden sm:block"
+                className="absolute -right-4 sm:right-0 top-1/2 w-[min(280px,55vw)] h-16 text-[#5bbec1]/30 -z-10 hidden sm:block"
                 fill="none"
               >
                 <path

@@ -145,18 +145,53 @@ export function DashStatCard({
   label,
   value,
   hint,
+  icon: Icon,
+  trend,
+  trendUp,
   className,
 }: {
   label: string;
   value: React.ReactNode;
   hint?: React.ReactNode;
+  icon?: React.ElementType;
+  trend?: string;
+  trendUp?: boolean;
   className?: string;
 }) {
   return (
-    <div className={cn('dashboard-card p-5 text-center', className)}>
-      <p className="text-2xl font-bold text-foreground tabular-nums">{value}</p>
-      <p className="dash-eyebrow mt-1.5">{label}</p>
-      {hint ? <div className="mt-1 text-xs text-muted-foreground">{hint}</div> : null}
+    <div className={cn(
+      'dashboard-card kpi-card relative overflow-hidden',
+      className,
+    )}>
+      {/* Subtle top-left teal glow */}
+      <div className="pointer-events-none absolute -top-6 -left-6 w-24 h-24 rounded-full bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] blur-2xl" />
+
+      <div className="relative flex items-start justify-between gap-2 mb-3">
+        <p className="dash-eyebrow text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+        {Icon && (
+          <div className="flex-shrink-0 w-8 h-8 rounded-[10px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--primary)_12%,transparent)] flex items-center justify-center">
+            <Icon className="w-4 h-4 text-primary" />
+          </div>
+        )}
+      </div>
+
+      <p className="relative text-2xl font-bold text-foreground tabular-nums tracking-tight leading-none mb-2 animate-slot-up">
+        {value}
+      </p>
+
+      <div className="flex items-center gap-2">
+        {trend && (
+          <span className={cn(
+            "inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-md",
+            trendUp
+              ? "bg-[color-mix(in_srgb,var(--success)_10%,transparent)] text-[var(--success)]"
+              : "bg-[color-mix(in_srgb,var(--destructive)_10%,transparent)] text-[var(--destructive)]",
+          )}>
+            {trendUp ? "↑" : "↓"} {trend}
+          </span>
+        )}
+        {hint && <div className="text-xs text-muted-foreground">{hint}</div>}
+      </div>
     </div>
   );
 }

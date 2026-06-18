@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -48,16 +48,16 @@ const steps = [
 
 const themeStyles = {
   violet: {
-    layer: "text-violet-600",
-    iconBg: "bg-violet-500/10 border-violet-500/15",
-    icon: "text-violet-600",
-    node: "bg-violet-500 shadow-[0_0_12px_rgba(139,92,246,0.5)]",
+    layer: "text-[#47a7aa]",
+    iconBg: "bg-[#47a7aa]/10 border-[#47a7aa]/15",
+    icon: "text-[#47a7aa]",
+    node: "bg-[#47a7aa] shadow-[0_0_12px_rgba(71,167,170,0.5)]",
   },
   indigo: {
-    layer: "text-indigo-600",
-    iconBg: "bg-indigo-500/10 border-indigo-500/15",
-    icon: "text-indigo-600",
-    node: "bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.45)]",
+    layer: "text-[#1e6d48]",
+    iconBg: "bg-[#1e6d48]/10 border-[#1e6d48]/15",
+    icon: "text-[#1e6d48]",
+    node: "bg-[#1e6d48] shadow-[0_0_12px_rgba(71,167,170,0.45)]",
   },
   emerald: {
     layer: "text-emerald-600",
@@ -66,6 +66,9 @@ const themeStyles = {
     node: "bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.45)]",
   },
 };
+
+const TESTIMONIAL_QUOTE =
+  "“The most sophisticated execution architecture I’ve seen delivered outside of a tier-1 firm.”";
 
 function TimelineStep({
   step,
@@ -131,8 +134,8 @@ export function HowItWorks() {
     >
       {/* Ambient blobs */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute top-20 left-1/4 w-72 h-72 rounded-full bg-violet-500/10 blur-[100px]" />
-        <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-indigo-500/8 blur-[100px]" />
+        <div className="absolute top-20 left-1/4 w-72 h-72 rounded-full bg-[#47a7aa]/10 blur-[100px]" />
+        <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-[#1e6d48]/8 blur-[100px]" />
       </div>
 
       <div className="page-container relative z-10 max-w-[1280px]">
@@ -145,14 +148,14 @@ export function HowItWorks() {
             transition={{ duration: 0.55 }}
             className="lg:sticky lg:top-28"
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#47a7aa]/25 bg-[#47a7aa]/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#47a7aa] dark:text-[#5bbec1] mb-6">
               <Sparkles className="w-3.5 h-3.5" />
               Operational Alpha
             </span>
 
             <h2 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.08] tracking-tight text-foreground mb-5">
               Your Path to{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]">
                 Automated Mastery.
               </span>
             </h2>
@@ -163,15 +166,14 @@ export function HowItWorks() {
             </p>
 
             {/* Testimonial */}
-            <div className="relative rounded-[20px] border border-violet-500/15 bg-gradient-to-br from-violet-500/[0.06] via-card to-card p-6 sm:p-8 shadow-[0_10px_40px_rgba(139,92,246,0.08)]">
-              <Quote className="w-8 h-8 text-violet-400/50 mb-4" />
+            <div className="relative rounded-[20px] border border-[#47a7aa]/15 bg-gradient-to-br from-[#47a7aa]/[0.06] via-card to-card p-6 sm:p-8 shadow-[0_10px_40px_rgba(71,167,170,0.08)]">
+              <Quote className="w-8 h-8 text-[#5bbec1]/50 mb-4" />
               <p className="text-base sm:text-lg text-foreground/90 leading-relaxed italic">
-                &ldquo;The most sophisticated execution architecture I&apos;ve seen delivered
-                outside of a tier-1 firm.&rdquo;
+                {TESTIMONIAL_QUOTE}
               </p>
               <div className="flex items-center gap-3 mt-6 pt-6 border-t border-[var(--card-border)]">
-                <div className="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/20 flex items-center justify-center">
-                  <Rocket className="w-4 h-4 text-violet-600" />
+                <div className="w-10 h-10 rounded-xl bg-[#47a7aa]/15 border border-[#47a7aa]/20 flex items-center justify-center">
+                  <Rocket className="w-4 h-4 text-[#47a7aa]" />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-foreground">Dr. Alex Volkov</p>
@@ -185,7 +187,7 @@ export function HowItWorks() {
               <svg
                 aria-hidden
                 viewBox="0 0 320 60"
-                className="absolute -bottom-2 left-4 w-[min(240px,70%)] h-12 text-violet-400/25 pointer-events-none"
+                className="absolute -bottom-2 left-4 w-[min(240px,70%)] h-12 text-[#5bbec1]/25 pointer-events-none"
                 fill="none"
               >
                 <path
@@ -205,7 +207,7 @@ export function HowItWorks() {
             {/* Vertical gradient line */}
             <div
               aria-hidden
-              className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-gradient-to-b from-violet-500 via-indigo-500 to-emerald-500 opacity-80"
+              className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-gradient-to-b from-[#47a7aa] via-[#1e6d48] to-emerald-500 opacity-80"
             />
 
             <div className="space-y-5 sm:space-y-6">

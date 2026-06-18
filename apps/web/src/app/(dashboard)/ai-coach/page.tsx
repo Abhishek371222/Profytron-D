@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -383,7 +383,7 @@ export default function AICoachPage() {
                   animate={{ height: `${s * 100}%` }}
                   transition={{ delay: 0.9 + i * 0.07, duration: 0.7, ease: 'easeOut' }}
                   className="absolute bottom-0 w-full rounded-full"
-                  style={{ background: `linear-gradient(to top, #6366f1, #818cf8${Math.round(s * 255).toString(16).padStart(2, '0')})` }}
+                  style={{ background: `linear-gradient(to top, #1e6d48, #818cf8${Math.round(s * 255).toString(16).padStart(2, '0')})` }}
                 />
               </div>
             ))}
@@ -466,7 +466,7 @@ export default function AICoachPage() {
                       ? 'rounded-tl-md bg-muted/4 border border-[var(--card-border)] text-foreground/80'
                       : 'rounded-tr-md bg-gradient-to-br from-primary/25 to-chart-2/20 border border-primary/25 text-foreground',
                   )}
-                  style={msg.role === 'user' ? { boxShadow: '0 4px 20px rgba(99,102,241,0.15)' } : undefined}
+                  style={msg.role === 'user' ? { boxShadow: '0 4px 20px rgba(71,167,170,0.15)' } : undefined}
                 >
                   {msg.text.split('\n').map((line, i) => {
                     const parts = line.split(/(\$\d+(?:,\d+)*(?:\.\d+)?|\d+(?:\.\d+)?%?)/g);
@@ -544,7 +544,7 @@ export default function AICoachPage() {
           </div>
 
           {/* Input */}
-          <div className="flex items-center gap-3 rounded-[14px] border border-[var(--card-border)] bg-muted/25 px-4 py-3 focus-within:border-primary/35 focus-within:bg-primary/[0.025] focus-within:shadow-[0_0_24px_rgba(99,102,241,0.10)] transition-all duration-200">
+          <div className="flex items-center gap-3 rounded-[14px] border border-[var(--card-border)] bg-muted/25 px-4 py-3 focus-within:border-primary/35 focus-within:bg-primary/[0.025] focus-within:shadow-[0_0_24px_rgba(71,167,170,0.10)] transition-all duration-200">
             <input
               type="text"
               value={inputValue}
@@ -561,7 +561,7 @@ export default function AICoachPage() {
                 whileHover={inputValue.trim() ? { scale: 1.05 } : {}}
                 whileTap={inputValue.trim() ? { scale: 0.92 } : {}}
                 className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-chart-2 disabled:opacity-20 flex items-center justify-center transition-opacity"
-                style={{ boxShadow: inputValue.trim() ? '0 0 20px rgba(99,102,241,0.5)' : 'none' }}
+                style={{ boxShadow: inputValue.trim() ? '0 0 20px rgba(71,167,170,0.5)' : 'none' }}
               >
                 <Send className="w-3.5 h-3.5 text-foreground" />
               </motion.button>

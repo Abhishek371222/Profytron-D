@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { Star, Quote, BadgeCheck, Shield } from "lucide-react";
@@ -90,10 +90,10 @@ const testimonials = [
 ];
 
 const badgeStyles: Record<BadgeTone, string> = {
-  violet: "bg-violet-500/10 text-violet-600 border-violet-500/20",
+  violet: "bg-[#47a7aa]/10 text-[#47a7aa] border-[#47a7aa]/20",
   emerald: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
   rose: "bg-rose-500/10 text-rose-600 border-rose-500/20",
-  blue: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  blue: "bg-[#47a7aa]/10 text-[#47a7aa] border-[#47a7aa]/20",
   amber: "bg-amber-500/10 text-amber-700 border-amber-500/20",
 };
 
@@ -150,14 +150,14 @@ export function Testimonials() {
             transition={{ duration: 0.5 }}
             className="lg:sticky lg:top-28"
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-400 mb-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#47a7aa]/25 bg-[#47a7aa]/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#47a7aa] dark:text-[#5bbec1] mb-6">
               <BadgeCheck className="w-3.5 h-3.5" />
               Verification Logs
             </span>
 
             <h2 className="text-3xl sm:text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground mb-4">
               Validated by the{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]">
                 Industry Elite.
               </span>
             </h2>

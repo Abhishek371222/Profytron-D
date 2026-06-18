@@ -58,7 +58,12 @@ export function ThemeToggle({
       suppressHydrationWarning
       className={cn(
         dim,
-        "rounded-button border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-hover flex items-center justify-center shrink-0",
+        "rounded-button border border-border bg-card text-muted-foreground",
+        "hover:text-primary hover:bg-[color-mix(in_srgb,var(--primary)_8%,transparent)]",
+        "hover:border-[color-mix(in_srgb,var(--primary)_20%,var(--border))]",
+        "transition-all duration-200 ease-out",
+        "hover:scale-[1.06] active:scale-[0.94]",
+        "flex items-center justify-center shrink-0",
         className,
       )}
     >

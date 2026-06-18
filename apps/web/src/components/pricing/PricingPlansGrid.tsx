@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
@@ -28,10 +28,10 @@ const landingMeta: Record<
 > = {
   starter: {
     icon: Rocket,
-    iconClass: 'text-violet-600',
-    iconBg: 'bg-violet-500/10 border-violet-500/15',
+    iconClass: 'text-[#47a7aa]',
+    iconBg: 'bg-[#47a7aa]/10 border-[#47a7aa]/15',
     ctaClass:
-      'bg-violet-500/10 text-violet-700 hover:bg-violet-500/15 border border-violet-500/20',
+      'bg-[#47a7aa]/10 text-[#3d9194] hover:bg-[#47a7aa]/15 border border-[#47a7aa]/20',
   },
   pro: {
     icon: Star,

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import {
@@ -313,7 +313,7 @@ export default function DashboardBrokerConnectModal({
                             }}
                             className={cn(
                               "relative text-left p-4 rounded-[22px] border overflow-hidden transition-all group",
-                              active ? "bg-primary/10 border-primary/30 shadow-[0_0_28px_rgba(99,102,241,0.2)]" : "bg-foreground/2 border-border hover:border-border hover:bg-foreground/4",
+                              active ? "bg-primary/10 border-primary/30 shadow-[0_0_28px_rgba(71,167,170,0.2)]" : "bg-foreground/2 border-border hover:border-border hover:bg-foreground/4",
                             )}
                           >
                             <div className={cn("absolute inset-0 bg-linear-to-br opacity-60", broker.accent)} />
@@ -393,7 +393,7 @@ export default function DashboardBrokerConnectModal({
                             }}
                             className={cn(
                               "w-full text-left p-4 rounded-2xl border transition-all group",
-                              active ? "bg-primary/10 border-primary/30 shadow-[0_0_24px_rgba(99,102,241,0.18)]" : "bg-foreground/2 border-border hover:border-border hover:bg-foreground/4",
+                              active ? "bg-primary/10 border-primary/30 shadow-[0_0_24px_rgba(71,167,170,0.18)]" : "bg-foreground/2 border-border hover:border-border hover:bg-foreground/4",
                             )}
                           >
                             <div className="flex items-start justify-between gap-3">

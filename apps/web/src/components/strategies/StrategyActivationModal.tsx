@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import * as React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,7 +43,7 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
         particleCount: 200,
         spread: 90,
         origin: { y: 0.6 },
-        colors: ['#6366f1', '#06b6d4', '#8b5cf6', '#ffffff'],
+        colors: ['#1e6d48', '#06b6d4', '#1e6d48', '#ffffff'],
       });
       toast.success('Strategy deployed successfully');
     },

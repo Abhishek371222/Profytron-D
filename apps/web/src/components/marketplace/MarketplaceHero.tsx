@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { Zap, TrendingUp, Users, ShieldCheck, BarChart3 } from 'lucide-react';
@@ -32,7 +32,7 @@ export function MarketplaceHero({
       label: 'Verified Creators',
       value: verifiedCreators > 0 ? String(verifiedCreators) : '—',
       icon: ShieldCheck,
-      color: 'text-blue-500',
+      color: 'text-[#47a7aa]',
     },
   ];
 
@@ -56,7 +56,7 @@ export function MarketplaceHero({
           </span>
           <h1 className="text-2xl md:text-[32px] font-bold text-white tracking-tight leading-tight">
             Discover Proven{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8BA3FF] to-[#3B5BFF]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8BA3FF] to-[#47a7aa]">
               Strategies
             </span>
           </h1>

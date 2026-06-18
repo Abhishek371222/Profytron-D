@@ -1,4 +1,4 @@
- 'use client';
+﻿ 'use client';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
@@ -88,7 +88,7 @@ export default function CommunityPage() {
                   <a
                     href="#"
                     onClick={(e) => { e.preventDefault(); setIsWaitlistOpen(true); }}
-                    className="inline-flex items-center gap-3 px-4 py-2 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(99,102,241,0.15)]"
+                    className="inline-flex items-center gap-3 px-4 py-2 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(71,167,170,0.15)]"
                   >
                     Join Waitlist
                   </a>
@@ -193,7 +193,7 @@ export default function CommunityPage() {
             </div>
             <a
               href="mailto:community@profytron.com"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(99,102,241,0.3)] whitespace-nowrap"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(71,167,170,0.3)] whitespace-nowrap"
             >
               <Mail className="w-4 h-4" /> community@profytron.com
             </a>

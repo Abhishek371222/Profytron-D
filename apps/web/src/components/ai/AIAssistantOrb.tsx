@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
@@ -29,7 +29,7 @@ export function AIAssistantOrb({ className, hasUnread = false }: AIAssistantOrbP
         aria-hidden
         className="absolute inset-0 rounded-full"
         style={{
-          background: "radial-gradient(circle, rgba(59,91,255,0.25) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(71,167,170,0.25) 0%, transparent 70%)",
         }}
         animate={{ scale: [1, 1.6, 1], opacity: [0.5, 0, 0.5] }}
         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}

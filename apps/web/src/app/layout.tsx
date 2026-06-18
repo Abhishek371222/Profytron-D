@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from"next";
 import { Suspense } from "react";
-import { Inter, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Inter, Geist, Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import"@/styles/globals.css";
 import"@/styles/animations.css";
 import { WebVitalsProvider } from "@/components/providers/WebVitalsProvider";
@@ -12,6 +12,13 @@ import { JsonLd } from "@/components/seo/JsonLd";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+  display: "swap",
+  preload: true,
+});
+
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist",
   display: "swap",
   preload: true,
 });
@@ -96,8 +103,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0F172A" },
-    { media: "(prefers-color-scheme: light)", color: "#2563EB" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1020" },
+    { media: "(prefers-color-scheme: light)", color: "#47a7aa" },
   ],
 };
 
@@ -116,7 +123,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} font-sans text-body bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground`}
+        className={`${inter.variable} ${geist.variable} ${plusJakarta.variable} ${jetbrainsMono.variable} font-sans text-body bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground`}
       >
         <ThemeProvider>
         <WebVitalsProvider />

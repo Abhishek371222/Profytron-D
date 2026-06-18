@@ -26,10 +26,10 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
   const { returns, sharpe, risk, subscribers, price } = strategy;
 
   return (
-    <div className="dashboard-card p-5 flex flex-col gap-4 hover:border-primary/20 transition-colors">
+    <div className="dashboard-card p-5 flex flex-col gap-4 interactive-lift border border-[var(--card-border)]">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-primary">
             <Activity className="h-5 w-5" />
           </div>
           <div className="min-w-0">
@@ -72,7 +72,7 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
       <button
         type="button"
         onClick={() => onSubscribe(strategy)}
-        className="w-full h-10 rounded-xl bg-primary text-primary-foreground text-[11px] font-bold uppercase tracking-wide flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors"
+        className="w-full h-10 rounded-xl bg-gradient-to-r from-[#47a7aa] to-[#1e6d48] text-white text-[11px] font-bold uppercase tracking-wide flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_2px_8px_rgba(71,167,170,0.25)] hover:shadow-[0_4px_16px_rgba(71,167,170,0.38)] hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]"
       >
         <Zap className="h-3.5 w-3.5" />
         Subscribe

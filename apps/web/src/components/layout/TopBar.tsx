@@ -94,8 +94,8 @@ export function TopBar() {
           className={cn(
             "relative w-full min-w-0 flex items-center gap-2.5 px-3.5 h-10 sm:h-[42px] rounded-xl transition-all duration-200 group overflow-hidden",
             searchFocused
-              ? "bg-primary/[0.06] border border-primary/30 shadow-[0_0_20px_rgba(99,102,241,0.12)] scale-[1.01]"
-              : "bg-card border border-border hover:bg-muted",
+              ? "bg-[color-mix(in_srgb,var(--primary)_6%,transparent)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_14%,transparent)] scale-[1.01]"
+              : "bg-card border border-border hover:bg-muted hover:border-[color-mix(in_srgb,var(--primary)_15%,var(--border))]",
           )}
           onMouseEnter={() => setSearchFocused(true)}
           onMouseLeave={() => setSearchFocused(false)}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -13,7 +13,7 @@ function RadialRing({
   max = 100,
   size = 96,
   sw = 8,
-  color = "#3B5BFF",
+  color = "#47a7aa",
   label,
   sub,
 }: {
@@ -81,7 +81,7 @@ export function DashboardRightRail({
   className,
   isLoading = false,
 }: Props) {
-  const ringColor = winRate >= 60 ? "#16A34A" : winRate >= 40 ? "#F59E0B" : "#3B5BFF";
+  const ringColor = winRate >= 60 ? "#16A34A" : winRate >= 40 ? "#F59E0B" : "#47a7aa";
 
   return (
     <div

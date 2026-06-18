@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { createPortal } from "react-dom";
@@ -69,7 +69,7 @@ export function AlertDialog({
       />
 
       {/* Panel */}
-      <div className="relative z-10 w-full max-w-md rounded-2xl border border-white/[0.08] bg-[#09090f] p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200">
+      <div className="relative z-10 w-full max-w-md rounded-2xl border border-[var(--card-border)] bg-card p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200">
         <h2 id="alert-dialog-title" className="text-base font-semibold text-foreground mb-2">
           {title}
         </h2>

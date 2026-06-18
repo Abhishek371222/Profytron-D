@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -159,7 +159,7 @@ export default function APIKeysPage() {
      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
        <div className="space-y-3">
          <div className="flex items-center gap-3">
-           <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#6366f1]" />
+           <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_10px_#1e6d48]" />
            <span className="text-xs font-semibold text-primary uppercase tracking-[0.5em] font-jet-mono">Secure Key Infrastructure</span>
          </div>
          <h2 className="text-4xl font-semibold text-foreground uppercase tracking-tight">API Terminal</h2>

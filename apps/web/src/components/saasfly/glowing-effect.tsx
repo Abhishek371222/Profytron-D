@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { memo, useCallback, useEffect, useRef } from "react";
 import { animate } from "framer-motion";
@@ -37,24 +37,24 @@ export const GlowingEffect = memo(
     const getGradient = () => {
       switch (variant) {
         case "indigo":
-          return `radial-gradient(circle, #6366f1 10%, #6366f100 20%),
+          return `radial-gradient(circle, #1e6d48 10%, #1e6d4800 20%),
             radial-gradient(circle at 40% 40%, #818cf8 5%, #818cf800 15%),
             radial-gradient(circle at 60% 60%, #4338ca 10%, #4338ca00 20%),
-            repeating-conic-gradient(from 236.84deg at 50% 50%, #6366f1 0%, #818cf8 calc(25% / 5), #4338ca calc(50% / 5), #6366f1 calc(75% / 5), #818cf8 calc(100% / 5))`;
+            repeating-conic-gradient(from 236.84deg at 50% 50%, #1e6d48 0%, #818cf8 calc(25% / 5), #4338ca calc(50% / 5), #1e6d48 calc(75% / 5), #818cf8 calc(100% / 5))`;
         case "cyan":
           return `radial-gradient(circle, #22d3ee 10%, #22d3ee00 20%),
             radial-gradient(circle at 40% 40%, #06b6d4 5%, #06b6d400 15%),
             repeating-conic-gradient(from 236.84deg at 50% 50%, #22d3ee 0%, #06b6d4 calc(25% / 5), #22d3ee calc(50% / 5), #0891b2 calc(75% / 5), #22d3ee calc(100% / 5))`;
         case "violet":
           return `radial-gradient(circle, #a855f7 10%, #a855f700 20%),
-            radial-gradient(circle at 40% 40%, #8b5cf6 5%, #8b5cf600 15%),
-            repeating-conic-gradient(from 236.84deg at 50% 50%, #a855f7 0%, #8b5cf6 calc(25% / 5), #7c3aed calc(50% / 5), #a855f7 calc(75% / 5), #8b5cf6 calc(100% / 5))`;
+            radial-gradient(circle at 40% 40%, #1e6d48 5%, #1e6d4800 15%),
+            repeating-conic-gradient(from 236.84deg at 50% 50%, #a855f7 0%, #1e6d48 calc(25% / 5), #7c3aed calc(50% / 5), #a855f7 calc(75% / 5), #1e6d48 calc(100% / 5))`;
         default:
-          return `radial-gradient(circle, #6366f1 10%, #6366f100 20%),
+          return `radial-gradient(circle, #1e6d48 10%, #1e6d4800 20%),
             radial-gradient(circle at 40% 40%, #a855f7 5%, #a855f700 15%),
             radial-gradient(circle at 60% 60%, #22d3ee 10%, #22d3ee00 20%),
             radial-gradient(circle at 40% 60%, #818cf8 10%, #818cf800 20%),
-            repeating-conic-gradient(from 236.84deg at 50% 50%, #6366f1 0%, #a855f7 calc(25% / 5), #22d3ee calc(50% / 5), #818cf8 calc(75% / 5), #6366f1 calc(100% / 5))`;
+            repeating-conic-gradient(from 236.84deg at 50% 50%, #1e6d48 0%, #a855f7 calc(25% / 5), #22d3ee calc(50% / 5), #818cf8 calc(75% / 5), #1e6d48 calc(100% / 5))`;
       }
     };
 

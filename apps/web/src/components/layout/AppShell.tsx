@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import dynamic from "next/dynamic";
@@ -72,7 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
     >
       {mounted && !isBuilder && (
-        <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,rgba(59,91,255,0.04)_0%,transparent_55%)]" />
+        <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,rgba(71,167,170,0.04)_0%,transparent_55%)]" />
       )}
 
       {isMobile && sidebarOpen && (

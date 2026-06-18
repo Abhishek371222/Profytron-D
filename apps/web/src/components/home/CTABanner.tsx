@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import { motion } from "framer-motion";
@@ -29,7 +29,7 @@ export function CTABanner() {
         <div className="relative rounded-[28px] sm:rounded-[32px] border border-[var(--card-border)] bg-card p-6 sm:p-10 lg:p-12 overflow-hidden shadow-[0_10px_40px_rgba(15,23,42,0.06)]">
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(59,70,255,0.08)_0%,transparent_55%),radial-gradient(ellipse_at_90%_80%,rgba(139,92,246,0.06)_0%,transparent_50%)]"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(71,167,170,0.10)_0%,transparent_55%),radial-gradient(ellipse_at_90%_80%,rgba(30,109,72,0.07)_0%,transparent_50%)]"
           />
 
           <div className="relative z-10 grid lg:grid-cols-2 gap-10 lg:gap-12 xl:gap-16 items-center">
@@ -45,7 +45,7 @@ export function CTABanner() {
 
               <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold tracking-tight text-foreground leading-[1.1] mb-5">
                 Ready to trade{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-indigo-500 to-violet-500">
+                <span className="text-gradient-brand">
                   smarter?
                 </span>
               </h2>

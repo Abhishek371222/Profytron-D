@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -59,7 +59,7 @@ export function StrategyCard({
   const subscribers = toNumber(strategy.subscribers, toNumber(strategy.copiesCount));
   const monthlyPrice = toNumber(strategy.price, toNumber(strategy.monthlyPrice));
   const chartData = React.useMemo(() => buildChartData(strategy), [strategy]);
-  const chartColor = maxDrawdown > 15 ? '#DC2626' : '#3B5BFF';
+  const chartColor = maxDrawdown > 15 ? '#DC2626' : '#47a7aa';
   const CategoryIcon = CATEGORY_ICONS[strategy.category] ?? BarChart3;
   const creatorName = strategy.creator?.fullName ?? 'Unknown';
   const catStyle = CATEGORY_COLORS[strategy.category] ?? 'bg-muted text-muted-foreground border-[var(--card-border)]';

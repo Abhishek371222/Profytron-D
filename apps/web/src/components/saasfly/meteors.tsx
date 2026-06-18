@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { cn } from "@/lib/utils";
 
 /** Deterministic 0–1 value — same on server and client (avoids hydration mismatch). */
@@ -29,7 +29,7 @@ export const Meteors = ({
         <span
           key={`meteor-${idx}`}
           className={cn(
-            "animate-meteor-effect pointer-events-none absolute left-1/2 top-1/2 h-0.5 w-0.5 rotate-[215deg] rounded-[9999px] bg-primary/60 shadow-[0_0_0_1px_rgba(99,102,241,0.1)]",
+            "animate-meteor-effect pointer-events-none absolute left-1/2 top-1/2 h-0.5 w-0.5 rotate-[215deg] rounded-[9999px] bg-primary/60 shadow-[0_0_0_1px_rgba(71,167,170,0.1)]",
             "before:absolute before:top-1/2 before:h-[1px] before:w-[50px] before:-translate-y-[50%] before:transform before:bg-gradient-to-r before:from-primary/80 before:to-transparent before:content-['']",
             className,
           )}

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -33,7 +33,7 @@ const timeframeOptions: MarketTimeframe[] = ['1m', '5m', '15m', '1h', '4h', '1d'
 
 const BULL = '#16A34A';
 const BEAR = '#DC2626';
-const VOL_BULL = 'rgba(59,91,255,0.35)';
+const VOL_BULL = 'rgba(71,167,170,0.35)';
 const VOL_BEAR = 'rgba(239,68,68,0.28)';
 
 const rangeToTimeframe = (rangeLabel: string): MarketTimeframe => {

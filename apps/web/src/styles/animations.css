@@ -532,3 +532,176 @@
     animation: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   PROFYTRON — BRAND TEAL ANIMATIONS (2026)
+   All GPU-only: only transform/opacity animated
+═══════════════════════════════════════════════════════ */
+
+/* ── Teal-specific glow ───────────────────────────────── */
+@keyframes glow-teal {
+  0%, 100% {
+    box-shadow:
+      0 0 16px rgba(71, 167, 170, 0.20),
+      0 0 40px rgba(71, 167, 170, 0.08);
+  }
+  50% {
+    box-shadow:
+      0 0 32px rgba(71, 167, 170, 0.40),
+      0 0 80px rgba(71, 167, 170, 0.16);
+  }
+}
+
+/* ── Ambient orb drift ────────────────────────────────── */
+@keyframes orb-drift {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.6; }
+  33%  { transform: translate(30px, -20px) scale(1.05); opacity: 0.8; }
+  66%  { transform: translate(-20px, 15px) scale(0.95); opacity: 0.5; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+}
+@keyframes orb-drift-alt {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.5; }
+  40%  { transform: translate(-40px, 25px) scale(1.08); opacity: 0.7; }
+  70%  { transform: translate(25px, -15px) scale(0.92); opacity: 0.4; }
+  100% { transform: translate(0, 0) scale(1); opacity: 0.5; }
+}
+
+/* ── Hero mesh gradient animate ──────────────────────── */
+@keyframes mesh-shift {
+  0%, 100% { background-position: 0% 50%; }
+  25%       { background-position: 100% 0%; }
+  50%       { background-position: 100% 100%; }
+  75%       { background-position: 0% 100%; }
+}
+
+/* ── Entrance — fade up small (dashboard cards) ───────── */
+@keyframes fade-up-sm {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Notification dot pulse ───────────────────────────── */
+@keyframes notification-pulse {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Count-up number slot ─────────────────────────────── */
+@keyframes slot-up {
+  from { transform: translateY(30%); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+/* ── Success checkmark draw ───────────────────────────── */
+@keyframes check-draw {
+  from { stroke-dashoffset: 100; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* ── Utility classes ──────────────────────────────────── */
+.animate-glow-teal      { animation: glow-teal 3s ease-in-out infinite; }
+.animate-orb-drift      { animation: orb-drift 12s ease-in-out infinite; }
+.animate-orb-drift-alt  { animation: orb-drift-alt 16s ease-in-out infinite; }
+.animate-mesh-shift {
+  background-size: 300% 300%;
+  animation: mesh-shift 12s ease infinite;
+}
+.animate-fade-up-sm     { animation: fade-up-sm 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-notif-pulse    { animation: notification-pulse 2s ease-in-out infinite; }
+.animate-slot-up        { animation: slot-up 0.35s var(--ease-spring) both; }
+.animate-check-draw     {
+  stroke-dasharray: 100;
+  animation: check-draw 0.5s var(--ease-spring) forwards;
+}
+
+/* ── Will-change helpers (apply before animation starts) ─ */
+.will-change-transform  { will-change: transform; }
+.will-change-opacity    { will-change: opacity; }
+.will-change-auto       { will-change: auto; }
+
+/* ── Glass card ───────────────────────────────────────── */
+.glass-card {
+  background: color-mix(in srgb, var(--card) 85%, transparent);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+/* ── Live indicator (pulsing dot) ─────────────────────── */
+.live-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+}
+.live-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  animation: pulse-ring 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ── Skeleton shimmer (override with brand gradient) ──── */
+.shimmer-brand {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    color-mix(in srgb, var(--primary) 8%, var(--muted)) 50%,
+    var(--muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer-wave 2s linear infinite;
+}
+
+/* ── Hover scale + shadow lift combo ─────────────────── */
+.interactive-lift {
+  transition:
+    transform 0.25s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.25s ease;
+  will-change: transform;
+}
+.interactive-lift:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-card-hover);
+}
+.interactive-lift:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+/* ── KPI number entrance ──────────────────────────────── */
+.kpi-enter {
+  animation: fade-up-sm 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.kpi-enter:nth-child(1) { animation-delay: 0.05s; }
+.kpi-enter:nth-child(2) { animation-delay: 0.10s; }
+.kpi-enter:nth-child(3) { animation-delay: 0.15s; }
+.kpi-enter:nth-child(4) { animation-delay: 0.20s; }
+.kpi-enter:nth-child(5) { animation-delay: 0.25s; }
+.kpi-enter:nth-child(6) { animation-delay: 0.30s; }
+
+/* ── Reduced motion overrides for new classes ─────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-glow-teal,
+  .animate-orb-drift,
+  .animate-orb-drift-alt,
+  .animate-mesh-shift,
+  .animate-notif-pulse,
+  .live-dot::after,
+  .shimmer-brand,
+  .interactive-lift {
+    animation: none !important;
+    transition: none !important;
+  }
+  .animate-fade-up-sm,
+  .animate-slot-up,
+  .kpi-enter {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

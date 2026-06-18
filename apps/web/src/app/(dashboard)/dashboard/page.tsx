@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -359,7 +359,7 @@ function RiskMonitor({
   isLoading?: boolean;
 }) {
   const pct = Math.min(limitPct, 100);
-  const color = pct > 80 ? '#DC2626' : pct > 50 ? '#F59E0B' : '#3B5BFF';
+  const color = pct > 80 ? '#DC2626' : pct > 50 ? '#F59E0B' : '#47a7aa';
   const dailyPct = dailyLossCap > 0 ? Math.min((dailyLossUsed / dailyLossCap) * 100, 100) : 0;
   const ddPct = maxDrawdownPct > 0 ? Math.min((drawdownPct / maxDrawdownPct) * 100, 100) : 0;
 

@@ -65,8 +65,9 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
     <motion.aside
       initial={false}
       animate={{ width: mobile ? 280 : !mounted ? 260 : sidebarOpen ? 260 : 80 }}
+      transition={{ duration: 0.28, ease: [0, 0, 0.2, 1] }}
       className={cn(
-        "relative h-full min-h-[100dvh] flex flex-col bg-sidebar border-r border-[var(--card-border)] z-40 shrink-0",
+        "relative h-full min-h-[100dvh] flex flex-col bg-sidebar border-r border-[var(--sidebar-border)] z-40 shrink-0 overflow-hidden",
         !mounted || !expanded ? "items-center" : "",
       )}
       suppressHydrationWarning
@@ -118,16 +119,23 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "dash-nav-link group/nav",
+                "dash-nav-link group/nav relative",
                 isActive && "dash-nav-link-active",
                 !expanded && "justify-center w-10 mx-auto",
               )}
             >
-              <div className={cn("flex items-center gap-2.5 w-full", expanded ? "pl-3 pr-2" : "justify-center")}>
-                <item.icon className="w-[18px] h-[18px] shrink-0" />
+              {isActive && (
+                <span className="absolute inset-0 rounded-[10px] bg-[color-mix(in_srgb,var(--primary)_9%,transparent)] pointer-events-none" />
+              )}
+              <div className={cn("relative flex items-center gap-2.5 w-full", expanded ? "pl-3 pr-2" : "justify-center")}>
+                <item.icon className={cn(
+                  "shrink-0 transition-colors duration-150",
+                  "w-[18px] h-[18px]",
+                  isActive ? "text-primary" : "text-muted-foreground group-hover/nav:text-foreground"
+                )} />
                 {expanded && <span className="truncate">{item.name}</span>}
                 {expanded && "badge" in item && item.badge != null && (
-                  <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  <span className="ml-auto flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1.5 text-[9px] font-bold text-primary-foreground shadow-[0_2px_6px_color-mix(in_srgb,var(--primary)_35%,transparent)]">
                     {item.badge}
                   </span>
                 )}
@@ -181,9 +189,9 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
           <button
             type="button"
             onClick={toggleSidebar}
-            className="flex items-center justify-center w-full h-9 rounded-[10px] border border-[var(--card-border)] text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors text-xs font-medium"
+            className="flex items-center justify-center w-full h-9 rounded-[10px] border border-[var(--sidebar-border)] text-muted-foreground hover:text-foreground hover:bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_20%,var(--sidebar-border))] transition-all duration-200 text-xs font-medium group"
           >
-            <ChevronLeft className={cn("w-4 h-4 transition-transform", !sidebarOpen && "rotate-180")} />
+            <ChevronLeft className={cn("w-4 h-4 transition-transform duration-300", !sidebarOpen && "rotate-180")} />
             {expanded && <span className="ml-1.5">Collapse</span>}
           </button>
         )}

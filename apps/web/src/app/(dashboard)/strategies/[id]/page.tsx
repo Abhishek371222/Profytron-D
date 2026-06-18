@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { UserAvatar } from '@/components/ui/UserAvatar';
@@ -207,8 +207,8 @@ export default function StrategyDetailPage() {
                 <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="strategyEq" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3B5BFF" stopOpacity={0.25} />
-                      <stop offset="100%" stopColor="#3B5BFF" stopOpacity={0.02} />
+                      <stop offset="0%" stopColor="#47a7aa" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#47a7aa" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
@@ -230,7 +230,7 @@ export default function StrategyDetailPage() {
                       ) : null
                     }
                   />
-                  <Area type="monotone" dataKey="value" stroke="#3B5BFF" fill="url(#strategyEq)" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="value" stroke="#47a7aa" fill="url(#strategyEq)" strokeWidth={2} dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

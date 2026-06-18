@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
@@ -104,7 +104,7 @@ export function StatsSection() {
                   <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/15 flex items-center justify-center mb-4">
                     <Icon className="w-4 h-4 text-primary" />
                   </div>
-                  <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 mb-3">
+                  <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#47a7aa] mb-3">
                     <AnimatedStat
                       value={stat.value}
                       suffix={stat.suffix}

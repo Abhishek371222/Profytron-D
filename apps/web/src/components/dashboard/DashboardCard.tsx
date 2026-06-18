@@ -27,9 +27,15 @@ export function DashboardCard({
   return (
     <div
       className={cn(
-        "dashboard-card relative overflow-hidden",
+        "dashboard-card relative overflow-hidden surface-glow",
         PADDING[padding],
-        hover && "card-lift transition-shadow duration-300 hover:shadow-card-premium",
+        hover && [
+          "transition-[transform,box-shadow,border-color] duration-[250ms] ease-[cubic-bezier(0.23,1,0.32,1)]",
+          "will-change-transform",
+          "hover:-translate-y-1",
+          "hover:shadow-[var(--shadow-card-hover)]",
+          "hover:border-[color-mix(in_srgb,var(--primary)_16%,var(--card-border))]",
+        ],
         className,
       )}
     >
@@ -51,18 +57,18 @@ export function DashboardCardHeader({
 }) {
   return (
     <div className="flex items-start justify-between gap-3 border-b border-[var(--card-border)] pb-4 mb-4">
-      <div>
+      <div className="flex items-start gap-3">
         {Icon && (
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Icon className="w-3.5 h-3.5 text-primary" />
-            </div>
+          <div className="flex-shrink-0 w-8 h-8 rounded-[10px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--primary)_15%,transparent)] flex items-center justify-center mt-0.5">
+            <Icon className="w-4 h-4 text-primary" />
           </div>
         )}
-        <h2 className="text-base font-bold text-foreground">{title}</h2>
-        {subtitle && <p className="text-caption text-muted-foreground mt-0.5">{subtitle}</p>}
+        <div>
+          <h2 className="text-base font-bold text-foreground leading-snug">{title}</h2>
+          {subtitle && <p className="text-caption text-muted-foreground mt-0.5">{subtitle}</p>}
+        </div>
       </div>
-      {action}
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 }

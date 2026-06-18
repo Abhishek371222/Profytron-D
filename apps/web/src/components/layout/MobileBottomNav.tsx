@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -30,13 +30,13 @@ export function MobileBottomNav() {
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 lg:hidden">
       {/* Gradient fade above the bar */}
-      <div className="pointer-events-none absolute -top-8 inset-x-0 h-8 bg-gradient-to-t from-[#09090f]/60 to-transparent" />
+      <div className="pointer-events-none absolute -top-8 inset-x-0 h-8 bg-gradient-to-t from-[var(--sidebar)]/60 to-transparent" />
 
       <div className="relative">
         {/* Glass background */}
-        <div className="absolute inset-0 bg-[#0a0a10]/85 backdrop-blur-2xl border-t border-white/[0.06]" />
+        <div className="absolute inset-0 bg-[var(--sidebar)]/90 backdrop-blur-2xl border-t border-[var(--sidebar-border)]" />
         {/* Top accent hairline */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[color-mix(in_srgb,var(--primary)_35%,transparent)] to-transparent" />
 
         <div className="relative flex items-stretch h-16 pb-safe">
           {bottomNavItems.map((item) => {
@@ -56,8 +56,8 @@ export function MobileBottomNav() {
                 {isActive && (
                   <motion.div
                     layoutId="mobile-nav-bar"
-                    className="absolute top-0 inset-x-4 h-[2px] rounded-b-full bg-gradient-to-r from-primary to-chart-2"
-                    style={{ boxShadow: "0 0 8px rgba(129,140,248,0.6)" }}
+                    className="absolute top-0 inset-x-4 h-[2px] rounded-b-full bg-gradient-to-r from-[#47a7aa] to-[#1e6d48]"
+                    style={{ boxShadow: "0 0 10px rgba(71,167,170,0.55)" }}
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}

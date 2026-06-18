@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import gsap from 'gsap';
@@ -90,7 +90,7 @@ export function CinematicCursor() {
           width: 500,
           height: 500,
           transform: 'translate(-50%, -50%)',
-          background: 'radial-gradient(circle, rgba(99,102,241,0.13) 0%, rgba(6,182,212,0.06) 50%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(71,167,170,0.13) 0%, rgba(6,182,212,0.06) 50%, transparent 70%)',
           mixBlendMode: 'screen',
           // No filter — keeps it smooth & GPU-friendly
         }}
@@ -108,7 +108,7 @@ export function CinematicCursor() {
           height: 8,
           transform: 'translate(-50%, -50%)',
           backgroundColor: '#818cf8', // p-light — slightly lighter for visibility
-          boxShadow: '0 0 6px 2px rgba(99,102,241,0.8)',
+          boxShadow: '0 0 6px 2px rgba(71,167,170,0.8)',
           mixBlendMode: 'screen',
         }}
       />

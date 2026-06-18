@@ -10,9 +10,8 @@ const buttonVariants = cva(
     "group/button relative inline-flex shrink-0 items-center justify-center",
     "rounded-button border border-transparent bg-clip-padding",
     "text-body-sm font-semibold whitespace-nowrap",
-    "transition-all duration-150 ease outline-none select-none",
-    "focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2",
-    "active:not-aria-[haspopup]:scale-[0.98]",
+    "transition-all duration-[150ms] ease-out outline-none select-none",
+    "focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-50",
     "aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -21,47 +20,67 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: [
-          "bg-primary text-primary-foreground shadow-enterprise-sm",
-          "hover:bg-[var(--primary-hover)] hover:shadow-enterprise-md",
+          "bg-primary text-primary-foreground",
+          "shadow-[0_2px_8px_rgba(71,167,170,0.22)]",
+          "hover:bg-[var(--primary-hover)] hover:scale-[1.03] hover:-translate-y-px",
+          "hover:shadow-[0_6px_20px_rgba(71,167,170,0.32)]",
+          "active:scale-[0.97] active:translate-y-0",
         ].join(" "),
 
         primary: [
-          "text-primary-foreground bg-gradient-cta shadow-enterprise-sm",
-          "hover:shadow-enterprise-md hover:brightness-105",
+          "text-primary-foreground",
+          "bg-gradient-to-r from-[#47a7aa] to-[#1e6d48]",
+          "shadow-[0_2px_12px_rgba(71,167,170,0.28)]",
+          "hover:scale-[1.03] hover:-translate-y-px",
+          "hover:shadow-[0_8px_24px_rgba(71,167,170,0.40)]",
+          "hover:brightness-110",
+          "active:scale-[0.97] active:translate-y-0",
         ].join(" "),
 
         outline: [
           "border-border bg-transparent text-foreground",
-          "hover:bg-muted hover:border-border",
+          "hover:bg-muted hover:border-[color-mix(in_srgb,var(--primary)_30%,var(--border))]",
+          "hover:scale-[1.02]",
+          "active:scale-[0.98]",
         ].join(" "),
 
         secondary: [
           "bg-secondary text-secondary-foreground border-border",
-          "hover:bg-muted",
+          "hover:bg-muted hover:scale-[1.02]",
+          "active:scale-[0.98]",
         ].join(" "),
 
         ghost: [
           "text-muted-foreground hover:text-foreground hover:bg-muted",
+          "hover:scale-[1.02]",
+          "active:scale-[0.98]",
         ].join(" "),
 
         glass: [
-          "bg-card/80 backdrop-blur-md border-border text-foreground shadow-enterprise-sm",
-          "hover:bg-card hover:shadow-enterprise-md",
+          "bg-card/80 backdrop-blur-md border-border text-foreground",
+          "shadow-[0_2px_8px_rgba(0,0,0,0.08)]",
+          "hover:bg-card hover:scale-[1.02]",
+          "hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)]",
+          "active:scale-[0.98]",
         ].join(" "),
 
         success: [
-          "bg-gradient-success text-white shadow-enterprise-sm",
-          "hover:shadow-enterprise-md hover:brightness-105",
+          "bg-gradient-to-r from-[#10b981] to-[#059669] text-white",
+          "shadow-[0_2px_8px_rgba(16,185,129,0.25)]",
+          "hover:scale-[1.03] hover:-translate-y-px",
+          "hover:shadow-[0_6px_20px_rgba(16,185,129,0.35)]",
+          "hover:brightness-110",
+          "active:scale-[0.97]",
         ].join(" "),
 
         destructive: [
           "bg-destructive/10 border-destructive/25 text-destructive",
-          "hover:bg-destructive/15 hover:border-destructive/40",
+          "hover:bg-destructive/15 hover:border-destructive/40 hover:scale-[1.02]",
+          "active:scale-[0.98]",
         ].join(" "),
 
         link: [
           "text-primary underline-offset-4 hover:underline hover:text-[var(--primary-hover)]",
-          "active:scale-100",
         ].join(" "),
       },
 

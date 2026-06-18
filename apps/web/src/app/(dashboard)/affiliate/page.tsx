@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -234,8 +234,8 @@ export default function AffiliatePage() {
                 <AreaChart data={CHART_DATA}>
                   <defs>
                     <linearGradient id="affClicks" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#3B5BFF" stopOpacity={0.25} />
-                      <stop offset="100%" stopColor="#3B5BFF" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#47a7aa" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#47a7aa" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="affSignups" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#16A34A" stopOpacity={0.2} />
@@ -245,7 +245,7 @@ export default function AffiliatePage() {
                   <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={32} />
                   <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid var(--card-border)', fontSize: 12 }} />
-                  <Area type="monotone" dataKey="clicks" stroke="#3B5BFF" fill="url(#affClicks)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="clicks" stroke="#47a7aa" fill="url(#affClicks)" strokeWidth={2} />
                   <Area type="monotone" dataKey="signups" stroke="#16A34A" fill="url(#affSignups)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>

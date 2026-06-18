@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -22,7 +22,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
 
   return (
     <div className="relative overflow-hidden rounded-[32px] border border-border bg-[#070b16] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
-      <div className={cn('absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.22),_transparent_52%)]', accentClassName)} />
+      <div className={cn('absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(71,167,170,0.22),_transparent_52%)]', accentClassName)} />
       <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:32px_32px]" />
       <motion.div
         className="absolute -right-10 top-4 h-28 w-28 rounded-full bg-chart-5/10 blur-3xl"
@@ -49,7 +49,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 900 460" fill="none" aria-hidden="true">
           <motion.path
             d="M450 60 C 410 110, 360 150, 310 190 S 210 275, 150 330"
-            stroke="rgba(59,130,246,0.32)"
+            stroke="rgba(71,167,170,0.32)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray="10 12"
@@ -83,7 +83,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
           animate={reduceMotion ? undefined : { y: [0, 8, 0], scale: [1, 1.05, 1] }}
           transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-border bg-gradient-to-br from-white/10 via-primary/20 to-chart-5/10 shadow-[0_0_30px_rgba(99,102,241,0.22)]">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-border bg-gradient-to-br from-white/10 via-primary/20 to-chart-5/10 shadow-[0_0_30px_rgba(71,167,170,0.22)]">
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-primary/30 bg-primary/15 text-xs font-bold uppercase tracking-[0.3em] text-foreground">
               Root
             </div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { motion } from 'framer-motion';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
 import { TrendingUp, BookOpen, ArrowRight, BarChart2, Shield, Cpu, Clock } from 'lucide-react';
@@ -105,7 +105,7 @@ export default function GuidesPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="text-3xl font-bold text-foreground mb-4 tracking-tight">Ready to Deploy?</h2>
             <p className="text-foreground/50 mb-8">Put the theory to work. Build and backtest your first strategy in minutes.</p>
-            <Link href="/register" className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)]">
+            <Link href="/register" className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold transition-all shadow-[0_0_30px_rgba(71,167,170,0.3)]">
               Start Building <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>

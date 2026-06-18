@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -140,7 +140,7 @@ export default function TradeAnalyticsPage() {
                 <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                   {(trade?.distribution ?? []).map((_, i) => (
-                    <Cell key={i} fill="#3B5BFF" fillOpacity={0.85 - i * 0.05} />
+                    <Cell key={i} fill="#47a7aa" fillOpacity={0.85 - i * 0.05} />
                   ))}
                 </Bar>
               </BarChart>

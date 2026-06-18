@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,7 +31,7 @@ const RISK_LEVELS = [
   { id: 'low',    label: 'Low',    color: 'bg-chart-3' },
   { id: 'medium', label: 'Medium', color: 'bg-chart-4'   },
   { id: 'high',   label: 'High',   color: 'bg-red-500'     },
-  { id: 'expert', label: 'Expert', color: 'bg-purple-500'  },
+  { id: 'expert', label: 'Expert', color: 'bg-[#1e6d48]'  },
 ];
 
 const ASSETS     = ['Forex', 'Crypto', 'Indices', 'Commodities'];

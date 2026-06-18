@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -283,7 +283,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
                 />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }} />
-                <Line type="monotone" dataKey="balance" name="Balance" stroke="#6366f1" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="balance" name="Balance" stroke="#1e6d48" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="equity" name="Equity" stroke="#10b981" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>

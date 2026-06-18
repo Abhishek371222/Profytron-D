@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { Bell, CheckCheck, TrendingUp, AlertCircle, Info, Zap, ExternalLink, type LucideIcon } from 'lucide-react';
@@ -73,8 +73,8 @@ export function NotificationDropdown() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
-                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-micro leading-[18px] text-foreground text-center font-bold border-2 border-[#09090f]"
-                style={{ boxShadow: '0 0 10px rgba(99,102,241,0.5)' }}
+                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-micro leading-[18px] text-foreground text-center font-bold border-2 border-[var(--sidebar)]"
+                style={{ boxShadow: '0 0 10px rgba(71,167,170,0.5)' }}
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
               </motion.span>

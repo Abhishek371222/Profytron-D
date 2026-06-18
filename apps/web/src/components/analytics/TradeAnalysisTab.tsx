@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -339,7 +339,7 @@ function TradeAnalysisTabView() {
  {durationData.map((entry, index) => (
  <Cell 
  key={`cell-${index}`} 
- fill={index < 2 ? '#6366f1' : index < 4 ? '#06b6d4' : '#f59e0b'} 
+ fill={index < 2 ? '#1e6d48' : index < 4 ? '#06b6d4' : '#f59e0b'} 
  fillOpacity={0.85}
  className="drop-shadow-lg transition-all hover:fill-opacity-100"
  />
@@ -351,7 +351,7 @@ function TradeAnalysisTabView() {
  
  <div className="mt-14 flex items-center justify-between border-t-2 border-border pt-10 relative z-10">
  <div className="flex items-center gap-4 group/l1">
- <div className="w-4 h-4 rounded-full bg-primary shadow-[0_0_10px_rgba(99,102,241,0.5)] group-hover:scale-125 transition-transform" />
+ <div className="w-4 h-4 rounded-full bg-primary shadow-[0_0_10px_rgba(71,167,170,0.5)] group-hover:scale-125 transition-transform" />
  <span className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.3em]">EPOCH_SCALP</span>
  </div>
  <div className="flex items-center gap-4 group/l2">

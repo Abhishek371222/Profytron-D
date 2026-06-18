@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -102,7 +102,7 @@ function JournalCard({
       className={cn(
         'w-full text-left p-4 rounded-[20px] border transition-all duration-300 group',
         isSelected
-          ? 'bg-primary/8 border-primary/25 shadow-[0_0_20px_rgba(99,102,241,0.08)]'
+          ? 'bg-primary/8 border-primary/25 shadow-[0_0_20px_rgba(71,167,170,0.08)]'
           : 'bg-muted/2 border-white/[0.05] hover:border-border hover:bg-muted',
       )}
     >
@@ -481,7 +481,7 @@ export default function JournalPage() {
                       <button
                         onClick={handleSave}
                         disabled={updateMutation.isPending}
-                        className="flex-1 h-10 bg-primary text-foreground rounded-xl text-caption font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(99,102,241,0.25)]"
+                        className="flex-1 h-10 bg-primary text-foreground rounded-xl text-caption font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(71,167,170,0.25)]"
                       >
                         {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Entry'}
                       </button>

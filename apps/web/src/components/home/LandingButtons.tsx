@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
 
-/** Primary landing CTA — solid, readable, no animated bleed-through */
+/** Primary landing CTA — gradient brand button with lift on hover */
 export function LandingPrimaryLink({
   href,
   children,
@@ -19,10 +19,13 @@ export function LandingPrimaryLink({
     <Link
       href={href}
       className={cn(
-        'inline-flex items-center justify-center gap-2 h-12 px-7 rounded-[14px]',
-        'bg-primary text-white font-semibold text-sm whitespace-nowrap',
-        'shadow-[0_8px_24px_rgba(59,70,255,0.25)]',
-        'hover:bg-[var(--primary-hover)] transition-colors',
+        'group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-[14px]',
+        'bg-gradient-to-r from-[#47a7aa] to-[#1e6d48] text-white font-semibold text-sm whitespace-nowrap',
+        'shadow-[0_4px_16px_rgba(71,167,170,0.30),0_1px_4px_rgba(0,0,0,0.10)]',
+        'transition-all duration-200 ease-out',
+        'hover:scale-[1.03] hover:-translate-y-px hover:brightness-110',
+        'hover:shadow-[0_8px_28px_rgba(71,167,170,0.42),0_2px_8px_rgba(0,0,0,0.12)]',
+        'active:scale-[0.97] active:translate-y-0',
         className,
       )}
     >
@@ -48,8 +51,12 @@ export function LandingSecondaryLink({
       onClick={onClick}
       className={cn(
         'inline-flex items-center justify-center gap-2 h-12 px-7 rounded-[14px]',
-        'border border-[var(--card-border)] bg-card text-foreground font-semibold text-sm',
-        'shadow-sm hover:bg-muted transition-colors whitespace-nowrap',
+        'border border-[var(--card-border)] bg-card/80 backdrop-blur-sm text-foreground font-semibold text-sm',
+        'transition-all duration-200 ease-out whitespace-nowrap',
+        'hover:bg-card hover:border-[color-mix(in_srgb,var(--primary)_25%,var(--card-border))]',
+        'hover:scale-[1.02] hover:-translate-y-px',
+        'hover:shadow-[0_4px_16px_rgba(71,167,170,0.12)]',
+        'active:scale-[0.98] active:translate-y-0',
         className,
       )}
     >

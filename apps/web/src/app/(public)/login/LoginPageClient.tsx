@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
@@ -157,7 +157,7 @@ function LoginPageContent() {
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-background p-4 sm:p-6">
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_20%_20%,rgba(59,130,246,0.25),transparent_45%),radial-gradient(circle_at_80%_80%,rgba(99,102,241,0.2),transparent_40%)]" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_20%_20%,rgba(71,167,170,0.25),transparent_45%),radial-gradient(circle_at_80%_80%,rgba(71,167,170,0.2),transparent_40%)]" />
 
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-3rem)]">
         <motion.div

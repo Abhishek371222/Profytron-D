@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -49,7 +49,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
  initial={{ x:"-100%" }}
  animate={{ x:"100%" }}
  transition={{ repeat: Infinity, duration: 2.5, ease:"linear" }}
- className="w-1/2 h-full bg-primary shadow-[0_0_20px_rgba(99,102,241,0.8)] rounded-full"
+ className="w-1/2 h-full bg-primary shadow-[0_0_20px_rgba(71,167,170,0.8)] rounded-full"
  />
  </div>
  <div className="flex items-center justify-center gap-8">

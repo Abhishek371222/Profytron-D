@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 
@@ -26,7 +26,7 @@ export function MouseSpotlight() {
       className="pointer-events-none fixed inset-0 z-[2]"
       style={{
         background:
-          "radial-gradient(600px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(59,91,255,0.05), transparent 60%)",
+          "radial-gradient(600px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(71,167,170,0.05), transparent 60%)",
       }}
     />
   );

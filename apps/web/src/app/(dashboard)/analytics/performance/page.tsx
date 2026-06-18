@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -190,9 +190,9 @@ export default function PerformanceAnalyticsPage() {
                 <Line
                   yAxisId="right"
                   dataKey="winRate"
-                  stroke="#3B5BFF"
+                  stroke="#47a7aa"
                   strokeWidth={2}
-                  dot={{ r: 3, fill: '#3B5BFF' }}
+                  dot={{ r: 3, fill: '#47a7aa' }}
                   activeDot={{ r: 5 }}
                 />
               </ComposedChart>

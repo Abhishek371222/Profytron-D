@@ -19,14 +19,27 @@ export function HeroSection() {
 
   return (
     <section className="relative overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background">
-      {/* Soft hero glow — matches reference light lavender/blue wash */}
+      {/* Ambient teal mesh gradient */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 dark:opacity-100 opacity-100"
+        className="pointer-events-none absolute inset-0"
         style={{
-          background:
-            "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59,91,255,0.12) 0%, transparent 55%), radial-gradient(ellipse 60% 40% at 90% 20%, rgba(139,92,246,0.08) 0%, transparent 50%)",
+          background: [
+            "radial-gradient(ellipse 80% 55% at 50% -5%, rgba(71,167,170,0.13) 0%, transparent 60%)",
+            "radial-gradient(ellipse 55% 40% at 90% 15%, rgba(30,109,72,0.08) 0%, transparent 55%)",
+            "radial-gradient(ellipse 45% 35% at 10% 80%, rgba(71,167,170,0.06) 0%, transparent 50%)",
+          ].join(", "),
         }}
+      />
+
+      {/* Floating ambient orbs */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 orb-teal animate-orb-drift opacity-40 dark:opacity-60"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-1/3 -left-32 w-72 h-72 orb-green animate-orb-drift-alt opacity-30 dark:opacity-50"
       />
 
       <div className="page-container relative z-10 pt-28 pb-14 sm:pt-32 sm:pb-16 lg:pb-20">

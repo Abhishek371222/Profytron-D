@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -43,7 +43,7 @@ export default function BestAffiliatesPage() {
       <section className="relative overflow-hidden rounded-[38px] border border-border bg-[#070814] px-6 py-7 md:px-8 md:py-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
         <motion.div className="absolute -right-16 top-0 h-52 w-52 rounded-full bg-chart-4/15 blur-3xl" animate={{ x: [0, -14, 0], y: [0, 10, 0] }} transition={{ duration: 7.5, repeat: Infinity, ease: 'easeInOut' }} />
         <motion.div className="absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-primary/15 blur-3xl" animate={{ x: [0, 12, 0], y: [0, -12, 0] }} transition={{ duration: 8.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }} />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(245,158,11,0.18),_transparent_40%),radial-gradient(circle_at_bottom_left,_rgba(99,102,241,0.18),_transparent_45%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(245,158,11,0.18),_transparent_40%),radial-gradient(circle_at_bottom_left,_rgba(71,167,170,0.18),_transparent_45%)]" />
 
         <div className="relative mb-6 flex items-center justify-between gap-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-chart-4/20 bg-chart-4/10 px-3 py-1 text-micro font-semibold uppercase tracking-[0.26em] text-amber-200">

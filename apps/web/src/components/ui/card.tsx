@@ -5,15 +5,25 @@ import { cn } from"@/lib/utils"
 function Card({
  className,
  size ="default",
+ hover = false,
  ...props
-}: React.ComponentProps<"div"> & { size?:"default" |"sm" }) {
+}: React.ComponentProps<"div"> & { size?:"default" |"sm"; hover?: boolean }) {
  return (
  <div
  data-slot="card"
  data-size={size}
  className={cn(
-"group/card flex flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] bg-card py-4 text-body-sm text-card-foreground shadow-[var(--shadow-card)] ring-1 ring-[var(--card-border)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-[var(--radius-card)] *:[img:last-child]:rounded-b-[var(--radius-card)]",
- className
+  "group/card flex flex-col gap-4 overflow-hidden rounded-[var(--radius-card)] bg-card py-4 text-body-sm text-card-foreground",
+  "shadow-[var(--shadow-card)] ring-1 ring-[var(--card-border,var(--border))]",
+  "has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0",
+  "data-[size=sm]:gap-3 data-[size=sm]:py-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0",
+  "*:[img:first-child]:rounded-t-[var(--radius-card)] *:[img:last-child]:rounded-b-[var(--radius-card)]",
+  hover && [
+    "transition-[transform,box-shadow,border-color] duration-250 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform",
+    "hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]",
+    "hover:ring-[color-mix(in_srgb,var(--primary)_18%,var(--border))]",
+  ],
+  className
  )}
  {...props}
  />

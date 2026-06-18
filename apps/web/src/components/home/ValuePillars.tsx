@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -22,9 +22,9 @@ const pillars = [
     metricLabel: "Faster Review",
     metricIcon: SlidersHorizontal,
     metricGradient: true,
-    iconBg: "bg-violet-500/10 border-violet-500/15",
-    iconColor: "text-violet-600",
-    barClass: "bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400",
+    iconBg: "bg-[#47a7aa]/10 border-[#47a7aa]/15",
+    iconColor: "text-[#47a7aa]",
+    barClass: "bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]",
     barWidth: "72%",
   },
   {
@@ -51,9 +51,9 @@ const pillars = [
     metricLabel: "Block Types",
     metricIcon: Puzzle,
     metricGradient: true,
-    iconBg: "bg-violet-500/10 border-violet-500/15",
-    iconColor: "text-violet-600",
-    barClass: "bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400",
+    iconBg: "bg-[#47a7aa]/10 border-[#47a7aa]/15",
+    iconColor: "text-[#47a7aa]",
+    barClass: "bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]",
     barWidth: "86%",
   },
 ] as const;
@@ -97,7 +97,7 @@ function PillarCard({
           className={cn(
             "text-3xl sm:text-[2rem] font-extrabold tracking-tight leading-none",
             pillar.metricGradient
-              ? "text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400"
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]"
               : pillar.metricColor,
           )}
         >
@@ -141,10 +141,10 @@ export function ValuePillars() {
 
       {/* Purple glow + curved accent — top right */}
       <div aria-hidden className="pointer-events-none absolute -top-16 right-0 w-[min(520px,70vw)] h-[320px]">
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-violet-500/15 blur-[80px]" />
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#47a7aa]/15 blur-[80px]" />
         <svg
           viewBox="0 0 400 200"
-          className="absolute top-4 right-0 w-full h-auto text-violet-400/25"
+          className="absolute top-4 right-0 w-full h-auto text-[#5bbec1]/25"
           fill="none"
         >
           <path
@@ -165,7 +165,7 @@ export function ValuePillars() {
           className="mx-auto mb-14 sm:mb-16 max-w-3xl text-center"
         >
           <div className="mb-5 flex justify-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-violet-500/25 bg-violet-500/[0.06] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-violet-600 dark:text-violet-400">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[#47a7aa]/25 bg-[#47a7aa]/[0.06] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-[#47a7aa] dark:text-[#5bbec1]">
               <Zap className="h-3.5 w-3.5" />
               Product Experience
             </span>
@@ -176,7 +176,7 @@ export function ValuePillars() {
             className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-[1.1] tracking-tight text-foreground text-balance"
           >
             Built For Speed,{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]">
               Clarity, and Control
             </span>
           </h2>

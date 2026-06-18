@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { motion } from "framer-motion";
 import { PublicPageLayout } from "@/components/layout/PublicPageLayout";
 import {
@@ -213,7 +213,7 @@ export default function AboutPage() {
             </p>
             <Link
               href="/careers"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold transition-all shadow-[0_0_30px_rgba(99,102,241,0.3)] hover:shadow-[0_0_50px_rgba(99,102,241,0.5)]"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold transition-all shadow-[0_0_30px_rgba(71,167,170,0.3)] hover:shadow-[0_0_50px_rgba(71,167,170,0.5)]"
             >
               View Open Roles <ArrowRight className="w-4 h-4" />
             </Link>
