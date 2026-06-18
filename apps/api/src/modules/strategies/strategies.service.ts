@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
+import { BacktestService } from '../backtest/backtest.service';
 import {
   CreateStrategyDto,
   UpdateStrategyDto,
@@ -34,6 +35,7 @@ export class StrategiesService {
     private prisma: PrismaService,
     private redis: RedisService,
     private copyFactorySync: CopyFactorySyncService,
+    private backtestSvc: BacktestService,
   ) {}
 
   async findAll(query: StrategiesQueryDto, userId?: string) {
@@ -500,10 +502,21 @@ export class StrategiesService {
     userId: string,
     cacheId: string,
   ) {
-    // Cache key based on config and params
     const cacheKey = `backtest:${cacheId}:${this.hashObject(dto)}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
+
+    // Use local engine by default; fall back to external service only when explicitly configured
+    if (!process.env.BACKTEST_SERVICE_URL || process.env.BACKTEST_USE_LOCAL === 'true') {
+      const result = await this.backtestSvc.runFromDefinition(
+        config,
+        dto.startDate,
+        dto.endDate,
+        dto.initialCapital ?? 10_000,
+      );
+      await this.redis.set(cacheKey, JSON.stringify(result), 3600);
+      return result;
+    }
 
     try {
       const response = await axios.post(
@@ -519,8 +532,7 @@ export class StrategiesService {
         },
         { timeout: 60000 },
       );
-
-      await this.redis.set(cacheKey, JSON.stringify(response.data), 3600); // 1h cache
+      await this.redis.set(cacheKey, JSON.stringify(response.data), 3600);
       return response.data;
     } catch (error) {
       if (error.code === 'ECONNABORTED')

@@ -29,6 +29,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SocialModule } from './modules/social/social.module';
 import { SupportModule } from './modules/support/support.module';
 import { StrategyBuilderModule } from './modules/strategy-builder/strategy-builder.module';
+import { BacktestModule } from './modules/backtest/backtest.module';
 import { AiRiskModule } from './modules/ai-risk/ai-risk.module';
 import { VpsModule } from './modules/vps/vps.module';
 import { GrowthModule } from './modules/growth/growth.module';
@@ -106,6 +107,7 @@ const parseRedisConfig = () => {
     SocialModule,
     SupportModule,
     StrategyBuilderModule,
+    BacktestModule,
     AiRiskModule,
     VpsModule,
     GrowthModule,
