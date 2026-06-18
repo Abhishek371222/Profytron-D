@@ -31,7 +31,9 @@ export class AppThrottlerGuard extends ThrottlerGuard {
     throttlerLimitDetail: ThrottlerLimitDetail,
   ): Promise<void> {
     if (context.getType() === 'http') {
-      const req = context.switchToHttp().getRequest<{ ip?: string; user?: { id?: string } }>();
+      const req = context
+        .switchToHttp()
+        .getRequest<{ ip?: string; user?: { id?: string } }>();
       const ip = req.ip ?? 'unknown';
       void this.agentEvents.emit({
         type: AGENT_EVENTS.API_RATE_LIMIT_EXCEEDED,

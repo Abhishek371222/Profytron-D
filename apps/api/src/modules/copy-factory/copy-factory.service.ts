@@ -50,7 +50,9 @@ export class CopyFactoryService {
     existingCopyFactoryStrategyId?: string | null;
   }): Promise<string> {
     if (!this.isEnabled()) {
-      this.logger.warn('CopyFactory disabled — skipping provider strategy provision');
+      this.logger.warn(
+        'CopyFactory disabled — skipping provider strategy provision',
+      );
       return input.existingCopyFactoryStrategyId ?? '';
     }
 

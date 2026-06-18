@@ -32,7 +32,10 @@ export class SubscriptionCleanupService {
             brokerAccountId: true,
             expiresAt: true,
             strategy: {
-              select: { copyFactoryStrategyId: true, masterBrokerAccountId: true },
+              select: {
+                copyFactoryStrategyId: true,
+                masterBrokerAccountId: true,
+              },
             },
           },
         },
@@ -99,7 +102,14 @@ export class SubscriptionCleanupService {
       const subs = await this.prisma.userStrategySubscription.findMany({
         where: {
           strategy: { copyFactoryStrategyId: { not: null } },
-          status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.EXPIRED, SubscriptionStatus.CANCELLED, SubscriptionStatus.INACTIVE] },
+          status: {
+            in: [
+              SubscriptionStatus.ACTIVE,
+              SubscriptionStatus.EXPIRED,
+              SubscriptionStatus.CANCELLED,
+              SubscriptionStatus.INACTIVE,
+            ],
+          },
         },
         select: {
           id: true,

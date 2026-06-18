@@ -150,7 +150,10 @@ export function configureApp(app: INestApplication) {
   app.useGlobalFilters(
     new AllExceptionsFilter({ httpAdapter: app.getHttpAdapter() } as any),
   );
-  app.useGlobalInterceptors(new SentryInterceptor(), new TransformInterceptor());
+  app.useGlobalInterceptors(
+    new SentryInterceptor(),
+    new TransformInterceptor(),
+  );
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Strip unknown properties — prevents mass assignment

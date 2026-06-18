@@ -34,6 +34,8 @@ export class AgentDlqProcessor {
 
   @Process('failed_job')
   async handle(job: Job) {
-    this.logger.error(`Agent DLQ entry: ${JSON.stringify(job.data).slice(0, 500)}`);
+    this.logger.error(
+      `Agent DLQ entry: ${JSON.stringify(job.data).slice(0, 500)}`,
+    );
   }
 }

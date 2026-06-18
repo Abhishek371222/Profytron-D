@@ -67,7 +67,9 @@ export class ApiKeysService {
         isActive: true,
         OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
       },
-      include: { user: { select: { id: true, role: true, subscriptionTier: true } } },
+      include: {
+        user: { select: { id: true, role: true, subscriptionTier: true } },
+      },
     });
 
     for (const candidate of candidates) {
@@ -75,7 +77,10 @@ export class ApiKeysService {
       if (match) {
         // Update lastUsedAt without awaiting to keep the hot path fast.
         this.prisma.apiKey
-          .update({ where: { id: candidate.id }, data: { lastUsedAt: new Date() } })
+          .update({
+            where: { id: candidate.id },
+            data: { lastUsedAt: new Date() },
+          })
           .catch(() => undefined);
         return candidate.user;
       }

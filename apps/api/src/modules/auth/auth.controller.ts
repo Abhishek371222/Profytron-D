@@ -151,7 +151,7 @@ export class AuthController {
     }
     this.setSessionCookies(
       res,
-      result.refreshTokenForCookie!,
+      result.refreshTokenForCookie,
       result.user?.role,
       result.user?.onboardingCompleted,
     );
@@ -163,15 +163,29 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { ttl: 300000, limit: 10 } })
   @ApiResponse({ status: 200, description: 'Authenticated — tokens issued' })
-  @ApiResponse({ status: 401, description: 'Invalid challenge token or 2FA code' })
-  @ApiOperation({ summary: 'Complete login by submitting 2FA code for challenge token' })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid challenge token or 2FA code',
+  })
+  @ApiOperation({
+    summary: 'Complete login by submitting 2FA code for challenge token',
+  })
   async completeTwoFactorLogin(
     @Body() dto: CompleteTwoFactorLoginDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.authService.completeTwoFactorLogin(dto.challengeToken, dto.code, req);
-    this.setSessionCookies(res, result.refreshTokenForCookie, result.user?.role, result.user?.onboardingCompleted);
+    const result = await this.authService.completeTwoFactorLogin(
+      dto.challengeToken,
+      dto.code,
+      req,
+    );
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+      result.user?.role,
+      result.user?.onboardingCompleted,
+    );
     return { accessToken: result.accessToken, user: result.user };
   }
 
@@ -247,7 +261,12 @@ export class AuthController {
 
     await this.authService.logout(userId, jti);
     const isSecure = process.env.NODE_ENV === 'production';
-    const cookieOpts = { path: '/', httpOnly: true, secure: isSecure, sameSite: 'strict' as const };
+    const cookieOpts = {
+      path: '/',
+      httpOnly: true,
+      secure: isSecure,
+      sameSite: 'strict' as const,
+    };
     res.clearCookie('refresh_token', cookieOpts);
     res.clearCookie('user_role', { ...cookieOpts, httpOnly: false });
     res.clearCookie('onboarding_completed', { ...cookieOpts, httpOnly: false });
@@ -402,7 +421,9 @@ export class AuthController {
     // The access token is exchanged via a server-side one-time code rather than
     // a JS-readable cookie. The frontend calls GET /auth/oauth-token-exchange?code=
     // to retrieve the bearer token once, then the code is consumed and deleted.
-    const dest = result.user?.onboardingCompleted ? '/dashboard' : '/onboarding/risk';
+    const dest = result.user?.onboardingCompleted
+      ? '/dashboard'
+      : '/onboarding/risk';
     res.redirect(`${frontendUrl}${dest}?oauthCode=${result.oauthCode}`);
   }
 
@@ -452,9 +473,14 @@ export class AuthController {
   @Get('oauth-token-exchange')
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { ttl: 60000, limit: 10 } })
-  @ApiResponse({ status: 200, description: 'Access token returned — code consumed' })
+  @ApiResponse({
+    status: 200,
+    description: 'Access token returned — code consumed',
+  })
   @ApiResponse({ status: 401, description: 'Invalid or expired OAuth code' })
-  @ApiOperation({ summary: 'Exchange a one-time OAuth code for an access token' })
+  @ApiOperation({
+    summary: 'Exchange a one-time OAuth code for an access token',
+  })
   async oauthTokenExchange(@Query('code') code: string) {
     if (!code) throw new NotFoundException('code is required');
     const accessToken = await this.authService.exchangeOAuthCode(code);

@@ -33,8 +33,9 @@ export class RuleEngineService {
     }
     if (job.eventType === AGENT_EVENTS.PAYMENT_FAILED) {
       const code = String(job.payload?.errorCode ?? 'unknown');
-      const template =
-        code.includes('insufficient') ? 'wallet_low' : 'payment_retry_dunning';
+      const template = code.includes('insufficient')
+        ? 'wallet_low'
+        : 'payment_retry_dunning';
       return {
         action: 'send_dunning',
         data: { template, userId: job.userId, retryInHours: 24 },

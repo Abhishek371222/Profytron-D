@@ -90,8 +90,7 @@ function buildEquityBalanceCurve(
     const balance = BASE_EQUITY + row.netPnl;
     peak = Math.max(peak, balance);
     const equity = balance + floatingPnl;
-    const drawdownPct =
-      peak > 0 ? round(((peak - balance) / peak) * 100) : 0;
+    const drawdownPct = peak > 0 ? round(((peak - balance) / peak) * 100) : 0;
     return {
       date: row.date.toISOString().slice(0, 10),
       balance: round(balance),
@@ -189,16 +188,10 @@ function tradeMetrics(trades: TradeRow[]) {
   const grossProfit = gains.reduce((s, v) => s + v, 0);
   const grossLossAbs = Math.abs(losses.reduce((s, v) => s + v, 0));
   const profitFactor =
-    grossLossAbs > 0
-      ? grossProfit / grossLossAbs
-      : grossProfit > 0
-        ? 99
-        : 0;
+    grossLossAbs > 0 ? grossProfit / grossLossAbs : grossProfit > 0 ? 99 : 0;
   const avgWin = gains.length ? mean(gains) : 0;
   const avgLoss = losses.length ? mean(losses) : 0;
-  const winRate = closed.length
-    ? (gains.length / closed.length) * 100
-    : 0;
+  const winRate = closed.length ? (gains.length / closed.length) * 100 : 0;
   const plRatio =
     avgLoss !== 0 ? Math.abs(avgWin / avgLoss) : avgWin > 0 ? 99 : 0;
 
@@ -261,7 +254,7 @@ export function buildStrategyAnalytics(input: {
     1,
     performance.length > 1
       ? Math.ceil(
-          (latestPerf!.date.getTime() - firstPerf!.date.getTime()) /
+          (latestPerf.date.getTime() - firstPerf.date.getTime()) /
             (30 * 24 * 60 * 60 * 1000),
         )
       : 1,
@@ -298,9 +291,7 @@ export function buildStrategyAnalytics(input: {
     ? round(tradeStats.profitFactor)
     : 0;
 
-  const totalProfit = latestPerf
-    ? latestPerf.netPnl
-    : tradeStats.totalProfit;
+  const totalProfit = latestPerf ? latestPerf.netPnl : tradeStats.totalProfit;
   const recoveryFactor =
     maxDrawdownPct > 0
       ? round(totalProfit / ((maxDrawdownPct / 100) * BASE_EQUITY))
@@ -366,7 +357,9 @@ export function buildStrategyAnalytics(input: {
     verification: {
       isVerified: input.isVerified,
       verificationStatus: input.verificationStatus,
-      badgeLabel: input.isVerified ? 'Verified Track Record' : 'Pending Verification',
+      badgeLabel: input.isVerified
+        ? 'Verified Track Record'
+        : 'Pending Verification',
       backtestReportUrl:
         (config.backtestReportUrl as string) ||
         (config.pdfReportUrl as string) ||
@@ -377,7 +370,8 @@ export function buildStrategyAnalytics(input: {
         (bias.verificationUrl as string) ||
         null,
       modelingQuality: (config.modelingQuality as string) || '99%',
-      backtestPeriod: (config.backtestPeriod as string) || 'Multi-year historical',
+      backtestPeriod:
+        (config.backtestPeriod as string) || 'Multi-year historical',
       dataSource: input.masterBrokerAccountId
         ? 'MetaAPI Live Feed'
         : 'Strategy Performance Ledger',

@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
 import { AgentType } from '@prisma/client';
-import {
-  AGENT_EVENTS,
-  AgentJobPayload,
-  EVENT_TO_AGENTS,
-} from './agent.types';
+import { AGENT_EVENTS, AgentJobPayload, EVENT_TO_AGENTS } from './agent.types';
 
 @Injectable()
 export class AgentRouterService {
@@ -71,7 +67,11 @@ export class AgentRouterService {
   }
 
   async moveToDlq(data: unknown, error: string) {
-    await this.dlq.add('failed_job', { data, error, at: new Date().toISOString() });
+    await this.dlq.add('failed_job', {
+      data,
+      error,
+      at: new Date().toISOString(),
+    });
   }
 
   static isScheduledEvent(eventType: string): boolean {

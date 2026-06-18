@@ -8,12 +8,7 @@ import {
   MaxLength,
 } from 'class-validator';
 
-export type BulkCloseScope =
-  | 'ALL'
-  | 'BUYS'
-  | 'SELLS'
-  | 'PROFITABLE'
-  | 'LOSING';
+export type BulkCloseScope = 'ALL' | 'BUYS' | 'SELLS' | 'PROFITABLE' | 'LOSING';
 
 export class CloseTradeDto {
   /** Partial-close volume in lots. Omit (or >= position volume) to close fully. */

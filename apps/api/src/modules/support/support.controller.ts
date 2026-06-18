@@ -82,7 +82,12 @@ export class SupportController {
   ) {
     const isAdmin =
       req.user.role === 'ADMIN' || req.user.role === 'SUPER_ADMIN';
-    return this.supportService.addResponse(id, req.user.id, dto.message, isAdmin);
+    return this.supportService.addResponse(
+      id,
+      req.user.id,
+      dto.message,
+      isAdmin,
+    );
   }
 
   @ApiOperation({ summary: 'Update ticket status (admin only)' })

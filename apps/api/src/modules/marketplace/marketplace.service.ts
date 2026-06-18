@@ -267,10 +267,7 @@ export class MarketplaceService {
     };
   }
 
-  async getStrategyAnalytics(
-    id: string,
-    query?: MarketplaceQueryDto,
-  ) {
+  async getStrategyAnalytics(id: string, query?: MarketplaceQueryDto) {
     const strategy = await this.prisma.strategy.findFirst({
       where: { id, deletedAt: null, isPublished: true },
       select: {
@@ -333,7 +330,8 @@ export class MarketplaceService {
       trades,
       openTrades,
       configJson: (strategy.configJson as Record<string, unknown>) ?? {},
-      biasCheckJson: (strategy.biasCheckJson as Record<string, unknown>) ?? null,
+      biasCheckJson:
+        (strategy.biasCheckJson as Record<string, unknown>) ?? null,
       isVerified: strategy.isVerified,
       verificationStatus: strategy.verificationStatus,
       masterBrokerAccountId: strategy.masterBrokerAccountId,

@@ -108,7 +108,10 @@ export class AgentSchedulerService {
   async seoWeekly() {
     if (!this.events.isEnabled()) return;
     await this.withLeaderLock('agent:lock:seo_weekly', async () => {
-      await this.router.enqueueTick(AGENT_EVENTS.SEO_WEEKLY_TICK, AgentType.SEO);
+      await this.router.enqueueTick(
+        AGENT_EVENTS.SEO_WEEKLY_TICK,
+        AgentType.SEO,
+      );
     });
   }
 

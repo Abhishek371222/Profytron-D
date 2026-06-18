@@ -44,7 +44,9 @@ export class AnalyticsService {
     });
   }
 
-  private async getDefaultBrokerAccountId(userId: string): Promise<string | null> {
+  private async getDefaultBrokerAccountId(
+    userId: string,
+  ): Promise<string | null> {
     const account = await this.getDefaultBrokerAccount(userId);
     return account?.id ?? null;
   }

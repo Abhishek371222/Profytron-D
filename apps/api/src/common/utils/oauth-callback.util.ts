@@ -1,7 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-const OAUTH_CALLBACK_PATH_RE =
-  /^\/v1\/auth\/(google|github)\/callback(?:\?|$)/;
+const OAUTH_CALLBACK_PATH_RE = /^\/v1\/auth\/(google|github)\/callback(?:\?|$)/;
 
 export function isOAuthCallbackPath(path: string): boolean {
   const pathname = path.split('?')[0] ?? path;

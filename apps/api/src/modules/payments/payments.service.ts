@@ -204,7 +204,10 @@ export class PaymentsService {
         ACTIVATION_EVENTS.FIRST_WALLET_DEPOSIT,
         { amount: amountRupees },
       );
-      await this.affiliatesService.processFirstDepositBonus(userId, amountRupees);
+      await this.affiliatesService.processFirstDepositBonus(
+        userId,
+        amountRupees,
+      );
       await this.affiliatesService.calculateCommission(userId, amountRupees);
     }
 
@@ -307,7 +310,10 @@ export class PaymentsService {
         ACTIVATION_EVENTS.FIRST_WALLET_DEPOSIT,
         { amount: amountRupees },
       );
-      await this.affiliatesService.processFirstDepositBonus(userId, amountRupees);
+      await this.affiliatesService.processFirstDepositBonus(
+        userId,
+        amountRupees,
+      );
       await this.affiliatesService.calculateCommission(userId, amountRupees);
     }
 

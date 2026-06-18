@@ -9,7 +9,13 @@ import {
   Req,
   Query,
 } from '@nestjs/common';
-import { IsString, IsOptional, IsIn, MaxLength, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsIn,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { NotificationsService } from './notifications.service';
 import { FcmService } from './fcm.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

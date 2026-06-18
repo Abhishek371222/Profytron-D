@@ -24,26 +24,32 @@ export class SupportService {
     description: string,
     category: string,
   ) {
-    return this.prisma.supportTicket.create({
-      data: {
-        userId,
-        subject,
-        description,
-        category,
-        status: 'OPEN',
-        priority: 'MEDIUM',
-      },
-    }).then(async (ticket) => {
-      void this.agentEvents.emit({
-        type: AGENT_EVENTS.SUPPORT_TICKET_CREATED,
-        entityType: 'ticket',
-        entityId: ticket.id,
-        userId,
-        payload: { subject, category, description: description.slice(0, 500) },
-        idempotencyKey: `ticket:${ticket.id}`,
+    return this.prisma.supportTicket
+      .create({
+        data: {
+          userId,
+          subject,
+          description,
+          category,
+          status: 'OPEN',
+          priority: 'MEDIUM',
+        },
+      })
+      .then(async (ticket) => {
+        void this.agentEvents.emit({
+          type: AGENT_EVENTS.SUPPORT_TICKET_CREATED,
+          entityType: 'ticket',
+          entityId: ticket.id,
+          userId,
+          payload: {
+            subject,
+            category,
+            description: description.slice(0, 500),
+          },
+          idempotencyKey: `ticket:${ticket.id}`,
+        });
+        return ticket;
       });
-      return ticket;
-    });
   }
 
   async getTickets(userId: string, status?: string) {
@@ -89,21 +95,26 @@ export class SupportService {
       throw new ForbiddenException('You do not have access to this ticket');
     }
 
-    return this.prisma.supportTicketResponse.create({
-      data: { ticketId, userId, message, isAdmin },
-    }).then(async (response) => {
-      if (!isAdmin) {
-        void this.agentEvents.emit({
-          type: AGENT_EVENTS.SUPPORT_MESSAGE_RECEIVED,
-          entityType: 'ticket',
-          entityId: ticketId,
-          userId,
-          payload: { message: message.slice(0, 500), responseId: response.id },
-          idempotencyKey: `ticket-msg:${response.id}`,
-        });
-      }
-      return response;
-    });
+    return this.prisma.supportTicketResponse
+      .create({
+        data: { ticketId, userId, message, isAdmin },
+      })
+      .then(async (response) => {
+        if (!isAdmin) {
+          void this.agentEvents.emit({
+            type: AGENT_EVENTS.SUPPORT_MESSAGE_RECEIVED,
+            entityType: 'ticket',
+            entityId: ticketId,
+            userId,
+            payload: {
+              message: message.slice(0, 500),
+              responseId: response.id,
+            },
+            idempotencyKey: `ticket-msg:${response.id}`,
+          });
+        }
+        return response;
+      });
   }
 
   async updateTicketStatus(ticketId: string, status: string) {

@@ -478,7 +478,10 @@ export class AiRiskService {
       .filter((t) => (t.profit ?? 0) < 0)
       .reduce((sum, t) => sum + Math.abs(t.profit ?? 0), 0);
 
-    const openUnrealized = openTrades.reduce((sum, t) => sum + (t.profit ?? 0), 0);
+    const openUnrealized = openTrades.reduce(
+      (sum, t) => sum + (t.profit ?? 0),
+      0,
+    );
     const dailyUsed = Math.max(0, dailyLoss + Math.min(0, openUnrealized) * -1);
 
     let peakBalance = 10_000;
@@ -492,7 +495,8 @@ export class AiRiskService {
     for (const t of allTrades) {
       running += t.profit ?? 0;
       if (running > peakBalance) peakBalance = running;
-      const dd = peakBalance > 0 ? ((peakBalance - running) / peakBalance) * 100 : 0;
+      const dd =
+        peakBalance > 0 ? ((peakBalance - running) / peakBalance) * 100 : 0;
       currentDrawdown = Math.max(currentDrawdown, dd);
     }
 

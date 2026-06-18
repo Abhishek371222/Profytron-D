@@ -372,7 +372,11 @@ export class MetaTraderAdapter {
     metaApiAccountId: string,
     roles: Array<'PROVIDER' | 'SUBSCRIBER'>,
   ): Promise<void> {
-    if (!this.isLive || !metaApiAccountId || metaApiAccountId.startsWith('mock-')) {
+    if (
+      !this.isLive ||
+      !metaApiAccountId ||
+      metaApiAccountId.startsWith('mock-')
+    ) {
       return;
     }
     await this.http.put(

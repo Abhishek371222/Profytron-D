@@ -171,9 +171,16 @@ export class TwoFaService {
    */
   async verifyForLogin(userId: string, token: string): Promise<boolean> {
     const attemptKey = TOTP_ATTEMPT_KEY(userId);
-    const attempts = parseInt((await this.redisService.get(attemptKey)) ?? '0', 10);
+    const attempts = parseInt(
+      (await this.redisService.get(attemptKey)) ?? '0',
+      10,
+    );
     if (attempts >= MAX_2FA_ATTEMPTS) {
-      appError(HttpStatus.TOO_MANY_REQUESTS, 'Too many 2FA attempts. Try again later.', ErrorCode.RATE_LIMIT_EXCEEDED);
+      appError(
+        HttpStatus.TOO_MANY_REQUESTS,
+        'Too many 2FA attempts. Try again later.',
+        ErrorCode.RATE_LIMIT_EXCEEDED,
+      );
     }
 
     const user = await this.prisma.user.findUnique({
@@ -182,7 +189,9 @@ export class TwoFaService {
     });
     if (!user?.twoFactorSecret) return false;
 
-    const valid = await this.totp.verify(token, { secret: user.twoFactorSecret });
+    const valid = await this.totp.verify(token, {
+      secret: user.twoFactorSecret,
+    });
     if (valid) {
       await this.redisService.del(attemptKey);
       return true;

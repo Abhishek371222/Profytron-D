@@ -13,7 +13,8 @@ export function mapTradeSymbolToMarket(
 ): MarketSymbol | null {
   const normalized = symbol.toUpperCase().replace(/[^A-Z]/g, '');
   if (normalized.includes('BTC')) return 'BTCUSDT';
-  if (normalized.includes('XAU') || normalized.includes('GOLD')) return 'XAUUSD';
+  if (normalized.includes('XAU') || normalized.includes('GOLD'))
+    return 'XAUUSD';
   if (normalized.includes('EUR')) return 'EURUSD';
   if (supportedSymbols.includes(normalized as MarketSymbol)) {
     return normalized as MarketSymbol;

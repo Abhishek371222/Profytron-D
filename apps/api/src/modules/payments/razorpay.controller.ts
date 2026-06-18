@@ -57,10 +57,7 @@ export class RazorpayController {
     summary: 'Complete a demo Razorpay order (development only, DEMO_KEY)',
   })
   @ApiResponse({ status: 201, description: 'Demo payment credited' })
-  async demoComplete(
-    @Req() req: any,
-    @Body() body: { orderId: string },
-  ) {
+  async demoComplete(@Req() req: any, @Body() body: { orderId: string }) {
     return this.paymentsService.completeDemoRazorpayOrder(
       req.user.userId,
       body.orderId,

@@ -90,7 +90,9 @@ export class BrokerService {
           serverName,
           isPaperTrading: brokerName === 'PAPER',
           isDefault,
-          initialEquity: Number(connectionResult.equity ?? connectionResult.balance ?? 0) || null,
+          initialEquity:
+            Number(connectionResult.equity ?? connectionResult.balance ?? 0) ||
+            null,
           // store MetaAPI account ID for future use if available
           ...(connectionResult.metaApiAccountId &&
             {
@@ -134,7 +136,11 @@ export class BrokerService {
         await this.copyFactoryQueue.add(
           'sync_copyfactory',
           { action: 'link', userId },
-          { removeOnComplete: true, attempts: 4, backoff: { type: 'exponential', delay: 5000 } },
+          {
+            removeOnComplete: true,
+            attempts: 4,
+            backoff: { type: 'exponential', delay: 5000 },
+          },
         );
       }
 

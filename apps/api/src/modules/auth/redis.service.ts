@@ -200,13 +200,7 @@ export class RedisService {
     ttlSeconds: number,
   ): Promise<boolean> {
     try {
-      const acquired = await this.redis.set(
-        key,
-        token,
-        'EX',
-        ttlSeconds,
-        'NX',
-      );
+      const acquired = await this.redis.set(key, token, 'EX', ttlSeconds, 'NX');
       if (acquired === 'OK') return true;
       const current = await this.redis.get(key);
       if (current === token) {

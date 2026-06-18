@@ -56,7 +56,9 @@ export default function AdminAgentsPage() {
   const [batchStartedAt, setBatchStartedAt] = React.useState<number | null>(null);
   const [runningAgent, setRunningAgent] = React.useState<string | null>(null);
 
-  const isBatchRunning = batchStartedAt != null && Date.now() - batchStartedAt < 60_000;
+  // batchStartedAt is auto-cleared by the effect below (on completion or timeout),
+  // so its presence alone indicates an active batch. Avoids an impure Date.now() in render.
+  const isBatchRunning = batchStartedAt != null;
 
   const dashQuery = useQuery({
     queryKey: ['admin', 'agents'],

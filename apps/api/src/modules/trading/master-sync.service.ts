@@ -250,8 +250,9 @@ export class MasterSyncService implements OnModuleDestroy {
       takeProfit: pos.takeProfit ?? null,
     });
 
-    const paidSubscribers =
-      await this.findActivePaidSubscribers(masterBrokerAccountId);
+    const paidSubscribers = await this.findActivePaidSubscribers(
+      masterBrokerAccountId,
+    );
     if (paidSubscribers.length === 0) return;
 
     for (const sub of paidSubscribers) {

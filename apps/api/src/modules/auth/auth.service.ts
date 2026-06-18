@@ -131,7 +131,9 @@ export class AuthService {
       throw error;
     }
 
-    await this.prisma.affiliate.create({ data: { userId: user.id } }).catch(() => {});
+    await this.prisma.affiliate
+      .create({ data: { userId: user.id } })
+      .catch(() => {});
 
     void this.agentEvents.emit({
       type: AGENT_EVENTS.USER_REGISTERED,
@@ -187,12 +189,19 @@ export class AuthService {
 
   async verifyEmail(dto: VerifyEmailDto) {
     const attemptKey = `auth:otp:attempts:${dto.email}`;
-    const attempts = parseInt((await this.redisService.get(attemptKey)) ?? '0', 10);
+    const attempts = parseInt(
+      (await this.redisService.get(attemptKey)) ?? '0',
+      10,
+    );
     if (attempts >= 5) {
       // Too many bad guesses — invalidate the OTP to force re-issue
       await this.redisService.del(`auth:otp:${dto.email}`);
       await this.redisService.del(attemptKey);
-      appError(HttpStatus.TOO_MANY_REQUESTS, 'Too many attempts. Request a new OTP.', ErrorCode.RATE_LIMIT_EXCEEDED);
+      appError(
+        HttpStatus.TOO_MANY_REQUESTS,
+        'Too many attempts. Request a new OTP.',
+        ErrorCode.RATE_LIMIT_EXCEEDED,
+      );
     }
 
     const storedOtp = await this.redisService.get(`auth:otp:${dto.email}`);
@@ -472,38 +481,64 @@ export class AuthService {
     };
   }
 
-  async completeTwoFactorLogin(challengeToken: string, code: string, req: Request) {
-    const userId = await this.redisService.getdel(`auth:2fa:challenge:${challengeToken}`);
+  async completeTwoFactorLogin(
+    challengeToken: string,
+    code: string,
+    req: Request,
+  ) {
+    const userId = await this.redisService.getdel(
+      `auth:2fa:challenge:${challengeToken}`,
+    );
     if (!userId) {
-      appError(HttpStatus.UNAUTHORIZED, 'Invalid or expired 2FA challenge', ErrorCode.OTP_EXPIRED);
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Invalid or expired 2FA challenge',
+        ErrorCode.OTP_EXPIRED,
+      );
     }
 
-    const valid = await this.twoFaService.verifyForLogin(userId!, code);
+    const valid = await this.twoFaService.verifyForLogin(userId, code);
     if (!valid) {
-      appError(HttpStatus.UNAUTHORIZED, 'Invalid 2FA code', ErrorCode.OTP_INVALID);
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Invalid 2FA code',
+        ErrorCode.OTP_INVALID,
+      );
     }
 
-    const user = await this.prisma.user.findUnique({ where: { id: userId! } });
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) {
-      appError(HttpStatus.UNAUTHORIZED, 'User not found', ErrorCode.USER_NOT_FOUND);
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'User not found',
+        ErrorCode.USER_NOT_FOUND,
+      );
     }
 
     const ip = req.ip || '0.0.0.0';
     const userAgent = req.headers['user-agent'] || 'Unknown';
-    const tokens = await this.generateTokenPair(user!.id, user!.email, user!.role);
-    await this.persistRefreshTokenSafely(user!.id, tokens.refreshToken);
+    const tokens = await this.generateTokenPair(user.id, user.email, user.role);
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
 
     try {
-      await this.prisma.user.update({ where: { id: user!.id }, data: { lastLoginAt: new Date() } });
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { lastLoginAt: new Date() },
+      });
       await this.prisma.userSession.create({
-        data: { userId: user!.id, deviceId: 'default', ipAddress: ip, browser: userAgent },
+        data: {
+          userId: user.id,
+          deviceId: 'default',
+          ipAddress: ip,
+          browser: userAgent,
+        },
       });
       await this.prisma.auditLog.create({
         data: {
           eventType: 'LOGIN_2FA',
-          userId: user!.id,
+          userId: user.id,
           detailsJson: { ip, userAgent },
-          triggeredBy: user!.id,
+          triggeredBy: user.id,
           ipAddress: ip,
           userAgent,
         },
@@ -514,7 +549,7 @@ export class AuthService {
 
     return {
       accessToken: tokens.accessToken,
-      user: this.sanitizeUser(user!),
+      user: this.sanitizeUser(user),
       refreshTokenForCookie: tokens.refreshToken,
     };
   }
@@ -620,7 +655,9 @@ export class AuthService {
         ErrorCode.INVALID_RESET_LINK,
       );
 
-    const user = await this.prisma.user.findUnique({ where: { email: email! } });
+    const user = await this.prisma.user.findUnique({
+      where: { email: email },
+    });
     if (!user)
       appError(
         HttpStatus.BAD_REQUEST,
@@ -629,7 +666,10 @@ export class AuthService {
       );
 
     const passwordHash = await bcrypt.hash(newPassword, 12);
-    await this.prisma.user.update({ where: { email: email! }, data: { passwordHash } });
+    await this.prisma.user.update({
+      where: { email: email },
+      data: { passwordHash },
+    });
 
     // Invalidate refresh tokens broadly for the user
     await this.redisService.del(`auth:refresh:${user.id}:default`);
@@ -708,7 +748,11 @@ export class AuthService {
     await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
 
     const oauthCode = randomUUID();
-    await this.redisService.set(`auth:oauth:code:${oauthCode}`, tokens.accessToken, 60);
+    await this.redisService.set(
+      `auth:oauth:code:${oauthCode}`,
+      tokens.accessToken,
+      60,
+    );
 
     return {
       oauthCode,
@@ -718,11 +762,17 @@ export class AuthService {
   }
 
   async exchangeOAuthCode(code: string): Promise<string> {
-    const accessToken = await this.redisService.getdel(`auth:oauth:code:${code}`);
+    const accessToken = await this.redisService.getdel(
+      `auth:oauth:code:${code}`,
+    );
     if (!accessToken) {
-      appError(HttpStatus.UNAUTHORIZED, 'Invalid or expired OAuth code', ErrorCode.INVALID_CREDENTIALS);
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Invalid or expired OAuth code',
+        ErrorCode.INVALID_CREDENTIALS,
+      );
     }
-    return accessToken!;
+    return accessToken;
   }
 
   async supabaseLogin(dto: SupabaseLoginDto) {
@@ -916,7 +966,11 @@ export class AuthService {
     await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
 
     const oauthCode = randomUUID();
-    await this.redisService.set(`auth:oauth:code:${oauthCode}`, tokens.accessToken, 60);
+    await this.redisService.set(
+      `auth:oauth:code:${oauthCode}`,
+      tokens.accessToken,
+      60,
+    );
 
     return {
       oauthCode,

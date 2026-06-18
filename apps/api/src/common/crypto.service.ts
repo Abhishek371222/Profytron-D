@@ -9,11 +9,15 @@ export class CryptoService {
   constructor() {
     const rawKey = process.env.AES_MASTER_KEY;
     if (!rawKey) {
-      throw new Error('AES_MASTER_KEY env var is required — generate one with: node -e "require(\'crypto\').randomBytes(32).toString(\'hex\')|0"');
+      throw new Error(
+        "AES_MASTER_KEY env var is required — generate one with: node -e \"require('crypto').randomBytes(32).toString('hex')|0\"",
+      );
     }
     const keyBytes = Buffer.from(rawKey, 'hex');
     if (keyBytes.length !== 32) {
-      throw new Error(`AES_MASTER_KEY must be exactly 32 bytes (64 hex chars). Got ${keyBytes.length} bytes.`);
+      throw new Error(
+        `AES_MASTER_KEY must be exactly 32 bytes (64 hex chars). Got ${keyBytes.length} bytes.`,
+      );
     }
     this.key = keyBytes;
   }

@@ -91,8 +91,7 @@ export class AgentExecutorService {
         job.eventType === AGENT_EVENTS.ANALYTICS_DAILY_TICK
       ) {
         const snapshot =
-          (gate.data as Record<string, unknown> | undefined) ??
-          (await this.rollups.computeDailySnapshot());
+          gate.data ?? (await this.rollups.computeDailySnapshot());
         await this.checkRevenueAnomaly(snapshot);
         const analyticsSummary = buildAnalyticsSummary(snapshot);
         await this.memory.saveInsight({
@@ -165,9 +164,12 @@ export class AgentExecutorService {
     }
   }
 
-  private async runCeo(job: AgentJobPayload, gate: GateResult): Promise<AgentRunOutput> {
+  private async runCeo(
+    job: AgentJobPayload,
+    gate: GateResult,
+  ): Promise<AgentRunOutput> {
     const metrics = gate.data ?? {};
-    const baseSummary = buildCeoSummary(metrics as Record<string, unknown>);
+    const baseSummary = buildCeoSummary(metrics);
     const ai = await this.maybeAi(
       AgentType.CEO,
       'You are Profytron CEO analyst. Add 2-3 strategic bullets for Indian algo-trading SaaS based on the brief.',
@@ -181,7 +183,7 @@ export class AgentExecutorService {
       scope: 'global:daily',
       title: 'Daily Executive Summary',
       summary,
-      dataJson: metrics as Record<string, unknown>,
+      dataJson: metrics,
       ttlHours: 36,
     });
     return {
@@ -192,9 +194,12 @@ export class AgentExecutorService {
     };
   }
 
-  private async runProduct(job: AgentJobPayload, gate: GateResult): Promise<AgentRunOutput> {
+  private async runProduct(
+    job: AgentJobPayload,
+    gate: GateResult,
+  ): Promise<AgentRunOutput> {
     const funnel = gate.data ?? {};
-    const baseSummary = buildProductSummary(funnel as Record<string, unknown>);
+    const baseSummary = buildProductSummary(funnel);
     const ai = await this.maybeAi(
       AgentType.PRODUCT,
       'Product manager for trading SaaS. Add 2 specific experiments based on this funnel report.',
@@ -208,7 +213,7 @@ export class AgentExecutorService {
       scope: 'global:daily',
       title: 'Product Recommendations',
       summary: text,
-      dataJson: funnel as Record<string, unknown>,
+      dataJson: funnel,
     });
     return {
       status: AgentJobStatus.COMPLETED,
@@ -218,21 +223,35 @@ export class AgentExecutorService {
     };
   }
 
-  private async runCs(job: AgentJobPayload, gate: GateResult): Promise<AgentRunOutput> {
+  private async runCs(
+    job: AgentJobPayload,
+    gate: GateResult,
+  ): Promise<AgentRunOutput> {
     if (!job.userId) {
-      return { status: AgentJobStatus.SKIPPED_NO_AI, gateSource: 'rule', result: {} };
+      return {
+        status: AgentJobStatus.SKIPPED_NO_AI,
+        gateSource: 'rule',
+        result: {},
+      };
     }
     const user = await this.prisma.user.findUnique({
       where: { id: job.userId },
       select: { email: true, fullName: true, subscriptionTier: true },
     });
     if (!user) {
-      return { status: AgentJobStatus.SKIPPED_NO_AI, gateSource: 'rule', result: {} };
+      return {
+        status: AgentJobStatus.SKIPPED_NO_AI,
+        gateSource: 'rule',
+        result: {},
+      };
     }
 
     let body = '';
     let ai: AiRunResult | null = null;
-    if (gate.action === 'reengagement_email' || gate.action === 'onboarding_nudge') {
+    if (
+      gate.action === 'reengagement_email' ||
+      gate.action === 'onboarding_nudge'
+    ) {
       ai = await this.maybeAi(
         AgentType.CUSTOMER_SUCCESS,
         'Write a 2-sentence re-engagement email for an inactive trader.',
@@ -292,9 +311,9 @@ export class AgentExecutorService {
     const kb = await this.rollups.searchKnowledge(subject, 3);
     if (kb.length > 0 && subject.length > 0) {
       const match = kb[0];
-      const confidence = match.content.toLowerCase().includes(
-        subject.toLowerCase().slice(0, 20),
-      )
+      const confidence = match.content
+        .toLowerCase()
+        .includes(subject.toLowerCase().slice(0, 20))
         ? 0.9
         : 0.75;
       if (confidence >= 0.85) {
@@ -305,7 +324,7 @@ export class AgentExecutorService {
           title: 'Support Reply (Knowledge Base)',
           summary: buildSupportSummary({
             subject,
-            payload: (job.payload ?? {}) as Record<string, unknown>,
+            payload: job.payload ?? {},
             reply,
             source: 'kb',
             kbSlug: match.slug,
@@ -338,7 +357,7 @@ export class AgentExecutorService {
       title: 'Support Ticket Response',
       summary: buildSupportSummary({
         subject,
-        payload: (job.payload ?? {}) as Record<string, unknown>,
+        payload: job.payload ?? {},
         reply: replyText,
         source: draft ? 'ai' : 'template',
       }),
@@ -352,7 +371,10 @@ export class AgentExecutorService {
     };
   }
 
-  private async runMarketing(job: AgentJobPayload, gate: GateResult): Promise<AgentRunOutput> {
+  private async runMarketing(
+    job: AgentJobPayload,
+    gate: GateResult,
+  ): Promise<AgentRunOutput> {
     const metrics = await this.prisma.dailyMetricsSnapshot.findFirst({
       orderBy: { date: 'desc' },
     });
@@ -365,7 +387,11 @@ export class AgentExecutorService {
       'L2',
       280,
     );
-    const text = appendAiEnhancement(baseSummary, ai?.text, AgentType.MARKETING);
+    const text = appendAiEnhancement(
+      baseSummary,
+      ai?.text,
+      AgentType.MARKETING,
+    );
     await this.memory.saveInsight({
       agentType: AgentType.MARKETING,
       scope: 'global:daily',
@@ -405,7 +431,10 @@ export class AgentExecutorService {
     };
   }
 
-  private async runSecurity(job: AgentJobPayload, gate: GateResult): Promise<AgentRunOutput> {
+  private async runSecurity(
+    job: AgentJobPayload,
+    gate: GateResult,
+  ): Promise<AgentRunOutput> {
     if (job.userId) {
       await this.prisma.notification.create({
         data: {
@@ -431,7 +460,10 @@ export class AgentExecutorService {
     };
   }
 
-  private async runBilling(job: AgentJobPayload, gate: GateResult): Promise<AgentRunOutput> {
+  private async runBilling(
+    job: AgentJobPayload,
+    gate: GateResult,
+  ): Promise<AgentRunOutput> {
     if (job.userId && gate.action === 'send_dunning') {
       const user = await this.prisma.user.findUnique({
         where: { id: job.userId },
@@ -462,7 +494,10 @@ export class AgentExecutorService {
     };
   }
 
-  private async runDevops(job: AgentJobPayload, gate: GateResult): Promise<AgentRunOutput> {
+  private async runDevops(
+    job: AgentJobPayload,
+    gate: GateResult,
+  ): Promise<AgentRunOutput> {
     if (gate.resolved && gate.source === 'rule') {
       const summary = buildDevopsSummary(job, gate);
       await this.memory.saveInsight({
@@ -501,7 +536,12 @@ export class AgentExecutorService {
 
   private aiUsage(ai: AiRunResult | null) {
     if (!ai) {
-      return { inputTokens: 0, outputTokens: 0, costUsd: 0, modelLevel: undefined };
+      return {
+        inputTokens: 0,
+        outputTokens: 0,
+        costUsd: 0,
+        modelLevel: undefined,
+      };
     }
     return {
       inputTokens: ai.inputTokens,

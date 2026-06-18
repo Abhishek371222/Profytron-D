@@ -12,7 +12,10 @@ export class TokenBudgetService {
     private readonly redis: RedisService,
   ) {}
 
-  async ensureBudget(agentType: AgentType, estimatedTokens: number): Promise<boolean> {
+  async ensureBudget(
+    agentType: AgentType,
+    estimatedTokens: number,
+  ): Promise<boolean> {
     await this.resetIfNeeded(agentType);
     const budget = await this.prisma.agentBudget.findUnique({
       where: { agentType },

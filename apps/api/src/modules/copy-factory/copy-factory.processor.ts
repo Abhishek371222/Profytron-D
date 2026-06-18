@@ -95,7 +95,9 @@ export class CopyFactoryProcessor {
             masterBrokerAccountId: true,
           },
         },
-        brokerAccount: { select: { credentialsEncrypted: true, isActive: true } },
+        brokerAccount: {
+          select: { credentialsEncrypted: true, isActive: true },
+        },
         user: { select: { fullName: true, email: true } },
       },
     });
@@ -114,7 +116,10 @@ export class CopyFactoryProcessor {
     }
     if (!cfStrategyId) return;
 
-    const broker = await this.resolveBrokerAccount(sub.userId, sub.brokerAccountId);
+    const broker = await this.resolveBrokerAccount(
+      sub.userId,
+      sub.brokerAccountId,
+    );
     if (!broker) {
       this.logger.warn(
         `Subscription ${subscriptionId}: no MT5 broker to link for user ${sub.userId}`,
@@ -144,7 +149,10 @@ export class CopyFactoryProcessor {
 
     if (!sub?.strategy.copyFactoryStrategyId) return;
 
-    const broker = await this.resolveBrokerAccount(sub.userId, sub.brokerAccountId);
+    const broker = await this.resolveBrokerAccount(
+      sub.userId,
+      sub.brokerAccountId,
+    );
     if (!broker) return;
 
     const creds = JSON.parse(this.crypto.decrypt(broker.credentialsEncrypted));
@@ -165,7 +173,14 @@ export class CopyFactoryProcessor {
         strategy: { masterBrokerAccountId: { not: null } },
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },
-      select: { id: true, stripeSubId: true, trialEndsAt: true, status: true, expiresAt: true, planType: true },
+      select: {
+        id: true,
+        stripeSubId: true,
+        trialEndsAt: true,
+        status: true,
+        expiresAt: true,
+        planType: true,
+      },
     });
 
     for (const sub of subs) {
@@ -181,7 +196,12 @@ export class CopyFactoryProcessor {
   ) {
     if (preferredId) {
       const preferred = await this.prisma.brokerAccount.findFirst({
-        where: { id: preferredId, userId, isActive: true, isPaperTrading: false },
+        where: {
+          id: preferredId,
+          userId,
+          isActive: true,
+          isPaperTrading: false,
+        },
       });
       if (preferred) return preferred;
     }

@@ -188,7 +188,11 @@ export class AdminService {
     });
   }
 
-  async updateUserRole(userId: string, role: UserRole, requestingAdminId: string) {
+  async updateUserRole(
+    userId: string,
+    role: UserRole,
+    requestingAdminId: string,
+  ) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
 
@@ -257,8 +261,7 @@ export class AdminService {
   async provisionMasterCopyTrading(adminEmail?: string) {
     const login = process.env.ADMIN_MT5_LOGIN;
     const password = process.env.ADMIN_MT5_PASSWORD;
-    const serverName =
-      process.env.ADMIN_MT5_SERVER || 'MetaQuotes-Demo';
+    const serverName = process.env.ADMIN_MT5_SERVER || 'MetaQuotes-Demo';
     const platform = process.env.ADMIN_MT5_PLATFORM === 'mt4' ? 'mt4' : 'mt5';
     const strategyName =
       process.env.MASTER_COPY_STRATEGY_NAME || 'Profytron Master Bot';
@@ -269,7 +272,8 @@ export class AdminService {
       );
     }
 
-    const email = adminEmail || process.env.ADMIN_EMAIL || 'admin@profytron.com';
+    const email =
+      adminEmail || process.env.ADMIN_EMAIL || 'admin@profytron.com';
     let admin = await this.prisma.user.findFirst({
       where: { email },
       select: { id: true, email: true, role: true },
@@ -329,7 +333,9 @@ export class AdminService {
     }
 
     if (!brokerAccount) {
-      throw new BadRequestException('Failed to provision admin MT5 broker account');
+      throw new BadRequestException(
+        'Failed to provision admin MT5 broker account',
+      );
     }
 
     await this.prisma.brokerAccount.update({

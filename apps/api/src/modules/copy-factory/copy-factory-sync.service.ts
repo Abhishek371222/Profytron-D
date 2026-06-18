@@ -15,9 +15,7 @@ export interface CopyFactorySyncJob {
 export class CopyFactorySyncService {
   private readonly logger = new Logger(CopyFactorySyncService.name);
 
-  constructor(
-    @InjectQueue('copyfactory_sync') private readonly queue: Queue,
-  ) {}
+  constructor(@InjectQueue('copyfactory_sync') private readonly queue: Queue) {}
 
   async enqueueLinkSubscription(subscriptionId: string): Promise<void> {
     await this.addJob({

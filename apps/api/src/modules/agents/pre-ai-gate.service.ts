@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AgentType } from '@prisma/client';
 import { RedisService } from '../auth/redis.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import {
-  AGENT_EVENTS,
-  AgentJobPayload,
-  GateResult,
-} from './agent.types';
+import { AGENT_EVENTS, AgentJobPayload, GateResult } from './agent.types';
 import { RuleEngineService } from './core/rule-engine.service';
 import { AgentRollupsService } from './core/agent-rollups.service';
 
@@ -80,7 +76,10 @@ export class PreAiGateService {
   }
 }
 
-function AgentRouterServiceIsFresh(createdAt: Date, eventType: string): boolean {
+function AgentRouterServiceIsFresh(
+  createdAt: Date,
+  eventType: string,
+): boolean {
   const ageMs = Date.now() - createdAt.getTime();
   if (eventType.includes('DAILY') || eventType.includes('WEEKLY')) return false;
   return ageMs < 6 * 60 * 60 * 1000;

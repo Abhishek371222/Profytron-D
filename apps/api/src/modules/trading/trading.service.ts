@@ -31,8 +31,7 @@ export class TradingService {
     @InjectQueue('trade_execution') private tradeQueue: any,
   ) {
     const useCopyFactory =
-      process.env.METAAPI_TOKEN &&
-      process.env.COPYFACTORY_ENABLED !== 'false';
+      process.env.METAAPI_TOKEN && process.env.COPYFACTORY_ENABLED !== 'false';
     if (!useCopyFactory) {
       this.masterSync.startPolling(3000);
     } else {
@@ -60,21 +59,25 @@ export class TradingService {
     const signalId = randomUUID();
 
     // Persist signal audit off the critical path — fire-and-forget.
-    this.prisma.auditLog.create({
-      data: {
-        eventType: 'TRADING_SIGNAL_RECEIVED',
-        userId: null,
-        detailsJson: {
-          signalId,
-          strategyId,
-          type: signalType,
-          pair,
-          price,
-          timestamp: new Date().toISOString(),
+    this.prisma.auditLog
+      .create({
+        data: {
+          eventType: 'TRADING_SIGNAL_RECEIVED',
+          userId: null,
+          detailsJson: {
+            signalId,
+            strategyId,
+            type: signalType,
+            pair,
+            price,
+            timestamp: new Date().toISOString(),
+          },
+          triggeredBy: strategyId,
         },
-        triggeredBy: strategyId,
-      },
-    }).catch((err: Error) => this.logger.error(`Audit write failed: ${err.message}`));
+      })
+      .catch((err: Error) =>
+        this.logger.error(`Audit write failed: ${err.message}`),
+      );
 
     const now = new Date();
 
@@ -252,23 +255,27 @@ export class TradingService {
       throw new Error('Broker account is not marked as a master source');
     }
 
-    this.prisma.auditLog.create({
-      data: {
-        eventType: 'MASTER_TRADING_SIGNAL_BROADCAST',
-        userId: sourceAccount.userId,
-        detailsJson: {
-          sourceBrokerAccountId: sourceAccount.id,
-          brokerName: sourceAccount.brokerName,
-          accountNumberLast4: sourceAccount.accountNumberLast4,
-          strategyId: input.strategyId,
-          type: input.signalType,
-          pair: input.pair,
-          price: input.price,
-          broadcastAt: new Date().toISOString(),
+    this.prisma.auditLog
+      .create({
+        data: {
+          eventType: 'MASTER_TRADING_SIGNAL_BROADCAST',
+          userId: sourceAccount.userId,
+          detailsJson: {
+            sourceBrokerAccountId: sourceAccount.id,
+            brokerName: sourceAccount.brokerName,
+            accountNumberLast4: sourceAccount.accountNumberLast4,
+            strategyId: input.strategyId,
+            type: input.signalType,
+            pair: input.pair,
+            price: input.price,
+            broadcastAt: new Date().toISOString(),
+          },
+          triggeredBy: sourceAccount.id,
         },
-        triggeredBy: sourceAccount.id,
-      },
-    }).catch((err: Error) => this.logger.error(`Audit write failed: ${err.message}`));
+      })
+      .catch((err: Error) =>
+        this.logger.error(`Audit write failed: ${err.message}`),
+      );
 
     return this.processSignal(
       input.strategyId,
@@ -616,18 +623,18 @@ export class TradingService {
     }
 
     return trades.map((trade) => {
-        let profit = trade.profit;
-        if (profit == null) {
-          const marketSymbol = this.mapTradeSymbolToMarket(trade.symbol);
-          if (marketSymbol) {
-            const quote = quoteBySymbol.get(marketSymbol);
-            profit = quote != null ? this.estimateUnrealizedPnl(trade, quote) : 0;
-          } else {
-            profit = 0;
-          }
+      let profit = trade.profit;
+      if (profit == null) {
+        const marketSymbol = this.mapTradeSymbolToMarket(trade.symbol);
+        if (marketSymbol) {
+          const quote = quoteBySymbol.get(marketSymbol);
+          profit = quote != null ? this.estimateUnrealizedPnl(trade, quote) : 0;
+        } else {
+          profit = 0;
         }
-        return { ...trade, profit, unrealizedPnl: profit };
-      });
+      }
+      return { ...trade, profit, unrealizedPnl: profit };
+    });
   }
 
   private mapTradeSymbolToMarket(symbol: string): MarketSymbol | null {
@@ -742,7 +749,9 @@ export class TradingService {
    * Batch-fetch max drawdown for multiple users in a single DB query.
    * Returns a map of userId → drawdownPct.
    */
-  private async buildDrawdownMap(userIds: string[]): Promise<Map<string, number>> {
+  private async buildDrawdownMap(
+    userIds: string[],
+  ): Promise<Map<string, number>> {
     if (userIds.length === 0) return new Map();
 
     const trades = await this.prisma.trade.findMany({

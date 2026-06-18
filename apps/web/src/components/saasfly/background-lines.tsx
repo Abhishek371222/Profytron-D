@@ -58,6 +58,15 @@ const colors = [
   "rgba(167,139,250,0.4)",
 ];
 
+// Precompute randomized animation timings at module load (once per session) rather
+// than during render, which keeps them stable and satisfies the render-purity rule.
+const pathTimings = paths.map(() => ({
+  delay: Math.random() * 8,
+  repeatDelay: Math.random() * 8 + 2,
+  dupDelay: Math.random() * 10 + 4,
+  dupRepeatDelay: Math.random() * 8 + 2,
+}));
+
 const SVG = ({ svgOptions }: { svgOptions?: { duration?: number } }) => {
   return (
     <motion.svg
@@ -84,8 +93,8 @@ const SVG = ({ svgOptions }: { svgOptions?: { duration?: number } }) => {
             ease: "linear",
             repeat: Infinity,
             repeatType: "loop",
-            delay: Math.random() * 8,
-            repeatDelay: Math.random() * 8 + 2,
+            delay: pathTimings[idx].delay,
+            repeatDelay: pathTimings[idx].repeatDelay,
           }}
           key={`path-${idx}`}
         />
@@ -104,8 +113,8 @@ const SVG = ({ svgOptions }: { svgOptions?: { duration?: number } }) => {
             ease: "linear",
             repeat: Infinity,
             repeatType: "loop",
-            delay: Math.random() * 10 + 4,
-            repeatDelay: Math.random() * 8 + 2,
+            delay: pathTimings[idx].dupDelay,
+            repeatDelay: pathTimings[idx].dupRepeatDelay,
           }}
           key={`path-dup-${idx}`}
         />

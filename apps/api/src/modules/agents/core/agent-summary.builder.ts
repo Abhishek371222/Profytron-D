@@ -42,9 +42,7 @@ export function buildCeoSummary(metrics: Record<string, unknown>): string {
   ].join('\n');
 }
 
-export function buildProductSummary(
-  data: Record<string, unknown>,
-): string {
+export function buildProductSummary(data: Record<string, unknown>): string {
   const raw = data.funnel;
   const rows = Array.isArray(raw) ? raw : [];
   const lines = rows.length
@@ -173,8 +171,7 @@ export function buildBillingSummary(
 ): string {
   const label = EVENT_LABELS[job.eventType] ?? job.eventType;
   const amount = job.payload?.amount;
-  const amountLine =
-    amount != null ? `- **Amount:** ${fmtInr(amount)}` : null;
+  const amountLine = amount != null ? `- **Amount:** ${fmtInr(amount)}` : null;
   return [
     `## Billing Event Report`,
     ``,

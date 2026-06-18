@@ -16,8 +16,7 @@ export class ModelRouterService {
     systemPrompt: string,
     userPrompt: string,
   ): Promise<AiCompletionResult> {
-    const apiKey =
-      process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error('No AI API key configured');
     }
@@ -57,7 +56,9 @@ export class ModelRouterService {
     const inputTokens = usage.prompt_tokens ?? Math.ceil(userPrompt.length / 4);
     const outputTokens =
       usage.completion_tokens ??
-      Math.ceil(String(response.data?.choices?.[0]?.message?.content ?? '').length / 4);
+      Math.ceil(
+        String(response.data?.choices?.[0]?.message?.content ?? '').length / 4,
+      );
     const costUsd =
       ((inputTokens + outputTokens) / 1_000_000) * config.costPer1M;
 

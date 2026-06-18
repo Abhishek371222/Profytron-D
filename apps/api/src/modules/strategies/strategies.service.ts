@@ -111,7 +111,11 @@ export class StrategiesService {
     if (performanceSortFields.has(requestedSortBy)) {
       // DB-side sort via StrategyPerformance — avoids loading all strategies into JS memory.
       // Step 1: Get sorted strategy IDs from the performance table (latest record per strategy).
-      const perfField = requestedSortBy as 'winRate' | 'sharpeRatio' | 'maxDrawdown' | 'netPnl';
+      const perfField = requestedSortBy as
+        | 'winRate'
+        | 'sharpeRatio'
+        | 'maxDrawdown'
+        | 'netPnl';
       const perfRows = await this.prisma.strategyPerformance.findMany({
         where: { strategy: where },
         orderBy: { [perfField]: requestedOrder },
@@ -129,15 +133,20 @@ export class StrategiesService {
             creator: { select: { id: true, fullName: true, avatarUrl: true } },
             performance: { take: 1, orderBy: { date: 'desc' } },
             subscriptions: userId
-              ? { where: { userId, status: SubscriptionStatus.ACTIVE }, take: 1 }
+              ? {
+                  where: { userId, status: SubscriptionStatus.ACTIVE },
+                  take: 1,
+                }
               : false,
           },
         }),
-        this.prisma.strategyPerformance.groupBy({
-          by: ['strategyId'],
-          where: { strategy: where },
-          _count: { strategyId: true },
-        }).then((r) => r.length),
+        this.prisma.strategyPerformance
+          .groupBy({
+            by: ['strategyId'],
+            where: { strategy: where },
+            _count: { strategyId: true },
+          })
+          .then((r) => r.length),
       ]);
 
       // Restore the DB-sorted order (findMany with `in` doesn't guarantee order).

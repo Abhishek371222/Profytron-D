@@ -1,9 +1,4 @@
-import {
-  InjectQueue,
-  OnQueueFailed,
-  Process,
-  Processor,
-} from '@nestjs/bull';
+import { InjectQueue, OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import type { Job, Queue } from 'bull';
 import { PrismaService } from '../../prisma/prisma.service';

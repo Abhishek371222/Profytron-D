@@ -57,7 +57,9 @@ export class TradingGateway
 
       // Reject tokens that have been explicitly revoked (post-logout, password-reset)
       if (payload.jti) {
-        const isBlacklisted = await this.redisService.exists(`auth:blacklist:${payload.jti}`);
+        const isBlacklisted = await this.redisService.exists(
+          `auth:blacklist:${payload.jti}`,
+        );
         if (isBlacklisted) {
           client.disconnect();
           return;

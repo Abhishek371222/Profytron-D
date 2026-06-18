@@ -157,15 +157,27 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) {
       this.logger.log(`Cache hit: trade explanation for ${tradeId}`);
-      return JSON.parse(cached) as { tradeId: string; symbol: string; explanation: unknown };
+      return JSON.parse(cached) as {
+        tradeId: string;
+        symbol: string;
+        explanation: unknown;
+      };
     }
 
     const trade = await this.prisma.trade.findFirst({
       where: { id: tradeId, userId },
       select: {
-        id: true, userId: true, strategyId: true, symbol: true,
-        direction: true, openPrice: true, closePrice: true,
-        stopLoss: true, takeProfit: true, profit: true, status: true,
+        id: true,
+        userId: true,
+        strategyId: true,
+        symbol: true,
+        direction: true,
+        openPrice: true,
+        closePrice: true,
+        stopLoss: true,
+        takeProfit: true,
+        profit: true,
+        status: true,
         strategy: { select: { name: true, category: true, riskLevel: true } },
       },
     });
@@ -183,8 +195,11 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
     await this.redis.set(pendingKey, '1', 30 * 60);
 
     // Fire AI call in background — do NOT await.
-    this.runExplainInBackground(trade, cacheKey, pendingKey).catch((err: Error) =>
-      this.logger.error(`Background AI explain failed for ${tradeId}: ${err.message}`),
+    this.runExplainInBackground(trade, cacheKey, pendingKey).catch(
+      (err: Error) =>
+        this.logger.error(
+          `Background AI explain failed for ${tradeId}: ${err.message}`,
+        ),
     );
 
     return { status: 'pending', tradeId, symbol: trade.symbol };
@@ -192,10 +207,18 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
 
   private async runExplainInBackground(
     trade: {
-      id: string; userId: string; strategyId: string | null; symbol: string;
-      direction: string; openPrice: number; closePrice: number | null;
-      stopLoss: number | null; takeProfit: number | null; profit: number | null;
-      status: string; strategy?: { name: string; category: string; riskLevel: string } | null;
+      id: string;
+      userId: string;
+      strategyId: string | null;
+      symbol: string;
+      direction: string;
+      openPrice: number;
+      closePrice: number | null;
+      stopLoss: number | null;
+      takeProfit: number | null;
+      profit: number | null;
+      status: string;
+      strategy?: { name: string; category: string; riskLevel: string } | null;
     },
     cacheKey: string,
     pendingKey: string,
@@ -214,7 +237,9 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
 
       const start = Date.now();
       const ai = await this.explainTrade(promptPayload);
-      this.logger.log(`AI trade explanation for ${trade.id} completed in ${Date.now() - start}ms`);
+      this.logger.log(
+        `AI trade explanation for ${trade.id} completed in ${Date.now() - start}ms`,
+      );
 
       const summary =
         typeof ai === 'string'
@@ -230,7 +255,11 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
         update: {
           summary,
           confidenceScore: 78,
-          riskFactorsJson: { stopLoss: trade.stopLoss, takeProfit: trade.takeProfit, currentStatus: trade.status },
+          riskFactorsJson: {
+            stopLoss: trade.stopLoss,
+            takeProfit: trade.takeProfit,
+            currentStatus: trade.status,
+          },
           keyLevelsJson: { entry: trade.openPrice, close: trade.closePrice },
         },
         create: {
@@ -238,12 +267,21 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
           strategyId: trade.strategyId,
           summary,
           confidenceScore: 78,
-          riskFactorsJson: { stopLoss: trade.stopLoss, takeProfit: trade.takeProfit, currentStatus: trade.status },
+          riskFactorsJson: {
+            stopLoss: trade.stopLoss,
+            takeProfit: trade.takeProfit,
+            currentStatus: trade.status,
+          },
           keyLevelsJson: { entry: trade.openPrice, close: trade.closePrice },
         },
       });
 
-      const result = { tradeId: trade.id, symbol: trade.symbol, explanation: ai, status: 'ready' };
+      const result = {
+        tradeId: trade.id,
+        symbol: trade.symbol,
+        explanation: ai,
+        status: 'ready',
+      };
       if (trade.status === 'CLOSED') {
         await this.redis.set(cacheKey, JSON.stringify(result), TTL_AI_RESPONSE);
       }

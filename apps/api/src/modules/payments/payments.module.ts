@@ -21,7 +21,11 @@ import { AgentsModule } from '../agents/agents.module';
     GrowthModule,
     AgentsModule,
   ],
-  controllers: [PaymentsController, RazorpayController, SubscriptionsController],
+  controllers: [
+    PaymentsController,
+    RazorpayController,
+    SubscriptionsController,
+  ],
   providers: [PaymentsService],
   exports: [PaymentsService],
 })

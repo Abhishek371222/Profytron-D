@@ -18,7 +18,10 @@ export type ActivationEventKey =
   (typeof ACTIVATION_EVENTS)[keyof typeof ACTIVATION_EVENTS];
 
 const ACHIEVEMENT_MAP: Partial<
-  Record<ActivationEventKey, { key: string; tier: AchievementTier; title: string }>
+  Record<
+    ActivationEventKey,
+    { key: string; tier: AchievementTier; title: string }
+  >
 > = {
   [ACTIVATION_EVENTS.FIRST_PAPER_TRADE]: {
     key: 'FIRST_BLOOD',
@@ -111,7 +114,9 @@ export class ActivationService {
       await this.maybeAwardPowerUser(userId);
       return true;
     } catch (error) {
-      this.logger.warn(`Activation track failed for ${userId}/${event}: ${error}`);
+      this.logger.warn(
+        `Activation track failed for ${userId}/${event}: ${error}`,
+      );
       return false;
     }
   }
@@ -172,7 +177,8 @@ export class ActivationService {
       progressPct: Math.round((completed / checklist.length) * 100),
       completed,
       total: checklist.length,
-      isActivated: eventSet.has(ACTIVATION_EVENTS.FIRST_PAPER_TRADE) ||
+      isActivated:
+        eventSet.has(ACTIVATION_EVENTS.FIRST_PAPER_TRADE) ||
         eventSet.has(ACTIVATION_EVENTS.BROKER_CONNECTED),
     };
   }

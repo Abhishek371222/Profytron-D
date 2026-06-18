@@ -33,7 +33,9 @@ export class CopyTradingService implements OnModuleInit {
     try {
       await this.backfillAll();
     } catch (err) {
-      this.logger.warn(`Initial copy backfill skipped: ${(err as Error).message}`);
+      this.logger.warn(
+        `Initial copy backfill skipped: ${(err as Error).message}`,
+      );
     }
   }
 
@@ -157,7 +159,8 @@ export class CopyTradingService implements OnModuleInit {
           status,
           sizingMode,
           lotMultiplier: sub.lotMultiplier ?? 1.0,
-          fixedLot: typeof profile.fixedLot === 'number' ? profile.fixedLot : null,
+          fixedLot:
+            typeof profile.fixedLot === 'number' ? profile.fixedLot : null,
           maxDrawdownPct: sub.maxDrawdownPct ?? null,
         },
         update: {
@@ -166,7 +169,8 @@ export class CopyTradingService implements OnModuleInit {
           status,
           sizingMode,
           lotMultiplier: sub.lotMultiplier ?? 1.0,
-          fixedLot: typeof profile.fixedLot === 'number' ? profile.fixedLot : null,
+          fixedLot:
+            typeof profile.fixedLot === 'number' ? profile.fixedLot : null,
           maxDrawdownPct: sub.maxDrawdownPct ?? null,
         },
       });
@@ -175,7 +179,10 @@ export class CopyTradingService implements OnModuleInit {
     return count;
   }
 
-  private async computeMasterStats(brokerAccountId: string, baseEquity: number) {
+  private async computeMasterStats(
+    brokerAccountId: string,
+    baseEquity: number,
+  ) {
     const trades = await this.prisma.trade.findMany({
       where: { brokerAccountId, status: 'CLOSED' },
       orderBy: { closedAt: 'asc' },

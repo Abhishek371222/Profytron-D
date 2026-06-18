@@ -16,18 +16,67 @@ const LOW_USAGE_BUDGET = {
 /** One smoke event per agent — rules/SQL first, AI only if gate requires it. */
 const AGENT_SMOKE_EVENTS: Record<
   AgentType,
-  { eventType: string; entityType: string; entityId: string; payload?: Record<string, unknown> }
+  {
+    eventType: string;
+    entityType: string;
+    entityId: string;
+    payload?: Record<string, unknown>;
+  }
 > = {
-  [AgentType.CEO]: { eventType: AGENT_EVENTS.CEO_DAILY_TICK, entityType: 'system', entityId: 'smoke' },
-  [AgentType.PRODUCT]: { eventType: AGENT_EVENTS.PRODUCT_DAILY_TICK, entityType: 'system', entityId: 'smoke' },
-  [AgentType.MARKETING]: { eventType: AGENT_EVENTS.MARKETING_DAILY_TICK, entityType: 'system', entityId: 'smoke' },
-  [AgentType.SEO]: { eventType: AGENT_EVENTS.SEO_WEEKLY_TICK, entityType: 'system', entityId: 'smoke' },
-  [AgentType.ANALYTICS]: { eventType: AGENT_EVENTS.ANALYTICS_DAILY_TICK, entityType: 'system', entityId: 'smoke' },
-  [AgentType.CUSTOMER_SUCCESS]: { eventType: AGENT_EVENTS.USER_INACTIVE_7D, entityType: 'user', entityId: 'smoke-user' },
-  [AgentType.SUPPORT]: { eventType: AGENT_EVENTS.SUPPORT_TICKET_CREATED, entityType: 'ticket', entityId: 'smoke-ticket', payload: { subject: 'Smoke test', category: 'general' } },
-  [AgentType.BILLING]: { eventType: AGENT_EVENTS.PAYMENT_FAILED, entityType: 'payment', entityId: 'smoke-pay', payload: { amount: 100 } },
-  [AgentType.SECURITY]: { eventType: AGENT_EVENTS.API_RATE_LIMIT_EXCEEDED, entityType: 'ip', entityId: '127.0.0.1', payload: { limit: 60 } },
-  [AgentType.DEVOPS]: { eventType: AGENT_EVENTS.ERROR_RATE_SPIKE, entityType: 'system', entityId: 'smoke', payload: { rate: 0.02 } },
+  [AgentType.CEO]: {
+    eventType: AGENT_EVENTS.CEO_DAILY_TICK,
+    entityType: 'system',
+    entityId: 'smoke',
+  },
+  [AgentType.PRODUCT]: {
+    eventType: AGENT_EVENTS.PRODUCT_DAILY_TICK,
+    entityType: 'system',
+    entityId: 'smoke',
+  },
+  [AgentType.MARKETING]: {
+    eventType: AGENT_EVENTS.MARKETING_DAILY_TICK,
+    entityType: 'system',
+    entityId: 'smoke',
+  },
+  [AgentType.SEO]: {
+    eventType: AGENT_EVENTS.SEO_WEEKLY_TICK,
+    entityType: 'system',
+    entityId: 'smoke',
+  },
+  [AgentType.ANALYTICS]: {
+    eventType: AGENT_EVENTS.ANALYTICS_DAILY_TICK,
+    entityType: 'system',
+    entityId: 'smoke',
+  },
+  [AgentType.CUSTOMER_SUCCESS]: {
+    eventType: AGENT_EVENTS.USER_INACTIVE_7D,
+    entityType: 'user',
+    entityId: 'smoke-user',
+  },
+  [AgentType.SUPPORT]: {
+    eventType: AGENT_EVENTS.SUPPORT_TICKET_CREATED,
+    entityType: 'ticket',
+    entityId: 'smoke-ticket',
+    payload: { subject: 'Smoke test', category: 'general' },
+  },
+  [AgentType.BILLING]: {
+    eventType: AGENT_EVENTS.PAYMENT_FAILED,
+    entityType: 'payment',
+    entityId: 'smoke-pay',
+    payload: { amount: 100 },
+  },
+  [AgentType.SECURITY]: {
+    eventType: AGENT_EVENTS.API_RATE_LIMIT_EXCEEDED,
+    entityType: 'ip',
+    entityId: '127.0.0.1',
+    payload: { limit: 60 },
+  },
+  [AgentType.DEVOPS]: {
+    eventType: AGENT_EVENTS.ERROR_RATE_SPIKE,
+    entityType: 'system',
+    entityId: 'smoke',
+    payload: { rate: 0.02 },
+  },
 };
 
 async function enqueueSmokeRun(
@@ -133,14 +182,16 @@ export class AgentsController {
         0,
       );
       const cost = rows.reduce((s, r) => s + (r._sum.costUsd ?? 0), 0);
-      const skipped = rows.find((r) => r.status === 'SKIPPED_NO_AI')?._count.id ?? 0;
+      const skipped =
+        rows.find((r) => r.status === 'SKIPPED_NO_AI')?._count.id ?? 0;
       const budget = budgets.find((b) => b.agentType === type);
       return {
         agentType: type,
         invocations,
         tokens,
         costUsd: cost,
-        skipRate: invocations > 0 ? ((skipped / invocations) * 100).toFixed(1) : '0',
+        skipRate:
+          invocations > 0 ? ((skipped / invocations) * 100).toFixed(1) : '0',
         enabled: budget?.enabled ?? true,
         tokensUsedToday: budget?.tokensUsedToday ?? 0,
         tokenCap: budget?.dailyTokenCap ?? 0,
@@ -173,7 +224,9 @@ export class AgentsController {
   }
 
   @Get('activity')
-  @ApiOperation({ summary: 'Live agent job feed — what each agent is working on' })
+  @ApiOperation({
+    summary: 'Live agent job feed — what each agent is working on',
+  })
   async activity() {
     const [recentJobs, pendingOutbox, processing] = await Promise.all([
       this.prisma.agentJob.findMany({
@@ -235,10 +288,16 @@ export class AgentsController {
   }
 
   @Post('run-all-low')
-  @ApiOperation({ summary: 'Enable all agents with low budgets and enqueue one smoke job each' })
+  @ApiOperation({
+    summary:
+      'Enable all agents with low budgets and enqueue one smoke job each',
+  })
   async runAllLow(@Query('force') force?: string) {
     if (!this.events.isEnabled()) {
-      return { ok: false, message: 'Agents disabled — set AGENTS_ENABLED=true' };
+      return {
+        ok: false,
+        message: 'Agents disabled — set AGENTS_ENABLED=true',
+      };
     }
 
     const forceRun = force === 'true';
@@ -311,7 +370,10 @@ export class AgentsController {
   @ApiOperation({ summary: 'Enqueue a single agent smoke job' })
   async runSingle(@Param('agentType') agentType: AgentType) {
     if (!this.events.isEnabled()) {
-      return { ok: false, message: 'Agents disabled — set AGENTS_ENABLED=true' };
+      return {
+        ok: false,
+        message: 'Agents disabled — set AGENTS_ENABLED=true',
+      };
     }
 
     if (!Object.values(AgentType).includes(agentType)) {

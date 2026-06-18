@@ -9,10 +9,7 @@ import { TokenBudgetService } from './core/token-budget.service';
 import { AgentMemoryService } from './core/agent-memory.service';
 import { AgentRollupsService } from './core/agent-rollups.service';
 import { AgentExecutorService } from './agent-executor.service';
-import {
-  AgentWorkforceProcessor,
-  AgentDlqProcessor,
-} from './agent.processor';
+import { AgentWorkforceProcessor, AgentDlqProcessor } from './agent.processor';
 import {
   AgentOutboxPoller,
   AgentSchedulerService,

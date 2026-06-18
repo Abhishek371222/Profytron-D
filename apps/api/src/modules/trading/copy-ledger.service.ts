@@ -1,10 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import {
-  TradeEventType,
-  ExecutionStatus,
-  Prisma,
-} from '@prisma/client';
+import { TradeEventType, ExecutionStatus, Prisma } from '@prisma/client';
 
 /**
  * Append-only ledger for the copy-trading lifecycle. All writes are
