@@ -3,6 +3,10 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# openssl lets Prisma detect the OpenSSL version and fetch the matching
+# (OpenSSL 3.x) musl query engine during `prisma generate`.
+RUN apk add --no-cache openssl
+
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
 # Copy every workspace manifest + the lockfile first so that
@@ -32,6 +36,10 @@ FROM node:20-alpine AS runner
 WORKDIR /app/apps/api
 
 ENV NODE_ENV=production
+
+# Prisma's query engine links against libssl at runtime; install OpenSSL 3 so
+# the linux-musl-openssl-3.0.x engine can load.
+RUN apk add --no-cache openssl
 
 # Bring over installed deps (pnpm's virtual store lives at the workspace root,
 # with relative symlinks under apps/api/node_modules) plus the build output.
