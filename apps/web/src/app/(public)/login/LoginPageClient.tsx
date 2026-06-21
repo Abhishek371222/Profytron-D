@@ -265,12 +265,12 @@ function LoginPageContent() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {urlErrorMessage && (
-                  <div className="rounded-xl border border-chart-4/40 bg-chart-4/10 px-4 py-3 text-sm text-amber-200">
+                  <div className="rounded-xl border border-chart-4/40 bg-chart-4/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-200">
                     {urlErrorMessage}
                   </div>
                 )}
                 {errorMessage && (
-                  <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                  <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-200">
                     {errorMessage}
                   </div>
                 )}

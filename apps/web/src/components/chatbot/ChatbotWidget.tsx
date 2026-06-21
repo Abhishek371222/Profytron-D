@@ -21,6 +21,13 @@ const APP_SHELL_ROUTES = [
   '/my-bots', '/subscriptions', '/billing', '/team-plans', '/connected-accounts',
 ];
 
+// Focused conversion / auth flows — a floating launcher just overlaps the
+// primary CTAs (esp. on mobile), so we hide it entirely on these routes.
+const HIDDEN_ROUTES = [
+  '/login', '/register', '/signup', '/verify-email',
+  '/reset-password', '/forgot-password', '/auth', '/onboarding',
+];
+
 type Message = {
   id: string;
   role: 'user' | 'assistant';
@@ -63,7 +70,7 @@ function TypingDots() {
 function BotAvatar() {
   return (
     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center shrink-0 mt-0.5 shadow-lg shadow-primary/25">
-      <Sparkles className="w-3.5 h-3.5 text-foreground" />
+      <Sparkles className="w-3.5 h-3.5 text-white" />
     </div>
   );
 }
@@ -102,6 +109,9 @@ function MessageBubble({ msg }: { msg: Message }) {
 
 export function ChatbotWidget() {
   const pathname = usePathname();
+  const isHidden = HIDDEN_ROUTES.some(
+    (r) => pathname === r || pathname?.startsWith(`${r}/`),
+  );
   const isAppShell = APP_SHELL_ROUTES.some((r) => pathname?.startsWith(r));
   const { aiChatOpen, setAIChatOpen, toggleAIChat } = useUIStore();
   const [localOpen, setLocalOpen] = useState(false);
@@ -183,6 +193,8 @@ export function ChatbotWidget() {
     [messages, loading, isOpen],
   );
 
+  if (isHidden) return null;
+
   return (
     <div className={cn(
       'fixed z-[9999] flex flex-col items-end gap-3 select-none',
@@ -197,7 +209,7 @@ export function ChatbotWidget() {
             exit={{ opacity: 0, scale: 0.88, y: 16 }}
             transition={{ type: 'spring', stiffness: 420, damping: 30 }}
             style={{ transformOrigin: 'bottom right' }}
-            className="w-[370px] max-w-[calc(100vw-24px)] rounded-[20px] overflow-hidden flex flex-col bg-card backdrop-blur-xl border border-[var(--card-border)] shadow-card-premium h-[540px]"
+            className="w-[370px] max-w-[calc(100vw-24px)] rounded-[20px] overflow-hidden flex flex-col bg-card backdrop-blur-xl border border-[var(--card-border)] shadow-card-premium h-[540px] max-h-[calc(100dvh-7rem)]"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-primary via-primary to-chart-2 px-5 py-4 flex items-center justify-between shrink-0 relative overflow-hidden">
@@ -207,18 +219,18 @@ export function ChatbotWidget() {
               <div className="relative flex items-center gap-3">
                 {/* Icon with online badge */}
                 <div className="relative shrink-0">
-                  <div className="w-10 h-10 rounded-2xl bg-foreground/15 flex items-center justify-center border border-white/20 backdrop-blur-sm shadow-inner">
-                    <Zap className="w-5 h-5 text-foreground" />
+                  <div className="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center border border-white/20 backdrop-blur-sm shadow-inner">
+                    <Zap className="w-5 h-5 text-white" />
                   </div>
                   <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-chart-3 border-2 border-primary shadow-sm" />
                 </div>
 
                 {/* Name + status — both left-aligned */}
                 <div>
-                  <p className="text-sm font-bold text-foreground tracking-wide leading-tight">
+                  <p className="text-sm font-bold text-white tracking-wide leading-tight">
                     Profytron AI
                   </p>
-                  <p className="text-[10px] text-foreground/70 uppercase tracking-widest font-semibold mt-0.5 leading-tight">
+                  <p className="text-[10px] text-white/70 uppercase tracking-widest font-semibold mt-0.5 leading-tight">
                     Online
                   </p>
                 </div>
@@ -228,9 +240,9 @@ export function ChatbotWidget() {
               <div className="relative">
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 rounded-xl bg-foreground/15 hover:bg-foreground/25 flex items-center justify-center transition-colors border border-white/15"
+                  className="w-8 h-8 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors border border-white/15"
                 >
-                  <X className="w-4 h-4 text-foreground" />
+                  <X className="w-4 h-4 text-white" />
                 </button>
               </div>
             </div>
@@ -302,7 +314,7 @@ export function ChatbotWidget() {
                   disabled={!input.trim() || loading}
                   className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center disabled:opacity-30 hover:opacity-90 transition-opacity shrink-0"
                 >
-                  <Send className="w-3.5 h-3.5 text-foreground" />
+                  <Send className="w-3.5 h-3.5 text-white" />
                 </motion.button>
               </div>
               <p className="text-[10px] text-foreground/15 text-center mt-2 uppercase tracking-widest">
@@ -344,7 +356,7 @@ export function ChatbotWidget() {
                   exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
                   transition={{ duration: 0.18 }}
                 >
-                  <X className="w-6 h-6 text-foreground" />
+                  <X className="w-6 h-6 text-white" />
                 </motion.div>
               ) : (
                 <motion.div
@@ -354,7 +366,7 @@ export function ChatbotWidget() {
                   exit={{ rotate: -90, opacity: 0, scale: 0.6 }}
                   transition={{ duration: 0.18 }}
                 >
-                  <MessageCircle className="w-6 h-6 text-foreground" />
+                  <MessageCircle className="w-6 h-6 text-white" />
                 </motion.div>
               )}
             </AnimatePresence>
