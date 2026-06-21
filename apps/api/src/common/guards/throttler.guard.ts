@@ -29,6 +29,10 @@ export class AppThrottlerGuard extends ThrottlerGuard {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Rate limiting is disabled under test: the e2e/integration suites fire many
+    // auth requests from a single loopback IP and would otherwise trip the
+    // per-IP budget (429). Production/staging behaviour is unaffected.
+    if (process.env.NODE_ENV === 'test') return true;
     if (context.getType() !== 'http') return true;
     return super.canActivate(context);
   }
@@ -37,7 +41,9 @@ export class AppThrottlerGuard extends ThrottlerGuard {
   // across IPs / NAT), and anonymous callers by IP.
   protected getTracker(req: Record<string, any>): Promise<string> {
     const userId = req?.user?.userId ?? req?.user?.id;
-    return Promise.resolve(userId ? `user:${userId}` : `ip:${req?.ip ?? 'unknown'}`);
+    return Promise.resolve(
+      userId ? `user:${userId}` : `ip:${req?.ip ?? 'unknown'}`,
+    );
   }
 
   // Raise the limit for authenticated requests; anonymous requests keep the

@@ -142,7 +142,11 @@ jobs:
       run: pnpm --dir apps/api exec prisma generate
 
     - name: Run integration + e2e tests
-      run: pnpm --dir apps/api test --passWithNoTests
+      # --runInBand executes suites serially in one process. The integration
+      # suites share a single Postgres test DB and reset it with TRUNCATE in
+      # beforeEach; running them in parallel lets one worker wipe another's rows
+      # mid-test (FK violations, spurious 401s, SELECT/TRUNCATE deadlocks).
+      run: pnpm --dir apps/api test --passWithNoTests --runInBand
 
   dependency-audit:
     name: Dependency vulnerability audit
