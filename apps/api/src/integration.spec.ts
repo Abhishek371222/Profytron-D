@@ -100,6 +100,10 @@ describeIfApiInfra('Integration flows', () => {
         monthlyPrice: 29,
         annualPrice: 199,
         lifetimePrice: 499,
+        // Pin the revenue split so the expected creator credit (29 * 0.7 = 20.3)
+        // is deterministic and independent of the schema default.
+        creatorSharePct: 0.7,
+        platformSharePct: 0.3,
       },
     });
 
