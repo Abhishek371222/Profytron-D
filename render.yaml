@@ -21,7 +21,7 @@ services:
     plan: free
     region: oregon
     healthCheckPath: /health
-    autoDeploy: true
+    autoDeployTrigger: commit
     envVars:
       # --- Runtime ---
       - key: NODE_ENV
