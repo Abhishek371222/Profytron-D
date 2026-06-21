@@ -31,15 +31,20 @@ services:
       - key: API_HOST
         value: "0.0.0.0"
 
-      # --- Public URLs (update to https://profytron.com once DNS is live) ---
+      # --- Public URLs ---
+      # IMPORTANT: the live site is served on the www host. The apex
+      # (profytron.com) only redirects "/" to www and 404s every other path,
+      # so FRONTEND_URL MUST point at www or OAuth/email deep links break
+      # ("Not Found" after Google login when hitting profytron.com/auth/callback).
       - key: API_PUBLIC_URL
         value: https://profytron-api.onrender.com
       - key: FRONTEND_URL
-        value: https://profytron.com
+        value: https://www.profytron.com
       - key: FRONTEND_DASHBOARD_URL
-        value: https://profytron.com/dashboard
+        value: https://www.profytron.com/dashboard
+      # Allow both hosts so requests/WebSockets from either are accepted.
       - key: CORS_ORIGIN
-        value: https://profytron.com
+        value: https://www.profytron.com,https://profytron.com
 
       # --- Database (Neon) — set in dashboard ---
       - key: DATABASE_URL

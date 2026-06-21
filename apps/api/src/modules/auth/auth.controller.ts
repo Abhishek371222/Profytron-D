@@ -34,6 +34,7 @@ import {
   GoogleAuthGuard,
 } from './guards/auth.guard';
 import { AuthGuard } from '@nestjs/passport';
+import { resolveFrontendUrl } from '../../common/utils/oauth-callback.util';
 import type { Request, Response } from 'express';
 
 type AuthenticatedRequest = Request & {
@@ -107,7 +108,7 @@ export class AuthController {
     oauthCode?: string;
     user?: { onboardingCompleted?: boolean };
   }): string {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const frontendUrl = resolveFrontendUrl();
     const dest = result.user?.onboardingCompleted
       ? '/dashboard'
       : '/onboarding/risk';
