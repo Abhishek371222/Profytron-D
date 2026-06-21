@@ -15,6 +15,33 @@ export default function AuthCallbackClient() {
 
   useEffect(() => {
     const handleCallback = async () => {
+      // NestJS OAuth (Google/GitHub) returns a one-time code. Exchanging it here
+      // (on this public route, proxied through our own origin) sets the
+      // refresh_token cookie scoped to the frontend domain, so the middleware
+      // lets the user into protected routes afterwards.
+      const oauthCode = searchParams.get('oauthCode');
+      if (oauthCode) {
+        try {
+          const exch = await apiClient.get(
+            `/auth/oauth-token-exchange?code=${encodeURIComponent(oauthCode)}`,
+          );
+          const { accessToken } = unwrapApiResponse<{ accessToken: string }>(
+            exch.data,
+          );
+          const meRes = await apiClient.get('/users/me', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          const user = unwrapApiResponse<any>(meRes.data);
+          login(accessToken, user);
+          const redirectTo = searchParams.get('redirect') || '/dashboard';
+          router.replace(resolvePostLoginRedirect(user, redirectTo));
+        } catch (e) {
+          console.error('OAuth code exchange failed:', e);
+          router.push('/login?error=oauth_failed');
+        }
+        return;
+      }
+
       const providerError =
         searchParams.get('error') ||
         searchParams.get('error_description') ||

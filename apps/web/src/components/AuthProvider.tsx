@@ -45,6 +45,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true);
 
+    // The dedicated /auth/callback page owns OAuth code exchange + session
+    // bootstrap. Running the exchange / hydrate() here too would consume the
+    // single-use code first and break that page.
+    if (window.location.pathname.startsWith('/auth/callback')) {
+      return;
+    }
+
     const params = new URLSearchParams(window.location.search);
     const oauthCode = params.get('oauthCode');
 

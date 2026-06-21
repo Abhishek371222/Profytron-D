@@ -96,6 +96,28 @@ export class AuthController {
     }
   }
 
+  /**
+   * Always return OAuth users to the PUBLIC /auth/callback page (never straight
+   * to a protected route like /dashboard). The frontend middleware gates
+   * protected routes on the refresh_token cookie, which only gets scoped to the
+   * frontend domain once the one-time code is exchanged there. Landing directly
+   * on a protected route would bounce to /login before the exchange could run.
+   */
+  private buildOAuthCallbackUrl(result: {
+    oauthCode?: string;
+    user?: { onboardingCompleted?: boolean };
+  }): string {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const dest = result.user?.onboardingCompleted
+      ? '/dashboard'
+      : '/onboarding/risk';
+    const params = new URLSearchParams({
+      oauthCode: result.oauthCode ?? '',
+      redirect: dest,
+    });
+    return `${frontendUrl}/auth/callback?${params.toString()}`;
+  }
+
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
@@ -431,14 +453,7 @@ export class AuthController {
         result.user?.onboardingCompleted,
       );
     }
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    // The access token is exchanged via a server-side one-time code rather than
-    // a JS-readable cookie. The frontend calls GET /auth/oauth-token-exchange?code=
-    // to retrieve the bearer token once, then the code is consumed and deleted.
-    const dest = result.user?.onboardingCompleted
-      ? '/dashboard'
-      : '/onboarding/risk';
-    res.redirect(`${frontendUrl}${dest}?oauthCode=${result.oauthCode}`);
+    res.redirect(this.buildOAuthCallbackUrl(result));
   }
 
   // ──────────────────────────── GOOGLE OAuth ────────────────────────────
@@ -478,11 +493,7 @@ export class AuthController {
         result.user?.onboardingCompleted,
       );
     }
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const dest = result.user?.onboardingCompleted
-      ? process.env.FRONTEND_DASHBOARD_URL || `${frontendUrl}/dashboard`
-      : `${frontendUrl}/onboarding/risk`;
-    res.redirect(`${dest}?oauthCode=${result.oauthCode}`);
+    res.redirect(this.buildOAuthCallbackUrl(result));
   }
 
   @Public()
