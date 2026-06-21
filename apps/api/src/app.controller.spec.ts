@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { getQueueToken } from '@nestjs/bull';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
 import { RedisService } from './modules/auth/redis.service';
+import { TradingGateway } from './modules/trading/trading.gateway';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -22,6 +24,20 @@ describe('AppController', () => {
           provide: RedisService,
           useValue: {
             ping: jest.fn(),
+          },
+        },
+        {
+          provide: TradingGateway,
+          useValue: {
+            server: null,
+            sendToUser: jest.fn(),
+          },
+        },
+        {
+          provide: getQueueToken('trade_execution'),
+          useValue: {
+            client: { ping: jest.fn() },
+            add: jest.fn(),
           },
         },
       ],

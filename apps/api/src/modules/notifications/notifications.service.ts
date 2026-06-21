@@ -38,17 +38,17 @@ export interface CreateNotificationDto {
 
 // Category → preference field mapping
 const CATEGORY_PREF_MAP: Record<NotificationCategory, string> = {
-  SECURITY:     'securityAlerts',
-  TRADING:      'tradingAlerts',
+  SECURITY: 'securityAlerts',
+  TRADING: 'tradingAlerts',
   COPY_TRADING: 'tradingAlerts',
-  PAYMENT:      'paymentAlerts',
-  ACCOUNT:      'accountAlerts',
-  SYSTEM:       'systemAlerts',
-  MARKETING:    'marketingAlerts',
-  STRATEGY:     'tradingAlerts',
-  AI:           'systemAlerts',
-  REFERRAL:     'marketingAlerts',
-  ADMIN:        'systemAlerts',
+  PAYMENT: 'paymentAlerts',
+  ACCOUNT: 'accountAlerts',
+  SYSTEM: 'systemAlerts',
+  MARKETING: 'marketingAlerts',
+  STRATEGY: 'tradingAlerts',
+  AI: 'systemAlerts',
+  REFERRAL: 'marketingAlerts',
+  ADMIN: 'systemAlerts',
 };
 
 @Injectable()
@@ -82,7 +82,14 @@ export class NotificationsService {
     // Normalise both call signatures into a single DTO
     const dto: CreateNotificationDto =
       typeof dtoOrUserId === 'string'
-        ? { userId: dtoOrUserId, title: title!, message: message!, type, actionUrl, sendEmail }
+        ? {
+            userId: dtoOrUserId,
+            title: title!,
+            message: message!,
+            type,
+            actionUrl,
+            sendEmail,
+          }
         : dtoOrUserId;
 
     const {
@@ -105,16 +112,21 @@ export class NotificationsService {
     const categoryEnabled = (prefs as any)[prefField] ?? true;
 
     if (!categoryEnabled && priority !== 'CRITICAL') {
-      this.logger.debug(`Skipping notification for ${userId}: category ${category} disabled by preference`);
+      this.logger.debug(
+        `Skipping notification for ${userId}: category ${category} disabled by preference`,
+      );
       return null;
     }
 
     // Check quiet hours (non-critical only)
     if (priority !== 'CRITICAL' && priority !== 'HIGH') {
-      if (prefs.quietHoursEnabled && this.isQuietHours(prefs.quietHoursStart, prefs.quietHoursEnd)) {
+      if (
+        prefs.quietHoursEnabled &&
+        this.isQuietHours(prefs.quietHoursStart, prefs.quietHoursEnd)
+      ) {
         // Still persist it, just don't send push/email
-        doEmail && (dto.sendEmail = false);
-        doPush && (dto.sendPush = false);
+        if (doEmail) dto.sendEmail = false;
+        if (doPush) dto.sendPush = false;
       }
     }
 
@@ -140,7 +152,9 @@ export class NotificationsService {
       // Real-time delivery via WebSocket
       this.gateway.sendToUser(userId, 'new_notification', {
         ...notification,
-        unreadCount: await this.prisma.notification.count({ where: { userId, isRead: false } }),
+        unreadCount: await this.prisma.notification.count({
+          where: { userId, isRead: false },
+        }),
       });
 
       // Log in-app delivery
@@ -149,13 +163,27 @@ export class NotificationsService {
 
     // Enqueue async channels (fire-and-forget via BullMQ)
     const shouldEmail = doEmail && prefs.emailEnabled;
-    const shouldPush  = doPush  && prefs.pushEnabled;
+    const shouldPush = doPush && prefs.pushEnabled;
 
     if (shouldEmail || shouldPush) {
       await this.dispatchQueue.add(
         'dispatch_notification',
-        { userId, notificationId: notification?.id, title: t, body: m, actionUrl: url, sendEmail: shouldEmail, sendPush: shouldPush, category, priority },
-        { attempts: 3, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: true },
+        {
+          userId,
+          notificationId: notification?.id,
+          title: t,
+          body: m,
+          actionUrl: url,
+          sendEmail: shouldEmail,
+          sendPush: shouldPush,
+          category,
+          priority,
+        },
+        {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 5000 },
+          removeOnComplete: true,
+        },
       );
     }
 
@@ -165,7 +193,9 @@ export class NotificationsService {
   // ── Preferences ────────────────────────────────────────────────────────────
 
   async getPreferences(userId: string) {
-    const existing = await this.prisma.notificationPreference.findUnique({ where: { userId } });
+    const existing = await this.prisma.notificationPreference.findUnique({
+      where: { userId },
+    });
     if (existing) return existing;
     // Auto-create defaults on first access
     return this.prisma.notificationPreference.create({
@@ -173,12 +203,23 @@ export class NotificationsService {
     });
   }
 
-  async updatePreferences(userId: string, updates: Partial<{
-    inAppEnabled: boolean; emailEnabled: boolean; pushEnabled: boolean;
-    securityAlerts: boolean; tradingAlerts: boolean; paymentAlerts: boolean;
-    systemAlerts: boolean; marketingAlerts: boolean; accountAlerts: boolean;
-    quietHoursEnabled: boolean; quietHoursStart: string; quietHoursEnd: string;
-  }>) {
+  async updatePreferences(
+    userId: string,
+    updates: Partial<{
+      inAppEnabled: boolean;
+      emailEnabled: boolean;
+      pushEnabled: boolean;
+      securityAlerts: boolean;
+      tradingAlerts: boolean;
+      paymentAlerts: boolean;
+      systemAlerts: boolean;
+      marketingAlerts: boolean;
+      accountAlerts: boolean;
+      quietHoursEnabled: boolean;
+      quietHoursStart: string;
+      quietHoursEnd: string;
+    }>,
+  ) {
     return this.prisma.notificationPreference.upsert({
       where: { userId },
       create: { userId, ...updates },
@@ -188,7 +229,13 @@ export class NotificationsService {
 
   // ── CRUD ───────────────────────────────────────────────────────────────────
 
-  async findAll(userId: string, page = 1, limit = 20, unreadOnly = false, category?: string) {
+  async findAll(
+    userId: string,
+    page = 1,
+    limit = 20,
+    unreadOnly = false,
+    category?: string,
+  ) {
     const where = {
       userId,
       ...(unreadOnly ? { isRead: false } : {}),
@@ -206,16 +253,28 @@ export class NotificationsService {
       this.prisma.notification.count({ where: { userId, isRead: false } }),
     ]);
 
-    return { items, total, page, limit, unreadCount, hasMore: page * limit < total };
+    return {
+      items,
+      total,
+      page,
+      limit,
+      unreadCount,
+      hasMore: page * limit < total,
+    };
   }
 
   async getUnreadCount(userId: string) {
-    const count = await this.prisma.notification.count({ where: { userId, isRead: false } });
+    const count = await this.prisma.notification.count({
+      where: { userId, isRead: false },
+    });
     return { count };
   }
 
   async markAsRead(id: string, userId: string) {
-    await this.prisma.notification.updateMany({ where: { id, userId }, data: { isRead: true, isSeen: true } });
+    await this.prisma.notification.updateMany({
+      where: { id, userId },
+      data: { isRead: true, isSeen: true },
+    });
     return this.prisma.notification.findUnique({ where: { id } });
   }
 
@@ -228,7 +287,10 @@ export class NotificationsService {
   }
 
   async markSeen(userId: string) {
-    await this.prisma.notification.updateMany({ where: { userId, isSeen: false }, data: { isSeen: true } });
+    await this.prisma.notification.updateMany({
+      where: { userId, isSeen: false },
+      data: { isSeen: true },
+    });
     return { success: true };
   }
 
@@ -238,7 +300,9 @@ export class NotificationsService {
   }
 
   async deleteAll(userId: string) {
-    const { count } = await this.prisma.notification.deleteMany({ where: { userId } });
+    const { count } = await this.prisma.notification.deleteMany({
+      where: { userId },
+    });
     return { deleted: count };
   }
 
@@ -253,7 +317,13 @@ export class NotificationsService {
   ) {
     try {
       await this.prisma.notificationLog.create({
-        data: { notificationId, userId, channel, status, providerResponse: providerResponse ?? undefined },
+        data: {
+          notificationId,
+          userId,
+          channel,
+          status,
+          providerResponse: providerResponse ?? undefined,
+        },
       });
     } catch {
       // Non-critical — never block the main flow

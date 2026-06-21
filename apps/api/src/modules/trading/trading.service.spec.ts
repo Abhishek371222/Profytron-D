@@ -4,6 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TradingGateway } from './trading.gateway';
 import { MasterSyncService } from './master-sync.service';
 import { TrailingStopService } from './trailing-stop.service';
+import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
 import { MarketService } from '../market/market.service';
 import { getQueueToken } from '@nestjs/bull';
 
@@ -71,6 +72,12 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
           },
         },
         {
+          provide: CopyFactoryPositionSyncService,
+          useValue: {
+            startPolling: jest.fn(),
+          },
+        },
+        {
           provide: getQueueToken('trade_execution'),
           useValue: mockQueue,
         },
@@ -87,6 +94,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
   const makeSub = (overrides: Record<string, unknown> = {}) => ({
     id: 'sub-1',
     userId: 'user-1',
+    status: 'ACTIVE',
     executionPriority: 0,
     slippageBps: 0,
     riskOverrideEnabled: false,
@@ -94,6 +102,9 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
     excludedSymbolsJson: null,
     latencyLimitMs: null,
     expiresAt: null,
+    trialEndsAt: null,
+    stripeSubId: 'sub_stripe_1',
+    planType: 'MONTHLY',
     ...overrides,
   });
 

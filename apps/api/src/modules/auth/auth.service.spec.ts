@@ -8,6 +8,7 @@ import { AffiliatesService } from '../affiliates/affiliates.service';
 import { ActivationService } from '../growth/activation.service';
 import { AgentEventService } from '../agents/agent-event.service';
 import { TwoFaService } from './twofa.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { HttpException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
@@ -120,6 +121,12 @@ describe('AuthService (UNIT TESTS)', () => {
           provide: TwoFaService,
           useValue: {
             verifyForLogin: jest.fn().mockResolvedValue(true),
+          },
+        },
+        {
+          provide: NotificationsService,
+          useValue: {
+            create: jest.fn().mockResolvedValue(undefined),
           },
         },
       ],

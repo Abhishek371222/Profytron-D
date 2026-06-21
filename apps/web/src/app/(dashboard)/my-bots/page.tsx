@@ -74,11 +74,8 @@ export default function MyBotsPage() {
   const totalPnl    = bots.reduce((s, b) => s + (b.currentPnl ?? 0), 0);
   const nextRenewal = activeBots.filter(b => b.expiresAt).sort((a, b) => new Date(a.expiresAt!).getTime() - new Date(b.expiresAt!).getTime())[0];
 
-  const counts = React.useMemo(() => {
-    const c: Record<string, number> = { ALL: bots.length };
-    for (const b of bots) c[b.status] = (c[b.status] ?? 0) + 1;
-    return c;
-  }, [bots]);
+  const counts: Record<string, number> = { ALL: bots.length };
+  for (const b of bots) counts[b.status] = (counts[b.status] ?? 0) + 1;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
