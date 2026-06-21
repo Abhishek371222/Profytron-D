@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: profytron-api
+  namespace: profytron
+  labels:
+    app: profytron-api
+spec:
+  type: ClusterIP
+  selector:
+    app: profytron-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# Optional PodDisruptionBudget: keep at least 2 replicas available during
+# voluntary disruptions (node drains, rollouts).
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: profytron-api
+  namespace: profytron
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: profytron-api

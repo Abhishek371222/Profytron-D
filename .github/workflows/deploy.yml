@@ -1,0 +1,118 @@
+name: Deploy
+
+# Continuous Deployment:
+#   develop → staging,  main → production.
+#
+# This workflow is INERT until you opt in by setting the repo variable
+# DEPLOY_ENABLED=true (Settings → Secrets and variables → Actions → Variables)
+# and providing the referenced secrets. That prevents it from failing on repos
+# that haven't wired up a cluster yet.
+#
+# Required secrets:
+#   KUBE_CONFIG_STAGING / KUBE_CONFIG_PRODUCTION  (base64 kubeconfig)
+# Image is published to GHCR using the built-in GITHUB_TOKEN.
+
+on:
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}-api
+
+jobs:
+  build-push:
+    name: Build & push API image
+    if: ${{ vars.DEPLOY_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compute image tag
+        id: meta
+        run: echo "tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ steps.meta.outputs.tag }}
+            ${{ env.IMAGE }}:${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-staging:
+    name: Deploy to staging
+    if: ${{ vars.DEPLOY_ENABLED == 'true' && github.ref == 'refs/heads/develop' }}
+    needs: build-push
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p "$HOME/.kube"
+          echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > "$HOME/.kube/config"
+
+      - name: Roll out new image (zero-downtime RollingUpdate)
+        run: |
+          kubectl -n profytron set image deployment/profytron-api \
+            api=${{ env.IMAGE }}:${{ needs.build-push.outputs.image_tag }}
+          kubectl -n profytron rollout status deployment/profytron-api --timeout=180s
+
+      - name: Verify health
+        run: kubectl -n profytron exec deploy/profytron-api -- \
+          node -e "require('http').get('http://127.0.0.1:4000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+
+  deploy-production:
+    name: Deploy to production
+    if: ${{ vars.DEPLOY_ENABLED == 'true' && github.ref == 'refs/heads/main' }}
+    needs: build-push
+    runs-on: ubuntu-latest
+    environment: production   # add required reviewers here for a manual gate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p "$HOME/.kube"
+          echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > "$HOME/.kube/config"
+
+      # ── Canary: shift a small % of pods to the new image first ──────────────
+      # (Requires a canary Deployment/Service or a mesh like Argo Rollouts. The
+      # RollingUpdate below already gives zero-downtime; uncomment to add a
+      # manual canary soak before the full rollout.)
+      # - name: Canary 1 replica
+      #   run: kubectl -n profytron set image deployment/profytron-api-canary api=${{ env.IMAGE }}:${{ needs.build-push.outputs.image_tag }}
+
+      - name: Roll out new image
+        run: |
+          kubectl -n profytron set image deployment/profytron-api \
+            api=${{ env.IMAGE }}:${{ needs.build-push.outputs.image_tag }}
+          kubectl -n profytron rollout status deployment/profytron-api --timeout=180s
+
+      - name: Verify health (auto-rollback on failure)
+        run: |
+          if ! kubectl -n profytron exec deploy/profytron-api -- \
+            node -e "require('http').get('http://127.0.0.1:4000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"; then
+            echo "Health check failed — rolling back"
+            kubectl -n profytron rollout undo deployment/profytron-api
+            kubectl -n profytron rollout status deployment/profytron-api --timeout=120s
+            exit 1
+          fi

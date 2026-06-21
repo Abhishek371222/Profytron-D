@@ -20,6 +20,14 @@ import {
   ActivationService,
   ACTIVATION_EVENTS,
 } from '../growth/activation.service';
+import { RedisService } from '../auth/redis.service';
+
+// Short TTLs keep public marketplace reads fast without serving badly stale
+// data. Listings change rarely; subscription/price edits surface within a
+// minute (and listing mutations actively bust the relevant keys).
+const FEATURED_TTL = 60;
+const LISTINGS_TTL = 30;
+const STRATEGY_ANALYTICS_TTL = 60;
 
 @Injectable()
 export class MarketplaceService {
@@ -28,6 +36,7 @@ export class MarketplaceService {
   constructor(
     private prisma: PrismaService,
     private activationService: ActivationService,
+    private readonly redis: RedisService,
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
       ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27' as any })
@@ -35,6 +44,33 @@ export class MarketplaceService {
   }
 
   async findAll(query: MarketplaceQueryDto, userId?: string) {
+    // Anonymous browsing is identical for every visitor, so it is safe to
+    // cache by query. Authenticated requests overlay per-user subscription
+    // state and are computed fresh.
+    if (!userId) {
+      const cacheKey = `cache:mkt:listings:${this.listingsCacheKey(query)}`;
+      return this.redis.cached(cacheKey, LISTINGS_TTL, () =>
+        this.computeListings(query, undefined),
+      );
+    }
+    return this.computeListings(query, userId);
+  }
+
+  private listingsCacheKey(query: MarketplaceQueryDto): string {
+    return JSON.stringify({
+      verified: query.verified ?? null,
+      category: query.category ?? null,
+      riskLevel: query.riskLevel ?? null,
+      q: query.q ?? null,
+      cursor: query.cursor ?? null,
+      limit: query.limit ?? null,
+      priceMin: query.priceMin ?? null,
+      priceMax: query.priceMax ?? null,
+      sort: query.sort ?? null,
+    });
+  }
+
+  private async computeListings(query: MarketplaceQueryDto, userId?: string) {
     const where: any = {
       strategy: {
         deletedAt: null,
@@ -268,6 +304,19 @@ export class MarketplaceService {
   }
 
   async getStrategyAnalytics(id: string, query?: MarketplaceQueryDto) {
+    const tradesPage = query?.tradesPage ?? 1;
+    const tradesLimit = query?.tradesLimit ?? 20;
+    return this.redis.cached(
+      `cache:mkt:analytics:${id}:${tradesPage}:${tradesLimit}`,
+      STRATEGY_ANALYTICS_TTL,
+      () => this.computeStrategyAnalytics(id, query),
+    );
+  }
+
+  private async computeStrategyAnalytics(
+    id: string,
+    query?: MarketplaceQueryDto,
+  ) {
     const strategy = await this.prisma.strategy.findFirst({
       where: { id, deletedAt: null, isPublished: true },
       select: {
@@ -406,6 +455,9 @@ export class MarketplaceService {
         lifetimePrice: listing.lifetimePrice,
       },
     });
+
+    // Surface listing/price changes immediately instead of waiting out the TTL.
+    await this.redis.del('cache:mkt:featured');
 
     return listing;
   }
@@ -663,6 +715,12 @@ export class MarketplaceService {
   }
 
   async getFeatured() {
+    return this.redis.cached('cache:mkt:featured', FEATURED_TTL, () =>
+      this.computeFeatured(),
+    );
+  }
+
+  private async computeFeatured() {
     return this.prisma.marketplaceListing.findMany({
       where: {
         isFeatured: true,

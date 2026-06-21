@@ -63,7 +63,18 @@ export function useDashboardRealtime(enabled = true) {
         invalidate('open-trades', 'portfolio', 'dashboard-risk', 'copy-subscriptions');
       }),
       onTradingEvent('strategy_activated', () => invalidate('my-strategies', 'copy-subscriptions')),
-      onTradingEvent('new_notification', () => invalidate('notifications-unread')),
+      onTradingEvent('new_notification', (payload: any) => {
+        invalidate('notifications-unread');
+        // Show a toast for the incoming notification
+        if (payload && typeof payload === 'object' && payload.title) {
+          const isAlert = payload.priority === 'CRITICAL' || payload.priority === 'HIGH' || payload.category === 'SECURITY';
+          if (isAlert) {
+            toast.warning(payload.title, { description: payload.body?.slice(0, 80) });
+          } else {
+            toast.info(payload.title, { description: payload.body?.slice(0, 80) });
+          }
+        }
+      }),
     ];
 
     return () => {

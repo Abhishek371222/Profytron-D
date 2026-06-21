@@ -40,13 +40,13 @@ function LoginPageContent() {
 
   const urlErrorMessage =
     authError === 'auth_failed'
-      ? 'Authentication callback failed. Please try signing in again.'
+      ? 'Sign-in failed. Please try again.'
       : authError === 'database_unavailable'
-        ? 'Google sign-in worked, but the server could not reach the database. Wake your Neon project (or fix DATABASE_URL in apps/api/.env), restart the API, then try again.'
+        ? 'We\'re experiencing a temporary issue. Please try again in a moment.'
         : authError === 'sync_failed'
-          ? 'Social login succeeded, but account sync failed. Try again.'
+          ? 'Sign-in succeeded but we hit a snag syncing your account. Please try again.'
           : authError === 'backend_unavailable'
-            ? 'Backend is temporarily unavailable. Please wait a moment and try again.'
+            ? 'Service is temporarily unavailable. Please wait a moment and try again.'
             : expired
               ? 'Your session expired. Please sign in again.'
               : null;
@@ -69,8 +69,9 @@ function LoginPageContent() {
         setTwoFaChallenge(response.challengeToken);
         return;
       }
-      login(response.accessToken, response.user);
-      router.replace(resolvePostLoginRedirect(response.user, redirectTo));
+      const { accessToken, user } = response as { accessToken: string; user: any };
+      login(accessToken, user);
+      router.replace(resolvePostLoginRedirect(user, redirectTo));
     } catch (error: unknown) {
       console.error('Login failed:', error);
       const fallback = 'Login failed. Check your credentials and verify your email.';

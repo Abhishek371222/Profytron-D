@@ -2,15 +2,30 @@
 
 import React from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { marketplaceApi } from '@/lib/api/marketplace';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { StrategyAnalyticsDashboard } from '@/components/marketplace/StrategyAnalyticsDashboard';
 import { formatBotDescription, formatBotName } from '@/lib/bot-labels';
 import { toast } from 'sonner';
+
+// Heavy recharts-based analytics panel — defer it so the strategy detail route
+// doesn't ship the charting bundle until this section actually renders.
+const StrategyAnalyticsDashboard = dynamic(
+  () =>
+    import('@/components/marketplace/StrategyAnalyticsDashboard').then(
+      (m) => m.StrategyAnalyticsDashboard,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-80 animate-pulse rounded-xl border border-[var(--card-border)] bg-muted/40" />
+    ),
+  },
+);
 
 export default function MarketplaceStrategyDetailPage() {
   const params = useParams<{ id: string }>();
@@ -60,21 +75,27 @@ export default function MarketplaceStrategyDetailPage() {
     },
   });
 
-  React.useEffect(() => {
-    if (strategyQuery.isError) {
-      toast.error('Strategy details unavailable', {
-        description: 'Try refreshing while the marketplace API recovers.',
-      });
-    }
-  }, [strategyQuery.isError]);
+  const strategyStatus = (strategyQuery.error as any)?.response?.status;
+  const isStrategyNotFound = strategyStatus === 404;
+  const isStrategyTransientError = strategyQuery.isError && !isStrategyNotFound;
 
   React.useEffect(() => {
-    if (reviewsQuery.isError) {
+    // Only warn about a transient outage — a real 404 shows a dedicated state.
+    if (isStrategyTransientError) {
+      toast.error('Strategy details unavailable', {
+        description: 'The marketplace API is recovering — retrying automatically.',
+      });
+    }
+  }, [isStrategyTransientError]);
+
+  React.useEffect(() => {
+    // Don't nag about reviews when the strategy itself failed/was not found.
+    if (reviewsQuery.isError && !strategyQuery.isError) {
       toast.error('Reviews feed unavailable', {
         description: 'Review history may be incomplete until sync recovers.',
       });
     }
-  }, [reviewsQuery.isError]);
+  }, [reviewsQuery.isError, strategyQuery.isError]);
 
   const refreshDetail = () => {
     queryClient.invalidateQueries({ queryKey: ['marketplace-strategy', strategyId] });
@@ -91,8 +112,56 @@ export default function MarketplaceStrategyDetailPage() {
   const strategy = detail?.strategy;
   const reviews = reviewsQuery.data?.pages.flatMap((page: any) => page.items || []) || [];
 
+  // Transient failure (network / API restart / 5xx): offer a retry instead of
+  // implying the strategy doesn't exist.
+  if (isStrategyTransientError) {
+    return (
+      <main className="space-y-6 p-6 md:p-8 text-foreground">
+        <Link
+          href="/marketplace"
+          className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-[0.2em] text-foreground/35 hover:text-foreground/70 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back to Marketplace
+        </Link>
+        <div className="premium-surface flex flex-col items-center gap-4 p-12 text-center">
+          <h1 className="text-xl font-bold">Couldn’t load this strategy</h1>
+          <p className="max-w-md text-foreground/70">
+            The marketplace API is temporarily unavailable. This is usually brief —
+            try again in a moment.
+          </p>
+          <Button
+            onClick={() => strategyQuery.refetch()}
+            disabled={strategyQuery.isFetching}
+          >
+            {strategyQuery.isFetching ? 'Retrying…' : 'Try again'}
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
   if (!strategy) {
-    return <div className="p-8 text-foreground/70">Strategy not found.</div>;
+    return (
+      <main className="space-y-6 p-6 md:p-8 text-foreground">
+        <Link
+          href="/marketplace"
+          className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-[0.2em] text-foreground/35 hover:text-foreground/70 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back to Marketplace
+        </Link>
+        <div className="premium-surface flex flex-col items-center gap-4 p-12 text-center">
+          <h1 className="text-xl font-bold">Strategy not found</h1>
+          <p className="max-w-md text-foreground/70">
+            This strategy may have been unpublished or removed from the marketplace.
+          </p>
+          <Link href="/marketplace">
+            <Button>Browse marketplace</Button>
+          </Link>
+        </div>
+      </main>
+    );
   }
 
   const displayName = formatBotName(strategy.name);

@@ -389,26 +389,105 @@ export class StrategiesService {
     return { success: true };
   }
 
+  async pause(strategyId: string, userId: string) {
+    await this.prisma.userStrategySubscription.update({
+      where: { userId_strategyId: { userId, strategyId } },
+      data: { status: SubscriptionStatus.PAUSED },
+    });
+
+    this.logger.log(`STRATEGY_PAUSED: User ${userId} -> Strategy ${strategyId}`);
+    return { success: true };
+  }
+
+  async resume(strategyId: string, userId: string) {
+    await this.prisma.userStrategySubscription.update({
+      where: { userId_strategyId: { userId, strategyId } },
+      data: { status: SubscriptionStatus.ACTIVE },
+    });
+
+    this.logger.log(
+      `STRATEGY_RESUMED: User ${userId} -> Strategy ${strategyId}`,
+    );
+    return { success: true };
+  }
+
   async getMyStrategies(userId: string) {
     const subs = await this.prisma.userStrategySubscription.findMany({
-      where: { userId, status: SubscriptionStatus.ACTIVE },
+      where: { userId, status: { not: SubscriptionStatus.INACTIVE } },
+      orderBy: { subscribedAt: 'desc' },
       include: {
+        brokerAccount: {
+          select: { brokerName: true, accountNumberLast4: true },
+        },
         strategy: {
           include: {
-            creator: { select: { fullName: true } },
+            creator: { select: { fullName: true, username: true } },
             performance: { take: 1, orderBy: { date: 'desc' } },
           },
         },
       },
     });
 
-    return subs.map((s) => ({
-      ...s.strategy,
-      subscriptionId: s.id,
-      subscribedAt: s.subscribedAt,
-      latestPnl: s.strategy.performance[0]?.netPnl || 0,
-      performance: undefined,
-    }));
+    // Nominal account base used to express a strategy's cumulative net P&L as a
+    // percentage return for the My Bots cards (which render P&L as a percentage).
+    const NOMINAL_BASE = 10_000;
+
+    return subs.map((s) => {
+      const perf = s.strategy.performance[0];
+      const netPnl = perf?.netPnl ?? 0;
+      const winRate = perf?.winRate ?? 0;
+      const currentPnl = Number(((netPnl / NOMINAL_BASE) * 100).toFixed(2));
+      const planType = s.planType ?? 'MONTHLY';
+      const renewalDate = s.expiresAt ?? undefined;
+      const brokerLabel = s.brokerAccount
+        ? s.brokerAccount.accountNumberLast4
+          ? `${s.brokerAccount.brokerName} ••${s.brokerAccount.accountNumberLast4}`
+          : s.brokerAccount.brokerName
+        : null;
+
+      return {
+        ...s.strategy,
+        subscriptionId: s.id,
+        status: s.status,
+        planType,
+        subscribedAt: s.subscribedAt,
+        expiresAt: renewalDate,
+        currentPnl,
+        // Canonical broker object (My Bots)
+        brokerAccount: s.brokerAccount
+          ? {
+              broker: s.brokerAccount.brokerName,
+              accountName: brokerLabel,
+              last4: s.brokerAccount.accountNumberLast4,
+            }
+          : null,
+        // Billing "Upcoming Renewals" aliases
+        monthlyFee: s.strategy.monthlyPrice ?? 0,
+        renewsAt: renewalDate,
+        nextBillingDate: renewalDate,
+        autoRenew: true,
+        latestPerformance: {
+          winRate: Number(winRate.toFixed(1)),
+          totalReturn: currentPnl,
+        },
+        // Subscriptions page nested shape
+        subscription: {
+          id: s.id,
+          status: s.status,
+          planType,
+          renewalDate,
+          startedAt: s.subscribedAt,
+          autoRenew: true,
+          brokerAccount: brokerLabel,
+        },
+        // Connected-accounts "linked bots" aliases
+        botName: s.strategy.name,
+        brokerName: s.brokerAccount?.brokerName ?? null,
+        accountNumber: s.brokerAccount?.accountNumberLast4 ?? null,
+        pnl: currentPnl,
+        performance: undefined,
+      };
+    });
   }
 
   private async assertTier(

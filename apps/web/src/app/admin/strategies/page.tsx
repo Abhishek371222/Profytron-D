@@ -333,7 +333,7 @@ export default function AdminStrategiesPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900 p-5 xl:flex-row xl:items-center xl:justify-between">
+      <div className="flex flex-col gap-4 rounded-2xl border border-[var(--card-border)] bg-card p-5 xl:flex-row xl:items-center xl:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">Strategy Control Room</h1>
           <p className="text-sm text-muted-foreground">
@@ -349,7 +349,7 @@ export default function AdminStrategiesPage() {
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1fr_1.2fr]">
-        <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
+        <div className="space-y-4 rounded-2xl border border-[var(--card-border)] bg-card p-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
               {editingStrategyId ? 'Edit strategy' : 'Create strategy'}
@@ -370,7 +370,7 @@ export default function AdminStrategiesPage() {
             )}
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/10 p-4">
+          <div className="rounded-2xl border border-[var(--card-border)] bg-muted/20 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-foreground">Import strategy from PDF</p>
@@ -388,7 +388,7 @@ export default function AdminStrategiesPage() {
                     setUploadedPdfFile(file);
                     setStrategyPdfPreview(null);
                   }}
-                  className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-foreground file:mr-4 file:rounded-full file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-sm file:text-foreground"
+                  className="rounded-xl border border-[var(--card-border)] bg-muted/40 px-3 py-2 text-sm text-foreground file:mr-4 file:rounded-full file:border-0 file:bg-muted file:px-3 file:py-2 file:text-sm file:text-foreground"
                 />
                 <Button
                   onClick={() => {
@@ -407,8 +407,8 @@ export default function AdminStrategiesPage() {
             </div>
 
             {strategyPdfPreview && (
-              <div className="mt-4 grid gap-2 rounded-2xl border border-slate-800 bg-slate-900 p-3 text-sm text-muted-foreground">
-                <div className="text-xs uppercase tracking-widest text-foreground0">Parsed preview</div>
+              <div className="mt-4 grid gap-2 rounded-2xl border border-[var(--card-border)] bg-card p-3 text-sm text-muted-foreground">
+                <div className="text-xs uppercase tracking-widest text-muted-foreground">Parsed preview</div>
                 {strategyPdfPreview.name && <div><strong>Name:</strong> {strategyPdfPreview.name}</div>}
                 {strategyPdfPreview.description && <div><strong>Description:</strong> {strategyPdfPreview.description}</div>}
                 {strategyPdfPreview.category && <div><strong>Category:</strong> {strategyPdfPreview.category}</div>}
@@ -427,7 +427,7 @@ export default function AdminStrategiesPage() {
               value={form.creatorId}
               onChange={(event) => setForm((current) => ({ ...current, creatorId: event.target.value }))}
               placeholder="User id of strategy owner"
-              className="border-slate-800 bg-slate-950 text-foreground"
+              className="border-[var(--card-border)] bg-muted/40 text-foreground"
             />
           </Field>
 
@@ -436,7 +436,7 @@ export default function AdminStrategiesPage() {
               value={form.name}
               onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
               placeholder="Your Momentum Pro"
-              className="border-slate-800 bg-slate-950 text-foreground"
+              className="border-[var(--card-border)] bg-muted/40 text-foreground"
             />
           </Field>
 
@@ -445,7 +445,7 @@ export default function AdminStrategiesPage() {
               value={form.description}
               onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
               placeholder="Explain exactly what users should see in marketplace"
-              className="h-24 w-full rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm text-foreground outline-none focus:border-red-500"
+              className="h-24 w-full rounded-xl border border-[var(--card-border)] bg-muted/40 p-3 text-sm text-foreground outline-none focus:border-primary"
             />
           </Field>
 
@@ -454,7 +454,7 @@ export default function AdminStrategiesPage() {
               <select
                 value={form.category}
                 onChange={(event) => setForm((current) => ({ ...current, category: event.target.value }))}
-                className="h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 text-sm text-foreground outline-none focus:border-red-500"
+                className="h-10 w-full rounded-xl border border-[var(--card-border)] bg-muted/40 px-3 text-sm text-foreground outline-none focus:border-primary"
               >
                 {categories.map((category) => (
                   <option key={category} value={category}>{category}</option>
@@ -465,7 +465,7 @@ export default function AdminStrategiesPage() {
               <select
                 value={form.riskLevel}
                 onChange={(event) => setForm((current) => ({ ...current, riskLevel: event.target.value }))}
-                className="h-10 w-full rounded-xl border border-slate-800 bg-slate-950 px-3 text-sm text-foreground outline-none focus:border-red-500"
+                className="h-10 w-full rounded-xl border border-[var(--card-border)] bg-muted/40 px-3 text-sm text-foreground outline-none focus:border-primary"
               >
                 {riskLevels.map((risk) => (
                   <option key={risk} value={risk}>{risk}</option>
@@ -479,14 +479,14 @@ export default function AdminStrategiesPage() {
               <Input
                 value={form.monthlyPrice}
                 onChange={(event) => setForm((current) => ({ ...current, monthlyPrice: event.target.value }))}
-                className="border-slate-800 bg-slate-950 text-foreground"
+                className="border-[var(--card-border)] bg-muted/40 text-foreground"
               />
             </Field>
             <Field label="Annual price">
               <Input
                 value={form.annualPrice}
                 onChange={(event) => setForm((current) => ({ ...current, annualPrice: event.target.value }))}
-                className="border-slate-800 bg-slate-950 text-foreground"
+                className="border-[var(--card-border)] bg-muted/40 text-foreground"
               />
             </Field>
           </div>
@@ -496,14 +496,14 @@ export default function AdminStrategiesPage() {
               <Input
                 value={form.lifetimePrice}
                 onChange={(event) => setForm((current) => ({ ...current, lifetimePrice: event.target.value }))}
-                className="border-slate-800 bg-slate-950 text-foreground"
+                className="border-[var(--card-border)] bg-muted/40 text-foreground"
               />
             </Field>
             <Field label="Max copies">
               <Input
                 value={form.maxCopies}
                 onChange={(event) => setForm((current) => ({ ...current, maxCopies: event.target.value }))}
-                className="border-slate-800 bg-slate-950 text-foreground"
+                className="border-[var(--card-border)] bg-muted/40 text-foreground"
               />
             </Field>
           </div>
@@ -513,14 +513,14 @@ export default function AdminStrategiesPage() {
               <Input
                 value={form.trialDays}
                 onChange={(event) => setForm((current) => ({ ...current, trialDays: event.target.value }))}
-                className="border-slate-800 bg-slate-950 text-foreground"
+                className="border-[var(--card-border)] bg-muted/40 text-foreground"
               />
             </Field>
             <Field label="Creator share pct">
               <Input
                 value={form.creatorSharePct}
                 onChange={(event) => setForm((current) => ({ ...current, creatorSharePct: event.target.value }))}
-                className="border-slate-800 bg-slate-950 text-foreground"
+                className="border-[var(--card-border)] bg-muted/40 text-foreground"
               />
             </Field>
           </div>
@@ -529,7 +529,7 @@ export default function AdminStrategiesPage() {
             <textarea
               value={form.configJson}
               onChange={(event) => setForm((current) => ({ ...current, configJson: event.target.value }))}
-              className="h-36 w-full rounded-xl border border-slate-800 bg-slate-950 p-3 font-mono text-xs text-foreground outline-none focus:border-red-500"
+              className="h-36 w-full rounded-xl border border-[var(--card-border)] bg-muted/40 p-3 font-mono text-xs text-foreground outline-none focus:border-primary"
             />
           </Field>
 
@@ -583,15 +583,15 @@ export default function AdminStrategiesPage() {
           </Button>
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900 p-4">
+        <div className="space-y-4 rounded-2xl border border-[var(--card-border)] bg-card p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-sm">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-foreground0" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search strategy, creator, email"
-                className="border-slate-800 bg-slate-950 pl-9 text-foreground"
+                className="border-[var(--card-border)] bg-muted/40 pl-9 text-foreground"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -600,7 +600,7 @@ export default function AdminStrategiesPage() {
                 onChange={(event) =>
                   setVerificationFilter(event.target.value as typeof verificationFilter)
                 }
-                className="h-10 rounded-xl border border-slate-800 bg-slate-950 px-3 text-sm text-foreground"
+                className="h-10 rounded-xl border border-[var(--card-border)] bg-muted/40 px-3 text-sm text-foreground"
               >
                 <option value="ALL">All</option>
                 <option value="VERIFIED">Verified</option>
@@ -620,16 +620,16 @@ export default function AdminStrategiesPage() {
 
           <div className="grid gap-3">
             {strategiesQuery.isLoading ? (
-              <div className="rounded-xl border border-dashed border-slate-800 px-4 py-8 text-center text-sm text-foreground0">
+              <div className="rounded-xl border border-dashed border-[var(--card-border)] px-4 py-8 text-center text-sm text-muted-foreground">
                 Loading strategies...
               </div>
             ) : rows.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-slate-800 px-4 py-8 text-center text-sm text-foreground0">
+              <div className="rounded-xl border border-dashed border-[var(--card-border)] px-4 py-8 text-center text-sm text-muted-foreground">
                 No strategies match this filter.
               </div>
             ) : (
               rows.map((row) => (
-                <div key={row.id} className="rounded-xl border border-slate-800 bg-slate-950 p-4">
+                <div key={row.id} className="rounded-xl border border-[var(--card-border)] bg-muted/40 p-4">
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
@@ -639,18 +639,18 @@ export default function AdminStrategiesPage() {
                             <Star className="h-3 w-3" /> Featured
                           </span>
                         )}
-                        <span className="rounded-full border border-slate-700 px-2 py-0.5 text-micro uppercase tracking-widest text-muted-foreground">
+                        <span className="rounded-full border border-[var(--card-border)] px-2 py-0.5 text-micro uppercase tracking-widest text-muted-foreground">
                           {row.category}
                         </span>
-                        <span className="rounded-full border border-slate-700 px-2 py-0.5 text-micro uppercase tracking-widest text-muted-foreground">
+                        <span className="rounded-full border border-[var(--card-border)] px-2 py-0.5 text-micro uppercase tracking-widest text-muted-foreground">
                           {row.riskLevel}
                         </span>
                       </div>
                       <p className="line-clamp-2 text-sm text-muted-foreground">{row.description}</p>
-                      <p className="text-xs text-foreground0">
+                      <p className="text-xs text-muted-foreground">
                         Creator: {row.creator?.fullName ?? row.creator?.email ?? row.creatorId}
                       </p>
-                      <p className="text-xs text-foreground0">
+                      <p className="text-xs text-muted-foreground">
                         Updated: {new Date(row.updatedAt).toLocaleString()}
                       </p>
                     </div>
@@ -716,7 +716,7 @@ export default function AdminStrategiesPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs uppercase tracking-widest text-foreground0">{label}</label>
+      <label className="text-xs uppercase tracking-widest text-muted-foreground">{label}</label>
       {children}
     </div>
   );
@@ -735,11 +735,11 @@ function Toggle({
     <button
       type="button"
       onClick={onToggle}
-      className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950 px-3 py-2"
+      className="flex items-center justify-between rounded-lg border border-[var(--card-border)] bg-muted/40 px-3 py-2"
     >
       <span>{label}</span>
       <span
-        className={checked ? 'text-chart-3' : 'text-foreground0'}
+        className={checked ? 'text-chart-3' : 'text-muted-foreground'}
       >
         {checked ? 'On' : 'Off'}
       </span>
@@ -749,8 +749,8 @@ function Toggle({
 
 function StatPill({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-2">
-      <div className="mb-1 flex items-center justify-between text-foreground0">
+    <div className="rounded-xl border border-[var(--card-border)] bg-muted/40 px-3 py-2">
+      <div className="mb-1 flex items-center justify-between text-muted-foreground">
         <span className="text-micro uppercase tracking-widest">{label}</span>
         {icon}
       </div>
@@ -761,8 +761,8 @@ function StatPill({ label, value, icon }: { label: string; value: number; icon: 
 
 function Badge({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900 px-2 py-1">
-      <div className="text-micro uppercase tracking-widest text-foreground0">{label}</div>
+    <div className="rounded-lg border border-[var(--card-border)] bg-card px-2 py-1">
+      <div className="text-micro uppercase tracking-widest text-muted-foreground">{label}</div>
       <div className="text-sm font-medium text-foreground">{value}</div>
     </div>
   );
@@ -774,7 +774,7 @@ function StatusChip({ active, label }: { active: boolean; label: string }) {
       className={
         active
           ? 'rounded-full border border-chart-3/30 bg-chart-3/10 px-2 py-0.5 text-micro uppercase tracking-widest text-chart-3'
-          : 'rounded-full border border-slate-700 px-2 py-0.5 text-micro uppercase tracking-widest text-foreground0'
+          : 'rounded-full border border-[var(--card-border)] px-2 py-0.5 text-micro uppercase tracking-widest text-muted-foreground'
       }
     >
       {label}

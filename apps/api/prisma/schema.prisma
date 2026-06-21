@@ -212,8 +212,9 @@ model User {
   trades             Trade[]
   walletTransactions WalletTransaction[]
   achievements       UserAchievement[]
-  notifications      Notification[]
-  affiliateRecord    Affiliate?                 @relation("UserAffiliate")
+  notifications             Notification[]
+  notificationPreference    NotificationPreference?
+  affiliateRecord           Affiliate?             @relation("UserAffiliate")
   referrals          Affiliate[]                @relation("ReferrerAffiliate")
   reviews            StrategyReview[]
   auditLogs          AuditLog[]
@@ -525,15 +526,54 @@ model Notification {
   userId    String
   user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      NotificationType
+  category  String           @default("SYSTEM")
+  priority  String           @default("NORMAL")
   title     String
   body      String
+  icon      String?
   actionUrl String?
   isRead    Boolean          @default(false)
+  isSeen    Boolean          @default(false)
   metadata  Json?
   createdAt DateTime         @default(now())
 
   @@index([userId, isRead])
   @@index([userId, createdAt])
+  @@index([userId, category])
+}
+
+model NotificationPreference {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inAppEnabled     Boolean  @default(true)
+  emailEnabled     Boolean  @default(true)
+  pushEnabled      Boolean  @default(true)
+  securityAlerts   Boolean  @default(true)
+  tradingAlerts    Boolean  @default(true)
+  paymentAlerts    Boolean  @default(true)
+  systemAlerts     Boolean  @default(true)
+  marketingAlerts  Boolean  @default(false)
+  accountAlerts    Boolean  @default(true)
+  quietHoursEnabled Boolean @default(false)
+  quietHoursStart  String   @default("22:00")
+  quietHoursEnd    String   @default("07:00")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model NotificationLog {
+  id               String   @id @default(uuid())
+  notificationId   String?
+  userId           String
+  channel          String
+  status           String   @default("SENT")
+  providerResponse Json?
+  sentAt           DateTime @default(now())
+
+  @@index([userId, sentAt])
+  @@index([notificationId])
+  @@index([channel, status])
 }
 
 model StrategyReview {
@@ -1260,4 +1300,19 @@ model TradeExecution {
   @@index([masterPositionId])
   @@index([followerUserId, createdAt])
   @@index([status])
+}
+
+model EmailLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  to        String
+  subject   String
+  type      String
+  status    String   @default("SENT")
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([to, createdAt])
+  @@index([type, createdAt])
 }

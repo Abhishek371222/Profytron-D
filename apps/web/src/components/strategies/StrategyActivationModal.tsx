@@ -102,26 +102,28 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3 pt-5 border-t border-[var(--card-border)]">
-                    <div className="min-w-0 space-y-1">
-                      <p className="dash-eyebrow">Alpha Returns</p>
-                      <p className="text-lg sm:text-xl font-bold text-[var(--success)] truncate tabular-nums">+{strategy.latestPerformance?.winRate || 0}%</p>
+                  <div className="grid grid-cols-3 gap-2 pt-5 border-t border-[var(--card-border)]">
+                    <div className="space-y-1.5">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Return</p>
+                      <p className="text-xl font-bold text-[var(--success)] tabular-nums">+{strategy.latestPerformance?.winRate || 0}%</p>
                     </div>
-                    <div className="min-w-0 space-y-1 border-l border-[var(--card-border)] pl-3">
-                      <p className="dash-eyebrow">Max Drawdown</p>
-                      <p className="text-lg sm:text-xl font-bold text-destructive truncate tabular-nums">-{strategy.latestPerformance?.maxDrawdown || 0}%</p>
+                    <div className="space-y-1.5 border-l border-[var(--card-border)] pl-3">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Drawdown</p>
+                      <p className="text-xl font-bold text-destructive tabular-nums">-{strategy.latestPerformance?.maxDrawdown || 0}%</p>
                     </div>
-                    <div className="min-w-0 space-y-1 border-l border-[var(--card-border)] pl-3">
-                      <p className="dash-eyebrow">Sharpe Ratio</p>
-                      <p className="text-lg sm:text-xl font-bold text-primary truncate tabular-nums">{strategy.latestPerformance?.sharpeRatio || 0}</p>
+                    <div className="space-y-1.5 border-l border-[var(--card-border)] pl-3">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Sharpe</p>
+                      <p className="text-xl font-bold text-primary tabular-nums">{strategy.latestPerformance?.sharpeRatio || 0}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  <DashButton variant="outline" onClick={onClose} className="flex-1 h-11">Abort</DashButton>
-                  <button type="button" onClick={() => setStep(2)} className="flex-[1.5] h-11 rounded-xl bg-foreground text-background text-[11px] font-bold uppercase tracking-wide hover:bg-foreground/90 transition-colors">
-                    Authenticate Logic →
+                  <button type="button" onClick={onClose} className="flex-1 h-11 rounded-xl border border-[var(--card-border)] text-foreground/50 hover:text-foreground hover:border-foreground/30 text-xs font-semibold uppercase tracking-wide transition-colors">
+                    Abort
+                  </button>
+                  <button type="button" onClick={() => setStep(2)} className="flex-[2] h-11 rounded-xl bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:bg-foreground/90 transition-colors">
+                    Activate Strategy →
                   </button>
                 </div>
               </motion.div>

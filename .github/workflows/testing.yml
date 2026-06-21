@@ -70,6 +70,80 @@ jobs:
     - name: Run API unit tests
       run: pnpm --dir apps/api test --passWithNoTests
 
+    - name: Build API
+      run: pnpm --dir apps/api build
+
+  api-integration:
+    name: API — Integration tests (Postgres + Redis)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: profytron_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      API_TEST_WITH_INFRA: 'true'
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/profytron_test
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/profytron_test
+      REDIS_URL: redis://localhost:6379
+      JWT_ACCESS_SECRET: ci_access_secret_at_least_32_characters_long_xx
+      JWT_REFRESH_SECRET: ci_refresh_secret_at_least_32_characters_long_yy
+      AES_MASTER_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+      STRIPE_SECRET_KEY: sk_test_ci_placeholder
+      STRIPE_WEBHOOK_SECRET: whsec_ci_placeholder
+      SUPABASE_URL: https://ci.supabase.co
+      SUPABASE_ANON_KEY: ci_anon_key
+      CORS_ORIGIN: http://localhost:3000
+      FRONTEND_URL: http://localhost:3000
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        run_install: false
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Apply schema to test database
+      run: pnpm --dir apps/api exec prisma db push --skip-generate --accept-data-loss
+      # prisma generate already runs via postinstall; db push syncs the schema.
+
+    - name: Generate Prisma client
+      run: pnpm --dir apps/api exec prisma generate
+
+    - name: Run integration + e2e tests
+      run: pnpm --dir apps/api test --passWithNoTests
+
   dependency-audit:
     name: Dependency vulnerability audit
     runs-on: ubuntu-latest

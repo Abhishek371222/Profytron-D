@@ -36,10 +36,11 @@ export default function SupportPage() {
 
   const [form, setForm] = React.useState({ subject: '', description: '', category: 'General' });
 
-  const { data: tickets = [], isLoading } = useQuery({
+  const { data: ticketsRaw, isLoading } = useQuery({
     queryKey: ['support-tickets'],
     queryFn: () => supportApi.getTickets(),
   });
+  const tickets: SupportTicket[] = Array.isArray(ticketsRaw) ? ticketsRaw : [];
 
   const { data: ticketDetail, isLoading: isLoadingDetail } = useQuery({
     queryKey: ['support-ticket', selectedTicket?.id],

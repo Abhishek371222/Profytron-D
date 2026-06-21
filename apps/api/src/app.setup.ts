@@ -4,6 +4,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
@@ -19,6 +20,22 @@ const URLENCODED_BODY_LIMIT = '100kb';
 
 export function configureApp(app: INestApplication) {
   const isProduction = process.env.NODE_ENV === 'production';
+
+  // ─── Response compression (gzip/deflate) ──────────────────────────────────
+  // Shrinks JSON payloads ~70-80% over the wire. Registered first so it wraps
+  // every downstream response. Brotli is intentionally left to the edge layer
+  // (NGINX/Cloudflare) where it belongs; gzip here covers direct API traffic.
+  // The 1 KB threshold skips tiny responses where compression overhead > gain.
+  app.use(
+    compression({
+      threshold: 1024,
+      filter: (req: Request, res: Response) => {
+        // Honour an explicit opt-out (e.g. for SSE/streaming endpoints).
+        if (req.headers['x-no-compression']) return false;
+        return compression.filter(req, res);
+      },
+    }),
+  );
 
   // ─── Allowed CORS origins ──────────────────────────────────────────────────
   // Populated from env; empty string disables CORS entirely (blocks all cross-

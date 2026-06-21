@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ShieldCheck, Star, Zap, Activity, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { useCurrency } from '@/lib/hooks/useCurrency';
 
 interface MarketplaceCardProps {
   strategy: {
@@ -18,12 +19,16 @@ interface MarketplaceCardProps {
     risk: string;
     subscribers: number;
     price: number;
+    rating?: number;
+    reviewCount?: number;
   };
   onSubscribe: (strategy: MarketplaceCardProps['strategy']) => void;
 }
 
 export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps) {
-  const { returns, sharpe, risk, subscribers, price } = strategy;
+  const { returns, sharpe, risk, subscribers, price, rating = 0, reviewCount = 0 } = strategy;
+  const { currency, formatPrice } = useCurrency();
+  const roundedRating = Math.round(rating);
 
   return (
     <div className="dashboard-card p-5 flex flex-col gap-4 interactive-lift border border-[var(--card-border)]">
@@ -40,15 +45,19 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <Stat label="30D Return" value={`+${returns}%`} className="text-chart-3" />
+        <Stat label="Win Rate" value={returns > 0 ? `${returns.toFixed(1)}%` : '—'} className="text-chart-3" />
         <Stat label="Sharpe" value={sharpe > 0 ? sharpe.toFixed(2) : '—'} />
         <Stat label="Risk" value={risk} />
       </div>
 
       <div className="flex items-center justify-between pt-1 border-t border-[var(--card-border)]">
         <div>
-          <p className="text-lg font-bold text-foreground">{price > 0 ? `$${price.toLocaleString()}` : 'FREE'}</p>
-          {price > 0 && <p className="text-[10px] text-muted-foreground uppercase">/ month</p>}
+          <p className="text-lg font-bold text-foreground">{formatPrice(price)}</p>
+          {price > 0 && (
+            <p className="text-[10px] text-muted-foreground uppercase">
+              / month · {currency.code}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <span className="font-semibold tabular-nums">{subscribers.toLocaleString()}</span> subs
@@ -61,12 +70,18 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
           <span className="text-xs font-semibold text-foreground truncate">{strategy.creator}</span>
           {strategy.verified && <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />}
         </div>
-        <div className="flex gap-0.5 text-chart-4">
-          {[1, 2, 3, 4].map((s) => (
-            <Star key={s} className="h-2.5 w-2.5 fill-current" />
-          ))}
-          <Star className="h-2.5 w-2.5" />
-        </div>
+        {reviewCount > 0 ? (
+          <div className="flex items-center gap-1" title={`${rating.toFixed(1)} from ${reviewCount} review${reviewCount !== 1 ? 's' : ''}`}>
+            <div className="flex gap-0.5 text-chart-4">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star key={s} className={cn('h-2.5 w-2.5', s <= roundedRating && 'fill-current')} />
+              ))}
+            </div>
+            <span className="text-[10px] font-semibold text-muted-foreground tabular-nums">{rating.toFixed(1)}</span>
+          </div>
+        ) : (
+          <span className="text-[10px] text-muted-foreground">No reviews</span>
+        )}
       </div>
 
       <button

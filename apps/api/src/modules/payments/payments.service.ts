@@ -23,6 +23,7 @@ import { SubscriptionTier } from '@prisma/client';
 import { PLATFORM_PLANS } from '../../common/constants/pricing.constants';
 import { AgentEventService } from '../agents/agent-event.service';
 import { AGENT_EVENTS } from '../agents/agent.types';
+import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class PaymentsService {
@@ -38,6 +39,7 @@ export class PaymentsService {
     private readonly affiliatesService: AffiliatesService,
     private readonly activationService: ActivationService,
     private readonly agentEvents: AgentEventService,
+    private readonly emailService: EmailService,
     @Inject(REDIS_CLIENT) private readonly redis: IORedis,
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
@@ -324,12 +326,29 @@ export class PaymentsService {
       await this.affiliatesService.calculateCommission(creditUserId, amountRupees);
     }
 
-    await this.notifications.create(
-      creditUserId,
-      'Deposit Successful',
-      `₹${amountRupees.toFixed(2)} has been added to your wallet.`,
-      'SUCCESS',
-    );
+    await this.notifications.create({
+      userId: creditUserId,
+      title: 'Deposit Successful',
+      message: `₹${amountRupees.toFixed(2)} has been added to your wallet.`,
+      type: 'SUCCESS',
+      category: 'PAYMENT',
+      priority: 'HIGH',
+      actionUrl: '/wallet',
+      sendPush: true,
+    });
+
+    // Send payment confirmation email (fire-and-forget)
+    void this.prisma.user.findUnique({ where: { id: creditUserId }, select: { email: true, fullName: true } })
+      .then((u) => {
+        if (u) {
+          void this.emailService.sendPaymentEmail(u.email, u.fullName, {
+            type: 'SUCCESS',
+            amount: amountRupees,
+            currency: order.currency ?? 'INR',
+            description: orderNotes.type === 'platform_subscription' ? 'Platform subscription' : 'Wallet deposit',
+          }, creditUserId);
+        }
+      });
 
     return {
       success: true,
@@ -1034,11 +1053,24 @@ export class PaymentsService {
   }
 
   async getCurrentSubscription(userId: string) {
-    return this.prisma.userSubscription.findFirst({
+    const sub = await this.prisma.userSubscription.findFirst({
       where: { userId, status: 'ACTIVE' },
       include: { plan: true },
       orderBy: { subscribedAt: 'desc' },
     });
+    if (!sub) return null;
+
+    const monthlyAmount =
+      sub.billingCycle === 'ANNUAL'
+        ? (sub.plan.annualPrice ?? sub.plan.monthlyPrice * 12) / 12
+        : sub.plan.monthlyPrice;
+
+    return {
+      ...sub,
+      planName: sub.plan.name,
+      monthlyAmount,
+      renewsAt: sub.nextBillingAt ?? sub.expiresAt,
+    };
   }
 
   async createPlatformPlanOrder(
@@ -1193,7 +1225,7 @@ export class PaymentsService {
   }
 
   async getPaymentHistory(userId: string, limit = 10, skip = 0) {
-    const payments = await this.prisma.payment.findMany({
+    const rows = await this.prisma.payment.findMany({
       where: { userId },
       include: { invoice: true },
       orderBy: { createdAt: 'desc' },
@@ -1202,6 +1234,17 @@ export class PaymentsService {
     });
 
     const total = await this.prisma.payment.count({ where: { userId } });
+
+    const payments = rows.map((p) => ({
+      id: p.id,
+      date: p.completedAt ?? p.createdAt,
+      description: p.description ?? 'Payment',
+      amount: p.amount,
+      currency: p.currency,
+      status: p.status,
+      invoiceNumber: p.invoice?.invoiceNumber,
+    }));
+
     return { payments, total };
   }
 

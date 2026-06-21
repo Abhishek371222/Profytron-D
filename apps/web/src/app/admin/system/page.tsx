@@ -53,7 +53,7 @@ export default function AdminSystemPage() {
             queryClient.invalidateQueries({ queryKey: ['admin', 'system-health'] });
             toast.success('System data refresh queued');
           }}
-          className="inline-flex items-center gap-2 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-foreground hover:bg-slate-800"
+          className="inline-flex items-center gap-2 rounded border border-[var(--card-border)] bg-card px-3 py-2 text-sm text-foreground hover:bg-muted"
         >
           <RefreshCcw className="h-4 w-4" />
           Refresh
@@ -78,7 +78,7 @@ export default function AdminSystemPage() {
         />
       </div>
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+      <div className="rounded-xl border border-[var(--card-border)] bg-card p-4">
         <div className="mb-3 flex items-center gap-2 text-sm font-medium text-foreground/80">
           <Server className="h-4 w-4" /> Service Health
         </div>
@@ -92,9 +92,9 @@ export default function AdminSystemPage() {
               const ok = String(service.status).toUpperCase().includes('UP') ||
                 String(service.status).toUpperCase().includes('CONNECTED');
               return (
-                <div key={service.name} className="rounded border border-slate-700 bg-slate-950 p-3">
+                <div key={service.name} className="rounded border border-[var(--card-border)] bg-muted/40 p-3">
                   <div className="text-xs uppercase tracking-wide text-muted-foreground">{service.name}</div>
-                  <div className={`mt-1 text-sm font-semibold ${ok ? 'text-chart-3' : 'text-red-400'}`}>
+                  <div className={`mt-1 text-sm font-semibold ${ok ? 'text-chart-3' : 'text-red-600'}`}>
                     {service.status}
                   </div>
                 </div>
@@ -104,7 +104,7 @@ export default function AdminSystemPage() {
         )}
       </div>
 
-      <p className="text-xs text-foreground0">
+      <p className="text-xs text-muted-foreground">
         Last update: {healthQuery.data?.lastUpdated ?? metricsQuery.data?.timestamp ?? '-'}
       </p>
     </div>
@@ -121,7 +121,7 @@ function InfoCard({
   Loading: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+    <div className="rounded-xl border border-[var(--card-border)] bg-card p-4">
       <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="mt-2 text-2xl font-semibold text-foreground">{Loading ? 'Loading...' : value}</div>
     </div>

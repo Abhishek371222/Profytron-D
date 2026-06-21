@@ -13,17 +13,20 @@ import {
   Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+
+// Defer recharts off the admin dashboard's initial bundle.
+const AdminPaymentsChart = dynamic(
+  () => import('@/components/admin/AdminPaymentsChart'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full w-full animate-pulse rounded-lg bg-muted/40" />
+    ),
+  },
+);
 
 type DashboardKpis = {
   totalUsers?: number;
@@ -194,7 +197,7 @@ export default function AdminDashboardPage() {
       )}
 
       {growth?.activationFunnel?.length > 0 && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+        <div className="dashboard-card p-4">
           <h2 className="mb-3 text-sm font-medium text-foreground/80">
             Activation Funnel (30d)
           </h2>
@@ -203,7 +206,7 @@ export default function AdminDashboardPage() {
               (step: { event: string; count: number }) => (
                 <div
                   key={step.event}
-                  className="rounded-lg border border-slate-800 bg-slate-950 px-4 py-3"
+                  className="rounded-lg border border-[var(--card-border)] bg-muted/40 px-4 py-3"
                 >
                   <p className="text-xs text-muted-foreground">{step.event}</p>
                   <p className="text-xl font-semibold text-foreground">
@@ -236,22 +239,14 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+      <div className="dashboard-card p-4">
         <h2 className="mb-3 text-sm font-medium text-foreground/80">Payments Overview</h2>
         <div className="h-[320px]">
-          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.2)" />
-              <XAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 12 }} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="value" fill="#ef4444" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <AdminPaymentsChart data={chartData} />
         </div>
       </div>
 
-      <div className="space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-4">
+      <div className="dashboard-card space-y-4 p-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-medium text-foreground/80">Master Bot Operators</h2>
@@ -265,22 +260,22 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[1.4fr_0.9fr]">
-          <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
+          <div className="rounded-xl border border-[var(--card-border)] bg-muted/40 p-3">
             <div className="grid gap-2">
               {(brokerAccountsQuery.data ?? []).map((account: any) => (
                 <div
                   key={account.id}
-                  className="flex flex-col gap-3 rounded-lg border border-slate-800 bg-slate-900/70 p-3 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-3 rounded-lg border border-[var(--card-border)] bg-card p-3 md:flex-row md:items-center md:justify-between"
                 >
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium text-foreground">
                         {account.user?.fullName ?? account.user?.email ?? 'Unknown user'}
                       </span>
-                      <span className="rounded-full border border-slate-700 px-2 py-0.5 text-micro uppercase tracking-widest text-muted-foreground">
+                      <span                         className="rounded-full border border-[var(--card-border)] px-2 py-0.5 text-micro uppercase tracking-widest text-muted-foreground">
                         {account.brokerName}
                       </span>
-                      <span className="rounded-full border border-slate-700 px-2 py-0.5 text-micro uppercase tracking-widest text-muted-foreground">
+                      <span className="rounded-full border border-[var(--card-border)] px-2 py-0.5 text-micro uppercase tracking-widest text-muted-foreground">
                         ••••{account.accountNumberLast4}
                       </span>
                       {account.isMasterSource && (
@@ -314,65 +309,65 @@ export default function AdminDashboardPage() {
                 </div>
               ))}
               {!brokerAccountsQuery.data?.length && (
-                <div className="rounded-lg border border-dashed border-slate-800 px-4 py-6 text-center text-sm text-foreground0">
+                <div className="rounded-lg border border-dashed border-[var(--card-border)] px-4 py-6 text-center text-sm text-muted-foreground">
                   No broker accounts connected yet.
                 </div>
               )}
             </div>
           </div>
 
-          <div className="space-y-3 rounded-xl border border-slate-800 bg-slate-950 p-4">
+          <div className="space-y-3 rounded-xl border border-[var(--card-border)] bg-muted/40 p-4">
             <div className="flex items-center gap-2 text-sm font-medium text-foreground">
               <CheckCircle2 className="h-4 w-4 text-chart-3" /> Broadcast signal
             </div>
             <div className="space-y-2">
-              <label className="ml-1 text-xs uppercase tracking-widest text-foreground0">Master account</label>
+              <label className="ml-1 text-xs uppercase tracking-widest text-muted-foreground">Master account</label>
               <Input
                 value={broadcastForm.accountId}
                 onChange={(event) =>
                   setBroadcastForm((current) => ({ ...current, accountId: event.target.value }))
                 }
                 placeholder="Broker account id"
-                className="border-slate-800 bg-slate-900 text-foreground placeholder:text-slate-600"
+                className="border-[var(--card-border)] bg-background text-foreground placeholder:text-muted-foreground"
               />
             </div>
             <div className="space-y-2">
-              <label className="ml-1 text-xs uppercase tracking-widest text-foreground0">Strategy id</label>
+              <label className="ml-1 text-xs uppercase tracking-widest text-muted-foreground">Strategy id</label>
               <Input
                 value={broadcastForm.strategyId}
                 onChange={(event) =>
                   setBroadcastForm((current) => ({ ...current, strategyId: event.target.value }))
                 }
                 placeholder="Strategy id"
-                className="border-slate-800 bg-slate-900 text-foreground placeholder:text-slate-600"
+                className="border-[var(--card-border)] bg-background text-foreground placeholder:text-muted-foreground"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <label className="ml-1 text-xs uppercase tracking-widest text-foreground0">Signal</label>
+                <label className="ml-1 text-xs uppercase tracking-widest text-muted-foreground">Signal</label>
                 <Input
                   value={broadcastForm.signalType}
                   onChange={(event) =>
                     setBroadcastForm((current) => ({ ...current, signalType: event.target.value }))
                   }
                   placeholder="BUY"
-                  className="border-slate-800 bg-slate-900 text-foreground placeholder:text-slate-600"
+                  className="border-[var(--card-border)] bg-background text-foreground placeholder:text-muted-foreground"
                 />
               </div>
               <div className="space-y-2">
-                <label className="ml-1 text-xs uppercase tracking-widest text-foreground0">Pair</label>
+                <label className="ml-1 text-xs uppercase tracking-widest text-muted-foreground">Pair</label>
                 <Input
                   value={broadcastForm.pair}
                   onChange={(event) =>
                     setBroadcastForm((current) => ({ ...current, pair: event.target.value }))
                   }
                   placeholder="BTCUSDT"
-                  className="border-slate-800 bg-slate-900 text-foreground placeholder:text-slate-600"
+                  className="border-[var(--card-border)] bg-background text-foreground placeholder:text-muted-foreground"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="ml-1 text-xs uppercase tracking-widest text-foreground0">Price</label>
+              <label className="ml-1 text-xs uppercase tracking-widest text-muted-foreground">Price</label>
               <Input
                 value={broadcastForm.price}
                 onChange={(event) =>
@@ -380,13 +375,13 @@ export default function AdminDashboardPage() {
                 }
                 placeholder="62000"
                 inputMode="decimal"
-                className="border-slate-800 bg-slate-900 text-foreground placeholder:text-slate-600"
+                className="border-[var(--card-border)] bg-background text-foreground placeholder:text-muted-foreground"
               />
             </div>
             <Button onClick={broadcastSignal} className="w-full justify-center">
               Broadcast to followers <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
-            <p className="text-xs leading-relaxed text-foreground0">
+            <p className="text-xs leading-relaxed text-muted-foreground">
               This uses the existing queue fan-out, so one master trade can distribute to thousands of
               subscribers per bot without changing the execution path.
             </p>
@@ -409,7 +404,7 @@ function MetricCard({
   Loading: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+    <div className="dashboard-card p-4">
       <div className="mb-3 flex items-center justify-between text-muted-foreground">
         <span className="text-sm">{title}</span>
         {icon}

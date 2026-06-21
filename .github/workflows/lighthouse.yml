@@ -1,0 +1,42 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main]
+
+jobs:
+  lighthouse:
+    name: Lighthouse performance + a11y + SEO audit
+    runs-on: ubuntu-latest
+
+    env:
+      # Build/run in production mode against mocked APIs so public routes render
+      # without a live backend.
+      NEXT_PUBLIC_ENABLE_MOCK_API: 'true'
+      NODE_ENV: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build web
+        run: pnpm --dir apps/web build
+
+      - name: Run Lighthouse CI
+        run: |
+          pnpm dlx @lhci/cli@0.14.x autorun \
+            --config=./.lighthouserc.json
+        continue-on-error: true   # report first; flip to false to gate merges

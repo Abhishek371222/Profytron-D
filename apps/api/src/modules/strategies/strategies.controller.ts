@@ -113,6 +113,22 @@ export class StrategiesController {
     return this.strategiesService.deactivate(id, req.user.userId);
   }
 
+  @Post(':id/pause')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({ summary: 'Pause an active strategy subscription' })
+  async pause(@Param('id') id: string, @Req() req: any) {
+    return this.strategiesService.pause(id, req.user.userId);
+  }
+
+  @Post(':id/resume')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({ summary: 'Resume a paused strategy subscription' })
+  async resume(@Param('id') id: string, @Req() req: any) {
+    return this.strategiesService.resume(id, req.user.userId);
+  }
+
   @Post(':id/backtest')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad request' })

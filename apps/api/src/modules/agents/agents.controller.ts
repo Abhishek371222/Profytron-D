@@ -362,7 +362,7 @@ export class AgentsController {
       skipped,
       mode: 'low_usage',
       budgets: LOW_USAGE_BUDGET,
-      message: `Queued ${queued.length} agents — reports update in ~30s`,
+      message: `Processing ${queued.length} agents — reports update in about 30 seconds`,
     };
   }
 
@@ -410,7 +410,7 @@ export class AgentsController {
       agentType,
       batchId: forceBatch,
       idempotencyKey,
-      message: `${agentType} queued — report updates in ~15s`,
+      message: `${agentType} is running — report updates in about 15 seconds`,
     };
   }
 }

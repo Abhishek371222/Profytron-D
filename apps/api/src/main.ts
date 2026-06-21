@@ -1,3 +1,6 @@
+// Must be the first import: initialises OpenTelemetry (no-op unless enabled)
+// before any instrumented library (express/pg/ioredis) is loaded.
+import './tracing';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
@@ -6,6 +9,7 @@ import type { Request, Response } from 'express';
 import { AppModule } from './app.module';
 import { winstonConfig } from './config/winston.config';
 import { configureApp } from './app.setup';
+import { RedisIoAdapter } from './adapters/redis-io.adapter';
 
 async function isPortInUse(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -40,7 +44,11 @@ async function resolveApiPort(requestedPort: number): Promise<number> {
 
 function validateEnv() {
   const logger = new Logger('EnvValidation');
-  const isProduction = process.env.NODE_ENV === 'production';
+  // "Strict" environments (production + staging) fail fast on any missing or
+  // malformed variable so a broken deploy never starts serving traffic. Local
+  // dev/test only logs warnings so partial configs (e.g. in-memory Redis) boot.
+  const nodeEnv = process.env.NODE_ENV;
+  const isStrict = nodeEnv === 'production' || nodeEnv === 'staging';
 
   // Always required
   const required = [
@@ -49,29 +57,24 @@ function validateEnv() {
     'JWT_REFRESH_SECRET',
     'AES_MASTER_KEY',
   ];
-  // Required in production only
+  // Required in strict (production/staging) environments only
   const prodRequired = [
     'STRIPE_SECRET_KEY',
     'STRIPE_WEBHOOK_SECRET',
     'CORS_ORIGIN',
     'FRONTEND_URL',
-    'UPSTASH_REDIS_REST_URL',
-    'UPSTASH_REDIS_REST_TOKEN',
   ];
 
   const missing: string[] = [];
+  const invalid: string[] = [];
+
   for (const key of required) {
-    if (!process.env[key]) missing.push(key);
+    if (!process.env[key]?.trim()) missing.push(key);
   }
-  if (isProduction) {
+
+  if (isStrict) {
     for (const key of prodRequired) {
-      if (
-        key === 'UPSTASH_REDIS_REST_URL' ||
-        key === 'UPSTASH_REDIS_REST_TOKEN'
-      ) {
-        continue;
-      }
-      if (!process.env[key]) missing.push(key);
+      if (!process.env[key]?.trim()) missing.push(key);
     }
     const hasRedisUrl = Boolean(process.env.REDIS_URL?.trim());
     const hasUpstash =
@@ -84,15 +87,68 @@ function validateEnv() {
     }
   }
 
+  // ─── Format / strength validation (only for values that are present) ───────
+  const dbUrl = process.env.DATABASE_URL?.trim();
+  if (dbUrl && !/^postgres(ql)?:\/\//i.test(dbUrl)) {
+    invalid.push('DATABASE_URL must be a postgres:// or postgresql:// URL');
+  }
+
+  const aesKey = process.env.AES_MASTER_KEY?.trim();
+  if (aesKey && !/^[0-9a-fA-F]{64}$/.test(aesKey)) {
+    invalid.push(
+      "AES_MASTER_KEY must be 64 hex chars (32 bytes). Generate: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+    );
+  }
+
+  const accessSecret = process.env.JWT_ACCESS_SECRET ?? '';
+  const refreshSecret = process.env.JWT_REFRESH_SECRET ?? '';
+  const minSecretLen = isStrict ? 32 : 16;
+  if (accessSecret && accessSecret.length < minSecretLen) {
+    invalid.push(`JWT_ACCESS_SECRET must be ≥ ${minSecretLen} characters`);
+  }
+  if (refreshSecret && refreshSecret.length < minSecretLen) {
+    invalid.push(`JWT_REFRESH_SECRET must be ≥ ${minSecretLen} characters`);
+  }
+  if (accessSecret && refreshSecret && accessSecret === refreshSecret) {
+    invalid.push('JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must differ');
+  }
+
+  const portRaw = process.env.API_PORT;
+  if (portRaw !== undefined && portRaw !== '') {
+    const port = Number(portRaw);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      invalid.push('API_PORT must be an integer between 1 and 65535');
+    }
+  }
+
+  const redisUrl = process.env.REDIS_URL?.trim();
+  if (redisUrl) {
+    try {
+      // eslint-disable-next-line no-new
+      new URL(redisUrl);
+    } catch {
+      invalid.push('REDIS_URL must be a valid URL');
+    }
+  }
+
   if (missing.length > 0) {
     logger.error(
       `Missing required environment variables: ${missing.join(', ')}`,
     );
-    if (isProduction) process.exit(1);
+  }
+  if (invalid.length > 0) {
+    logger.error(`Invalid environment variables:\n - ${invalid.join('\n - ')}`);
+  }
+  if ((missing.length > 0 || invalid.length > 0) && isStrict) {
+    logger.error(
+      'Refusing to start with an invalid configuration. Exiting (NODE_ENV=' +
+        `${nodeEnv}).`,
+    );
+    process.exit(1);
   }
 
-  // Warn about demo/placeholder values in production
-  if (isProduction) {
+  // Warn about demo/placeholder values in strict environments
+  if (isStrict) {
     if (!process.env.METAAPI_TOKEN) {
       logger.warn(
         'METAAPI_TOKEN is not set — all broker trades will be mocked',
@@ -116,8 +172,30 @@ function validateEnv() {
   }
 }
 
+function installProcessSafetyNet() {
+  const logger = new Logger('ProcessSafety');
+  // Background pollers (copy-factory sync, market price broadcast, master sync)
+  // run on timers and issue Prisma queries. A transient DB disconnect (e.g. Neon
+  // closing an idle serverless connection — P1017) surfaces as an unhandled
+  // rejection that would otherwise crash the whole API. Prisma reconnects on the
+  // next query, so we log and keep the process alive instead of exiting.
+  process.on('unhandledRejection', (reason) => {
+    logger.error(
+      `Unhandled promise rejection (process kept alive): ${
+        reason instanceof Error ? (reason.stack ?? reason.message) : String(reason)
+      }`,
+    );
+  });
+  process.on('uncaughtException', (err) => {
+    logger.error(
+      `Uncaught exception (process kept alive): ${err.stack ?? err.message}`,
+    );
+  });
+}
+
 async function bootstrap() {
   validateEnv();
+  installProcessSafetyNet();
 
   const app = await NestFactory.create(AppModule, {
     bodyParser: false,
@@ -125,6 +203,15 @@ async function bootstrap() {
   });
 
   configureApp(app);
+
+  // ─── WebSocket horizontal scaling ─────────────────────────────────────────
+  // Attach the Redis Pub/Sub adapter when a real Redis is configured so events
+  // fan out across all API replicas. No-op (default adapter) in single-instance
+  // / in-memory-Redis dev.
+  const redisIoAdapter = new RedisIoAdapter(app);
+  if (await redisIoAdapter.connectToRedis()) {
+    app.useWebSocketAdapter(redisIoAdapter);
+  }
 
   // ─── Graceful shutdown ────────────────────────────────────────────────────
   // enableShutdownHooks() causes NestJS to listen for SIGTERM / SIGINT and

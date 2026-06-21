@@ -167,11 +167,18 @@ export class RedisService {
     }
   }
 
-  /** Atomically gets and removes a key in one round-trip (Redis GETDEL). */
+  /** Atomically gets and removes a key. Falls back to GET+DEL for Redis < 6.2 which lacks GETDEL. */
   async getdel(key: string): Promise<string | null> {
     try {
       return await this.redis.getdel(key);
     } catch (error) {
+      const msg = error instanceof Error ? error.message : String(error);
+      // Redis 5 doesn't have GETDEL — emulate with GET then DEL (acceptable for dev)
+      if (msg.includes('unknown command') && msg.toLowerCase().includes('getdel')) {
+        const val = await this.redis.get(key);
+        if (val !== null) await this.redis.del(key);
+        return val;
+      }
       if (isSecurityCriticalKey(key)) {
         this.logger.error(
           `Redis unavailable for security-critical getdel(${key}). Failing hard to protect auth state.`,
@@ -179,7 +186,7 @@ export class RedisService {
         throw error;
       }
       this.logger.warn(
-        `Redis unavailable for getdel(${key}), reading in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,
+        `Redis unavailable for getdel(${key}), reading in-memory fallback: ${msg}`,
       );
       const val = this.memoryStore.get(key) ?? null;
       this.clearMemoryKey(key);
@@ -211,6 +218,49 @@ export class RedisService {
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Read a JSON value from cache. Returns null on miss, unreachable Redis, or
+   * malformed payload — callers should treat null as "recompute".
+   */
+  async getJson<T>(key: string): Promise<T | null> {
+    const raw = await this.get(key);
+    if (raw == null) return null;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Store a JSON-serialisable value with an optional TTL (seconds). */
+  async setJson(
+    key: string,
+    value: unknown,
+    ttlSeconds?: number,
+  ): Promise<void> {
+    await this.set(key, JSON.stringify(value), ttlSeconds);
+  }
+
+  /**
+   * Cache-aside helper: return the cached value if present, otherwise run
+   * `producer`, cache the result for `ttlSeconds`, and return it. Never throws
+   * for cache failures — a Redis outage degrades to always calling `producer`.
+   */
+  async cached<T>(
+    key: string,
+    ttlSeconds: number,
+    producer: () => Promise<T>,
+  ): Promise<T> {
+    const hit = await this.getJson<T>(key);
+    if (hit !== null) return hit;
+
+    const fresh = await producer();
+    if (fresh !== null && fresh !== undefined) {
+      await this.setJson(key, fresh, ttlSeconds);
+    }
+    return fresh;
   }
 
   async ping(): Promise<boolean> {

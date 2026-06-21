@@ -3,6 +3,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { AppThrottlerGuard } from './common/guards/throttler.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -24,7 +25,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MarketModule } from './modules/market/market.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
-import { getRedisConnectionUrl } from './config/redis.config';
+import { getRedisConnectionUrl, isInMemoryRedis } from './config/redis.config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SocialModule } from './modules/social/social.module';
 import { SupportModule } from './modules/support/support.module';
@@ -45,18 +46,33 @@ import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { JwtAuthGuard } from './modules/auth/guards/auth.guard';
 
 const parseRedisConfig = () => {
+  // Dev without a real Redis server: point BullMQ at a local (unreachable)
+  // Redis. ioredis emits handled connection errors and retries with backoff;
+  // queue jobs won't process, but the API boots and all read/write HTTP flows
+  // work. (The auth/cache client uses an in-memory mock — see redis.config.ts.)
+  if (isInMemoryRedis()) {
+    return {
+      host: '127.0.0.1',
+      port: 6379,
+      maxRetriesPerRequest: null,
+      retryStrategy: () => 30000,
+    };
+  }
+
   const redisUrl = getRedisConnectionUrl();
 
   if (redisUrl) {
     try {
       const parsed = new URL(redisUrl);
+      const password = decodeURIComponent(
+        parsed.password || process.env.REDIS_PASSWORD || '',
+      );
       return {
         host: parsed.hostname,
         port: Number(parsed.port || 6379),
-        username: parsed.username || 'default',
-        password: decodeURIComponent(
-          parsed.password || process.env.REDIS_PASSWORD || '',
-        ),
+        // Only include auth when a password is present; Redis 5 (single-arg AUTH)
+        // rejects connections that send both username + password.
+        ...(password ? { username: parsed.username || 'default', password } : {}),
         tls: parsed.protocol === 'rediss:' ? {} : undefined,
       };
     } catch {
@@ -64,11 +80,11 @@ const parseRedisConfig = () => {
     }
   }
 
+  const password = process.env.REDIS_PASSWORD || '';
   return {
     host: process.env.REDIS_HOST || 'redis',
     port: Number(process.env.REDIS_PORT) || 6379,
-    username: 'default',
-    password: process.env.REDIS_PASSWORD,
+    ...(password ? { username: 'default', password } : {}),
     tls: Number(process.env.REDIS_PORT) === 443 ? {} : undefined,
   };
 };
@@ -82,10 +98,23 @@ const parseRedisConfig = () => {
           ? ['.env.test']
           : ['.env.local', '.env'],
     }),
-    ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
-    BullModule.forRoot({
-      redis: parseRedisConfig(),
+    // Base limit = anonymous (100 req/min). Authenticated callers are bumped to
+    // 1000 req/min in AppThrottlerGuard. Storage is Redis-backed in production
+    // so limits are shared across horizontally-scaled instances; in dev (in-
+    // memory Redis mock) we fall back to per-instance memory storage to avoid
+    // depending on a real Redis server.
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60_000, limit: 100 }],
+      ...(() => {
+        if (isInMemoryRedis()) return {};
+        const redisUrl = getRedisConnectionUrl();
+        if (!redisUrl) return {};
+        return { storage: new ThrottlerStorageRedisService(redisUrl) };
+      })(),
     }),
+    BullModule.forRoot({ redis: parseRedisConfig() }),
+    // Registered here so the health controller can probe queue connectivity.
+    BullModule.registerQueue({ name: 'trade_execution' }),
     ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,

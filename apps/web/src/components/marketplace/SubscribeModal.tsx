@@ -8,6 +8,7 @@ import { marketplaceApi, PlanType } from '@/lib/api/marketplace';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { formatBotName } from '@/lib/bot-labels';
+import { useCurrency } from '@/lib/hooks/useCurrency';
 
 interface SubscribeModalProps {
   strategy: any;
@@ -28,6 +29,7 @@ const ACCENT_STYLES: Record<string, { border: string; bg: string; ring: string; 
 };
 
 export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProps) {
+  const { currency, formatPrice } = useCurrency();
   const [step, setStep] = React.useState<1 | 2>(1);
   const [planType, setPlanType] = React.useState<PlanType>('ANNUAL');
   const [useTrial, setUseTrial] = React.useState(false);
@@ -247,10 +249,10 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                                 {/* Price */}
                                 <div className="text-right shrink-0">
                                   <p className="text-lg font-bold text-foreground font-mono tabular-nums leading-none">
-                                    ${price.toFixed(2)}
+                                    {formatPrice(price)}
                                   </p>
                                   <p className="text-micro text-foreground/30 uppercase tracking-widest mt-1 font-bold">
-                                    {key === 'MONTHLY' ? '/ mo' : key === 'ANNUAL' ? '/ yr' : 'once'}
+                                    {key === 'MONTHLY' ? '/ mo' : key === 'ANNUAL' ? '/ yr' : 'once'} · {currency.code}
                                   </p>
                                 </div>
 
@@ -314,9 +316,14 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
 
                         <div className="flex items-baseline justify-between">
                           <span className="text-caption text-foreground/35 font-bold uppercase tracking-[0.18em]">Total</span>
-                          <span className="text-2xl font-bold text-foreground font-mono tabular-nums">
-                            ${Number(planPrice || 0).toFixed(2)}
-                          </span>
+                          <div className="text-right">
+                            <span className="text-2xl font-bold text-foreground font-mono tabular-nums">
+                              {formatPrice(Number(planPrice || 0))}
+                            </span>
+                            <p className="text-micro text-foreground/30 uppercase tracking-widest mt-0.5 font-bold">
+                              {currency.code}
+                            </p>
+                          </div>
                         </div>
 
                         {useTrial && (

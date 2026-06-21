@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
+import { PrismaService } from '../../prisma/prisma.service';
 
 const BASE = `
   <div style="background:#020617;color:#e2e8f0;padding:40px 32px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;border-radius:16px;">
@@ -18,22 +19,47 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private resend: Resend | null = null;
 
-  constructor() {
+  constructor(private readonly prisma: PrismaService) {
     if (process.env.RESEND_API_KEY) {
       this.resend = new Resend(process.env.RESEND_API_KEY);
     }
   }
 
-  async sendOtpEmail(email: string, otp: string) {
+  async sendLoginEmail(
+    email: string,
+    name: string,
+    data: { ip?: string; device?: string; time?: string; userId?: string },
+  ) {
+    const time = data.time ?? new Date().toUTCString();
+    const html = `${BASE}
+      <p style="font-size:20px;font-weight:700;margin:0 0 12px;">New sign-in to your account</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${name || 'Trader'}, a new login was detected on your Profytron account.</p>
+      <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;margin-bottom:16px;">
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Time:</span> <strong>${time}</strong></p>
+        ${data.ip ? `<p style="margin:0 0 8px;"><span style="color:#64748b;">IP:</span> <strong>${data.ip}</strong></p>` : ''}
+        ${data.device ? `<p style="margin:0;"><span style="color:#64748b;">Device:</span> <strong>${data.device}</strong></p>` : ''}
+      </div>
+      <p style="color:#64748b;font-size:13px;">If this wasn't you, <a href="${process.env.FRONTEND_URL}/settings/security" style="color:#6366f1;">secure your account immediately</a>.</p>
+    ${FOOTER}`;
+    return this.send(email, 'New sign-in to your Profytron account', html, {
+      type: 'LOGIN',
+      userId: data.userId,
+    });
+  }
+
+  async sendOtpEmail(email: string, otp: string, userId?: string) {
     const html = `${BASE}
       <p style="color:#94a3b8;margin:0 0 20px;">Your verification code is:</p>
       <div style="font-size:36px;font-weight:800;letter-spacing:8px;color:#6366f1;padding:20px 28px;background:#0f172a;display:inline-block;border-radius:12px;border:1px solid #1e293b;">${otp}</div>
       <p style="color:#64748b;font-size:13px;margin-top:20px;">Expires in <strong>10 minutes</strong>. Do not share this code.</p>
     ${FOOTER}`;
-    return this.send(email, 'Your Profytron Verification Code', html);
+    return this.send(email, 'Your Profytron Verification Code', html, {
+      type: 'OTP',
+      userId,
+    });
   }
 
-  async sendPasswordResetEmail(email: string, resetToken: string) {
+  async sendPasswordResetEmail(email: string, resetToken: string, userId?: string) {
     const url = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Reset your password</p>
@@ -41,10 +67,13 @@ export class EmailService {
       <a href="${url}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">Reset Password</a>
       <p style="color:#475569;font-size:12px;margin-top:20px;">If you didn't request this, ignore this email.</p>
     ${FOOTER}`;
-    return this.send(email, 'Reset Your Profytron Password', html);
+    return this.send(email, 'Reset Your Profytron Password', html, {
+      type: 'PASSWORD_RESET',
+      userId,
+    });
   }
 
-  async sendWelcomeEmail(email: string, name: string) {
+  async sendWelcomeEmail(email: string, name: string, userId?: string) {
     const base = process.env.FRONTEND_URL || 'https://profytron.com';
     const html = `${BASE}
       <p style="font-size:22px;font-weight:700;margin:0 0 12px;">Welcome, ${name} 🎯</p>
@@ -60,7 +89,10 @@ export class EmailService {
         <a href="${base}/marketplace" style="background:#0f172a;color:#cbd5e1;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;border:1px solid #1e293b;">Browse Strategies</a>
       </div>
     ${FOOTER}`;
-    return this.send(email, `Welcome to Profytron, ${name}!`, html);
+    return this.send(email, `Welcome to Profytron, ${name}!`, html, {
+      type: 'WELCOME',
+      userId,
+    });
   }
 
   async sendLifecycleEmail(
@@ -73,6 +105,7 @@ export class EmailService {
       ctaLabel: string;
       ctaPath: string;
     },
+    userId?: string,
   ) {
     const url = `${process.env.FRONTEND_URL || 'https://profytron.com'}${data.ctaPath}`;
     const html = `${BASE}
@@ -80,7 +113,7 @@ export class EmailService {
       <p style="color:#94a3b8;margin:0 0 24px;">Hi ${name || 'Trader'}, ${data.body}</p>
       <a href="${url}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${data.ctaLabel}</a>
     ${FOOTER}`;
-    return this.send(email, data.subject, html);
+    return this.send(email, data.subject, html, { type: 'LIFECYCLE', userId });
   }
 
   async sendActivationCelebrationEmail(
@@ -92,23 +125,30 @@ export class EmailService {
       ctaUrl: string;
       ctaLabel: string;
     },
+    userId?: string,
   ) {
     const html = `${BASE}
       <p style="font-size:22px;font-weight:700;color:#4ade80;margin:0 0 12px;">🎯 ${data.title}</p>
       <p style="color:#94a3b8;margin:0 0 24px;">Hi ${name || 'Trader'}, ${data.body}</p>
       <a href="${data.ctaUrl}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${data.ctaLabel}</a>
     ${FOOTER}`;
-    return this.send(email, `Profytron: ${data.title}`, html);
+    return this.send(email, `Profytron: ${data.title}`, html, {
+      type: 'ACTIVATION',
+      userId,
+    });
   }
 
-  async sendMagicLinkEmail(email: string, name: string, link: string) {
+  async sendMagicLinkEmail(email: string, name: string, link: string, userId?: string) {
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Your login link</p>
       <p style="color:#94a3b8;margin:0 0 24px;">Hi ${name || 'Trader'}, click below to sign in to Profytron. This link expires in <strong>15 minutes</strong>.</p>
       <a href="${link}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">Sign In Securely</a>
       <p style="color:#475569;font-size:12px;margin-top:20px;">If you didn't request this, ignore this email.</p>
     ${FOOTER}`;
-    return this.send(email, 'Your Profytron Magic Login Link', html);
+    return this.send(email, 'Your Profytron Magic Login Link', html, {
+      type: 'MAGIC_LINK',
+      userId,
+    });
   }
 
   async sendTradeAlertEmail(
@@ -127,6 +167,7 @@ export class EmailService {
       pnl?: number;
       strategyName?: string;
     },
+    userId?: string,
   ) {
     const labels: Record<string, { title: string; color: string }> = {
       TRADE_OPENED: { title: 'Trade Opened', color: '#22d3ee' },
@@ -156,7 +197,11 @@ export class EmailService {
       ${pnlText}
       <a href="${process.env.FRONTEND_URL}/dashboard" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">View Dashboard</a>
     ${FOOTER}`;
-    return this.send(email, `Profytron Alert: ${title} — ${data.symbol}`, html);
+    return this.send(email, `Profytron Alert: ${title} — ${data.symbol}`, html, {
+      type: data.alertType,
+      userId,
+      metadata: { symbol: data.symbol, direction: data.direction, pnl: data.pnl },
+    });
   }
 
   async sendPaymentEmail(
@@ -168,6 +213,7 @@ export class EmailService {
       currency?: string;
       description?: string;
     },
+    userId?: string,
   ) {
     const success = data.type === 'SUCCESS';
     const html = `${BASE}
@@ -183,6 +229,11 @@ export class EmailService {
       email,
       `Profytron: Payment ${success ? 'Confirmed' : 'Failed'}`,
       html,
+      {
+        type: `PAYMENT_${data.type}`,
+        userId,
+        metadata: { amount: data.amount, currency: data.currency },
+      },
     );
   }
 
@@ -190,6 +241,7 @@ export class EmailService {
     email: string,
     name: string,
     strategyName: string,
+    userId?: string,
   ) {
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Subscription Expired</p>
@@ -200,6 +252,7 @@ export class EmailService {
       email,
       `Your Profytron subscription to ${strategyName} has expired`,
       html,
+      { type: 'SUBSCRIPTION_EXPIRED', userId },
     );
   }
 
@@ -208,6 +261,7 @@ export class EmailService {
     name: string,
     status: 'VERIFIED' | 'REJECTED',
     notes?: string,
+    userId?: string,
   ) {
     const approved = status === 'VERIFIED';
     const html = `${BASE}
@@ -220,6 +274,7 @@ export class EmailService {
       email,
       `Profytron KYC: ${approved ? 'Verified' : 'Action Required'}`,
       html,
+      { type: `KYC_${status}`, userId },
     );
   }
 
@@ -229,6 +284,7 @@ export class EmailService {
     title: string,
     message: string,
     actionUrl?: string,
+    userId?: string,
   ) {
     const cta = actionUrl
       ? `<a href="${actionUrl}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;margin-top:16px;">Open Alert</a>`
@@ -239,10 +295,31 @@ export class EmailService {
       <p style="color:#cbd5e1;margin:0 0 16px;">${message}</p>
       ${cta}
     ${FOOTER}`;
-    return this.send(email, `Profytron Alert: ${title}`, html);
+    return this.send(email, `Profytron Alert: ${title}`, html, {
+      type: 'NOTIFICATION',
+      userId,
+    });
   }
 
-  private async send(to: string, subject: string, html: string) {
+  /** Get full email history for a user or address. */
+  async getEmailHistory(filter: { userId?: string; to?: string; limit?: number }) {
+    return this.prisma.emailLog.findMany({
+      where: {
+        ...(filter.userId ? { userId: filter.userId } : {}),
+        ...(filter.to ? { to: filter.to } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
+      take: filter.limit ?? 100,
+    });
+  }
+
+  private async send(
+    to: string,
+    subject: string,
+    html: string,
+    meta: { type: string; userId?: string; metadata?: Record<string, any> } = { type: 'GENERIC' },
+  ) {
+    let status = 'SENT';
     if (this.resend) {
       try {
         await this.resend.emails.send({
@@ -251,14 +328,30 @@ export class EmailService {
           subject,
           html,
         });
-        return true;
       } catch (err) {
-        this.logger.error(
-          `Failed to send via Resend: ${(err as Error).message}`,
-        );
+        status = 'FAILED';
+        this.logger.error(`Failed to send via Resend: ${(err as Error).message}`);
       }
+    } else {
+      this.logger.warn(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
     }
-    this.logger.warn(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
-    return true;
+
+    // Log every email attempt to the DB for full history.
+    try {
+      await this.prisma.emailLog.create({
+        data: {
+          userId: meta.userId ?? null,
+          to,
+          subject,
+          type: meta.type,
+          status,
+          metadata: meta.metadata ?? undefined,
+        },
+      });
+    } catch (logErr) {
+      this.logger.warn(`Email log write failed: ${(logErr as Error).message}`);
+    }
+
+    return status === 'SENT';
   }
 }

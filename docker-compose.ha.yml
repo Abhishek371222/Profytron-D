@@ -1,0 +1,69 @@
+# =============================================================================
+# Profytron Redis HA stack — primary + replica + 3 Sentinels
+# =============================================================================
+#   docker compose -f docker-compose.ha.yml up -d
+#
+# Sentinel handles automatic failover: if redis-primary dies, a sentinel quorum
+# promotes redis-replica. Clients that support Sentinel can discover the current
+# primary; for ioredis use:
+#   new Redis({ sentinels: [{host:'sentinel-1',port:26379}, ...], name:'profymaster' })
+#
+# This focuses on Redis HA only. Run it alongside docker-compose.prod.yml
+# (app + nginx + postgres) on the same external network if desired.
+# =============================================================================
+
+services:
+  redis-primary:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./deploy/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis_primary_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks: [redis-ha]
+
+  redis-replica:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: >
+      redis-server /usr/local/etc/redis/redis.conf
+      --replicaof redis-primary 6379
+    volumes:
+      - ./deploy/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis_replica_data:/data
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+    networks: [redis-ha]
+
+  sentinel-1: &sentinel
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Sentinel rewrites its config at runtime, so copy the read-only mounted
+    # template to a writable path per-container before starting.
+    command: sh -c "cp /etc/redis/sentinel.conf /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+    volumes:
+      - ./deploy/sentinel.conf:/etc/redis/sentinel.conf:ro
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+    networks: [redis-ha]
+
+  sentinel-2:
+    <<: *sentinel
+
+  sentinel-3:
+    <<: *sentinel
+
+volumes:
+  redis_primary_data:
+  redis_replica_data:
+
+networks:
+  redis-ha:
+    driver: bridge

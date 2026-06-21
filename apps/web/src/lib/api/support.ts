@@ -37,19 +37,22 @@ export const supportApi = {
 
   getTickets: (status?: string) =>
     apiClient
-      .get<SupportTicket[]>('/support/tickets', { params: status ? { status } : undefined })
-      .then((r) => r.data),
+      .get('/support/tickets', { params: status ? { status } : undefined })
+      .then((r) => {
+        const raw = r.data?.data ?? r.data ?? [];
+        return (Array.isArray(raw) ? raw : []) as SupportTicket[];
+      }),
 
   getTicket: (id: string) =>
-    apiClient.get<SupportTicket>(`/support/tickets/${id}`).then((r) => r.data),
+    apiClient.get(`/support/tickets/${id}`).then((r) => (r.data?.data ?? r.data) as SupportTicket),
 
   addResponse: (ticketId: string, message: string) =>
     apiClient
-      .post<SupportTicketResponse>(`/support/tickets/${ticketId}/responses`, { message })
-      .then((r) => r.data),
+      .post(`/support/tickets/${ticketId}/responses`, { message })
+      .then((r) => (r.data?.data ?? r.data) as SupportTicketResponse),
 
   updateStatus: (ticketId: string, status: string) =>
     apiClient
-      .patch<SupportTicket>(`/support/tickets/${ticketId}/status`, { status })
-      .then((r) => r.data),
+      .patch(`/support/tickets/${ticketId}/status`, { status })
+      .then((r) => (r.data?.data ?? r.data) as SupportTicket),
 };

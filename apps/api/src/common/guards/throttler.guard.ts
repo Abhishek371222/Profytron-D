@@ -4,11 +4,18 @@ import {
   ThrottlerStorage,
   getOptionsToken,
 } from '@nestjs/throttler';
-import type { ThrottlerModuleOptions } from '@nestjs/throttler';
+import type {
+  ThrottlerModuleOptions,
+  ThrottlerRequest,
+} from '@nestjs/throttler';
 import { ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AgentEventService } from '../../modules/agents/agent-event.service';
 import { AGENT_EVENTS } from '../../modules/agents/agent.types';
+
+// Per-minute request budgets. Authenticated dashboards make many calls, so they
+// get a much higher ceiling than anonymous traffic (the configured base limit).
+const AUTHENTICATED_LIMIT = 1000;
 
 @Injectable()
 export class AppThrottlerGuard extends ThrottlerGuard {
@@ -24,6 +31,29 @@ export class AppThrottlerGuard extends ThrottlerGuard {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     if (context.getType() !== 'http') return true;
     return super.canActivate(context);
+  }
+
+  // Track authenticated callers by user id (so one user's quota follows them
+  // across IPs / NAT), and anonymous callers by IP.
+  protected getTracker(req: Record<string, any>): Promise<string> {
+    const userId = req?.user?.userId ?? req?.user?.id;
+    return Promise.resolve(userId ? `user:${userId}` : `ip:${req?.ip ?? 'unknown'}`);
+  }
+
+  // Raise the limit for authenticated requests; anonymous requests keep the
+  // base limit configured on the module.
+  protected async handleRequest(
+    requestProps: ThrottlerRequest,
+  ): Promise<boolean> {
+    const req = requestProps.context
+      .switchToHttp()
+      .getRequest<{ user?: { id?: string; userId?: string } }>();
+    const isAuthenticated = Boolean(req?.user?.userId ?? req?.user?.id);
+    return super.handleRequest(
+      isAuthenticated
+        ? { ...requestProps, limit: AUTHENTICATED_LIMIT }
+        : requestProps,
+    );
   }
 
   protected async throwThrottlingException(

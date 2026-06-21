@@ -75,6 +75,7 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
               className={cn(
                 'peer w-full h-16 bg-input backdrop-blur-md border border-border rounded-2xl px-5 pt-6 pb-2 outline-none transition-all duration-300 font-sans text-body text-foreground placeholder-transparent',
                 'hover:bg-input/80 hover:border-primary/25',
+                '[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_hsl(var(--input))_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:hsl(var(--foreground))]',
                 isFocused && 'bg-card border-primary/30 ring-1 ring-ring/30',
                 error && 'border-destructive/50 focus:border-destructive ring-destructive/20',
                 className,
@@ -86,6 +87,8 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
               htmlFor={inputId}
               className={cn(
                 'absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none transition-all duration-300 ease-out origin-left text-body-sm font-semibold tracking-wide',
+                'peer-[:not(:placeholder-shown)]:translate-y-[-24px] peer-[:not(:placeholder-shown)]:scale-[0.75] peer-[:not(:placeholder-shown)]:text-primary',
+                'peer-autofill:translate-y-[-24px] peer-autofill:scale-[0.75] peer-autofill:text-primary',
                 (isFocused || hasValue) && 'translate-y-[-24px] scale-[0.75] text-primary',
               )}
             >

@@ -23,6 +23,7 @@ import {
 } from '../growth/activation.service';
 import { AgentEventService } from '../agents/agent-event.service';
 import { AGENT_EVENTS } from '../agents/agent.types';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class AuthService {
@@ -38,6 +39,7 @@ export class AuthService {
     private activationService: ActivationService,
     private agentEvents: AgentEventService,
     private twoFaService: TwoFaService,
+    private notificationsService: NotificationsService,
   ) {
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -470,6 +472,22 @@ export class AuthService {
           userAgent,
         },
       });
+      void this.emailService.sendLoginEmail(user.email, user.fullName, {
+        ip,
+        device: userAgent,
+        time: new Date().toUTCString(),
+        userId: user.id,
+      });
+      void this.notificationsService.create({
+        userId: user.id,
+        title: 'New Login Detected',
+        message: `New sign-in detected from ${ip}. If this wasn't you, secure your account immediately.`,
+        type: 'INFO',
+        category: 'SECURITY',
+        priority: 'HIGH',
+        actionUrl: '/settings/security',
+        sendPush: true,
+      });
     } catch (error) {
       this.logger.warn(
         `Login bookkeeping failed for user ${user.id}. Continuing with successful authentication.`,
@@ -562,7 +580,16 @@ export class AuthService {
     const stored = await this.redisService.get(
       `auth:refresh:${userId}:default`,
     );
-    if (!stored || stored !== refreshToken)
+    // The refresh JWT has already been verified (signature + expiry + blacklist)
+    // by JwtRefreshGuard before reaching here; the Redis record is an extra
+    // rotation/revocation guard. In dev we run an in-process Redis that is wiped
+    // on every API restart, so without this carve-out each restart would force
+    // every user to log in again ("session expired"). Behaviour:
+    //   - record present  -> must match the presented token (rotation guard)
+    //   - record missing   -> reject only when backed by a real persistent Redis
+    // Production (REDIS_INMEMORY unset) keeps the original strict behaviour.
+    const usingEphemeralRedis = process.env.REDIS_INMEMORY === 'true';
+    if (stored ? stored !== refreshToken : !usingEphemeralRedis)
       appError(
         HttpStatus.UNAUTHORIZED,
         'Invalid refresh session',
@@ -687,6 +714,18 @@ export class AuthService {
       },
     });
 
+    void this.notificationsService.create({
+      userId: user.id,
+      title: 'Password Changed',
+      message: 'Your account password was reset. If this wasn\'t you, contact support immediately.',
+      type: 'WARNING',
+      category: 'SECURITY',
+      priority: 'HIGH',
+      actionUrl: '/settings/security',
+      sendEmail: true,
+      sendPush: true,
+    });
+
     return { success: true };
   }
 
@@ -764,6 +803,22 @@ export class AuthService {
     const oauthCode = await this.storeOAuthExchangePayload(
       session.tokens.accessToken,
     );
+
+    void this.emailService.sendLoginEmail(user.email, user.fullName, {
+      device: 'Google Sign-In',
+      time: new Date().toUTCString(),
+      userId: user.id,
+    });
+    void this.notificationsService.create({
+      userId: user.id,
+      title: 'New Sign-In via Google',
+      message: 'You signed in to your Profytron account using Google.',
+      type: 'INFO',
+      category: 'SECURITY',
+      priority: 'NORMAL',
+      actionUrl: '/settings/security',
+      sendPush: true,
+    });
 
     return {
       oauthCode,
@@ -1033,6 +1088,22 @@ export class AuthService {
     const oauthCode = await this.storeOAuthExchangePayload(
       session.tokens.accessToken,
     );
+
+    void this.emailService.sendLoginEmail(user.email, user.fullName, {
+      device: 'GitHub Sign-In',
+      time: new Date().toUTCString(),
+      userId: user.id,
+    });
+    void this.notificationsService.create({
+      userId: user.id,
+      title: 'New Sign-In via GitHub',
+      message: 'You signed in to your Profytron account using GitHub.',
+      type: 'INFO',
+      category: 'SECURITY',
+      priority: 'NORMAL',
+      actionUrl: '/settings/security',
+      sendPush: true,
+    });
 
     return {
       oauthCode,

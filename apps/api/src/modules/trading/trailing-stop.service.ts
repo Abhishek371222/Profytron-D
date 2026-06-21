@@ -109,7 +109,19 @@ export class TrailingStopService implements OnModuleDestroy {
         });
       }
     } catch (err) {
-      this.logger.error(`Trailing-stop tick error: ${(err as Error).message}`);
+      const message = (err as Error)?.message ?? String(err);
+      // Neon (and other serverless Postgres) can briefly drop idle connections.
+      // Treat transient connectivity blips as warnings so a recoverable DB hiccup
+      // doesn't spam error-level logs; the next tick simply retries.
+      const isTransientDbError =
+        /can't reach database server|connection.*closed|P10(01|08|17)/i.test(
+          message,
+        );
+      if (isTransientDbError) {
+        this.logger.warn(`Trailing-stop tick skipped (DB unavailable): ${message}`);
+      } else {
+        this.logger.error(`Trailing-stop tick error: ${message}`);
+      }
     } finally {
       this.running = false;
     }

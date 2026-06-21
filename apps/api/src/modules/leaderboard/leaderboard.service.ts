@@ -80,6 +80,14 @@ export class LeaderboardService {
   }
 
   async getTopStrategies(limit = 20) {
+    return this.redis.cached(
+      `cache:leaderboard:strategies:${limit}`,
+      LEADERBOARD_TTL,
+      () => this.computeTopStrategies(limit),
+    );
+  }
+
+  private async computeTopStrategies(limit = 20) {
     const strategies = await this.prisma.strategy.findMany({
       where: { isPublished: true, isVerified: true, deletedAt: null },
       include: {

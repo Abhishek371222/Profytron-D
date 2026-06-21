@@ -6,7 +6,6 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   BarChart3,
   LayoutDashboard,
-  Library,
   Zap,
   ShoppingBag,
   History,
@@ -20,6 +19,10 @@ import {
   Server,
   Bell,
   Shield,
+  CreditCard,
+  FileText,
+  Briefcase,
+  Unplug,
 } from "@/components/ui/icons";
 import { cn, isAdminUser } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/useUIStore";
@@ -29,19 +32,21 @@ import { UserAvatar } from "@/components/ui/UserAvatar";
 
 const navItems = [
   { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
+  { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
+  { name: "My Bots", icon: Server, href: "/my-bots" },
+  { name: "Connected Accounts", icon: Unplug, href: "/connected-accounts" },
+  { name: "Subscriptions", icon: CreditCard, href: "/subscriptions" },
+  { name: "Billing", icon: FileText, href: "/billing" },
+  { name: "Team Plans", icon: Briefcase, href: "/team-plans" },
   { name: "Analytics", icon: BarChart3, href: "/analytics" },
   { name: "AI Coach", icon: Sparkles, href: "/ai-coach" },
   { name: "Wallet", icon: Wallet, href: "/wallet" },
-  { name: "Strategies", icon: Library, href: "/strategies" },
-  { name: "Builder", icon: Zap, href: "/strategies/builder" },
-  { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
   { name: "Journal", icon: BookOpen, href: "/journal" },
   { name: "History", icon: History, href: "/history" },
   { name: "Leaderboard", icon: Trophy, href: "/leaderboard" },
-  { name: "Bots", icon: Server, href: "/bots" },
-  { name: "Copy Trading", icon: Zap, href: "/copy-trading" },
   { name: "Notifications", icon: Bell, href: "/notifications", badge: 3 },
   { name: "Affiliate", icon: Network, href: "/affiliate" },
+  { name: "Settings", icon: Settings, href: "/settings" },
 ];
 
 export function Sidebar({ mobile = false }: { mobile?: boolean }) {
@@ -176,15 +181,6 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
             )}
           </div>
         )}
-        <Link
-          href="/settings"
-          className={cn("dash-nav-link", !expanded && "justify-center w-10 mx-auto")}
-        >
-          <div className={cn("flex items-center gap-2.5", expanded ? "pl-3" : "justify-center")}>
-            <Settings className="w-4 h-4" />
-            {expanded && <span>Settings</span>}
-          </div>
-        </Link>
         {!mobile && (
           <button
             type="button"

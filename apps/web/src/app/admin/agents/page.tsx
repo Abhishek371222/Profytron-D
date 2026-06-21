@@ -24,7 +24,7 @@ const STATUS_STYLE: Record<string, string> = {
   COMPLETED: 'text-chart-3 bg-chart-3/10 border-chart-3/30',
   PROCESSING: 'text-chart-4 bg-chart-4/10 border-chart-4/30',
   FAILED: 'text-destructive bg-destructive/10 border-destructive/30',
-  SKIPPED_NO_AI: 'text-muted-foreground bg-slate-500/10 border-slate-500/30',
+  SKIPPED_NO_AI: 'text-muted-foreground bg-muted border-[var(--card-border)]',
   PENDING: 'text-primary bg-primary/10 border-primary/30',
   DEAD_LETTER: 'text-destructive bg-destructive/10 border-destructive/30',
 };
@@ -172,7 +172,7 @@ export default function AdminAgentsPage() {
             {isBatchRunning ? ' Fast refresh while batch runs.' : ' Auto-refresh every 15s.'}
           </p>
           {data && (
-            <p className="text-xs text-foreground0 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {reportsReady}/{AGENT_ORDER.length} agent reports ready
             </p>
           )}
@@ -182,7 +182,7 @@ export default function AdminAgentsPage() {
             type="button"
             disabled={isRefreshing}
             onClick={() => invalidateAll()}
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-foreground/80 hover:bg-slate-800 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--card-border)] bg-card px-3 py-2 text-sm text-foreground/80 hover:bg-muted disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
@@ -214,7 +214,7 @@ export default function AdminAgentsPage() {
               {batchProgress.updated}/{batchProgress.total} updated
             </span>
           </div>
-          <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-500"
               style={{ width: `${(batchProgress.updated / batchProgress.total) * 100}%` }}
@@ -250,7 +250,7 @@ export default function AdminAgentsPage() {
       )}
 
       {activity && activity.recentJobs.length > 0 && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+        <div className="rounded-xl border border-[var(--card-border)] bg-card p-4">
           <h2 className="text-sm font-medium text-foreground/80 mb-3 flex items-center gap-2">
             <Clock className="h-4 w-4 text-primary" />
             Live activity
@@ -272,15 +272,15 @@ export default function AdminAgentsPage() {
             <StatCard label="DLQ depth" value={String(data.summary.dlqDepth24h)} icon={<Bot className="h-4 w-4" />} />
           </div>
 
-          <div className="rounded-xl border border-primary/20 bg-slate-900 p-4">
+          <div className="rounded-xl border border-primary/20 bg-card p-4">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div>
                 <h2 className="text-sm font-medium text-foreground/80">Detailed summaries by agent</h2>
-                <p className="text-xs text-foreground0 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Structured reports — expand any card or run a single agent
                 </p>
               </div>
-              <span className="text-xs rounded-full bg-slate-800 text-muted-foreground px-3 py-1">
+              <span className="text-xs rounded-full bg-muted text-muted-foreground px-3 py-1">
                 {reportsReady}/{AGENT_ORDER.length} ready
               </span>
             </div>
@@ -300,9 +300,9 @@ export default function AdminAgentsPage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden">
+          <div className="rounded-xl border border-[var(--card-border)] bg-card overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-slate-950 text-muted-foreground text-left">
+              <thead className="bg-muted/40 text-muted-foreground text-left">
                 <tr>
                   <th className="p-3">Agent</th>
                   <th className="p-3">Role</th>
@@ -325,7 +325,7 @@ export default function AdminAgentsPage() {
                     const budgetPct =
                       a.tokenCap > 0 ? Math.min(100, (a.tokensUsedToday / a.tokenCap) * 100) : 0;
                     return (
-                      <tr key={a.agentType} className="border-t border-slate-800">
+                      <tr key={a.agentType} className="border-t border-[var(--card-border)]">
                         <td className="p-3 text-foreground font-medium">{a.agentType}</td>
                         <td className="p-3 text-muted-foreground text-xs max-w-[200px]">{a.description}</td>
                         <td className="p-3 text-muted-foreground">{a.invocations}</td>
@@ -335,7 +335,7 @@ export default function AdminAgentsPage() {
                           <div className="text-muted-foreground text-xs mb-1">
                             {a.tokensUsedToday}/{a.tokenCap}
                           </div>
-                          <div className="h-1 w-20 rounded-full bg-slate-800 overflow-hidden">
+                          <div className="h-1 w-20 rounded-full bg-muted overflow-hidden">
                             <div
                               className={`h-full rounded-full ${budgetPct >= 90 ? 'bg-destructive' : budgetPct >= 70 ? 'bg-chart-4' : 'bg-chart-3'}`}
                               style={{ width: `${budgetPct}%` }}
@@ -373,21 +373,21 @@ export default function AdminAgentsPage() {
             </table>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+          <div className="rounded-xl border border-[var(--card-border)] bg-card p-4">
             <h2 className="text-sm font-medium text-foreground/80 mb-3">Latest insight log</h2>
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {data.recentInsights.map((ins) => (
-                <div key={ins.id} className="rounded-lg border border-slate-800 bg-slate-950 p-3">
+                <div key={ins.id} className="rounded-lg border border-[var(--card-border)] bg-muted/40 p-3">
                   <div className="flex items-center gap-2 text-xs text-primary mb-1">
                     {ins.agentType}
-                    <span className="text-foreground0">{new Date(ins.createdAt).toLocaleString()}</span>
+                    <span className="text-muted-foreground">{new Date(ins.createdAt).toLocaleString()}</span>
                   </div>
                   <p className="text-sm font-medium text-foreground">{ins.title}</p>
                   <SummaryText text={ins.summary} clamp />
                 </div>
               ))}
               {data.recentInsights.length === 0 && (
-                <p className="text-sm text-foreground0">No insights yet — click Run all agents to generate.</p>
+                <p className="text-sm text-muted-foreground">No insights yet — click Run all agents to generate.</p>
               )}
             </div>
           </div>
@@ -430,8 +430,8 @@ function AgentSummaryCard({
 
   return (
     <div
-      className={`rounded-lg border bg-slate-950 overflow-hidden transition-colors ${
-        isFresh ? 'border-primary/40 ring-1 ring-primary/20' : 'border-slate-800'
+      className={`rounded-lg border bg-muted/40 overflow-hidden transition-colors ${
+        isFresh ? 'border-primary/40 ring-1 ring-primary/20' : 'border-[var(--card-border)]'
       }`}
     >
       <div className="flex items-start gap-2 px-4 py-3">
@@ -453,19 +453,19 @@ function AgentSummaryCard({
                   {isFresh ? 'Just updated' : 'Report ready'}
                 </span>
               ) : (
-                <span className="text-micro font-normal rounded-full bg-slate-700 text-muted-foreground px-2 py-0.5">
+                <span className="text-micro font-normal rounded-full bg-muted text-muted-foreground px-2 py-0.5">
                   Pending
                 </span>
               )}
             </p>
-            <p className="text-caption text-foreground0 mt-0.5">{agent.description}</p>
+            <p className="text-caption text-muted-foreground mt-0.5">{agent.description}</p>
             {agent.title && <p className="text-xs text-foreground mt-1">{agent.title}</p>}
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            <span className="text-micro text-foreground0">
+            <span className="text-micro text-muted-foreground">
               {agent.updatedAt ? new Date(agent.updatedAt).toLocaleString() : 'No report'}
             </span>
-            {open ? <ChevronUp className="h-4 w-4 text-foreground0" /> : <ChevronDown className="h-4 w-4 text-foreground0" />}
+            {open ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
           </div>
         </button>
         <button
@@ -479,12 +479,12 @@ function AgentSummaryCard({
         </button>
       </div>
       {open && agent.summary && (
-        <div className="px-4 pb-4 border-t border-slate-800 pt-3 max-h-80 overflow-y-auto">
+        <div className="px-4 pb-4 border-t border-[var(--card-border)] pt-3 max-h-80 overflow-y-auto">
           <SummaryText text={agent.summary} />
         </div>
       )}
       {open && !agent.summary && (
-        <p className="px-4 pb-4 text-xs text-foreground0 border-t border-slate-800 pt-3">
+        <p className="px-4 pb-4 text-xs text-muted-foreground border-t border-[var(--card-border)] pt-3">
           Click the play button to generate a report for this agent.
         </p>
       )}
@@ -503,7 +503,7 @@ function SummaryText({ text, clamp }: { text: string; clamp?: boolean }) {
       nodes.push(
         <pre
           key={`code-${nodes.length}`}
-          className="text-micro bg-slate-900 border border-slate-800 rounded-md p-2 overflow-x-auto text-muted-foreground my-1"
+          className="text-micro bg-card border border-[var(--card-border)] rounded-md p-2 overflow-x-auto text-muted-foreground my-1"
         >
           {codeLines.join('\n')}
         </pre>,
@@ -612,18 +612,18 @@ function JobRow({ job }: { job: AgentActivityJob }) {
           : Clock;
 
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-slate-950 px-3 py-2.5">
+    <div className="flex items-start gap-3 rounded-lg border border-[var(--card-border)] bg-muted/40 px-3 py-2.5">
       <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${job.status === 'PROCESSING' ? 'animate-spin text-chart-4' : 'text-muted-foreground'}`} />
       <div className="flex-1 min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-semibold text-primary">{job.agentType}</span>
           <span className={`text-micro font-medium px-2 py-0.5 rounded-full border ${style}`}>{job.status}</span>
           {job.gateSource && (
-            <span className="text-micro text-foreground0">via {job.gateSource}</span>
+            <span className="text-micro text-muted-foreground">via {job.gateSource}</span>
           )}
         </div>
         <p className="text-sm text-foreground mt-0.5">{job.eventLabel}</p>
-        <p className="text-caption text-foreground0 mt-0.5">
+        <p className="text-caption text-muted-foreground mt-0.5">
           {new Date(job.createdAt).toLocaleString()}
           {job.tokens > 0 && ` · ${job.tokens} tokens · $${job.costUsd.toFixed(4)}`}
           {job.latencyMs != null && ` · ${job.latencyMs}ms`}
@@ -638,7 +638,7 @@ function JobRow({ job }: { job: AgentActivityJob }) {
 
 function StatCard({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+    <div className="rounded-xl border border-[var(--card-border)] bg-card p-4">
       <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
         {icon}
         {label}
@@ -663,14 +663,14 @@ function MiniStat({
 }) {
   return (
     <div
-      className={`rounded-xl border bg-slate-900/80 px-4 py-3 ${pulse ? 'border-primary/40' : 'border-slate-800'}`}
+      className={`rounded-xl border bg-card px-4 py-3 ${pulse ? 'border-primary/40' : 'border-[var(--card-border)]'}`}
     >
       <div className="flex items-center gap-2 text-muted-foreground text-xs">
         {icon}
         {label}
       </div>
       <p className="text-lg font-semibold text-foreground mt-1">{value}</p>
-      <p className="text-micro text-foreground0 mt-0.5">{hint}</p>
+      <p className="text-micro text-muted-foreground mt-0.5">{hint}</p>
     </div>
   );
 }

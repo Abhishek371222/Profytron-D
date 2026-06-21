@@ -1,82 +1,104 @@
 'use client';
 
 import React from 'react';
-import { Bell, Mail, Smartphone, MessageSquare, Zap, Activity, Shield } from 'lucide-react';
+import { Bell, Mail, Smartphone, Shield, Zap, Activity, Moon, TrendingUp, CreditCard, Info } from 'lucide-react';
 import { toast } from 'sonner';
-import {
-  SettingsSection,
-  SettingsToggle,
-} from '@/components/settings/SettingsUi';
+import { SettingsSection, SettingsToggle } from '@/components/settings/SettingsUi';
 import { DashButton } from '@/components/dashboard/DashboardPrimitives';
+import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { notificationsApi, type NotificationPreferences } from '@/lib/api/notifications';
 
 const CHANNELS = [
-  { id: 'app', icon: Smartphone, label: 'In-app notifications', desc: 'Alerts inside the dashboard' },
-  { id: 'email', icon: Mail, label: 'Email', desc: 'Weekly summaries and important updates' },
-  { id: 'telegram', icon: MessageSquare, label: 'Telegram', desc: 'Instant alerts via Telegram bot' },
+  { id: 'inAppEnabled',  icon: Smartphone, label: 'In-App',   desc: 'Alerts inside the dashboard'        },
+  { id: 'emailEnabled',  icon: Mail,        label: 'Email',    desc: 'Email notifications via Resend'     },
+  { id: 'pushEnabled',   icon: Bell,        label: 'Push',     desc: 'Browser & mobile push via Firebase' },
 ];
 
-const ALERT_TYPES = [
-  { id: 'signals', icon: Zap, label: 'Signal alerts', desc: 'When strategies match entry criteria', severity: 'Critical' },
-  { id: 'execution', icon: Activity, label: 'Execution status', desc: 'Trade open, close, and fill events', severity: 'High' },
-  { id: 'security', icon: Shield, label: 'Security & auth', desc: 'Login attempts and credential changes', severity: 'Critical' },
+const CATEGORIES = [
+  { id: 'securityAlerts',  icon: Shield,     label: 'Security',         desc: 'Login alerts, password changes',    severity: 'Critical' },
+  { id: 'tradingAlerts',   icon: TrendingUp, label: 'Trading',          desc: 'Trade open, close, TP/SL events',  severity: 'High'     },
+  { id: 'paymentAlerts',   icon: CreditCard, label: 'Payments',         desc: 'Deposits, subscriptions, billing',  severity: 'High'     },
+  { id: 'accountAlerts',   icon: Info,       label: 'Account',          desc: 'Profile, KYC, verification',        severity: 'Normal'   },
+  { id: 'systemAlerts',    icon: Zap,        label: 'System',           desc: 'Platform updates and AI events',    severity: 'Normal'   },
+  { id: 'marketingAlerts', icon: Activity,   label: 'Marketing',        desc: 'Tips, offers, and announcements',   severity: 'Low'      },
 ];
+
+const SEVERITY_STYLES: Record<string, string> = {
+  Critical: 'bg-destructive/10 text-destructive border-destructive/20',
+  High:     'bg-chart-4/10 text-chart-4 border-chart-4/20',
+  Normal:   'bg-primary/10 text-primary border-primary/20',
+  Low:      'bg-muted/20 text-foreground/40 border-white/[0.08]',
+};
+
+const DEFAULT_PREFS: NotificationPreferences = {
+  id: '',
+  inAppEnabled: true, emailEnabled: true, pushEnabled: true,
+  securityAlerts: true, tradingAlerts: true, paymentAlerts: true,
+  systemAlerts: true, marketingAlerts: false, accountAlerts: true,
+  quietHoursEnabled: false, quietHoursStart: '22:00', quietHoursEnd: '07:00',
+};
 
 export default function NotificationsPage() {
-  const [channels, setChannels] = React.useState({ app: true, email: true, telegram: false });
-  const [matrix, setMatrix] = React.useState<Record<string, { app: boolean; email: boolean; push: boolean }>>({
-    signals: { app: true, email: true, push: true },
-    execution: { app: true, email: false, push: true },
-    security: { app: true, email: true, push: true },
-  });
+  const [prefs, setPrefs] = React.useState<NotificationPreferences>(DEFAULT_PREFS);
+  const [loading, setLoading] = React.useState(true);
+  const [saving, setSaving] = React.useState(false);
   const [isDirty, setIsDirty] = React.useState(false);
 
-  const toggleChannel = (id: keyof typeof channels) => {
-    setChannels((prev) => ({ ...prev, [id]: !prev[id] }));
+  React.useEffect(() => {
+    notificationsApi.getPreferences()
+      .then((p) => setPrefs(p))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const update = (key: keyof NotificationPreferences, value: any) => {
+    setPrefs((prev) => ({ ...prev, [key]: value }));
     setIsDirty(true);
   };
 
-  const toggleMatrix = (typeId: string, ch: 'app' | 'email' | 'push') => {
-    setMatrix((prev) => ({
-      ...prev,
-      [typeId]: { ...prev[typeId], [ch]: !prev[typeId]?.[ch] },
-    }));
-    setIsDirty(true);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const saved = await notificationsApi.updatePreferences(prefs);
+      setPrefs(saved);
+      setIsDirty(false);
+      toast.success('Notification preferences saved');
+    } catch {
+      toast.error('Failed to save preferences');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleSave = () => {
-    setIsDirty(false);
-    toast.success('Notification preferences saved');
-  };
+  if (loading) {
+    return (
+      <div className="space-y-8 animate-pulse">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-32 rounded-2xl bg-muted/10" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
-      <SettingsSection title="Notification channels" description="Choose how you receive alerts.">
+      {/* Channels */}
+      <SettingsSection title="Notification channels" description="Choose how Profytron reaches you.">
         <div className="grid gap-3 sm:grid-cols-3">
           {CHANNELS.map((ch) => {
             const Icon = ch.icon;
-            const active = channels[ch.id as keyof typeof channels];
+            const active = prefs[ch.id as keyof NotificationPreferences] as boolean;
             return (
-              <div
-                key={ch.id}
-                className={cn(
-                  'rounded-xl border p-4 transition-colors',
-                  active ? 'border-primary/30 bg-primary/5' : 'border-[var(--card-border)] bg-muted/20',
-                )}
-              >
+              <div key={ch.id} className={cn('rounded-xl border p-4 transition-colors', active ? 'border-primary/30 bg-primary/5' : 'border-[var(--card-border)] bg-muted/20')}>
                 <div className="flex items-center justify-between mb-3">
                   <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', active ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground')}>
                     <Icon className="h-4 w-4" />
                   </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={active}
-                    onClick={() => toggleChannel(ch.id as keyof typeof channels)}
-                    className={cn('relative h-5 w-9 rounded-full transition-colors', active ? 'bg-primary' : 'bg-muted')}
-                  >
-                    <span className={cn('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', active ? 'translate-x-4' : 'translate-x-0.5')} />
-                  </button>
+                  <Switch
+                    checked={active}
+                    onCheckedChange={() => update(ch.id as keyof NotificationPreferences, !active)}
+                  />
                 </div>
                 <p className="text-sm font-semibold text-foreground">{ch.label}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{ch.desc}</p>
@@ -86,62 +108,79 @@ export default function NotificationsPage() {
         </div>
       </SettingsSection>
 
-      <SettingsSection title="Alert types" description="Fine-tune which alerts go to each channel.">
+      {/* Categories */}
+      <SettingsSection title="Alert categories" description="Control which types of alerts you receive.">
         <div className="space-y-3">
-          {ALERT_TYPES.map((type) => {
-            const Icon = type.icon;
-            const row = matrix[type.id];
+          {CATEGORIES.map((cat) => {
+            const Icon = cat.icon;
+            const active = prefs[cat.id as keyof NotificationPreferences] as boolean;
             return (
-              <div key={type.id} className="rounded-xl border border-[var(--card-border)] p-4">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Icon className="h-4 w-4 text-primary" />
+              <div key={cat.id} className="flex items-center justify-between rounded-xl border border-[var(--card-border)] p-4">
+                <div className="flex items-center gap-3">
+                  <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', active ? 'bg-primary/10 text-primary' : 'bg-muted/30 text-muted-foreground')}>
+                    <Icon className="h-4 w-4" />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-foreground">{type.label}</p>
-                      <span className={cn(
-                        'text-[10px] font-semibold px-2 py-0.5 rounded-full border',
-                        type.severity === 'Critical' ? 'bg-destructive/10 text-destructive border-destructive/20' : 'bg-chart-4/10 text-chart-4 border-chart-4/20',
-                      )}>
-                        {type.severity}
+                      <p className="text-sm font-semibold text-foreground">{cat.label}</p>
+                      <span className={cn('text-[10px] font-semibold px-2 py-0.5 rounded-full border', SEVERITY_STYLES[cat.severity])}>
+                        {cat.severity}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{type.desc}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{cat.desc}</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-4 pl-12">
-                  {(['app', 'email', 'push'] as const).map((ch) => (
-                    <label key={ch} className="flex items-center gap-2 text-xs font-medium text-muted-foreground cursor-pointer capitalize">
-                      <input
-                        type="checkbox"
-                        checked={row?.[ch] ?? false}
-                        onChange={() => toggleMatrix(type.id, ch)}
-                        className="rounded border-[var(--card-border)] accent-primary"
-                      />
-                      {ch === 'push' ? 'Push' : ch}
-                    </label>
-                  ))}
-                </div>
+                <Switch
+                  checked={active}
+                  onCheckedChange={() => update(cat.id as keyof NotificationPreferences, !active)}
+                />
               </div>
             );
           })}
         </div>
       </SettingsSection>
 
-      <SettingsSection title="Quiet hours">
+      {/* Quiet hours */}
+      <SettingsSection title="Quiet hours" description="Pause non-critical alerts during set hours.">
         <SettingsToggle
-          label="Mute notifications overnight"
-          description="Silence non-critical alerts between 10 PM and 7 AM."
-          checked={false}
-          onChange={() => setIsDirty(true)}
+          label="Mute non-critical notifications overnight"
+          description={`Silence between ${prefs.quietHoursStart} – ${prefs.quietHoursEnd}. Security alerts always get through.`}
+          checked={prefs.quietHoursEnabled}
+          onChange={() => update('quietHoursEnabled', !prefs.quietHoursEnabled)}
         />
+        {prefs.quietHoursEnabled && (
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1.5">
+                <Moon className="w-3 h-3" /> Start time
+              </label>
+              <input
+                type="time"
+                value={prefs.quietHoursStart}
+                onChange={(e) => update('quietHoursStart', e.target.value)}
+                className="w-full rounded-lg border border-[var(--card-border)] bg-muted/20 px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1 flex items-center gap-1.5">
+                <Bell className="w-3 h-3" /> End time
+              </label>
+              <input
+                type="time"
+                value={prefs.quietHoursEnd}
+                onChange={(e) => update('quietHoursEnd', e.target.value)}
+                className="w-full rounded-lg border border-[var(--card-border)] bg-muted/20 px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50"
+              />
+            </div>
+          </div>
+        )}
       </SettingsSection>
 
+      {/* Save */}
       <div className="flex justify-end pt-2 border-t border-[var(--card-border)]">
-        <DashButton onClick={handleSave} disabled={!isDirty} className="gap-2">
+        <DashButton onClick={handleSave} disabled={!isDirty || saving} className="gap-2">
           <Bell className="h-4 w-4" />
-          Save Preferences
+          {saving ? 'Saving…' : 'Save Preferences'}
         </DashButton>
       </div>
     </div>

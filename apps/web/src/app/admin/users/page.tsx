@@ -80,19 +80,19 @@ export default function AdminUsersPage() {
       </div>
 
       <div className="relative max-w-xl">
-        <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-foreground0" />
+        <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search users by name, email, id"
-          className="w-full rounded-lg border border-slate-700 bg-slate-900 py-2 pl-9 pr-3 text-sm text-foreground outline-none focus:border-red-500"
+          className="w-full rounded-lg border border-[var(--card-border)] bg-card py-2 pl-9 pr-3 text-sm text-foreground outline-none focus:border-primary"
         />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[2fr_1fr]">
-        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+        <div className="overflow-hidden rounded-xl border border-[var(--card-border)] bg-card">
           <table className="w-full text-left text-sm">
-            <thead className="border-b border-slate-800 bg-slate-950 text-xs text-muted-foreground">
+            <thead className="border-b border-[var(--card-border)] bg-muted/40 text-xs text-muted-foreground">
               <tr>
                 <th className="px-4 py-3">User</th>
                 <th className="px-4 py-3">Plan</th>
@@ -114,7 +114,7 @@ export default function AdminUsersPage() {
                 filteredUsers.map((user) => (
                   <tr
                     key={user.id}
-                    className="cursor-pointer border-b border-slate-800/80 hover:bg-slate-800/40"
+                    className="cursor-pointer border-b border-[var(--card-border)] hover:bg-muted"
                     onClick={() => setSelectedUserId(user.id)}
                   >
                     <td className="px-4 py-3">
@@ -127,7 +127,7 @@ export default function AdminUsersPage() {
                       <span
                         className={`rounded px-2 py-1 text-xs font-medium ${
                           user.isSuspended
-                            ? 'border border-red-500/30 bg-red-500/10 text-red-400'
+                            ? 'border border-red-500/30 bg-red-500/10 text-red-600'
                             : 'border border-chart-3/30 bg-chart-3/10 text-chart-3'
                         }`}
                       >
@@ -142,8 +142,8 @@ export default function AdminUsersPage() {
                         }}
                         className={`rounded px-3 py-1.5 text-xs font-medium ${
                           user.isSuspended
-                            ? 'bg-chart-3 text-foreground hover:bg-chart-3'
-                            : 'bg-red-600 text-foreground hover:bg-red-500'
+                            ? 'bg-chart-3 text-white hover:bg-chart-3/90'
+                            : 'bg-red-600 text-white hover:bg-red-500'
                         }`}
                       >
                         {user.isSuspended ? 'Unsuspend' : 'Suspend'}
@@ -156,14 +156,14 @@ export default function AdminUsersPage() {
           </table>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+        <div className="rounded-xl border border-[var(--card-border)] bg-card p-4">
           <h2 className="mb-3 text-sm font-medium text-muted-foreground">User Detail</h2>
           {!selectedUserId ? (
-            <p className="text-sm text-foreground0">Select a user to view details.</p>
+            <p className="text-sm text-muted-foreground">Select a user to view details.</p>
           ) : selectedUserQuery.isLoading ? (
-            <p className="text-sm text-foreground0">Loading user detail...</p>
+            <p className="text-sm text-muted-foreground">Loading user detail...</p>
           ) : selectedUserQuery.isError ? (
-            <p className="text-sm text-red-400">Unable to load user detail.</p>
+            <p className="text-sm text-red-600">Unable to load user detail.</p>
           ) : (
             <div className="space-y-2 text-sm">
               <DetailRow label="Name" value={selectedUserQuery.data?.fullName} />
@@ -191,7 +191,7 @@ export default function AdminUsersPage() {
 
 function DetailRow({ label, value }: { label: string; value: string | undefined }) {
   return (
-    <div className="flex items-center justify-between rounded bg-slate-950 px-3 py-2">
+    <div className="flex items-center justify-between rounded bg-muted/40 px-3 py-2">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-medium text-foreground">{value ?? '-'}</span>
     </div>

@@ -17,7 +17,7 @@ export function MarketplaceHero({
 }: MarketplaceHeroProps) {
   const stats = [
     {
-      label: 'Total Strategies',
+      label: 'Total Bots',
       value: totalStrategies > 0 ? totalStrategies.toLocaleString() : '—',
       icon: BarChart3,
       color: 'text-primary',
@@ -57,11 +57,11 @@ export function MarketplaceHero({
           <h1 className="text-2xl md:text-[32px] font-bold text-white tracking-tight leading-tight">
             Discover Proven{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8BA3FF] to-[#47a7aa]">
-              Strategies
+              Bots
             </span>
           </h1>
           <p className="text-sm text-white/60 max-w-lg">
-            Access algorithmic strategies built by top traders. Subscribe, backtest, and deploy in minutes.
+            Access algorithmic bots built by top traders. Subscribe, backtest, and deploy in minutes.
           </p>
           <div className="flex flex-wrap items-center gap-5 pt-1">
             {stats.map((stat, i) => (

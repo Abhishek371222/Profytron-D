@@ -10,6 +10,7 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { X, ArrowRight, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { useFcmToken } from '@/hooks/useFcmToken';
 
 const DashboardBrokerConnectModal = dynamic(
   () => import('@/components/dashboard/DashboardBrokerConnectModal'),
@@ -20,6 +21,9 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const isAdmin = isAdminUser(user);
+
+  // Register FCM push token for this browser session
+  useFcmToken();
   const [showDemoBanner, setShowDemoBanner] = React.useState(false);
   const [showBrokerModal, setShowBrokerModal] = React.useState(false);
   const [initialBrokerId, setInitialBrokerId] = React.useState<string | undefined>();

@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: isAuthError
-            ? 'Invalid API key. Update OPENROUTER_API_KEY in apps/web/.env.local and restart the server.'
+            ? 'AI service is temporarily unavailable. Please try again later.'
             : 'AI service temporarily unavailable. Please try again.',
         },
         { status: 502 },

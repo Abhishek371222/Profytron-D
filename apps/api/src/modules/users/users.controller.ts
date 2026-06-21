@@ -22,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
+import { EmailService } from '../email/email.service';
 import {
   UpdateProfileDto,
   UpdateRiskProfileDto,
@@ -45,7 +46,10 @@ type AuthenticatedRequest = Request & {
 @UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly emailService: EmailService,
+  ) {}
 
   @Get('me')
   @ApiResponse({ status: 200, description: 'OK' })
@@ -199,5 +203,12 @@ export class UsersController {
     if (!file) throw new BadRequestException('Document file is required');
     if (!docType) throw new BadRequestException('docType is required');
     return this.usersService.submitKycDocument(req.user.userId, docType, file);
+  }
+
+  @Get('me/email-history')
+  @ApiOperation({ summary: 'Get full email history for the authenticated user' })
+  @ApiResponse({ status: 200, description: 'Email history returned' })
+  async getEmailHistory(@Req() req: AuthenticatedRequest) {
+    return this.emailService.getEmailHistory({ userId: req.user.userId });
   }
 }

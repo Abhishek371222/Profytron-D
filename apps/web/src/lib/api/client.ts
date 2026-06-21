@@ -19,7 +19,7 @@ export const unwrapApiResponse = <T>(payload: any): T => {
 
 const isAuthBootstrapEndpoint = (url?: string): boolean => {
   if (!url) return false;
-  return /\/auth\/(login|register|supabase|verify-email|forgot-password|reset-password|refresh|logout)/.test(url);
+  return /\/auth\/(login|register|supabase|verify-email|forgot-password|reset-password|refresh|logout|oauth-token-exchange)/.test(url);
 };
 
 const isNetworkUnavailableError = (error: unknown): boolean => {
@@ -107,9 +107,9 @@ apiClient.interceptors.response.use(
           if (typeof window !== 'undefined' && user) {
             const onboardingFlag =
               isAdminUser(user) || user.onboardingCompleted ? '1' : '0';
-            document.cookie = `onboarding_completed=${onboardingFlag}; path=/; max-age=604800; samesite=lax`;
+            document.cookie = `onboarding_completed=${onboardingFlag}; path=/; max-age=7776000; samesite=lax`;
             if (user.role) {
-              document.cookie = `user_role=${user.role}; path=/; max-age=604800; samesite=lax`;
+              document.cookie = `user_role=${user.role}; path=/; max-age=7776000; samesite=lax`;
             }
             useAuthStore.setState({ user });
           }

@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import Link from 'next/link';
-import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown, ChevronRight } from 'lucide-react';
+import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown, ChevronRight, Server, ArrowRight } from 'lucide-react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero';
@@ -14,6 +14,7 @@ import { SubscribeModal } from '@/components/marketplace/SubscribeModal';
 import { MarketplaceSkeleton } from '@/components/skeletons/MarketplaceSkeleton';
 import { cn } from '@/lib/utils';
 import { marketplaceApi } from '@/lib/api/marketplace';
+import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { formatBotName } from '@/lib/bot-labels';
@@ -76,6 +77,18 @@ function MarketplacePageInner() {
     refetchOnWindowFocus: false,
   });
 
+  const myBotsQuery = useQuery({
+    queryKey: ['my-bots-count'],
+    queryFn: async () => {
+      const res = await apiClient.get('/strategies/my');
+      const bots = unwrapApiResponse<Array<{ status?: string }>>(res.data) ?? [];
+      return bots.filter((b) => b.status === 'ACTIVE').length;
+    },
+    staleTime: 60_000,
+    refetchOnWindowFocus: false,
+  });
+  const activeBotsCount = myBotsQuery.data ?? 0;
+
   const marketplaceQuery = useInfiniteQuery({
     queryKey: ['marketplace', debouncedSearch, sortBy, filters],
     queryFn: ({ pageParam }) =>
@@ -122,6 +135,8 @@ function MarketplacePageInner() {
         risk: String(strategy.riskLevel || 'Medium'),
         sharpe: Number(perf.sharpeRatio || 0),
         drawdown: Number(perf.maxDrawdown || 0),
+        rating: Number(item.rating || 0),
+        reviewCount: Number(item.reviewCount || 0),
       };
     });
   }, [marketplaceQuery.data]);
@@ -238,18 +253,27 @@ function MarketplacePageInner() {
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-bold text-foreground">All Strategies</h2>
+                  <h2 className="text-lg font-bold text-foreground">All Bots</h2>
                   <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold">
                     {strategies.length} results
                   </span>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  href="/my-bots"
+                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400 text-xs font-semibold hover:bg-teal-500/20 transition-colors"
+                >
+                  <Server className="h-3.5 w-3.5" />
+                  My Bots
+                  <span className="px-1.5 py-0.5 rounded-full bg-teal-500/20 text-[10px] font-bold">{activeBotsCount} active</span>
+                  <ArrowRight className="h-3 w-3 opacity-60" />
+                </Link>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Search strategies..."
+                    placeholder="Search bots..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="h-9 w-52 md:w-64 rounded-xl border border-[var(--card-border)] bg-card pl-9 pr-3 text-sm outline-none focus:border-primary/40"
@@ -295,7 +319,7 @@ function MarketplacePageInner() {
 
             {!isLoading && strategies.length === 0 && (
               <div className="dashboard-card p-8 text-center">
-                <p className="text-sm font-semibold text-foreground">No strategies match your filters.</p>
+                <p className="text-sm font-semibold text-foreground">No bots match your filters.</p>
                 <Button variant="outline" className="mt-4 rounded-xl" onClick={resetFilters}>Reset Filters</Button>
               </div>
             )}

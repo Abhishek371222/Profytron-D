@@ -278,7 +278,7 @@ export class AgentExecutorService {
       data: {
         userId: job.userId,
         title: 'Customer Success',
-        body: gate.action ?? 'Retention action queued',
+        body: gate.action ?? 'Your account has been reviewed by our success team.',
         type: 'INFO',
         actionUrl: '/dashboard',
       },

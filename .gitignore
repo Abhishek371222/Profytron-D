@@ -42,6 +42,15 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# Dev server output dumps
+api-out.txt
+api-err.txt
+web-out.txt
+web-err.txt
+
+# Firebase service-account keys (NEVER commit — contain private keys)
+*firebase-adminsdk*.json
+**/serviceAccount*.json
 
 # Test outputs
 coverage/

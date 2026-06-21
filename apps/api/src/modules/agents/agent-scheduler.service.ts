@@ -22,22 +22,36 @@ export class AgentOutboxPoller {
   async poll() {
     if (!this.events.isEnabled()) return;
 
-    const batch = await this.prisma.agentEventOutbox.findMany({
-      where: { processedAt: null },
-      take: 100,
-      orderBy: { createdAt: 'asc' },
-    });
+    try {
+      const batch = await this.prisma.agentEventOutbox.findMany({
+        where: { processedAt: null },
+        take: 100,
+        orderBy: { createdAt: 'asc' },
+      });
 
-    for (const row of batch) {
-      try {
-        await this.router.enqueueFromOutbox(row);
-        await this.prisma.agentEventOutbox.update({
-          where: { id: row.id },
-          data: { processedAt: new Date() },
-        });
-      } catch (error) {
-        this.logger.warn(`Outbox row ${row.id} failed`, error);
+      for (const row of batch) {
+        try {
+          await this.router.enqueueFromOutbox(row);
+          await this.prisma.agentEventOutbox.update({
+            where: { id: row.id },
+            data: { processedAt: new Date() },
+          });
+        } catch (error) {
+          this.logger.warn(`Outbox row ${row.id} failed`, error);
+        }
       }
+    } catch (error) {
+      // Neon (serverless Postgres) can drop idle connections; treat a failed
+      // poll cycle as a warning and let the next interval retry instead of
+      // surfacing an unhandled error every 30s.
+      const message = (error as Error)?.message ?? String(error);
+      const isTransientDbError =
+        /can't reach database server|connection.*closed|P10(01|08|17)/i.test(
+          message,
+        );
+      this.logger[isTransientDbError ? 'warn' : 'error'](
+        `Agent outbox poll skipped: ${message}`,
+      );
     }
   }
 }

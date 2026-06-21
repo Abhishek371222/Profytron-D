@@ -122,7 +122,7 @@ export default function RiskOnboardingPage() {
         useAuthStore.getState().login(token, updated);
       }
       if (typeof document !== 'undefined') {
-        document.cookie = 'onboarding_completed=1; path=/; max-age=604800; samesite=lax';
+        document.cookie = 'onboarding_completed=1; path=/; max-age=7776000; samesite=lax';
       }
       toast.success('Risk profile saved', {
         description: 'Next: connect a paper account or browse strategies.',

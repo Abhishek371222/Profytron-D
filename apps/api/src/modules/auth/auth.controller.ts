@@ -72,7 +72,7 @@ export class AuthController {
       secure: isSecure,
       sameSite: 'strict',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 90 * 24 * 60 * 60 * 1000,
     });
 
     if (role) {
@@ -81,7 +81,7 @@ export class AuthController {
         secure: isSecure,
         sameSite: 'strict',
         path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 90 * 24 * 60 * 60 * 1000,
       });
     }
 
@@ -91,7 +91,7 @@ export class AuthController {
         secure: isSecure,
         sameSite: 'strict',
         path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 90 * 24 * 60 * 60 * 1000,
       });
     }
   }
@@ -420,7 +420,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Handle GitHub OAuth2 Callback' })
   async githubCallback(
     @Req() req: Request & { user: any },
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const result = await this.authService.githubCallback(req.user);
     if (result.refreshTokenForCookie) {
@@ -467,7 +467,7 @@ export class AuthController {
         googleId?: string;
       };
     },
-    @Res({ passthrough: true }) res: Response,
+    @Res() res: Response,
   ) {
     const result = await this.authService.googleCallback(req.user);
     if (result.refreshTokenForCookie) {

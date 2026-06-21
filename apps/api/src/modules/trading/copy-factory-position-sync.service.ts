@@ -60,12 +60,22 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
 
   private async syncAllFollowers() {
     if (this.polling) return;
-    const isLeader = await this.redis.tryRenewableLock(
-      'copyfactory:position-sync:leader',
-      this.instanceId,
-      15,
-    );
+
+    let isLeader = false;
+    try {
+      isLeader = await this.redis.tryRenewableLock(
+        'copyfactory:position-sync:leader',
+        this.instanceId,
+        15,
+      );
+    } catch (err) {
+      this.logger.warn(
+        `Leader-lock check failed, skipping cycle: ${(err as Error).message}`,
+      );
+      return;
+    }
     if (!isLeader) return;
+
     this.polling = true;
     try {
       const subs = await this.prisma.userStrategySubscription.findMany({
@@ -97,6 +107,12 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
           );
         }
       }
+    } catch (err) {
+      // A DB blip (e.g. Neon closing an idle connection — P1017) must not crash
+      // the process. Prisma reconnects on the next cycle.
+      this.logger.warn(
+        `CopyFactory follower sync cycle failed: ${(err as Error).message}`,
+      );
     } finally {
       this.polling = false;
     }

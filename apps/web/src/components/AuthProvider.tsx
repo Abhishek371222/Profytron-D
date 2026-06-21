@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { apiClient, unwrapApiResponse } from '@/lib/api/client';
+import { resolvePostLoginRedirect } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
 const PUBLIC_PREFIXES = [
@@ -34,15 +36,50 @@ const HYDRATION_CAP_MS = 600;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { hydrate, isHydrating } = useAuthStore();
+  const router = useRouter();
+  const { hydrate, login, isHydrating } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [hydrationCap, setHydrationCap] = useState(false);
   const skipBlockingLoader = isPublicRoute(pathname);
 
   useEffect(() => {
     setMounted(true);
-    hydrate();
-  }, [hydrate]);
+
+    const params = new URLSearchParams(window.location.search);
+    const oauthCode = params.get('oauthCode');
+
+    if (oauthCode) {
+      // Exchange the one-time OAuth code for an access token, then load the user profile.
+      (async () => {
+        try {
+          const exchRes = await apiClient.get(
+            `/auth/oauth-token-exchange?code=${encodeURIComponent(oauthCode)}`,
+          );
+          const { accessToken } = unwrapApiResponse<{ accessToken: string }>(exchRes.data);
+
+          const meRes = await apiClient.get('/users/me', {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          });
+          const user = unwrapApiResponse<any>(meRes.data);
+
+          login(accessToken, user);
+
+          // Strip oauthCode (and redirect) from URL, then navigate to destination.
+          const url = new URL(window.location.href);
+          const redirectTo = url.searchParams.get('redirect');
+          url.searchParams.delete('oauthCode');
+          url.searchParams.delete('redirect');
+          window.history.replaceState({}, '', url.toString());
+          router.replace(resolvePostLoginRedirect(user, redirectTo));
+        } catch {
+          // Code expired or invalid — fall back to normal session hydration.
+          hydrate();
+        }
+      })();
+    } else {
+      hydrate();
+    }
+  }, [hydrate, login, router]);
 
   useEffect(() => {
     const t = window.setTimeout(() => setHydrationCap(true), HYDRATION_CAP_MS);

@@ -26,6 +26,8 @@ import {
   type SizingMode,
 } from './utils/lot-sizing.util';
 import { AiRiskService } from '../ai-risk/ai-risk.service';
+import { EmailService } from '../email/email.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Processor('trade_execution')
 export class TradeProcessor {
@@ -40,6 +42,8 @@ export class TradeProcessor {
     private market: MarketService,
     private aiRisk: AiRiskService,
     private ledger: CopyLedgerService,
+    private email: EmailService,
+    private notificationsService: NotificationsService,
     @InjectQueue('trade_execution_dlq') private dlq: Queue,
   ) {}
 
@@ -385,6 +389,30 @@ export class TradeProcessor {
         `Trade ${trade.id} opened for ${userId} (paper=${brokerAccount.isPaperTrading})`,
       );
 
+      // In-app + email notification (fire-and-forget)
+      void this.notificationsService.create({
+        userId,
+        title: `Trade Opened — ${pair}`,
+        message: `${type} @ ${adjustedFillPrice?.toFixed(5) ?? 'market'}`,
+        type: 'INFO',
+        category: 'TRADING',
+        priority: 'NORMAL',
+        actionUrl: '/dashboard',
+        sendPush: true,
+      });
+      void this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, fullName: true } })
+        .then((u) => {
+          if (u) {
+            void this.email.sendTradeAlertEmail(u.email, u.fullName, {
+              alertType: 'TRADE_OPENED',
+              symbol: pair,
+              direction: type,
+              price: adjustedFillPrice,
+              strategyName: strategyId ?? undefined,
+            }, userId);
+          }
+        });
+
       // Auto-close paper trades after 10s for simulation
       if (brokerAccount.isPaperTrading) {
         setTimeout(async () => {
@@ -625,6 +653,33 @@ export class TradeProcessor {
           where: { id: trade.id },
         });
         this.gateway.sendToUser(userId, 'trade_closed', closed);
+        // In-app + email (fire-and-forget)
+        if (closed) {
+          const isProfit = (closed.profit ?? 0) > 0;
+          void this.notificationsService.create({
+            userId,
+            title: isProfit ? `Take Profit Hit — ${closed.symbol}` : `Trade Closed — ${closed.symbol}`,
+            message: `P&L: ${isProfit ? '+' : ''}${(closed.profit ?? 0).toFixed(2)} USD`,
+            type: isProfit ? 'SUCCESS' : 'WARNING',
+            category: 'TRADING',
+            priority: 'NORMAL',
+            actionUrl: '/dashboard',
+            sendPush: true,
+          });
+        }
+        void this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, fullName: true } })
+          .then((u) => {
+            if (u && closed) {
+              const alertType = closed.profit != null && closed.profit > 0 ? 'TP_HIT' : 'TRADE_CLOSED';
+              void this.email.sendTradeAlertEmail(u.email, u.fullName, {
+                alertType,
+                symbol: closed.symbol,
+                direction: closed.direction,
+                price: closed.closePrice ?? undefined,
+                pnl: closed.profit ?? undefined,
+              }, userId);
+            }
+          });
       }
     } catch (error) {
       this.logger.error(`Failed to close trade ${tradeId}: ${error.message}`);

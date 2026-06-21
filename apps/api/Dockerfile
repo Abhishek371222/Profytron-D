@@ -41,6 +41,18 @@ COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
 COPY --from=builder /app/apps/api/package.json ./package.json
 
+# Run as the unprivileged `node` user (uid 1000, ships with the base image)
+# instead of root. Only the writable logs directory is chowned; the rest of the
+# app stays root-owned and read-only, which is the desired least-privilege setup.
+RUN mkdir -p /app/apps/api/logs && chown -R node:node /app/apps/api/logs
+USER node
+
 EXPOSE 4000
+
+# Container-level health probe. Hits the deep /health endpoint and treats any
+# non-200 (e.g. 503 when the database is unreachable) as unhealthy so the
+# orchestrator can restart or drain the container.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:4000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
 CMD ["node", "dist/src/main"]
