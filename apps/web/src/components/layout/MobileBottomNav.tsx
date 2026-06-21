@@ -48,7 +48,7 @@ export function MobileBottomNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative flex flex-col items-center justify-center flex-1 gap-1 transition-colors duration-200",
+                  "relative flex flex-col items-center justify-center flex-1 min-w-0 px-1 gap-1 transition-colors duration-200",
                   isActive ? "text-primary" : "text-foreground/25 hover:text-foreground/50",
                 )}
               >
@@ -79,7 +79,7 @@ export function MobileBottomNav() {
                 </div>
 
                 <span className={cn(
-                  "text-micro font-bold uppercase tracking-[0.15em] transition-colors duration-200",
+                  "relative w-full text-center leading-none text-micro font-bold uppercase tracking-[0.06em] transition-colors duration-200",
                   isActive ? "text-primary" : "text-foreground/20",
                 )}>
                   {item.name}
