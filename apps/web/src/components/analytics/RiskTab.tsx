@@ -53,7 +53,7 @@ const CustomTooltip = React.memo(function CustomTooltip({ active, payload, label
  if (active && payload?.[0]) {
  const v = payload[0].value as number;
  return (
- <div className="bg-[#0a0a0f]/95 border-2 border-red-500/20 rounded-[20px] p-5 shadow-[0_30px_60px_rgba(239,68,68,0.2)] backdrop-blur-3xl">
+ <div className="bg-popover/95 border-2 border-red-500/20 rounded-[20px] p-5 shadow-[0_30px_60px_rgba(239,68,68,0.2)] backdrop-blur-3xl">
  <p className="text-xs font-semibold text-red-500/40 uppercase tracking-[0.4em] mb-2">{label}</p>
  <p className="text-xl font-semibold text-red-500">{v.toFixed(2)}% <span className="text-xs text-foreground/20 ml-2 font-normal uppercase tracking-wider">drawdown</span></p>
  </div>

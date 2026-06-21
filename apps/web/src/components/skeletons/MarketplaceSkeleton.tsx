@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function MarketplaceSkeleton() {
   return (
-    <div className="flex flex-col min-h-[60vh] bg-[#F8F9FE] animate-in fade-in duration-200">
+    <div className="flex flex-col min-h-[60vh] bg-background animate-in fade-in duration-200">
       <Skeleton className="h-3 w-40 mx-5 mt-4" />
       <Skeleton className="h-40 w-full mt-3" />
       <div className="flex flex-1 min-h-0">

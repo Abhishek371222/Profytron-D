@@ -33,7 +33,7 @@ function MarketplaceSuccessInner() {
 
         <div className="mt-8 flex justify-center gap-4">
           <Link href="/strategies">
-            <Button className="bg-white text-primary-foreground hover:bg-foreground/90">Go to My Strategies</Button>
+            <Button className="bg-primary text-primary-foreground hover:brightness-110">Go to My Strategies</Button>
           </Link>
           <Link href="/marketplace">
             <Button variant="outline">Back to Marketplace</Button>

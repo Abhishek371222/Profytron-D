@@ -216,7 +216,7 @@ export default function DashboardBrokerConnectModal({
             initial={{ scale: 0.95, y: 20 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95 }}
-            className="w-full max-w-6xl max-h-[85dvh] sm:max-h-[90vh] rounded-3xl sm:rounded-4xl bg-[#080808] border border-border p-3 sm:p-4 md:p-6 shadow-2xl relative overflow-hidden"
+            className="w-full max-w-6xl max-h-[85dvh] sm:max-h-[90vh] rounded-3xl sm:rounded-4xl bg-card border border-border p-3 sm:p-4 md:p-6 shadow-2xl relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent pointer-events-none" />
 
@@ -490,7 +490,7 @@ export default function DashboardBrokerConnectModal({
                   </div>
                 </div>
 
-                <div className="rounded-[28px] bg-[#0a0a0a] border border-border p-4 xl:p-5 flex flex-col min-h-0 overflow-hidden">
+                <div className="rounded-[28px] bg-bg-secondary border border-border p-4 xl:p-5 flex flex-col min-h-0 overflow-hidden">
                   <div className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1">
                     <div className="p-4 rounded-2xl bg-foreground/3 border border-border space-y-3">
                       <div className="flex items-start justify-between gap-3">
@@ -526,19 +526,19 @@ export default function DashboardBrokerConnectModal({
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div className="p-2.5 rounded-xl bg-black/20 border border-border">
+                        <div className="p-2.5 rounded-xl bg-foreground/5 border border-border">
                           <div className="text-foreground/20 uppercase tracking-widest font-semibold text-micro mb-0.5">Platform</div>
                           <div className="text-foreground font-semibold">{selectedBroker.platform}</div>
                         </div>
-                        <div className="p-2.5 rounded-xl bg-black/20 border border-border">
+                        <div className="p-2.5 rounded-xl bg-foreground/5 border border-border">
                           <div className="text-foreground/20 uppercase tracking-widest font-semibold text-micro mb-0.5">Min deposit</div>
                           <div className="text-foreground font-semibold">{selectedBroker.minDeposit}</div>
                         </div>
-                        <div className="p-2.5 rounded-xl bg-black/20 border border-border">
+                        <div className="p-2.5 rounded-xl bg-foreground/5 border border-border">
                           <div className="text-foreground/20 uppercase tracking-widest font-semibold text-micro mb-0.5">Spread</div>
                           <div className="text-foreground font-semibold">{selectedBroker.spread}</div>
                         </div>
-                        <div className="p-2.5 rounded-xl bg-black/20 border border-border">
+                        <div className="p-2.5 rounded-xl bg-foreground/5 border border-border">
                           <div className="text-foreground/20 uppercase tracking-widest font-semibold text-micro mb-0.5">Region</div>
                           <div className="text-foreground font-semibold">{selectedBroker.region}</div>
                         </div>
@@ -605,9 +605,9 @@ export default function DashboardBrokerConnectModal({
                               className="w-full h-10 bg-foreground/3 border border-border rounded-xl px-4 text-sm text-foreground focus:border-primary/50 outline-none appearance-none cursor-pointer"
                             >
                               {selectedBroker.servers!.map((s) => (
-                                <option key={s} value={s} className="bg-[#111]">{s}</option>
+                                <option key={s} value={s} className="bg-card text-foreground">{s}</option>
                               ))}
-                              <option value="__custom__" className="bg-[#111]">Enter custom…</option>
+                              <option value="__custom__" className="bg-card text-foreground">Enter custom…</option>
                             </select>
                           ) : (
                             <input
@@ -636,7 +636,7 @@ export default function DashboardBrokerConnectModal({
                     <button
                       onClick={handleConnectBroker}
                       disabled={isConnecting || (selectedBroker.integration !== 'PAPER' && (!login || !password || !serverName || serverName === '__custom__'))}
-                      className="w-full h-12 bg-white text-primary-foreground text-sm font-bold uppercase tracking-widest rounded-xl hover:bg-foreground/90 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 transition-colors"
+                      className="w-full h-12 bg-primary text-primary-foreground text-sm font-bold uppercase tracking-widest rounded-xl hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 transition-all"
                     >
                       {isConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
                       {isConnecting ? 'Verifying…' : selectedBroker.integration === 'PAPER' ? 'Launch Demo Account' : `Connect ${selectedBroker.name}`}

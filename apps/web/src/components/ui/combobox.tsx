@@ -67,8 +67,8 @@ export function Combobox({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         className={cn(
-          "flex h-10 w-full items-center justify-between rounded-xl border border-white/[0.08] bg-muted/3 px-3 py-2 text-sm text-foreground/70 transition-all",
-          "hover:border-white/[0.14] hover:bg-muted/5 focus:outline-none focus:ring-2 focus:ring-primary/40",
+          "flex h-10 w-full items-center justify-between rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm text-foreground/70 transition-all",
+          "hover:border-primary/30 hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/40",
           disabled && "cursor-not-allowed opacity-50",
           open && "border-primary/30 ring-2 ring-primary/20",
         )}
@@ -80,8 +80,8 @@ export function Combobox({
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl border border-white/[0.08] bg-[#0d0d1a] shadow-2xl overflow-hidden">
-          <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.06]">
+        <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-popover shadow-2xl overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
             <Search className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
             <input
               autoFocus

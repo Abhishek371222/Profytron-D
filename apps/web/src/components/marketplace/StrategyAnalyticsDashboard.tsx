@@ -64,7 +64,7 @@ function MetricCard({ label, value, hint, tone = 'neutral' }: MetricCardProps) {
 function ChartTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-border bg-[#080d18]/95 p-3 shadow-2xl backdrop-blur-xl">
+    <div className="rounded-xl border border-border bg-popover/95 p-3 shadow-2xl backdrop-blur-xl">
       <p className="text-micro font-bold uppercase tracking-[0.25em] text-foreground/30 mb-2">{label}</p>
       {payload.map((entry: any, i: number) => (
         <p key={i} className="text-sm font-semibold" style={{ color: entry.color }}>

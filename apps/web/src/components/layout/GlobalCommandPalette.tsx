@@ -101,7 +101,7 @@ export function GlobalCommandPalette() {
   return (
     <Dialog open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen}>
       <DialogContent
-        className="max-w-[600px] bg-[#0a0a12]/97 backdrop-blur-2xl border border-white/[0.09] p-0 shadow-[0_32px_80px_rgba(0,0,0,0.8)] overflow-hidden rounded-2xl"
+        className="max-w-[600px] bg-popover/97 backdrop-blur-2xl border border-border p-0 shadow-2xl overflow-hidden rounded-2xl"
         showCloseButton={false}
       >
         {/* Top hairline */}
@@ -110,7 +110,7 @@ export function GlobalCommandPalette() {
         <div className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 w-64 h-24 rounded-full bg-primary/[0.08] blur-2xl" />
 
         {/* Search input */}
-        <div className="relative flex items-center gap-3 border-b border-white/[0.07] px-4 py-3.5">
+        <div className="relative flex items-center gap-3 border-b border-border px-4 py-3.5">
           <div className="relative">
             {loading ? (
               <Loader2 className="w-4 h-4 text-primary animate-spin" />
@@ -125,7 +125,7 @@ export function GlobalCommandPalette() {
             placeholder="Search strategies, marketplace, creators, pages..."
             className="flex-1 bg-transparent text-body-sm font-medium text-foreground outline-none placeholder:text-foreground/20"
           />
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-white/[0.07] bg-muted/3">
+          <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border bg-muted/3">
             <span className="text-micro text-foreground/20 font-mono">ESC</span>
           </div>
         </div>
@@ -145,9 +145,9 @@ export function GlobalCommandPalette() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.04 }}
                       onClick={() => navigate(item.href)}
-                      className="group flex items-center gap-3 p-3 rounded-xl border border-white/[0.05] bg-muted/2 hover:bg-muted/5 hover:border-primary/20 transition-all text-left"
+                      className="group flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/2 hover:bg-muted/5 hover:border-primary/20 transition-all text-left"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-muted/4 border border-white/[0.06] flex items-center justify-center shrink-0 group-hover:bg-primary/10 group-hover:border-primary/20 transition-all">
+                      <div className="w-8 h-8 rounded-xl bg-muted/4 border border-border flex items-center justify-center shrink-0 group-hover:bg-primary/10 group-hover:border-primary/20 transition-all">
                         <Icon className="w-3.5 h-3.5 text-foreground/35 group-hover:text-primary transition-colors" />
                       </div>
                       <div className="min-w-0">
@@ -160,7 +160,7 @@ export function GlobalCommandPalette() {
               </div>
 
               {/* Keyboard hint */}
-              <div className="flex items-center justify-center gap-3 mt-4 pt-3 border-t border-white/[0.04]">
+              <div className="flex items-center justify-center gap-3 mt-4 pt-3 border-t border-border">
                 <div className="flex items-center gap-1 text-micro text-foreground/15">
                   <Command className="w-2.5 h-2.5" />
                   <span>K</span>
@@ -186,7 +186,7 @@ export function GlobalCommandPalette() {
             </div>
           ) : results.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-12">
-              <div className="w-12 h-12 rounded-2xl bg-muted/3 border border-white/[0.06] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-2xl bg-muted/3 border border-border flex items-center justify-center">
                 <Hash className="w-5 h-5 text-foreground/15" />
               </div>
               <div className="text-center">

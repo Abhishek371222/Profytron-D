@@ -460,7 +460,7 @@ export function LiveCandlesChart({
 			{/* Chart canvas — uniform scale, no axis stretch */}
 			<div
 				ref={containerRef}
-				className="flex-1 min-h-[280px] max-h-[360px] w-full relative rounded-xl bg-[#FAFBFF] overflow-hidden"
+				className="flex-1 min-h-[280px] max-h-[360px] w-full relative rounded-xl bg-bg-secondary overflow-hidden"
 			>
 				{candles.length > 0 && layout.bounds ? (
 					<svg

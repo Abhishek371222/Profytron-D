@@ -169,7 +169,7 @@ export default function APIKeysPage() {
        </div>
        <button
          onClick={() => setIsCreating(true)}
-         className="flex items-center gap-3 h-14 px-8 rounded-[18px] bg-white text-primary-foreground hover:bg-foreground/90 font-semibold text-sm uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all group"
+         className="flex items-center gap-3 h-14 px-8 rounded-[18px] bg-primary text-primary-foreground hover:brightness-110 font-semibold text-sm uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all group"
        >
          <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
          Generate New Key
@@ -240,7 +240,7 @@ export default function APIKeysPage() {
            ) : keys.length === 0 ? (
              <div className="p-12 rounded-[28px] border border-dashed border-border bg-foreground/1 text-center space-y-4">
                <p className="text-sm font-semibold text-foreground/30 uppercase tracking-[0.25em]">No active keys available</p>
-               <Button onClick={() => setIsCreating(true)} className="h-11 px-6 rounded-xl bg-white text-primary-foreground hover:bg-foreground/90 uppercase tracking-[0.2em] text-xs font-semibold">
+               <Button onClick={() => setIsCreating(true)} className="h-11 px-6 rounded-xl bg-primary text-primary-foreground hover:brightness-110 uppercase tracking-[0.2em] text-xs font-semibold">
                  Generate First Key
                </Button>
              </div>
@@ -392,7 +392,7 @@ export default function APIKeysPage() {
              initial={{ opacity: 0, scale: 0.95, y: 20 }}
              animate={{ opacity: 1, scale: 1, y: 0 }}
              exit={{ opacity: 0, scale: 0.95 }}
-             className="w-full max-w-lg rounded-4xl bg-[#080808] border border-border p-8 space-y-8 shadow-[0_0_80px_rgba(0,0,0,1)] relative overflow-hidden"
+             className="w-full max-w-lg rounded-4xl bg-card border border-border p-8 space-y-8 shadow-2xl relative overflow-hidden"
            >
              <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent pointer-events-none" />
              <div className="relative z-10 space-y-2">
@@ -450,7 +450,7 @@ export default function APIKeysPage() {
                <Button
                  onClick={handleCreateKey}
                  disabled={!newKeyName.trim() || isSubmitting}
-                 className="flex-2 h-12 bg-white text-primary-foreground hover:bg-foreground/90 text-sm font-semibold uppercase tracking-[0.2em] rounded-[14px] shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-30"
+                 className="flex-2 h-12 bg-primary text-primary-foreground hover:brightness-110 text-sm font-semibold uppercase tracking-[0.2em] rounded-[14px] shadow-[0_0_20px_rgba(255,255,255,0.1)] disabled:opacity-30"
                >
                  {isSubmitting ? 'Generating…' : 'Generate Key'}
                </Button>

@@ -225,7 +225,7 @@ function MarketplacePageInner() {
   const sortLabel = sortBy.replace('-', ' ');
 
   return (
-    <main className="flex-1 flex flex-col min-h-0 bg-[#F8F9FE]">
+    <main className="flex-1 flex flex-col min-h-0 bg-background">
       <div className="px-5 md:px-6 pt-4 pb-0">
         <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
           <Link href="/dashboard" className="hover:underline">Dashboard</Link>

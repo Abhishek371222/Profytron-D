@@ -41,8 +41,8 @@ const CATEGORY_STYLES: Record<string, {
   PAYMENT:      { iconColor: 'text-green-400',   iconBg: 'bg-green-400/20',   rowBg: 'bg-green-400/[0.07]',   borderColor: 'border-l-green-500',   dot: 'bg-green-400'   },
   STRATEGY:     { iconColor: 'text-violet-400',  iconBg: 'bg-violet-400/20',  rowBg: 'bg-violet-400/[0.07]',  borderColor: 'border-l-violet-500',  dot: 'bg-violet-400'  },
   ACCOUNT:      { iconColor: 'text-sky-400',     iconBg: 'bg-sky-400/20',     rowBg: 'bg-sky-400/[0.07]',     borderColor: 'border-l-sky-500',     dot: 'bg-sky-400'     },
-  SYSTEM:       { iconColor: 'text-slate-300',   iconBg: 'bg-white/10',       rowBg: 'bg-white/[0.04]',       borderColor: 'border-l-slate-500',   dot: 'bg-slate-400'   },
-  DEFAULT:      { iconColor: 'text-slate-300',   iconBg: 'bg-white/10',       rowBg: 'bg-white/[0.04]',       borderColor: 'border-l-slate-500',   dot: 'bg-slate-400'   },
+  SYSTEM:       { iconColor: 'text-foreground/60', iconBg: 'bg-foreground/10', rowBg: 'bg-foreground/[0.04]',  borderColor: 'border-l-slate-500',   dot: 'bg-slate-400'   },
+  DEFAULT:      { iconColor: 'text-foreground/60', iconBg: 'bg-foreground/10', rowBg: 'bg-foreground/[0.04]',  borderColor: 'border-l-slate-500',   dot: 'bg-slate-400'   },
 };
 
 function getStyle(item: NotificationItem) {
@@ -123,7 +123,7 @@ export function NotificationDropdown() {
       <DropdownMenuTrigger asChild>
         <button
           onClick={handleTriggerClick}
-          className="relative h-10 w-10 sm:h-[42px] sm:w-[42px] rounded-xl border border-white/[0.06] bg-muted/3 hover:bg-muted/6 hover:border-white/[0.10] text-foreground/40 hover:text-foreground transition-all flex items-center justify-center outline-none"
+          className="relative h-10 w-10 sm:h-[42px] sm:w-[42px] rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-border text-foreground/40 hover:text-foreground transition-all flex items-center justify-center outline-none"
           aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         >
           <Bell className="w-[18px] h-[18px]" />
@@ -134,7 +134,7 @@ export function NotificationDropdown() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
-                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] leading-[18px] text-white text-center font-bold border-2 border-[var(--sidebar)]"
+                className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] leading-[18px] text-primary-foreground text-center font-bold border-2 border-[var(--sidebar)]"
                 style={{ boxShadow: '0 0 10px rgba(71,167,170,0.5)' }}
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -149,15 +149,15 @@ export function NotificationDropdown() {
 
       <DropdownMenuContent
         align="end"
-        className="w-[380px] bg-[#111827] border border-white/[0.1] shadow-[0_24px_64px_rgba(0,0,0,0.8)] rounded-2xl p-0 overflow-hidden"
+        className="w-[380px] bg-popover border border-border shadow-2xl rounded-2xl p-0 overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-border">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
               <Bell className="w-3.5 h-3.5 text-primary" />
             </div>
-            <span className="text-sm font-bold text-white">Notifications</span>
+            <span className="text-sm font-bold text-foreground">Notifications</span>
             {unreadCount > 0 && (
               <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-bold border border-primary/30">
                 {unreadCount} new
@@ -166,7 +166,7 @@ export function NotificationDropdown() {
           </div>
           <button
             onClick={onMarkAllRead}
-            className="flex items-center gap-1 text-[10px] font-semibold text-white/40 hover:text-white/70 transition-colors uppercase tracking-wider"
+            className="flex items-center gap-1 text-[10px] font-semibold text-foreground/40 hover:text-foreground/70 transition-colors uppercase tracking-wider"
             type="button"
           >
             <CheckCheck className="w-3 h-3" />
@@ -180,22 +180,22 @@ export function NotificationDropdown() {
             <div className="space-y-px p-2">
               {[...Array(4)].map((_, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl" style={{ animationDelay: `${i * 80}ms` }}>
-                  <div className="w-9 h-9 rounded-xl bg-white/[0.06] shrink-0 animate-pulse" />
+                  <div className="w-9 h-9 rounded-xl bg-foreground/[0.06] shrink-0 animate-pulse" />
                   <div className="flex-1 space-y-2 pt-1">
-                    <div className="h-3 bg-white/[0.06] rounded w-2/3 animate-pulse" />
-                    <div className="h-2.5 bg-white/[0.04] rounded w-full animate-pulse" />
+                    <div className="h-3 bg-foreground/[0.06] rounded w-2/3 animate-pulse" />
+                    <div className="h-2.5 bg-foreground/[0.04] rounded w-full animate-pulse" />
                   </div>
                 </div>
               ))}
             </div>
           ) : items.length === 0 ? (
             <div className="flex flex-col items-center gap-3 py-12">
-              <div className="w-14 h-14 rounded-2xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center">
-                <Bell className="w-6 h-6 text-white/20" />
+              <div className="w-14 h-14 rounded-2xl bg-foreground/[0.05] border border-border flex items-center justify-center">
+                <Bell className="w-6 h-6 text-foreground/20" />
               </div>
               <div className="text-center">
-                <p className="text-sm font-semibold text-white/50">All caught up</p>
-                <p className="text-xs text-white/25 mt-0.5">No new notifications</p>
+                <p className="text-sm font-semibold text-foreground/50">All caught up</p>
+                <p className="text-xs text-foreground/25 mt-0.5">No new notifications</p>
               </div>
             </div>
           ) : (
@@ -214,7 +214,7 @@ export function NotificationDropdown() {
                       className={cn(
                         'group relative rounded-xl overflow-hidden transition-all duration-150',
                         !item.isRead && 'border-l-2 ' + style.borderColor,
-                        item.isRead ? 'hover:bg-white/[0.04]' : style.rowBg + ' hover:brightness-110',
+                        item.isRead ? 'hover:bg-foreground/[0.04]' : style.rowBg + ' hover:brightness-110',
                       )}
                     >
                       <button
@@ -233,9 +233,9 @@ export function NotificationDropdown() {
                           {/* Icon */}
                           <div className={cn(
                             'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5',
-                            item.isRead ? 'bg-white/[0.06]' : style.iconBg,
+                            item.isRead ? 'bg-foreground/[0.06]' : style.iconBg,
                           )}>
-                            <Icon className={cn('w-4 h-4', item.isRead ? 'text-white/30' : style.iconColor)} />
+                            <Icon className={cn('w-4 h-4', item.isRead ? 'text-foreground/30' : style.iconColor)} />
                           </div>
 
                           {/* Content */}
@@ -243,7 +243,7 @@ export function NotificationDropdown() {
                             <div className="flex items-start justify-between gap-2">
                               <p className={cn(
                                 'text-sm font-semibold leading-tight',
-                                item.isRead ? 'text-white/45' : 'text-white',
+                                item.isRead ? 'text-foreground/45' : 'text-foreground',
                               )}>
                                 {item.title}
                               </p>
@@ -252,7 +252,7 @@ export function NotificationDropdown() {
                                   <span className={cn('w-2 h-2 rounded-full', style.dot)} />
                                 )}
                                 {item.actionUrl && (
-                                  <ExternalLink className="w-3 h-3 text-white/20 group-hover:text-white/50 transition-colors" />
+                                  <ExternalLink className="w-3 h-3 text-foreground/20 group-hover:text-foreground/50 transition-colors" />
                                 )}
                               </div>
                             </div>
@@ -260,13 +260,13 @@ export function NotificationDropdown() {
                             {item.body && (
                               <p className={cn(
                                 'text-xs leading-relaxed mt-1 line-clamp-2',
-                                item.isRead ? 'text-white/30' : 'text-white/60',
+                                item.isRead ? 'text-foreground/30' : 'text-foreground/60',
                               )}>
                                 {item.body}
                               </p>
                             )}
 
-                            <p className="text-[10px] text-white/30 mt-1.5 font-medium">
+                            <p className="text-[10px] text-foreground/30 mt-1.5 font-medium">
                               {timeAgo(item.createdAt)}
                             </p>
                           </div>
@@ -276,7 +276,7 @@ export function NotificationDropdown() {
                       {/* Delete */}
                       <button
                         onClick={(e) => onDelete(e, item.id)}
-                        className="absolute top-2.5 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-red-500/20 text-white/25 hover:text-red-400"
+                        className="absolute top-2.5 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-red-500/20 text-foreground/25 hover:text-red-400"
                         type="button"
                         aria-label="Delete notification"
                       >
@@ -291,10 +291,10 @@ export function NotificationDropdown() {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/[0.08] px-4 py-3">
+        <div className="border-t border-border px-4 py-3">
           <button
             onClick={() => { window.location.href = '/notifications'; }}
-            className="w-full text-center text-[10px] font-bold text-white/30 hover:text-white/65 uppercase tracking-widest transition-colors"
+            className="w-full text-center text-[10px] font-bold text-foreground/30 hover:text-foreground/65 uppercase tracking-widest transition-colors"
           >
             View all notifications →
           </button>

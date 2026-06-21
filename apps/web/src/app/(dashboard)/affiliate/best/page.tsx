@@ -40,7 +40,7 @@ export default function BestAffiliatesPage() {
 
   return (
     <main className="space-y-8 p-6 md:p-8 text-foreground">
-      <section className="relative overflow-hidden rounded-[38px] border border-border bg-[#070814] px-6 py-7 md:px-8 md:py-8 shadow-[0_24px_80px_rgba(0,0,0,0.34)]">
+      <section className="relative overflow-hidden rounded-[38px] border border-border bg-card px-6 py-7 md:px-8 md:py-8 shadow-card">
         <motion.div className="absolute -right-16 top-0 h-52 w-52 rounded-full bg-chart-4/15 blur-3xl" animate={{ x: [0, -14, 0], y: [0, 10, 0] }} transition={{ duration: 7.5, repeat: Infinity, ease: 'easeInOut' }} />
         <motion.div className="absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-primary/15 blur-3xl" animate={{ x: [0, 12, 0], y: [0, -12, 0] }} transition={{ duration: 8.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }} />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(245,158,11,0.18),_transparent_40%),radial-gradient(circle_at_bottom_left,_rgba(71,167,170,0.18),_transparent_45%)]" />
@@ -182,7 +182,7 @@ export default function BestAffiliatesPage() {
                 { label: 'Earnings filtered', value: `$${leaderSummary.totalEarnings.toLocaleString()}`, tone: 'text-chart-3' },
                 { label: 'Top growth', value: `${leaderSummary.topGrowth}%`, tone: 'text-chart-4' },
               ].map((item) => (
-                <div key={item.label} className="rounded-[22px] border border-border bg-black/20 p-4">
+                <div key={item.label} className="rounded-[22px] border border-border bg-foreground/5 p-4">
                   <p className="text-micro font-semibold uppercase tracking-[0.22em] text-foreground/30">{item.label}</p>
                   <p className={cn('mt-2 text-xl font-semibold', item.tone)}>{item.value}</p>
                 </div>
@@ -192,11 +192,11 @@ export default function BestAffiliatesPage() {
             <div className="rounded-[28px] border border-border bg-foreground/4 p-5 backdrop-blur-sm">
               <p className="text-micro font-semibold uppercase tracking-[0.28em] text-foreground/30">Your live position</p>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <div className="rounded-2xl border border-border bg-black/20 p-4">
+                <div className="rounded-2xl border border-border bg-foreground/5 p-4">
                   <p className="text-micro uppercase tracking-[0.22em] text-foreground/30">Referral code</p>
                   <p className="mt-2 text-2xl font-semibold text-foreground">{dashboard?.referralCode ?? '—'}</p>
                 </div>
-                <div className="rounded-2xl border border-border bg-black/20 p-4">
+                <div className="rounded-2xl border border-border bg-foreground/5 p-4">
                   <p className="text-micro uppercase tracking-[0.22em] text-foreground/30">Commission rate</p>
                   <p className="mt-2 text-2xl font-semibold text-chart-3">{Math.round(commissionRate * 100)}%</p>
                 </div>
@@ -207,7 +207,7 @@ export default function BestAffiliatesPage() {
                   { label: 'Signups', value: stats?.signups ?? 0, tone: 'text-chart-3' },
                   { label: 'Conversions', value: stats?.conversions ?? 0, tone: 'text-chart-4' },
                 ].map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-border bg-black/20 p-4">
+                  <div key={item.label} className="rounded-2xl border border-border bg-foreground/5 p-4">
                     <p className="text-micro uppercase tracking-[0.22em] text-foreground/30">{item.label}</p>
                     <p className={cn('mt-2 text-xl font-semibold', item.tone)}>{item.value.toLocaleString()}</p>
                   </div>
@@ -239,7 +239,7 @@ export default function BestAffiliatesPage() {
                 <motion.div
                   key={item.label}
                   whileHover={{ y: -4 }}
-                  className="rounded-[24px] border border-border bg-[#0b0d18] p-4 shadow-[0_18px_50px_rgba(0,0,0,0.24)]"
+                  className="rounded-[24px] border border-border bg-bg-secondary p-4 shadow-card"
                 >
                   <p className="text-micro font-semibold uppercase tracking-[0.22em] text-foreground/30">{item.label}</p>
                   <p className={cn('mt-2 text-xl font-semibold', item.tone)}>{item.value}</p>
@@ -258,7 +258,7 @@ export default function BestAffiliatesPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.06 }}
             whileHover={{ y: -6, scale: 1.01 }}
-            className={cn('relative overflow-hidden rounded-[28px] border border-border bg-[#0b0d18] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.24)] min-h-[360px] flex flex-col justify-between', index === 0 && 'md:col-span-2 xl:col-span-1')}
+            className={cn('relative overflow-hidden rounded-[28px] border border-border bg-bg-secondary p-5 shadow-card min-h-[360px] flex flex-col justify-between', index === 0 && 'md:col-span-2 xl:col-span-1')}
           >
             <div className={cn('absolute inset-0 bg-gradient-to-r opacity-60', leader.color)} />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.14),_transparent_35%)]" />
@@ -326,7 +326,7 @@ export default function BestAffiliatesPage() {
             'Most elite accounts maintain high conversion quality.',
             'New affiliates are climbing quickly with referral traffic.',
           ].map((item, index) => (
-            <div key={item} className="rounded-2xl border border-border bg-black/20 p-4 text-sm text-foreground/60">
+            <div key={item} className="rounded-2xl border border-border bg-foreground/5 p-4 text-sm text-foreground/60">
               <span className="mr-2 text-primary">0{index + 1}.</span>
               {item}
             </div>

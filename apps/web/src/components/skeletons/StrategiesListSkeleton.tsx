@@ -24,19 +24,19 @@ export function StrategiesListSkeleton() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="rounded-2xl bg-[#0B0F1A] border border-white/[0.08] p-5 space-y-4 min-h-[420px]">
+          <div key={i} className="rounded-2xl bg-card border border-border p-5 space-y-4 min-h-[420px]">
             <div className="flex justify-between">
-              <Skeleton className="h-9 w-9 rounded-lg bg-white/10" />
-              <Skeleton className="h-6 w-16 rounded bg-white/10" />
+              <Skeleton className="h-9 w-9 rounded-lg bg-foreground/10" />
+              <Skeleton className="h-6 w-16 rounded bg-foreground/10" />
             </div>
-            <Skeleton className="h-6 w-3/4 bg-white/10" />
-            <Skeleton className="h-28 w-full -mx-2 bg-white/5" />
+            <Skeleton className="h-6 w-3/4 bg-foreground/10" />
+            <Skeleton className="h-28 w-full -mx-2 bg-foreground/5" />
             <div className="grid grid-cols-2 gap-3">
               {Array.from({ length: 4 }).map((_, j) => (
-                <Skeleton key={j} className="h-10 bg-white/5" />
+                <Skeleton key={j} className="h-10 bg-foreground/5" />
               ))}
             </div>
-            <Skeleton className="h-10 w-full rounded-xl bg-white/10" />
+            <Skeleton className="h-10 w-full rounded-xl bg-foreground/10" />
           </div>
         ))}
       </div>

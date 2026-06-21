@@ -168,17 +168,17 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
 
         {/* Specs */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="p-3 rounded-xl bg-black/20 border border-[var(--card-border)] text-center">
+          <div className="p-3 rounded-xl bg-foreground/5 border border-[var(--card-border)] text-center">
             <Cpu className="w-4 h-4 text-foreground/25 mx-auto mb-1" />
             <p className="text-sm font-bold text-foreground">{vps.cpuCores}</p>
             <p className="text-micro text-foreground/20 uppercase tracking-widest">vCPU</p>
           </div>
-          <div className="p-3 rounded-xl bg-black/20 border border-[var(--card-border)] text-center">
+          <div className="p-3 rounded-xl bg-foreground/5 border border-[var(--card-border)] text-center">
             <MemoryStick className="w-4 h-4 text-foreground/25 mx-auto mb-1" />
             <p className="text-sm font-bold text-foreground">{vps.memoryGb}GB</p>
             <p className="text-micro text-foreground/20 uppercase tracking-widest">RAM</p>
           </div>
-          <div className="p-3 rounded-xl bg-black/20 border border-[var(--card-border)] text-center">
+          <div className="p-3 rounded-xl bg-foreground/5 border border-[var(--card-border)] text-center">
             <Activity className="w-4 h-4 text-foreground/25 mx-auto mb-1" />
             <p className={cn('text-sm font-bold', runningBots > 0 ? 'text-chart-3' : 'text-foreground')}>{runningBots}</p>
             <p className="text-micro text-foreground/20 uppercase tracking-widest">Active</p>

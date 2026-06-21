@@ -21,7 +21,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] border border-border bg-[#070b16] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.35)]">
+    <div className="relative overflow-hidden rounded-[32px] border border-border bg-card p-5 shadow-card">
       <div className={cn('absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(71,167,170,0.22),_transparent_52%)]', accentClassName)} />
       <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:32px_32px]" />
       <motion.div
@@ -45,7 +45,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
         </div>
       </div>
 
-      <div className="relative z-10 min-h-[300px] rounded-[28px] border border-border bg-black/20 p-4 md:p-6">
+      <div className="relative z-10 min-h-[300px] rounded-[28px] border border-border bg-foreground/5 p-4 md:p-6">
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 900 460" fill="none" aria-hidden="true">
           <motion.path
             d="M450 60 C 410 110, 360 150, 310 190 S 210 275, 150 330"
@@ -90,7 +90,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
           </div>
         </motion.div>
 
-        <div className="absolute left-1/2 top-[98px] -translate-x-1/2 rounded-full border border-border bg-black/30 px-4 py-1 text-micro font-semibold uppercase tracking-[0.28em] text-foreground/45 backdrop-blur-sm">
+        <div className="absolute left-1/2 top-[98px] -translate-x-1/2 rounded-full border border-border bg-foreground/10 px-4 py-1 text-micro font-semibold uppercase tracking-[0.28em] text-foreground/45 backdrop-blur-sm">
           Network origin
         </div>
 
