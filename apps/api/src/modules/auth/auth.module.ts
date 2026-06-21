@@ -18,10 +18,19 @@ import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 
-const oauthProviders =
-  process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
-    ? [GoogleStrategy, GithubStrategy]
-    : [GoogleStrategy];
+// Register each OAuth strategy only when its credentials are present. The
+// strategies throw in production if their keys are missing, so gating
+// registration here lets the API boot with whichever providers are configured
+// (e.g. Google login simply stays disabled until GOOGLE_CLIENT_ID/SECRET are
+// set) instead of crashing the whole app on startup.
+const oauthProviders = [
+  ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ? [GoogleStrategy]
+    : []),
+  ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+    ? [GithubStrategy]
+    : []),
+];
 
 @Module({
   imports: [
