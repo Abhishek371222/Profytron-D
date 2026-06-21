@@ -130,35 +130,55 @@ export class NotificationsService {
       }
     }
 
-    // Persist in-app notification
+    // Persist in-app notification. A notification is a non-critical side-effect:
+    // if the target user no longer exists (FK violation P2003) or the write
+    // otherwise fails, log and skip rather than propagating the error up into
+    // the caller's flow (payment, auth, etc.).
     let notification: any = null;
     if (prefs.inAppEnabled || priority === 'CRITICAL') {
-      notification = await this.prisma.notification.create({
-        data: {
-          userId,
-          title: t,
-          body: m,
-          type: ty,
-          category,
-          priority,
-          actionUrl: url,
-          icon: icon ?? null,
-          metadata: metadata ?? undefined,
-          isRead: false,
-          isSeen: false,
-        },
-      });
+      try {
+        notification = await this.prisma.notification.create({
+          data: {
+            userId,
+            title: t,
+            body: m,
+            type: ty,
+            category,
+            priority,
+            actionUrl: url,
+            icon: icon ?? null,
+            metadata: metadata ?? undefined,
+            isRead: false,
+            isSeen: false,
+          },
+        });
 
-      // Real-time delivery via WebSocket
-      this.gateway.sendToUser(userId, 'new_notification', {
-        ...notification,
-        unreadCount: await this.prisma.notification.count({
-          where: { userId, isRead: false },
-        }),
-      });
+        // Real-time delivery via WebSocket
+        this.gateway.sendToUser(userId, 'new_notification', {
+          ...notification,
+          unreadCount: await this.prisma.notification.count({
+            where: { userId, isRead: false },
+          }),
+        });
 
-      // Log in-app delivery
-      void this.logDelivery(notification.id, userId, 'IN_APP', 'SENT');
+        // Log in-app delivery
+        void this.logDelivery(notification.id, userId, 'IN_APP', 'SENT');
+      } catch (err) {
+        const code = (err as { code?: string })?.code;
+        if (code === 'P2003' || code === 'P2025') {
+          // User row is gone (deleted/never persisted) — nothing to notify.
+          this.logger.warn(
+            `Skipping in-app notification for missing user ${userId} (${code})`,
+          );
+          return null;
+        }
+        this.logger.error(
+          `Failed to persist in-app notification for ${userId}: ${
+            (err as Error)?.message ?? err
+          }`,
+        );
+        return null;
+      }
     }
 
     // Enqueue async channels (fire-and-forget via BullMQ)
@@ -198,9 +218,21 @@ export class NotificationsService {
     });
     if (existing) return existing;
     // Auto-create defaults on first access
-    return this.prisma.notificationPreference.create({
-      data: { userId },
-    });
+    try {
+      return await this.prisma.notificationPreference.create({
+        data: { userId },
+      });
+    } catch (err) {
+      // User row may have been deleted between the lookup and the insert
+      // (FK P2003). Fall back to transient defaults so notification delivery
+      // degrades gracefully instead of throwing into the caller's flow.
+      const code = (err as { code?: string })?.code;
+      if (code !== 'P2003' && code !== 'P2025') throw err;
+      this.logger.warn(
+        `No preference row for user ${userId} (${code}); using transient defaults`,
+      );
+      return { userId, inAppEnabled: true } as any;
+    }
   }
 
   async updatePreferences(
