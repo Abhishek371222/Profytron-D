@@ -182,7 +182,9 @@ function installProcessSafetyNet() {
   process.on('unhandledRejection', (reason) => {
     logger.error(
       `Unhandled promise rejection (process kept alive): ${
-        reason instanceof Error ? (reason.stack ?? reason.message) : String(reason)
+        reason instanceof Error
+          ? (reason.stack ?? reason.message)
+          : String(reason)
       }`,
     );
   });
@@ -220,7 +222,11 @@ async function bootstrap() {
   // exits, preventing data loss during rolling restarts or container eviction.
   app.enableShutdownHooks();
 
-  const requestedPort = Number(process.env.API_PORT || 4000);
+  // Hosts like Render/Heroku inject the port to bind via PORT and route traffic
+  // to it; prefer that, then our own API_PORT, then the local default. Binding
+  // anything other than the platform-assigned port shows up as
+  // "No open ports detected" and the service never goes live.
+  const requestedPort = Number(process.env.PORT || process.env.API_PORT || 4000);
   const logger = new Logger('Bootstrap');
 
   if (
@@ -228,7 +234,9 @@ async function bootstrap() {
     requestedPort < 1 ||
     requestedPort > 65535
   ) {
-    logger.error(`Invalid API_PORT value: "${process.env.API_PORT}". Exiting.`);
+    logger.error(
+      `Invalid port value: "${process.env.PORT ?? process.env.API_PORT}". Exiting.`,
+    );
     process.exit(1);
   }
 

@@ -61,6 +61,6 @@ EXPOSE 4000
 # non-200 (e.g. 503 when the database is unreachable) as unhealthy so the
 # orchestrator can restart or drain the container.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD node -e "require('http').get('http://127.0.0.1:4000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+  CMD node -e "const p=process.env.PORT||process.env.API_PORT||4000;require('http').get('http://127.0.0.1:'+p+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
 CMD ["node", "dist/src/main"]
