@@ -70,7 +70,7 @@ export class AuthController {
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: isSecure,
-      sameSite: 'strict',
+      sameSite: 'lax',
       path: '/',
       maxAge: 90 * 24 * 60 * 60 * 1000,
     });
@@ -79,7 +79,7 @@ export class AuthController {
       res.cookie('user_role', role, {
         httpOnly: false,
         secure: isSecure,
-        sameSite: 'strict',
+        sameSite: 'lax',
         path: '/',
         maxAge: 90 * 24 * 60 * 60 * 1000,
       });
@@ -89,7 +89,7 @@ export class AuthController {
       res.cookie('onboarding_completed', onboardingCompleted ? '1' : '0', {
         httpOnly: false,
         secure: isSecure,
-        sameSite: 'strict',
+        sameSite: 'lax',
         path: '/',
         maxAge: 90 * 24 * 60 * 60 * 1000,
       });
@@ -271,7 +271,7 @@ export class AuthController {
       path: '/',
       httpOnly: true,
       secure: isSecure,
-      sameSite: 'strict' as const,
+      sameSite: 'lax' as const,
     };
     res.clearCookie('refresh_token', cookieOpts);
     res.clearCookie('user_role', { ...cookieOpts, httpOnly: false });
@@ -497,8 +497,28 @@ export class AuthController {
   @ApiOperation({
     summary: 'Exchange a one-time OAuth code for an access token',
   })
-  async oauthTokenExchange(@Query('code') code: string) {
+  async oauthTokenExchange(
+    @Query('code') code: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     if (!code) throw new NotFoundException('code is required');
-    return this.authService.exchangeOAuthCode(code);
+    const result = await this.authService.exchangeOAuthCode(code);
+    if ('requiresTwoFa' in result) {
+      return result;
+    }
+    // This request is proxied through the web app's own origin, so setting the
+    // session cookies here scopes refresh_token (+ role/onboarding) to the
+    // frontend domain — which the middleware reads to gate protected routes.
+    // (The OAuth callback runs on the API's own domain, so the cookie it sets
+    // there is unusable by the frontend.)
+    if (result.refreshTokenForCookie) {
+      this.setSessionCookies(
+        res,
+        result.refreshTokenForCookie,
+        result.user?.role,
+        result.user?.onboardingCompleted,
+      );
+    }
+    return { accessToken: result.accessToken, user: result.user };
   }
 }

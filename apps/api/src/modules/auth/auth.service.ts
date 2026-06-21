@@ -46,7 +46,9 @@ export class AuthService {
     if (supabaseUrl && supabaseKey) {
       this.supabase = createClient(supabaseUrl, supabaseKey);
     } else {
-      this.logger.warn('SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — Supabase auth flows disabled');
+      this.logger.warn(
+        'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — Supabase auth flows disabled',
+      );
       this.supabase = null as any;
     }
   }
@@ -717,7 +719,8 @@ export class AuthService {
     void this.notificationsService.create({
       userId: user.id,
       title: 'Password Changed',
-      message: 'Your account password was reset. If this wasn\'t you, contact support immediately.',
+      message:
+        "Your account password was reset. If this wasn't you, contact support immediately.",
       type: 'WARNING',
       category: 'SECURITY',
       priority: 'HIGH',
@@ -789,9 +792,9 @@ export class AuthService {
 
     const session = await this.issueSessionOrTwoFaChallenge(user);
     if (session.requiresTwoFa) {
-      const oauthCode = await this.storeOAuthExchangePayload(
-        `2fa:${session.challengeToken}`,
-      );
+      const oauthCode = await this.storeOAuthExchangePayload({
+        challengeToken: session.challengeToken,
+      });
       return {
         oauthCode,
         user: this.sanitizeUser(user),
@@ -800,9 +803,12 @@ export class AuthService {
       };
     }
 
-    const oauthCode = await this.storeOAuthExchangePayload(
-      session.tokens.accessToken,
-    );
+    const oauthCode = await this.storeOAuthExchangePayload({
+      accessToken: session.tokens.accessToken,
+      refreshToken: session.tokens.refreshToken,
+      role: user.role,
+      onboardingCompleted: user.onboardingCompleted,
+    });
 
     void this.emailService.sendLoginEmail(user.email, user.fullName, {
       device: 'Google Sign-In',
@@ -827,10 +833,12 @@ export class AuthService {
     };
   }
 
-  async exchangeOAuthCode(
-    code: string,
-  ): Promise<
-    | { accessToken: string }
+  async exchangeOAuthCode(code: string): Promise<
+    | {
+        accessToken: string;
+        refreshTokenForCookie?: string;
+        user?: { role?: string; onboardingCompleted?: boolean };
+      }
     | { requiresTwoFa: true; challengeToken: string }
   > {
     const stored = await this.redisService.getdel(`auth:oauth:code:${code}`);
@@ -841,10 +849,27 @@ export class AuthService {
         ErrorCode.INVALID_CREDENTIALS,
       );
     }
-    if (stored.startsWith('2fa:')) {
-      return { requiresTwoFa: true, challengeToken: stored.slice(4) };
+
+    // New payloads are JSON; fall back to the legacy plain-string format for any
+    // codes minted just before this change (60s TTL means this is short-lived).
+    let parsed: any;
+    try {
+      parsed = JSON.parse(stored);
+    } catch {
+      if (stored.startsWith('2fa:')) {
+        return { requiresTwoFa: true, challengeToken: stored.slice(4) };
+      }
+      return { accessToken: stored };
     }
-    return { accessToken: stored };
+
+    if (parsed.challengeToken) {
+      return { requiresTwoFa: true, challengeToken: parsed.challengeToken };
+    }
+    return {
+      accessToken: parsed.accessToken,
+      refreshTokenForCookie: parsed.refreshToken,
+      user: { role: parsed.role, onboardingCompleted: parsed.onboardingCompleted },
+    };
   }
 
   async supabaseLogin(dto: SupabaseLoginDto) {
@@ -941,9 +966,22 @@ export class AuthService {
     return { requiresTwoFa: false as const, tokens };
   }
 
-  private async storeOAuthExchangePayload(payload: string): Promise<string> {
+  private async storeOAuthExchangePayload(
+    payload:
+      | { challengeToken: string }
+      | {
+          accessToken: string;
+          refreshToken: string;
+          role?: string;
+          onboardingCompleted?: boolean;
+        },
+  ): Promise<string> {
     const oauthCode = randomUUID();
-    await this.redisService.set(`auth:oauth:code:${oauthCode}`, payload, 60);
+    await this.redisService.set(
+      `auth:oauth:code:${oauthCode}`,
+      JSON.stringify(payload),
+      60,
+    );
     return oauthCode;
   }
 
@@ -1074,9 +1112,9 @@ export class AuthService {
 
     const session = await this.issueSessionOrTwoFaChallenge(user);
     if (session.requiresTwoFa) {
-      const oauthCode = await this.storeOAuthExchangePayload(
-        `2fa:${session.challengeToken}`,
-      );
+      const oauthCode = await this.storeOAuthExchangePayload({
+        challengeToken: session.challengeToken,
+      });
       return {
         oauthCode,
         user: this.sanitizeUser(user),
@@ -1085,9 +1123,12 @@ export class AuthService {
       };
     }
 
-    const oauthCode = await this.storeOAuthExchangePayload(
-      session.tokens.accessToken,
-    );
+    const oauthCode = await this.storeOAuthExchangePayload({
+      accessToken: session.tokens.accessToken,
+      refreshToken: session.tokens.refreshToken,
+      role: user.role,
+      onboardingCompleted: user.onboardingCompleted,
+    });
 
     void this.emailService.sendLoginEmail(user.email, user.fullName, {
       device: 'GitHub Sign-In',
