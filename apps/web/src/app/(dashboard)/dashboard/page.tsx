@@ -161,9 +161,9 @@ function KpiCard({ label, value, prefix = '', suffix = '', decimals = 2, trend, 
   const a = ACCENTS[accent];
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: index * 0.08, duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.06, duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
       whileHover={{ y: -6, transition: { duration: 0.2 } }}
       className="group relative dashboard-card p-5 overflow-hidden cursor-default select-none card-lift transition-shadow duration-300 hover:shadow-card-premium"
     >
