@@ -146,7 +146,12 @@ jobs:
       # suites share a single Postgres test DB and reset it with TRUNCATE in
       # beforeEach; running them in parallel lets one worker wipe another's rows
       # mid-test (FK violations, spurious 401s, SELECT/TRUNCATE deadlocks).
-      run: pnpm --dir apps/api test --passWithNoTests --runInBand
+      # --forceExit: the full AppModule starts setInterval pollers (master sync,
+      # trailing stop) plus Redis/Prisma connections that keep the event loop
+      # alive after tests finish. In-band there is no worker to force-kill, so
+      # jest would hang on exit without this flag (it still reports failures and
+      # exits non-zero if any test fails).
+      run: pnpm --dir apps/api test --passWithNoTests --runInBand --forceExit
 
   dependency-audit:
     name: Dependency vulnerability audit
