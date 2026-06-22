@@ -54,6 +54,7 @@ function validateEnv() {
   // Always required
   const required = [
     'DATABASE_URL',
+    'DIRECT_URL',
     'JWT_ACCESS_SECRET',
     'JWT_REFRESH_SECRET',
     'AES_MASTER_KEY',
@@ -92,6 +93,16 @@ function validateEnv() {
   const dbUrl = process.env.DATABASE_URL?.trim();
   if (dbUrl && !/^postgres(ql)?:\/\//i.test(dbUrl)) {
     invalid.push('DATABASE_URL must be a postgres:// or postgresql:// URL');
+  }
+
+  const directUrl = process.env.DIRECT_URL?.trim();
+  if (directUrl && !/^postgres(ql)?:\/\//i.test(directUrl)) {
+    invalid.push('DIRECT_URL must be a postgres:// or postgresql:// URL');
+  }
+  if (isStrict && dbUrl && directUrl && dbUrl.includes('-pooler') && directUrl.includes('-pooler')) {
+    logger.warn(
+      'DIRECT_URL uses a Neon pooler host (-pooler). Point DIRECT_URL at the Neon *direct* endpoint (no -pooler) so prisma migrate deploy works reliably.',
+    );
   }
 
   const aesKey = process.env.AES_MASTER_KEY?.trim();

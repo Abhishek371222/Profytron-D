@@ -47,23 +47,24 @@ services:
         value: https://www.profytron.com,https://profytron.com
 
       # --- Database (Neon) — set in dashboard ---
+      # DATABASE_URL: Neon "Pooled connection" (*-pooler* host) — app runtime
+      # DIRECT_URL:   Neon "Direct connection" (no -pooler) — prisma migrate only
       - key: DATABASE_URL
         sync: false
       - key: DIRECT_URL
         sync: false
 
-      # --- Redis (REQUIRED for production) ---
-      # Production MUST use a real, shared Redis. The in-memory fallback is per
-      # instance and breaks: BullMQ trade execution queue, Socket.IO horizontal
-      # scaling, JWT blacklist, distributed locks, and refresh-token rotation
-      # reuse detection. Provide an Upstash Redis wire URL as REDIS_URL
-      # (Connect → Redis in the Upstash dashboard, NOT the REST https URL).
-      # NOT the REST URL). Format: rediss://default:<token>@<host>:6379
-      # If you only have REST vars, set UPSTASH_REDIS_REST_URL + TOKEN instead
-      # (the API auto-converts to port 6379 — do NOT use https:// or :443).
+      # --- Redis (Upstash — REQUIRED for production) ---
+      # Prefer REDIS_URL as the Redis wire URL (NOT the REST https URL):
+      #   rediss://default:<token>@<instance>.upstash.io:6379
+      # Or set UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN; the API converts to :6379.
       - key: REDIS_INMEMORY
         value: "false"
       - key: REDIS_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
         sync: false
 
       # --- OAuth / Supabase (REQUIRED if Google/Supabase login is enabled) ---
