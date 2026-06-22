@@ -1217,8 +1217,15 @@ export class PaymentsService {
           razorpayPaymentId: paymentRef,
         },
       });
-    } catch (err: any) {
-      if (err?.code === 'P2002') return;
+    } catch (err: unknown) {
+      if (
+        err &&
+        typeof err === 'object' &&
+        'code' in err &&
+        (err as { code?: string }).code === 'P2002'
+      ) {
+        return;
+      }
       throw err;
     }
 

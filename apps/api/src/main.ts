@@ -125,8 +125,32 @@ function validateEnv() {
   const redisUrl = process.env.REDIS_URL?.trim();
   if (redisUrl) {
     try {
-      // eslint-disable-next-line no-new
-      new URL(redisUrl);
+      const parsed = new URL(redisUrl);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        const hasToken = Boolean(
+          process.env.UPSTASH_REDIS_REST_TOKEN?.trim() ||
+          process.env.REDIS_PASSWORD?.trim() ||
+          parsed.password,
+        );
+        if (!hasToken) {
+          invalid.push(
+            'REDIS_URL uses http(s) (Upstash REST) but no token is set — use rediss://default:<token>@<host>:6379 or set UPSTASH_REDIS_REST_TOKEN',
+          );
+        } else if (isStrict) {
+          logger.warn(
+            'REDIS_URL is an Upstash REST https:// URL; it will be auto-converted to rediss:// on port 6379 at runtime. Prefer setting rediss://default:<token>@<host>:6379 directly in Render.',
+          );
+        }
+      } else if (
+        parsed.hostname.includes('upstash.io') &&
+        (parsed.port === '443' || parsed.port === '80')
+      ) {
+        if (isStrict) {
+          logger.warn(
+            `REDIS_URL uses Upstash port ${parsed.port}; it will be corrected to 6379 at runtime. Set rediss://…:6379 in Render to silence this.`,
+          );
+        }
+      }
     } catch {
       invalid.push('REDIS_URL must be a valid URL');
     }
@@ -227,7 +251,9 @@ async function bootstrap() {
   // to it; prefer that, then our own API_PORT, then the local default. Binding
   // anything other than the platform-assigned port shows up as
   // "No open ports detected" and the service never goes live.
-  const requestedPort = Number(process.env.PORT || process.env.API_PORT || 4000);
+  const requestedPort = Number(
+    process.env.PORT || process.env.API_PORT || 4000,
+  );
   const logger = new Logger('Bootstrap');
 
   if (

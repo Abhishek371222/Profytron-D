@@ -56,9 +56,11 @@ services:
       # Production MUST use a real, shared Redis. The in-memory fallback is per
       # instance and breaks: BullMQ trade execution queue, Socket.IO horizontal
       # scaling, JWT blacklist, distributed locks, and refresh-token rotation
-      # reuse detection. Provide an Upstash RESP/TLS URL as REDIS_URL
-      # (rediss://default:<password>@<host>:6379) and keep REDIS_INMEMORY=false.
-      # Only set REDIS_INMEMORY=true for a throwaway single-instance smoke test.
+      # reuse detection. Provide an Upstash Redis wire URL as REDIS_URL
+      # (Connect → Redis in the Upstash dashboard, NOT the REST https URL).
+      # NOT the REST URL). Format: rediss://default:<token>@<host>:6379
+      # If you only have REST vars, set UPSTASH_REDIS_REST_URL + TOKEN instead
+      # (the API auto-converts to port 6379 — do NOT use https:// or :443).
       - key: REDIS_INMEMORY
         value: "false"
       - key: REDIS_URL

@@ -87,7 +87,6 @@ const parseRedisConfig = () => {
     host: process.env.REDIS_HOST || 'redis',
     port: Number(process.env.REDIS_PORT) || 6379,
     ...(password ? { username: 'default', password } : {}),
-    tls: Number(process.env.REDIS_PORT) === 443 ? {} : undefined,
   };
 };
 

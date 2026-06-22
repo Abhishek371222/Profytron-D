@@ -9,8 +9,8 @@ process.env.DIRECT_URL =
 if (!process.env.REDIS_URL) {
   if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
     const redisHost = new URL(process.env.UPSTASH_REDIS_REST_URL).hostname;
-    const redisPort = new URL(process.env.UPSTASH_REDIS_REST_URL).port || '443';
-    process.env.REDIS_URL = `rediss://default:${process.env.UPSTASH_REDIS_REST_TOKEN}@${redisHost}:${redisPort}`;
+    // Upstash REST is HTTPS on 443; Redis wire protocol is TLS on 6379.
+    process.env.REDIS_URL = `rediss://default:${process.env.UPSTASH_REDIS_REST_TOKEN}@${redisHost}:6379`;
   } else {
     process.env.REDIS_URL = 'redis://redis-test:6379';
   }

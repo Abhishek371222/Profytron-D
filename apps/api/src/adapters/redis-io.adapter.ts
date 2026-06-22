@@ -3,7 +3,11 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import type { ServerOptions, Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import Redis from 'ioredis';
-import { getRedisConnectionUrl, isInMemoryRedis } from '../config/redis.config';
+import {
+  getRedisConnectionUrl,
+  getRedisClientOptions,
+  isInMemoryRedis,
+} from '../config/redis.config';
 
 /**
  * Socket.IO adapter backed by Redis Pub/Sub so WebSocket events fan out across
@@ -28,11 +32,8 @@ export class RedisIoAdapter extends IoAdapter {
     if (!url) return false;
 
     try {
-      const pubClient = new Redis(url, {
-        maxRetriesPerRequest: null,
-        enableReadyCheck: false,
-        lazyConnect: false,
-      });
+      const options = getRedisClientOptions();
+      const pubClient = new Redis(url, options);
       const subClient = pubClient.duplicate();
 
       pubClient.on('error', (err) =>
@@ -41,6 +42,10 @@ export class RedisIoAdapter extends IoAdapter {
       subClient.on('error', (err) =>
         this.logger.warn(`Socket.IO sub client error: ${err.message}`),
       );
+
+      // Verify the wire protocol before attaching — a REST/HTTPS URL yields
+      // "Protocol error, got H" and would otherwise spam errors forever.
+      await pubClient.ping();
 
       this.adapterConstructor = createAdapter(pubClient, subClient);
       this.logger.log(

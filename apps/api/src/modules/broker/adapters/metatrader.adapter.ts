@@ -19,6 +19,17 @@ export interface MTConnectionResult {
   error?: string;
 }
 
+/** Subset of MetaAPI provisioning account fields used for reuse lookups. */
+interface MetaApiAccountSummary {
+  _id?: string;
+  id?: string;
+  login?: string | number;
+  server?: string;
+  state?: string;
+  connectionStatus?: string;
+  region?: string;
+}
+
 /**
  * MetaTrader 4 / 5 adapter via MetaAPI.cloud REST API.
  *
@@ -139,8 +150,9 @@ export class MetaTraderAdapter {
       //    5, so re-creating on each connect attempt quickly exhausts quota and
       //    leaves orphaned duplicates (one per attempt).
       const existing = await this.findExistingAccount(login, server);
-      if (existing) {
-        accountId = existing._id || existing.id;
+      const existingId = existing?._id ?? existing?.id;
+      if (existing && existingId) {
+        accountId = existingId;
         region = existing.region || this.defaultRegion;
         this.regionCache.set(accountId, region);
         alreadyConnected =
@@ -524,7 +536,7 @@ export class MetaTraderAdapter {
   private async findExistingAccount(
     login: string,
     server: string,
-  ): Promise<any | null> {
+  ): Promise<MetaApiAccountSummary | null> {
     try {
       const res = await this.http.get(
         `${this.provisioningUrl}/users/current/accounts`,
@@ -539,8 +551,7 @@ export class MetaTraderAdapter {
       if (!matches.length) return null;
       return (
         matches.find(
-          (a) =>
-            a.state === 'DEPLOYED' && a.connectionStatus === 'CONNECTED',
+          (a) => a.state === 'DEPLOYED' && a.connectionStatus === 'CONNECTED',
         ) ??
         matches.find((a) => a.state === 'DEPLOYED') ??
         matches[0]

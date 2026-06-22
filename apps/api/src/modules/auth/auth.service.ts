@@ -876,7 +876,10 @@ export class AuthService {
     return {
       accessToken: parsed.accessToken,
       refreshTokenForCookie: parsed.refreshToken,
-      user: { role: parsed.role, onboardingCompleted: parsed.onboardingCompleted },
+      user: {
+        role: parsed.role,
+        onboardingCompleted: parsed.onboardingCompleted,
+      },
     };
   }
 

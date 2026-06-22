@@ -60,7 +60,9 @@ export class BrokerService {
           where: { id: userId },
           select: { subscriptionTier: true },
         });
-        const { maxBrokerAccounts } = getTierLimits(quotaUser?.subscriptionTier);
+        const { maxBrokerAccounts } = getTierLimits(
+          quotaUser?.subscriptionTier,
+        );
         if (activeCount >= maxBrokerAccounts) {
           throw new BadRequestException(
             `Your plan allows ${maxBrokerAccounts} connected account(s). Upgrade to connect more.`,

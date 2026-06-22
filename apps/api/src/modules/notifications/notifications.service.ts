@@ -109,7 +109,7 @@ export class NotificationsService {
     // Check user preferences — skip in-app creation for suppressed categories
     const prefs = await this.getPreferences(userId);
     const prefField = CATEGORY_PREF_MAP[category] ?? 'systemAlerts';
-    const categoryEnabled = (prefs as any)[prefField] ?? true;
+    const categoryEnabled = prefs[prefField] ?? true;
 
     if (!categoryEnabled && priority !== 'CRITICAL') {
       this.logger.debug(
