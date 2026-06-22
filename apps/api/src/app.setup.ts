@@ -176,6 +176,11 @@ export function configureApp(app: INestApplication) {
       whitelist: true, // Strip unknown properties — prevents mass assignment
       transform: true, // Auto-coerce types from request payloads
       forbidNonWhitelisted: true, // Reject requests that contain unknown properties
+      // Query/path params arrive as strings. Without implicit conversion a DTO
+      // field typed `number` (e.g. ?limit=15, ?page=2) fails @IsInt validation
+      // and the request 400s. Coerce to the declared TS type so paginated
+      // endpoints (wallet history, notifications, etc.) work.
+      transformOptions: { enableImplicitConversion: true },
     }),
   );
 

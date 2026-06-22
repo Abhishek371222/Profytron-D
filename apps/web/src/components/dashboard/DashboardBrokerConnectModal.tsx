@@ -220,8 +220,8 @@ export default function DashboardBrokerConnectModal({
           >
             <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent pointer-events-none" />
 
-            <div className="relative z-10 flex flex-col h-full">
-              <div className="flex items-start justify-between gap-4 pb-4 border-b border-border">
+            <div className="relative z-10 flex flex-col h-full min-h-0">
+              <div className="flex items-start justify-between gap-4 pb-4 border-b border-border shrink-0">
                 <div className="space-y-1">
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground uppercase tracking-tight">Connect Broker</h3>
                   <p className="text-xs text-foreground/40 font-semibold uppercase tracking-widest">AES-GCM encrypted connection • forex-ready broker directory</p>
@@ -231,7 +231,7 @@ export default function DashboardBrokerConnectModal({
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-4 xl:gap-6 flex-1 min-h-0 pt-4">
+              <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-4 xl:gap-6 flex-1 min-h-0 pt-4 overflow-y-auto lg:overflow-hidden">
                 <div className="space-y-4 min-h-0 flex flex-col">
                   <div className="relative">
                     <Search className="w-4 h-4 text-foreground/30 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -369,8 +369,8 @@ export default function DashboardBrokerConnectModal({
                     </div>
                   </div>
 
-                  <div className="flex-1 min-h-0 rounded-[28px] bg-foreground/2 border border-border p-3 overflow-hidden">
-                    <div className="h-full overflow-y-auto pr-1 space-y-3">
+                  <div className="lg:flex-1 lg:min-h-0 rounded-[28px] bg-foreground/2 border border-border p-3 lg:overflow-hidden">
+                    <div className="max-h-[55vh] lg:max-h-none lg:h-full overflow-y-auto pr-1 space-y-3">
                       {filteredBrokers.map((broker) => {
                         const active = selectedBrokerId === broker.id;
                         const favorite = favoriteBrokers.includes(broker.id);
@@ -490,8 +490,8 @@ export default function DashboardBrokerConnectModal({
                   </div>
                 </div>
 
-                <div className="rounded-[28px] bg-bg-secondary border border-border p-4 xl:p-5 flex flex-col min-h-0 overflow-hidden">
-                  <div className="space-y-3 flex-1 min-h-0 overflow-y-auto pr-1">
+                <div className="rounded-[28px] bg-bg-secondary border border-border p-4 xl:p-5 flex flex-col min-h-0 lg:overflow-hidden">
+                  <div className="space-y-3 lg:flex-1 lg:min-h-0 lg:overflow-y-auto pr-1">
                     <div className="p-4 rounded-2xl bg-foreground/3 border border-border space-y-3">
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1 min-w-0">

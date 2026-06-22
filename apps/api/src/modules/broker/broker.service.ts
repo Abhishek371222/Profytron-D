@@ -70,37 +70,52 @@ export class BrokerService {
       );
 
       const last4 = login ? login.slice(-4).padStart(4, '0') : '0000';
+      const resolvedBrokerName =
+        brokerName === 'PAPER' ? 'PAPER' : platform === 'mt4' ? 'MT4' : 'MT5';
+
+      // Reuse an existing row for the same login+server instead of stacking a
+      // new "connected account" on every reconnect.
+      const existingAccount = await this.prisma.brokerAccount.findFirst({
+        where: {
+          userId,
+          accountNumberLast4: last4,
+          serverName,
+          brokerName: resolvedBrokerName,
+          isActive: true,
+        },
+      });
 
       const existingCount = await this.prisma.brokerAccount.count({
         where: { userId },
       });
       const isDefault = existingCount === 0;
 
-      const account = await this.prisma.brokerAccount.create({
-        data: {
-          userId,
-          brokerName:
-            brokerName === 'PAPER'
-              ? 'PAPER'
-              : platform === 'mt4'
-                ? 'MT4'
-                : 'MT5',
-          accountNumberLast4: last4,
-          credentialsEncrypted: encrypted,
-          serverName,
-          isPaperTrading: brokerName === 'PAPER',
-          isDefault,
-          initialEquity:
-            Number(connectionResult.equity ?? connectionResult.balance ?? 0) ||
-            null,
-          // store MetaAPI account ID for future use if available
-          ...(connectionResult.metaApiAccountId &&
-            {
-              // We'll store it in serverName as "SERVER|metaApiId" or we can add a field
-              // For now we keep it in the encrypted blob
-            }),
-        },
-      });
+      const account = existingAccount
+        ? await this.prisma.brokerAccount.update({
+            where: { id: existingAccount.id },
+            data: {
+              credentialsEncrypted: encrypted,
+              initialEquity:
+                Number(
+                  connectionResult.equity ?? connectionResult.balance ?? 0,
+                ) || existingAccount.initialEquity,
+            },
+          })
+        : await this.prisma.brokerAccount.create({
+            data: {
+              userId,
+              brokerName: resolvedBrokerName,
+              accountNumberLast4: last4,
+              credentialsEncrypted: encrypted,
+              serverName,
+              isPaperTrading: brokerName === 'PAPER',
+              isDefault,
+              initialEquity:
+                Number(
+                  connectionResult.equity ?? connectionResult.balance ?? 0,
+                ) || null,
+            },
+          });
 
       // Re-encrypt with metaApiAccountId + region included so later trade and
       // account-info calls hit the correct region-specific MetaAPI host.

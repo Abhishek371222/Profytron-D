@@ -3,6 +3,7 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
+  StreamableFile,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -21,13 +22,26 @@ export class TransformInterceptor<T> implements NestInterceptor<
   intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Observable<Response<T>> {
+  ): Observable<Response<T> | T> {
     return next.handle().pipe(
-      map((data) => ({
-        success: true,
-        data,
-        timestamp: new Date().toISOString(),
-      })),
+      map((data) => {
+        // Binary / streamed responses (e.g. the wallet statement PDF) must be
+        // sent through untouched. Wrapping a Buffer in the JSON envelope below
+        // serialises it into `{ success, data: { type: 'Buffer', ... } }`,
+        // which corrupts the download even though the Content-Type is PDF.
+        if (
+          Buffer.isBuffer(data) ||
+          data instanceof StreamableFile ||
+          data instanceof Uint8Array
+        ) {
+          return data as T;
+        }
+        return {
+          success: true,
+          data,
+          timestamp: new Date().toISOString(),
+        };
+      }),
     );
   }
 }

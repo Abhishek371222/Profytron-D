@@ -15,7 +15,7 @@ export function AIAssistantOrb({ className, hasUnread = false }: AIAssistantOrbP
   const { aiChatOpen, toggleAIChat } = useUIStore();
 
   return (
-    <div className={cn("fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-[90] lg:bottom-8 lg:right-8", className)}>
+    <div className={cn("hidden lg:block fixed right-4 z-[90] bottom-8 lg:right-8", className)}>
       {hasUnread && !aiChatOpen && (
         <motion.span
           initial={{ scale: 0 }}

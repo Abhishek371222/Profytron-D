@@ -126,10 +126,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <GlobalCommandPalette />
       <MobileBottomNav />
-      {mounted && showOrb && pathname === '/dashboard' && (
-        <AIAssistantOrb className="xl:hidden" />
-      )}
-      {mounted && showOrb && pathname !== '/dashboard' && <AIAssistantOrb />}
+      {/* Floating orb is desktop-only; mobile uses the dedicated "AI" tab in the bottom nav. */}
+      {mounted && showOrb && <AIAssistantOrb />}
     </div>
   );
 }

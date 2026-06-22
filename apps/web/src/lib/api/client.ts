@@ -59,6 +59,72 @@ apiClient.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error)
 );
 
+// Single-flight refresh. On a hard page reload the dashboard fires many
+// requests at once; each gets a 401 from the expired access token. Because the
+// backend ROTATES the refresh token on every /auth/refresh (and blacklists the
+// previous one), letting each 401 trigger its own refresh causes a race: the
+// first call rotates the token and the rest send the now-invalid one, getting a
+// genuine 401 and logging the user out. We dedupe all concurrent refreshes into
+// one shared promise so the token is rotated exactly once.
+let refreshPromise: Promise<string> | null = null;
+
+function refreshSession(): Promise<string> {
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    const response = await apiClient.post(
+      '/auth/refresh',
+      {},
+      { withCredentials: true },
+    );
+    const data = unwrapApiResponse<{ accessToken: string }>(response.data);
+    const accessToken = data.accessToken;
+
+    useAuthStore.getState().setToken(accessToken);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('profytron_access', accessToken);
+    }
+
+    try {
+      const { reconnectTradingSocket } = await import(
+        '@/lib/realtime/trading-socket'
+      );
+      reconnectTradingSocket(accessToken);
+    } catch {
+      /* socket optional */
+    }
+
+    try {
+      const meRes = await apiClient.get('/users/me', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        // Prevent this profile sync from re-entering the refresh flow.
+        _retry: true,
+      } as any);
+      const user = unwrapApiResponse<any>(meRes.data);
+      if (typeof window !== 'undefined' && user) {
+        const onboardingFlag =
+          isAdminUser(user) || user.onboardingCompleted ? '1' : '0';
+        document.cookie = `onboarding_completed=${onboardingFlag}; path=/; max-age=7776000; samesite=lax`;
+        if (user.role) {
+          document.cookie = `user_role=${user.role}; path=/; max-age=7776000; samesite=lax`;
+        }
+        useAuthStore.setState({ user });
+      }
+    } catch {
+      /* optional profile sync */
+    }
+
+    return accessToken;
+  })();
+
+  // Allow a fresh refresh once this one fully settles.
+  void refreshPromise.finally(() => {
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
+}
+
 // Handle 401 Unauthorized for Token Refresh
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
@@ -77,49 +143,11 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await apiClient.post(
-          '/auth/refresh',
-          {},
-          { withCredentials: true },
-        );
-        const data = unwrapApiResponse<{ accessToken: string }>(response.data);
-
-        useAuthStore.getState().setToken(data.accessToken);
-
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('profytron_access', data.accessToken);
-        }
-
-        try {
-          const { reconnectTradingSocket } = await import(
-            '@/lib/realtime/trading-socket'
-          );
-          reconnectTradingSocket(data.accessToken);
-        } catch {
-          /* socket optional */
-        }
-
-        try {
-          const meRes = await apiClient.get('/users/me', {
-            headers: { Authorization: `Bearer ${data.accessToken}` },
-          });
-          const user = unwrapApiResponse<any>(meRes.data);
-          if (typeof window !== 'undefined' && user) {
-            const onboardingFlag =
-              isAdminUser(user) || user.onboardingCompleted ? '1' : '0';
-            document.cookie = `onboarding_completed=${onboardingFlag}; path=/; max-age=7776000; samesite=lax`;
-            if (user.role) {
-              document.cookie = `user_role=${user.role}; path=/; max-age=7776000; samesite=lax`;
-            }
-            useAuthStore.setState({ user });
-          }
-        } catch {
-          /* optional profile sync */
-        }
+        const accessToken = await refreshSession();
 
         originalRequest.headers = {
           ...originalRequest.headers,
-          Authorization: `Bearer ${data.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
         };
         return apiClient(originalRequest);
       } catch (refreshError) {

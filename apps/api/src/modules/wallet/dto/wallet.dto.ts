@@ -15,6 +15,7 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class InitiateDepositDto {
   @IsNumber()
@@ -58,10 +59,14 @@ export class WalletTransactionsQueryDto {
   @IsDateString()
   cursor?: string;
 
+  // Query params arrive as strings; coerce to a number before @IsInt runs,
+  // otherwise "15" fails validation and the whole transactions request 400s
+  // (which is why the history list and summary showed nothing).
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(100)
+  @Max(500)
   limit?: number;
 }
 

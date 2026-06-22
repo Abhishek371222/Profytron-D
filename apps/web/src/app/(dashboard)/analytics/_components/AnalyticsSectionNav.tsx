@@ -17,7 +17,7 @@ export function AnalyticsSectionNav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-wrap gap-1 border-b border-[var(--card-border)] pb-0">
+    <div className="flex gap-1 border-b border-[var(--card-border)] pb-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {sections.map(({ label, href, icon: Icon }) => {
         const active = pathname === href;
         return (
@@ -25,7 +25,7 @@ export function AnalyticsSectionNav() {
             key={href}
             href={href}
             className={cn(
-              'relative flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide transition-colors',
+              'relative flex shrink-0 items-center gap-2 whitespace-nowrap px-4 py-2.5 text-xs font-semibold uppercase tracking-wide transition-colors',
               active
                 ? 'text-primary'
                 : 'text-muted-foreground hover:text-foreground',

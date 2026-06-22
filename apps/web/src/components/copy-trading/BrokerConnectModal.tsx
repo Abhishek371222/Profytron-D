@@ -10,11 +10,12 @@ import { toast } from 'sonner';
 interface Props {
   open: boolean;
   onClose: () => void;
+  onConnected?: () => void;
 }
 
 type Step = 'form' | 'testing' | 'success' | 'error';
 
-export function BrokerConnectModal({ open, onClose }: Props) {
+export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
   const [step, setStep] = React.useState<Step>('form');
   const [error, setError] = React.useState('');
   const [pending, setPending] = React.useState(false);
@@ -35,6 +36,7 @@ export function BrokerConnectModal({ open, onClose }: Props) {
       });
       setPending(Boolean(result?.pending));
       setStep('success');
+      onConnected?.();
     } catch (err: any) {
       setError(err?.response?.data?.error ?? err.message ?? 'Connection failed');
       setStep('error');
@@ -67,7 +69,7 @@ export function BrokerConnectModal({ open, onClose }: Props) {
             initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
-            className="w-full max-w-md rounded-2xl border border-border-default bg-bg-elevated glass shadow-2xl overflow-hidden"
+            className="w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl border border-border-default bg-bg-elevated glass shadow-2xl"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">

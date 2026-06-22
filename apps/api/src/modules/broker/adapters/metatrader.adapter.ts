@@ -87,44 +87,79 @@ export class MetaTraderAdapter {
     }
 
     try {
-      // 1. Create the MetaAPI account (provisioning step)
-      const provision = await this.http.post(
-        `${this.provisioningUrl}/users/current/accounts`,
-        {
-          login,
-          password,
-          server,
-          platform,
-          type: 'cloud-g2',
-          name: `${login}@${server}`,
-          magic: 0,
-          ...(options?.copyFactoryRoles?.length
-            ? {
-                application: 'CopyFactory',
-                copyFactoryRoles: options.copyFactoryRoles,
-              }
-            : {}),
-          ...(process.env.METAAPI_REGION
-            ? { region: process.env.METAAPI_REGION }
-            : {}),
-        },
-        { headers: this.headers() },
-      );
+      let accountId: string;
+      let region: string;
+      let alreadyConnected = false;
 
-      const accountId: string = provision.data.id;
+      // 0. Reuse an existing MetaAPI account for this login+server instead of
+      //    provisioning a duplicate every time. The free tier caps accounts at
+      //    5, so re-creating on each connect attempt quickly exhausts quota and
+      //    leaves orphaned duplicates (one per attempt).
+      const existing = await this.findExistingAccount(login, server);
+      if (existing) {
+        accountId = existing._id || existing.id;
+        region = existing.region || this.defaultRegion;
+        this.regionCache.set(accountId, region);
+        alreadyConnected =
+          existing.state === 'DEPLOYED' &&
+          existing.connectionStatus === 'CONNECTED';
+        if (existing.state !== 'DEPLOYED') {
+          await this.deploy(accountId);
+        }
+        if (options?.copyFactoryRoles?.length) {
+          try {
+            await this.ensureCopyFactoryRoles(accountId, [
+              ...options.copyFactoryRoles,
+            ]);
+          } catch {
+            /* role assignment is best-effort */
+          }
+        }
+      } else {
+        // 1. Create the MetaAPI account (provisioning step)
+        const provision = await this.http.post(
+          `${this.provisioningUrl}/users/current/accounts`,
+          {
+            login,
+            password,
+            server,
+            platform,
+            type: 'cloud-g2',
+            name: `${login}@${server}`,
+            magic: 0,
+            ...(options?.copyFactoryRoles?.length
+              ? {
+                  application: 'CopyFactory',
+                  copyFactoryRoles: options.copyFactoryRoles,
+                }
+              : {}),
+            ...(process.env.METAAPI_REGION
+              ? { region: process.env.METAAPI_REGION }
+              : {}),
+          },
+          { headers: this.headers() },
+        );
 
-      // 2. Read the account back to discover its assigned region + state.
-      const account = await this.getAccount(accountId);
-      const region: string = account.region || this.defaultRegion;
-      this.regionCache.set(accountId, region);
+        accountId = provision.data.id;
 
-      // 3. Deploy it if MetaAPI created it in an undeployed state.
-      if (account.state !== 'DEPLOYED') {
-        await this.deploy(accountId);
+        // 2. Read the account back to discover its assigned region + state.
+        const account = await this.getAccount(accountId);
+        region = account.region || this.defaultRegion;
+        this.regionCache.set(accountId, region);
+
+        // 3. Deploy it if MetaAPI created it in an undeployed state.
+        if (account.state !== 'DEPLOYED') {
+          await this.deploy(accountId);
+        }
       }
 
-      // 4. Wait for the terminal to connect to the broker (up to ~60s).
-      const connected = await this.waitForConnection(accountId);
+      // 4. Wait briefly for the terminal to connect. We cap this well under the
+      //    client request timeout — if the broker hasn't streamed yet we return
+      //    pending:true and let a later testConnection fill in live balance,
+      //    rather than holding the HTTP request open until it times out.
+      const connected = alreadyConnected
+        ? true
+        : await this.waitForConnection(accountId, 20_000);
 
       // 5. Fetch account information from the region-specific client host.
       if (connected) {
@@ -436,6 +471,43 @@ export class MetaTraderAdapter {
       { headers: this.headers() },
     );
     return res.data;
+  }
+
+  /**
+   * Find an already-provisioned MetaAPI account matching this login + server so
+   * we can reuse it instead of creating a duplicate. Prefers an account that is
+   * already deployed/connected to avoid a cold-start wait.
+   */
+  private async findExistingAccount(
+    login: string,
+    server: string,
+  ): Promise<any | null> {
+    try {
+      const res = await this.http.get(
+        `${this.provisioningUrl}/users/current/accounts`,
+        { headers: this.headers() },
+      );
+      const list: any[] = Array.isArray(res.data)
+        ? res.data
+        : (res.data?.items ?? []);
+      const matches = list.filter(
+        (a) => String(a.login) === String(login) && a.server === server,
+      );
+      if (!matches.length) return null;
+      return (
+        matches.find(
+          (a) =>
+            a.state === 'DEPLOYED' && a.connectionStatus === 'CONNECTED',
+        ) ??
+        matches.find((a) => a.state === 'DEPLOYED') ??
+        matches[0]
+      );
+    } catch (err: any) {
+      this.logger.warn(
+        `Could not list MetaAPI accounts for reuse: ${err?.message}`,
+      );
+      return null;
+    }
   }
 
   /** Resolve an account's region, using the cache, then the account record. */

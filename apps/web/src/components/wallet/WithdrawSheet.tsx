@@ -12,6 +12,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { refreshAfterPayment } from '@/lib/payments/refresh';
 
 export function WithdrawSheet({
   open,
@@ -33,8 +34,7 @@ export function WithdrawSheet({
     mutationFn: (payload: { amount: number; bankAccount: string; otp: string }) =>
       walletApi.initiateWithdrawal(payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['wallet-balance'] });
-      await queryClient.invalidateQueries({ queryKey: ['wallet-transactions'] });
+      await refreshAfterPayment(queryClient);
       setStep(3);
     },
     onError: (error: any) => {

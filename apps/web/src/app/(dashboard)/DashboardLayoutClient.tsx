@@ -10,10 +10,15 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { X, ArrowRight, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { toast } from 'sonner';
+import { brokerApi } from '@/lib/api/broker';
 import { useFcmToken } from '@/hooks/useFcmToken';
 
-const DashboardBrokerConnectModal = dynamic(
-  () => import('@/components/dashboard/DashboardBrokerConnectModal'),
+const BrokerConnectModal = dynamic(
+  () =>
+    import('@/components/copy-trading/BrokerConnectModal').then((m) => ({
+      default: m.BrokerConnectModal,
+    })),
   { ssr: false },
 );
 
@@ -26,7 +31,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
   useFcmToken();
   const [showDemoBanner, setShowDemoBanner] = React.useState(false);
   const [showBrokerModal, setShowBrokerModal] = React.useState(false);
-  const [initialBrokerId, setInitialBrokerId] = React.useState<string | undefined>();
+  const [connectingDemo, setConnectingDemo] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -44,14 +49,38 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
     if (mounted) window.localStorage.setItem('profytron_mt5_banner_dismissed', 'true');
   };
 
-  const openBrokerModal = (brokerId?: string) => {
-    setInitialBrokerId(brokerId);
+  const openBrokerModal = () => {
     setShowBrokerModal(true);
   };
 
   const handleBrokerConnected = () => {
     setShowDemoBanner(false);
     if (mounted) window.localStorage.setItem('profytron_mt5_banner_dismissed', 'true');
+  };
+
+  const connectDemoAccount = async () => {
+    if (connectingDemo) return;
+    setConnectingDemo(true);
+    try {
+      await brokerApi.connectBroker({
+        brokerName: 'PAPER',
+        login: 'PAPER',
+        password: '',
+        serverName: 'PAPER',
+        platform: 'mt5',
+      });
+      toast.success('Demo account connected', {
+        description: 'A paper-trading account is ready for testing.',
+      });
+      handleBrokerConnected();
+    } catch (e: any) {
+      toast.error('Could not start demo account', {
+        description:
+          e?.response?.data?.message || e?.message || 'Please try again.',
+      });
+    } finally {
+      setConnectingDemo(false);
+    }
   };
 
   const isBuilder = pathname?.includes('/strategies/builder');
@@ -93,18 +122,19 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
                     </div>
                     <div className="flex items-center gap-2.5 shrink-0 sm:pr-10">
                       <button
-                        onClick={() => openBrokerModal('IC_MARKETS')}
+                        onClick={openBrokerModal}
                         className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 h-9 rounded-xl bg-primary hover:brightness-110 text-primary-foreground text-overline transition-colors"
                       >
                         <Zap className="w-3.5 h-3.5 shrink-0" />
                         Connect Now
                       </button>
                       <button
-                        onClick={() => openBrokerModal('PAPER')}
-                        className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 h-9 rounded-xl bg-muted hover:bg-muted/80 border border-border text-muted-foreground hover:text-foreground text-overline transition-colors"
+                        onClick={connectDemoAccount}
+                        disabled={connectingDemo}
+                        className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 h-9 rounded-xl bg-muted hover:bg-muted/80 border border-border text-muted-foreground hover:text-foreground text-overline transition-colors disabled:opacity-50"
                       >
-                        Demo
-                        <ArrowRight className="w-3 h-3 shrink-0" />
+                        {connectingDemo ? 'Connecting…' : 'Demo'}
+                        {!connectingDemo && <ArrowRight className="w-3 h-3 shrink-0" />}
                       </button>
                     </div>
                   </div>
@@ -118,10 +148,9 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
           )}
 
           {showBrokerModal && (
-            <DashboardBrokerConnectModal
+            <BrokerConnectModal
               open={showBrokerModal}
               onClose={() => setShowBrokerModal(false)}
-              initialBrokerId={initialBrokerId}
               onConnected={handleBrokerConnected}
             />
           )}

@@ -42,7 +42,7 @@ export class WalletService {
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
       ? new Stripe(process.env.STRIPE_SECRET_KEY)
-      : null as any;
+      : (null as any);
   }
 
   async sendWithdrawalOtp(userId: string): Promise<{ sent: boolean }> {
@@ -108,19 +108,31 @@ export class WalletService {
 
   async getTransactions(userId: string, query: WalletTransactionsQueryDto) {
     const { type, status, dateFrom, dateTo, cursor, limit = 20 } = query;
+
+    // Build a single createdAt filter so the date range AND the pagination
+    // cursor coexist. dateTo is treated as INCLUSIVE end-of-day — otherwise
+    // `new Date('2026-06-22')` is midnight UTC and `lte` silently drops every
+    // transaction made later that same day (the "deposits not showing after
+    // selecting today" bug).
+    const createdAt: Prisma.DateTimeFilter = {};
+    if (dateFrom) {
+      createdAt.gte = new Date(dateFrom);
+    }
+    if (dateTo) {
+      const end = new Date(dateTo);
+      end.setUTCHours(23, 59, 59, 999);
+      createdAt.lte = end;
+    }
+    if (cursor) {
+      createdAt.lt = new Date(cursor);
+    }
+    const hasCreatedAtFilter = Object.keys(createdAt).length > 0;
+
     const where: Prisma.WalletTransactionWhereInput = {
       userId,
       ...(type ? { type } : {}),
       ...(status ? { status } : {}),
-      ...(dateFrom || dateTo
-        ? {
-            createdAt: {
-              ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
-              ...(dateTo ? { lte: new Date(dateTo) } : {}),
-            },
-          }
-        : {}),
-      ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {}),
+      ...(hasCreatedAtFilter ? { createdAt } : {}),
     };
 
     const [rows, total] = await Promise.all([
@@ -134,11 +146,12 @@ export class WalletService {
           userId,
           ...(type ? { type } : {}),
           ...(status ? { status } : {}),
+          // Count ignores the pagination cursor (it's the total for the filter).
           ...(dateFrom || dateTo
             ? {
                 createdAt: {
-                  ...(dateFrom ? { gte: new Date(dateFrom) } : {}),
-                  ...(dateTo ? { lte: new Date(dateTo) } : {}),
+                  ...(createdAt.gte ? { gte: createdAt.gte } : {}),
+                  ...(createdAt.lte ? { lte: createdAt.lte } : {}),
                 },
               }
             : {}),

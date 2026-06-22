@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { RazorpayCheckoutButton } from '@/components/payments/RazorpayCheckoutButton';
+import { refreshAfterPayment } from '@/lib/payments/refresh';
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
@@ -52,8 +53,7 @@ function DepositCheckout({
       return;
     }
 
-    await queryClient.invalidateQueries({ queryKey: ['wallet-balance'] });
-    await queryClient.invalidateQueries({ queryKey: ['wallet-transactions'] });
+    await refreshAfterPayment(queryClient);
     toast.success('Deposit successful');
     onClose();
   };
@@ -144,8 +144,7 @@ export function DepositModal({
               disabled={!Number.isFinite(Number(amount)) || Number(amount) <= 0}
               className="w-full"
               onSuccess={async () => {
-                await queryClient.invalidateQueries({ queryKey: ['wallet-balance'] });
-                await queryClient.invalidateQueries({ queryKey: ['wallet-transactions'] });
+                await refreshAfterPayment(queryClient);
                 setStep('success');
               }}
             >

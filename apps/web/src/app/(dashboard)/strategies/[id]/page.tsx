@@ -238,7 +238,7 @@ export default function StrategyDetailPage() {
 
           {/* Tabs */}
           <div className="dashboard-card overflow-hidden">
-            <div className="flex flex-wrap gap-1 border-b border-[var(--card-border)] px-4">
+            <div className="flex gap-1 border-b border-[var(--card-border)] px-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[
                 { id: 'analytics' as const, label: 'History Metrics', icon: BarChart3 },
                 { id: 'trades' as const, label: 'Execution Log', icon: History },
@@ -249,7 +249,7 @@ export default function StrategyDetailPage() {
                   type="button"
                   onClick={() => setActiveTab(tabId)}
                   className={cn(
-                    'relative flex items-center gap-2 px-4 py-3 text-xs font-semibold uppercase tracking-wide transition-colors',
+                    'relative flex shrink-0 items-center gap-2 whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase tracking-wide transition-colors',
                     activeTab === tabId ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
