@@ -123,7 +123,15 @@ apiClient.interceptors.response.use(
         };
         return apiClient(originalRequest);
       } catch (refreshError) {
-        if (isNetworkUnavailableError(refreshError)) {
+        // Only a genuine auth rejection from the refresh endpoint means the
+        // session is actually invalid/expired. Transient failures — network
+        // errors, timeouts, or 5xx (e.g. the API cold-starting on a free host
+        // after idle) — must NOT log the user out, or a valid session gets
+        // killed just because the backend was briefly unreachable. Keep the
+        // session and let the caller retry once the backend is back.
+        const refreshStatus = (refreshError as AxiosError)?.response?.status;
+        const isAuthRejection = refreshStatus === 401 || refreshStatus === 403;
+        if (!isAuthRejection || isNetworkUnavailableError(refreshError)) {
           return Promise.reject(refreshError);
         }
 
