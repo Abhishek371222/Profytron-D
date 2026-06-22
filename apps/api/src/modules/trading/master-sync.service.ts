@@ -19,6 +19,13 @@ interface CachedPosition {
   takeProfit?: number | null;
 }
 
+interface MasterSyncHealth {
+  consecutiveFailures: number;
+  lastSuccessAt: string | null;
+  lastErrorAt: string | null;
+  lastError: string | null;
+}
+
 const SNAPSHOT_TTL_SECONDS = 60 * 60 * 24; // keep snapshots a day
 const snapshotKey = (accountId: string) => `mastersync:positions:${accountId}`;
 
@@ -38,6 +45,8 @@ const snapshotKey = (accountId: string) => `mastersync:positions:${accountId}`;
 export class MasterSyncService implements OnModuleDestroy {
   private readonly logger = new Logger(MasterSyncService.name);
   private lastPositions = new Map<string, Map<string, CachedPosition>>();
+  /** Per-master connection health so a silent stall is visible to ops/admin. */
+  private syncHealth = new Map<string, MasterSyncHealth>();
   private pollTimer: NodeJS.Timeout | null = null;
   private polling = false;
   /** Unique per-process token for the master-poll leader lease. */
@@ -162,11 +171,35 @@ export class MasterSyncService implements OnModuleDestroy {
         takeProfit: p.takeProfit ?? null,
       }));
     } catch (err) {
-      this.logger.warn(
-        `Failed to fetch positions for master ${account.id}: ${err.message}`,
+      const health = this.syncHealth.get(account.id) ?? {
+        consecutiveFailures: 0,
+        lastSuccessAt: null,
+        lastErrorAt: null,
+        lastError: null,
+      };
+      health.consecutiveFailures += 1;
+      health.lastErrorAt = new Date().toISOString();
+      health.lastError = (err as Error).message;
+      this.syncHealth.set(account.id, health);
+
+      // Escalate a persistent stall: while a master can't be read, follower
+      // copies silently stop — make that loud after a few cycles instead of an
+      // endless stream of identical warnings.
+      const level = health.consecutiveFailures >= 5 ? 'error' : 'warn';
+      this.logger[level](
+        `Failed to fetch positions for master ${account.id} ` +
+          `(${health.consecutiveFailures} consecutive): ${(err as Error).message}`,
       );
       return;
     }
+
+    // Healthy read — reset stall state.
+    this.syncHealth.set(account.id, {
+      consecutiveFailures: 0,
+      lastSuccessAt: new Date().toISOString(),
+      lastErrorAt: this.syncHealth.get(account.id)?.lastErrorAt ?? null,
+      lastError: this.syncHealth.get(account.id)?.lastError ?? null,
+    });
 
     const prev = await this.loadSnapshot(account.id);
     const currentMap = new Map(currentPositions.map((p) => [p.id, p]));
@@ -407,9 +440,29 @@ export class MasterSyncService implements OnModuleDestroy {
 
   /** Returns current poll status for admin dashboard */
   getMasterStatus() {
-    const accounts: Record<string, { positionCount: number }> = {};
-    for (const [accountId, positions] of this.lastPositions) {
-      accounts[accountId] = { positionCount: positions.size };
+    const accounts: Record<
+      string,
+      {
+        positionCount: number;
+        consecutiveFailures: number;
+        stalled: boolean;
+        lastSuccessAt: string | null;
+        lastError: string | null;
+      }
+    > = {};
+    const accountIds = new Set<string>([
+      ...this.lastPositions.keys(),
+      ...this.syncHealth.keys(),
+    ]);
+    for (const accountId of accountIds) {
+      const health = this.syncHealth.get(accountId);
+      accounts[accountId] = {
+        positionCount: this.lastPositions.get(accountId)?.size ?? 0,
+        consecutiveFailures: health?.consecutiveFailures ?? 0,
+        stalled: (health?.consecutiveFailures ?? 0) >= 5,
+        lastSuccessAt: health?.lastSuccessAt ?? null,
+        lastError: health?.lastError ?? null,
+      };
     }
     return { polling: this.polling, accounts };
   }

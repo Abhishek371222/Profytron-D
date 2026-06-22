@@ -35,6 +35,15 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
   private polling = false;
   private readonly instanceId = `${process.pid}-${Math.random().toString(36).slice(2, 10)}`;
 
+  // Per broker-account throttle: decouples how often we hit MetaAPI per account
+  // from the (fast) tick interval, so adding followers doesn't linearly inflate
+  // MetaAPI REST volume and trip rate limits. Also de-dups accounts shared by
+  // multiple subscriptions within a single cycle.
+  private readonly lastPolledAt = new Map<string, number>();
+  private readonly consecutiveFailures = new Map<string, number>();
+  private readonly minPollIntervalMs =
+    Number(process.env.COPY_SYNC_MIN_INTERVAL_MS) || 15_000;
+
   constructor(
     private prisma: PrismaService,
     private mtAdapter: MetaTraderAdapter,
@@ -93,18 +102,55 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
         },
       });
 
+      const now = Date.now();
+      const seenAccounts = new Set<string>();
+      const activeAccountIds = new Set<string>();
+
       for (const sub of subs) {
         if (!sub.brokerAccountId || !sub.brokerAccount) continue;
+        activeAccountIds.add(sub.brokerAccountId);
+
+        // De-dup: poll each broker account at most once per cycle.
+        if (seenAccounts.has(sub.brokerAccountId)) continue;
+        seenAccounts.add(sub.brokerAccountId);
+
+        // Throttle: skip accounts polled within the minimum interval so REST
+        // volume stays bounded regardless of follower count / tick speed.
+        const last = this.lastPolledAt.get(sub.brokerAccountId) ?? 0;
+        if (now - last < this.minPollIntervalMs) continue;
+        this.lastPolledAt.set(sub.brokerAccountId, now);
+
         try {
           await this.syncAccountPositions({
             ...sub,
             brokerAccountId: sub.brokerAccountId,
             brokerAccount: sub.brokerAccount,
           });
+          this.consecutiveFailures.delete(sub.brokerAccountId);
         } catch (err) {
-          this.logger.warn(
-            `Position sync failed for user ${sub.userId}: ${(err as Error).message}`,
+          const fails =
+            (this.consecutiveFailures.get(sub.brokerAccountId) ?? 0) + 1;
+          this.consecutiveFailures.set(sub.brokerAccountId, fails);
+          // Surface a persistent stall loudly instead of warning every cycle
+          // forever, so degraded follower sync is actionable.
+          const log = fails >= 3 ? 'error' : 'warn';
+          this.logger[log](
+            `Position sync failed for user ${sub.userId} (account ${sub.brokerAccountId}, ${fails} consecutive): ${(err as Error).message}`,
           );
+          if (fails === 3) {
+            this.gateway.sendToUser(sub.userId, 'account_sync_degraded', {
+              brokerAccountId: sub.brokerAccountId,
+            });
+          }
+        }
+      }
+
+      // Prune throttle/failure state for accounts no longer active so the maps
+      // don't grow unbounded across deploys.
+      for (const key of this.lastPolledAt.keys()) {
+        if (!activeAccountIds.has(key)) {
+          this.lastPolledAt.delete(key);
+          this.consecutiveFailures.delete(key);
         }
       }
     } catch (err) {

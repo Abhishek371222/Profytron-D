@@ -963,6 +963,16 @@ export class PaymentsService {
             ? currentBalance + normalizedAmount
             : currentBalance - normalizedAmount;
 
+        // A refund/clawback (OUT) can legitimately drive the wallet negative if
+        // the user already spent the funds — that's correct accounting (they
+        // owe the platform). But it must never happen silently: flag it so ops
+        // can reconcile/recover instead of it disappearing into the ledger.
+        if (direction === 'OUT' && balanceAfter < 0) {
+          this.logger.warn(
+            `Wallet clawback drove user ${userId} negative: balance ${currentBalance} -> ${balanceAfter} (${type}, key ${idempotencyKey}). Manual reconciliation required.`,
+          );
+        }
+
         return tx.walletTransaction.create({
           data: {
             userId,
@@ -1180,6 +1190,17 @@ export class PaymentsService {
         razorpayPaymentId: paymentRef,
       },
     });
+
+    // Issue a tax invoice for the platform purchase. Best-effort: a billing
+    // record must never block subscription activation. paymentId is unique, so
+    // this is naturally idempotent across verify/webhook replays.
+    try {
+      await this.generateInvoice(payment.id);
+    } catch (err) {
+      this.logger.warn(
+        `Invoice generation failed for payment ${payment.id}: ${(err as Error).message}`,
+      );
+    }
 
     const expiresAt = new Date();
     if (billingCycle === 'ANNUAL') {

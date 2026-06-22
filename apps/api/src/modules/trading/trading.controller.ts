@@ -12,6 +12,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { TradingService } from './trading.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard, Roles } from '../auth/guards/auth.guard';
 import {
   CloseTradeDto,
   ModifyTradeDto,
@@ -171,8 +172,11 @@ export class TradingController {
   }
 
   @Get('master-status')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
   @ApiResponse({ status: 200, description: 'OK' })
-  @ApiOperation({ summary: 'Get master sync poll status (admin/debug)' })
+  @ApiResponse({ status: 403, description: 'Forbidden — admin only' })
+  @ApiOperation({ summary: 'Get master sync poll status (admin only)' })
   async getMasterStatus() {
     return this.tradingService.getMasterStatus();
   }

@@ -596,6 +596,7 @@ model StrategyReview {
 
   @@unique([strategyId, userId])
   @@index([strategyId])
+  @@index([userId])
 }
 
 model AITradeExplanation {
@@ -609,6 +610,8 @@ model AITradeExplanation {
   riskFactorsJson Json
   keyLevelsJson   Json
   createdAt       DateTime  @default(now())
+
+  @@index([strategyId])
 }
 
 model KycDocument {

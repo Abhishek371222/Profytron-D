@@ -24,8 +24,6 @@ const PRIVATE_PREFIXES = [
   '/onboarding',
   '/auth',
   '/api',
-  '/oauth-test',
-  '/oauth-diagnostics',
   '/verify-email',
   '/reset-password',
   '/forgot-password',

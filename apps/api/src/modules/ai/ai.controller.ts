@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AIService } from './ai.service';
+import { ExplainTradeDto } from './dto/explain-trade.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   ApiTags,
@@ -48,8 +49,9 @@ export class AIController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Get AI-driven explanation for a specific trade' })
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
   @Post('explain')
-  async explain(@Body() tradeData: any) {
+  async explain(@Body() tradeData: ExplainTradeDto) {
     return this.aiService.explainTrade(tradeData);
   }
 

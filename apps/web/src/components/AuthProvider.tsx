@@ -21,8 +21,6 @@ const PUBLIC_PREFIXES = [
   '/contact',
   '/privacy',
   '/terms',
-  '/oauth-diagnostics',
-  '/oauth-test',
 ];
 
 function isPublicRoute(pathname: string): boolean {

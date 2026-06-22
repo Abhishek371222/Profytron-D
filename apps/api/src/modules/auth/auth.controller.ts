@@ -66,14 +66,23 @@ export class AuthController {
     role?: string,
     onboardingCompleted?: boolean,
   ) {
-    const isSecure = process.env.NODE_ENV === 'production';
+    // Secure in production, or whenever COOKIE_SECURE=true (e.g. an HTTPS
+    // staging env that doesn't run with NODE_ENV=production).
+    const isSecure =
+      process.env.NODE_ENV === 'production' ||
+      process.env.COOKIE_SECURE === 'true';
+
+    // Match the refresh-token cookie lifetime to the token's own 7-day TTL.
+    // The old 90-day cookie outlived the token, so the client believed it was
+    // still logged in long after refresh would fail.
+    const refreshMaxAgeMs = 7 * 24 * 60 * 60 * 1000;
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: isSecure,
       sameSite: 'lax',
       path: '/',
-      maxAge: 90 * 24 * 60 * 60 * 1000,
+      maxAge: refreshMaxAgeMs,
     });
 
     if (role) {
@@ -82,7 +91,7 @@ export class AuthController {
         secure: isSecure,
         sameSite: 'lax',
         path: '/',
-        maxAge: 90 * 24 * 60 * 60 * 1000,
+        maxAge: refreshMaxAgeMs,
       });
     }
 
@@ -92,7 +101,7 @@ export class AuthController {
         secure: isSecure,
         sameSite: 'lax',
         path: '/',
-        maxAge: 90 * 24 * 60 * 60 * 1000,
+        maxAge: refreshMaxAgeMs,
       });
     }
   }

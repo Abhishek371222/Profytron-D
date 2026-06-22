@@ -1,4 +1,4 @@
-import { Process, Processor } from '@nestjs/bull';
+import { OnQueueFailed, Process, Processor } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import type { Job } from 'bull';
 import { EmailService } from '../email/email.service';
@@ -107,6 +107,21 @@ export class NotificationProcessor {
         );
         // Don't rethrow — FCM failure shouldn't block email
       }
+    }
+  }
+
+  /**
+   * Fires when a dispatch job exhausts all retries. The job stays in the Bull
+   * "failed" set (removeOnFail: false) so it can be inspected/replayed; this
+   * just makes the dead-letter event loud for alerting.
+   */
+  @OnQueueFailed()
+  onFailed(job: Job<DispatchJob>, err: Error) {
+    if (job.attemptsMade >= (job.opts.attempts ?? 1)) {
+      this.logger.error(
+        `Notification dispatch DEAD-LETTERED after ${job.attemptsMade} attempts ` +
+          `(user ${job.data?.userId}, notification ${job.data?.notificationId ?? 'n/a'}): ${err.message}`,
+      );
     }
   }
 }
