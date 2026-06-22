@@ -54,7 +54,7 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     mode: 'onChange',
@@ -110,6 +110,12 @@ export default function RegisterPage() {
     try {
       if (provider === 'google') {
         window.location.href = '/api/auth/google';
+        return;
+      }
+      if (!supabase) {
+        toast.error('Social login is not available right now', {
+          description: 'Please sign up with your email and password.',
+        });
         return;
       }
       const redirectUrl = `${window.location.origin}/auth/callback`;
@@ -231,7 +237,7 @@ export default function RegisterPage() {
 
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isLoading || !isValid}
                   className="mt-2 flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 text-[15px] font-semibold text-white shadow-[0_12px_32px_rgba(79,70,229,0.35)] transition-all hover:shadow-[0_16px_40px_rgba(79,70,229,0.45)] hover:brightness-105 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (

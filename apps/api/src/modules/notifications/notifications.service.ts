@@ -307,7 +307,9 @@ export class NotificationsService {
       where: { id, userId },
       data: { isRead: true, isSeen: true },
     });
-    return this.prisma.notification.findUnique({ where: { id } });
+    // Scope the read-back to the owner so this never returns another user's
+    // notification when the id/userId pair doesn't match (IDOR protection).
+    return this.prisma.notification.findFirst({ where: { id, userId } });
   }
 
   async markAllAsRead(userId: string) {

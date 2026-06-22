@@ -53,6 +53,12 @@ export default function AuthCallbackClient() {
         return;
       }
 
+      if (!supabase) {
+        console.error('Supabase client unavailable (missing env configuration)');
+        router.push('/login?error=auth_failed');
+        return;
+      }
+
       let {
         data: { session },
         error,

@@ -235,6 +235,13 @@ export class StrategiesService {
     if (!strategy || strategy.deletedAt)
       throw new NotFoundException('Strategy not found');
 
+    // Ownership gate: unpublished strategies (and their configJson) must only be
+    // visible to their creator. The route is public, so without this check any
+    // user could read private strategy logic by guessing/iterating IDs.
+    if (!strategy.isPublished && strategy.creatorId !== userId) {
+      throw new NotFoundException('Strategy not found');
+    }
+
     // Calculate Monthly Returns
     const monthlyReturns = this.calculateMonthlyReturns(strategy.performance);
 

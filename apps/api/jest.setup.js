@@ -37,7 +37,12 @@ process.env.SUPABASE_ANON_KEY =
 process.env.SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test-service-role-key';
-jest.setTimeout(30000);
+// Infra-gated suites (API_TEST_WITH_INFRA=true) boot the full AppModule —
+// Sentry, OpenTelemetry, BullMQ, scheduler and a real Redis/TLS handshake —
+// which can take well over the default 30s on a cold local machine, tripping
+// "Exceeded timeout for a hook". Give those runs a generous boot window while
+// keeping fast unit runs strict so genuine hangs still surface quickly.
+jest.setTimeout(process.env.API_TEST_WITH_INFRA === 'true' ? 120000 : 30000);
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mock-uuid-1234'),

@@ -2,6 +2,13 @@
 node_modules/
 .pnpm-store/
 
+# Python virtualenvs / caches (local Python service smoke testing)
+.venv/
+.venv-services/
+venv/
+__pycache__/
+*.pyc
+
 # Build outputs
 dist/
 .build/
@@ -59,6 +66,8 @@ render.env
 coverage/
 .nyc_output/
 test-results/
+playwright-report/
+.last-run.json
 
 # IDE
 .idea/
@@ -82,4 +91,5 @@ apps/api/prisma/*.db-journal
 tmp/
 temp/
 *.tmp
+.tmp_*
 .turbo/cache/*.tar.zst

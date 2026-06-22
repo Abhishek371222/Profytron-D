@@ -21,6 +21,15 @@ const URLENCODED_BODY_LIMIT = '100kb';
 export function configureApp(app: INestApplication) {
   const isProduction = process.env.NODE_ENV === 'production';
 
+  // ─── Trust the reverse proxy (Render / nginx / Vercel) ────────────────────
+  // Without this, req.ip is the proxy's address for every request, so per-IP
+  // rate limiting collapses (all users share one IP) and secure-cookie / proto
+  // detection is wrong behind TLS termination. Trust a single proxy hop.
+  const expressInstance = app.getHttpAdapter().getInstance();
+  if (expressInstance?.set) {
+    expressInstance.set('trust proxy', 1);
+  }
+
   // ─── Response compression (gzip/deflate) ──────────────────────────────────
   // Shrinks JSON payloads ~70-80% over the wire. Registered first so it wraps
   // every downstream response. Brotli is intentionally left to the edge layer

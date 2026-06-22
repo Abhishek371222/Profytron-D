@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -14,6 +14,14 @@ export class TradingJournalService {
     emotions?: string,
     lessonLearned?: string,
   ) {
+    // Ownership: only allow journaling a trade that belongs to the caller.
+    if (tradeId) {
+      const trade = await this.prisma.trade.findFirst({
+        where: { id: tradeId, userId },
+        select: { id: true },
+      });
+      if (!trade) throw new NotFoundException('Trade not found');
+    }
     return this.prisma.tradeJournalEntry.create({
       data: {
         userId,
@@ -22,6 +30,19 @@ export class TradingJournalService {
         lessonLearned,
       },
     });
+  }
+
+  /**
+   * Loads an entry only if it belongs to `userId`. Throws NotFound otherwise so
+   * callers never operate on another user's journal entry (IDOR protection).
+   */
+  private async getOwnedEntry(entryId: string, userId: string) {
+    const entry = await this.prisma.tradeJournalEntry.findFirst({
+      where: { id: entryId, userId },
+      include: { trade: true },
+    });
+    if (!entry) throw new NotFoundException('Journal entry not found');
+    return entry;
   }
 
   async getJournalEntries(userId: string, limit = 50, skip = 0) {
@@ -34,30 +55,33 @@ export class TradingJournalService {
     });
   }
 
-  async updateJournalEntry(entryId: string, updates: any) {
+  async updateJournalEntry(entryId: string, userId: string, updates: any) {
+    await this.getOwnedEntry(entryId, userId);
+    // Only allow user-editable fields; never let the body override ownership.
+    const { emotions, lessonLearned, screenshotUrl, rating, aiAnalysis } =
+      updates ?? {};
     return this.prisma.tradeJournalEntry.update({
       where: { id: entryId },
-      data: updates,
+      data: { emotions, lessonLearned, screenshotUrl, rating, aiAnalysis },
     });
   }
 
-  async uploadScreenshot(entryId: string, screenshotUrl: string) {
-    return this.updateJournalEntry(entryId, { screenshotUrl });
+  async uploadScreenshot(
+    entryId: string,
+    userId: string,
+    screenshotUrl: string,
+  ) {
+    return this.updateJournalEntry(entryId, userId, { screenshotUrl });
   }
 
-  async rateEntry(entryId: string, rating: number) {
-    return this.updateJournalEntry(entryId, {
+  async rateEntry(entryId: string, userId: string, rating: number) {
+    return this.updateJournalEntry(entryId, userId, {
       rating: Math.min(5, Math.max(1, rating)),
     });
   }
 
-  async generateAiAnalysis(entryId: string) {
-    const entry = await this.prisma.tradeJournalEntry.findUnique({
-      where: { id: entryId },
-      include: { trade: true },
-    });
-
-    if (!entry) return null;
+  async generateAiAnalysis(entryId: string, userId: string) {
+    const entry = await this.getOwnedEntry(entryId, userId);
 
     let analysis: string;
 
@@ -125,7 +149,7 @@ Trade status: ${entry.trade?.status || 'N/A'}`;
       analysis = this.buildTemplateAnalysis(entry);
     }
 
-    return this.updateJournalEntry(entryId, { aiAnalysis: analysis });
+    return this.updateJournalEntry(entryId, userId, { aiAnalysis: analysis });
   }
 
   private buildTemplateAnalysis(entry: any): string {

@@ -314,3 +314,102 @@ DROP TRIGGER IF EXISTS user_legacy_fields_trigger ON "User";
 CREATE TRIGGER user_legacy_fields_trigger
   BEFORE INSERT OR UPDATE ON "User"
   FOR EACH ROW EXECUTE FUNCTION sync_user_legacy_fields();
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- Additive sync for models/columns/enums added after the original supplement.
+-- All statements are idempotent (IF NOT EXISTS / ADD VALUE IF NOT EXISTS).
+-- ───────────────────────────────────────────────────────────────────────────
+
+-- Enum value additions used by current code paths.
+ALTER TYPE "SubscriptionStatus" ADD VALUE IF NOT EXISTS 'PAUSED';
+ALTER TYPE "BrokerName" ADD VALUE IF NOT EXISTS 'MT4';
+ALTER TYPE "BrokerName" ADD VALUE IF NOT EXISTS 'MT5';
+
+-- Notification columns added after init (code writes category/isSeen/priority/icon).
+ALTER TABLE "Notification" ADD COLUMN IF NOT EXISTS "category" TEXT NOT NULL DEFAULT 'SYSTEM';
+ALTER TABLE "Notification" ADD COLUMN IF NOT EXISTS "priority" TEXT NOT NULL DEFAULT 'NORMAL';
+ALTER TABLE "Notification" ADD COLUMN IF NOT EXISTS "icon" TEXT;
+ALTER TABLE "Notification" ADD COLUMN IF NOT EXISTS "isSeen" BOOLEAN NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS "Notification_userId_category_idx" ON "Notification"("userId", "category");
+
+CREATE TABLE IF NOT EXISTS "NotificationPreference" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "inAppEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "emailEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "pushEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "securityAlerts" BOOLEAN NOT NULL DEFAULT true,
+    "tradingAlerts" BOOLEAN NOT NULL DEFAULT true,
+    "paymentAlerts" BOOLEAN NOT NULL DEFAULT true,
+    "systemAlerts" BOOLEAN NOT NULL DEFAULT true,
+    "marketingAlerts" BOOLEAN NOT NULL DEFAULT false,
+    "accountAlerts" BOOLEAN NOT NULL DEFAULT true,
+    "quietHoursEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "quietHoursStart" TEXT NOT NULL DEFAULT '22:00',
+    "quietHoursEnd" TEXT NOT NULL DEFAULT '07:00',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "NotificationPreference_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "NotificationPreference_userId_key" ON "NotificationPreference"("userId");
+
+CREATE TABLE IF NOT EXISTS "NotificationLog" (
+    "id" TEXT NOT NULL,
+    "notificationId" TEXT,
+    "userId" TEXT NOT NULL,
+    "channel" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'SENT',
+    "providerResponse" JSONB,
+    "sentAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "NotificationLog_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "NotificationLog_userId_sentAt_idx" ON "NotificationLog"("userId", "sentAt");
+CREATE INDEX IF NOT EXISTS "NotificationLog_notificationId_idx" ON "NotificationLog"("notificationId");
+CREATE INDEX IF NOT EXISTS "NotificationLog_channel_status_idx" ON "NotificationLog"("channel", "status");
+
+CREATE TABLE IF NOT EXISTS "EmailLog" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT,
+    "to" TEXT NOT NULL,
+    "subject" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'SENT',
+    "metadata" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "EmailLog_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "EmailLog_userId_createdAt_idx" ON "EmailLog"("userId", "createdAt");
+CREATE INDEX IF NOT EXISTS "EmailLog_to_createdAt_idx" ON "EmailLog"("to", "createdAt");
+CREATE INDEX IF NOT EXISTS "EmailLog_type_createdAt_idx" ON "EmailLog"("type", "createdAt");
+
+CREATE TABLE IF NOT EXISTS "FeatureFlag" (
+    "id" TEXT NOT NULL,
+    "key" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "enabled" BOOLEAN NOT NULL DEFAULT false,
+    "rolloutPct" INTEGER NOT NULL DEFAULT 0,
+    "userIds" TEXT[],
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "FeatureFlag_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "FeatureFlag_key_key" ON "FeatureFlag"("key");
+CREATE INDEX IF NOT EXISTS "FeatureFlag_enabled_idx" ON "FeatureFlag"("enabled");
+
+CREATE TABLE IF NOT EXISTS "ApiKey" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "keyHash" TEXT NOT NULL,
+    "keyPrefix" TEXT NOT NULL,
+    "scopes" TEXT[],
+    "lastUsedAt" TIMESTAMP(3),
+    "expiresAt" TIMESTAMP(3),
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "ApiKey_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "ApiKey_keyHash_key" ON "ApiKey"("keyHash");
+CREATE INDEX IF NOT EXISTS "ApiKey_userId_idx" ON "ApiKey"("userId");
+CREATE INDEX IF NOT EXISTS "ApiKey_keyHash_idx" ON "ApiKey"("keyHash");

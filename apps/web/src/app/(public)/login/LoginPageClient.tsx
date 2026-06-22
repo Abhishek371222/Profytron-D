@@ -98,6 +98,13 @@ function LoginPageContent() {
         throw new Error('Unable to determine redirect URL');
       }
 
+      if (!supabase) {
+        toast.error('Social login is not available right now', {
+          description: 'Please sign in with your email and password.',
+        });
+        return;
+      }
+
       const redirectUrl = `${window.location.origin}/auth/callback`;
 
       const { error } = await supabase.auth.signInWithOAuth({

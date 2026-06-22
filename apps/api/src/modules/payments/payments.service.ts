@@ -505,6 +505,27 @@ export class PaymentsService {
     const refundEntity = payload?.payload?.refund?.entity;
     const subscriptionEntity = payload?.payload?.subscription?.entity;
 
+    // Event-level idempotency: Razorpay retries webhook deliveries and the same
+    // payment also arrives via the client `verify` call. Lock on the stable
+    // (eventType + entityId) pair so concurrent/duplicate deliveries no-op
+    // (mirrors the Stripe handler). Downstream writes are also idempotent, but
+    // this prevents wasteful double-processing and races.
+    const entityId =
+      paymentEntity?.id ?? refundEntity?.id ?? subscriptionEntity?.id;
+    if (eventType && entityId) {
+      const idempotencyKey = `razorpay:event:${eventType}:${entityId}`;
+      const lock = await this.redis.set(
+        idempotencyKey,
+        'processing',
+        'EX',
+        86400,
+        'NX',
+      );
+      if (lock !== 'OK') {
+        return { ok: true, duplicate: true };
+      }
+    }
+
     if (eventType === 'payment.captured' && paymentEntity?.notes?.userId) {
       const userId = paymentEntity.notes.userId;
       const strategyId = paymentEntity.notes.strategyId;
@@ -1179,17 +1200,27 @@ export class PaymentsService {
       (s) => s.planId !== planId && s.plan.monthlyPrice < plan.monthlyPrice,
     );
 
-    const payment = await this.prisma.payment.create({
-      data: {
-        userId,
-        amount,
-        currency: 'INR',
-        method: 'UPI',
-        status: 'COMPLETED',
-        description: `${plan.name} subscription (${billingCycle})`,
-        razorpayPaymentId: paymentRef,
-      },
-    });
+    // `razorpayPaymentId` is unique. The verify call and the webhook can both
+    // clear the `alreadyRecorded` read above and then race on insert; the loser
+    // hits P2002. Treat that as "already processed" instead of bubbling a 500
+    // (which would make Razorpay retry forever).
+    let payment: { id: string };
+    try {
+      payment = await this.prisma.payment.create({
+        data: {
+          userId,
+          amount,
+          currency: 'INR',
+          method: 'UPI',
+          status: 'COMPLETED',
+          description: `${plan.name} subscription (${billingCycle})`,
+          razorpayPaymentId: paymentRef,
+        },
+      });
+    } catch (err: any) {
+      if (err?.code === 'P2002') return;
+      throw err;
+    }
 
     // Issue a tax invoice for the platform purchase. Best-effort: a billing
     // record must never block subscription activation. paymentId is unique, so

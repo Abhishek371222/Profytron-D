@@ -68,21 +68,25 @@ export class JournalController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a journal entry' })
   @ApiResponse({ status: 200, description: 'OK' })
-  updateEntry(@Param('id') id: string, @Body() body: any) {
-    return this.journalService.updateJournalEntry(id, body);
+  updateEntry(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+    return this.journalService.updateJournalEntry(id, req.user.id, body);
   }
 
   @Patch(':id/rate')
   @ApiOperation({ summary: 'Rate a journal entry (1-5 stars)' })
   @ApiResponse({ status: 200, description: 'OK' })
-  rateEntry(@Param('id') id: string, @Body() body: { rating: number }) {
-    return this.journalService.rateEntry(id, body.rating);
+  rateEntry(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: { rating: number },
+  ) {
+    return this.journalService.rateEntry(id, req.user.id, body.rating);
   }
 
   @Post(':id/analyze')
   @ApiOperation({ summary: 'Run AI analysis on a journal entry' })
   @ApiResponse({ status: 200, description: 'OK' })
-  analyzeEntry(@Param('id') id: string) {
-    return this.journalService.generateAiAnalysis(id);
+  analyzeEntry(@Req() req: any, @Param('id') id: string) {
+    return this.journalService.generateAiAnalysis(id, req.user.id);
   }
 }

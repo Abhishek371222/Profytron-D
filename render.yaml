@@ -52,13 +52,31 @@ services:
       - key: DIRECT_URL
         sync: false
 
-      # --- Redis ---
-      # Easiest first deploy: set REDIS_INMEMORY=true (no external Redis needed).
-      # Production: set REDIS_INMEMORY=false and provide the Upstash RESP/TLS URL
-      # (rediss://default:<password>@<host>:6379) as REDIS_URL.
+      # --- Redis (REQUIRED for production) ---
+      # Production MUST use a real, shared Redis. The in-memory fallback is per
+      # instance and breaks: BullMQ trade execution queue, Socket.IO horizontal
+      # scaling, JWT blacklist, distributed locks, and refresh-token rotation
+      # reuse detection. Provide an Upstash RESP/TLS URL as REDIS_URL
+      # (rediss://default:<password>@<host>:6379) and keep REDIS_INMEMORY=false.
+      # Only set REDIS_INMEMORY=true for a throwaway single-instance smoke test.
       - key: REDIS_INMEMORY
-        value: "true"
+        value: "false"
       - key: REDIS_URL
+        sync: false
+
+      # --- OAuth / Supabase (REQUIRED if Google/Supabase login is enabled) ---
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # --- Telegram bot webhook (REQUIRED if Telegram integration is enabled) ---
+      - key: TELEGRAM_WEBHOOK_SECRET
         sync: false
 
       # --- Auth secrets (REQUIRED — generate with: openssl rand -base64 64) ---

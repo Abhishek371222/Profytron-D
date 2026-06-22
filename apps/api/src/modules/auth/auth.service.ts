@@ -606,6 +606,14 @@ export class AuthService {
         ErrorCode.USER_NOT_FOUND,
       );
 
+    // Do not rotate/issue tokens for a suspended account (parity with login).
+    if (user.isSuspended)
+      appError(
+        HttpStatus.FORBIDDEN,
+        'Account suspended',
+        ErrorCode.ACCOUNT_SUSPENDED,
+      );
+
     // Blacklist the consumed refresh token so it cannot be reused
     if (jti) {
       const refreshExpiry = this.parseExpirySeconds(
@@ -952,6 +960,18 @@ export class AuthService {
     role: string;
     twoFactorEnabled?: boolean;
   }) {
+    // OAuth/Supabase/magic-link paths reach here; block suspended accounts so
+    // they cannot obtain a session via a non-password login (parity with login).
+    const account = await this.prisma.user.findUnique({
+      where: { id: user.id },
+      select: { isSuspended: true },
+    });
+    if (account?.isSuspended)
+      appError(
+        HttpStatus.FORBIDDEN,
+        'Account suspended',
+        ErrorCode.ACCOUNT_SUSPENDED,
+      );
     if (user.twoFactorEnabled) {
       const challengeToken = randomUUID();
       await this.redisService.set(

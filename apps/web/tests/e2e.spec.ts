@@ -11,8 +11,13 @@ test.describe('🔄 END-TO-END TESTING - Full User Journey (CRITICAL)', () => {
 
   test('pricing page should render working CTAs', async ({ page }) => {
     await page.goto('/pricing');
-    await expect(page.locator('[data-testid="premium-plan"]')).toBeVisible();
-    await expect(page.locator('[data-testid="subscribe-button"]')).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /simple pricing for every trader/i }),
+    ).toBeVisible();
+    // Plan cards render register CTAs, e.g. /register?plan=pro&billing=yearly
+    await expect(
+      page.locator('a[href*="/register?plan="]').first(),
+    ).toBeVisible();
   });
 
   test('login and register pages should render forms', async ({ page }) => {

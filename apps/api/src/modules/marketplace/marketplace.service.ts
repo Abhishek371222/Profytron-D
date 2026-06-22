@@ -610,7 +610,9 @@ export class MarketplaceService {
         {
           quantity: 1,
           price_data: {
-            currency: (process.env.STRIPE_CURRENCY || 'usd').toLowerCase(),
+            // Listing prices are stored in INR (rupees) — match wallet deposits.
+            // Charging the rupee amount as USD overcharges ~83x.
+            currency: (process.env.STRIPE_CURRENCY || 'inr').toLowerCase(),
             product_data: {
               name: listing.strategy.name,
               description: `${planType} access to ${listing.strategy.name}`,
