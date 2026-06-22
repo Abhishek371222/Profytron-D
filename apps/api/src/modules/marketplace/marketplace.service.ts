@@ -15,6 +15,7 @@ import {
   UpdateSubscriptionRiskDto,
 } from './dto/marketplace.dto';
 import { Prisma, SubscriptionStatus, TradeStatus } from '@prisma/client';
+import { getTierLimits } from '../../common/constants/pricing.constants';
 import { buildStrategyAnalytics } from './strategy-analytics.builder';
 import {
   ActivationService,
@@ -39,8 +40,10 @@ export class MarketplaceService {
     private readonly redis: RedisService,
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
-      ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27' as any })
-      : null as any;
+      ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+          apiVersion: '2025-01-27' as any,
+        })
+      : (null as any);
   }
 
   async findAll(query: MarketplaceQueryDto, userId?: string) {
@@ -485,6 +488,22 @@ export class MarketplaceService {
     });
     if (existingSub && existingSub.status === 'ACTIVE') {
       throw new BadRequestException('Already subscribed to this strategy');
+    }
+
+    // Enforce the plan's concurrent copy-subscription quota (server-side — the
+    // limit was previously only shown in the UI and could be bypassed via API).
+    const activeCopies = await this.prisma.userStrategySubscription.count({
+      where: { userId, status: 'ACTIVE', strategyId: { not: strategyId } },
+    });
+    const quotaUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { subscriptionTier: true },
+    });
+    const { maxCopyTrades } = getTierLimits(quotaUser?.subscriptionTier);
+    if (activeCopies >= maxCopyTrades) {
+      throw new ForbiddenException(
+        `Your plan allows ${maxCopyTrades} active copy subscription(s). Upgrade to add more.`,
+      );
     }
 
     const planType = dto.planType;

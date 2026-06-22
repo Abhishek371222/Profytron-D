@@ -72,7 +72,9 @@ const parseRedisConfig = () => {
         port: Number(parsed.port || 6379),
         // Only include auth when a password is present; Redis 5 (single-arg AUTH)
         // rejects connections that send both username + password.
-        ...(password ? { username: parsed.username || 'default', password } : {}),
+        ...(password
+          ? { username: parsed.username || 'default', password }
+          : {}),
         tls: parsed.protocol === 'rediss:' ? {} : undefined,
       };
     } catch {

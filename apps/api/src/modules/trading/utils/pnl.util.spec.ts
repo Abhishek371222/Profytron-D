@@ -1,7 +1,4 @@
-import {
-  computeDailyLossUsd,
-  computeMaxDrawdownPct,
-} from './pnl.util';
+import { computeDailyLossUsd, computeMaxDrawdownPct } from './pnl.util';
 
 describe('pnl.util', () => {
   it('computeDailyLossUsd sums absolute losses only', () => {

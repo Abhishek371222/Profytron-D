@@ -29,9 +29,21 @@ export class NotificationProcessor {
     private prisma: PrismaService,
   ) {}
 
-  @Process('dispatch_notification')
+  @Process({
+    name: 'dispatch_notification',
+    concurrency: Number(process.env.NOTIFICATION_QUEUE_CONCURRENCY) || 10,
+  })
   async handle(job: Job<DispatchJob>) {
-    const { userId, notificationId, title, body, actionUrl, sendEmail, sendPush, category } = job.data;
+    const {
+      userId,
+      notificationId,
+      title,
+      body,
+      actionUrl,
+      sendEmail,
+      sendPush,
+      category,
+    } = job.data;
 
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -48,10 +60,23 @@ export class NotificationProcessor {
           actionUrl,
           userId,
         );
-        void this.notificationsService.logDelivery(notificationId ?? null, userId, 'EMAIL', 'SENT');
+        void this.notificationsService.logDelivery(
+          notificationId ?? null,
+          userId,
+          'EMAIL',
+          'SENT',
+        );
       } catch (err) {
-        void this.notificationsService.logDelivery(notificationId ?? null, userId, 'EMAIL', 'FAILED', { error: (err as Error).message });
-        this.logger.error(`Email dispatch failed for user ${userId}: ${(err as Error).message}`);
+        void this.notificationsService.logDelivery(
+          notificationId ?? null,
+          userId,
+          'EMAIL',
+          'FAILED',
+          { error: (err as Error).message },
+        );
+        this.logger.error(
+          `Email dispatch failed for user ${userId}: ${(err as Error).message}`,
+        );
         throw err; // triggers BullMQ retry
       }
     }
@@ -63,10 +88,23 @@ export class NotificationProcessor {
           ...(actionUrl ? { actionUrl } : {}),
           ...(notificationId ? { notificationId } : {}),
         });
-        void this.notificationsService.logDelivery(notificationId ?? null, userId, 'PUSH', 'SENT');
+        void this.notificationsService.logDelivery(
+          notificationId ?? null,
+          userId,
+          'PUSH',
+          'SENT',
+        );
       } catch (err) {
-        void this.notificationsService.logDelivery(notificationId ?? null, userId, 'PUSH', 'FAILED', { error: (err as Error).message });
-        this.logger.warn(`FCM dispatch failed for user ${userId}: ${(err as Error).message}`);
+        void this.notificationsService.logDelivery(
+          notificationId ?? null,
+          userId,
+          'PUSH',
+          'FAILED',
+          { error: (err as Error).message },
+        );
+        this.logger.warn(
+          `FCM dispatch failed for user ${userId}: ${(err as Error).message}`,
+        );
         // Don't rethrow — FCM failure shouldn't block email
       }
     }

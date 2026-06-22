@@ -58,6 +58,49 @@ export class MetaTraderAdapter {
   constructor() {
     this.token = process.env.METAAPI_TOKEN;
     this.http = axios.create({ timeout: 30_000 });
+    this.installRetryInterceptor(this.http);
+  }
+
+  /**
+   * Retry transient MetaAPI failures with exponential backoff. MetaAPI enforces
+   * per-second rate limits (and the free tier is small), so a burst of copy
+   * fan-out or account-info reads can hit HTTP 429. Without this, those surface
+   * as hard errors. Honors the `Retry-After` header when present.
+   */
+  private installRetryInterceptor(client: AxiosInstance): void {
+    const maxRetries = Number(process.env.METAAPI_MAX_RETRIES) || 3;
+    client.interceptors.response.use(undefined, async (error: any) => {
+      const config = error?.config;
+      const status = error?.response?.status as number | undefined;
+      const isRateLimit = status === 429;
+      const isTransient =
+        status === 502 ||
+        status === 503 ||
+        status === 504 ||
+        // Network error (no response) that isn't our own client timeout.
+        (!error?.response && error?.code && error.code !== 'ECONNABORTED');
+
+      if (!config || (!isRateLimit && !isTransient)) {
+        throw error;
+      }
+
+      config.__retryCount = (config.__retryCount || 0) + 1;
+      if (config.__retryCount > maxRetries) {
+        throw error;
+      }
+
+      const retryAfter = Number(error?.response?.headers?.['retry-after']);
+      const delayMs =
+        Number.isFinite(retryAfter) && retryAfter > 0
+          ? retryAfter * 1000
+          : Math.min(500 * 2 ** (config.__retryCount - 1), 8000);
+
+      this.logger.warn(
+        `MetaAPI ${status ?? error?.code} — retry ${config.__retryCount}/${maxRetries} in ${delayMs}ms`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      return client(config);
+    });
   }
 
   /** Returns true when a real MetaAPI token is configured. */

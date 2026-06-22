@@ -1,5 +1,6 @@
-// Must be the first import: initialises OpenTelemetry (no-op unless enabled)
-// before any instrumented library (express/pg/ioredis) is loaded.
+// Must be the first imports: initialise error tracking + tracing (both no-ops
+// unless their env vars are set) before any instrumented library is loaded.
+import './instrument';
 import './tracing';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';

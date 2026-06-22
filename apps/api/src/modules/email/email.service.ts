@@ -59,7 +59,11 @@ export class EmailService {
     });
   }
 
-  async sendPasswordResetEmail(email: string, resetToken: string, userId?: string) {
+  async sendPasswordResetEmail(
+    email: string,
+    resetToken: string,
+    userId?: string,
+  ) {
     const url = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Reset your password</p>
@@ -138,7 +142,12 @@ export class EmailService {
     });
   }
 
-  async sendMagicLinkEmail(email: string, name: string, link: string, userId?: string) {
+  async sendMagicLinkEmail(
+    email: string,
+    name: string,
+    link: string,
+    userId?: string,
+  ) {
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Your login link</p>
       <p style="color:#94a3b8;margin:0 0 24px;">Hi ${name || 'Trader'}, click below to sign in to Profytron. This link expires in <strong>15 minutes</strong>.</p>
@@ -197,11 +206,20 @@ export class EmailService {
       ${pnlText}
       <a href="${process.env.FRONTEND_URL}/dashboard" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">View Dashboard</a>
     ${FOOTER}`;
-    return this.send(email, `Profytron Alert: ${title} — ${data.symbol}`, html, {
-      type: data.alertType,
-      userId,
-      metadata: { symbol: data.symbol, direction: data.direction, pnl: data.pnl },
-    });
+    return this.send(
+      email,
+      `Profytron Alert: ${title} — ${data.symbol}`,
+      html,
+      {
+        type: data.alertType,
+        userId,
+        metadata: {
+          symbol: data.symbol,
+          direction: data.direction,
+          pnl: data.pnl,
+        },
+      },
+    );
   }
 
   async sendPaymentEmail(
@@ -302,7 +320,11 @@ export class EmailService {
   }
 
   /** Get full email history for a user or address. */
-  async getEmailHistory(filter: { userId?: string; to?: string; limit?: number }) {
+  async getEmailHistory(filter: {
+    userId?: string;
+    to?: string;
+    limit?: number;
+  }) {
     return this.prisma.emailLog.findMany({
       where: {
         ...(filter.userId ? { userId: filter.userId } : {}),
@@ -317,7 +339,9 @@ export class EmailService {
     to: string,
     subject: string,
     html: string,
-    meta: { type: string; userId?: string; metadata?: Record<string, any> } = { type: 'GENERIC' },
+    meta: { type: string; userId?: string; metadata?: Record<string, any> } = {
+      type: 'GENERIC',
+    },
   ) {
     let status = 'SENT';
     if (this.resend) {
@@ -330,7 +354,9 @@ export class EmailService {
         });
       } catch (err) {
         status = 'FAILED';
-        this.logger.error(`Failed to send via Resend: ${(err as Error).message}`);
+        this.logger.error(
+          `Failed to send via Resend: ${(err as Error).message}`,
+        );
       }
     } else {
       this.logger.warn(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);

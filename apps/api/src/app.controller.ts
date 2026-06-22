@@ -41,12 +41,13 @@ export class AppController {
   @Public()
   @Get('health')
   async getHealth(@Res({ passthrough: true }) res: Response) {
-    const [databaseResult, redisResult, queueResult] =
-      await Promise.allSettled([
+    const [databaseResult, redisResult, queueResult] = await Promise.allSettled(
+      [
         withTimeout(this.prismaService.$queryRaw`SELECT 1 AS ok`, 2000),
         withTimeout(this.redisService.ping(), 1500),
         withTimeout(this.tradeQueue.client.ping(), 1500),
-      ]);
+      ],
+    );
 
     const database =
       databaseResult.status === 'fulfilled' ? 'connected' : 'degraded';

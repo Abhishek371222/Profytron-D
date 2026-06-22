@@ -19,7 +19,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
   const [step, setStep] = React.useState<Step>('form');
   const [error, setError] = React.useState('');
   const [pending, setPending] = React.useState(false);
-  const [form, setForm] = React.useState({ login: '', password: '', server: '', platform: 'mt5' as 'mt4' | 'mt5' });
+  const [form, setForm] = React.useState({ login: '', password: '', server: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,8 +31,8 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
         login: form.login,
         password: form.password,
         serverName: form.server,
-        brokerName: form.platform === 'mt4' ? 'MT4' : 'MT5',
-        platform: form.platform,
+        brokerName: 'MT5',
+        platform: 'mt5',
       });
       setPending(Boolean(result?.pending));
       setStep('success');
@@ -47,7 +47,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
     setStep('form');
     setError('');
     setPending(false);
-    setForm({ login: '', password: '', server: '', platform: 'mt5' });
+    setForm({ login: '', password: '', server: '' });
   };
 
   const handleClose = () => {
@@ -73,7 +73,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
-              <h2 className="text-base font-semibold text-text-primary">Connect MT4/MT5 Broker</h2>
+              <h2 className="text-base font-semibold text-text-primary">Connect MT5 Account</h2>
               <button onClick={handleClose} className="p-1 rounded-lg hover:bg-foreground/5 text-text-secondary">
                 <X className="w-4 h-4" />
               </button>
@@ -115,7 +115,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-text-secondary">Broker Server</label>
+                    <label className="text-xs font-medium text-text-secondary">MT5 Server</label>
                     <input
                       type="text"
                       value={form.server}
@@ -127,29 +127,12 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                     <p className="text-xs text-text-muted">Find this in your MT5 terminal under File → Open an Account</p>
                   </div>
 
-                  <div className="flex gap-2">
-                    {(['mt5', 'mt4'] as const).map((p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => setForm({ ...form, platform: p })}
-                        className={`flex-1 py-2 rounded-xl border text-sm font-medium transition-colors ${
-                          form.platform === p
-                            ? 'border-chart-2/50 bg-chart-2/10 text-chart-2'
-                            : 'border-border-default text-text-secondary hover:border-border-hover'
-                        }`}
-                      >
-                        {p.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-
                   <div className="flex gap-3 mt-2">
                     <Button type="button" variant="ghost" className="flex-1" onClick={handleClose}>
                       Cancel
                     </Button>
                     <Button type="submit" className="flex-1">
-                      Connect Broker
+                      Connect MT5
                     </Button>
                   </div>
                 </form>

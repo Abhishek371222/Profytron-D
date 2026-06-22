@@ -5,17 +5,29 @@ function sym(id: string): string {
 }
 
 function ruleToPine(rule: any): string {
-  const l = typeof rule.left === 'number' ? String(rule.left) : sym(String(rule.left));
-  const r = typeof rule.right === 'number' ? String(rule.right) : sym(String(rule.right));
+  const l =
+    typeof rule.left === 'number' ? String(rule.left) : sym(String(rule.left));
+  const r =
+    typeof rule.right === 'number'
+      ? String(rule.right)
+      : sym(String(rule.right));
   switch (rule.comparator) {
-    case '>': return `${l} > ${r}`;
-    case '<': return `${l} < ${r}`;
-    case '>=': return `${l} >= ${r}`;
-    case '<=': return `${l} <= ${r}`;
-    case '==': return `${l} == ${r}`;
-    case 'crossesAbove': return `ta.crossover(${l}, ${r})`;
-    case 'crossesBelow': return `ta.crossunder(${l}, ${r})`;
-    default: return 'true';
+    case '>':
+      return `${l} > ${r}`;
+    case '<':
+      return `${l} < ${r}`;
+    case '>=':
+      return `${l} >= ${r}`;
+    case '<=':
+      return `${l} <= ${r}`;
+    case '==':
+      return `${l} == ${r}`;
+    case 'crossesAbove':
+      return `ta.crossover(${l}, ${r})`;
+    case 'crossesBelow':
+      return `ta.crossunder(${l}, ${r})`;
+    default:
+      return 'true';
   }
 }
 
@@ -68,7 +80,9 @@ export function generatePine(def: StrategyDefinition): string {
         lines.push(`${v} = ta.atr(${cfg.period ?? 14})`);
         break;
       case 'ADX':
-        lines.push(`[${v}_pdi, ${v}_mdi, ${v}] = ta.dmi(${cfg.period ?? 14}, ${cfg.period ?? 14})`);
+        lines.push(
+          `[${v}_pdi, ${v}_mdi, ${v}] = ta.dmi(${cfg.period ?? 14}, ${cfg.period ?? 14})`,
+        );
         break;
       case 'VWAP':
         lines.push(`${v} = ta.vwap(hlc3)`);

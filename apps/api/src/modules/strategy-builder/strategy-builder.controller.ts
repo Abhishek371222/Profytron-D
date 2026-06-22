@@ -69,7 +69,13 @@ export class StrategyBuilderController {
 
   @Post(':id/nodes')
   addNode(@Param('id') id: string, @Body() dto: AddNodeDto) {
-    return this.builderService.addNode(id, dto.nodeType, dto.config ?? {}, dto.label, dto.position ?? { x: 0, y: 0 });
+    return this.builderService.addNode(
+      id,
+      dto.nodeType,
+      dto.config ?? {},
+      dto.label,
+      dto.position ?? { x: 0, y: 0 },
+    );
   }
 
   @Patch('nodes/:nodeId')
@@ -100,7 +106,10 @@ export class StrategyBuilderController {
   async compile(@Param('id') id: string) {
     const builder = await this.builderService.getStrategy(id);
     if (!builder) throw new NotFoundException('Strategy builder not found');
-    return this.backtestService.compileGraph(builder.nodes as any[], builder.edges as any[]);
+    return this.backtestService.compileGraph(
+      builder.nodes as any[],
+      builder.edges as any[],
+    );
   }
 
   // ── Backtest ─────────────────────────────────────────────────────────────────
@@ -124,11 +133,15 @@ export class StrategyBuilderController {
   async codegen(@Param('id') id: string, @Query() query: CodegenQueryDto) {
     const builder = await this.builderService.getStrategy(id);
     if (!builder) throw new NotFoundException('Strategy builder not found');
-    const definition = this.backtestService.compileGraph(builder.nodes as any[], builder.edges as any[]);
+    const definition = this.backtestService.compileGraph(
+      builder.nodes as any[],
+      builder.edges as any[],
+    );
     const format = query.format ?? 'pine';
-    const code = format === 'mql5'
-      ? this.backtestService.generateMql5(definition)
-      : this.backtestService.generatePineScript(definition);
+    const code =
+      format === 'mql5'
+        ? this.backtestService.generateMql5(definition)
+        : this.backtestService.generatePineScript(definition);
     return { format, code };
   }
 
@@ -138,7 +151,10 @@ export class StrategyBuilderController {
   async publish(@Req() req: RequestWithUser, @Param('id') id: string) {
     const builder = await this.builderService.getStrategy(id);
     if (!builder) throw new NotFoundException('Strategy builder not found');
-    const definition = this.backtestService.compileGraph(builder.nodes as any[], builder.edges as any[]);
+    const definition = this.backtestService.compileGraph(
+      builder.nodes as any[],
+      builder.edges as any[],
+    );
     return this.strategiesService.create(req.user.id, {
       name: definition.name,
       description: `Published from Strategy Builder #${id}`,

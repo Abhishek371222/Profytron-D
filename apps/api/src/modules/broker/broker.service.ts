@@ -9,6 +9,7 @@ import {
   ActivationService,
   ACTIVATION_EVENTS,
 } from '../growth/activation.service';
+import { getTierLimits } from '../../common/constants/pricing.constants';
 
 @Injectable()
 export class BrokerService {
@@ -35,6 +36,38 @@ export class BrokerService {
     } = dto;
 
     try {
+      // Enforce the plan's broker-account quota BEFORE provisioning anything at
+      // MetaAPI, so an over-quota attempt never leaves an orphaned account.
+      // Reconnecting an existing login+server reuses its row, so it's exempt.
+      const last4Pre = login ? login.slice(-4).padStart(4, '0') : '0000';
+      const resolvedNamePre =
+        brokerName === 'PAPER' ? 'PAPER' : platform === 'mt4' ? 'MT4' : 'MT5';
+      const preExisting = await this.prisma.brokerAccount.findFirst({
+        where: {
+          userId,
+          accountNumberLast4: last4Pre,
+          serverName,
+          brokerName: resolvedNamePre,
+          isActive: true,
+        },
+        select: { id: true },
+      });
+      if (!preExisting) {
+        const activeCount = await this.prisma.brokerAccount.count({
+          where: { userId, isActive: true },
+        });
+        const quotaUser = await this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { subscriptionTier: true },
+        });
+        const { maxBrokerAccounts } = getTierLimits(quotaUser?.subscriptionTier);
+        if (activeCount >= maxBrokerAccounts) {
+          throw new BadRequestException(
+            `Your plan allows ${maxBrokerAccounts} connected account(s). Upgrade to connect more.`,
+          );
+        }
+      }
+
       let connectionResult: any;
 
       if (brokerName === 'PAPER') {
@@ -86,7 +119,7 @@ export class BrokerService {
       });
 
       const existingCount = await this.prisma.brokerAccount.count({
-        where: { userId },
+        where: { userId, isActive: true },
       });
       const isDefault = existingCount === 0;
 
@@ -201,7 +234,70 @@ export class BrokerService {
       where: { userId, isActive: true },
       orderBy: { connectedAt: 'desc' },
     });
-    return accounts.map(({ credentialsEncrypted: _, ...safe }) => safe);
+
+    // Enrich each account with its live balance/equity from MetaAPI so the
+    // "Connected Accounts" page shows real-time numbers instead of the value
+    // captured at connect time. Each live read is time-boxed and failures fall
+    // back to the stored baseline so the list never hangs or 500s.
+    return Promise.all(
+      accounts.map(async (account) => {
+        const { credentialsEncrypted, ...safe } = account as any;
+
+        if (account.isPaperTrading) {
+          return {
+            ...safe,
+            balance: safe.initialEquity ?? null,
+            equity: safe.initialEquity ?? null,
+            currency: 'USD',
+            connectionStatus: 'CONNECTED',
+          };
+        }
+
+        let live: any = null;
+        let connectionStatus = 'CONNECTING';
+
+        if (this.mtAdapter.isLive) {
+          try {
+            const creds = JSON.parse(
+              this.cryptoService.decrypt(credentialsEncrypted),
+            );
+            const metaApiId: string | undefined = creds.metaApiAccountId;
+            if (metaApiId && !metaApiId.startsWith('mock-')) {
+              const info = await this.withTimeout(
+                this.mtAdapter.testExisting(metaApiId, creds.metaApiRegion),
+                8_000,
+                { connected: false } as any,
+              );
+              if (info?.connected) {
+                live = info;
+                connectionStatus = 'CONNECTED';
+              }
+            }
+          } catch {
+            /* keep CONNECTING + stored baseline */
+          }
+        } else {
+          connectionStatus = 'CONNECTED';
+        }
+
+        return {
+          ...safe,
+          balance: live?.balance ?? safe.initialEquity ?? null,
+          equity: live?.equity ?? safe.initialEquity ?? null,
+          currency: live?.currency ?? 'USD',
+          leverage: live?.leverage ?? null,
+          connectionStatus,
+        };
+      }),
+    );
+  }
+
+  /** Resolve `p`, or `fallback` if it doesn't settle within `ms`. */
+  private withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+    return Promise.race([
+      p.catch(() => fallback),
+      new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+    ]);
   }
 
   async disconnectBroker(userId: string, accountId: string) {

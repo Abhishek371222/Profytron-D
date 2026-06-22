@@ -76,7 +76,9 @@ export class NotificationsController {
     private readonly fcmService: FcmService,
   ) {}
 
-  @ApiOperation({ summary: 'List notifications (paginated, filterable by category/unread)' })
+  @ApiOperation({
+    summary: 'List notifications (paginated, filterable by category/unread)',
+  })
   @ApiResponse({ status: 200, description: 'OK' })
   @Get()
   async findAll(
@@ -112,11 +114,17 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Update notification preferences' })
   @ApiResponse({ status: 200, description: 'OK' })
   @Patch('preferences')
-  async updatePreferences(@Req() req: AuthReq, @Body() dto: UpdatePreferencesDto) {
+  async updatePreferences(
+    @Req() req: AuthReq,
+    @Body() dto: UpdatePreferencesDto,
+  ) {
     return this.notificationsService.updatePreferences(req.user.id, dto);
   }
 
-  @ApiOperation({ summary: 'Mark all notifications as seen (clears badge without marking read)' })
+  @ApiOperation({
+    summary:
+      'Mark all notifications as seen (clears badge without marking read)',
+  })
   @ApiResponse({ status: 200, description: 'OK' })
   @Patch('mark-seen')
   async markSeen(@Req() req: AuthReq) {
@@ -155,8 +163,15 @@ export class NotificationsController {
   @ApiOperation({ summary: 'Register FCM device token for push notifications' })
   @ApiResponse({ status: 200, description: 'Token registered' })
   @Post('fcm-token')
-  async registerFcmToken(@Req() req: AuthReq, @Body() dto: RegisterFcmTokenDto) {
-    await this.fcmService.registerToken(req.user.id, dto.token, dto.platform || 'web');
+  async registerFcmToken(
+    @Req() req: AuthReq,
+    @Body() dto: RegisterFcmTokenDto,
+  ) {
+    await this.fcmService.registerToken(
+      req.user.id,
+      dto.token,
+      dto.platform || 'web',
+    );
     return { success: true };
   }
 

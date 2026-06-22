@@ -29,6 +29,17 @@ import { AiRiskService } from '../ai-risk/ai-risk.service';
 import { EmailService } from '../email/email.service';
 import { NotificationsService } from '../notifications/notifications.service';
 
+/**
+ * How many trade jobs a single worker processes in parallel. Bull defaults to
+ * 1 (fully serial), which makes copy fan-out latency grow linearly with the
+ * follower count — at 1000+ followers a single master open would drain one job
+ * at a time. These jobs are I/O-bound (MetaApi REST + DB), so a higher
+ * concurrency dramatically cuts fan-out latency. Tunable via env.
+ */
+const TRADE_CONCURRENCY = Number(process.env.TRADE_QUEUE_CONCURRENCY) || 15;
+const TRADE_MODIFY_CONCURRENCY =
+  Number(process.env.TRADE_MODIFY_CONCURRENCY) || 8;
+
 @Processor('trade_execution')
 export class TradeProcessor {
   private readonly logger = new Logger(TradeProcessor.name);
@@ -67,7 +78,7 @@ export class TradeProcessor {
     }
   }
 
-  @Process('execute_trade')
+  @Process({ name: 'execute_trade', concurrency: TRADE_CONCURRENCY })
   async handleTradeExecution(job: Job<any>) {
     const {
       userId,
@@ -400,16 +411,25 @@ export class TradeProcessor {
         actionUrl: '/dashboard',
         sendPush: true,
       });
-      void this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, fullName: true } })
+      void this.prisma.user
+        .findUnique({
+          where: { id: userId },
+          select: { email: true, fullName: true },
+        })
         .then((u) => {
           if (u) {
-            void this.email.sendTradeAlertEmail(u.email, u.fullName, {
-              alertType: 'TRADE_OPENED',
-              symbol: pair,
-              direction: type,
-              price: adjustedFillPrice,
-              strategyName: strategyId ?? undefined,
-            }, userId);
+            void this.email.sendTradeAlertEmail(
+              u.email,
+              u.fullName,
+              {
+                alertType: 'TRADE_OPENED',
+                symbol: pair,
+                direction: type,
+                price: adjustedFillPrice,
+                strategyName: strategyId ?? undefined,
+              },
+              userId,
+            );
           }
         });
 
@@ -454,7 +474,7 @@ export class TradeProcessor {
     }
   }
 
-  @Process('close_copy')
+  @Process({ name: 'close_copy', concurrency: TRADE_CONCURRENCY })
   async handleCloseCopy(
     job: Job<{ tradeId: string; userId: string; brokerAccountId: string }>,
   ) {
@@ -462,7 +482,9 @@ export class TradeProcessor {
     this.logger.log(`Closing copy trade ${tradeId} for user ${userId}`);
 
     if (!brokerAccountId) {
-      throw new Error(`close_copy missing brokerAccountId for trade ${tradeId}`);
+      throw new Error(
+        `close_copy missing brokerAccountId for trade ${tradeId}`,
+      );
     }
 
     try {
@@ -519,7 +541,7 @@ export class TradeProcessor {
     }
   }
 
-  @Process('close_trade')
+  @Process({ name: 'close_trade', concurrency: TRADE_CONCURRENCY })
   async handleCloseTrade(
     job: Job<{ tradeId: string; userId: string; volume?: number }>,
   ) {
@@ -658,7 +680,9 @@ export class TradeProcessor {
           const isProfit = (closed.profit ?? 0) > 0;
           void this.notificationsService.create({
             userId,
-            title: isProfit ? `Take Profit Hit — ${closed.symbol}` : `Trade Closed — ${closed.symbol}`,
+            title: isProfit
+              ? `Take Profit Hit — ${closed.symbol}`
+              : `Trade Closed — ${closed.symbol}`,
             message: `P&L: ${isProfit ? '+' : ''}${(closed.profit ?? 0).toFixed(2)} USD`,
             type: isProfit ? 'SUCCESS' : 'WARNING',
             category: 'TRADING',
@@ -667,17 +691,29 @@ export class TradeProcessor {
             sendPush: true,
           });
         }
-        void this.prisma.user.findUnique({ where: { id: userId }, select: { email: true, fullName: true } })
+        void this.prisma.user
+          .findUnique({
+            where: { id: userId },
+            select: { email: true, fullName: true },
+          })
           .then((u) => {
             if (u && closed) {
-              const alertType = closed.profit != null && closed.profit > 0 ? 'TP_HIT' : 'TRADE_CLOSED';
-              void this.email.sendTradeAlertEmail(u.email, u.fullName, {
-                alertType,
-                symbol: closed.symbol,
-                direction: closed.direction,
-                price: closed.closePrice ?? undefined,
-                pnl: closed.profit ?? undefined,
-              }, userId);
+              const alertType =
+                closed.profit != null && closed.profit > 0
+                  ? 'TP_HIT'
+                  : 'TRADE_CLOSED';
+              void this.email.sendTradeAlertEmail(
+                u.email,
+                u.fullName,
+                {
+                  alertType,
+                  symbol: closed.symbol,
+                  direction: closed.direction,
+                  price: closed.closePrice ?? undefined,
+                  pnl: closed.profit ?? undefined,
+                },
+                userId,
+              );
             }
           });
       }
@@ -687,7 +723,7 @@ export class TradeProcessor {
     }
   }
 
-  @Process('modify_trade')
+  @Process({ name: 'modify_trade', concurrency: TRADE_MODIFY_CONCURRENCY })
   async handleModifyTrade(
     job: Job<{
       tradeId: string;
@@ -716,7 +752,7 @@ export class TradeProcessor {
     }
   }
 
-  @Process('break_even')
+  @Process({ name: 'break_even', concurrency: TRADE_MODIFY_CONCURRENCY })
   async handleBreakEven(
     job: Job<{ tradeId: string; userId: string; offsetPips?: number }>,
   ) {
@@ -754,7 +790,7 @@ export class TradeProcessor {
     }
   }
 
-  @Process('trailing_stop')
+  @Process({ name: 'trailing_stop', concurrency: TRADE_MODIFY_CONCURRENCY })
   async handleTrailingStop(
     job: Job<{
       tradeId: string;

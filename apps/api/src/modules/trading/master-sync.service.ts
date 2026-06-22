@@ -311,8 +311,7 @@ export class MasterSyncService implements OnModuleDestroy {
     const slTpUnchanged =
       (before.stopLoss ?? null) === (after.stopLoss ?? null) &&
       (before.takeProfit ?? null) === (after.takeProfit ?? null);
-    const volumeDecreased =
-      after.volume < before.volume && before.volume > 0;
+    const volumeDecreased = after.volume < before.volume && before.volume > 0;
 
     const openTrades = await this.prisma.trade.findMany({
       where: {
@@ -337,9 +336,7 @@ export class MasterSyncService implements OnModuleDestroy {
           {
             tradeId: trade.id,
             userId: trade.userId,
-            ...(isFullClose
-              ? {}
-              : { partial: true, closeVolume }),
+            ...(isFullClose ? {} : { partial: true, closeVolume }),
           },
           {
             jobId: `copy-vol:${after.id}:${trade.id}:${after.volume}`,

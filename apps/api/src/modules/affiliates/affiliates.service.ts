@@ -191,7 +191,16 @@ export class AffiliatesService {
     return { valid: true };
   }
 
-  async calculateCommission(userId: string, amount: number) {
+  /**
+   * Credit the referrer's commission for a referee payment.
+   *
+   * `sourceRef` MUST be the stable id of the underlying payment (e.g. the
+   * Razorpay payment id). The wallet credit's idempotency key is derived from
+   * it, so replaying the same payment (client `verify` + webhook, or a retried
+   * webhook) credits the commission exactly once. Previously the key used
+   * `randomUUID()`, so every replay paid the referrer again.
+   */
+  async calculateCommission(userId: string, amount: number, sourceRef: string) {
     const affiliate = await this.prisma.affiliate.findUnique({
       where: { userId },
     });
@@ -202,45 +211,67 @@ export class AffiliatesService {
       Math.round(amount * (affiliate.commissionRate || 0.3) * 100) / 100;
     if (commission <= 0) return;
 
-    const idempotencyKey = `commission_${userId}_${randomUUID()}`;
+    const referrerId = affiliate.referrerId;
+    const idempotencyKey = `commission_${referrerId}_${sourceRef}`;
 
-    await this.prisma.$transaction(async (tx) => {
-      await tx.affiliate.update({
-        where: { userId: affiliate.referrerId! },
-        data: {
-          totalEarned: { increment: commission },
-          conversionCount: { increment: 1 },
-        },
-      });
-
-      // Create auditable wallet credit for the commission
-      const grouped = await tx.walletTransaction.groupBy({
-        by: ['direction'],
-        where: { userId: affiliate.referrerId!, status: 'CONFIRMED' },
-        _sum: { amount: true },
-      });
-      const confirmedIn =
-        grouped.find((e) => e.direction === 'IN')?._sum.amount ?? 0;
-      const confirmedOut =
-        grouped.find((e) => e.direction === 'OUT')?._sum.amount ?? 0;
-      const currentBalance = confirmedIn - confirmedOut;
-
-      await tx.walletTransaction.create({
-        data: {
-          userId: affiliate.referrerId!,
-          type: 'COMMISSION',
-          direction: 'IN',
-          amount: commission,
-          status: 'CONFIRMED',
-          balanceAfter: currentBalance + commission,
-          idempotencyKey,
-          description: `Affiliate commission from referral`,
-          reference: userId,
-        },
-      });
+    // Fast path: already credited for this payment → no-op.
+    const existing = await this.prisma.walletTransaction.findUnique({
+      where: { idempotencyKey },
     });
+    if (existing) return;
 
-    await this.recalculateTier(affiliate.referrerId);
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // Serialize all wallet writes for the referrer so the balance read +
+        // ledger insert can't interleave with another credit/withdrawal.
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${referrerId}`}))`;
+
+        const dup = await tx.walletTransaction.findUnique({
+          where: { idempotencyKey },
+        });
+        if (dup) return;
+
+        await tx.affiliate.update({
+          where: { userId: referrerId },
+          data: {
+            totalEarned: { increment: commission },
+            conversionCount: { increment: 1 },
+          },
+        });
+
+        const grouped = await tx.walletTransaction.groupBy({
+          by: ['direction'],
+          where: { userId: referrerId, status: 'CONFIRMED' },
+          _sum: { amount: true },
+        });
+        const confirmedIn =
+          grouped.find((e) => e.direction === 'IN')?._sum.amount ?? 0;
+        const confirmedOut =
+          grouped.find((e) => e.direction === 'OUT')?._sum.amount ?? 0;
+        const currentBalance = confirmedIn - confirmedOut;
+
+        await tx.walletTransaction.create({
+          data: {
+            userId: referrerId,
+            type: 'COMMISSION',
+            direction: 'IN',
+            amount: commission,
+            status: 'CONFIRMED',
+            balanceAfter: currentBalance + commission,
+            idempotencyKey,
+            description: `Affiliate commission from referral`,
+            reference: userId,
+          },
+        });
+      });
+    } catch (e: any) {
+      // Unique-key collision = a concurrent caller already credited it. Treat
+      // as success (the transaction rolled back our duplicate increment too).
+      if (e?.code === 'P2002') return;
+      throw e;
+    }
+
+    await this.recalculateTier(referrerId);
   }
 
   async requestWithdrawal(userId: string, amount: number) {
@@ -254,6 +285,8 @@ export class AffiliatesService {
     const idempotencyKey = `aff_wd_${randomUUID()}`;
 
     const tx = await this.prisma.$transaction(async (prisma) => {
+      await prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
+
       const affiliate = await prisma.affiliate.findUnique({
         where: { userId },
       });

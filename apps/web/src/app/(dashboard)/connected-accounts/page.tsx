@@ -4,9 +4,10 @@ import React from 'react';
 import Link from 'next/link';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
+import { BrokerConnectModal } from '@/components/copy-trading/BrokerConnectModal';
 import {
   AlertTriangle,
   Bot,
@@ -21,7 +22,6 @@ import {
   RefreshCcw,
   Shield,
   TrendingUp,
-  X,
   XCircle,
 } from 'lucide-react';
 
@@ -113,85 +113,39 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-// ─── Connect Broker Modal ─────────────────────────────────────────────────────
-
-function ConnectBrokerModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 16 }}
-        className="dashboard-card w-full max-w-md p-6 relative"
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 right-4 flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Link2 className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-base font-bold text-foreground">Connect a Broker</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Choose a supported broker to link</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 mb-5">
-          {SUPPORTED_BROKERS.map((broker) => (
-            <button
-              key={broker}
-              type="button"
-              onClick={() => {
-                toast.info(`Broker linking for ${broker} coming soon`);
-                onClose();
-              }}
-              className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-[var(--card-border)] bg-card hover:border-primary/30 hover:bg-primary/5 transition-colors text-center"
-            >
-              <Building2 className="h-5 w-5 text-muted-foreground" />
-              <span className="text-[10px] font-semibold text-muted-foreground leading-tight">{broker}</span>
-            </button>
-          ))}
-        </div>
-
-        <p className="text-[10px] text-muted-foreground text-center">
-          More brokers are being added continuously. Contact support if yours is missing.
-        </p>
-      </motion.div>
-    </div>
-  );
-}
-
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ConnectedAccountsPage() {
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = React.useState(false);
 
-  // Fetch broker accounts (real endpoint)
+  // Fetch broker accounts (real endpoint). Refetch periodically so live
+  // balances and a still-connecting account update without a manual refresh.
   const accountsQuery = useQuery({
     queryKey: ['broker-accounts'],
+    refetchInterval: 20_000,
     queryFn: async () => {
       const res = await apiClient.get('/broker/accounts');
       const raw = unwrapApiResponse<any[]>(res.data) ?? [];
-      return raw.map(
-        (a): BrokerAccount => ({
+      return raw.map((a): BrokerAccount => {
+        const live = a.equity ?? a.balance ?? a.initialEquity;
+        const status: AccountStatus =
+          a.isActive === false
+            ? 'DISCONNECTED'
+            : a.connectionStatus === 'CONNECTING'
+            ? 'SYNCING'
+            : 'CONNECTED';
+        return {
           id: a.id,
           brokerName: a.brokerName,
           accountNumber: a.accountNumberLast4 ?? '',
           accountType: a.isPaperTrading ? 'Paper' : 'Live',
-          status: a.isActive === false ? 'DISCONNECTED' : 'CONNECTED',
-          balance: a.initialEquity ?? undefined,
-          currency: 'INR',
+          status,
+          balance: live ?? undefined,
+          currency: a.currency ?? 'USD',
           lastSyncedAt: a.lastConnectedAt ?? a.connectedAt,
-        }),
-      );
+        };
+      });
     },
   });
 
@@ -232,8 +186,8 @@ export default function ConnectedAccountsPage() {
       ? 'yellow'
       : 'green';
 
-  const handleReconnect = (account: BrokerAccount) => {
-    toast.info(`Reconnecting ${account.brokerName} account ${maskAccount(account.accountNumber)}…`);
+  const handleReconnect = (_account: BrokerAccount) => {
+    setShowModal(true);
   };
 
   const handleDisconnect = (account: BrokerAccount) => {
@@ -253,9 +207,14 @@ export default function ConnectedAccountsPage() {
 
   return (
     <div className="space-y-6 pb-10">
-      <AnimatePresence>
-        {showModal && <ConnectBrokerModal onClose={() => setShowModal(false)} />}
-      </AnimatePresence>
+      <BrokerConnectModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onConnected={() => {
+          queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
+          queryClient.invalidateQueries({ queryKey: ['connected-bots'] });
+        }}
+      />
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">

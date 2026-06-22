@@ -287,26 +287,31 @@ export class WalletService {
     // Invalidate OTP after successful validation (one-time use)
     await this.redis.del(otpKey);
 
-    const lockKey = `wallet_lock:${userId}`;
-    const lock = await this.redis.set(lockKey, '1', 'EX', 30, 'NX');
-    if (lock !== 'OK') {
-      throw new BadRequestException('Could not acquire wallet lock');
-    }
+    // Atomically check available balance and write the debit row in ONE DB
+    // transaction, serialized per-user with a Postgres advisory lock. This
+    // closes the overdraft race that existed when the only guard was a
+    // best-effort Redis lock (which fails open if Redis is down/evicted).
+    const transaction = await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
 
-    try {
-      const current = await this.getBalance(userId);
-      if (dto.amount > current.available) {
+      const grouped = await this.getGroupedSums(userId, tx);
+      const confirmedIn = this.extractAmount(grouped, 'IN', 'CONFIRMED');
+      const confirmedOut = this.extractAmount(grouped, 'OUT', 'CONFIRMED');
+      const pendingOut = this.extractAmount(grouped, 'OUT', 'PENDING');
+      const available = confirmedIn - confirmedOut - pendingOut;
+
+      if (dto.amount > available) {
         throw new BadRequestException('Insufficient balance');
       }
 
-      const transaction = await this.prisma.walletTransaction.create({
+      return tx.walletTransaction.create({
         data: {
           userId,
           type: 'WITHDRAWAL',
           direction: 'OUT',
           amount: dto.amount,
           status: 'PENDING',
-          balanceAfter: current.available - dto.amount,
+          balanceAfter: available - dto.amount,
           idempotencyKey: `wd_${randomUUID()}`,
           reference: dto.bankAccount || 'Bank account',
           description: 'Withdrawal initiated',
@@ -316,20 +321,18 @@ export class WalletService {
           },
         },
       });
+    });
 
-      await this.withdrawalQueue.add(
-        'process',
-        { transactionId: transaction.id, userId, amount: dto.amount },
-        { attempts: 3, backoff: { type: 'exponential', delay: 3000 } },
-      );
+    await this.withdrawalQueue.add(
+      'process',
+      { transactionId: transaction.id, userId, amount: dto.amount },
+      { attempts: 3, backoff: { type: 'exponential', delay: 3000 } },
+    );
 
-      return {
-        transaction,
-        estimatedArrival: '1-2 business days',
-      };
-    } finally {
-      await this.redis.del(lockKey);
-    }
+    return {
+      transaction,
+      estimatedArrival: '1-2 business days',
+    };
   }
 
   async getTransactionDetail(userId: string, transactionId: string) {

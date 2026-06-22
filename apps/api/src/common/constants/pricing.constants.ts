@@ -120,3 +120,30 @@ export const PLATFORM_PLANS = [
 
 export const REFERRAL_DEPOSIT_BONUS_INR = 500;
 export const REFERRAL_MIN_DEPOSIT_INR = 1000;
+
+export type PlanLimits = {
+  maxStrategies: number;
+  maxCopyTrades: number;
+  maxBrokerAccounts: number;
+};
+
+/**
+ * Resolve the quota limits for a user's subscription tier. Multiple plans can
+ * share a tier (e.g. both Business and Enterprise are INSTITUTIONAL); we take
+ * the most generous limit at the tier so paying customers are never
+ * under-provisioned. Unknown tiers fall back to FREE.
+ */
+export function getTierLimits(tier: string | null | undefined): PlanLimits {
+  const matches = PLATFORM_PLANS.filter((p) => p.tier === tier);
+  const source = matches.length
+    ? matches
+    : PLATFORM_PLANS.filter((p) => p.tier === 'FREE');
+  return source.reduce<PlanLimits>(
+    (acc, p) => ({
+      maxStrategies: Math.max(acc.maxStrategies, p.maxStrategies),
+      maxCopyTrades: Math.max(acc.maxCopyTrades, p.maxCopyTrades),
+      maxBrokerAccounts: Math.max(acc.maxBrokerAccounts, p.maxBrokerAccounts),
+    }),
+    { maxStrategies: 0, maxCopyTrades: 0, maxBrokerAccounts: 0 },
+  );
+}

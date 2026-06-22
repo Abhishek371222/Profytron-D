@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsArray, IsNumber, IsEnum, ValidateNested, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsArray,
+  IsNumber,
+  IsEnum,
+  ValidateNested,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateBuilderStrategyDto {

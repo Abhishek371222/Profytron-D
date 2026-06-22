@@ -6,6 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { getTierLimits } from '../../common/constants/pricing.constants';
 import { RedisService } from '../auth/redis.service';
 import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
 import { BacktestService } from '../backtest/backtest.service';
@@ -265,6 +266,19 @@ export class StrategiesService {
       );
     }
 
+    // Enforce the plan's strategy quota server-side (admins are exempt).
+    if (user.role === UserRole.USER) {
+      const { maxStrategies } = getTierLimits(user.subscriptionTier);
+      const ownedCount = await this.prisma.strategy.count({
+        where: { creatorId, deletedAt: null },
+      });
+      if (ownedCount >= maxStrategies) {
+        throw new ForbiddenException(
+          `Your plan allows ${maxStrategies} strategy deployment(s). Upgrade to create more.`,
+        );
+      }
+    }
+
     return this.prisma.strategy.create({
       data: {
         ...dto,
@@ -395,7 +409,9 @@ export class StrategiesService {
       data: { status: SubscriptionStatus.PAUSED },
     });
 
-    this.logger.log(`STRATEGY_PAUSED: User ${userId} -> Strategy ${strategyId}`);
+    this.logger.log(
+      `STRATEGY_PAUSED: User ${userId} -> Strategy ${strategyId}`,
+    );
     return { success: true };
   }
 
@@ -586,7 +602,10 @@ export class StrategiesService {
     if (cached) return JSON.parse(cached);
 
     // Use local engine by default; fall back to external service only when explicitly configured
-    if (!process.env.BACKTEST_SERVICE_URL || process.env.BACKTEST_USE_LOCAL === 'true') {
+    if (
+      !process.env.BACKTEST_SERVICE_URL ||
+      process.env.BACKTEST_USE_LOCAL === 'true'
+    ) {
       const result = await this.backtestSvc.runFromDefinition(
         config,
         dto.startDate,

@@ -27,8 +27,14 @@ export class BacktestService {
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
-    const candles = await this.fetchCandles(definition.symbol as any, definition.timeframe as any, startDate, endDate);
-    if (candles.length < 20) throw new BadRequestException('Insufficient market data for backtest');
+    const candles = await this.fetchCandles(
+      definition.symbol as any,
+      definition.timeframe as any,
+      startDate,
+      endDate,
+    );
+    if (candles.length < 20)
+      throw new BadRequestException('Insufficient market data for backtest');
 
     const result = runBacktest(definition, candles, initialCapital);
 
@@ -44,7 +50,12 @@ export class BacktestService {
     initialCapital = 10_000,
   ) {
     const definition = compileGraph(nodes, edges);
-    return this.runFromDefinition(definition, startDate, endDate, initialCapital);
+    return this.runFromDefinition(
+      definition,
+      startDate,
+      endDate,
+      initialCapital,
+    );
   }
 
   compileGraph(nodes: any[], edges: any[]): StrategyDefinition {
@@ -103,6 +114,10 @@ export class BacktestService {
   }
 
   private hash(obj: any): string {
-    return crypto.createHash('sha256').update(JSON.stringify(obj)).digest('hex').slice(0, 16);
+    return crypto
+      .createHash('sha256')
+      .update(JSON.stringify(obj))
+      .digest('hex')
+      .slice(0, 16);
   }
 }

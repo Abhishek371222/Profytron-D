@@ -118,7 +118,9 @@ export class TrailingStopService implements OnModuleDestroy {
           message,
         );
       if (isTransientDbError) {
-        this.logger.warn(`Trailing-stop tick skipped (DB unavailable): ${message}`);
+        this.logger.warn(
+          `Trailing-stop tick skipped (DB unavailable): ${message}`,
+        );
       } else {
         this.logger.error(`Trailing-stop tick error: ${message}`);
       }

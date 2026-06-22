@@ -174,7 +174,10 @@ export class RedisService {
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       // Redis 5 doesn't have GETDEL — emulate with GET then DEL (acceptable for dev)
-      if (msg.includes('unknown command') && msg.toLowerCase().includes('getdel')) {
+      if (
+        msg.includes('unknown command') &&
+        msg.toLowerCase().includes('getdel')
+      ) {
         const val = await this.redis.get(key);
         if (val !== null) await this.redis.del(key);
         return val;

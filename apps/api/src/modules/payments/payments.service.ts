@@ -43,8 +43,10 @@ export class PaymentsService {
     @Inject(REDIS_CLIENT) private readonly redis: IORedis,
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
-      ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-01-27' as any })
-      : null as any;
+      ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+          apiVersion: '2025-01-27' as any,
+        })
+      : (null as any);
 
     const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
     const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -210,7 +212,11 @@ export class PaymentsService {
         userId,
         amountRupees,
       );
-      await this.affiliatesService.calculateCommission(userId, amountRupees);
+      await this.affiliatesService.calculateCommission(
+        userId,
+        amountRupees,
+        paymentId,
+      );
     }
 
     await this.notifications.create(
@@ -323,7 +329,11 @@ export class PaymentsService {
         creditUserId,
         amountRupees,
       );
-      await this.affiliatesService.calculateCommission(creditUserId, amountRupees);
+      await this.affiliatesService.calculateCommission(
+        creditUserId,
+        amountRupees,
+        razorpay_payment_id,
+      );
     }
 
     await this.notifications.create({
@@ -338,15 +348,27 @@ export class PaymentsService {
     });
 
     // Send payment confirmation email (fire-and-forget)
-    void this.prisma.user.findUnique({ where: { id: creditUserId }, select: { email: true, fullName: true } })
+    void this.prisma.user
+      .findUnique({
+        where: { id: creditUserId },
+        select: { email: true, fullName: true },
+      })
       .then((u) => {
         if (u) {
-          void this.emailService.sendPaymentEmail(u.email, u.fullName, {
-            type: 'SUCCESS',
-            amount: amountRupees,
-            currency: order.currency ?? 'INR',
-            description: orderNotes.type === 'platform_subscription' ? 'Platform subscription' : 'Wallet deposit',
-          }, creditUserId);
+          void this.emailService.sendPaymentEmail(
+            u.email,
+            u.fullName,
+            {
+              type: 'SUCCESS',
+              amount: amountRupees,
+              currency: order.currency ?? 'INR',
+              description:
+                orderNotes.type === 'platform_subscription'
+                  ? 'Platform subscription'
+                  : 'Wallet deposit',
+            },
+            creditUserId,
+          );
         }
       });
 
@@ -907,63 +929,63 @@ export class PaymentsService {
     metadata: Record<string, unknown>,
     idempotencyKey: string,
   ) {
-    const lockKey = `wallet_lock:${userId}`;
-
-    let lockAcquired = false;
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      const result = await this.redis.set(lockKey, '1', 'EX', 10, 'NX');
-      if (result === 'OK') {
-        lockAcquired = true;
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    if (!lockAcquired) {
-      throw new BadRequestException('Could not acquire wallet lock');
-    }
-
+    // Atomic, per-user serialized credit/debit. The advisory lock + ledger
+    // recompute + insert all run inside one DB transaction so concurrent wallet
+    // writes can't lost-update the balance. The unique `idempotencyKey` is the
+    // ultimate double-credit guard (a duplicate insert rolls the txn back).
     try {
-      const existing = await this.prisma.walletTransaction.findUnique({
-        where: { idempotencyKey },
+      return await this.prisma.$transaction(async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
+
+        const existing = await tx.walletTransaction.findUnique({
+          where: { idempotencyKey },
+        });
+        if (existing) {
+          return existing;
+        }
+
+        const sums = await tx.walletTransaction.groupBy({
+          by: ['direction'],
+          where: { userId, status: 'CONFIRMED' },
+          _sum: { amount: true },
+        });
+
+        const credits =
+          sums.find((item) => item.direction === 'IN')?._sum.amount ?? 0;
+        const debits =
+          sums.find((item) => item.direction === 'OUT')?._sum.amount ?? 0;
+        const currentBalance = credits - debits;
+
+        const direction = type === 'WITHDRAWAL' ? 'OUT' : 'IN';
+        const normalizedAmount = Math.abs(amount);
+        const balanceAfter =
+          direction === 'IN'
+            ? currentBalance + normalizedAmount
+            : currentBalance - normalizedAmount;
+
+        return tx.walletTransaction.create({
+          data: {
+            userId,
+            type,
+            direction,
+            amount: normalizedAmount,
+            balanceAfter,
+            status: 'CONFIRMED',
+            idempotencyKey,
+            metadataJson: metadata as any,
+          },
+        });
       });
-      if (existing) {
-        return existing;
+    } catch (e: any) {
+      // Concurrent duplicate for the same idempotency key — return the row that
+      // the other writer committed instead of surfacing a 500 to the webhook.
+      if (e?.code === 'P2002') {
+        const existing = await this.prisma.walletTransaction.findUnique({
+          where: { idempotencyKey },
+        });
+        if (existing) return existing;
       }
-
-      const sums = await this.prisma.walletTransaction.groupBy({
-        by: ['direction'],
-        where: { userId, status: 'CONFIRMED' },
-        _sum: { amount: true },
-      });
-
-      const credits =
-        sums.find((item) => item.direction === 'IN')?._sum.amount ?? 0;
-      const debits =
-        sums.find((item) => item.direction === 'OUT')?._sum.amount ?? 0;
-      const currentBalance = credits - debits;
-
-      const direction = type === 'WITHDRAWAL' ? 'OUT' : 'IN';
-      const normalizedAmount = Math.abs(amount);
-      const balanceAfter =
-        direction === 'IN'
-          ? currentBalance + normalizedAmount
-          : currentBalance - normalizedAmount;
-
-      return this.prisma.walletTransaction.create({
-        data: {
-          userId,
-          type,
-          direction,
-          amount: normalizedAmount,
-          balanceAfter,
-          status: 'CONFIRMED',
-          idempotencyKey,
-          metadataJson: metadata as any,
-        },
-      });
-    } finally {
-      await this.redis.del(lockKey);
+      throw e;
     }
   }
 
@@ -1054,7 +1076,10 @@ export class PaymentsService {
 
   async getCurrentSubscription(userId: string) {
     const sub = await this.prisma.userSubscription.findFirst({
-      where: { userId, status: 'ACTIVE' },
+      // Defensive: only treat as current if the period hasn't lapsed, in case
+      // the expiry cron hasn't run yet. Avoids showing a paid plan as ACTIVE
+      // past its expiry.
+      where: { userId, status: 'ACTIVE', expiresAt: { gt: new Date() } },
       include: { plan: true },
       orderBy: { subscribedAt: 'desc' },
     });
@@ -1126,6 +1151,16 @@ export class PaymentsService {
     });
     if (!plan) return;
 
+    // Idempotency: the same Razorpay payment can arrive via both the client
+    // `verify` call and the `payment.captured` webhook. `Payment.razorpayPaymentId`
+    // is unique, so a second pass would throw P2002 (uncaught → 500 → Razorpay
+    // retries forever). Short-circuit if we've already recorded this payment.
+    const alreadyRecorded = await this.prisma.payment.findFirst({
+      where: { razorpayPaymentId: paymentRef },
+      select: { id: true },
+    });
+    if (alreadyRecorded) return;
+
     const priorActive = await this.prisma.userSubscription.findMany({
       where: { userId, status: 'ACTIVE' },
       include: { plan: true },
@@ -1187,7 +1222,11 @@ export class PaymentsService {
       '/settings/billing',
     );
 
-    await this.affiliatesService.calculateCommission(userId, amount);
+    await this.affiliatesService.calculateCommission(
+      userId,
+      amount,
+      paymentRef,
+    );
 
     if (isUpgrade) {
       void this.agentEvents.emit({

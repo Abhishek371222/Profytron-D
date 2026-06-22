@@ -52,6 +52,9 @@ web-err.txt
 *firebase-adminsdk*.json
 **/serviceAccount*.json
 
+# Generated production env block for Render (contains secrets)
+render.env
+
 # Test outputs
 coverage/
 .nyc_output/

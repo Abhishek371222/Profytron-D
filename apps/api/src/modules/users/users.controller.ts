@@ -206,7 +206,9 @@ export class UsersController {
   }
 
   @Get('me/email-history')
-  @ApiOperation({ summary: 'Get full email history for the authenticated user' })
+  @ApiOperation({
+    summary: 'Get full email history for the authenticated user',
+  })
   @ApiResponse({ status: 200, description: 'Email history returned' })
   async getEmailHistory(@Req() req: AuthenticatedRequest) {
     return this.emailService.getEmailHistory({ userId: req.user.userId });

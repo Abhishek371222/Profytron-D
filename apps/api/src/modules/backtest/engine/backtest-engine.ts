@@ -99,11 +99,16 @@ function evalRule(rule: any, series: SeriesMap, i: number): boolean {
   const rv = resolveValue(rule.right, series, i);
   if (isNaN(lv) || isNaN(rv)) return false;
   switch (rule.comparator as string) {
-    case '>': return lv > rv;
-    case '<': return lv < rv;
-    case '>=': return lv >= rv;
-    case '<=': return lv <= rv;
-    case '==': return Math.abs(lv - rv) < 1e-9;
+    case '>':
+      return lv > rv;
+    case '<':
+      return lv < rv;
+    case '>=':
+      return lv >= rv;
+    case '<=':
+      return lv <= rv;
+    case '==':
+      return Math.abs(lv - rv) < 1e-9;
     case 'crossesAbove': {
       const lp = resolveValue(rule.left, series, i - 1);
       const rp = resolveValue(rule.right, series, i - 1);
@@ -114,7 +119,8 @@ function evalRule(rule: any, series: SeriesMap, i: number): boolean {
       const rp = resolveValue(rule.right, series, i - 1);
       return lp >= rp && lv < rv;
     }
-    default: return false;
+    default:
+      return false;
   }
 }
 

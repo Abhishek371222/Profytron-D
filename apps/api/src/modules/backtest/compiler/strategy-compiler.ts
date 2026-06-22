@@ -72,7 +72,8 @@ export function compileGraph(
       case 'CONDITION':
         if (cfg.symbol) symbol = cfg.symbol as string;
         if (cfg.timeframe) timeframe = cfg.timeframe as string;
-        if (cfg.direction) direction = cfg.direction as 'LONG' | 'SHORT' | 'BOTH';
+        if (cfg.direction)
+          direction = cfg.direction as 'LONG' | 'SHORT' | 'BOTH';
         entryRules.push({
           left: cfg.left ?? node.id,
           comparator: cfg.comparator ?? '>',
@@ -91,28 +92,32 @@ export function compileGraph(
       case 'ACTION':
         if (cfg.slPct != null) risk.slPct = Number(cfg.slPct);
         if (cfg.tpPct != null) risk.tpPct = Number(cfg.tpPct);
-        if (cfg.riskPerTradePct != null) risk.riskPerTradePct = Number(cfg.riskPerTradePct);
+        if (cfg.riskPerTradePct != null)
+          risk.riskPerTradePct = Number(cfg.riskPerTradePct);
         break;
     }
   }
 
   const entryGroup: RuleGroup = {
     op: 'AND',
-    rules: entryRules.length > 0
-      ? entryRules
-      : [{ left: 'price', comparator: '>', right: 0 }],
+    rules:
+      entryRules.length > 0
+        ? entryRules
+        : [{ left: 'price', comparator: '>', right: 0 }],
   };
 
   const exitGroup: RuleGroup = {
     op: 'OR',
-    rules: exitRules.length > 0
-      ? exitRules
-      : [{ left: 'price', comparator: '<', right: 0 }],
+    rules:
+      exitRules.length > 0
+        ? exitRules
+        : [{ left: 'price', comparator: '<', right: 0 }],
   };
 
   return {
     version: 1,
-    name: nodes.find((n) => n.nodeType === 'ENTRY')?.label ?? 'Compiled Strategy',
+    name:
+      nodes.find((n) => n.nodeType === 'ENTRY')?.label ?? 'Compiled Strategy',
     symbol,
     timeframe,
     indicators,
