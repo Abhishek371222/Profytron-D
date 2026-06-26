@@ -5,25 +5,34 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  BarChart3,
   Sparkles,
-  Wallet,
+  ShoppingBag,
+  Library,
   Bell,
 } from "@/components/ui/icons";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { notificationsApi } from "@/lib/api/notifications";
 
 const bottomNavItems = [
-  { name: "Home",      icon: LayoutDashboard, href: "/dashboard"     },
-  { name: "Analytics", icon: BarChart3,        href: "/analytics"     },
-  { name: "AI",        icon: Sparkles,         href: "/ai-coach"      },
-  { name: "Wallet",    icon: Wallet,           href: "/wallet"        },
-  { name: "Alerts",    icon: Bell,             href: "/notifications" },
+  { name: "Home",       icon: LayoutDashboard, href: "/dashboard"     },
+  { name: "Market",     icon: ShoppingBag,     href: "/marketplace"   },
+  { name: "Strategies", icon: Library,         href: "/strategies"    },
+  { name: "AI",         icon: Sparkles,        href: "/ai-coach"      },
+  { name: "Alerts",     icon: Bell,            href: "/notifications" },
 ];
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const isBuilder = pathname?.includes("/strategies/builder");
+  const { data: unreadData } = useQuery({
+    queryKey: ["notifications-unread"],
+    queryFn: () => notificationsApi.unreadCount(),
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+  const unreadCount = unreadData?.count ?? 0;
 
   if (isBuilder) return null;
 
@@ -73,8 +82,10 @@ export function MobileBottomNav() {
 
                 <div className="relative">
                   <Icon className={cn("w-5 h-5 transition-transform duration-200", isActive && "scale-110")} />
-                  {isActive && item.name === "Alerts" && (
-                    <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-primary" />
+                  {item.name === "Alerts" && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[14px] h-3.5 px-0.5 rounded-full bg-primary text-[8px] font-bold text-primary-foreground flex items-center justify-center">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
                   )}
                 </div>
 

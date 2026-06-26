@@ -336,7 +336,7 @@ function LoginPageContent() {
                     type={twoFaChallenge ? 'button' : 'submit'}
                     onClick={twoFaChallenge ? handleCompleteTwoFa : undefined}
                     disabled={isLoading}
-                    className="relative h-12 w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary to-chart-2 text-body font-semibold text-primary-foreground transition-all hover:brightness-110"
+                    className="group relative h-12 w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary to-chart-2 text-body font-semibold text-primary-foreground transition-all hover:brightness-110"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {isLoading ? (

@@ -93,7 +93,7 @@ function MessageBubble({ msg }: { msg: Message }) {
             : 'bg-foreground/5 border border-border text-foreground/80 rounded-tl-sm',
         )}
       >
-        <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+        <p className="whitespace-pre-wrap break-words text-inherit">{msg.content}</p>
         <p
           className={cn(
             'text-[10px] mt-1.5 font-medium',
@@ -124,7 +124,35 @@ export function ChatbotWidget() {
   const [loading, setLoading] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Keep wheel events inside the chat panel (Lenis on the landing page hijacks page scroll).
+  useEffect(() => {
+    const el = messagesScrollRef.current;
+    if (!el || !isOpen) return;
+
+    const onWheel = (event: WheelEvent) => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      const delta = event.deltaY;
+      const atTop = scrollTop <= 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+      const scrollingUp = delta < 0;
+      const scrollingDown = delta > 0;
+
+      if ((scrollingUp && atTop) || (scrollingDown && atBottom)) {
+        event.preventDefault();
+        return;
+      }
+
+      event.stopPropagation();
+      el.scrollTop += delta;
+      event.preventDefault();
+    };
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -247,8 +275,12 @@ export function ChatbotWidget() {
               </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0">
+            {/* Messages — data-lenis-prevent stops Lenis from capturing wheel on landing */}
+            <div
+              ref={messagesScrollRef}
+              data-lenis-prevent
+              className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 space-y-4 min-h-0 touch-pan-y"
+            >
               {messages.map((msg) => (
                 <MessageBubble key={msg.id} msg={msg} />
               ))}

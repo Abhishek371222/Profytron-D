@@ -23,16 +23,24 @@ import {
   FileText,
   Briefcase,
   Unplug,
+  Library,
+  Workflow,
+  Cpu,
 } from "@/components/ui/icons";
 import { cn, isAdminUser } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/useUIStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import { UserAvatar } from "@/components/ui/UserAvatar";
+import { useQuery } from "@tanstack/react-query";
+import { notificationsApi } from "@/lib/api/notifications";
 
 const navItems = [
   { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
   { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
+  { name: "Strategies", icon: Library, href: "/strategies" },
+  { name: "Copy Trading", icon: Workflow, href: "/copy-trading" },
+  { name: "Bots", icon: Cpu, href: "/bots" },
   { name: "My Bots", icon: Server, href: "/my-bots" },
   { name: "Connected Accounts", icon: Unplug, href: "/connected-accounts" },
   { name: "Subscriptions", icon: CreditCard, href: "/subscriptions" },
@@ -44,7 +52,7 @@ const navItems = [
   { name: "Journal", icon: BookOpen, href: "/journal" },
   { name: "History", icon: History, href: "/history" },
   { name: "Leaderboard", icon: Trophy, href: "/leaderboard" },
-  { name: "Notifications", icon: Bell, href: "/notifications", badge: 3 },
+  { name: "Notifications", icon: Bell, href: "/notifications" },
   { name: "Affiliate", icon: Network, href: "/affiliate" },
   { name: "Settings", icon: Settings, href: "/settings" },
 ];
@@ -58,6 +66,13 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
   React.useEffect(() => setMounted(true), []);
 
   const { data: user } = useCurrentUser();
+  const { data: unreadData } = useQuery({
+    queryKey: ["notifications-unread"],
+    queryFn: () => notificationsApi.unreadCount(),
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+  const unreadCount = unreadData?.count ?? 0;
   const expanded = mobile ? true : sidebarOpen;
   const showAdminLink = isAdminUser(user);
 
@@ -139,9 +154,9 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
                   isActive ? "text-primary" : "text-muted-foreground group-hover/nav:text-foreground"
                 )} />
                 {expanded && <span className="truncate">{item.name}</span>}
-                {expanded && "badge" in item && item.badge != null && (
+                {expanded && item.href === "/notifications" && unreadCount > 0 && (
                   <span className="ml-auto flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1.5 text-[9px] font-bold text-primary-foreground shadow-[0_2px_6px_color-mix(in_srgb,var(--primary)_35%,transparent)]">
-                    {item.badge}
+                    {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
               </div>

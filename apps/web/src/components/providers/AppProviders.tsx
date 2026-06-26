@@ -5,6 +5,26 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { MSWProvider } from "@/components/providers/MSWProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
 import { Toaster } from "sonner";
+import React from "react";
+
+function ThemedToaster() {
+  const [theme, setTheme] = React.useState<"light" | "dark">("dark");
+
+  React.useEffect(() => {
+    const syncTheme = () => {
+      setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
+    };
+    syncTheme();
+    const observer = new MutationObserver(syncTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  return <Toaster richColors position="top-right" theme={theme} />;
+}
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -13,7 +33,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <AuthProvider>
           <TooltipProvider>
             {children}
-            <Toaster richColors position="top-right" theme="dark" />
+            <ThemedToaster />
           </TooltipProvider>
         </AuthProvider>
       </MSWProvider>

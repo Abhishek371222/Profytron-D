@@ -12,6 +12,19 @@ type AnimatedCounterProps = {
   duration?: number;
 };
 
+function formatCounterValue(
+  value: number,
+  prefix: string,
+  suffix: string,
+  decimals: number,
+): string {
+  const formatted =
+    decimals > 0
+      ? value.toFixed(decimals)
+      : Math.round(value).toLocaleString();
+  return `${prefix}${formatted}${suffix}`;
+}
+
 export function AnimatedCounter({
   value,
   prefix = "",
@@ -22,10 +35,24 @@ export function AnimatedCounter({
 }: AnimatedCounterProps) {
   const ref = React.useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.5 });
-  const [display, setDisplay] = React.useState("0");
+  const finalLabel = formatCounterValue(value, prefix, suffix, decimals);
+  const [display, setDisplay] = React.useState(finalLabel);
+  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(false);
 
   React.useEffect(() => {
-    if (!inView) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setPrefersReducedMotion(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  React.useEffect(() => {
+    if (!inView || prefersReducedMotion) {
+      setDisplay(finalLabel);
+      return;
+    }
+
     const start = performance.now();
     const ms = duration * 1000;
 
@@ -33,20 +60,17 @@ export function AnimatedCounter({
       const p = Math.min(1, (now - start) / ms);
       const eased = 1 - Math.pow(1 - p, 3);
       const current = value * eased;
-      const formatted =
-        decimals > 0
-          ? current.toFixed(decimals)
-          : Math.round(current).toLocaleString();
-      setDisplay(`${prefix}${formatted}${suffix}`);
+      setDisplay(formatCounterValue(current, prefix, suffix, decimals));
       if (p < 1) requestAnimationFrame(tick);
     };
 
+    setDisplay(formatCounterValue(0, prefix, suffix, decimals));
     requestAnimationFrame(tick);
-  }, [inView, value, prefix, suffix, decimals, duration]);
+  }, [inView, prefersReducedMotion, value, prefix, suffix, decimals, duration, finalLabel]);
 
   return (
     <span ref={ref} className={className}>
-      {inView ? display : `${prefix}0${suffix}`}
+      {inView ? display : finalLabel}
     </span>
   );
 }
