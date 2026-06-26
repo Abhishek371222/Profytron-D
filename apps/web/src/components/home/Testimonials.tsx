@@ -52,7 +52,7 @@ const testimonials = [
       "The risk sentinel saved my account during the flash crash. Circuit breakers fired before I saw the candle.",
     author: "Rena Park",
     company: "Arc Systems",
-    metrics: "Capital Protected",
+    metrics: "Flash Shielded",
     badge: "rose" as BadgeTone,
   },
   {
@@ -91,24 +91,25 @@ const testimonials = [
 
 const badgeStyles: Record<BadgeTone, string> = {
   violet: "bg-[#47a7aa]/10 text-[#47a7aa] border-[#47a7aa]/20",
-  emerald: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-  rose: "bg-rose-500/10 text-rose-600 border-rose-500/20",
+  emerald: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  rose: "bg-rose-500/10 text-rose-400 border-rose-500/25",
   blue: "bg-[#47a7aa]/10 text-[#47a7aa] border-[#47a7aa]/20",
-  amber: "bg-amber-500/10 text-amber-700 border-amber-500/20",
+  amber: "bg-amber-500/10 text-amber-500 border-amber-500/20",
 };
 
 function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
   return (
-    <article className="rounded-[18px] border border-[var(--card-border)] bg-card p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col min-h-[220px]">
-      <div className="flex items-start justify-between gap-2 mb-3">
+    <article className="rounded-[18px] border border-[var(--card-border)] bg-card p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col min-h-[200px]">
+      <div className="flex items-start justify-between gap-1.5 mb-2.5">
         <div className="flex gap-0.5 shrink-0">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+            <Star key={i} className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-400 text-amber-400" />
           ))}
         </div>
         <span
           className={cn(
-            "text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md border max-w-[52%] text-right leading-snug",
+            "ml-auto shrink-0 inline-flex items-center justify-center h-5 max-w-[58%] px-1.5 rounded-md border",
+            "text-[8px] font-bold uppercase tracking-[0.06em] leading-none whitespace-nowrap",
             badgeStyles[t.badge],
           )}
         >
@@ -116,18 +117,18 @@ function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
         </span>
       </div>
 
-      <Quote className="w-5 h-5 text-primary/30 mb-2 shrink-0" />
-      <p className="text-sm text-foreground/80 leading-relaxed flex-1 mb-4 break-words">
+      <Quote className="w-4 h-4 text-primary/30 mb-1.5 shrink-0" />
+      <p className="text-[13px] text-foreground/80 leading-snug flex-1 mb-3 line-clamp-5">
         {t.quote}
       </p>
 
-      <div className="flex items-start gap-2.5 pt-3 border-t border-[var(--card-border)] mt-auto">
-        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
+      <div className="flex items-center gap-2 pt-2.5 border-t border-[var(--card-border)] mt-auto min-h-[52px]">
+        <div className="w-7 h-7 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
           {t.author[0]}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-foreground leading-snug break-words">{t.author}</p>
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground leading-snug break-words mt-0.5">
+          <p className="text-xs font-bold text-foreground leading-tight line-clamp-2">{t.author}</p>
+          <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground leading-tight line-clamp-2 mt-0.5">
             {t.company}
           </p>
         </div>
@@ -142,8 +143,8 @@ export function Testimonials() {
       id="testimonials"
       className="py-16 sm:py-24 relative overflow-hidden bg-[var(--bg-secondary)] dark:bg-background border-t border-[var(--card-border)]"
     >
-      <div className="page-container max-w-[1280px]">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(280px,360px)_1fr] gap-10 xl:gap-14 items-start">
+      <div className="page-container max-w-[1480px]">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(260px,320px)_1fr] gap-8 xl:gap-10 2xl:gap-12 items-start">
           {/* Left — trust column */}
           <motion.div
             initial={{ opacity: 0, x: -16 }}
@@ -199,15 +200,16 @@ export function Testimonials() {
             </div>
           </motion.div>
 
-          {/* Right — testimonial grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+          {/* Right — 2 rows × 5 cols on wide screens */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-3.5">
             {testimonials.map((t, i) => (
               <motion.div
                 key={t.author}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.4, delay: (i % 3) * 0.06 }}
+                transition={{ duration: 0.4, delay: (i % 5) * 0.05 }}
+                className="min-w-0"
               >
                 <TestimonialCard t={t} />
               </motion.div>
