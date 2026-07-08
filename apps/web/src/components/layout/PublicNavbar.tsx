@@ -4,10 +4,11 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ArrowRight, Zap, ChevronDown } from 'lucide-react';
+import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { cn } from '@/lib/utils';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const navLinks = [
   {
@@ -82,12 +83,7 @@ export function PublicNavbar() {
           aria-label="Site navigation"
         >
           <Link href="/" className="flex items-center gap-2.5 group shrink-0" aria-label="Profytron Home">
-            <div className="w-9 h-9 bg-primary/10 rounded-[10px] flex items-center justify-center border border-primary/15 group-hover:bg-primary/15 transition-colors">
-              <Zap className="w-4 h-4 text-primary fill-primary/20" />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-foreground">
-              PROFY<span className="text-primary">TRON</span>
-            </span>
+            <BrandLogo size="md" showWordmark />
           </Link>
 
           <div className="hidden lg:flex items-center gap-1">

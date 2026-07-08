@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, Command, Menu, ChevronDown, Settings, CreditCard, KeyRound, LogOut, User, Link2, Wallet } from "lucide-react";
+import { Search, Command, Menu, ChevronDown, CreditCard, LogOut, User, Link2, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -194,28 +194,14 @@ export function TopBar() {
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-foreground/60 hover:text-foreground hover:bg-muted/5 cursor-pointer text-caption font-medium transition-colors"
             >
               <User className="w-3.5 h-3.5" />
-              Profile Settings
+              Profile
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => router.push("/settings/api-keys")}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-foreground/60 hover:text-foreground hover:bg-muted/5 cursor-pointer text-caption font-medium transition-colors"
-            >
-              <KeyRound className="w-3.5 h-3.5" />
-              API Keys
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => router.push("/settings/billing")}
+              onClick={() => router.push("/subscriptions")}
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-foreground/60 hover:text-foreground hover:bg-muted/5 cursor-pointer text-caption font-medium transition-colors"
             >
               <CreditCard className="w-3.5 h-3.5" />
               Subscription
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => router.push("/settings")}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-foreground/60 hover:text-foreground hover:bg-muted/5 cursor-pointer text-caption font-medium transition-colors"
-            >
-              <Settings className="w-3.5 h-3.5" />
-              Settings
             </DropdownMenuItem>
 
             <div className="h-px bg-muted/6 mx-1 my-1" />

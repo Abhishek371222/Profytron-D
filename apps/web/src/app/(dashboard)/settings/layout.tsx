@@ -8,9 +8,7 @@ import {
   Bell,
   Zap,
   CreditCard,
-  Key,
   MessageSquare,
-  Settings,
 } from '@/components/ui/icons';
 import {
   DashboardPage,
@@ -26,7 +24,6 @@ const navItems = [
   { name: 'Notifications', icon: Bell, href: '/settings/notifications' },
   { name: 'Trading', icon: Zap, href: '/settings/trading' },
   { name: 'Billing', icon: CreditCard, href: '/settings/billing' },
-  { name: 'API Keys', icon: Key, href: '/settings/api-keys' },
   { name: 'Support', icon: MessageSquare, href: '/settings/support' },
 ];
 
@@ -35,12 +32,17 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
 
   return (
     <DashboardPage>
-      <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Settings' }]} />
+      <DashboardBreadcrumbs
+        items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Profile' },
+        ]}
+      />
 
       <DashboardPageHeader
-        title="Settings"
-        description="Manage your profile, security, billing, and platform preferences."
-        icon={Settings}
+        title="Profile"
+        description="Manage your identity, security, notifications, and account preferences."
+        icon={User}
       />
 
       <div className="flex flex-col lg:flex-row gap-6 items-start">

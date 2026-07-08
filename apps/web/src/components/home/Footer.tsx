@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Zap, Globe, MessageSquare, Mail, ArrowRight } from "lucide-react";
+import { Globe, MessageSquare, Mail, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TrustBadges } from "@/components/trust/TrustBadges";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
@@ -52,12 +53,7 @@ export function Footer() {
           {/* Logo & Foundation */}
           <div className="lg:col-span-5">
             <Link href="/" className="flex items-center gap-3 mb-8 group">
-              <div className="w-10 h-10 bg-foreground/3 rounded-xl flex items-center justify-center border border-border group-hover:border-primary/50 transition-all duration-500 shadow-inner group-hover:bg-primary/10">
-                <Zap className="w-5 h-5 text-foreground/70 group-hover:text-primary transition-colors" />
-              </div>
-              <span className="text-xl font-bold tracking-tight text-foreground group-hover:text-foreground/90 transition-colors">
-                PROFYTRON
-              </span>
+              <BrandLogo size="lg" showWordmark />
             </Link>
             <p className="text-foreground/40 text-sm mb-8 leading-relaxed max-w-sm font-medium">
               Building the future of trading success. Your edge, refined for tomorrow's markets.

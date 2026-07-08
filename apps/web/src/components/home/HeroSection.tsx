@@ -4,6 +4,8 @@ import React from "react";
 import { ArrowRight, Play, Check, Sparkles } from "lucide-react";
 import { TrustBadges } from "@/components/trust/TrustBadges";
 import { StaggerFadeUp, StaggerItem } from "@/components/animations/StaggerFadeUp";
+import { MagneticWrap } from "@/components/animations";
+import { RotatingWords } from "@/components/animations/RotatingWords";
 import { HeroDashboardPreview } from "@/components/home/HeroDashboardPreview";
 import { HeroStatsRow } from "@/components/home/HeroStatsRow";
 import { HeroFeatureStrip } from "@/components/home/HeroFeatureStrip";
@@ -58,7 +60,10 @@ export function HeroSection() {
               <StaggerItem>
                 <h1 className="hero-headline text-[clamp(2.5rem,5vw,4.25rem)] text-foreground text-balance mb-5 sm:mb-6">
                   Stop Trading{" "}
-                  <span className="text-gradient-hero">Manually.</span>
+                  <RotatingWords
+                    words={["Manually.", "Emotion.", "Guesswork.", "Latency."]}
+                    className="min-w-[9ch]"
+                  />
                 </h1>
               </StaggerItem>
 
@@ -72,13 +77,18 @@ export function HeroSection() {
               <StaggerItem>
                 <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-5">
                   {mounted && isAuthenticated ? (
-                    <LandingDashboardLink />
+                    <MagneticWrap strength={0.22}>
+                      <LandingDashboardLink />
+                    </MagneticWrap>
                   ) : (
-                    <LandingPrimaryLink href="/register?plan=starter">
-                      Start 7-Day Free Trial
-                      <ArrowRight className="w-4 h-4 shrink-0" />
-                    </LandingPrimaryLink>
+                    <MagneticWrap strength={0.28}>
+                      <LandingPrimaryLink href="/register?plan=starter">
+                        Start 7-Day Free Trial
+                        <ArrowRight className="w-4 h-4 shrink-0" />
+                      </LandingPrimaryLink>
+                    </MagneticWrap>
                   )}
+                  <MagneticWrap strength={0.15}>
                   <LandingSecondaryLink
                     href="#how-it-works"
                     onClick={(e) => {
@@ -89,6 +99,7 @@ export function HeroSection() {
                     <Play className="w-4 h-4 fill-primary text-primary shrink-0" />
                     See How It Works
                   </LandingSecondaryLink>
+                  </MagneticWrap>
                 </div>
               </StaggerItem>
 

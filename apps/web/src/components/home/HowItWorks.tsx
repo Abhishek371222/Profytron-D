@@ -1,6 +1,7 @@
 ﻿"use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import {
   Database,
   BrainCircuit,
@@ -130,6 +131,13 @@ function TimelineStep({
 }
 
 export function HowItWorks() {
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ["start 0.85", "end 0.35"],
+  });
+  const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
   return (
     <section
       id="how-it-works"
@@ -205,11 +213,17 @@ export function HowItWorks() {
           </motion.div>
 
           {/* ── Right: timeline ── */}
-          <div className="relative">
-            {/* Vertical gradient line */}
+          <div ref={timelineRef} className="relative">
+            {/* Background track */}
             <div
               aria-hidden
-              className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-gradient-to-b from-[#47a7aa] via-[#1e6d48] to-emerald-500 opacity-80"
+              className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-[var(--card-border)]"
+            />
+            {/* Animated progress fill */}
+            <motion.div
+              aria-hidden
+              className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-gradient-to-b from-[#47a7aa] via-[#1e6d48] to-emerald-500 origin-top"
+              style={{ scaleY: lineScale }}
             />
 
             <div className="space-y-5 sm:space-y-6">

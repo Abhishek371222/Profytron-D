@@ -16,6 +16,7 @@ import {
   LineChart,
 } from "lucide-react";
 import { LandingPrimaryLink, LandingSecondaryLink } from "@/components/home/LandingButtons";
+import { TiltCard3D } from "@/components/animations/TiltCard3D";
 
 function LatencyPill() {
   return (
@@ -160,14 +161,18 @@ function FeatureCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.5, delay }}
-      className="rounded-[20px] border border-[var(--card-border)] bg-card p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)] h-full flex flex-col"
+      className="h-full"
     >
-      <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center mb-4">
-        <Icon className="w-5 h-5 text-primary" />
-      </div>
-      <h3 className="text-base font-bold text-foreground mb-2">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed flex-1">{description}</p>
-      {children}
+      <TiltCard3D intensity={10} className="h-full">
+        <div className="rounded-[20px] border border-[var(--card-border)] bg-card p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)] h-full flex flex-col">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center mb-4">
+            <Icon className="w-5 h-5 text-primary" />
+          </div>
+          <h3 className="text-base font-bold text-foreground mb-2">{title}</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed flex-1">{description}</p>
+          {children}
+        </div>
+      </TiltCard3D>
     </motion.div>
   );
 }

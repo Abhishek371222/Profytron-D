@@ -7,44 +7,46 @@
 ═══════════════════════════════════════════════════════ */
 
 :root {
-  /* Brand — Profytron Premium */
-  --primary: #47a7aa;
-  --primary-hover: #3d9194;
-  --primary-light: #e6f4f4;
+  /* Brand — Profytron (logo teal + crimson) */
+  --primary: #368B9D;
+  --primary-hover: #2D7585;
+  --primary-light: #E8F4F6;
   --primary-foreground: #FFFFFF;
-  --ring: #47a7aa;
+  --ring: #368B9D;
 
-  /* Brand greens — depth palette */
-  --brand-green: #1e6d48;
-  --brand-darkgreen: #0f401a;
-  --brand-teal: #47a7aa;
-  --brand-teal-dark: #3d9194;
+  /* Brand depth palette */
+  --brand-green: #2A6F7C;
+  --brand-darkgreen: #1A4550;
+  --brand-teal: #368B9D;
+  --brand-teal-dark: #2D7585;
+  --brand-crimson: #B23A3A;
+  --brand-crimson-dark: #5D1919;
 
   /* Legacy accent shims */
-  --indigo: #47a7aa;
-  --violet: #1e6d48;
-  --purple: #0f401a;
+  --indigo: #368B9D;
+  --violet: #B23A3A;
+  --purple: #5D1919;
 
   --success: #10b981;
   --warning: #F59E0B;
-  --destructive: #ef4444;
+  --destructive: #B23A3A;
   --destructive-foreground: #FFFFFF;
-  --info: #0891B2;
+  --info: #368B9D;
 
-  /* Surfaces — Light */
+  /* Surfaces — Light (matches logo off-white) */
   --background: #FFFFFF;
-  --bg-secondary: #F8F9FC;
+  --bg-secondary: #F8F9FA;
   --card: #FFFFFF;
   --card-foreground: #0F172A;
   --popover: #FFFFFF;
   --popover-foreground: #0F172A;
-  --sidebar: #F8F9FB;
-  --navbar: rgba(255, 255, 255, 0.8);
+  --sidebar: #F8F9FA;
+  --navbar: rgba(255, 255, 255, 0.82);
   --secondary: #FAFBFC;
   --secondary-foreground: #0F172A;
   --muted: #F1F5F9;
-  --accent: #EFF6FF;
-  --accent-foreground: #1e6d48;
+  --accent: #E8F4F6;
+  --accent-foreground: #2D7585;
   --input: #FFFFFF;
 
   /* Text — Light */
@@ -59,20 +61,20 @@
   --input-border: #D1D5DB;
 
   /* Charts */
-  --chart-1: #47a7aa;
-  --chart-2: #1e6d48;
+  --chart-1: #368B9D;
+  --chart-2: #B23A3A;
   --chart-3: #10b981;
   --chart-4: #F59E0B;
-  --chart-5: #3d9194;
+  --chart-5: #2D7585;
 
   /* Sidebar tokens */
   --sidebar-foreground: #0F172A;
-  --sidebar-primary: #47a7aa;
+  --sidebar-primary: #368B9D;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #d9f0f1;
-  --sidebar-accent-foreground: #1e6d48;
+  --sidebar-accent: #D9EEF2;
+  --sidebar-accent-foreground: #2D7585;
   --sidebar-border: #E5E7EB;
-  --sidebar-ring: #47a7aa;
+  --sidebar-ring: #368B9D;
 
   /* Typography */
   --font-sans: var(--font-geist, "Geist"), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -154,13 +156,13 @@
   --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
 
   /* Gradients */
-  --gradient-hero: linear-gradient(135deg, #47a7aa 0%, #1e6d48 100%);
-  --gradient-hero-word: linear-gradient(90deg, #47a7aa 0%, #2d9468 50%, #1e6d48 100%);
-  --gradient-cta: linear-gradient(135deg, #47a7aa 0%, #0f401a 100%);
-  --gradient-brand: linear-gradient(135deg, #47a7aa 0%, #1e6d48 60%, #0f401a 100%);
+  --gradient-hero: linear-gradient(135deg, #368B9D 0%, #B23A3A 100%);
+  --gradient-hero-word: linear-gradient(90deg, #368B9D 0%, #B23A3A 100%);
+  --gradient-cta: linear-gradient(135deg, #368B9D 0%, #2D7585 100%);
+  --gradient-brand: linear-gradient(135deg, #368B9D 0%, #B23A3A 60%, #5D1919 100%);
   --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --glow-hero: radial-gradient(circle at top center, rgba(71, 167, 170, 0.10), transparent 60%);
-  --glow-teal: radial-gradient(circle at center, rgba(71, 167, 170, 0.15), transparent 60%);
+  --glow-hero: radial-gradient(circle at top center, rgba(54, 139, 157, 0.12), transparent 60%);
+  --glow-teal: radial-gradient(circle at center, rgba(54, 139, 157, 0.16), transparent 60%);
 
   /* Legacy bridge */
   --bg-base: var(--background);
@@ -169,7 +171,7 @@
   --bg-overlay: color-mix(in srgb, var(--card) 96%, transparent);
   --bg-glass: color-mix(in srgb, var(--card) 92%, transparent);
   --p: var(--primary);
-  --p-rgb: 71, 167, 170;
+  --p-rgb: 54, 139, 157;
   --p-light: var(--primary-light);
   --p-dark: var(--primary-hover);
   --s: var(--success);
@@ -195,72 +197,75 @@
 }
 
 .dark {
-  --primary: #47a7aa;
-  --primary-hover: #5bbec1;
-  --primary-light: #0d2d2e;
+  --primary: #4AA3B5;
+  --primary-hover: #62B8C8;
+  --primary-light: #0F2A30;
   --primary-foreground: #FFFFFF;
-  --ring: #47a7aa;
+  --ring: #4AA3B5;
+
+  --brand-crimson: #C45A5A;
+  --brand-crimson-dark: #7A2A2A;
 
   --success: #34d399;
-  --destructive: #f87171;
+  --destructive: #C45A5A;
   --warning: #fbbf24;
 
-  /* Deep space blue backgrounds */
-  --background: #0b1020;
-  --bg-secondary: #0f172a;
-  --card: #111827;
+  /* Charcoal surfaces — match logo dark canvas */
+  --background: #121212;
+  --bg-secondary: #171717;
+  --card: #1A1A1A;
   --card-foreground: #f1f5f9;
-  --card-border: #1e293b;
-  --popover: #111827;
+  --card-border: #2A2A2A;
+  --popover: #1A1A1A;
   --popover-foreground: #f1f5f9;
-  --sidebar: #050816;
-  --navbar: rgba(11, 16, 32, 0.85);
-  --secondary: #111827;
+  --sidebar: #141414;
+  --navbar: rgba(18, 18, 18, 0.88);
+  --secondary: #1A1A1A;
   --secondary-foreground: #f1f5f9;
-  --muted: #1e293b;
-  --accent: #0d2d2e;
-  --accent-foreground: #47a7aa;
-  --input: #1e293b;
+  --muted: #242424;
+  --accent: #0F2A30;
+  --accent-foreground: #4AA3B5;
+  --input: #242424;
 
   --foreground: #f8fafc;
   --muted-foreground: #94a3b8;
   --text-muted: #64748b;
   --text-disabled: #475569;
 
-  --border: #1e293b;
+  --border: #2A2A2A;
 
-  --chart-1: #47a7aa;
-  --chart-2: #34d399;
-  --chart-3: #6ee7b7;
+  --chart-1: #4AA3B5;
+  --chart-2: #C45A5A;
+  --chart-3: #34d399;
   --chart-4: #fbbf24;
-  --chart-5: #7dd3da;
+  --chart-5: #7BC4D0;
 
   --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #47a7aa;
+  --sidebar-primary: #4AA3B5;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #0d2d2e;
-  --sidebar-accent-foreground: #47a7aa;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #47a7aa;
+  --sidebar-accent: #0F2A30;
+  --sidebar-accent-foreground: #4AA3B5;
+  --sidebar-border: #2A2A2A;
+  --sidebar-ring: #4AA3B5;
 
-  --bg-elevated: #111827;
-  --p-rgb: 71, 167, 170;
-  --p-light: #7dd3da;
-  --p-dark: #3d9194;
-  --s-light: #6ee7b7;
+  --bg-elevated: #1A1A1A;
+  --p-rgb: 74, 163, 181;
+  --p-light: #7BC4D0;
+  --p-dark: #2D7585;
+  --s-light: #C45A5A;
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.20);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.25);
   --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55), 0 4px 8px rgba(0, 0, 0, 0.30);
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.30), 0 8px 24px rgba(0, 0, 0, 0.20);
   --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.40), 0 16px 40px rgba(0, 0, 0, 0.30);
-  --shadow-cta: 0 10px 30px rgba(71, 167, 170, 0.30);
-  --shadow-cta-hover: 0 16px 48px rgba(71, 167, 170, 0.45);
+  --shadow-cta: 0 10px 30px rgba(54, 139, 157, 0.30);
+  --shadow-cta-hover: 0 16px 48px rgba(54, 139, 157, 0.45);
 
-  --gradient-hero: linear-gradient(135deg, #47a7aa 0%, #1e6d48 100%);
-  --gradient-hero-word: linear-gradient(90deg, #47a7aa 0%, #2d9468 50%, #34d399 100%);
-  --gradient-cta: linear-gradient(135deg, #47a7aa 0%, #1e6d48 100%);
-  --glow-hero: radial-gradient(circle at top center, rgba(71, 167, 170, 0.12), transparent 60%);
+  --gradient-hero: linear-gradient(135deg, #368B9D 0%, #B23A3A 100%);
+  --gradient-hero-word: linear-gradient(90deg, #4AA3B5 0%, #C45A5A 100%);
+  --gradient-cta: linear-gradient(135deg, #368B9D 0%, #2D7585 100%);
+  --glow-hero: radial-gradient(circle at top center, rgba(54, 139, 157, 0.14), transparent 60%);
 }
 
 @theme inline {
@@ -310,6 +315,8 @@
   --color-brand-green: var(--brand-green);
   --color-brand-darkgreen: var(--brand-darkgreen);
   --color-brand-teal: var(--brand-teal);
+  --color-brand-crimson: var(--brand-crimson);
+  --color-brand-crimson-dark: var(--brand-crimson-dark);
   --color-bg-elevated: var(--bg-elevated);
   --color-p: var(--primary);
   --color-p-light: var(--p-light);

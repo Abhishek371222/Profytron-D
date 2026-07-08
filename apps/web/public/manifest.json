@@ -4,27 +4,27 @@
   "description": "Algorithmic trading, automated bots, and AI-powered portfolio management.",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#050508",
-  "theme_color": "#6366f1",
+  "background_color": "#121212",
+  "theme_color": "#368B9D",
   "orientation": "any",
   "categories": ["finance", "business"],
   "icons": [
     {
-      "src": "/icons/icon-192.svg",
+      "src": "/logo-dark.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.svg",
+      "src": "/logo-dark.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-192.svg",
+      "src": "/logo-dark.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],
@@ -34,28 +34,28 @@
       "short_name": "Dashboard",
       "description": "Go to main dashboard",
       "url": "/dashboard",
-      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/logo-dark.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Wallet",
       "short_name": "Wallet",
       "description": "View wallet and balances",
       "url": "/wallet",
-      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/logo-dark.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
-      "name": "AI Coach",
+      "name": "AI Assistant",
       "short_name": "AI",
-      "description": "Open AI trading coach",
+      "description": "Open AI trading assistant",
       "url": "/ai-coach",
-      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/logo-dark.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Leaderboard",
       "short_name": "Ranks",
       "description": "View top traders and strategies",
       "url": "/leaderboard",
-      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
+      "icons": [{ "src": "/logo-dark.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

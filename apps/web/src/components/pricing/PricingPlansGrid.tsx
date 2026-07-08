@@ -2,8 +2,11 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Check, Rocket, Star, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { TiltCard3D } from '@/components/animations/TiltCard3D';
+import { GlowPulse } from '@/components/animations';
 import {
   PLATFORM_PLANS,
   formatInr,
@@ -242,10 +245,10 @@ function PricingCard({
   );
 
   if (variant === 'landing') {
-    return (
+    const card = (
       <article
         className={cn(
-          'relative rounded-[24px] border bg-card p-6 sm:p-7 flex flex-col shadow-[0_10px_40px_rgba(15,23,42,0.06)]',
+          'relative rounded-[24px] border bg-card p-6 sm:p-7 flex flex-col shadow-[0_10px_40px_rgba(15,23,42,0.06)] h-full',
           isPopular
             ? 'border-primary ring-1 ring-primary/20'
             : 'border-[var(--card-border)]',
@@ -253,6 +256,29 @@ function PricingCard({
       >
         {cardInner}
       </article>
+    );
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5 }}
+        className="h-full"
+      >
+        <TiltCard3D intensity={isPopular ? 14 : 9} className="h-full">
+          {isPopular ? (
+            <GlowPulse
+              color="color-mix(in srgb, var(--primary) 12%, transparent)"
+              className="rounded-[24px] w-full h-full"
+            >
+              {card}
+            </GlowPulse>
+          ) : (
+            card
+          )}
+        </TiltCard3D>
+      </motion.div>
     );
   }
 

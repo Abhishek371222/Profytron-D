@@ -2,6 +2,7 @@
 
 export { TiltCard3D } from "./TiltCard3D";
 export { FloatingOrbs3D } from "./FloatingOrbs3D";
+export { RotatingWords } from "./RotatingWords";
 
 import React, { useEffect, useRef } from"react";
 import { motion, useInView } from"framer-motion";

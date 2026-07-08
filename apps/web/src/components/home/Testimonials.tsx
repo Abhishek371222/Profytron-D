@@ -89,31 +89,65 @@ const testimonials = [
   },
 ];
 
+/** Shorter labels for narrow testimonial cards */
+const metricsShort: Record<string, string> = {
+  "+42% Alpha": "+42% Alpha",
+  "−70% Dev Time": "−70% Dev",
+  "SOC-2 Verified": "SOC-2",
+  "+28% Efficiency": "+28%",
+  "3 Strategies Live": "3 Live",
+  "Flash Shielded": "Shielded",
+  "< 50ms Routing": "<50ms",
+  "14 Seats Live": "14 Seats",
+  "+1.8 Sharpe": "+1.8 Sharpe",
+  "24/7 Support": "24/7",
+};
+
 const badgeStyles: Record<BadgeTone, string> = {
-  violet: "bg-[#47a7aa]/10 text-[#47a7aa] border-[#47a7aa]/20",
-  emerald: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-  rose: "bg-rose-500/10 text-rose-400 border-rose-500/25",
-  blue: "bg-[#47a7aa]/10 text-[#47a7aa] border-[#47a7aa]/20",
-  amber: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+  violet: "bg-primary/10 text-primary border-primary/20",
+  emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+  rose: "bg-rose-500/10 text-rose-500 dark:text-rose-400 border-rose-500/25",
+  blue: "bg-primary/10 text-primary border-primary/20",
+  amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
 };
 
 function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
+  const label = metricsShort[t.metrics] ?? t.metrics;
+
   return (
-    <article className="rounded-[18px] border border-[var(--card-border)] bg-card p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col min-h-[200px]">
-      <div className="flex items-start justify-between gap-1.5 mb-2.5">
-        <div className="flex gap-0.5 shrink-0">
+    <article className="group rounded-[18px] border border-[var(--card-border)] bg-card p-3.5 sm:p-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 h-full flex flex-col min-h-[210px] min-w-0">
+      <div className="mb-2.5 space-y-2">
+        <motion.div
+          className="flex gap-0.5"
+          initial="rest"
+          whileHover="hover"
+        >
           {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-400 text-amber-400" />
+            <motion.span
+              key={i}
+              className="inline-flex"
+              variants={{
+                rest: { scale: 1, rotate: 0 },
+                hover: {
+                  scale: 1.22,
+                  rotate: -10 + i * 5,
+                  transition: { type: "spring", stiffness: 420, damping: 14, delay: i * 0.04 },
+                },
+              }}
+            >
+              <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-400 text-amber-400 group-hover:fill-amber-300" />
+            </motion.span>
           ))}
-        </div>
+        </motion.div>
         <span
           className={cn(
-            "ml-auto shrink-0 inline-flex items-center justify-center h-5 max-w-[58%] px-1.5 rounded-md border",
-            "text-[8px] font-bold uppercase tracking-[0.06em] leading-none whitespace-nowrap",
+            "inline-flex w-fit max-w-full items-center px-2 py-1 rounded-md border",
+            "text-[9px] font-bold uppercase tracking-wide leading-tight",
             badgeStyles[t.badge],
           )}
+          title={t.metrics}
         >
-          {t.metrics}
+          {label}
         </span>
       </div>
 
@@ -153,14 +187,14 @@ export function Testimonials() {
             transition={{ duration: 0.5 }}
             className="lg:sticky lg:top-28"
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#47a7aa]/25 bg-[#47a7aa]/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#47a7aa] dark:text-[#5bbec1] mb-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-6">
               <BadgeCheck className="w-3.5 h-3.5" />
               Verification Logs
             </span>
 
             <h2 className="text-3xl sm:text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground mb-4">
               Validated by the{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[var(--brand-crimson)] to-primary">
                 Industry Elite.
               </span>
             </h2>
@@ -200,8 +234,8 @@ export function Testimonials() {
             </div>
           </motion.div>
 
-          {/* Right — 2 rows × 5 cols on wide screens */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-3.5">
+          {/* Right — responsive grid (max 4 cols so badges stay readable) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4">
             {testimonials.map((t, i) => (
               <motion.div
                 key={t.author}

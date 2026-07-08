@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ArrowRight, Zap, ChevronDown, LayoutDashboard } from 'lucide-react';
+import { Menu, X, ArrowRight, ChevronDown, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { LandingDashboardLink, LandingPrimaryLink } from '@/components/home/LandingButtons';
 import { useMounted } from '@/lib/hooks/useMounted';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 const navLinks = [
   { name: 'Product', href: '#features' },
@@ -143,17 +144,7 @@ export function LandingNavbar() {
           )}
         >
           <Link href={homeHref} className="flex items-center gap-2.5 group shrink-0" aria-label="Profytron Home">
-            <div className="w-9 h-9 bg-primary/10 rounded-[10px] flex items-center justify-center border border-primary/15">
-              <Zap className="w-4 h-4 text-primary fill-primary/20" aria-hidden />
-            </div>
-            <div className="flex flex-col leading-none">
-              <span className="text-base sm:text-lg font-bold tracking-tight text-foreground">
-                PROFY<span className="text-primary">TRON</span>
-              </span>
-              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground mt-1">
-                Trading OS
-              </span>
-            </div>
+            <BrandLogo size="md" showWordmark />
           </Link>
 
           <div className="hidden xl:flex items-center gap-1">
