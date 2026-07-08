@@ -8,9 +8,9 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
  <input
  type={type}
  className={cn(
-  "flex h-10 w-full rounded-xl px-4 py-2 text-body-sm text-foreground",
-  "border border-border bg-input",
-  "placeholder:text-muted-foreground",
+  "flex h-10 w-full rounded-input px-4 py-2 text-body-sm text-foreground",
+  "border border-input-border bg-input",
+  "placeholder:text-placeholder",
   "file:border-0 file:bg-transparent file:text-body-sm file:font-medium",
   "transition-[border-color,box-shadow,background] duration-200 ease-out",
   "focus-visible:outline-none",

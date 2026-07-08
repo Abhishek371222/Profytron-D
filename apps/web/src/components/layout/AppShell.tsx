@@ -72,14 +72,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
     >
       {mounted && !isBuilder && (
-        <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,rgba(71,167,170,0.04)_0%,transparent_55%)]" />
+        <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--primary)_4%,transparent)_0%,transparent_55%)]" />
       )}
 
       {isMobile && sidebarOpen && (
         <button
           aria-label="Close sidebar"
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-[2px]"
+          className="fixed inset-0 z-30 bg-[var(--overlay)] backdrop-blur-[2px]"
         />
       )}
 

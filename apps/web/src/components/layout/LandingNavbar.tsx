@@ -55,7 +55,7 @@ function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: ()
             </div>
           </div>
           <Link href="/dashboard" onClick={onNavigate} className="w-full">
-            <Button className="w-full h-11 rounded-[14px] bg-primary text-primary-foreground font-semibold gap-2">
+            <Button className="w-full h-11 rounded-button bg-primary text-primary-foreground font-semibold gap-2">
               <LayoutDashboard className="w-4 h-4" />
               Open Dashboard
             </Button>
@@ -82,12 +82,12 @@ function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: ()
     return (
       <div className="flex flex-col gap-3 w-full">
         <Link href="/login" onClick={onNavigate} className="w-full">
-          <Button variant="outline" className="w-full h-11 rounded-[14px]">
+          <Button variant="outline" className="w-full h-11 rounded-button">
             Sign In
           </Button>
         </Link>
         <Link href="/register" onClick={onNavigate} className="w-full">
-          <Button className="w-full h-11 rounded-[14px] bg-primary text-primary-foreground font-semibold">
+          <Button className="w-full h-11 rounded-button bg-primary text-primary-foreground font-semibold">
             Get Started
           </Button>
         </Link>
@@ -137,7 +137,7 @@ export function LandingNavbar() {
       <div className="page-container max-w-7xl">
         <div
           className={cn(
-            'flex items-center justify-between px-4 sm:px-5 py-2.5 rounded-[14px] border transition-all duration-300',
+            'flex items-center justify-between px-4 sm:px-5 py-2.5 rounded-button border transition-all duration-300',
             isScrolled && mounted
               ? 'glass-navbar shadow-sm border-[var(--card-border)]'
               : 'bg-transparent border-transparent',
@@ -188,7 +188,7 @@ export function LandingNavbar() {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            className="absolute top-[72px] left-4 right-4 sm:left-6 sm:right-6 bg-card rounded-[20px] p-6 xl:hidden flex flex-col gap-4 shadow-lg border border-[var(--card-border)] max-h-[calc(100dvh-90px)] overflow-y-auto"
+            className="absolute top-[72px] left-4 right-4 sm:left-6 sm:right-6 bg-card rounded-card p-6 xl:hidden flex flex-col gap-4 shadow-[var(--shadow-lg)] border border-card-border max-h-[calc(100dvh-90px)] overflow-y-auto"
           >
             {navLinks.map((link, idx) => (
               <motion.a
@@ -197,7 +197,7 @@ export function LandingNavbar() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.05 }}
                 href={link.href}
-                className="text-base font-semibold text-foreground/90 hover:text-primary py-1"
+                className="text-base font-semibold text-foreground/90 hover:text-foreground py-1"
                 onClick={(e) => {
                   e.preventDefault();
                   setMobileMenuOpen(false);

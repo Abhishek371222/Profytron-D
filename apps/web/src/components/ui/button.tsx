@@ -21,18 +21,18 @@ const buttonVariants = cva(
       variant: {
         default: [
           "bg-primary text-primary-foreground",
-          "shadow-[0_2px_8px_rgba(71,167,170,0.22)]",
-          "hover:bg-[var(--primary-hover)] hover:scale-[1.03] hover:-translate-y-px",
-          "hover:shadow-[0_6px_20px_rgba(71,167,170,0.32)]",
-          "active:scale-[0.97] active:translate-y-0",
+          "shadow-[var(--shadow-cta)]",
+          "hover:bg-primary-hover hover:scale-[1.03] hover:-translate-y-px",
+          "hover:shadow-[var(--shadow-cta-hover)]",
+          "active:bg-primary-active active:scale-[0.97] active:translate-y-0",
         ].join(" "),
 
         primary: [
           "text-primary-foreground",
-          "bg-gradient-to-r from-[#47a7aa] to-[#1e6d48]",
-          "shadow-[0_2px_12px_rgba(71,167,170,0.28)]",
+          "bg-gradient-cta",
+          "shadow-[var(--shadow-cta)]",
           "hover:scale-[1.03] hover:-translate-y-px",
-          "hover:shadow-[0_8px_24px_rgba(71,167,170,0.40)]",
+          "hover:shadow-[var(--shadow-cta-hover)]",
           "hover:brightness-110",
           "active:scale-[0.97] active:translate-y-0",
         ].join(" "),
@@ -58,17 +58,17 @@ const buttonVariants = cva(
 
         glass: [
           "bg-card/80 backdrop-blur-md border-border text-foreground",
-          "shadow-[0_2px_8px_rgba(0,0,0,0.08)]",
+          "shadow-[var(--shadow-sm)]",
           "hover:bg-card hover:scale-[1.02]",
-          "hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)]",
+          "hover:shadow-[var(--shadow-md)]",
           "active:scale-[0.98]",
         ].join(" "),
 
         success: [
-          "bg-gradient-to-r from-[#10b981] to-[#059669] text-white",
-          "shadow-[0_2px_8px_rgba(16,185,129,0.25)]",
+          "bg-gradient-success text-success-foreground",
+          "shadow-[0_2px_8px_color-mix(in_srgb,var(--success)_25%,transparent)]",
           "hover:scale-[1.03] hover:-translate-y-px",
-          "hover:shadow-[0_6px_20px_rgba(16,185,129,0.35)]",
+          "hover:shadow-[0_6px_20px_color-mix(in_srgb,var(--success)_35%,transparent)]",
           "hover:brightness-110",
           "active:scale-[0.97]",
         ].join(" "),
@@ -80,7 +80,7 @@ const buttonVariants = cva(
         ].join(" "),
 
         link: [
-          "text-primary underline-offset-4 hover:underline hover:text-[var(--primary-hover)]",
+          "text-primary underline-offset-4 hover:underline hover:text-primary-hover",
         ].join(" "),
       },
 

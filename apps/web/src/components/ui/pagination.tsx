@@ -37,7 +37,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] bg-muted/3 text-foreground/40 transition-all hover:border-white/[0.14] hover:text-foreground/70 disabled:cursor-not-allowed disabled:opacity-30"
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-transparent text-muted-foreground transition-all hover:border-[color-mix(in_srgb,var(--primary)_25%,var(--border))] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-30"
         aria-label="Previous page"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -45,7 +45,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
 
       {getPageNumbers().map((page, idx) =>
         page === "ellipsis" ? (
-          <span key={`ellipsis-${idx}`} className="flex h-8 w-8 items-center justify-center text-foreground/20">
+          <span key={`ellipsis-${idx}`} className="flex h-8 w-8 items-center justify-center text-text-muted">
             <MoreHorizontal className="h-4 w-4" />
           </span>
         ) : (
@@ -54,10 +54,10 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
             onClick={() => onPageChange(page)}
             aria-current={page === currentPage ? "page" : undefined}
             className={cn(
-              "flex h-8 min-w-8 items-center justify-center rounded-lg border px-2 text-xs font-semibold transition-all",
+              "flex h-8 min-w-8 items-center justify-center rounded-lg border px-2 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
               page === currentPage
                 ? "border-primary/40 bg-primary/15 text-primary"
-                : "border-white/[0.07] bg-muted/3 text-foreground/40 hover:border-white/[0.14] hover:text-foreground/70",
+                : "border-border bg-transparent text-muted-foreground hover:border-[color-mix(in_srgb,var(--primary)_25%,var(--border))] hover:text-foreground",
             )}
           >
             {page}
@@ -68,7 +68,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, className }:
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.07] bg-muted/3 text-foreground/40 transition-all hover:border-white/[0.14] hover:text-foreground/70 disabled:cursor-not-allowed disabled:opacity-30"
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-transparent text-muted-foreground transition-all hover:border-[color-mix(in_srgb,var(--primary)_25%,var(--border))] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-30"
         aria-label="Next page"
       >
         <ChevronRight className="h-4 w-4" />

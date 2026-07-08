@@ -64,17 +64,17 @@ export function AlertDialog({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+        className="absolute inset-0 bg-[var(--overlay)] backdrop-blur-sm animate-in fade-in duration-200"
         onClick={() => !isLoading && onOpenChange(false)}
       />
 
       {/* Panel */}
-      <div className="relative z-10 w-full max-w-md rounded-2xl border border-[var(--card-border)] bg-card p-6 shadow-2xl animate-in zoom-in-95 fade-in duration-200">
+      <div className="relative z-10 w-full max-w-md rounded-modal border border-card-border bg-card p-6 shadow-[var(--shadow-modal)] animate-in zoom-in-95 fade-in duration-200">
         <h2 id="alert-dialog-title" className="text-base font-semibold text-foreground mb-2">
           {title}
         </h2>
         {description && (
-          <p id="alert-dialog-desc" className="text-sm text-foreground/50 leading-relaxed mb-6">
+          <p id="alert-dialog-desc" className="text-sm text-muted-foreground leading-relaxed mb-6">
             {description}
           </p>
         )}
@@ -85,7 +85,7 @@ export function AlertDialog({
             type="button"
             disabled={isLoading}
             onClick={() => onOpenChange(false)}
-            className="inline-flex h-9 items-center justify-center rounded-lg border border-white/[0.08] bg-muted/3 px-4 text-sm font-medium text-foreground/60 hover:bg-muted/6 hover:text-foreground/80 transition-all disabled:opacity-50"
+            className="inline-flex h-9 items-center justify-center rounded-button border border-border bg-transparent px-4 text-sm font-medium text-foreground hover:bg-muted transition-all disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {cancelLabel}
           </button>
@@ -94,10 +94,10 @@ export function AlertDialog({
             disabled={isLoading}
             onClick={() => { onConfirm(); }}
             className={cn(
-              "inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-semibold text-foreground transition-all disabled:opacity-50",
+              "inline-flex h-9 items-center justify-center rounded-button px-4 text-sm font-semibold transition-all disabled:opacity-50 hover:brightness-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               variant === "destructive"
-                ? "bg-destructive hover:bg-destructive"
-                : "bg-primary hover:bg-primary",
+                ? "bg-destructive text-destructive-foreground focus-visible:ring-destructive"
+                : "bg-primary text-primary-foreground focus-visible:ring-ring",
             )}
           >
             {isLoading ? (

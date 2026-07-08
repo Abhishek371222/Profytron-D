@@ -75,7 +75,7 @@ export function PublicNavbar() {
       <div className="page-container max-w-7xl">
         <nav
           className={cn(
-            'flex items-center justify-between px-4 sm:px-5 py-2.5 rounded-[14px] border transition-all duration-300',
+            'flex items-center justify-between px-4 sm:px-5 py-2.5 rounded-button border transition-all duration-300',
             isScrolled && mounted
               ? 'glass-navbar shadow-sm border-[var(--card-border)]'
               : 'border-transparent bg-transparent',
@@ -133,7 +133,7 @@ export function PublicNavbar() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 8 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 mt-2 w-52 py-2 rounded-xl bg-card border border-border shadow-lg"
+                        className="absolute top-full left-0 mt-2 w-52 py-2 rounded-card bg-card border border-border shadow-[var(--shadow-lg)]"
                       >
                         {group.children.map((child) => (
                           <Link
@@ -168,7 +168,7 @@ export function PublicNavbar() {
               </Button>
             </Link>
             <Link href="/register">
-              <Button className="h-10 px-5 text-sm font-semibold rounded-[14px] bg-primary text-primary-foreground hover:brightness-110 shadow-[var(--shadow-cta)] gap-2">
+              <Button className="h-10 px-5 text-sm font-semibold rounded-button bg-primary text-primary-foreground hover:brightness-110 shadow-[var(--shadow-cta)] gap-2">
                 Open Terminal
                 <ArrowRight className="w-4 h-4" />
               </Button>
@@ -194,7 +194,7 @@ export function PublicNavbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="absolute top-[72px] left-4 right-4 sm:left-6 sm:right-6 bg-card rounded-[20px] border border-border p-6 lg:hidden shadow-lg max-h-[calc(100dvh-90px)] overflow-y-auto"
+            className="absolute top-[72px] left-4 right-4 sm:left-6 sm:right-6 bg-card rounded-card border border-border p-6 lg:hidden shadow-[var(--shadow-lg)] max-h-[calc(100dvh-90px)] overflow-y-auto"
           >
             <Link
               href="/"
@@ -231,12 +231,12 @@ export function PublicNavbar() {
                 <ThemeToggle size="sm" />
               </div>
               <Link href="/login" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full h-11 rounded-[14px]">
+                <Button variant="outline" className="w-full h-11 rounded-button">
                   Client Portal
                 </Button>
               </Link>
               <Link href="/register" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full h-11 rounded-[14px] bg-primary text-primary-foreground font-semibold">
+                <Button className="w-full h-11 rounded-button bg-primary text-primary-foreground font-semibold">
                   Open Terminal
                 </Button>
               </Link>

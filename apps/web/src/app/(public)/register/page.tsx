@@ -132,25 +132,25 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="light min-h-screen w-full bg-[#E9EDF5] p-4 sm:p-6 lg:p-8">
+    <main className="min-h-screen w-full bg-background p-4 sm:p-6 lg:p-8">
       <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1080px] items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
+          className="w-full overflow-hidden rounded-card border border-card-border bg-card shadow-[var(--shadow-lg)]"
         >
           <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
             <RegisterVisualPanel />
 
-            <div className="flex flex-col justify-center bg-white px-7 py-10 sm:px-10 sm:py-12 lg:px-12 lg:py-14">
+            <div className="flex flex-col justify-center bg-card px-7 py-10 sm:px-10 sm:py-12 lg:px-12 lg:py-14">
               <div className="mb-8 flex items-center gap-3.5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/30">
+                <div className="flex h-11 w-11 items-center justify-center rounded-input bg-gradient-cta text-primary-foreground shadow-[var(--shadow-cta)]">
                   <Zap className="h-5 w-5" aria-hidden />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-slate-900">Register</h1>
-                  <p className="text-sm text-slate-500">Create your trading workspace</p>
+                  <h1 className="text-2xl font-bold tracking-tight text-foreground">Register</h1>
+                  <p className="text-sm text-muted-foreground">Create your trading workspace</p>
                 </div>
               </div>
 
@@ -163,27 +163,27 @@ export default function RegisterPage() {
                 />
               ) : (
                 <div className="mb-6 space-y-3" aria-hidden>
-                  <div className="h-12 rounded-xl bg-slate-100" />
-                  <div className="h-12 rounded-xl bg-slate-100" />
+                  <div className="h-12 rounded-input bg-muted" />
+                  <div className="h-12 rounded-input bg-muted" />
                 </div>
               )}
 
               <div className="mb-6 flex items-center gap-3">
-                <div className="h-px flex-1 bg-slate-200" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
                   Or register with email
                 </span>
-                <div className="h-px flex-1 bg-slate-200" />
+                <div className="h-px flex-1 bg-border" />
               </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {successMessage && (
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                  <div className="rounded-input border border-success/20 bg-success/[0.08] px-4 py-3 text-sm text-success">
                     {successMessage}
                   </div>
                 )}
                 {errorMessage && (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  <div className="rounded-input border border-destructive/20 bg-destructive/[0.08] px-4 py-3 text-sm text-destructive">
                     {errorMessage}
                   </div>
                 )}
@@ -194,7 +194,7 @@ export default function RegisterPage() {
                   autoComplete="name"
                   {...register('fullName')}
                   error={errors.fullName?.message}
-                  className="!h-14 !rounded-xl !border-slate-200 !bg-slate-50/50 !text-slate-900 focus:!bg-white"
+                  className="!h-12 !rounded-input !border-input-border !bg-input !text-foreground focus:!bg-input"
                 />
 
                 <FloatingLabelInput
@@ -204,7 +204,7 @@ export default function RegisterPage() {
                   autoComplete="email"
                   {...register('email')}
                   error={errors.email?.message}
-                  className="!h-14 !rounded-xl !border-slate-200 !bg-slate-50/50 !text-slate-900 focus:!bg-white"
+                  className="!h-12 !rounded-input !border-input-border !bg-input !text-foreground focus:!bg-input"
                 />
 
                 <div className="space-y-2">
@@ -215,7 +215,7 @@ export default function RegisterPage() {
                     autoComplete="new-password"
                     {...register('password')}
                     error={errors.password?.message}
-                    className="!h-14 !rounded-xl !border-slate-200 !bg-slate-50/50 !text-slate-900 focus:!bg-white"
+                    className="!h-12 !rounded-input !border-input-border !bg-input !text-foreground focus:!bg-input"
                   />
                   {password.length > 0 && <PasswordStrengthMeter password={password} />}
                 </div>
@@ -229,8 +229,8 @@ export default function RegisterPage() {
                     {...register('confirmPassword')}
                     error={errors.confirmPassword?.message}
                     className={cn(
-                      '!h-14 !rounded-xl !border-slate-200 !bg-slate-50/50 !text-slate-900 focus:!bg-white',
-                      passwordsMatch && '[&_svg]:!text-emerald-500',
+                      '!h-12 !rounded-input !border-input-border !bg-input !text-foreground focus:!bg-input',
+                      passwordsMatch && '[&_svg]:!text-success',
                     )}
                   />
                 </div>
@@ -238,7 +238,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={isLoading || !isValid}
-                  className="mt-2 flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 text-[15px] font-semibold text-white shadow-[0_12px_32px_rgba(79,70,229,0.35)] transition-all hover:shadow-[0_16px_40px_rgba(79,70,229,0.45)] hover:brightness-105 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-button bg-gradient-cta text-[15px] font-semibold text-primary-foreground shadow-[var(--shadow-cta)] transition-all hover:shadow-[var(--shadow-cta-hover)] hover:brightness-105 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <>
@@ -254,11 +254,11 @@ export default function RegisterPage() {
                 </button>
               </form>
 
-              <p className="mt-8 text-center text-sm text-slate-500">
+              <p className="mt-8 text-center text-sm text-muted-foreground">
                 Already have an account?{' '}
                 <Link
                   href="/login"
-                  className="font-semibold text-indigo-600 hover:text-indigo-700 hover:underline underline-offset-4"
+                  className="font-semibold text-primary hover:text-primary-hover hover:underline underline-offset-4"
                 >
                   Sign in
                 </Link>
@@ -266,7 +266,7 @@ export default function RegisterPage() {
 
               <Link
                 href="/"
-                className="mt-5 inline-flex items-center justify-center gap-2 text-sm text-slate-400 hover:text-slate-600 lg:hidden"
+                className="mt-5 inline-flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground lg:hidden"
               >
                 ← Back to home
               </Link>

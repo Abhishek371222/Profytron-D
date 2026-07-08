@@ -67,37 +67,37 @@ export function Combobox({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         className={cn(
-          "flex h-10 w-full items-center justify-between rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm text-foreground/70 transition-all",
-          "hover:border-primary/30 hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/40",
+          "flex h-10 w-full items-center justify-between rounded-input border border-input-border bg-input px-3 py-2 text-sm text-foreground transition-all",
+          "hover:border-[color-mix(in_srgb,var(--primary)_30%,var(--border))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           disabled && "cursor-not-allowed opacity-50",
-          open && "border-primary/30 ring-2 ring-primary/20",
+          open && "border-[color-mix(in_srgb,var(--primary)_35%,var(--border))] ring-2 ring-ring/30",
         )}
       >
-        <span className={cn(!selected && "text-foreground/30")}>
+        <span className={cn(!selected && "text-placeholder")}>
           {selected ? selected.label : placeholder}
         </span>
-        <ChevronsUpDown className="h-4 w-4 shrink-0 text-foreground/30" />
+        <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl border border-border bg-popover shadow-2xl overflow-hidden">
+        <div className="absolute z-50 mt-1 w-full rounded-card border border-card-border bg-popover shadow-[var(--shadow-lg)] overflow-hidden">
           <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
-            <Search className="h-3.5 w-3.5 text-foreground/30 shrink-0" />
+            <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
             <input
               autoFocus
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={searchPlaceholder}
-              className="flex-1 bg-transparent text-sm text-foreground/70 placeholder:text-foreground/25 outline-none"
+              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-placeholder outline-none"
             />
           </div>
 
           <ul
             role="listbox"
-            className="max-h-60 overflow-y-auto py-1 scrollbar-thin scrollbar-thumb-white/10"
+            className="max-h-60 overflow-y-auto py-1 scrollbar-thin scrollbar-thumb-border"
           >
             {filtered.length === 0 ? (
-              <li className="px-3 py-4 text-center text-xs text-foreground/30">{emptyText}</li>
+              <li className="px-3 py-4 text-center text-xs text-muted-foreground">{emptyText}</li>
             ) : (
               filtered.map((option) => (
                 <li
@@ -113,7 +113,7 @@ export function Combobox({
                     "flex items-center gap-2 px-3 py-2.5 text-sm cursor-pointer transition-colors",
                     option.value === value
                       ? "bg-primary/10 text-primary"
-                      : "text-foreground/60 hover:bg-muted/4 hover:text-foreground/80",
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
                   <Check
@@ -125,7 +125,7 @@ export function Combobox({
                   <div className="min-w-0">
                     <span className="block truncate font-medium">{option.label}</span>
                     {option.description && (
-                      <span className="block truncate text-xs text-foreground/30">{option.description}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{option.description}</span>
                     )}
                   </div>
                 </li>

@@ -32,9 +32,9 @@ export function BrandLogo({
           'relative shrink-0 rounded-[11px] overflow-hidden',
           'bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]',
           'border border-[color-mix(in_srgb,var(--primary)_18%,var(--sidebar-border))]',
-          'shadow-[0_1px_2px_rgba(0,0,0,0.04)]',
-          'dark:bg-[color-mix(in_srgb,var(--primary)_12%,#141414)]',
-          'dark:border-[color-mix(in_srgb,var(--primary)_22%,#2a2a2a)]',
+          'shadow-[var(--shadow-sm)]',
+          'dark:bg-[color-mix(in_srgb,var(--primary)_12%,var(--card))]',
+          'dark:border-[color-mix(in_srgb,var(--primary)_22%,var(--card-border))]',
           s.box,
           markClassName,
         )}
@@ -60,7 +60,7 @@ export function BrandLogo({
       {showWordmark && (
         <div className="flex flex-col leading-none min-w-0">
           <span className={cn('font-bold tracking-tight text-foreground truncate', s.word)}>
-            PROFY<span className="text-primary">TRON</span>
+            PROF<span className="text-destructive">Y</span><span className="text-primary">TRON</span>
           </span>
           <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground mt-0.5">
             Trading OS

@@ -26,7 +26,7 @@ function TooltipContent({
  return (
  <div
  className={cn(
-"z-50 rounded-md bg-foreground px-3 py-1.5 text-xs text-background",
+"z-50 rounded-md bg-foreground px-3 py-1.5 text-xs text-background shadow-[var(--shadow-md)]",
  className
  )}
  {...props}

@@ -197,7 +197,7 @@ function LoginPageContent() {
 
   return (
     <main className="min-h-screen w-full overflow-x-hidden bg-background p-4 sm:p-6">
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_20%_20%,rgba(71,167,170,0.25),transparent_45%),radial-gradient(circle_at_80%_80%,rgba(71,167,170,0.2),transparent_40%)]" />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_20%_20%,color-mix(in_srgb,var(--primary)_25%,transparent),transparent_45%),radial-gradient(circle_at_80%_80%,color-mix(in_srgb,var(--primary)_20%,transparent),transparent_40%)]" />
 
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-3rem)]">
         <motion.div
@@ -208,11 +208,11 @@ function LoginPageContent() {
         >
           <div className="grid min-h-0 lg:min-h-[640px] grid-cols-1 lg:grid-cols-2">
             <div className="relative hidden overflow-hidden border-r border-border bg-gradient-to-b from-card to-secondary p-10 lg:block">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_35%,rgba(96,165,250,0.2),transparent_50%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_35%,color-mix(in_srgb,var(--accent)_35%,transparent),transparent_50%)]" />
               <div className="relative z-10 flex h-full flex-col">
                 <Link
                   href="/"
-                  className="inline-flex w-fit items-center gap-2 rounded-xl border border-border bg-foreground/5 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75 transition-colors hover:text-foreground"
+                  className="inline-flex w-fit items-center gap-2 rounded-button border border-border bg-foreground/5 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75 transition-colors hover:text-foreground"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Back
@@ -230,8 +230,8 @@ function LoginPageContent() {
                   </p>
                 </div>
 
-                <div className="relative mt-auto h-72 rounded-2xl border border-border bg-card/80 p-6">
-                  <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.12)_1px,transparent_1px)] bg-[size:20px_20px] opacity-30" />
+                <div className="relative mt-auto h-72 rounded-card border border-border bg-card/80 p-6">
+                  <div className="absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_srgb,var(--foreground)_10%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_srgb,var(--foreground)_10%,transparent)_1px,transparent_1px)] bg-[size:20px_20px] opacity-30" />
                   <svg viewBox="0 0 320 180" className="relative z-10 h-full w-full" aria-hidden="true">
                     <polyline points="24,32 92,114 160,62 224,96 292,40" fill="none" stroke="var(--primary)" strokeWidth="2.5" />
                     <polyline points="24,106 92,72 160,126 224,78 292,136" fill="none" stroke="var(--chart-5)" strokeWidth="2.5" opacity="0.8" />
@@ -247,7 +247,7 @@ function LoginPageContent() {
 
             <div className="p-7 sm:p-10 lg:p-12">
               <motion.div variants={itemVariants} className="mb-8 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 text-primary">
+                <div className="flex h-10 w-10 items-center justify-center rounded-input bg-primary/20 text-primary">
                   <Zap className="h-5 w-5" />
                 </div>
                 <div>
@@ -272,12 +272,12 @@ function LoginPageContent() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {urlErrorMessage && (
-                  <div className="rounded-xl border border-chart-4/40 bg-chart-4/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-200">
+                  <div className="rounded-input border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning">
                     {urlErrorMessage}
                   </div>
                 )}
                 {errorMessage && (
-                  <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-200">
+                  <div className="rounded-input border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                     {errorMessage}
                   </div>
                 )}
@@ -336,7 +336,7 @@ function LoginPageContent() {
                     type={twoFaChallenge ? 'button' : 'submit'}
                     onClick={twoFaChallenge ? handleCompleteTwoFa : undefined}
                     disabled={isLoading}
-                    className="group relative h-12 w-full overflow-hidden rounded-xl bg-gradient-to-r from-primary to-chart-2 text-body font-semibold text-primary-foreground transition-all hover:brightness-110"
+                    className="group relative h-12 w-full overflow-hidden rounded-button bg-gradient-hero text-body font-semibold text-primary-foreground transition-all hover:brightness-110"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {isLoading ? (
@@ -350,7 +350,7 @@ function LoginPageContent() {
                         </>
                       ) : (
                         <>
-                          Sign in <Sparkles className="h-4 w-4 fill-white" />
+                          Sign in <Sparkles className="h-4 w-4 fill-primary-foreground" />
                         </>
                       )}
                     </span>

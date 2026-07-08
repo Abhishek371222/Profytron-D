@@ -13,11 +13,11 @@ function hashName(name: string) {
 }
 
 const AVATAR_PALETTES = [
-  { bg: 'bg-primary/15', text: 'text-primary', ring: 'ring-primary/20' },
+  { bg: 'bg-chart-1/15', text: 'text-chart-1', ring: 'ring-chart-1/20' },
+  { bg: 'bg-chart-2/15', text: 'text-chart-2', ring: 'ring-chart-2/20' },
   { bg: 'bg-chart-3/15', text: 'text-chart-3', ring: 'ring-chart-3/20' },
-  { bg: 'bg-blue-500/15', text: 'text-blue-600', ring: 'ring-blue-500/20' },
-  { bg: 'bg-violet-500/15', text: 'text-violet-600', ring: 'ring-violet-500/20' },
-  { bg: 'bg-orange-500/15', text: 'text-orange-600', ring: 'ring-orange-500/20' },
+  { bg: 'bg-chart-4/15', text: 'text-chart-4', ring: 'ring-chart-4/20' },
+  { bg: 'bg-chart-5/15', text: 'text-chart-5', ring: 'ring-chart-5/20' },
 ];
 
 const SIZE_MAP = {

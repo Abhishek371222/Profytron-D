@@ -73,7 +73,7 @@ function DropdownMenuContent({
  exit={{ opacity: 0, y: 10, scale: 0.95 }}
  transition={{ duration: 0.2, ease:"easeOut" }}
  className={cn(
-"absolute z-50 min-w-[8rem] overflow-hidden rounded-xl border border-border bg-bg-card/90 backdrop-blur-2xl p-1 text-foreground shadow-2xl mt-2",
+"absolute z-50 min-w-[8rem] overflow-hidden rounded-card border border-card-border bg-popover/95 backdrop-blur-2xl p-1 text-foreground shadow-[var(--shadow-lg)] mt-2",
  align ==="end" &&"right-0 origin-top-right",
  align ==="start" &&"left-0 origin-top-left",
  align ==="center" &&"left-1/2 -translate-x-1/2 origin-top",
@@ -110,7 +110,7 @@ function DropdownMenuItem({
  data-slot="dropdown-menu-item"
  onClick={handleClick}
  className={cn(
-"relative flex cursor-pointer select-none items-center rounded-lg px-3 py-2 text-sm outline-none transition-colors hover:bg-foreground/5 active:bg-foreground/10",
+"relative flex cursor-pointer select-none items-center rounded-button px-3 py-2 text-sm text-foreground outline-none transition-colors hover:bg-muted active:bg-muted/70 focus-visible:bg-muted",
  className
  )}
  {...props}
@@ -130,7 +130,7 @@ function DropdownMenuLabel({
 }) {
  return (
  <div
- className={cn("px-3 py-1.5 text-xs font-semibold text-foreground/40 uppercase tracking-widest", className)}
+ className={cn("px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-widest", className)}
  {...props}
  >
  {children}
@@ -140,7 +140,7 @@ function DropdownMenuLabel({
 
 function DropdownMenuSeparator({ className, ...props }: { className?: string }) {
  return (
- <div className={cn("-mx-1 my-1 h-px bg-foreground/10", className)} {...props} />
+ <div className={cn("-mx-1 my-1 h-px bg-border", className)} {...props} />
  );
 }
 

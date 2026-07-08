@@ -9,18 +9,18 @@ interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles: Record<AlertVariant, string> = {
-  default: "border-border bg-muted/3 text-foreground/80",
-  info: "border-primary/20 bg-primary/[0.06] text-blue-200",
-  success: "border-chart-3/20 bg-chart-3/[0.06] text-emerald-200",
-  warning: "border-chart-4/20 bg-chart-4/[0.06] text-amber-200",
-  destructive: "border-destructive/20 bg-destructive/[0.06] text-rose-200",
+  default: "border-border bg-muted/40 text-foreground/80",
+  info: "border-info/20 bg-info/[0.08] text-info",
+  success: "border-success/20 bg-success/[0.08] text-success",
+  warning: "border-warning/20 bg-warning/[0.08] text-warning",
+  destructive: "border-destructive/20 bg-destructive/[0.08] text-destructive",
 };
 
 const variantIcons: Record<AlertVariant, React.ReactNode> = {
-  default: <Info className="h-4 w-4 text-foreground/40" />,
-  info: <Info className="h-4 w-4 text-chart-5" />,
-  success: <CheckCircle2 className="h-4 w-4 text-chart-3" />,
-  warning: <TriangleAlert className="h-4 w-4 text-chart-4" />,
+  default: <Info className="h-4 w-4 text-muted-foreground" />,
+  info: <Info className="h-4 w-4 text-info" />,
+  success: <CheckCircle2 className="h-4 w-4 text-success" />,
+  warning: <TriangleAlert className="h-4 w-4 text-warning" />,
   destructive: <AlertCircle className="h-4 w-4 text-destructive" />,
 };
 
@@ -30,7 +30,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
       ref={ref}
       role="alert"
       className={cn(
-        "relative w-full rounded-xl border px-4 py-3 text-sm flex gap-3 items-start",
+        "relative w-full rounded-card border px-4 py-3 text-sm flex gap-3 items-start",
         variantStyles[variant],
         className,
       )}

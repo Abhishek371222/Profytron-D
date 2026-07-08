@@ -39,7 +39,7 @@ const CATEGORY_STYLES: Record<string, {
   TRADING:      { iconColor: 'text-emerald-400', iconBg: 'bg-emerald-400/20', rowBg: 'bg-emerald-400/[0.07]', borderColor: 'border-l-emerald-500', dot: 'bg-emerald-400' },
   COPY_TRADING: { iconColor: 'text-emerald-400', iconBg: 'bg-emerald-400/20', rowBg: 'bg-emerald-400/[0.07]', borderColor: 'border-l-emerald-500', dot: 'bg-emerald-400' },
   PAYMENT:      { iconColor: 'text-green-400',   iconBg: 'bg-green-400/20',   rowBg: 'bg-green-400/[0.07]',   borderColor: 'border-l-green-500',   dot: 'bg-green-400'   },
-  STRATEGY:     { iconColor: 'text-violet-400',  iconBg: 'bg-violet-400/20',  rowBg: 'bg-violet-400/[0.07]',  borderColor: 'border-l-violet-500',  dot: 'bg-violet-400'  },
+  STRATEGY:     { iconColor: 'text-cyan-400',    iconBg: 'bg-cyan-400/20',    rowBg: 'bg-cyan-400/[0.07]',    borderColor: 'border-l-cyan-500',    dot: 'bg-cyan-400'    },
   ACCOUNT:      { iconColor: 'text-sky-400',     iconBg: 'bg-sky-400/20',     rowBg: 'bg-sky-400/[0.07]',     borderColor: 'border-l-sky-500',     dot: 'bg-sky-400'     },
   SYSTEM:       { iconColor: 'text-foreground/60', iconBg: 'bg-foreground/10', rowBg: 'bg-foreground/[0.04]',  borderColor: 'border-l-slate-500',   dot: 'bg-slate-400'   },
   DEFAULT:      { iconColor: 'text-foreground/60', iconBg: 'bg-foreground/10', rowBg: 'bg-foreground/[0.04]',  borderColor: 'border-l-slate-500',   dot: 'bg-slate-400'   },
@@ -135,7 +135,7 @@ export function NotificationDropdown() {
                 animate={{ scale: 1 }}
                 exit={{ scale: 0 }}
                 className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-[10px] leading-[18px] text-primary-foreground text-center font-bold border-2 border-[var(--sidebar)]"
-                style={{ boxShadow: '0 0 10px rgba(71,167,170,0.5)' }}
+                style={{ boxShadow: '0 0 10px color-mix(in srgb, var(--primary) 50%, transparent)' }}
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
               </motion.span>
@@ -149,7 +149,7 @@ export function NotificationDropdown() {
 
       <DropdownMenuContent
         align="end"
-        className="w-[380px] bg-popover border border-border shadow-2xl rounded-2xl p-0 overflow-hidden"
+        className="w-[380px] bg-popover border border-card-border shadow-[var(--shadow-lg)] rounded-card p-0 overflow-hidden"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-border">
@@ -276,7 +276,7 @@ export function NotificationDropdown() {
                       {/* Delete */}
                       <button
                         onClick={(e) => onDelete(e, item.id)}
-                        className="absolute top-2.5 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-red-500/20 text-foreground/25 hover:text-red-400"
+                        className="absolute top-2.5 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-destructive/15 text-text-muted hover:text-destructive"
                         type="button"
                         aria-label="Delete notification"
                       >

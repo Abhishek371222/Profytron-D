@@ -79,24 +79,24 @@ export function DataTable<T extends object>({
 
   const SortIcon = ({ col }: { col: DataTableColumn<T> }) => {
     const key = String(col.key);
-    if (sortKey !== key) return <ChevronsUpDown className="h-3 w-3 text-foreground/20" />;
+    if (sortKey !== key) return <ChevronsUpDown className="h-3 w-3 text-text-muted" />;
     if (sortDir === "asc") return <ChevronUp className="h-3 w-3 text-primary" />;
     return <ChevronDown className="h-3 w-3 text-primary" />;
   };
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="overflow-x-auto rounded-xl border border-white/[0.07]">
+      <div className="overflow-x-auto rounded-card border border-card-border">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-white/[0.07] bg-muted/2">
+            <tr className="border-b border-card-border bg-muted/40">
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
                   onClick={col.sortable ? () => handleSort(String(col.key)) : undefined}
                   className={cn(
-                    "px-4 py-3 text-left text-micro font-bold uppercase tracking-[0.2em] text-foreground/30",
-                    col.sortable && "cursor-pointer select-none hover:text-foreground/50 transition-colors",
+                    "px-4 py-3 text-left text-micro font-bold uppercase tracking-[0.2em] text-muted-foreground",
+                    col.sortable && "cursor-pointer select-none hover:text-foreground transition-colors",
                     col.headerClassName,
                   )}
                 >
@@ -112,7 +112,7 @@ export function DataTable<T extends object>({
           <tbody>
             {isLoading ? (
               Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="border-b border-white/[0.04]">
+                <tr key={i} className="border-b border-border">
                   {columns.map((col) => (
                     <td key={String(col.key)} className="px-4 py-3">
                       <Skeleton className="h-4 w-full max-w-[120px]" />
@@ -124,7 +124,7 @@ export function DataTable<T extends object>({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="px-4 py-12 text-center text-sm text-foreground/25"
+                  className="px-4 py-12 text-center text-sm text-text-muted"
                 >
                   {emptyMessage}
                 </td>
@@ -135,15 +135,15 @@ export function DataTable<T extends object>({
                   key={keyField ? String(getCellValue(row, keyField as string)) : i}
                   onClick={() => onRowClick?.(row)}
                   className={cn(
-                    "border-b border-white/[0.04] transition-colors",
-                    onRowClick && "cursor-pointer hover:bg-muted/3",
+                    "border-b border-border transition-colors",
+                    onRowClick && "cursor-pointer hover:bg-muted/50",
                     i === paginated.length - 1 && "border-b-0",
                   )}
                 >
                   {columns.map((col) => (
                     <td
                       key={String(col.key)}
-                      className={cn("px-4 py-3 text-foreground/60", col.className)}
+                      className={cn("px-4 py-3 text-foreground/80", col.className)}
                     >
                       {col.cell
                         ? col.cell(row)
@@ -158,7 +158,7 @@ export function DataTable<T extends object>({
       </div>
 
       {!isLoading && totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between text-xs text-foreground/30">
+        <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
           <span>
             Showing {Math.min((page - 1) * pageSize + 1, sorted.length)}–
             {Math.min(page * pageSize, sorted.length)} of {sorted.length}

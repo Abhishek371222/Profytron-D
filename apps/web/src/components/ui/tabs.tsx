@@ -39,15 +39,15 @@ function TabsTrigger({ value, children, className, activeTab, setActiveTab }: an
  <button
  onClick={() => setActiveTab(value)}
  className={cn(
-"relative px-4 py-1.5 text-xs font-bold transition-all uppercase tracking-widest outline-none",
- isActive ?"text-foreground" :"hover:text-foreground/80",
+"relative px-4 py-1.5 text-xs font-bold transition-all uppercase tracking-widest outline-none rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+ isActive ?"text-primary-foreground" :"text-foreground/50 hover:text-foreground/80",
  className
  )}
  >
  {isActive && (
  <motion.div
  layoutId="activeTab"
- className="absolute inset-0 rounded-full bg-primary shadow-[0_0_10px_rgba(var(--p-rgb),0.5)]"
+ className="absolute inset-0 rounded-full bg-primary shadow-[0_0_10px_color-mix(in_srgb,var(--primary)_50%,transparent)]"
  transition={{ type:"spring", bounce: 0.2, duration: 0.6 }}
  />
  )}

@@ -61,7 +61,7 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
         <div className="relative">
           <div
             className={cn(
-              'absolute inset-0 rounded-2xl transition-opacity duration-500 blur-xl opacity-0',
+              'absolute inset-0 rounded-input transition-opacity duration-500 blur-xl opacity-0',
               isFocused
                 ? 'bg-primary/10 opacity-100'
                 : 'group-hover/input:bg-foreground/5 group-hover/input:opacity-50',
@@ -73,9 +73,9 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
               {...inputProps}
               ref={ref}
               className={cn(
-                'peer w-full h-16 bg-input backdrop-blur-md border border-border rounded-2xl px-5 pt-6 pb-2 outline-none transition-all duration-300 font-sans text-body text-foreground placeholder-transparent',
+                'peer w-full h-12 bg-input backdrop-blur-md border border-input-border rounded-input px-5 pt-5 pb-1.5 outline-none transition-all duration-300 font-sans text-body text-foreground placeholder-transparent',
                 'hover:bg-input/80 hover:border-primary/25',
-                '[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_hsl(var(--input))_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:hsl(var(--foreground))]',
+                '[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_var(--input)_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:var(--foreground)]',
                 isFocused && 'bg-card border-primary/30 ring-1 ring-ring/30',
                 error && 'border-destructive/50 focus:border-destructive ring-destructive/20',
                 className,
@@ -87,9 +87,9 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
               htmlFor={inputId}
               className={cn(
                 'absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none transition-all duration-300 ease-out origin-left text-body-sm font-semibold tracking-wide',
-                'peer-[:not(:placeholder-shown)]:translate-y-[-24px] peer-[:not(:placeholder-shown)]:scale-[0.75] peer-[:not(:placeholder-shown)]:text-primary',
-                'peer-autofill:translate-y-[-24px] peer-autofill:scale-[0.75] peer-autofill:text-primary',
-                (isFocused || hasValue) && 'translate-y-[-24px] scale-[0.75] text-primary',
+                'peer-[:not(:placeholder-shown)]:translate-y-[-18px] peer-[:not(:placeholder-shown)]:scale-[0.72] peer-[:not(:placeholder-shown)]:text-primary',
+                'peer-autofill:translate-y-[-18px] peer-autofill:scale-[0.72] peer-autofill:text-primary',
+                (isFocused || hasValue) && 'translate-y-[-18px] scale-[0.72] text-primary',
               )}
             >
               {label}
@@ -99,7 +99,7 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
               <div
                 className={cn(
                   'absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-300',
-                  isFocused ? 'text-primary scale-110' : 'text-foreground/20',
+                  isFocused ? 'text-primary scale-110' : 'text-text-muted',
                 )}
               >
                 <Icon className="w-5 h-5" />
@@ -107,7 +107,7 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
             )}
 
             {mounted && (
-              <div className="absolute bottom-0 left-5 right-5 h-px bg-linear-to-r from-transparent via-white/10 to-transparent overflow-hidden">
+              <div className="absolute bottom-0 left-5 right-5 h-px bg-linear-to-r from-transparent via-border to-transparent overflow-hidden">
                 <motion.div
                   initial={{ x: '-100%' }}
                   animate={{ x: isFocused ? '100%' : '-100%' }}

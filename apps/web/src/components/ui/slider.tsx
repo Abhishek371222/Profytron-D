@@ -34,9 +34,9 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
  {/* Track Background */}
  <div className="absolute inset-x-0 h-1.5 bg-foreground/5 rounded-full overflow-hidden">
  {/* Active Track with Glow */}
- <motion.div 
+ <motion.div
  style={{ width: glowWidth }}
- className="absolute left-0 top-0 h-full bg-linear-to-r from-primary/50 to-primary shadow-[0_0_15px_rgba(var(--p-rgb),0.5)] transition-all duration-300"
+ className="absolute left-0 top-0 h-full bg-linear-to-r from-primary/50 to-primary shadow-[0_0_15px_color-mix(in_srgb,var(--primary)_50%,transparent)] transition-all duration-300"
  />
  </div>
 
@@ -48,7 +48,7 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
  step={step}
  value={val}
  onChange={handleInput}
- className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+ className="peer absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
  />
 
  {/* Visual Thumb (Animated to follow input) */}
@@ -58,11 +58,11 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 z-10 pointer-events-none"
  >
  {/* Central Thumb Body */}
- <div className="w-full h-full bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.4)] flex items-center justify-center relative">
+ <div className="w-full h-full bg-card border border-border rounded-full shadow-[var(--shadow-md)] flex items-center justify-center relative peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background">
  <div className="w-2 h-2 bg-primary rounded-full" />
- 
+
  {/* Magnetic Ring Pulse */}
- <motion.div 
+ <motion.div
  animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0.2, 0.5] }}
  transition={{ duration: 2, repeat: Infinity }}
  className="absolute inset-[-4px] border border-border rounded-full"
@@ -70,9 +70,9 @@ const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
  </div>
 
  {/* Value Tooltip (Optional, can be seen in main component too) */}
- <motion.div 
+ <motion.div
  animate={{ scale: [0.9, 1], opacity: [0, 1] }}
- className="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-white text-bg-base text-xs font-semibold rounded-md whitespace-nowrap shadow-xl"
+ className="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-foreground text-background text-xs font-semibold rounded-md whitespace-nowrap shadow-[var(--shadow-md)]"
  >
  {val}
  </motion.div>

@@ -154,7 +154,7 @@ export function TopBar() {
                 <UserAvatar name={displayName} src={displayAvatar} size="md" className="border-2 border-transparent group-hover:border-primary/30 transition-colors" />
                 <div
                   className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-chart-3 border-2 border-card"
-                  style={{ boxShadow: "0 0 6px rgba(52,211,153,0.7)" }}
+                  style={{ boxShadow: "0 0 6px color-mix(in srgb, var(--success) 70%, transparent)" }}
                 />
               </div>
 

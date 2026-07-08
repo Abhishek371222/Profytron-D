@@ -542,13 +542,13 @@
 @keyframes glow-teal {
   0%, 100% {
     box-shadow:
-      0 0 16px rgba(71, 167, 170, 0.20),
-      0 0 40px rgba(71, 167, 170, 0.08);
+      0 0 16px color-mix(in srgb, var(--primary) 20%, transparent),
+      0 0 40px color-mix(in srgb, var(--primary) 8%, transparent);
   }
   50% {
     box-shadow:
-      0 0 32px rgba(71, 167, 170, 0.40),
-      0 0 80px rgba(71, 167, 170, 0.16);
+      0 0 32px color-mix(in srgb, var(--primary) 40%, transparent),
+      0 0 80px color-mix(in srgb, var(--primary) 16%, transparent);
   }
 }
 
