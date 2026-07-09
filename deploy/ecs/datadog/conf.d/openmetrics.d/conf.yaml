@@ -1,0 +1,9 @@
+init_config:
+
+instances:
+  - openmetrics_endpoint: https://api.upstash.com/monitoring/prometheus
+    namespace: upstash
+    headers:
+      Authorization: 'Bearer PLACEHOLDER_UPSTASH_PROMETHEUS_PASSWORD'
+    metrics:
+      - upstash.*

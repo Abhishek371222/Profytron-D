@@ -97,3 +97,5 @@ temp/
 *.tmp
 .tmp_*
 .turbo/cache/*.tar.zst
+.vercel
+.env*

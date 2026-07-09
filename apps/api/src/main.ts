@@ -1,5 +1,6 @@
-// Must be the first imports: initialise error tracking + tracing (both no-ops
-// unless their env vars are set) before any instrumented library is loaded.
+// Must be the first imports: Datadog APM, error tracking, and tracing before
+// instrumented libraries load.
+import './datadog';
 import './instrument';
 import './tracing';
 import { NestFactory } from '@nestjs/core';

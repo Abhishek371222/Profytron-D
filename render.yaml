@@ -66,6 +66,12 @@ services:
         sync: false
       - key: UPSTASH_REDIS_REST_TOKEN
         sync: false
+      - key: UPSTASH_REDIS_READONLY_TOKEN
+        sync: false
+      - key: UPSTASH_PROMETHEUS_ENDPOINT
+        value: https://api.upstash.com/monitoring/prometheus
+      - key: UPSTASH_PROMETHEUS_PASSWORD
+        sync: false
 
       # --- OAuth / Supabase (REQUIRED if Google/Supabase login is enabled) ---
       - key: GOOGLE_CLIENT_ID
