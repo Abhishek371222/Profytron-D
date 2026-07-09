@@ -1,0 +1,8 @@
+node_modules
+apps/api
+services
+.git
+.agents
+render.env
+vercel.env
+**/*firebase-adminsdk*.json
