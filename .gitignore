@@ -98,4 +98,4 @@ temp/
 .tmp_*
 .turbo/cache/*.tar.zst
 .vercel
-.env*
+.env.vercel.check
