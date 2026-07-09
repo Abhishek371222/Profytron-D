@@ -101,12 +101,25 @@ export default function AuthCallbackClient() {
       }
 
       try {
+        const metadata = session.user.user_metadata ?? {};
+        const fullName =
+          metadata.full_name ||
+          metadata.name ||
+          session.user.email?.split('@')[0] ||
+          'User';
+        const avatarUrl =
+          metadata.avatar_url || metadata.picture || metadata.avatar;
+        const provider =
+          session.user.app_metadata?.provider ||
+          session.user.identities?.[0]?.provider ||
+          'oauth';
+
         const response = await apiClient.post('/auth/supabase', {
           token: session.access_token,
           email: session.user.email,
-          fullName: session.user.user_metadata?.full_name,
-          avatarUrl: session.user.user_metadata?.avatar_url,
-          provider: session.user.app_metadata?.provider,
+          fullName,
+          avatarUrl,
+          provider,
         });
         const data = unwrapApiResponse<{ accessToken: string; user: any }>(
           response.data,

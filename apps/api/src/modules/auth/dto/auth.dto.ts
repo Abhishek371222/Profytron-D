@@ -123,7 +123,8 @@ export class SupabaseLoginDto {
   email: string;
 
   @IsString()
-  fullName: string;
+  @IsOptional()
+  fullName?: string;
 
   @IsString()
   @IsOptional()
@@ -134,5 +135,6 @@ export class SupabaseLoginDto {
   bio?: string;
 
   @IsString()
-  provider: string;
+  @IsOptional()
+  provider?: string;
 }

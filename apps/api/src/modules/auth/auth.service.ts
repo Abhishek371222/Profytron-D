@@ -889,6 +889,17 @@ export class AuthService {
   async supabaseLogin(dto: SupabaseLoginDto) {
     this.logger.log(`Initiating Supabase sync for: ${dto.email}`);
 
+    if (!this.supabase) {
+      this.logger.error(
+        'Supabase client not configured — set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on the API',
+      );
+      appError(
+        HttpStatus.SERVICE_UNAVAILABLE,
+        'Account sync is temporarily unavailable',
+        ErrorCode.INTERNAL_ERROR,
+      );
+    }
+
     // 1. Verify token with Supabase
     const { data, error } = await this.supabase.auth.getUser(dto.token);
 
