@@ -127,7 +127,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io`,
+              `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io`,
               // Razorpay/Stripe render their payment UI inside iframes.
               "frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://js.stripe.com https://hooks.stripe.com",
               "frame-ancestors 'none'",

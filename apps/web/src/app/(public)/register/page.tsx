@@ -17,7 +17,7 @@ import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 import { SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
 import { authApi } from '@/lib/api/auth';
-import { supabase } from '@/lib/supabase';
+import { startSocialOAuth } from '@/lib/auth/social-oauth';
 import { toast } from 'sonner';
 import { trackEvent, ACTIVATION_EVENTS } from '@/lib/analytics/track';
 import { useMounted } from '@/lib/hooks/useMounted';
@@ -110,28 +110,7 @@ export default function RegisterPage() {
   };
 
   const handleSocialLogin = async (provider: 'google' | 'github') => {
-    try {
-      if (provider === 'google') {
-        window.location.href = '/api/auth/google';
-        return;
-      }
-      if (!supabase) {
-        toast.error('Social login is not available right now', {
-          description: 'Please sign up with your email and password.',
-        });
-        return;
-      }
-      const redirectUrl = `${window.location.origin}/auth/callback`;
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: redirectUrl },
-      });
-      if (error) {
-        toast.error(`Unable to sign up with ${provider}`, { description: error.message });
-      }
-    } catch (error) {
-      console.error(`[${provider}] Signup failed:`, error);
-    }
+    await startSocialOAuth(provider, 'register');
   };
 
   return (

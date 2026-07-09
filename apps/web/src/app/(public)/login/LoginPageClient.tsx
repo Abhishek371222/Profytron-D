@@ -17,7 +17,7 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { authApi } from '@/lib/api/auth';
-import { supabase } from '@/lib/supabase';
+import { startSocialOAuth } from '@/lib/auth/social-oauth';
 import { resolvePostLoginRedirect } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -91,43 +91,7 @@ function LoginPageContent() {
   };
 
   const handleSocialLogin = async (provider: 'google' | 'github') => {
-    try {
-      if (provider === 'google') {
-        window.location.href = '/api/auth/google';
-        return;
-      }
-
-      if (!window.location.origin) {
-        throw new Error('Unable to determine redirect URL');
-      }
-
-      if (!supabase) {
-        toast.error('Social login is not available right now', {
-          description: 'Please sign in with your email and password.',
-        });
-        return;
-      }
-
-      const redirectUrl = `${window.location.origin}/auth/callback`;
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: redirectUrl,
-        },
-      });
-
-      if (error) {
-        console.error(`[${provider.toUpperCase()}] OAuth error:`, error);
-        toast.error(`Unable to sign in with ${provider}`, {
-          description: error.message,
-        });
-        throw error;
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.error(`[${provider.toUpperCase()}] Login failed:`, message);
-    }
+    await startSocialOAuth(provider, 'login');
   };
 
   const handleForgotPassword = async () => {

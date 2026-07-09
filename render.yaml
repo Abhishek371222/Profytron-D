@@ -69,7 +69,7 @@ services:
 
       # --- OAuth / Supabase (REQUIRED if Google/Supabase login is enabled) ---
       - key: GOOGLE_CLIENT_ID
-        sync: false
+        value: 507164728830-r5meeu6mocu22lhmbu4lk83lbadlg7j8.apps.googleusercontent.com
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: SUPABASE_URL
