@@ -70,7 +70,7 @@ echo STEP 1: Supabase Configuration
 echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo   1. Go to: https://app.supabase.com
 echo   2. Log in with your account
-echo   3. Select your PROJECT: nghlhhsdtewrchdeyean
+echo   3. Select your PROJECT: latlennltsqzjveovldf
 echo   4. Go to: Authentication ^> Providers ^> Google
 echo   5. Enable Google Provider if not already enabled
 echo   6. Find: "Authorized redirect URIs" section
@@ -88,7 +88,7 @@ echo   5. Click on it to EDIT
 echo   6. Find: "Authorized redirect URIs" section
 echo   7. ADD BOTH of these URLs (if not already there^):
 echo      ► http://localhost:3000/auth/callback
-echo      ► https://nghlhhsdtewrchdeyean.supabase.co/auth/v1/callback
+echo      ► https://latlennltsqzjveovldf.supabase.co/auth/v1/callback
 echo   8. SAVE
 echo.
 echo STEP 3: Test the OAuth Flow
@@ -114,7 +114,7 @@ echo Google OAuth Setup:
 echo   https://developers.google.com/identity/protocols/oauth2
 echo.
 echo Supabase Project:
-echo   https://app.supabase.com/project/nghlhhsdtewrchdeyean
+echo   https://app.supabase.com/project/latlennltsqzjveovldf
 echo.
 echo Google Cloud Project:
 echo   https://console.cloud.google.com/apis/credentials
