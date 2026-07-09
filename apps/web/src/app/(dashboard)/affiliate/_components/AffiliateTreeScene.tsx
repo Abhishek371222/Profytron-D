@@ -58,7 +58,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
           />
           <motion.path
             d="M450 60 C 492 112, 540 150, 592 198 S 698 280, 772 336"
-            stroke="rgba(16,185,129,0.28)"
+            stroke="color-mix(in srgb, var(--chart-5) 28%, transparent)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray="10 12"
@@ -67,7 +67,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
           />
           <motion.path
             d="M450 110 C 430 170, 420 220, 452 282 S 520 340, 588 372"
-            stroke="rgba(168,85,247,0.3)"
+            stroke="color-mix(in srgb, var(--accent) 45%, transparent)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray="8 10"

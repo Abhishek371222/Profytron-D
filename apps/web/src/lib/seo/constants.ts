@@ -6,7 +6,7 @@ export const DEFAULT_OG_IMAGE_ALT =
   'Profytron trading dashboard showing AI analytics, copy trading, and live portfolio performance';
 export const TWITTER_HANDLE = '@profytron';
 export const SUPPORT_EMAIL = 'support@profytron.com';
-export const CONTACT_EMAIL = 'hello@profytron.com';
+export const CONTACT_EMAIL = 'support@profytron.com';
 
 export const DEFAULT_KEYWORDS = [
   'algorithmic trading India',

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { AffiliatesService } from './affiliates.service';
 import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
+import { RequestWithdrawalDto } from './dto/affiliates.dto';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -66,7 +67,7 @@ export class AffiliatesController {
   @ApiResponse({ status: 201, description: 'Withdrawal requested' })
   @ApiOperation({ summary: 'Request affiliate earnings withdrawal' })
   @Post('withdraw')
-  async requestWithdrawal(@Req() req: any, @Body() body: { amount: number }) {
+  async requestWithdrawal(@Req() req: any, @Body() body: RequestWithdrawalDto) {
     return this.affiliatesService.requestWithdrawal(req.user.id, body.amount);
   }
 }

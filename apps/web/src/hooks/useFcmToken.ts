@@ -54,7 +54,7 @@ export function useFcmToken() {
           const title = payload.notification?.title ?? 'Profytron';
           const body  = payload.notification?.body  ?? '';
           if (Notification.permission === 'granted') {
-            new Notification(title, { body, icon: '/icons/icon-192x192.png' });
+            new Notification(title, { body, icon: '/brand-mark.png' });
           }
         });
       } catch {

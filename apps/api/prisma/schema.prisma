@@ -38,6 +38,7 @@ enum SubscriptionTier {
   FREE
   PRO
   ELITE
+  BUSINESS
   INSTITUTIONAL
 }
 

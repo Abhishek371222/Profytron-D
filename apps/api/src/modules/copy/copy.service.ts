@@ -65,24 +65,69 @@ export class CopyTradingService implements OnModuleInit {
       where: { isMasterSource: true },
       select: { id: true, userId: true, initialEquity: true },
     });
+    if (masterAccounts.length === 0) return 0;
+
+    const accountIds = masterAccounts.map((a) => a.id);
+    const userIds = masterAccounts.map((a) => a.userId);
+
+    // Batch: closed trades for every master account in one query, grouped in JS.
+    const allTrades = await this.prisma.trade.findMany({
+      where: { brokerAccountId: { in: accountIds }, status: 'CLOSED' },
+      orderBy: { closedAt: 'asc' },
+      select: { brokerAccountId: true, profit: true },
+    });
+    const profitsByAccount = new Map<string, number[]>();
+    for (const t of allTrades) {
+      if (!t.brokerAccountId) continue;
+      const arr = profitsByAccount.get(t.brokerAccountId) ?? [];
+      arr.push(t.profit ?? 0);
+      profitsByAccount.set(t.brokerAccountId, arr);
+    }
+
+    // Batch: follower counts, resolved through strategy -> masterBrokerAccountId.
+    const strategies = await this.prisma.strategy.findMany({
+      where: { masterBrokerAccountId: { in: accountIds } },
+      select: { id: true, masterBrokerAccountId: true },
+    });
+    const strategyIds = strategies.map((s) => s.id);
+    const subCounts = strategyIds.length
+      ? await this.prisma.userStrategySubscription.groupBy({
+          by: ['strategyId'],
+          where: {
+            status: SubscriptionStatus.ACTIVE,
+            strategyId: { in: strategyIds },
+          },
+          _count: { _all: true },
+        })
+      : [];
+    const countByStrategy = new Map(
+      subCounts.map((c) => [c.strategyId, c._count._all]),
+    );
+    const followersByAccount = new Map<string, number>();
+    for (const s of strategies) {
+      if (!s.masterBrokerAccountId) continue;
+      const prev = followersByAccount.get(s.masterBrokerAccountId) ?? 0;
+      followersByAccount.set(
+        s.masterBrokerAccountId,
+        prev + (countByStrategy.get(s.id) ?? 0),
+      );
+    }
+
+    // Batch: fallback display names.
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, fullName: true, username: true },
+    });
+    const userById = new Map(users.map((u) => [u.id, u]));
 
     let count = 0;
     for (const account of masterAccounts) {
-      const stats = await this.computeMasterStats(
-        account.id,
+      const stats = this.computeMasterStatsFromProfits(
+        profitsByAccount.get(account.id) ?? [],
         account.initialEquity ?? DEFAULT_BASE_EQUITY,
       );
-      const followersCount = await this.prisma.userStrategySubscription.count({
-        where: {
-          status: SubscriptionStatus.ACTIVE,
-          strategy: { masterBrokerAccountId: account.id },
-        },
-      });
-
-      const user = await this.prisma.user.findUnique({
-        where: { id: account.userId },
-        select: { fullName: true, username: true },
-      });
+      const followersCount = followersByAccount.get(account.id) ?? 0;
+      const user = userById.get(account.userId);
       const fallbackName =
         user?.fullName || user?.username || 'Profytron Trader';
 
@@ -127,15 +172,29 @@ export class CopyTradingService implements OnModuleInit {
       },
     });
 
+    // Batch: master profiles for every distinct master referenced by these
+    // subscriptions, resolved once instead of per-subscription.
+    const masterUserIds = [
+      ...new Set(
+        subs
+          .map((sub) => sub.strategy?.masterBrokerAccount?.userId)
+          .filter((id): id is string => !!id),
+      ),
+    ];
+    const profiles = masterUserIds.length
+      ? await this.prisma.masterProfile.findMany({
+          where: { userId: { in: masterUserIds } },
+          select: { id: true, userId: true },
+        })
+      : [];
+    const profileIdByUserId = new Map(profiles.map((p) => [p.userId, p.id]));
+
     let count = 0;
     for (const sub of subs) {
       const masterUserId = sub.strategy?.masterBrokerAccount?.userId;
       if (!masterUserId) continue;
-      const masterProfile = await this.prisma.masterProfile.findUnique({
-        where: { userId: masterUserId },
-        select: { id: true },
-      });
-      if (!masterProfile) continue;
+      const masterProfileId = profileIdByUserId.get(masterUserId);
+      if (!masterProfileId) continue;
 
       const profile = (sub.executionProfileJson as any) ?? {};
       const sizingMode = this.toSizingMode(profile.sizingMode);
@@ -147,12 +206,12 @@ export class CopyTradingService implements OnModuleInit {
       await this.prisma.copyRelationship.upsert({
         where: {
           masterProfileId_followerUserId: {
-            masterProfileId: masterProfile.id,
+            masterProfileId,
             followerUserId: sub.userId,
           },
         },
         create: {
-          masterProfileId: masterProfile.id,
+          masterProfileId,
           followerUserId: sub.userId,
           subscriptionId: sub.id,
           followerAccountId: sub.brokerAccountId ?? null,
@@ -179,24 +238,16 @@ export class CopyTradingService implements OnModuleInit {
     return count;
   }
 
-  private async computeMasterStats(
-    brokerAccountId: string,
-    baseEquity: number,
-  ) {
-    const trades = await this.prisma.trade.findMany({
-      where: { brokerAccountId, status: 'CLOSED' },
-      orderBy: { closedAt: 'asc' },
-      select: { profit: true },
-    });
-
-    if (trades.length === 0) {
+  /** Pure stats computation over a pre-fetched profit list (no DB access) so
+   * callers can batch-fetch trades for many accounts in one query. */
+  private computeMasterStatsFromProfits(profits: number[], baseEquity: number) {
+    if (profits.length === 0) {
       return { roiPct: 0, winRate: 0, maxDrawdownPct: 0, sharpeRatio: 0 };
     }
 
-    const profits = trades.map((t) => t.profit ?? 0);
     const totalProfit = profits.reduce((s, p) => s + p, 0);
     const wins = profits.filter((p) => p > 0).length;
-    const winRate = (wins / trades.length) * 100;
+    const winRate = (wins / profits.length) * 100;
     const roiPct = baseEquity > 0 ? (totalProfit / baseEquity) * 100 : 0;
 
     // Max drawdown from running equity.

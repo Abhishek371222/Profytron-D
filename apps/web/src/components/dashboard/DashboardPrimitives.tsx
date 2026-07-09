@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, AlertTriangle, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /** Standard dashboard page wrapper — same spacing on every tab */
@@ -36,12 +36,14 @@ export function DashboardBreadcrumbs({
 
 export function DashboardPageHeader({
   title,
+  titleAccent,
   description,
   icon: Icon,
   iconClassName,
   actions,
 }: {
   title: string;
+  titleAccent?: string;
   description?: string;
   icon?: React.ElementType;
   iconClassName?: string;
@@ -61,7 +63,15 @@ export function DashboardPageHeader({
           </div>
         ) : null}
         <div className="min-w-0">
-          <h1 className="dash-title">{title}</h1>
+          <h1 className="dash-title">
+            {title}
+            {titleAccent ? (
+              <>
+                {' '}
+                <span className="brand-gradient-text">{titleAccent}</span>
+              </>
+            ) : null}
+          </h1>
           {description ? <p className="dash-subtitle mt-1">{description}</p> : null}
         </div>
       </div>
@@ -71,6 +81,39 @@ export function DashboardPageHeader({
         </div>
       ) : null}
     </motion.div>
+  );
+}
+
+/** Shared "failed to load" state with a retry action — use whenever a query's isError is true. */
+export function DashErrorState({
+  message = "Couldn't load this data.",
+  onRetry,
+  className,
+}: {
+  message?: string;
+  onRetry: () => void;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center gap-3 rounded-[var(--radius-card)] border border-destructive/20 bg-destructive/5 px-6 py-12 text-center',
+        className,
+      )}
+    >
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+        <AlertTriangle className="h-5 w-5" />
+      </div>
+      <p className="text-sm font-medium text-foreground">{message}</p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="dash-btn-outline mt-1 inline-flex items-center gap-2"
+      >
+        <RefreshCw className="h-3.5 w-3.5" />
+        Retry
+      </button>
+    </div>
   );
 }
 
@@ -218,6 +261,23 @@ export function DashEyebrow({ children, className }: { children: React.ReactNode
 
 export function DashSectionTitle({ children, className }: { children: React.ReactNode; className?: string }) {
   return <h2 className={cn('dash-section-title', className)}>{children}</h2>;
+}
+
+export function DashMetricTile({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn('dashboard-card p-4', className)}>
+      <p className="dash-eyebrow text-[11px]">{label}</p>
+      <p className="mt-1.5 text-sm font-semibold text-foreground tabular-nums">{value}</p>
+    </div>
+  );
 }
 
 /** Secondary nav — settings sub-pages, same visual language as main sidebar */

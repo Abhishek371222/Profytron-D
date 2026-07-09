@@ -1,7 +1,13 @@
 'use client';
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
+import {
+  MarketingHero,
+  MarketingSection,
+  MarketingCard,
+} from '@/components/marketing/MarketingPage';
 import { ArrowRight, Mail, CheckCircle } from 'lucide-react';
 
 export default function CareersPage() {
@@ -15,124 +21,88 @@ export default function CareersPage() {
 
   return (
     <PublicPageLayout>
-      {/* Hero */}
-      <section className="relative min-h-[80vh] flex items-center justify-center py-28 overflow-hidden">
-        {/* Background glows */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-primary/10 blur-[150px] rounded-full pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-chart-5/5 blur-[120px] rounded-full pointer-events-none" />
-
-        {/* Animated orbital rings */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-            className="w-[500px] h-[500px] rounded-full border border-primary/8"
-          />
-        </div>
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <motion.div
-            animate={{ rotate: -360 }}
-            transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
-            className="w-[700px] h-[700px] rounded-full border border-border"
-          />
-        </div>
-
-        <div className="container mx-auto px-6 max-w-3xl relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-            className="space-y-8"
-          >
-            {/* Status badge */}
-            <div className="flex justify-center">
-              <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-chart-4/10 border border-chart-4/25 text-chart-4 text-caption font-bold tracking-[0.35em] uppercase">
-                <motion.div
-                  animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="w-1.5 h-1.5 rounded-full bg-chart-4"
-                />
-                Positions Opening Soon
-              </div>
-            </div>
-
-            {/* Headline */}
-            <div>
-              <h1 className="text-6xl md:text-8xl font-bold tracking-[-0.04em] text-foreground leading-[0.95]">
-                We're Building<br />
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary via-primary to-chart-5">
-                  The Team.
-                </span>
-              </h1>
-              <p className="mt-8 text-lg text-foreground/50 leading-relaxed max-w-xl mx-auto font-medium">
-                Profytron is assembling an elite group of engineers, quants, and builders. Formal job listings are coming soon — get notified the moment we go live.
-              </p>
-            </div>
-
-            {/* Email capture */}
+      <MarketingHero
+        eyebrow="Careers"
+        title="We're Building"
+        titleAccent="The Team."
+        description="Profytron is assembling an elite group of engineers, quants, and builders. Formal job listings are coming soon â€” get notified the moment we go live."
+        meta={
+          <span className="inline-flex items-center gap-2.5 rounded-full border border-chart-4/25 bg-chart-4/10 px-5 py-2 text-xs font-bold uppercase tracking-[0.35em] text-chart-4">
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
+              animate={{ scale: [1, 1.4, 1], opacity: [1, 0.5, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="h-1.5 w-1.5 rounded-full bg-chart-4"
+            />
+            Positions Opening Soon
+          </span>
+        }
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="mt-8 w-full max-w-lg"
+        >
+          {!submitted ? (
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+              <div className="relative min-w-0 flex-1">
+                <label htmlFor="careers-email" className="sr-only">
+                  Email address
+                </label>
+                <Mail
+                  className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden
+                />
+                <input
+                  id="careers-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                  className="h-12 w-full rounded-xl border border-[var(--card-border)] bg-card py-0 pl-10 pr-4 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[color-mix(in_srgb,var(--primary)_35%,var(--card-border))] focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--primary)_12%,transparent)]"
+                />
+              </div>
+              <button
+                type="submit"
+                className="dash-btn-primary flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap px-6 sm:w-auto"
+              >
+                Notify Me <ArrowRight className="h-4 w-4" />
+              </button>
+            </form>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="inline-flex max-w-md items-center gap-3 rounded-xl border border-chart-3/25 bg-chart-3/10 px-6 py-3 text-sm font-medium text-chart-3"
             >
-              {!submitted ? (
-                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-3 max-w-md mx-auto">
-                  <div className="relative flex-1 w-full">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30 pointer-events-none" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      placeholder="your@email.com"
-                      required
-                      className="w-full h-12 pl-11 pr-4 rounded-xl bg-foreground/4 border border-border text-foreground text-sm placeholder:text-foreground/25 focus:outline-none focus:border-primary/60 focus:bg-foreground/6 transition-all"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="h-12 px-6 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-semibold transition-all shadow-[0_0_24px_rgba(71,167,170,0.35)] hover:shadow-[0_0_40px_rgba(71,167,170,0.5)] flex items-center gap-2 whitespace-nowrap"
-                  >
-                    Notify Me <ArrowRight className="w-4 h-4" />
-                  </button>
-                </form>
-              ) : (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="inline-flex items-center gap-3 px-6 py-3 rounded-xl bg-chart-3/10 border border-chart-3/25 text-chart-3 font-medium text-sm max-w-md mx-auto"
-                >
-                  <CheckCircle className="w-5 h-5" />
-                  You're on the list. We'll be in touch.
-                </motion.div>
-              )}
-              <p className="mt-3 text-foreground/20 text-xs font-mono">No spam. Unsubscribe at any time.</p>
+              <CheckCircle className="h-5 w-5" />
+              You&apos;re on the list. We&apos;ll be in touch.
             </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Open application */}
-      <section className="py-20 border-t border-border">
-        <div className="container mx-auto px-6 max-w-3xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="p-10 rounded-3xl bg-linear-to-br from-primary/8 to-chart-5/5 border border-primary/20 text-center"
-          >
-            <h2 className="text-2xl font-bold text-foreground mb-3">Can't Wait?</h2>
-            <p className="text-foreground/50 mb-8 max-w-sm mx-auto text-sm leading-relaxed">
-              Send us your work now. Exceptional people don't wait for job postings.
-            </p>
-            <a
-              href="mailto:careers@profytron.com"
-              className="inline-flex items-center gap-3 px-7 py-3.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(71,167,170,0.3)]"
-            >
-              <Mail className="w-4 h-4" /> careers@profytron.com
+          )}
+          <p className="mt-3 text-xs text-muted-foreground">
+            No spam. Unsubscribe at any time. Questions?{' '}
+            <a href="mailto:support@profytron.com" className="font-medium text-primary hover:underline">
+              support@profytron.com
             </a>
-          </motion.div>
-        </div>
-      </section>
+          </p>
+        </motion.div>
+      </MarketingHero>
+
+      <MarketingSection narrow className="border-t border-[var(--card-border)] pb-20">
+        <MarketingCard className="border-primary/20 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--primary)_8%,transparent),color-mix(in_srgb,var(--brand-crimson)_5%,transparent))] p-10 text-center">
+          <h2 className="brand-display-heading mb-3 text-2xl">Can&apos;t Wait?</h2>
+          <p className="mx-auto mb-8 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            Send us your work now. Exceptional people don&apos;t wait for job postings.
+          </p>
+          <a
+            href="mailto:support@profytron.com"
+            className="inline-flex items-center gap-3 rounded-xl bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-[0_0_24px_color-mix(in_srgb,var(--primary)_30%,transparent)] transition-all hover:bg-primary-hover"
+          >
+            <Mail className="h-4 w-4" /> support@profytron.com
+          </a>
+        </MarketingCard>
+      </MarketingSection>
     </PublicPageLayout>
   );
 }

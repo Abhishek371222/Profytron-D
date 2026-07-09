@@ -22,6 +22,7 @@ import {
   ChartCard,
   StatCard,
 } from '../_components/AnalyticsShared';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 
 const IMPACT_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
   HIGH: { label: 'High', color: 'text-destructive', bg: 'bg-destructive/10', border: 'border-destructive/20' },
@@ -76,6 +77,40 @@ export default function GlobalAnalyticsPage() {
   const sectorRotation = global?.sectorRotation ?? [];
   const leaderRows = leaderboard?.rows ?? [];
   const hasData = Boolean(regimeLabel || macroEvents.length || sectorRotation.length || leaderRows.length);
+  const isLoading = globalQuery.isLoading || leaderboardQuery.isLoading;
+  const isError = globalQuery.isError && leaderboardQuery.isError;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-5 pb-8 animate-pulse">
+        <div className="dashboard-card h-20" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="dashboard-card h-24" />
+          ))}
+        </div>
+        <div className="dashboard-card h-64" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-5 pb-8">
+        <AnalyticsPageHeader
+          title="Smart Analysis"
+          description="Macro signals, sector rotation, and leaderboard dynamics powered by real analytics."
+          icon={Globe}
+          iconBg="bg-primary/10 text-primary"
+          onRefresh={refreshData}
+        />
+        <DashErrorState
+          message="Couldn't load global analytics."
+          onRetry={refreshData}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 pb-8">

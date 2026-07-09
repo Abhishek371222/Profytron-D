@@ -51,7 +51,7 @@ export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionMod
  key={s}
  className={cn(
 "w-2 h-2 rounded-full transition-all duration-500",
- step >= s ?"bg-primary w-6 shadow-[0_0_10px_#1e6d48]" :"bg-foreground/10"
+ step >= s ?"bg-primary w-6 shadow-[0_0_10px_var(--chart-5)]" :"bg-foreground/10"
  )}
  />
  ))}

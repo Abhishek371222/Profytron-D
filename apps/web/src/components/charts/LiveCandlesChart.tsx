@@ -477,14 +477,14 @@ export function LiveCandlesChart({
 									y1={y}
 									x2={layout.W - layout.margin.right}
 									y2={y}
-									stroke="rgba(15,23,42,0.07)"
+									stroke="color-mix(in srgb, var(--foreground) 7%, transparent)"
 									strokeDasharray="3 5"
 									vectorEffect="non-scaling-stroke"
 								/>
 								<text
 									x={layout.W - layout.margin.right + 4}
 									y={y + 3.5}
-									fill="#64748B"
+									fill="var(--muted-foreground)"
 									fontSize="9.5"
 									fontWeight="500"
 								>
@@ -500,10 +500,10 @@ export function LiveCandlesChart({
 									y1={layout.margin.top}
 									x2={x}
 									y2={layout.volTop + layout.volH}
-									stroke="rgba(15,23,42,0.04)"
+									stroke="color-mix(in srgb, var(--foreground) 4%, transparent)"
 									vectorEffect="non-scaling-stroke"
 								/>
-								<text x={x} y={layout.H - 10} fill="#94A3B8" fontSize="9" fontWeight="500" textAnchor="middle">
+								<text x={x} y={layout.H - 10} fill="var(--muted-foreground)" fontSize="9" fontWeight="500" textAnchor="middle">
 									{label}
 								</text>
 							</g>

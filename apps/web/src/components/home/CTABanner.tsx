@@ -3,8 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, FileText } from "lucide-react";
-import { TrustBadges } from "@/components/trust/TrustBadges";
-import { HeroDashboardPreview } from "@/components/home/HeroDashboardPreview";
+import { HeroAmbientVisual } from "@/components/home/HeroAmbientVisual";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { useMounted } from "@/lib/hooks/useMounted";
 import {
@@ -24,86 +23,73 @@ export function CTABanner() {
   const { isAuthenticated } = useAuthStore();
 
   return (
-    <section className="relative py-16 sm:py-20 bg-[var(--bg-secondary)] dark:bg-background overflow-hidden">
-      <div className="page-container max-w-[1200px]">
-        <div className="relative rounded-[28px] sm:rounded-[32px] border border-[var(--card-border)] bg-card p-6 sm:p-10 lg:p-12 overflow-hidden shadow-[0_10px_40px_rgba(15,23,42,0.06)]">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_20%_0%,rgba(71,167,170,0.10)_0%,transparent_55%),radial-gradient(ellipse_at_90%_80%,rgba(30,109,72,0.07)_0%,transparent_50%)]"
-          />
+    <section className="landing-section overflow-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: [
+            "radial-gradient(ellipse 70% 50% at 85% 40%, rgba(71,167,170,0.1) 0%, transparent 60%)",
+            "radial-gradient(ellipse 50% 40% at 15% 70%, rgba(30,109,72,0.06) 0%, transparent 55%)",
+          ].join(", "),
+        }}
+      />
 
-          <div className="relative z-10 grid lg:grid-cols-2 gap-10 lg:gap-12 xl:gap-16 items-center">
+      <div className="page-container relative z-10 w-full">
+        <div className="hero-main relative">
+          <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-14">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
+              className="w-full min-w-0"
             >
-              <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-3.5 py-1.5 text-xs font-semibold text-primary mb-6">
-                Built for traders. Designed to scale.
-              </span>
+              <span className="landing-eyebrow mb-6">Built for traders. Designed to scale.</span>
 
-              <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-extrabold tracking-tight text-foreground leading-[1.1] mb-5">
+              <h2 className="brand-display-heading mb-5 text-3xl sm:text-4xl lg:text-[2.75rem]">
                 Ready to trade{" "}
-                <span className="text-gradient-brand">
-                  smarter?
-                </span>
+                <span className="landing-gradient-text">smarter?</span>
               </h2>
 
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg">
+              <p className="mb-8 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
                 Join thousands of traders using Profytron to automate strategies, manage risk,
                 and track performance in one place.
               </p>
 
-              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-8">
+              <div className="mb-8 flex flex-col flex-wrap items-stretch gap-3 sm:flex-row sm:items-center">
                 {mounted && isAuthenticated ? (
                   <LandingDashboardLink className="w-full sm:w-auto" />
                 ) : (
                   <LandingPrimaryLink href="/register?plan=starter" className="w-full sm:w-auto">
                     Start 7-Day Free Trial
-                    <ArrowRight className="w-4 h-4 shrink-0" />
+                    <ArrowRight className="h-4 w-4 shrink-0" />
                   </LandingPrimaryLink>
                 )}
                 <LandingSecondaryLink href="/docs" className="w-full sm:w-auto">
-                  <FileText className="w-4 h-4 text-primary shrink-0" />
+                  <FileText className="h-4 w-4 shrink-0 text-primary" />
                   Read Documentation
                 </LandingSecondaryLink>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-2.5">
+              <div className="flex flex-col gap-y-2.5 sm:flex-row sm:flex-wrap sm:gap-x-6">
                 {TRUST_POINTS.map((item) => (
                   <span
                     key={item}
-                    className="inline-flex items-center gap-2 text-sm text-muted-foreground font-medium"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground"
                   >
-                    <Check className="w-4 h-4 text-[var(--success)] shrink-0" />
+                    <Check className="h-4 w-4 shrink-0 text-[var(--success)]" />
                     {item}
                   </span>
                 ))}
               </div>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.55, delay: 0.1 }}
-              className="flex justify-center lg:justify-end"
-            >
-              <HeroDashboardPreview showHint={false} overviewTitle="Performance Overview" />
-            </motion.div>
+            <div className="hero-ambient-layer hero-ambient-layer-cta">
+              <HeroAmbientVisual variant="cta" />
+            </div>
           </div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45, delay: 0.15 }}
-          className="mt-8 sm:mt-10 flex justify-center"
-        >
-          <TrustBadges className="justify-center max-w-4xl" />
-        </motion.div>
       </div>
     </section>
   );

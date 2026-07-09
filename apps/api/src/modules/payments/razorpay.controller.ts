@@ -7,6 +7,11 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import { PaymentsService } from './payments.service';
+import {
+  CreateRazorpayOrderDto,
+  VerifyRazorpayPaymentDto,
+  DemoCompleteRazorpayDto,
+} from './dto/razorpay.dto';
 
 @ApiTags('Payments')
 @ApiBearerAuth()
@@ -21,10 +26,7 @@ export class RazorpayController {
   @ApiOperation({ summary: 'Create a Razorpay order for wallet deposit' })
   @ApiResponse({ status: 201, description: 'Order created' })
   @ApiResponse({ status: 400, description: 'Invalid amount' })
-  async createOrder(
-    @Req() req: any,
-    @Body() body: { amount: number; currency?: string; receipt?: string },
-  ) {
+  async createOrder(@Req() req: any, @Body() body: CreateRazorpayOrderDto) {
     return this.paymentsService.createRazorpayOrder(
       req.user.userId,
       body.amount,
@@ -40,15 +42,7 @@ export class RazorpayController {
     status: 400,
     description: 'Signature mismatch or missing fields',
   })
-  async verify(
-    @Req() req: any,
-    @Body()
-    body: {
-      razorpay_order_id?: string;
-      razorpay_payment_id?: string;
-      razorpay_signature?: string;
-    },
-  ) {
+  async verify(@Req() req: any, @Body() body: VerifyRazorpayPaymentDto) {
     return this.paymentsService.verifyRazorpayPayment(req.user.userId, body);
   }
 
@@ -57,7 +51,7 @@ export class RazorpayController {
     summary: 'Complete a demo Razorpay order (development only, DEMO_KEY)',
   })
   @ApiResponse({ status: 201, description: 'Demo payment credited' })
-  async demoComplete(@Req() req: any, @Body() body: { orderId: string }) {
+  async demoComplete(@Req() req: any, @Body() body: DemoCompleteRazorpayDto) {
     return this.paymentsService.completeDemoRazorpayOrder(
       req.user.userId,
       body.orderId,

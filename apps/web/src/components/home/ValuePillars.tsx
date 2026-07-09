@@ -22,9 +22,9 @@ const pillars = [
     metricLabel: "Faster Review",
     metricIcon: SlidersHorizontal,
     metricGradient: true,
-    iconBg: "bg-[#47a7aa]/10 border-[#47a7aa]/15",
-    iconColor: "text-[#47a7aa]",
-    barClass: "bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]",
+    iconBg: "bg-primary/10 border-primary/15",
+    iconColor: "text-primary",
+    barClass: "bg-gradient-to-r from-primary via-[var(--chart-5)] to-accent",
     barWidth: "72%",
   },
   {
@@ -51,9 +51,9 @@ const pillars = [
     metricLabel: "Block Types",
     metricIcon: Puzzle,
     metricGradient: true,
-    iconBg: "bg-[#47a7aa]/10 border-[#47a7aa]/15",
-    iconColor: "text-[#47a7aa]",
-    barClass: "bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]",
+    iconBg: "bg-primary/10 border-primary/15",
+    iconColor: "text-primary",
+    barClass: "bg-gradient-to-r from-primary via-[var(--chart-5)] to-accent",
     barWidth: "86%",
   },
 ] as const;
@@ -74,42 +74,42 @@ function PillarCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
       transition={{ duration: 0.55, delay: index * 0.1, ease: [0.23, 1, 0.32, 1] }}
-      className="h-full rounded-[24px] border border-[var(--card-border)] bg-card p-7 shadow-[0_10px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_16px_48px_rgba(15,23,42,0.08)] transition-shadow"
+      className="flex h-full flex-col rounded-[24px] border border-[var(--card-border)] bg-card p-7 shadow-[0_10px_40px_rgba(15,23,42,0.06)] transition-shadow hover:shadow-[0_16px_48px_rgba(15,23,42,0.08)]"
     >
       <div
         className={cn(
-          "inline-flex w-12 h-12 items-center justify-center rounded-2xl border mb-6",
+          "mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl border",
           pillar.iconBg,
         )}
       >
-        <Icon className={cn("w-5 h-5", pillar.iconColor)} />
+        <Icon className={cn("h-5 w-5", pillar.iconColor)} />
       </div>
 
-      <h3 className="text-xl font-bold tracking-tight text-foreground mb-3">
+      <h3 className="mb-3 text-xl font-bold tracking-tight text-foreground">
         {pillar.title}
       </h3>
-      <p className="text-sm leading-relaxed text-muted-foreground mb-8 min-h-[4.5rem]">
+      <p className="mb-8 min-h-[4.5rem] flex-1 text-sm leading-relaxed text-muted-foreground">
         {pillar.description}
       </p>
 
-      <div className="flex items-end justify-between gap-3 mb-4">
+      <div className="mb-4 flex items-end justify-between gap-3">
         <span
           className={cn(
-            "text-3xl sm:text-[2rem] font-extrabold tracking-tight leading-none",
+            "text-3xl font-extrabold leading-none tracking-tight sm:text-[2rem]",
             pillar.metricGradient
-              ? "text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]"
+              ? "bg-gradient-to-r from-primary via-[var(--chart-5)] to-accent bg-clip-text text-transparent"
               : pillar.metricColor,
           )}
         >
           {pillar.metric}
         </span>
-        <span className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground pb-1">
-          <MetricIcon className="w-3.5 h-3.5 shrink-0 opacity-70" />
+        <span className="flex items-center gap-1.5 pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <MetricIcon className="h-3.5 w-3.5 shrink-0 opacity-70" />
           {pillar.metricLabel}
         </span>
       </div>
 
-      <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+      <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
         <motion.div
           initial={{ width: 0 }}
           whileInView={{ width: pillar.barWidth }}
@@ -125,35 +125,20 @@ function PillarCard({
 export function ValuePillars() {
   return (
     <section
-      className="relative py-20 sm:py-28 overflow-hidden bg-[var(--bg-secondary)] dark:bg-background"
+      className="landing-section overflow-hidden"
       aria-labelledby="value-pillars-title"
     >
-      {/* Dot grid — top left */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-8 left-4 sm:left-12 w-48 h-48 opacity-40"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, color-mix(in srgb, var(--muted-foreground) 35%, transparent) 1px, transparent 1px)",
-          backgroundSize: "14px 14px",
-        }}
+        className="value-pillars-dots pointer-events-none absolute top-6 left-0 h-64 w-64 sm:h-80 sm:w-80"
       />
 
-      {/* Purple glow + curved accent — top right */}
-      <div aria-hidden className="pointer-events-none absolute -top-16 right-0 w-[min(520px,70vw)] h-[320px]">
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-[#47a7aa]/15 blur-[80px]" />
-        <svg
-          viewBox="0 0 400 200"
-          className="absolute top-4 right-0 w-full h-auto text-[#5bbec1]/25"
-          fill="none"
-        >
-          <path
-            d="M20 180 C120 40, 280 20, 380 60"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-20 right-0 h-[min(360px,50vw)] w-[min(520px,70vw)]"
+      >
+        <div className="absolute top-0 right-0 h-64 w-64 rounded-full bg-primary/12 blur-[90px]" />
+        <div className="value-pillars-arc absolute inset-0" />
       </div>
 
       <div className="page-container relative z-10">
@@ -162,10 +147,10 @@ export function ValuePillars() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.55 }}
-          className="mx-auto mb-14 sm:mb-16 max-w-3xl text-center"
+          className="mx-auto mb-14 max-w-3xl text-center sm:mb-16"
         >
           <div className="mb-5 flex justify-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#47a7aa]/25 bg-[#47a7aa]/[0.06] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-[#47a7aa] dark:text-[#5bbec1]">
+            <span className="landing-eyebrow">
               <Zap className="h-3.5 w-3.5" />
               Product Experience
             </span>
@@ -173,21 +158,21 @@ export function ValuePillars() {
 
           <h2
             id="value-pillars-title"
-            className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-[1.1] tracking-tight text-foreground text-balance"
+            className="brand-display-heading text-balance text-3xl sm:text-4xl md:text-5xl"
           >
             Built For Speed,{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]">
+            <span className="landing-gradient-text">
               Clarity, and Control
             </span>
           </h2>
 
-          <p className="mt-5 text-base sm:text-lg leading-relaxed text-muted-foreground max-w-2xl mx-auto">
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             A cleaner visual hierarchy and data grouping reduce cognitive load so you focus on
             trading decisions — not navigating dashboards.
           </p>
         </motion.div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid items-stretch gap-6 md:grid-cols-3">
           {pillars.map((pillar, i) => (
             <PillarCard key={pillar.title} pillar={pillar} index={i} />
           ))}

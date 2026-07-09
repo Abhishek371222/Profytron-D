@@ -2,8 +2,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Loader2, Mail, Sparkles, CheckCircle2, RotateCcw, Zap } from 'lucide-react';
+import { ArrowLeft, Loader2, Mail, Sparkles, CheckCircle2, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -134,10 +135,7 @@ export default function VerifyEmailPage() {
  </div>
 
  <div className="fixed top-12 right-12 z-50">
- <div className="flex items-center gap-3">
- <Zap className="w-6 h-6 text-primary fill-p animate-pulse" />
- <span className="text-xl font-serif font-semibold tracking-tight text-foreground">PROFYTRON</span>
- </div>
+ <BrandLogo size="xl" />
  </div>
 
  {/* Centered Auth Card */}
@@ -183,8 +181,8 @@ export default function VerifyEmailPage() {
  </div>
 
  <div className="space-y-3">
- <h2 className="text-4xl font-serif font-bold text-foreground tracking-tight">
- Check your <span className="text-gradient">intelligence.</span>
+ <h2 className="brand-display-heading text-3xl sm:text-4xl">
+ Check your <span className="brand-gradient-text">intelligence.</span>
  </h2>
         <p className="text-muted-foreground font-sans text-lg">
           We've synchronized a verification code to <span className="text-foreground font-bold opacity-80">{email}</span>

@@ -5,12 +5,15 @@ import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Loader2, Sparkles, Zap, Lock, Mail, Shield } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, Lock, Mail, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
+import { AuthChartPanel } from '@/components/auth/AuthChartPanel';
+import { BrandGradientText } from '@/components/brand/BrandGradientText';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { authApi } from '@/lib/api/auth';
@@ -218,42 +221,27 @@ function LoginPageContent() {
                   Back
                 </Link>
 
-                <div className="mt-16 max-w-sm space-y-4">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-caption font-semibold uppercase tracking-[0.2em] text-primary">
-                    <Shield className="h-3.5 w-3.5" />
-                    Secure Login
-                  </div>
-                  <h2 className="text-4xl font-bold tracking-tight text-foreground">Welcome back</h2>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    Sign in to your Profytron account and continue monitoring live trading
-                    intelligence, strategies, and portfolio performance.
-                  </p>
-                </div>
-
-                <div className="relative mt-auto h-72 rounded-card border border-border bg-card/80 p-6">
-                  <div className="absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_srgb,var(--foreground)_10%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_srgb,var(--foreground)_10%,transparent)_1px,transparent_1px)] bg-[size:20px_20px] opacity-30" />
-                  <svg viewBox="0 0 320 180" className="relative z-10 h-full w-full" aria-hidden="true">
-                    <polyline points="24,32 92,114 160,62 224,96 292,40" fill="none" stroke="var(--primary)" strokeWidth="2.5" />
-                    <polyline points="24,106 92,72 160,126 224,78 292,136" fill="none" stroke="var(--chart-5)" strokeWidth="2.5" opacity="0.8" />
-                    <circle cx="24" cy="32" r="3" fill="var(--chart-5)" />
-                    <circle cx="92" cy="114" r="3" fill="var(--chart-5)" />
-                    <circle cx="160" cy="62" r="3" fill="var(--chart-5)" />
-                    <circle cx="224" cy="96" r="3" fill="var(--chart-5)" />
-                    <circle cx="292" cy="40" r="3" fill="var(--chart-5)" />
-                  </svg>
-                </div>
+                <AuthChartPanel
+                  badgeLabel="Secure Login"
+                  badgeIcon={Shield}
+                  headline={
+                    <>
+                      Welcome{" "}
+                      <BrandGradientText>back.</BrandGradientText>
+                    </>
+                  }
+                  description="Sign in to your Profytron account and continue monitoring live trading intelligence, strategies, and portfolio performance."
+                />
               </div>
             </div>
 
             <div className="p-7 sm:p-10 lg:p-12">
-              <motion.div variants={itemVariants} className="mb-8 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-input bg-primary/20 text-primary">
-                  <Zap className="h-5 w-5" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-semibold tracking-tight text-foreground">Sign in</h1>
-                  <p className="text-sm text-muted-foreground">Access your trading workspace</p>
-                </div>
+              <motion.div variants={itemVariants} className="mb-8">
+                <BrandLogo size="xl" className="mb-6" />
+                <h1 className="brand-display-heading text-3xl sm:text-4xl">
+                  Sign <BrandGradientText>in.</BrandGradientText>
+                </h1>
+                <p className="mt-1.5 text-sm text-muted-foreground">Access your trading workspace</p>
               </motion.div>
 
               <SocialAuthButtons

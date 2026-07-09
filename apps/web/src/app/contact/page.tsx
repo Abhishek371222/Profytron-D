@@ -1,6 +1,14 @@
+'use client';
+
 import Link from 'next/link';
 import { Mail, MessageSquare, Building2, Headphones, MapPin } from 'lucide-react';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
+import {
+  MarketingHero,
+  MarketingGrid,
+  MarketingCard,
+  MarketingSection,
+} from '@/components/marketing/MarketingPage';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { CONTACT_EMAIL, SUPPORT_EMAIL, SITE_URL } from '@/lib/seo/constants';
@@ -17,7 +25,7 @@ const CONTACT_CHANNELS = [
     icon: Building2,
     title: 'Enterprise & Sales',
     description: 'Prop desks, institutions, white-label, and custom SLAs.',
-    email: 'enterprise@profytron.com',
+    email: SUPPORT_EMAIL,
     cta: 'Contact Sales',
   },
   {
@@ -40,81 +48,72 @@ export default function ContactPage() {
         ]}
       />
 
-      <main className="min-h-screen px-6 py-24">
-        <div className="mx-auto max-w-5xl">
+      <MarketingHero
+        eyebrow="Contact"
+        eyebrowIcon={Mail}
+        title="We're here to help you"
+        titleAccent="trade smarter."
+        description="Reach our support team for product help, or talk to sales about enterprise and institutional deployments. We respond within 24 hours on business days."
+      />
+
+      <MarketingSection>
+        <div className="mb-8">
           <Breadcrumbs items={[{ label: 'Contact' }]} />
-
-          <header className="mt-8 mb-14 max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/[0.06] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary mb-5">
-              Contact
-            </span>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground mb-4">
-              We&apos;re here to help you trade smarter
-            </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Reach our support team for product help, or talk to sales about enterprise
-              and institutional deployments. We respond within 24 hours on business days.
-            </p>
-          </header>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
-            {CONTACT_CHANNELS.map((channel) => {
-              const Icon = channel.icon;
-              const href = 'email' in channel ? `mailto:${channel.email}` : channel.href;
-              return (
-                <article
-                  key={channel.title}
-                  className="rounded-2xl border border-[var(--card-border)] bg-card p-6 shadow-sm hover:border-primary/20 transition-colors"
-                >
-                  <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                    <Icon className="w-5 h-5 text-primary" aria-hidden />
-                  </div>
-                  <h2 className="text-lg font-bold text-foreground mb-2">{channel.title}</h2>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                    {channel.description}
-                  </p>
-                  <a
-                    href={href}
-                    target={href.startsWith('http') ? '_blank' : undefined}
-                    rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-4"
-                  >
-                    <Mail className="w-4 h-4" aria-hidden />
-                    {channel.cta}
-                  </a>
-                </article>
-              );
-            })}
-          </div>
-
-          <section className="rounded-2xl border border-[var(--card-border)] bg-[var(--bg-secondary)] p-8 md:p-10">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-              <div>
-                <div className="flex items-center gap-2 text-muted-foreground mb-2">
-                  <MapPin className="w-4 h-4" aria-hidden />
-                  <span className="text-sm font-medium">Headquarters</span>
-                </div>
-                <p className="text-foreground font-semibold">Profytron Technologies</p>
-                <p className="text-sm text-muted-foreground mt-1">Bangalore, India · Remote-first team</p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="inline-flex h-11 items-center justify-center px-6 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:brightness-110 transition"
-                >
-                  {CONTACT_EMAIL}
-                </a>
-                <Link
-                  href="/help"
-                  className="inline-flex h-11 items-center justify-center px-6 rounded-xl border border-[var(--card-border)] bg-card text-sm font-semibold text-foreground hover:bg-muted/50 transition"
-                >
-                  Visit Help Center
-                </Link>
-              </div>
-            </div>
-          </section>
         </div>
-      </main>
+        <MarketingGrid cols={3}>
+          {CONTACT_CHANNELS.map((channel) => {
+            const Icon = channel.icon;
+            const href = 'email' in channel ? `mailto:${channel.email}` : channel.href;
+            return (
+              <MarketingCard key={channel.title} hover>
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                  <Icon className="h-5 w-5 text-primary" aria-hidden />
+                </div>
+                <h2 className="dash-section-title mb-2">{channel.title}</h2>
+                <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
+                  {channel.description}
+                </p>
+                <a
+                  href={href}
+                  target={href.startsWith('http') ? '_blank' : undefined}
+                  rel={href.startsWith('http') ? 'noreferrer' : undefined}
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-4"
+                >
+                  <Mail className="h-4 w-4" aria-hidden />
+                  {channel.cta}
+                </a>
+              </MarketingCard>
+            );
+          })}
+        </MarketingGrid>
+
+        <MarketingCard className="mt-8 p-8 md:p-10">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-muted-foreground">
+                <MapPin className="h-4 w-4" aria-hidden />
+                <span className="text-sm font-medium">Headquarters</span>
+              </div>
+              <p className="font-semibold text-foreground">Profytron Technologies</p>
+              <p className="mt-1 text-sm text-muted-foreground">Bangalore, India · Remote-first team</p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:brightness-110"
+              >
+                {CONTACT_EMAIL}
+              </a>
+              <Link
+                href="/docs"
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-[var(--card-border)] bg-card px-6 text-sm font-semibold text-foreground transition hover:bg-muted/50"
+              >
+                Documentation
+              </Link>
+            </div>
+          </div>
+        </MarketingCard>
+      </MarketingSection>
     </PublicPageLayout>
   );
 }

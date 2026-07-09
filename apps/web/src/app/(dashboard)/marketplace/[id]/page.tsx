@@ -5,10 +5,16 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
 import { marketplaceApi } from '@/lib/api/marketplace';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import {
+  DashboardPage,
+  DashboardBreadcrumbs,
+  DashboardPageHeader,
+  DashboardCard,
+  DashMetricTile,
+  DashSectionTitle,
+  DashButton,
+} from '@/components/dashboard/DashboardPrimitives';
 import { formatBotDescription, formatBotName } from '@/lib/bot-labels';
 import { toast } from 'sonner';
 
@@ -105,7 +111,11 @@ export default function MarketplaceStrategyDetailPage() {
   };
 
   if (strategyQuery.isLoading) {
-    return <div className="p-8 text-foreground/70">Loading strategy...</div>;
+    return (
+      <DashboardPage>
+        <div className="h-40 animate-pulse rounded-[var(--radius-card)] bg-muted" />
+      </DashboardPage>
+    );
   }
 
   const detail = strategyQuery.data;
@@ -116,51 +126,35 @@ export default function MarketplaceStrategyDetailPage() {
   // implying the strategy doesn't exist.
   if (isStrategyTransientError) {
     return (
-      <main className="space-y-6 p-6 md:p-8 text-foreground">
-        <Link
-          href="/marketplace"
-          className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-[0.2em] text-foreground/35 hover:text-foreground/70 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Marketplace
-        </Link>
-        <div className="premium-surface flex flex-col items-center gap-4 p-12 text-center">
-          <h1 className="text-xl font-bold">Couldn’t load this strategy</h1>
-          <p className="max-w-md text-foreground/70">
-            The marketplace API is temporarily unavailable. This is usually brief —
-            try again in a moment.
+      <DashboardPage>
+        <DashboardBreadcrumbs items={[{ label: 'Marketplace', href: '/marketplace' }, { label: 'Strategy' }]} />
+        <DashboardCard className="py-12 text-center">
+          <DashSectionTitle className="mb-2">Couldn't load this strategy</DashSectionTitle>
+          <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">
+            The marketplace API is temporarily unavailable. Try again in a moment.
           </p>
-          <Button
-            onClick={() => strategyQuery.refetch()}
-            disabled={strategyQuery.isFetching}
-          >
+          <DashButton variant="primary" onClick={() => strategyQuery.refetch()} disabled={strategyQuery.isFetching}>
             {strategyQuery.isFetching ? 'Retrying…' : 'Try again'}
-          </Button>
-        </div>
-      </main>
+          </DashButton>
+        </DashboardCard>
+      </DashboardPage>
     );
   }
 
   if (!strategy) {
     return (
-      <main className="space-y-6 p-6 md:p-8 text-foreground">
-        <Link
-          href="/marketplace"
-          className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-[0.2em] text-foreground/35 hover:text-foreground/70 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Marketplace
-        </Link>
-        <div className="premium-surface flex flex-col items-center gap-4 p-12 text-center">
-          <h1 className="text-xl font-bold">Strategy not found</h1>
-          <p className="max-w-md text-foreground/70">
+      <DashboardPage>
+        <DashboardBreadcrumbs items={[{ label: 'Marketplace', href: '/marketplace' }, { label: 'Not found' }]} />
+        <DashboardCard className="py-12 text-center">
+          <DashSectionTitle className="mb-2">Strategy not found</DashSectionTitle>
+          <p className="mx-auto mb-6 max-w-md text-sm text-muted-foreground">
             This strategy may have been unpublished or removed from the marketplace.
           </p>
           <Link href="/marketplace">
-            <Button>Browse marketplace</Button>
+            <DashButton variant="primary">Browse marketplace</DashButton>
           </Link>
-        </div>
-      </main>
+        </DashboardCard>
+      </DashboardPage>
     );
   }
 
@@ -168,105 +162,99 @@ export default function MarketplaceStrategyDetailPage() {
   const displayDescription = formatBotDescription(strategy.description);
 
   return (
-    <main className="space-y-8 p-6 md:p-8 text-foreground">
-      <div className="flex items-center gap-3">
-        <Link
-          href="/marketplace"
-          className="inline-flex items-center gap-2 text-caption font-bold uppercase tracking-[0.2em] text-foreground/35 hover:text-foreground/70 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Back to Marketplace
-        </Link>
-      </div>
+    <DashboardPage>
+      <DashboardBreadcrumbs
+        items={[
+          { label: 'Marketplace', href: '/marketplace' },
+          { label: displayName },
+        ]}
+      />
 
-      <section className="premium-surface p-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h1 className="text-3xl font-bold">{displayName}</h1>
-            <p className="mt-2 text-foreground/70 max-w-3xl">{displayDescription}</p>
-          </div>
-          <Button variant="outline" onClick={refreshDetail}>Refresh</Button>
-        </div>
-        <div className="mt-6 grid gap-4 md:grid-cols-4">
-          <div className="rounded-xl border border-border bg-foreground/5 p-4">
-            <p className="text-xs uppercase text-foreground/50">Category</p>
-            <p className="mt-1 text-sm font-semibold">{strategy.category}</p>
-          </div>
-          <div className="rounded-xl border border-border bg-foreground/5 p-4">
-            <p className="text-xs uppercase text-foreground/50">Risk</p>
-            <p className="mt-1 text-sm font-semibold">{strategy.riskLevel}</p>
-          </div>
-          <div className="rounded-xl border border-border bg-foreground/5 p-4">
-            <p className="text-xs uppercase text-foreground/50">Monthly</p>
-            <p className="mt-1 text-sm font-semibold">${Number(detail?.listing?.monthlyPrice || 0).toFixed(2)}</p>
-          </div>
-          <div className="rounded-xl border border-border bg-foreground/5 p-4">
-            <p className="text-xs uppercase text-foreground/50">Subscribers</p>
-            <p className="mt-1 text-sm font-semibold">{strategy.copiesCount}</p>
-          </div>
-        </div>
-      </section>
+      <DashboardPageHeader
+        title={displayName}
+        description={displayDescription}
+        actions={
+          <DashButton variant="outline" onClick={refreshDetail}>
+            Refresh
+          </DashButton>
+        }
+      />
+
+      <div className="grid gap-4 md:grid-cols-4">
+        <DashMetricTile label="Category" value={strategy.category} />
+        <DashMetricTile label="Risk" value={strategy.riskLevel} />
+        <DashMetricTile label="Monthly" value={`$${Number(detail?.listing?.monthlyPrice || 0).toFixed(2)}`} />
+        <DashMetricTile label="Subscribers" value={strategy.copiesCount} />
+      </div>
 
       <StrategyAnalyticsDashboard strategyId={strategyId} />
 
-      <section className="premium-surface p-6">
-        <h2 className="text-xl font-bold">Country Usage</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {(detail?.countryStats || []).map((entry: any) => (
-            <div key={entry.country} className="rounded-xl border border-border bg-foreground/5 p-3 text-sm">
+      <DashboardCard className="p-6">
+        <DashSectionTitle className="mb-4">Country Usage</DashSectionTitle>
+        <div className="grid gap-3 md:grid-cols-2">
+          {(detail?.countryStats || []).map((entry: { country: string; count: number }) => (
+            <div key={entry.country} className="dashboard-card p-3 text-sm">
               {entry.country}: {entry.count}
             </div>
           ))}
           {(!detail?.countryStats || detail.countryStats.length === 0) && (
-            <p className="text-foreground/60">No country usage data yet.</p>
+            <p className="text-sm text-muted-foreground">No country usage data yet.</p>
           )}
         </div>
-      </section>
+      </DashboardCard>
 
-      <section className="premium-surface p-6">
-        <h2 className="text-xl font-bold">Reviews</h2>
+      <DashboardCard className="p-6">
+        <DashSectionTitle className="mb-6">Reviews</DashSectionTitle>
 
-        <div className="mt-6 space-y-3">
-          <label className="text-sm text-foreground/70">Rating (1-5)</label>
-          <Input
+        <div className="space-y-3">
+          <label className="text-sm text-muted-foreground">Rating (1-5)</label>
+          <input
             type="number"
             min={1}
             max={5}
             value={rating}
             onChange={(e) => setRating(Number(e.target.value))}
-            className="w-24"
+            className="dash-input w-24"
           />
           <textarea
             placeholder="Share your strategy review"
             value={reviewText}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setReviewText(e.target.value)}
-            className="min-h-24 rounded-xl border border-border bg-foreground/5 px-3 py-2 text-sm text-foreground outline-none"
+            className="dash-input min-h-24 w-full resize-y"
           />
-          <Button onClick={() => createReviewMutation.mutate()} disabled={createReviewMutation.isPending || !reviewText.trim()}>
+          <DashButton
+            variant="primary"
+            onClick={() => createReviewMutation.mutate()}
+            disabled={createReviewMutation.isPending || !reviewText.trim()}
+          >
             {createReviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
-          </Button>
+          </DashButton>
         </div>
 
         <div className="mt-8 space-y-4">
-          {reviews.map((review: any) => (
-            <div key={review.id} className="rounded-xl border border-border bg-foreground/5 p-4">
-              <p className="text-sm font-semibold">{review.user?.fullName || 'User'} • {review.rating}/5</p>
-              <p className="mt-2 text-sm text-foreground/80">{review.reviewText}</p>
-              {review.creatorReply && <p className="mt-3 text-sm text-primary">Creator reply: {review.creatorReply}</p>}
+          {reviews.map((review: { id: string; user?: { fullName?: string }; rating: number; reviewText: string; creatorReply?: string }) => (
+            <div key={review.id} className="dashboard-card p-4">
+              <p className="text-sm font-semibold">
+                {review.user?.fullName || 'User'} • {review.rating}/5
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">{review.reviewText}</p>
+              {review.creatorReply && (
+                <p className="mt-3 text-sm text-primary">Creator reply: {review.creatorReply}</p>
+              )}
             </div>
           ))}
 
           {reviews.length === 0 && !reviewsQuery.isLoading && (
-            <p className="text-sm text-foreground/60">No reviews yet. Be the first to submit one.</p>
+            <p className="text-sm text-muted-foreground">No reviews yet. Be the first to submit one.</p>
           )}
 
           {reviewsQuery.hasNextPage && (
-            <Button variant="outline" onClick={() => reviewsQuery.fetchNextPage()}>
+            <DashButton variant="outline" onClick={() => reviewsQuery.fetchNextPage()}>
               Load more reviews
-            </Button>
+            </DashButton>
           )}
         </div>
-      </section>
-    </main>
+      </DashboardCard>
+    </DashboardPage>
   );
 }

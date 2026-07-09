@@ -2,6 +2,13 @@
 
 import { motion } from 'framer-motion';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
+import {
+  MarketingHero,
+  MarketingSection,
+  MarketingGrid,
+  MarketingCard,
+  MarketingBand,
+} from '@/components/marketing/MarketingPage';
 import { BookOpen, Zap, ArrowRight, Terminal, Code2, Shield, Cpu, Activity } from 'lucide-react';
 import Link from 'next/link';
 
@@ -24,38 +31,18 @@ const guides = [
 export default function DocsPage() {
   return (
     <PublicPageLayout>
-      {/* Hero */}
-      <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/[0.04] via-background to-background scroll-mt-28">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(700px,100vw)] h-[280px] bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
-        <div className="page-container max-w-5xl py-16 sm:py-20 relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-widest mb-6">
-              <BookOpen className="w-3.5 h-3.5" />
-              Documentation
-            </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-foreground leading-[1.05] mb-5">
-              Build with{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-violet-500">
-                Precision.
-              </span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl leading-relaxed">
-              Complete guides, API reference, and architecture documentation for integrating with the Profytron platform.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <MarketingHero
+        eyebrow="Documentation"
+        eyebrowIcon={BookOpen}
+        title="Build with"
+        titleAccent="Precision."
+        description="Complete guides, API reference, and architecture documentation for integrating with the Profytron platform."
+      />
 
-      {/* Quick Start */}
-      <section className="py-16 sm:py-20 scroll-mt-28">
-        <div className="page-container max-w-5xl">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Quick Start</h2>
-            <p className="text-muted-foreground mt-2 text-base">
-              Get your first strategy running in under 10 minutes.
-            </p>
-          </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <MarketingSection>
+        <h2 className="brand-display-heading mb-2 text-2xl sm:text-3xl">Quick Start</h2>
+        <p className="mb-8 text-muted-foreground">Get your first strategy running in under 10 minutes.</p>
+        <MarketingGrid cols={4}>
             {quickstart.map((s, i) => (
               <motion.div
                 key={s.step}
@@ -64,36 +51,28 @@ export default function DocsPage() {
                 transition={{ delay: i * 0.08 }}
                 viewport={{ once: true }}
               >
-                <Link
-                  href={s.link}
-                  className="block h-full p-6 rounded-[20px] bg-card border border-border shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
-                >
-                  <div className="text-3xl font-mono font-bold text-primary/50 group-hover:text-primary transition-colors mb-4">
-                    {s.step}
-                  </div>
-                  <h3 className="font-semibold text-foreground text-sm mb-2 group-hover:text-primary transition-colors">
-                    {s.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{s.desc}</p>
+                <Link href={s.link} className="block h-full group">
+                  <MarketingCard hover className="h-full">
+                    <div className="mb-4 font-mono text-3xl font-bold text-primary/60 transition-colors group-hover:text-primary">
+                      {s.step}
+                    </div>
+                    <h3 className="dash-section-title mb-2 text-sm group-hover:text-primary">{s.title}</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+                  </MarketingCard>
                 </Link>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
+        </MarketingGrid>
+      </MarketingSection>
 
-      {/* Code Example */}
-      <section className="py-16 sm:py-20 bg-muted/40 border-y border-border scroll-mt-28">
-        <div className="page-container max-w-5xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+      <MarketingBand>
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-14">
             <motion.div initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold uppercase tracking-widest mb-5">
-                <Terminal className="w-3.5 h-3.5" />
+              <span className="landing-eyebrow mb-5">
+                <Terminal className="h-3.5 w-3.5" />
                 Getting Started
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-4 tracking-tight">
-                Your First API Call
-              </h2>
+              </span>
+              <h2 className="brand-display-heading mb-4 text-2xl sm:text-3xl">Your First API Call</h2>
               <p className="text-muted-foreground leading-relaxed mb-6 text-base">
                 Authenticate and retrieve your live portfolio positions with a single REST request. All responses are JSON with consistent error shapes.
               </p>
@@ -128,21 +107,11 @@ const data = await response.json();`}</code>
               </div>
             </motion.div>
           </div>
-        </div>
-      </section>
+      </MarketingBand>
 
-      {/* Guides Grid */}
-      <section className="py-16 sm:py-20 scroll-mt-28" id="copy-trading">
-        <div className="page-container max-w-5xl">
-          <motion.h2
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-2xl sm:text-3xl font-bold text-foreground mb-10 tracking-tight"
-          >
-            Core Guides
-          </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <MarketingSection id="copy-trading">
+          <h2 className="brand-display-heading mb-8 text-2xl sm:text-3xl">Core Guides</h2>
+          <MarketingGrid cols={3}>
             {guides.map((g, i) => (
               <motion.div
                 key={g.title}
@@ -151,27 +120,22 @@ const data = await response.json();`}</code>
                 transition={{ delay: i * 0.06 }}
                 viewport={{ once: true }}
               >
-                <Link
-                  href={g.href}
-                  className="block h-full p-6 rounded-[20px] bg-card border border-border shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/15 transition-colors">
-                    <g.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-foreground text-sm mb-2 group-hover:text-primary transition-colors">
-                    {g.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{g.desc}</p>
-                  <div className="flex items-center gap-1 text-primary text-xs font-medium mt-4 opacity-80 group-hover:opacity-100 transition-opacity">
-                    Read guide
-                    <ArrowRight className="w-3 h-3" />
-                  </div>
+                <Link href={g.href} className="block h-full group">
+                  <MarketingCard hover className="h-full">
+                    <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                      <g.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <h3 className="dash-section-title mb-2 text-sm group-hover:text-primary">{g.title}</h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{g.desc}</p>
+                    <div className="mt-4 flex items-center gap-1 text-xs font-medium text-primary">
+                      Read guide <ArrowRight className="h-3 w-3" />
+                    </div>
+                  </MarketingCard>
                 </Link>
               </motion.div>
             ))}
-          </div>
-        </div>
-      </section>
+          </MarketingGrid>
+      </MarketingSection>
     </PublicPageLayout>
   );
 }

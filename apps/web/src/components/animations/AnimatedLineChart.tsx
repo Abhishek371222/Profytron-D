@@ -20,8 +20,8 @@ export function AnimatedLineChart({ className = "" }: { className?: string }) {
     >
       <defs>
         <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#47a7aa" stopOpacity={0.25} />
-          <stop offset="100%" stopColor="#47a7aa" stopOpacity={0} />
+          <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.25} />
+          <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
         </linearGradient>
       </defs>
       <motion.path
@@ -34,7 +34,7 @@ export function AnimatedLineChart({ className = "" }: { className?: string }) {
       <motion.path
         d={CHART_PATH}
         fill="none"
-        stroke="#47a7aa"
+        stroke="var(--chart-1)"
         strokeWidth={2.5}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -46,7 +46,7 @@ export function AnimatedLineChart({ className = "" }: { className?: string }) {
         cx={360}
         cy={8}
         r={4}
-        fill="#47a7aa"
+        fill="var(--chart-1)"
         initial={{ scale: 0, opacity: 0 }}
         animate={inView ? { scale: 1, opacity: 1 } : {}}
         transition={{ delay: 1.8, duration: 0.3 }}

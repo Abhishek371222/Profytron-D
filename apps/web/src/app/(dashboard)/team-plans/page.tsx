@@ -126,7 +126,7 @@ const PLANS = [
     ],
     notIncluded: [],
     cta: 'Contact Sales',
-    ctaHref: 'mailto:sales@profytron.com',
+    ctaHref: 'mailto:support@profytron.com',
   },
 ] as const;
 

@@ -31,10 +31,10 @@ const landingMeta: Record<
 > = {
   starter: {
     icon: Rocket,
-    iconClass: 'text-[#47a7aa]',
-    iconBg: 'bg-[#47a7aa]/10 border-[#47a7aa]/15',
+    iconClass: 'text-primary',
+    iconBg: 'bg-primary/10 border-primary/15',
     ctaClass:
-      'bg-[#47a7aa]/10 text-[#3d9194] hover:bg-[#47a7aa]/15 border border-[#47a7aa]/20',
+      'bg-primary/10 text-primary hover:bg-primary/15 border border-primary/20',
   },
   pro: {
     icon: Star,
@@ -48,7 +48,7 @@ const landingMeta: Record<
     iconBg: 'bg-emerald-500/10 border-emerald-500/15',
     ctaClass:
       'bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/15 border border-emerald-500/20',
-    displayName: 'Enterprise',
+    displayName: 'Elite',
   },
 };
 
@@ -214,6 +214,7 @@ function PricingCard({
         ))}
       </ul>
 
+      <div className="mt-auto">
       {plan.ctaHref.startsWith('mailto:') ? (
         <a
           href={plan.ctaHref}
@@ -241,6 +242,7 @@ function PricingCard({
           {plan.slug === 'business' && variant === 'landing' ? 'Start 7-Day Trial' : plan.cta}
         </Link>
       )}
+      </div>
     </>
   );
 

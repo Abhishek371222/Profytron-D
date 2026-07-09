@@ -19,13 +19,7 @@ export function LandingPrimaryLink({
     <Link
       href={href}
       className={cn(
-        'group inline-flex items-center justify-center gap-2 h-12 px-7 rounded-[14px]',
-        'bg-gradient-to-r from-[#47a7aa] to-[#1e6d48] text-white font-semibold text-sm whitespace-nowrap',
-        'shadow-[0_4px_16px_rgba(71,167,170,0.30),0_1px_4px_rgba(0,0,0,0.10)]',
-        'transition-all duration-200 ease-out',
-        'hover:scale-[1.03] hover:-translate-y-px hover:brightness-110',
-        'hover:shadow-[0_8px_28px_rgba(71,167,170,0.42),0_2px_8px_rgba(0,0,0,0.12)]',
-        'active:scale-[0.97] active:translate-y-0',
+        "btn-landing-primary",
         className,
       )}
     >

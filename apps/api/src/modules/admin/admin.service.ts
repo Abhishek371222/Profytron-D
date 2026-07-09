@@ -116,9 +116,11 @@ export class AdminService {
     };
   }
 
-  async getAllUsers() {
+  async getAllUsers(limit = 200, skip = 0) {
     return this.prisma.user.findMany({
       orderBy: { createdAt: 'desc' },
+      take: Math.min(limit, 500),
+      skip,
       select: {
         id: true,
         email: true,
@@ -208,18 +210,22 @@ export class AdminService {
     });
   }
 
-  async getVerificationQueue() {
+  async getVerificationQueue(limit = 200, skip = 0) {
     return this.prisma.strategy.findMany({
       where: { verificationStatus: VerificationStatus.PENDING },
+      take: Math.min(limit, 500),
+      skip,
       include: {
         creator: { select: { fullName: true, email: true } },
       },
     });
   }
 
-  async getBrokerAccounts() {
+  async getBrokerAccounts(limit = 200, skip = 0) {
     return this.prisma.brokerAccount.findMany({
       orderBy: { connectedAt: 'desc' },
+      take: Math.min(limit, 500),
+      skip,
       include: {
         user: {
           select: {
@@ -485,10 +491,12 @@ export class AdminService {
     });
   }
 
-  async getStrategies() {
+  async getStrategies(limit = 200, skip = 0) {
     return this.prisma.strategy.findMany({
       where: { deletedAt: null },
       orderBy: { updatedAt: 'desc' },
+      take: Math.min(limit, 500),
+      skip,
       include: {
         creator: {
           select: {

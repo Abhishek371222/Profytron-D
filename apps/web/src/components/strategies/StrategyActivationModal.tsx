@@ -43,7 +43,9 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
         particleCount: 200,
         spread: 90,
         origin: { y: 0.6 },
-        colors: ['#1e6d48', '#06b6d4', '#1e6d48', '#ffffff'],
+        // canvas-confetti renders to <canvas>, so it can't read CSS custom
+        // properties — these are the literal approved brand hex values.
+        colors: ['#348398', '#2D7284', '#9FE1F3', '#ffffff'],
       });
       toast.success('Strategy deployed successfully');
     },

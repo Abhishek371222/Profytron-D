@@ -190,23 +190,25 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             {isRunning ? (
-              <button
+              <DashButton
+                variant="ghost"
                 onClick={() => stopMutation.mutate()}
                 disabled={stopMutation.isPending}
-                className="h-8 px-3 rounded-lg bg-destructive/8 border border-destructive/20 text-destructive text-micro font-bold uppercase tracking-widest hover:bg-destructive/15 disabled:opacity-40 flex items-center gap-1.5 transition-all"
+                className="bg-destructive/8 border-destructive/20 text-destructive hover:bg-destructive/15 hover:text-destructive"
               >
                 {stopMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Square className="w-3 h-3" />}
                 Stop
-              </button>
+              </DashButton>
             ) : (
-              <button
+              <DashButton
+                variant="ghost"
                 onClick={() => startMutation.mutate()}
                 disabled={startMutation.isPending}
-                className="h-8 px-3 rounded-lg bg-chart-3/8 border border-chart-3/20 text-chart-3 text-micro font-bold uppercase tracking-widest hover:bg-chart-3/15 disabled:opacity-40 flex items-center gap-1.5 transition-all"
+                className="bg-chart-3/8 border-chart-3/20 text-chart-3 hover:bg-chart-3/15 hover:text-chart-3"
               >
                 {startMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
                 Start
-              </button>
+              </DashButton>
             )}
             <button
               onClick={() => setExpanded((v) => !v)}
@@ -376,14 +378,15 @@ function ProvisionModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        <button
+        <DashButton
+          variant="primary"
           onClick={() => createMutation.mutate()}
           disabled={createMutation.isPending}
-          className="w-full h-11 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
+          className="w-full"
         >
           {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Server className="w-4 h-4" />}
           {createMutation.isPending ? 'Provisioning...' : 'Provision Instance'}
-        </button>
+        </DashButton>
       </motion.div>
     </motion.div>
   );
@@ -416,7 +419,7 @@ export default function BotsPage() {
         }
       />
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <DashStatCard label="Total Servers" value={vpsList.length} />
         <DashStatCard label="Running" value={totalRunning} className="border-chart-3/15 bg-chart-3/5" />
         <DashStatCard label="Monthly Cost" value={`$${totalCost.toFixed(0)}`} />
@@ -442,13 +445,14 @@ export default function BotsPage() {
             <p className="text-sm font-bold text-foreground/30 uppercase tracking-[0.3em]">No Servers Provisioned</p>
             <p className="text-xs text-foreground/15 max-w-sm">Provision a cloud server to host your trading bots 24/7 without keeping your computer on</p>
           </div>
-          <button
+          <DashButton
+            variant="ghost"
             onClick={() => setShowProvision(true)}
-            className="h-10 px-7 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest hover:bg-primary/20 transition-all flex items-center gap-2"
+            className="bg-primary/10 border-primary/20 text-primary hover:bg-primary/20 hover:text-primary"
           >
             <Plus className="w-4 h-4" />
             Provision First Server
-          </button>
+          </DashButton>
         </motion.div>
       ) : (
         <div className="grid gap-4">

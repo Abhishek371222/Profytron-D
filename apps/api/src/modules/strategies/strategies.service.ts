@@ -532,7 +532,7 @@ export class StrategiesService {
   async runBacktest(strategyId: string, userId: string, dto: RunBacktestDto) {
     await this.assertTier(
       userId,
-      ['PRO', 'ELITE', 'INSTITUTIONAL'],
+      ['PRO', 'ELITE', 'BUSINESS', 'INSTITUTIONAL'],
       'Backtesting',
     );
     const strategy = await this.prisma.strategy.findUnique({
@@ -551,7 +551,7 @@ export class StrategiesService {
   async runBacktestPreview(userId: string, dto: RunBacktestDto) {
     await this.assertTier(
       userId,
-      ['PRO', 'ELITE', 'INSTITUTIONAL'],
+      ['PRO', 'ELITE', 'BUSINESS', 'INSTITUTIONAL'],
       'Backtesting',
     );
     if (!dto.configOverride) {
@@ -567,7 +567,7 @@ export class StrategiesService {
   ) {
     await this.assertTier(
       userId,
-      ['ELITE', 'INSTITUTIONAL'],
+      ['ELITE', 'BUSINESS', 'INSTITUTIONAL'],
       'Walk-forward validation',
     );
     const strategy = await this.prisma.strategy.findUnique({
@@ -586,7 +586,7 @@ export class StrategiesService {
   ) {
     await this.assertTier(
       userId,
-      ['ELITE', 'INSTITUTIONAL'],
+      ['ELITE', 'BUSINESS', 'INSTITUTIONAL'],
       'Sensitivity analysis',
     );
     const strategy = await this.prisma.strategy.findUnique({

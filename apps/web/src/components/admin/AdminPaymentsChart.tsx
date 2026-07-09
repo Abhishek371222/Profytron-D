@@ -24,11 +24,11 @@ export default function AdminPaymentsChart({
   return (
     <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
       <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,116,139,0.15)" />
-        <XAxis dataKey="label" tick={{ fill: '#64748b', fontSize: 12 }} />
-        <YAxis tick={{ fill: '#64748b', fontSize: 12 }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
+        <XAxis dataKey="label" tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+        <YAxis tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
         <Tooltip />
-        <Bar dataKey="value" fill="#47a7aa" radius={[6, 6, 0, 0]} />
+        <Bar dataKey="value" fill="var(--chart-1)" radius={[6, 6, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

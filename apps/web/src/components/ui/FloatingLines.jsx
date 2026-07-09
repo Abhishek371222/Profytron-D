@@ -59,6 +59,8 @@ uniform vec2 parallaxOffset;
 uniform vec3 lineGradient[8];
 uniform int lineGradientCount;
 
+uniform bool transparent;
+
 const vec3 BLACK = vec3(0.0);
 const vec3 PINK  = vec3(233.0, 71.0, 245.0) / 255.0;
 const vec3 BLUE  = vec3(47.0,  75.0, 162.0) / 255.0;
@@ -195,7 +197,12 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     }
   }
 
-  fragColor = vec4(col, 1.0);
+  if (transparent) {
+    float alpha = clamp(max(col.r, max(col.g, col.b)) * 2.2, 0.0, 1.0);
+    fragColor = vec4(col, alpha);
+  } else {
+    fragColor = vec4(col, 1.0);
+  }
 }
 
 void main() {
@@ -240,6 +247,7 @@ export default function FloatingLines({
   parallax = true,
   parallaxStrength = 0.2,
   mixBlendMode = 'screen',
+  transparent = false,
 }) {
   const containerRef = useRef(null);
   const targetMouseRef = useRef(new Vector2(-1000, -1000));
@@ -281,7 +289,14 @@ export default function FloatingLines({
     const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
     camera.position.z = 1;
 
-    const renderer = new WebGLRenderer({ antialias: true, alpha: false });
+    const renderer = new WebGLRenderer({
+      antialias: true,
+      alpha: transparent,
+      premultipliedAlpha: transparent,
+    });
+    if (transparent) {
+      renderer.setClearColor(0x000000, 0);
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.domElement.style.width = '100%';
     renderer.domElement.style.height = '100%';
@@ -333,6 +348,7 @@ export default function FloatingLines({
         value: Array.from({ length: MAX_GRADIENT_STOPS }, () => new Vector3(1, 1, 1))
       },
       lineGradientCount: { value: 0 },
+      transparent: { value: transparent },
     };
 
     if (linesGradient && linesGradient.length > 0) {
@@ -431,7 +447,7 @@ export default function FloatingLines({
     linesGradient, enabledWaves, lineCount, lineDistance,
     topWavePosition, middleWavePosition, bottomWavePosition,
     animationSpeed, interactive, bendRadius, bendStrength,
-    mouseDamping, parallax, parallaxStrength,
+    mouseDamping, parallax, parallaxStrength, transparent,
   ]);
 
   return (

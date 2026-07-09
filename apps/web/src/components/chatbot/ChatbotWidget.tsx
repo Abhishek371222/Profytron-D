@@ -364,7 +364,7 @@ export function ChatbotWidget() {
             <motion.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-[#07070c] z-10"
+              className="absolute -top-1 -right-1 w-4 h-4 bg-destructive rounded-full border-2 border-background z-10"
             />
           )}
           <motion.button

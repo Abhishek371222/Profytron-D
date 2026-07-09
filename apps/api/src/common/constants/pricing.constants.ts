@@ -8,7 +8,7 @@ export const PLATFORM_PLANS = [
     annualPrice: 0,
     tier: 'FREE' as const,
     features: [
-      '1 paper copy subscription',
+      '1 paper trading bot',
       'Paper trading account',
       'Basic analytics (30 days)',
       '5 AI Coach sessions/month',
@@ -25,21 +25,22 @@ export const PLATFORM_PLANS = [
   {
     slug: 'starter',
     name: 'Starter',
-    description: 'For retail copy traders getting started with live execution.',
-    monthlyPrice: 3999,
-    annualPrice: 39990,
+    description: 'For new traders starting with live MT5 copy execution.',
+    monthlyPrice: 799,
+    annualPrice: 7990,
     tier: 'PRO' as const,
     features: [
-      '3 live copy subscriptions',
-      '2 strategy deployments',
-      '2 broker accounts',
-      '50 AI Coach sessions/month',
-      '1 year trade history',
+      '2 live trading bots',
+      '1 strategy deployment',
+      '1 broker account (MT5)',
+      '25 Alpha Coach sessions/month',
+      '90-day trade history',
       'Email support (48h)',
+      'Add extra bots anytime',
     ],
-    maxStrategies: 2,
-    maxCopyTrades: 3,
-    maxBrokerAccounts: 2,
+    maxStrategies: 1,
+    maxCopyTrades: 2,
+    maxBrokerAccounts: 1,
     prioritySupport: false,
     recommended: false,
     cta: 'Start 7-Day Trial',
@@ -48,22 +49,22 @@ export const PLATFORM_PLANS = [
   {
     slug: 'pro',
     name: 'Pro',
-    description: 'For active traders and strategy builders.',
-    monthlyPrice: 11999,
-    annualPrice: 119990,
+    description: 'For active traders building and deploying strategies.',
+    monthlyPrice: 999,
+    annualPrice: 9990,
     tier: 'ELITE' as const,
     features: [
-      'Unlimited copy subscriptions',
+      '4 live trading bots',
       'Unlimited strategy deployments',
-      '5 broker accounts',
-      'Unlimited AI Coach',
-      '1 VPS bot slot',
+      '3 broker accounts',
+      'Unlimited Alpha Coach',
+      'AI risk management',
       'Priority chat support (24h)',
-      '14-day marketplace trials',
+      'Add extra bots anytime',
     ],
     maxStrategies: 999,
-    maxCopyTrades: 999,
-    maxBrokerAccounts: 5,
+    maxCopyTrades: 4,
+    maxBrokerAccounts: 3,
     prioritySupport: true,
     recommended: true,
     cta: 'Start 7-Day Trial',
@@ -72,22 +73,22 @@ export const PLATFORM_PLANS = [
   {
     slug: 'business',
     name: 'Business',
-    description: 'For prop desks and small funds (5 seats).',
-    monthlyPrice: 29999,
-    annualPrice: 299990,
-    tier: 'INSTITUTIONAL' as const,
+    description: 'For power traders running multiple bots and portfolios.',
+    monthlyPrice: 1299,
+    annualPrice: 12990,
+    tier: 'BUSINESS' as const,
     features: [
-      'Everything in Pro',
-      '5 team seats',
-      '20 broker accounts',
-      '5 VPS bot slots',
-      '100K API calls/day',
-      'Dedicated CSM',
-      'Custom SLAs',
+      '6 live trading bots',
+      'Unlimited strategy builder',
+      '5 broker accounts',
+      '1 VPS bot slot',
+      'Advanced analytics & exports',
+      'Priority support + onboarding',
+      'Add extra bots anytime',
     ],
     maxStrategies: 999,
-    maxCopyTrades: 999,
-    maxBrokerAccounts: 20,
+    maxCopyTrades: 6,
+    maxBrokerAccounts: 5,
     prioritySupport: true,
     recommended: false,
     cta: 'Contact Sales',
@@ -128,10 +129,9 @@ export type PlanLimits = {
 };
 
 /**
- * Resolve the quota limits for a user's subscription tier. Multiple plans can
- * share a tier (e.g. both Business and Enterprise are INSTITUTIONAL); we take
- * the most generous limit at the tier so paying customers are never
- * under-provisioned. Unknown tiers fall back to FREE.
+ * Resolve the quota limits for a user's subscription tier. If multiple plans
+ * ever share a tier, we take the most generous limit at the tier so paying
+ * customers are never under-provisioned. Unknown tiers fall back to FREE.
  */
 export function getTierLimits(tier: string | null | undefined): PlanLimits {
   const matches = PLATFORM_PLANS.filter((p) => p.tier === tier);

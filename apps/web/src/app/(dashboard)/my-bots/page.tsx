@@ -15,6 +15,7 @@ import { apiClient } from '@/lib/api/client';
 import { useCurrency } from '@/lib/hooks/useCurrency';
 import { marketplaceApi } from '@/lib/api/marketplace';
 import { formatBotName } from '@/lib/bot-labels';
+import { DashButton } from '@/components/dashboard/DashboardPrimitives';
 
 type BotStatus = 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE';
 
@@ -315,22 +316,24 @@ export default function MyBotsPage() {
                 {/* Actions */}
                 <div className="flex gap-2">
                   {bot.status === 'ACTIVE' && (
-                    <button
+                    <DashButton
+                      variant="ghost"
                       onClick={() => pauseMut.mutate(bot.id)}
                       disabled={pauseMut.isPending}
-                      className="flex h-8 flex-1 items-center justify-center gap-1.5 rounded-[10px] border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--muted)_45%,transparent)] text-xs font-semibold text-muted-foreground transition-colors duration-200 hover:text-foreground disabled:opacity-50"
+                      className="flex-1 border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--muted)_45%,transparent)] text-muted-foreground hover:text-foreground"
                     >
                       <Pause className="h-3 w-3" /> Pause
-                    </button>
+                    </DashButton>
                   )}
                   {(bot.status === 'PAUSED' || bot.status === 'INACTIVE') && (
-                    <button
+                    <DashButton
+                      variant="ghost"
                       onClick={() => resumeMut.mutate(bot.id)}
                       disabled={resumeMut.isPending}
-                      className="flex h-8 flex-1 items-center justify-center gap-1.5 rounded-[10px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-xs font-semibold text-primary transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--primary)_16%,transparent)] disabled:opacity-50"
+                      className="flex-1 border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary hover:bg-[color-mix(in_srgb,var(--primary)_16%,transparent)] hover:text-primary"
                     >
                       <Play className="h-3 w-3" /> Resume
-                    </button>
+                    </DashButton>
                   )}
                   {bot.status === 'EXPIRED' && (
                     <Link
@@ -341,13 +344,14 @@ export default function MyBotsPage() {
                     </Link>
                   )}
                   {(bot.status === 'ACTIVE' || bot.status === 'PAUSED') && (
-                    <button
+                    <DashButton
+                      variant="ghost"
                       onClick={() => { if (confirm('Cancel this bot subscription?')) cancelMut.mutate(bot.id); }}
                       disabled={cancelMut.isPending}
-                      className="flex h-8 items-center justify-center rounded-[10px] border border-[color-mix(in_srgb,var(--destructive)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--destructive)_10%,transparent)] px-3 text-xs font-semibold text-destructive transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--destructive)_16%,transparent)] disabled:opacity-50"
+                      className="border border-[color-mix(in_srgb,var(--destructive)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--destructive)_10%,transparent)] text-destructive hover:bg-[color-mix(in_srgb,var(--destructive)_16%,transparent)] hover:text-destructive"
                     >
                       <X className="h-3 w-3" />
-                    </button>
+                    </DashButton>
                   )}
                   <Link
                     href={`/marketplace/${bot.id}`}

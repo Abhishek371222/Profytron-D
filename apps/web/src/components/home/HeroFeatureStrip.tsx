@@ -28,7 +28,7 @@ const FEATURES = [
 
 export function HeroFeatureStrip() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-10 sm:mt-12">
+    <div className="landing-feature-grid mt-10 sm:mt-12">
       {FEATURES.map((feature, i) => {
         const Icon = feature.icon;
         return (
@@ -38,7 +38,7 @@ export function HeroFeatureStrip() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ delay: i * 0.06, duration: 0.45 }}
-            className="rounded-[20px] border border-[var(--card-border)] bg-card p-5 shadow-sm hover:shadow-md hover:border-primary/20 transition-all"
+            className="landing-panel p-5 transition-all hover:border-primary/20 hover:shadow-[var(--shadow-card-hover)]"
           >
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
               <Icon className="w-5 h-5 text-primary" />

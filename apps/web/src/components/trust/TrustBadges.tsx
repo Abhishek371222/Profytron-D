@@ -34,8 +34,8 @@ export function TrustBadges({
           key={label}
           role="listitem"
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-full border border-primary/10 bg-white dark:bg-card text-muted-foreground",
-            compact ? "px-2.5 py-1 text-caption font-medium normal-case tracking-normal" : "px-3 py-1.5 text-caption font-medium",
+            "landing-trust-chip",
+            compact ? "px-2.5 py-1 text-[11px] normal-case tracking-normal" : "px-3 py-1.5 text-caption",
           )}
         >
           <Icon className={cn(compact ? "h-3 w-3" : "h-3.5 w-3.5", "text-primary shrink-0")} aria-hidden />

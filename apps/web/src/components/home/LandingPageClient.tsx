@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { AppProviders } from "@/components/providers/AppProviders";
-import { LandingNavbar } from "@/components/layout/LandingNavbar";
+import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SectionRevealer } from "@/components/ui/SectionRevealer";
 import { LenisProvider } from "@/components/providers/LenisProvider";
@@ -66,9 +66,9 @@ export function LandingPageClient() {
   return (
     <AppProviders>
     <LenisProvider>
-      <main className="relative min-h-screen bg-[var(--bg-secondary)] dark:bg-background overflow-x-hidden">
+      <main className="relative min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background">
         <div className="relative z-10">
-          <LandingNavbar />
+          <PublicNavbar />
           <HeroSection />
 
           <SectionRevealer>

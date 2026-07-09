@@ -116,12 +116,12 @@ function StatCard({
   up: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--card-border)] bg-card p-3 min-w-0 card-lift transition-shadow hover:shadow-card-premium">
-      <p className="text-[11px] text-muted-foreground font-medium truncate">{label}</p>
-      <p className="text-sm font-bold text-foreground mt-0.5 truncate">{value}</p>
-      <div className={cn("flex items-center gap-1 mt-1 text-[11px] font-semibold", up ? "text-[var(--success)]" : "text-destructive")}>
-        {up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-        {change}
+    <div className="rounded-xl border border-[var(--card-border)] bg-card p-2.5 min-w-0 card-lift transition-shadow hover:shadow-card-premium sm:p-3">
+      <p className="truncate text-[10px] font-medium text-muted-foreground sm:text-[11px]">{label}</p>
+      <p className="mt-0.5 truncate text-xs font-bold text-foreground sm:text-sm">{value}</p>
+      <div className={cn("mt-1 flex items-center gap-1 text-[10px] font-semibold sm:text-[11px]", up ? "text-[var(--success)]" : "text-destructive")}>
+        {up ? <TrendingUp className="h-3 w-3 shrink-0" /> : <TrendingDown className="h-3 w-3 shrink-0" />}
+        <span className="truncate">{change}</span>
       </div>
     </div>
   );
@@ -129,10 +129,10 @@ function StatCard({
 
 function BottomStat({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="rounded-xl border border-[var(--card-border)] bg-card/80 p-3 card-lift">
-      <p className="text-[11px] text-muted-foreground">{label}</p>
-      <p className="text-base font-bold text-foreground">{value}</p>
-      <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
+    <div className="min-w-0 rounded-xl border border-[var(--card-border)] bg-card/80 p-2.5 sm:p-3 card-lift">
+      <p className="truncate text-[10px] text-muted-foreground sm:text-[11px]">{label}</p>
+      <p className="truncate text-sm font-bold text-foreground sm:text-base">{value}</p>
+      <p className="mt-0.5 truncate text-[9px] text-muted-foreground sm:text-[10px]">{sub}</p>
     </div>
   );
 }
@@ -148,7 +148,7 @@ export function HeroDashboardPreview({
 
   return (
     <motion.div
-      className="animate-float w-full max-w-[580px] xl:max-w-[640px]"
+      className="animate-float mx-auto w-full max-w-[min(100%,40rem)] lg:mx-0 lg:max-w-[min(100%,36rem)] xl:max-w-[min(100%,40rem)]"
       initial={{ opacity: 0, y: 40, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -157,9 +157,9 @@ export function HeroDashboardPreview({
         className="relative rounded-[20px] border border-[var(--card-border)] bg-card overflow-hidden shadow-card-premium glass-sweep"
         style={{ boxShadow: "0 10px 30px rgba(15,23,42,0.05), 0 20px 60px rgba(71,167,170,0.08)" }}
       >
-        <div className="flex min-h-[380px] sm:min-h-[420px]">
+        <div className="flex min-h-[360px] sm:min-h-[420px]">
           {/* Sidebar */}
-          <aside className="hidden sm:flex flex-col w-[148px] shrink-0 border-r border-[var(--card-border)] bg-[#EEF2FF]/80 dark:bg-[var(--sidebar)] py-4 px-2 gap-0.5">
+          <aside className="hidden w-[132px] shrink-0 flex-col gap-0.5 border-r border-[var(--card-border)] bg-[#EEF2FF]/80 px-2 py-4 dark:bg-[var(--sidebar)] sm:flex">
             {NAV.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -179,7 +179,7 @@ export function HeroDashboardPreview({
           </aside>
 
           {/* Main */}
-          <div className="flex-1 min-w-0 p-3 sm:p-4 flex flex-col gap-3">
+          <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-2.5 sm:gap-3 sm:p-4">
             {/* Mobile tab pills */}
             <div className="flex sm:hidden gap-1 overflow-x-auto pb-1 scrollbar-hide">
               {NAV.map(({ id, label }) => (
@@ -222,23 +222,23 @@ export function HeroDashboardPreview({
                   <p className="text-[10px] text-muted-foreground mt-0.5">Welcome back, Alex</p>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex shrink-0 items-center gap-1">
                 <button
                   type="button"
-                  className="hidden xs:flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--card-border)] text-[10px] text-muted-foreground"
+                  className="hidden items-center gap-1 rounded-lg border border-[var(--card-border)] px-2 py-1 text-[10px] text-muted-foreground sm:flex"
                 >
-                  <Calendar className="w-3 h-3" />
+                  <Calendar className="h-3 w-3" />
                   May 15 – Jun 15
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className="h-3 w-3" />
                 </button>
                 <button
                   type="button"
-                  className="flex items-center gap-1 px-2 py-1 rounded-lg border border-[var(--card-border)] text-[10px] font-medium text-foreground"
+                  className="hidden items-center gap-1 rounded-lg border border-[var(--card-border)] px-2 py-1 text-[10px] font-medium text-foreground md:flex"
                 >
-                  <Download className="w-3 h-3" />
+                  <Download className="h-3 w-3" />
                   Export
                 </button>
-                <div className="w-7 h-7 rounded-full bg-gradient-cta flex items-center justify-center text-[9px] font-bold text-white">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-cta text-[9px] font-bold text-white">
                   AM
                 </div>
               </div>
@@ -252,7 +252,7 @@ export function HeroDashboardPreview({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.35 }}
-                className="grid grid-cols-2 lg:grid-cols-4 gap-2"
+                className="grid grid-cols-2 gap-1.5 sm:gap-2"
               >
                 {TOP_STATS[tab].map((s) => (
                   <StatCard key={s.label} {...s} />
@@ -279,7 +279,7 @@ export function HeroDashboardPreview({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.35, delay: 0.05 }}
-                className="grid grid-cols-2 lg:grid-cols-4 gap-2"
+                className="grid grid-cols-2 gap-1.5 sm:gap-2"
               >
                 {BOTTOM_STATS[tab].map((s) => (
                   <BottomStat key={s.label} {...s} />

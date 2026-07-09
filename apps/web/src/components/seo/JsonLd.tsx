@@ -34,9 +34,9 @@ interface JsonLdProps {
 const SITE_URL = 'https://profytron.com';
 
 const INR_PLANS = [
-  { name: 'Starter', price: '3999', url: `${SITE_URL}/pricing` },
-  { name: 'Pro', price: '11999', url: `${SITE_URL}/pricing` },
-  { name: 'Business', price: '29999', url: `${SITE_URL}/pricing` },
+  { name: 'Starter', price: '799', url: `${SITE_URL}/pricing` },
+  { name: 'Pro', price: '999', url: `${SITE_URL}/pricing` },
+  { name: 'Business', price: '1299', url: `${SITE_URL}/pricing` },
 ];
 
 function buildSchema(props: JsonLdProps): object | null {
@@ -52,9 +52,9 @@ function buildSchema(props: JsonLdProps): object | null {
         url: SITE_URL,
         logo: {
           '@type': 'ImageObject',
-          url: `${SITE_URL}/icons/icon-512.svg`,
-          width: 512,
-          height: 512,
+          url: `${SITE_URL}/brand-lockup.png`,
+          width: 640,
+          height: 160,
         },
         image: `${SITE_URL}/hero/hero-trading-3d.png`,
         description:
@@ -72,7 +72,7 @@ function buildSchema(props: JsonLdProps): object | null {
           {
             '@type': 'ContactPoint',
             contactType: 'sales',
-            email: 'enterprise@profytron.com',
+            email: 'support@profytron.com',
             url: `${SITE_URL}/contact`,
           },
         ],
@@ -241,7 +241,7 @@ function buildSchema(props: JsonLdProps): object | null {
           name: 'Profytron',
           logo: {
             '@type': 'ImageObject',
-            url: `${SITE_URL}/icons/icon-512.svg`,
+            url: `${SITE_URL}/brand-lockup.png`,
           },
         },
         mainEntityOfPage: {

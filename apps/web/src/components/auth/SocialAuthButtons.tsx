@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, type Variants } from 'framer-motion';
+import { ChevronRight } from 'lucide-react';
 
 function GoogleLogo() {
   return (
@@ -23,7 +24,7 @@ function GitHubLogo() {
 }
 
 const buttonClassName =
-  'flex h-[52px] w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm';
+  'flex h-[52px] w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm';
 
 type SocialAuthButtonsProps = {
   onGoogle: () => void;
@@ -47,7 +48,7 @@ export function SocialAuthButtons({
   const btnClass =
     variant === 'light'
       ? buttonClassName
-      : 'flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-border bg-card/50 text-sm font-semibold text-foreground/85 transition-colors hover:bg-muted/60 hover:border-primary/30';
+      : 'flex h-12 w-full items-center justify-between gap-3 rounded-xl border border-border bg-card/50 px-5 text-sm font-semibold text-foreground/85 transition-colors hover:bg-muted/60 hover:border-primary/30';
 
   if (!mounted) {
     return (
@@ -61,12 +62,18 @@ export function SocialAuthButtons({
   return (
     <div className="mb-6 space-y-3">
       <motion.button type="button" variants={itemVariants} onClick={onGoogle} className={btnClass}>
-        <GoogleLogo />
-        Continue with Google
+        <span className="flex items-center gap-3">
+          <GoogleLogo />
+          Continue with Google
+        </span>
+        <ChevronRight className="h-4 w-4 shrink-0 opacity-40" />
       </motion.button>
       <motion.button type="button" variants={itemVariants} onClick={onGithub} className={btnClass}>
-        <GitHubLogo />
-        Continue with GitHub
+        <span className="flex items-center gap-3">
+          <GitHubLogo />
+          Continue with GitHub
+        </span>
+        <ChevronRight className="h-4 w-4 shrink-0 opacity-40" />
       </motion.button>
     </div>
   );

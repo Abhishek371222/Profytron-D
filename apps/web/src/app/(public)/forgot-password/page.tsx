@@ -5,8 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Loader2, Mail, Sparkles, CheckCircle2, Zap, ShieldQuestion } from 'lucide-react';
+import { ArrowLeft, Loader2, Mail, Sparkles, CheckCircle2, ShieldQuestion } from 'lucide-react';
 import Link from 'next/link';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { Button } from '@/components/ui/button';
@@ -84,10 +85,7 @@ export default function ForgotPasswordPage() {
  </div>
 
  <div className="fixed top-12 right-12 z-50">
- <div className="flex items-center gap-3">
- <Zap className="w-6 h-6 text-primary fill-p" />
- <span className="text-xl font-serif font-semibold tracking-tight text-foreground">PROFYTRON</span>
- </div>
+ <BrandLogo size="xl" />
  </div>
 
  {/* Centered Auth Card */}
@@ -110,8 +108,8 @@ export default function ForgotPasswordPage() {
  </div>
 
  <div className="space-y-3">
- <h2 className="text-4xl font-serif font-bold text-foreground tracking-tight">
- Recover <span className="text-gradient">access.</span>
+ <h2 className="brand-display-heading text-3xl sm:text-4xl">
+ Recover <span className="brand-gradient-text">access.</span>
  </h2>
  <p className="text-muted-foreground font-sans text-lg">
  Enter your identity email to receive a recovery link.
@@ -173,7 +171,7 @@ export default function ForgotPasswordPage() {
  </div>
  </div>
  <div className="space-y-2">
- <h3 className="text-2xl font-serif font-bold text-foreground">Transmission Sent</h3>
+ <h3 className="brand-display-heading text-2xl">Transmission Sent</h3>
  <p className="text-muted-foreground font-sans">Check your inbox for instructions to re-establish access.</p>
  </div>
  <Link href="/login" className="inline-block text-primary font-semibold hover:text-primary-light transition-colors">

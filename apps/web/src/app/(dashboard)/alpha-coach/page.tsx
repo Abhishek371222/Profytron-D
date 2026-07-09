@@ -173,7 +173,7 @@ function buildInsights(
 
 export default function AlphaCoachPage() {
   const router = useRouter();
-  const { portfolio, winRate, openTrades, hasBrokerAccount } = useCoachContext();
+  const { portfolio, winRate, openTrades, hasBrokerAccount, isLoading: contextLoading, isError: contextError } = useCoachContext();
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = React.useState('');
   const [isTyping, setIsTyping] = React.useState(false);
@@ -284,7 +284,18 @@ export default function AlphaCoachPage() {
 
         {/* Insights — natural height, no artificial stretch */}
         <div className="space-y-2">
-          {insights.map((insight, idx) => {
+          {contextLoading ? (
+            <div className="space-y-2 animate-pulse">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="h-16 rounded-[16px] bg-muted/40" />
+              ))}
+            </div>
+          ) : contextError ? (
+            <p className="text-xs text-muted-foreground px-1">
+              Couldn't load your account insights right now.
+            </p>
+          ) : (
+            insights.map((insight, idx) => {
             const Icon = insight.icon;
             return (
               <motion.div
@@ -333,7 +344,8 @@ export default function AlphaCoachPage() {
                 </div>
               </motion.div>
             );
-          })}
+            })
+          )}
         </div>
 
         {/* Score card */}

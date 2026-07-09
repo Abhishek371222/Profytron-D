@@ -30,7 +30,8 @@ export function GradientBorderButton({
       <div
         className="absolute inset-[-100%] animate-gradient-border opacity-60 group-hover:opacity-90 transition-opacity"
         style={{
-          background: "conic-gradient(from 0deg, #47a7aa, #1e6d48, #34d399, #47a7aa)",
+          background:
+            "conic-gradient(from 0deg, var(--primary), var(--chart-5), var(--accent), var(--primary))",
         }}
       />
       {href ? (

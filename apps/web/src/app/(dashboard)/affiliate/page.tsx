@@ -29,6 +29,7 @@ import {
   DashboardBreadcrumbs,
   DashButton,
   DashStatCard,
+  DashErrorState,
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import { affiliatesApi } from '@/lib/api/affiliates';
@@ -146,6 +147,34 @@ export default function AffiliatePage() {
     { label: 'Conversions', value: stats?.conversions ?? 0, pct: stats?.signups ? Math.min(100, (stats.conversions / stats.signups) * 100) : 0, color: 'bg-chart-4' },
     { label: 'Payouts', value: stats ? formatCurrency(stats.pendingPayout) : '$0', pct: 42, color: 'bg-chart-2' },
   ];
+
+  if (dashboardQuery.isLoading) {
+    return (
+      <DashboardPage>
+        <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Affiliate' }]} />
+        <div className="space-y-5 animate-pulse">
+          <div className="dashboard-card h-48" />
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="dashboard-card h-28" />
+            ))}
+          </div>
+        </div>
+      </DashboardPage>
+    );
+  }
+
+  if (dashboardQuery.isError) {
+    return (
+      <DashboardPage>
+        <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Affiliate' }]} />
+        <DashErrorState
+          message="Couldn't load your affiliate dashboard."
+          onRetry={() => dashboardQuery.refetch()}
+        />
+      </DashboardPage>
+    );
+  }
 
   return (
     <DashboardPage>

@@ -149,7 +149,7 @@ function TraderRow({
       animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
       transition={{ duration: 0.4, ease: 'easeOut', delay: shouldAnimate ? index * 0.03 : 0 }}
       className={cn(
-        'flex items-center gap-4 p-4 rounded-[20px] border transition-all duration-300 hover:-translate-y-px',
+        'flex flex-col gap-3 rounded-[20px] border p-4 transition-all duration-300 hover:-translate-y-px',
         isMe
           ? 'bg-primary/5 border-primary/20 hover:border-primary/35'
           : isTop3
@@ -157,6 +157,7 @@ function TraderRow({
           : 'bg-muted/2 border-white/[0.05] hover:border-border',
       )}
     >
+      <div className="flex items-center gap-3 sm:gap-4">
       {/* Rank number */}
       <div
         className={cn(
@@ -197,21 +198,40 @@ function TraderRow({
         )}
       </div>
 
-      {/* Stats */}
-      <div className="hidden sm:flex items-center gap-6 text-right shrink-0">
+      {/* Stats — desktop */}
+      <div className="hidden shrink-0 items-center gap-4 text-right sm:flex sm:gap-6">
         <div>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest mb-0.5">Win Rate</p>
+          <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Win Rate</p>
           <p className="text-sm font-bold text-chart-3">{entry.winRate.toFixed(1)}%</p>
         </div>
         <div>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest mb-0.5">Earnings</p>
+          <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Earnings</p>
           <p className={cn('text-sm font-bold', entry.totalPnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
             {entry.totalPnl >= 0 ? '+' : ''}${Math.abs(entry.totalPnl).toFixed(0)}
           </p>
         </div>
         <div>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest mb-0.5">Trades</p>
+          <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Trades</p>
           <p className="text-sm font-bold text-foreground">{entry.totalTrades}</p>
+        </div>
+      </div>
+      </div>
+
+      {/* Stats — mobile */}
+      <div className="grid grid-cols-3 gap-2 border-t border-[var(--card-border)] pt-3 sm:hidden">
+        <div className="min-w-0 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Win Rate</p>
+          <p className="mt-0.5 text-xs font-bold text-chart-3">{entry.winRate.toFixed(1)}%</p>
+        </div>
+        <div className="min-w-0 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Earnings</p>
+          <p className={cn('mt-0.5 text-xs font-bold', entry.totalPnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
+            {entry.totalPnl >= 0 ? '+' : ''}${Math.abs(entry.totalPnl).toFixed(0)}
+          </p>
+        </div>
+        <div className="min-w-0 text-center">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Trades</p>
+          <p className="mt-0.5 text-xs font-bold text-foreground">{entry.totalTrades}</p>
         </div>
       </div>
     </motion.div>
@@ -224,35 +244,55 @@ function StrategyRow({ strategy, idx }: { strategy: TopStrategy; idx: number }) 
       initial={{ opacity: 0, x: -12 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: idx * 0.05 }}
-      className="flex items-center gap-4 p-4 rounded-[20px] border border-white/[0.05] bg-muted/2 hover:border-primary/20 hover:bg-primary/[0.03] transition-all duration-300 hover:-translate-y-px"
+      className="rounded-[20px] border border-white/[0.05] bg-muted/2 p-4 transition-all duration-300 hover:-translate-y-px hover:border-primary/20 hover:bg-primary/[0.03]"
     >
-      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
-        <BarChart3 className="w-4 h-4 text-primary" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-foreground truncate">{strategy.name}</p>
-        <p className="text-micro text-foreground/25 uppercase tracking-widest">{strategy.category}</p>
-      </div>
-      <div className="hidden sm:flex items-center gap-5 text-right shrink-0">
-        <div>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest mb-0.5">Subscribers</p>
-          <p className="text-sm font-bold text-foreground flex items-center justify-end gap-1">
-            <Users className="w-3 h-3 text-foreground/25" />
-            {strategy.subscribers}
-          </p>
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 sm:h-10 sm:w-10">
+          <BarChart3 className="h-4 w-4 text-primary" />
         </div>
-        {strategy.latestPerformance && (
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-bold text-foreground">{strategy.name}</p>
+          <p className="text-micro uppercase tracking-widest text-foreground/25">{strategy.category}</p>
+        </div>
+        <div className="hidden shrink-0 items-center gap-5 text-right sm:flex">
           <div>
-            <p className="text-micro text-foreground/25 uppercase tracking-widest mb-0.5">Win Rate</p>
-            <p className="text-sm font-bold text-chart-3">
-              {strategy.latestPerformance.winRate?.toFixed(1) ?? '—'}%
+            <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Subscribers</p>
+            <p className="flex items-center justify-end gap-1 text-sm font-bold text-foreground">
+              <Users className="h-3 w-3 text-foreground/25" />
+              {strategy.subscribers}
             </p>
           </div>
-        )}
+          {strategy.latestPerformance && (
+            <div>
+              <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Win Rate</p>
+              <p className="text-sm font-bold text-chart-3">
+                {strategy.latestPerformance.winRate?.toFixed(1) ?? '—'}%
+              </p>
+            </div>
+          )}
+          {strategy.monthlyPrice !== null && (
+            <div>
+              <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Price</p>
+              <p className="text-sm font-bold text-foreground">${strategy.monthlyPrice}/mo</p>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[var(--card-border)] pt-3 sm:hidden">
+        <div className="rounded-lg bg-muted/30 px-2.5 py-2">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Subscribers</p>
+          <p className="mt-0.5 text-sm font-bold text-foreground">{strategy.subscribers.toLocaleString()}</p>
+        </div>
+        <div className="rounded-lg bg-muted/30 px-2.5 py-2">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Win Rate</p>
+          <p className="mt-0.5 text-sm font-bold text-chart-3">
+            {strategy.latestPerformance?.winRate?.toFixed(1) ?? '—'}%
+          </p>
+        </div>
         {strategy.monthlyPrice !== null && (
-          <div>
-            <p className="text-micro text-foreground/25 uppercase tracking-widest mb-0.5">Price</p>
-            <p className="text-sm font-bold text-foreground">${strategy.monthlyPrice}/mo</p>
+          <div className="col-span-2 rounded-lg bg-muted/30 px-2.5 py-2">
+            <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Price</p>
+            <p className="mt-0.5 text-sm font-bold text-foreground">${strategy.monthlyPrice}/mo</p>
           </div>
         )}
       </div>
@@ -349,8 +389,13 @@ export default function LeaderboardPage() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="h-56 rounded-[26px] bg-muted/25 border border-white/[0.05] animate-pulse"
+                className="hidden h-56 animate-pulse rounded-[26px] border border-white/[0.05] bg-muted/25 sm:block"
               />
+            ))}
+          </div>
+          <div className="space-y-2 sm:hidden">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-40 animate-pulse rounded-[26px] border border-white/[0.05] bg-muted/25" />
             ))}
           </div>
           {/* Row skeletons */}
@@ -385,7 +430,7 @@ export default function LeaderboardPage() {
           <div className="space-y-5">
             {/* Podium — top 3 */}
             {top3.length > 0 && (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {top3.map((entry) => {
                   const cfg = PODIUM.find((p) => p.rank === entry.rank)!;
                   return <PodiumCard key={entry.id} entry={entry} config={cfg} myUserId={myUserId} />;

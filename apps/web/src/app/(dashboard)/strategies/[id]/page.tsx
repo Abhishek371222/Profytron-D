@@ -22,7 +22,16 @@ import { strategiesApi } from '@/lib/api/strategies';
 import { analyticsApi } from '@/lib/api/analytics';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
+import {
+  DashboardPage,
+  DashboardBreadcrumbs,
+  DashboardPageHeader,
+  DashboardCard,
+  DashStatCard,
+  DashFilterPill,
+  DashButton,
+  DashSectionTitle,
+} from '@/components/dashboard/DashboardPrimitives';
 import {
   Area,
   AreaChart,
@@ -33,7 +42,7 @@ import {
   YAxis,
 } from 'recharts';
 import { StrategyActivationModal } from '@/components/strategies/StrategyActivationModal';
-import { StrategiesBreadcrumbs, CATEGORY_COLORS } from '../_components/StrategiesShared';
+import { CATEGORY_COLORS } from '../_components/StrategiesShared';
 
 const CHART_GRID = 'var(--card-border)';
 const CHART_TICK = { fill: 'var(--muted-foreground)', fontSize: 10 };
@@ -83,16 +92,18 @@ export default function StrategyDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-5 pb-8 animate-pulse">
-        <div className="h-3 w-48 bg-muted rounded" />
-        <div className="h-24 bg-muted rounded-2xl" />
-        <div className="grid grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="dashboard-card h-28" />
-          ))}
+      <DashboardPage>
+        <div className="space-y-5 animate-pulse">
+          <div className="h-3 w-48 rounded bg-muted" />
+          <div className="h-24 rounded-2xl bg-muted" />
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="dashboard-card h-28" />
+            ))}
+          </div>
+          <div className="dashboard-card h-[400px]" />
         </div>
-        <div className="dashboard-card h-[400px]" />
-      </div>
+      </DashboardPage>
     );
   }
 
@@ -111,94 +122,73 @@ export default function StrategyDetailPage() {
   };
 
   return (
-    <div className="space-y-5 pb-8">
-      <StrategiesBreadcrumbs current={strategy.name} />
+    <DashboardPage>
+      <DashboardBreadcrumbs
+        items={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Strategies', href: '/strategies' },
+          { label: strategy.name },
+        ]}
+      />
 
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-        <div className="space-y-4">
-          <button
-            type="button"
-            onClick={() => router.push('/strategies')}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-            Back to Command Center
-          </button>
-          <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
-              <BarChart3 className="h-7 w-7 text-primary" />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight uppercase">
-                  {strategy.name}
-                </h1>
-                {strategy.isVerified && (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-chart-3/10 text-chart-3 border border-chart-3/20 uppercase">
-                    Verified
-                  </span>
-                )}
-                <span className={cn('text-[10px] font-bold px-2 py-0.5 rounded border uppercase', catStyle)}>
-                  {strategy.category}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                By {strategy.creator?.fullName ?? 'Unknown Creator'}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <Button
-            variant="ghost"
-            onClick={handleShare}
-            className="h-10 w-10 rounded-xl border border-[var(--card-border)] bg-card"
-          >
-            <Share2 className="h-4 w-4" />
-          </Button>
-          <Button
-            onClick={() => setIsActivationOpen(true)}
-            className="h-10 px-6 rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[11px] tracking-wide"
-          >
-            Activate
-            <ChevronRight className="ml-1 h-4 w-4" />
-          </Button>
-        </div>
+      <DashboardPageHeader
+        icon={BarChart3}
+        title={strategy.name}
+        description={`By ${strategy.creator?.fullName ?? 'Unknown Creator'}`}
+        actions={
+          <>
+            <button
+              type="button"
+              onClick={() => router.push('/strategies')}
+              className="dash-btn-ghost flex items-center gap-2 text-sm"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </button>
+            <DashButton variant="icon" onClick={handleShare} aria-label="Share strategy">
+              <Share2 className="h-4 w-4" />
+            </DashButton>
+            <DashButton onClick={() => setIsActivationOpen(true)}>
+              Activate
+              <ChevronRight className="ml-1 h-4 w-4" />
+            </DashButton>
+          </>
+        }
+      />
+
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {strategy.isVerified && (
+          <span className="dash-badge dash-badge-verified">Verified</span>
+        )}
+        <span className={cn('dash-badge dash-badge-category border', catStyle)}>{strategy.category}</span>
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="30D Return" value={`+${perf.winRate ?? 0}%`} icon={TrendingUp} iconBg="bg-chart-3/10 text-chart-3" valueClass="text-chart-3" />
-        <StatCard label="Sharpe Ratio" value={perf.sharpeRatio ?? 0} icon={Zap} iconBg="bg-primary/10 text-primary" valueClass="text-primary" />
-        <StatCard label="Max Drawdown" value={`-${perf.maxDrawdown ?? 0}%`} icon={AlertTriangle} iconBg="bg-destructive/10 text-destructive" valueClass="text-destructive" />
-        <StatCard label="Subscribers" value={strategy.copiesCount ?? 0} icon={Globe} iconBg="bg-chart-5/10 text-chart-5" valueClass="text-chart-5" />
+      <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <DashStatCard label="30D Return" value={`+${perf.winRate ?? 0}%`} icon={TrendingUp} className="[&_p:last-child]:text-chart-3" />
+        <DashStatCard label="Sharpe Ratio" value={perf.sharpeRatio ?? 0} icon={Zap} />
+        <DashStatCard label="Max Drawdown" value={`-${perf.maxDrawdown ?? 0}%`} icon={AlertTriangle} className="[&_p:last-child]:text-destructive" />
+        <DashStatCard label="Subscribers" value={strategy.copiesCount ?? 0} icon={Globe} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
-        <div className="xl:col-span-8 space-y-5">
+      <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-12">
+        <div className="space-y-5 xl:col-span-8">
           {/* Equity chart */}
-          <div className="dashboard-card p-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <DashboardCard className="p-5">
+            <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Performance</p>
-                <p className="text-base font-bold text-foreground">Equity Curve</p>
+                <p className="dash-eyebrow text-[11px]">Performance</p>
+                <DashSectionTitle className="text-base">Equity Curve</DashSectionTitle>
               </div>
               <div className="flex gap-1.5">
                 {(['1M', '3M', '1Y', 'ALL'] as const).map((range) => (
-                  <button
+                  <DashFilterPill
                     key={range}
-                    type="button"
+                    active={chartRange === range}
                     onClick={() => setChartRange(range)}
-                    className={cn(
-                      'px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors',
-                      chartRange === range
-                        ? 'bg-primary/10 text-primary border border-primary/25'
-                        : 'text-muted-foreground hover:text-foreground border border-transparent',
-                    )}
                   >
                     {range}
-                  </button>
+                  </DashFilterPill>
                 ))}
               </div>
             </div>
@@ -234,10 +224,10 @@ export default function StrategyDetailPage() {
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-          </div>
+          </DashboardCard>
 
           {/* Tabs */}
-          <div className="dashboard-card overflow-hidden">
+          <DashboardCard className="overflow-hidden p-0">
             <div className="flex gap-1 border-b border-[var(--card-border)] px-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[
                 { id: 'analytics' as const, label: 'History Metrics', icon: BarChart3 },
@@ -309,9 +299,9 @@ export default function StrategyDetailPage() {
                   ) : (
                     <p className="text-sm text-muted-foreground py-8 text-center">No execution log entries yet.</p>
                   )}
-                  <Button variant="ghost" onClick={() => router.push('/history')} className="text-xs uppercase tracking-wide">
+                  <DashButton variant="ghost" onClick={() => router.push('/history')} className="text-xs uppercase tracking-wide">
                     Open Full History
-                  </Button>
+                  </DashButton>
                 </div>
               )}
               {activeTab === 'details' && (
@@ -324,13 +314,13 @@ export default function StrategyDetailPage() {
                 </div>
               )}
             </div>
-          </div>
+          </DashboardCard>
         </div>
 
         {/* Sidebar */}
-        <div className="xl:col-span-4 space-y-5">
-          <div className="dashboard-card p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Creator</p>
+        <div className="space-y-5 xl:col-span-4">
+          <DashboardCard className="p-5">
+            <p className="dash-eyebrow mb-4 text-[11px]">Creator</p>
             <div className="flex items-center gap-4 mb-4">
               <UserAvatar name={strategy.creator?.fullName ?? 'Creator'} src={strategy.creator?.avatarUrl} size="lg" />
               <div>
@@ -343,16 +333,16 @@ export default function StrategyDetailPage() {
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
               {strategy.creator?.bio ?? 'Professional quantitative strategy creator.'}
             </p>
-            <Button
-              variant="ghost"
+            <DashButton
+              variant="outline"
               onClick={() => router.push(`/alpha-coach?topic=${encodeURIComponent(strategy.name)}`)}
-              className="w-full rounded-xl border border-[var(--card-border)] text-xs font-semibold uppercase tracking-wide"
+              className="w-full text-xs uppercase tracking-wide"
             >
               Contact Creator
-            </Button>
-          </div>
+            </DashButton>
+          </DashboardCard>
 
-          <div className="dashboard-card p-5 border-destructive/20 bg-destructive/5">
+          <DashboardCard className="border-destructive/20 bg-destructive/5 p-5">
             <div className="flex items-center gap-2 text-destructive mb-2">
               <AlertTriangle className="h-4 w-4" />
               <h4 className="text-xs font-bold uppercase tracking-wide">Risk: {strategy.riskLevel}</h4>
@@ -360,9 +350,9 @@ export default function StrategyDetailPage() {
             <p className="text-xs text-muted-foreground leading-relaxed">
               Review drawdown history and ensure your risk profile matches this strategy before deploying.
             </p>
-          </div>
+          </DashboardCard>
 
-          <div className="dashboard-card p-5 text-center space-y-4">
+          <DashboardCard className="space-y-4 p-5 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
               <Activity className="h-7 w-7 text-primary" />
             </div>
@@ -370,41 +360,15 @@ export default function StrategyDetailPage() {
               <h5 className="font-bold text-foreground">Deploy Strategy</h5>
               <p className="text-xs text-muted-foreground mt-1">Connect and start copying signals</p>
             </div>
-            <Button onClick={() => setIsActivationOpen(true)} className="w-full rounded-xl bg-primary text-primary-foreground font-bold uppercase text-[11px] tracking-wide">
+            <DashButton onClick={() => setIsActivationOpen(true)} className="w-full">
               Configure & Activate
-            </Button>
-          </div>
+            </DashButton>
+          </DashboardCard>
         </div>
       </div>
 
       <StrategyActivationModal isOpen={isActivationOpen} onClose={() => setIsActivationOpen(false)} strategy={strategy} />
-    </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  iconBg,
-  valueClass,
-}: {
-  label: string;
-  value: React.ReactNode;
-  icon: React.ElementType;
-  iconBg: string;
-  valueClass?: string;
-}) {
-  return (
-    <div className="dashboard-card p-5 flex flex-col gap-3">
-      <div className={cn('flex h-9 w-9 items-center justify-center rounded-xl', iconBg)}>
-        <Icon className="h-4 w-4" />
-      </div>
-      <div>
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <p className={cn('text-2xl font-bold tabular-nums mt-0.5', valueClass ?? 'text-foreground')}>{value}</p>
-      </div>
-    </div>
+    </DashboardPage>
   );
 }
 

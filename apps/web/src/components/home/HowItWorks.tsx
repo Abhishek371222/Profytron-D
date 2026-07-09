@@ -49,16 +49,16 @@ const steps = [
 
 const themeStyles = {
   violet: {
-    layer: "text-[#47a7aa]",
-    iconBg: "bg-[#47a7aa]/10 border-[#47a7aa]/15",
-    icon: "text-[#47a7aa]",
-    node: "bg-[#47a7aa] shadow-[0_0_12px_rgba(71,167,170,0.5)]",
+    layer: "text-primary",
+    iconBg: "bg-primary/10 border-primary/15",
+    icon: "text-primary",
+    node: "bg-primary shadow-[0_0_12px_color-mix(in_srgb,var(--primary)_50%,transparent)]",
   },
   indigo: {
-    layer: "text-[#1e6d48]",
-    iconBg: "bg-[#1e6d48]/10 border-[#1e6d48]/15",
-    icon: "text-[#1e6d48]",
-    node: "bg-[#1e6d48] shadow-[0_0_12px_rgba(71,167,170,0.45)]",
+    layer: "text-[var(--chart-5)]",
+    iconBg: "bg-[var(--chart-5)]/10 border-[var(--chart-5)]/15",
+    icon: "text-[var(--chart-5)]",
+    node: "bg-[var(--chart-5)] shadow-[0_0_12px_color-mix(in_srgb,var(--chart-5)_45%,transparent)]",
   },
   emerald: {
     layer: "text-emerald-600",
@@ -141,15 +141,15 @@ export function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="relative py-20 sm:py-28 overflow-hidden bg-[var(--bg-secondary)] dark:bg-background border-t border-[var(--card-border)]"
+      className="landing-section overflow-hidden border-t border-[var(--card-border)]"
     >
       {/* Ambient blobs */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute top-20 left-1/4 w-72 h-72 rounded-full bg-[#47a7aa]/10 blur-[100px]" />
-        <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-[#1e6d48]/8 blur-[100px]" />
+        <div className="absolute top-20 left-1/4 w-72 h-72 rounded-full bg-primary/10 blur-[100px]" />
+        <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-[var(--chart-5)]/8 blur-[100px]" />
       </div>
 
-      <div className="page-container relative z-10 max-w-[1280px]">
+      <div className="page-container relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
           {/* ── Left ── */}
           <motion.div
@@ -159,16 +159,14 @@ export function HowItWorks() {
             transition={{ duration: 0.55 }}
             className="lg:sticky lg:top-28"
           >
-            <span className="inline-flex items-center gap-2 rounded-full border border-[#47a7aa]/25 bg-[#47a7aa]/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-[#47a7aa] dark:text-[#5bbec1] mb-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-6">
               <Sparkles className="w-3.5 h-3.5" />
               Operational Alpha
             </span>
 
-            <h2 className="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold leading-[1.08] tracking-tight text-foreground mb-5">
+            <h2 className="brand-display-heading text-3xl sm:text-4xl md:text-[2.75rem] mb-5">
               Your Path to{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#5bbec1]">
-                Automated Mastery.
-              </span>
+              <span className="brand-gradient-text">Automated Mastery.</span>
             </h2>
 
             <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-lg mb-10">
@@ -176,14 +174,14 @@ export function HowItWorks() {
             </p>
 
             {/* Testimonial */}
-            <div className="relative rounded-[20px] border border-[#47a7aa]/15 bg-gradient-to-br from-[#47a7aa]/[0.06] via-card to-card p-6 sm:p-8 shadow-[0_10px_40px_rgba(71,167,170,0.08)]">
-              <Quote className="w-8 h-8 text-[#5bbec1]/50 mb-4" />
+            <div className="relative rounded-[20px] border border-primary/15 bg-gradient-to-br from-primary/[0.06] via-card to-card p-6 sm:p-8 shadow-[0_10px_40px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
+              <Quote className="w-8 h-8 text-primary/50 mb-4" />
               <p className="text-base sm:text-lg text-foreground/90 leading-relaxed italic">
                 {TESTIMONIAL_QUOTE}
               </p>
               <div className="flex items-center gap-3 mt-6 pt-6 border-t border-[var(--card-border)]">
-                <div className="w-10 h-10 rounded-xl bg-[#47a7aa]/15 border border-[#47a7aa]/20 flex items-center justify-center">
-                  <Rocket className="w-4 h-4 text-[#47a7aa]" />
+                <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center">
+                  <Rocket className="w-4 h-4 text-primary" />
                 </div>
                 <div>
                   <p className="text-sm font-bold text-foreground">Dr. Alex Volkov</p>
@@ -197,7 +195,7 @@ export function HowItWorks() {
               <svg
                 aria-hidden
                 viewBox="0 0 320 60"
-                className="absolute -bottom-2 left-4 w-[min(240px,70%)] h-12 text-[#5bbec1]/25 pointer-events-none"
+                className="absolute -bottom-2 left-4 w-[min(240px,70%)] h-12 text-primary/25 pointer-events-none"
                 fill="none"
               >
                 <path
@@ -222,7 +220,7 @@ export function HowItWorks() {
             {/* Animated progress fill */}
             <motion.div
               aria-hidden
-              className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-gradient-to-b from-[#47a7aa] via-[#1e6d48] to-emerald-500 origin-top"
+              className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-gradient-to-b from-primary via-[var(--chart-5)] to-emerald-500 origin-top"
               style={{ scaleY: lineScale }}
             />
 

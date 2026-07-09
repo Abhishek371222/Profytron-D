@@ -17,6 +17,10 @@ import {
 } from '@nestjs/swagger';
 import { TradingJournalService } from './trading-journal.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  CreateJournalEntryDto,
+  UpdateJournalEntryDto,
+} from './dto/journal.dto';
 
 @ApiTags('Journal')
 @ApiBearerAuth()
@@ -52,11 +56,7 @@ export class JournalController {
   @Post()
   @ApiOperation({ summary: 'Create a new journal entry for a trade' })
   @ApiResponse({ status: 201, description: 'Created' })
-  createEntry(
-    @Req() req: any,
-    @Body()
-    body: { tradeId: string; emotions?: string; lessonLearned?: string },
-  ) {
+  createEntry(@Req() req: any, @Body() body: CreateJournalEntryDto) {
     return this.journalService.createJournalEntry(
       req.user.id,
       body.tradeId,
@@ -68,7 +68,11 @@ export class JournalController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a journal entry' })
   @ApiResponse({ status: 200, description: 'OK' })
-  updateEntry(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+  updateEntry(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Body() body: UpdateJournalEntryDto,
+  ) {
     return this.journalService.updateJournalEntry(id, req.user.id, body);
   }
 

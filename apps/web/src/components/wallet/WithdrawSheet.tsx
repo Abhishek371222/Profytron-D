@@ -86,7 +86,7 @@ export function WithdrawSheet({
 
   return (
     <Sheet open={open} onOpenChange={(next) => (next ? onOpenChange(true) : reset())}>
-      <SheetContent side="right" className="w-[420px] bg-card border-l border-[var(--card-border)] text-foreground">
+      <SheetContent side="right" className="w-[calc(100vw-2rem)] max-w-[420px] bg-card border-l border-[var(--card-border)] text-foreground">
         <SheetHeader>
           <SheetTitle className="text-xl font-bold">Withdraw Funds</SheetTitle>
           <SheetDescription className="text-muted-foreground">Step {step} of 3</SheetDescription>
@@ -95,8 +95,9 @@ export function WithdrawSheet({
         {step === 1 && (
           <div className="mt-6 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Amount (min 500)</label>
+              <label htmlFor="withdraw-amount" className="text-sm font-medium text-foreground">Amount (min 500)</label>
               <input
+                id="withdraw-amount"
                 type="number"
                 min="500"
                 step="0.01"
@@ -111,8 +112,9 @@ export function WithdrawSheet({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Bank Account</label>
+              <label htmlFor="withdraw-bank-account" className="text-sm font-medium text-foreground">Bank Account</label>
               <input
+                id="withdraw-bank-account"
                 value={bankAccount}
                 onChange={(e) => setBankAccount(e.target.value)}
                 className="w-full rounded-xl border border-[var(--card-border)] bg-card px-3 py-2.5 text-sm outline-none focus:border-primary/40"
@@ -148,6 +150,8 @@ export function WithdrawSheet({
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               className="w-full rounded-xl border border-[var(--card-border)] bg-card px-3 py-2.5 tracking-[0.4em] text-center text-lg outline-none focus:border-primary/40"
               placeholder="• • • • • •"
+              aria-label="6-digit withdrawal OTP"
+              inputMode="numeric"
               maxLength={6}
             />
             <Button

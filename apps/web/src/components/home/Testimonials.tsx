@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Star, Quote, BadgeCheck, Shield } from "lucide-react";
+import { BrandGradientText } from "@/components/brand/BrandGradientText";
 import { cn } from "@/lib/utils";
 
 type BadgeTone = "violet" | "emerald" | "rose" | "blue" | "amber";
@@ -175,9 +176,9 @@ export function Testimonials() {
   return (
     <section
       id="testimonials"
-      className="py-16 sm:py-24 relative overflow-hidden bg-[var(--bg-secondary)] dark:bg-background border-t border-[var(--card-border)]"
+      className="landing-section overflow-hidden border-t border-[var(--card-border)]"
     >
-      <div className="page-container max-w-[1480px]">
+      <div className="page-container w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(260px,320px)_1fr] gap-8 xl:gap-10 2xl:gap-12 items-start">
           {/* Left — trust column */}
           <motion.div
@@ -192,11 +193,9 @@ export function Testimonials() {
               Verification Logs
             </span>
 
-            <h2 className="text-3xl sm:text-4xl font-extrabold leading-[1.1] tracking-tight text-foreground mb-4">
+            <h2 className="brand-display-heading text-3xl sm:text-4xl mb-4">
               Validated by the{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[var(--brand-crimson)] to-primary">
-                Industry Elite.
-              </span>
+              <BrandGradientText>Industry Elite.</BrandGradientText>
             </h2>
 
             <p className="text-base text-muted-foreground leading-relaxed mb-8">

@@ -1162,9 +1162,8 @@ export class PaymentsService {
 
   private tierFromPlanName(name: string): SubscriptionTier {
     const slug = name.toLowerCase();
-    if (slug.includes('enterprise') || slug.includes('business')) {
-      return 'INSTITUTIONAL';
-    }
+    if (slug.includes('enterprise')) return 'INSTITUTIONAL';
+    if (slug.includes('business')) return 'BUSINESS';
     if (slug.includes('pro')) return 'ELITE';
     if (slug.includes('starter')) return 'PRO';
     return 'FREE';

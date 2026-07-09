@@ -4,11 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ArrowRight, ChevronDown } from 'lucide-react';
+import { Menu, X, ArrowRight, ChevronDown, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { cn } from '@/lib/utils';
 import { BrandLogo } from '@/components/brand/BrandLogo';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { useMounted } from '@/lib/hooks/useMounted';
 
 const navLinks = [
   {
@@ -38,6 +41,88 @@ const navLinks = [
     ],
   },
 ];
+
+function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
+  const mounted = useMounted();
+  const { isAuthenticated, user } = useAuthStore();
+  const displayName =
+    user?.fullName || user?.name || user?.email?.split('@')?.[0] || 'Account';
+
+  const showAuthenticated = mounted && isAuthenticated && user;
+
+  if (showAuthenticated) {
+    if (mobile) {
+      return (
+        <div className="flex flex-col gap-3 w-full">
+          <div className="flex items-center gap-3 px-1 py-1">
+            <UserAvatar name={displayName} size="sm" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            </div>
+          </div>
+          <Link href="/dashboard" onClick={onNavigate} className="w-full">
+            <Button className="w-full h-11 rounded-button bg-primary text-primary-foreground font-semibold gap-2">
+              <LayoutDashboard className="w-4 h-4" />
+              Open Dashboard
+            </Button>
+          </Link>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <Link
+          href="/dashboard"
+          className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-muted/60 transition-colors min-w-0 max-w-[180px]"
+        >
+          <UserAvatar name={displayName} size="sm" />
+          <span className="text-sm font-medium text-foreground truncate">{displayName}</span>
+        </Link>
+        <Link href="/dashboard">
+          <Button className="h-10 px-5 text-sm font-semibold rounded-button bg-primary text-primary-foreground hover:brightness-110 shadow-[var(--shadow-cta)] gap-2">
+            Open Dashboard
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </Link>
+      </>
+    );
+  }
+
+  if (mobile) {
+    return (
+      <>
+        <Link href="/login" onClick={onNavigate}>
+          <Button variant="outline" className="w-full h-11 rounded-button">
+            Client Portal
+          </Button>
+        </Link>
+        <Link href="/register" onClick={onNavigate}>
+          <Button className="w-full h-11 rounded-button bg-primary text-primary-foreground font-semibold">
+            Open Terminal
+          </Button>
+        </Link>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Link href="/login">
+        <Button variant="ghost" className="font-medium text-sm text-muted-foreground hover:text-foreground h-10">
+          Client Portal
+        </Button>
+      </Link>
+      <Link href="/register">
+        <Button className="h-10 px-5 text-sm font-semibold rounded-button bg-primary text-primary-foreground hover:brightness-110 shadow-[var(--shadow-cta)] gap-2">
+          Open Terminal
+          <ArrowRight className="w-4 h-4" />
+        </Button>
+      </Link>
+    </>
+  );
+}
 
 export function PublicNavbar() {
   const pathname = usePathname();
@@ -72,7 +157,7 @@ export function PublicNavbar() {
       )}
       role="banner"
     >
-      <div className="page-container max-w-7xl">
+      <div className="page-container w-full">
         <nav
           className={cn(
             'flex items-center justify-between px-4 sm:px-5 py-2.5 rounded-button border transition-all duration-300',
@@ -82,8 +167,8 @@ export function PublicNavbar() {
           )}
           aria-label="Site navigation"
         >
-          <Link href="/" className="flex items-center gap-2.5 group shrink-0" aria-label="Profytron Home">
-            <BrandLogo size="md" showWordmark />
+          <Link href="/" className="group shrink-0" aria-label="Profytron Home">
+            <BrandLogo size="xl" />
           </Link>
 
           <div className="hidden lg:flex items-center gap-1">
@@ -159,20 +244,7 @@ export function PublicNavbar() {
 
           <div className="hidden md:flex items-center gap-2.5">
             <ThemeToggle size="sm" />
-            <Link href="/login">
-              <Button
-                variant="ghost"
-                className="font-medium text-sm text-muted-foreground hover:text-foreground h-10"
-              >
-                Client Portal
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button className="h-10 px-5 text-sm font-semibold rounded-button bg-primary text-primary-foreground hover:brightness-110 shadow-[var(--shadow-cta)] gap-2">
-                Open Terminal
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            <AuthActions />
           </div>
 
           <button
@@ -230,16 +302,7 @@ export function PublicNavbar() {
                 <span className="text-sm text-muted-foreground">Theme</span>
                 <ThemeToggle size="sm" />
               </div>
-              <Link href="/login" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full h-11 rounded-button">
-                  Client Portal
-                </Button>
-              </Link>
-              <Link href="/register" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full h-11 rounded-button bg-primary text-primary-foreground font-semibold">
-                  Open Terminal
-                </Button>
-              </Link>
+              <AuthActions mobile onNavigate={() => setMobileOpen(false)} />
             </div>
           </motion.div>
         )}

@@ -10,6 +10,7 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { useUIStore } from '@/lib/stores/useUIStore';
 import { DepositModal } from '@/components/wallet/DepositModal';
 import { WithdrawSheet } from '@/components/wallet/WithdrawSheet';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
@@ -308,22 +309,23 @@ export default function WalletPage() {
           >
             <RefreshCcw className="h-4 w-4" />
           </button>
-          <button
+          <Button
             type="button"
             onClick={() => setIsDepositOpen(true)}
-            className="btn-premium inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide"
+            className="btn-premium h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide"
           >
             <Plus className="h-4 w-4" />
             Deposit
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="outline"
             onClick={() => setIsWithdrawOpen(true)}
-            className="btn-premium-ghost inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30"
+            className="btn-premium-ghost h-9 px-4 rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30"
           >
             <ArrowUpRight className="h-4 w-4" />
             Withdraw
-          </button>
+          </Button>
         </div>
       </motion.div>
 
@@ -501,26 +503,27 @@ export default function WalletPage() {
               <p className="text-sm font-semibold text-foreground">No transactions yet</p>
               <p className="text-xs text-muted-foreground">Make your first deposit to get started</p>
             </div>
-            <button
+            <Button
               type="button"
               onClick={() => setIsDepositOpen(true)}
-              className="inline-flex items-center gap-2 h-9 px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors"
+              className="h-9 px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90"
             >
               Make a Deposit
-            </button>
+            </Button>
           </div>
         )}
 
         {transactionsQuery.hasNextPage && (
           <div className="px-5 py-4 border-t border-[var(--card-border)]">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => transactionsQuery.fetchNextPage()}
               disabled={transactionsQuery.isFetchingNextPage}
-              className="w-full h-9 rounded-xl border border-[var(--card-border)] bg-card text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
+              className="w-full h-9 rounded-xl border border-[var(--card-border)] bg-card text-xs font-semibold text-muted-foreground hover:text-foreground"
             >
               {transactionsQuery.isFetchingNextPage ? 'Loading…' : 'Load More'}
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -554,14 +557,15 @@ export default function WalletPage() {
                 ))}
               </select>
             </div>
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={downloadStatement}
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-xl border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+              className="h-9 px-4 rounded-xl border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30"
             >
               <Download className="h-4 w-4" />
               Download PDF
-            </button>
+            </Button>
           </div>
         </div>
 

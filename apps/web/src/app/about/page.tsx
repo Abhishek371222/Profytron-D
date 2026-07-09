@@ -1,225 +1,170 @@
 "use client";
+
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { ArrowRight, Target, Globe, Cpu, Shield, Zap, Layers } from "lucide-react";
 import { PublicPageLayout } from "@/components/layout/PublicPageLayout";
 import {
-  Zap,
-  Target,
-  Globe,
-  Cpu,
-  Shield,
-  ArrowRight,
-  Layers,
-  Activity
-} from "lucide-react";
-import Link from "next/link";
+  MarketingHero,
+  MarketingQuote,
+  MarketingSplit,
+  MarketingSection,
+  MarketingGrid,
+  MarketingCard,
+  MarketingCta,
+  MarketingPulseVisual,
+} from "@/components/marketing/MarketingPage";
+import { BrandLogoMark } from "@/components/brand/BrandLogoMark";
 
 const values = [
   {
     icon: Target,
     title: "Precision Over Speed",
-    desc: "We build for accuracy first. Every microsecond saved in execution must first be earned through rigorous signal validation.",
+    desc: "Every microsecond saved in execution must first be earned through rigorous signal validation.",
   },
   {
     icon: Shield,
     title: "Your Integrity",
-    desc: "Military-grade infrastructure meets transparent governance. Your capital operates under the same safeguards as sovereign wealth funds.",
+    desc: "Military-grade infrastructure meets transparent governance for your capital.",
   },
   {
     icon: Globe,
     title: "Globally Colocated",
-    desc: "NY4 and LD4 nodes give every strategy the same proximity advantage that hedge funds spend millions to achieve.",
+    desc: "NY4 and LD4 nodes give strategies the proximity advantage institutions spend millions to achieve.",
   },
   {
     icon: Cpu,
     title: "AI-Native Architecture",
-    desc: "Signal Core AI isn't a feature add-on — it's the foundation. Every module is designed around neural-network decision primitives.",
+    desc: "Signal Core AI is the foundation - every module is built around neural-network decision primitives.",
   },
 ];
 
 export default function AboutPage() {
   return (
     <PublicPageLayout>
-      {/* Hero */}
-      <section className="relative py-28 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-100 bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
-        <div className="container mx-auto px-6 max-w-5xl relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-foreground/3 border border-border text-foreground/50 text-micro font-bold tracking-[0.4em] uppercase mb-8">
-              <Zap className="w-3 h-3 text-primary" /> Company_Origin
-            </div>
-            <h1 className="text-6xl md:text-8xl font-bold tracking-[-0.03em] text-foreground leading-[1] mb-8">
-              We Build for
-              <br />
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-chart-5">
-                Edge, Not Average.
-              </span>
-            </h1>
-            <p className="text-xl text-foreground/50 leading-relaxed max-w-2xl font-medium">
-              Profytron was built by traders who were tired of institutional
-              tools staying locked inside institutions. We took the
-              infrastructure of the top 0.1% and engineered it into a platform
-              anyone serious could deploy.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <MarketingHero
+        eyebrow="Company"
+        eyebrowIcon={Zap}
+        title="We Build for"
+        titleAccent="Edge, Not Average."
+        description="Profytron was built by traders who were tired of institutional tools staying locked inside institutions. We engineered top 0.1% infrastructure into a platform anyone serious could deploy."
+      />
 
-      {/* Mission Statement */}
-      <section className="py-16 border-y border-border">
-        <div className="container mx-auto px-6 max-w-5xl">
-          <motion.blockquote
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold text-foreground/80 leading-relaxed border-l-2 border-primary pl-8"
-          >
-            "The gap between retail trading and institutional execution is not
-            talent — it's infrastructure. We close that gap."
-          </motion.blockquote>
-          <p className="mt-6 text-foreground/30 text-sm pl-8 font-mono uppercase tracking-widest">
-            — Profytron
-          </p>
-        </div>
-      </section>
+      <MarketingQuote
+        quote={`"The gap between retail trading and institutional execution is not talent - it is infrastructure. We close that gap."`}
+      />
 
-      {/* Philosophy */}
-      <section className="py-24 bg-black/30">
-        <div className="container mx-auto px-6 max-w-5xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <MarketingSplit
+        eyebrow="Philosophical Core"
+        eyebrowIcon={Layers}
+        title={
+          <>
+            The Future of
+            <br />
+            Execution Architectures
+          </>
+        }
+        visual={<MarketingPulseVisual />}
+      >
+        <p>
+          We believe that the financial markets of the next decade will not be won by those with the
+          most capital, but by those with the most refined digital architecture.
+        </p>
+        <p>
+          At Profytron, we are obsessed with the structural purity of signals. We engineer
+          environments where algorithms can breathe, learn, and execute without legacy friction.
+        </p>
+      </MarketingSplit>
+
+      <MarketingSection>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-10"
+        >
+          <span className="landing-eyebrow mb-5">
+            <Target className="h-3.5 w-3.5" />
+            Core Values
+          </span>
+          <h2 className="brand-display-heading text-3xl sm:text-4xl">What We Stand For</h2>
+        </motion.div>
+        <MarketingGrid cols={2}>
+          {values.map((v, i) => (
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              key={v.title}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
+              transition={{ delay: i * 0.08 }}
             >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-foreground/3 border border-border text-foreground/50 text-micro font-bold tracking-[0.4em] uppercase mb-6">
-                <Layers className="w-3 h-3 text-primary" /> Philosophical_Core
-              </div>
-              <h2 className="text-4xl font-bold text-foreground tracking-tight mb-8">
-                The Future of<br />Execution Architectures
-              </h2>
-              <div className="space-y-6 text-foreground/50 leading-relaxed text-lg">
-                <p>
-                  We believe that the financial markets of the next decade will not be won by those with the most capital, but by those with the most refined digital architecture.
-                </p>
-                <p>
-                  At Profytron, we are obsessed with the structural purity of signals. We don't just facilitate trades; we engineer environments where algorithms can breathe, learn, and execute without the friction of legacy infrastructure.
-                </p>
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="relative aspect-square rounded-3xl overflow-hidden border border-border bg-foreground/2 flex items-center justify-center group"
-            >
-              <div className="absolute inset-0 bg-linear-to-br from-primary/10 via-transparent to-transparent" />
-              <div className="relative z-10 w-3/4 h-3/4 border border-border rounded-full flex items-center justify-center before:content-[''] before:absolute before:w-full before:h-full before:border before:border-primary/20 before:rounded-full before:animate-ping after:content-[''] after:absolute after:w-1/2 after:h-1/2 after:border after:border-primary/30 after:rounded-full">
-                <Activity className="w-12 h-12 text-primary group-hover:scale-110 transition-transform duration-500" />
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Values */}
-      <section className="py-24 border-t border-border">
-        <div className="container mx-auto px-6 max-w-6xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-16"
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-foreground/3 border border-border text-foreground/50 text-micro font-bold tracking-[0.4em] uppercase mb-6">
-              <Target className="w-3 h-3 text-primary" /> Core_Values
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
-              What We Stand For
-            </h2>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {values.map((v, i) => (
-              <motion.div
-                key={v.title}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                viewport={{ once: true }}
-                className="p-8 rounded-2xl bg-foreground/2 border border-border hover:border-primary/30 transition-all group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
-                  <v.icon className="w-6 h-6 text-primary" />
+              <MarketingCard hover className="h-full">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-primary/15 bg-primary/10">
+                  <v.icon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">{v.title}</h3>
-                <p className="text-foreground/50 leading-relaxed">{v.desc}</p>
-              </motion.div>
+                <h3 className="dash-section-title mb-2">{v.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{v.desc}</p>
+              </MarketingCard>
+            </motion.div>
+          ))}
+        </MarketingGrid>
+      </MarketingSection>
+
+      <MarketingBandStats />
+
+      <MarketingCta
+        title="Join the"
+        titleAccent="Movement."
+        description="We are hiring engineers, quants, and builders who want to reshape finance."
+      >
+        <Link
+          href="/careers"
+          className="inline-flex items-center gap-3 rounded-xl bg-primary px-8 py-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-cta)] transition hover:brightness-110"
+        >
+          View Open Roles <ArrowRight className="h-4 w-4" />
+        </Link>
+      </MarketingCta>
+    </PublicPageLayout>
+  );
+}
+
+function MarketingBandStats() {
+  return (
+    <section className="marketing-band">
+      <div className="page-container max-w-4xl text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div className="mb-6 flex justify-center opacity-90">
+            <BrandLogoMark size={56} />
+          </div>
+          <span className="landing-eyebrow mb-5">Global Network</span>
+          <h2 className="brand-display-heading mb-6 text-3xl sm:text-4xl">
+            A Borderless
+            <br />
+            Trading Mind
+          </h2>
+          <p className="mx-auto mb-12 max-w-2xl text-base italic text-muted-foreground sm:text-lg">
+            We operate at the intersection of quantitative intelligence and high-frequency
+            infrastructure - democratizing institutional-grade tools.
+          </p>
+          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+            {[
+              { label: "Speed", value: "< 1ms" },
+              { label: "Nodes", value: "Global" },
+              { label: "Integrity", value: "AES-256" },
+              { label: "Uptime", value: "99.9%" },
+            ].map((stat) => (
+              <div key={stat.label} className="flex flex-col gap-1">
+                <span className="font-mono text-2xl font-bold text-foreground">{stat.value}</span>
+                <span className="dash-eyebrow text-[11px]">{stat.label}</span>
+              </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Network / Vague Placeholder for Team/Timeline */}
-      <section className="py-24 bg-black/20">
-        <div className="container mx-auto px-6 max-w-4xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-foreground/3 border border-border text-foreground/50 text-micro font-bold tracking-[0.4em] uppercase mb-6">
-              Global_Network
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight mb-8">
-              A Borderless<br />Your Mind
-            </h2>
-            <p className="text-lg text-foreground/40 leading-relaxed mb-12 max-w-2xl mx-auto italic">
-              "We operate at the intersection of quantitative intelligence and high-frequency infrastructure, managed by a collective of architects who believe in the democratization of institutional-grade tools."
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-              {[
-                { label: 'Speed', value: '< 1ms' },
-                { label: 'Nodes', value: 'Global' },
-                { label: 'Integrity', value: 'AES-256' },
-                { label: 'Uptime', value: '99.9%' },
-              ].map((stat, i) => (
-                <div key={i} className="flex flex-col gap-1">
-                  <span className="text-2xl font-bold text-foreground font-mono">{stat.value}</span>
-                  <span className="text-micro text-foreground/30 uppercase tracking-widest">{stat.label}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-24 border-t border-border">
-        <div className="container mx-auto px-6 max-w-4xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-4xl font-bold text-foreground mb-6 tracking-tight">
-              Join the Movement
-            </h2>
-            <p className="text-foreground/50 mb-10 text-lg">
-              We're hiring engineers, quants, and builders who want to reshape
-              finance.
-            </p>
-            <Link
-              href="/careers"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl font-semibold transition-all shadow-[0_0_30px_rgba(71,167,170,0.3)] hover:shadow-[0_0_50px_rgba(71,167,170,0.5)]"
-            >
-              View Open Roles <ArrowRight className="w-4 h-4" />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-    </PublicPageLayout>
+        </motion.div>
+      </div>
+    </section>
   );
 }

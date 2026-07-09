@@ -2,7 +2,7 @@
 
 import React, { useEffect, useId, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { LucideIcon } from 'lucide-react';
+import { Eye, EyeOff, LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FloatingLabelInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -17,9 +17,12 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
     const inputId = id ?? generatedId;
     const [isFocused, setIsFocused] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [localValue, setLocalValue] = useState(
       () => String(value ?? defaultValue ?? ''),
     );
+
+    const isPassword = props.type === 'password';
 
     useEffect(() => {
       setMounted(true);
@@ -35,6 +38,7 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
 
     const inputProps: React.InputHTMLAttributes<HTMLInputElement> = {
       ...props,
+      type: isPassword ? (showPassword ? 'text' : 'password') : props.type,
       id: inputId,
       defaultValue: value === undefined ? defaultValue : undefined,
       suppressHydrationWarning: true,
@@ -95,15 +99,30 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
               {label}
             </label>
 
-            {Icon && (
-              <div
+            {isPassword ? (
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
                 className={cn(
-                  'absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-300',
-                  isFocused ? 'text-primary scale-110' : 'text-text-muted',
+                  'absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300',
+                  isFocused ? 'text-primary' : 'text-text-muted hover:text-foreground',
                 )}
               >
-                <Icon className="w-5 h-5" />
-              </div>
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            ) : (
+              Icon && (
+                <div
+                  className={cn(
+                    'absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none transition-all duration-300',
+                    isFocused ? 'text-primary scale-110' : 'text-text-muted',
+                  )}
+                >
+                  <Icon className="w-5 h-5" />
+                </div>
+              )
             )}
 
             {mounted && (

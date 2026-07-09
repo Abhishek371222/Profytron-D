@@ -30,6 +30,7 @@ import {
   EmptyChartOverlay,
   StatCard,
 } from '../_components/AnalyticsShared';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 
 function PieTooltip({
   active,
@@ -78,6 +79,36 @@ export default function TradeAnalyticsPage() {
     queryClient.invalidateQueries({ queryKey: ['analytics', 'trades'] });
     toast.success('Trade analytics refreshed');
   };
+
+  if (tradeQuery.isLoading) {
+    return (
+      <div className="space-y-5 pb-8 animate-pulse">
+        <div className="dashboard-card h-20" />
+        <div className="dashboard-card h-10 w-64" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="dashboard-card h-24" />
+          ))}
+        </div>
+        <div className="dashboard-card h-64" />
+      </div>
+    );
+  }
+
+  if (tradeQuery.isError) {
+    return (
+      <div className="space-y-5 pb-8">
+        <AnalyticsPageHeader
+          title="Trade Forensics"
+          description="Distribution analytics, win-loss geometry, and symbol-level trade quality."
+          icon={Activity}
+          iconBg="bg-chart-5/10 text-chart-5"
+          onRefresh={refreshData}
+        />
+        <DashErrorState message="Couldn't load trade analytics." onRetry={refreshData} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 pb-8">

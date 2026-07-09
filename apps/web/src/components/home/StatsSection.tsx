@@ -80,8 +80,8 @@ const stats = [
 
 export function StatsSection() {
   return (
-    <section className="py-12 sm:py-16 relative bg-[var(--bg-secondary)] dark:bg-background">
-      <div className="page-container max-w-[1280px]">
+    <section className="landing-section !py-12 sm:!py-16">
+      <div className="page-container relative z-10 w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -104,7 +104,7 @@ export function StatsSection() {
                   <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/15 flex items-center justify-center mb-4">
                     <Icon className="w-4 h-4 text-primary" />
                   </div>
-                  <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#47a7aa] mb-3">
+                  <p className="brand-gradient-text mb-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
                     <AnimatedStat
                       value={stat.value}
                       suffix={stat.suffix}

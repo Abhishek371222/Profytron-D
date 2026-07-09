@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Clock, ChevronLeft, ArrowRight } from 'lucide-react';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
+import { MarketingSection, MarketingCard } from '@/components/marketing/MarketingPage';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { BlogArticleBody } from '@/components/blog/BlogArticleBody';
@@ -63,8 +64,8 @@ export default async function BlogPostPage({ params }: Props) {
         ]}
       />
 
-      <main className="min-h-screen px-6 py-24">
-        <article className="mx-auto max-w-3xl">
+      <MarketingSection narrow className="pb-20">
+        <article className="max-w-3xl">
           <Breadcrumbs
             items={[
               { label: 'Blog', href: '/blog' },
@@ -95,7 +96,7 @@ export default async function BlogPostPage({ params }: Props) {
                 {post.date}
               </time>
             </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-tight mb-4">
+            <h1 className="brand-display-heading mb-4 text-3xl leading-tight md:text-4xl lg:text-5xl">
               {post.title}
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed">{post.excerpt}</p>
@@ -107,16 +108,13 @@ export default async function BlogPostPage({ params }: Props) {
 
           {related.length > 0 && (
             <section className="mt-16 pt-10 border-t border-[var(--card-border)]" aria-labelledby="related-articles">
-              <h2 id="related-articles" className="text-xl font-bold text-foreground mb-6">
+              <h2 id="related-articles" className="dash-section-title mb-6">
                 Related articles
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 {related.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/blog/${item.id}`}
-                    className="group rounded-2xl border border-[var(--card-border)] bg-card p-5 hover:border-primary/25 transition-colors"
-                  >
+                  <Link key={item.id} href={`/blog/${item.id}`} className="group block">
+                    <MarketingCard hover className="h-full">
                     <p className="text-xs font-semibold text-primary mb-2">{item.category}</p>
                     <h3 className="font-bold text-foreground group-hover:text-primary transition-colors leading-snug mb-2">
                       {item.title}
@@ -124,13 +122,14 @@ export default async function BlogPostPage({ params }: Props) {
                     <span className="inline-flex items-center gap-1 text-sm text-muted-foreground group-hover:text-primary">
                       Read more <ArrowRight className="w-3.5 h-3.5" />
                     </span>
+                    </MarketingCard>
                   </Link>
                 ))}
               </div>
             </section>
           )}
         </article>
-      </main>
+      </MarketingSection>
     </PublicPageLayout>
   );
 }

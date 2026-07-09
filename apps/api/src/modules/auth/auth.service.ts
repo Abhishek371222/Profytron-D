@@ -330,10 +330,13 @@ export class AuthService {
       },
     });
 
-    const tierBySlug: Record<string, 'PRO' | 'ELITE' | 'INSTITUTIONAL'> = {
+    const tierBySlug: Record<
+      string,
+      'PRO' | 'ELITE' | 'BUSINESS' | 'INSTITUTIONAL'
+    > = {
       starter: 'PRO',
       pro: 'ELITE',
-      business: 'INSTITUTIONAL',
+      business: 'BUSINESS',
     };
 
     await this.prisma.user.update({

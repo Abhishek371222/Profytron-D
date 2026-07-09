@@ -174,7 +174,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
                   exit={{ opacity: 0, x: -4 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <BrandLogo size="md" showWordmark />
+                  <BrandLogo size="lg" />
                 </motion.div>
               ) : (
                 <motion.div

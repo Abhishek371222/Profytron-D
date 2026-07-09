@@ -10,10 +10,11 @@ export default function PricingPage() {
   return (
     <PublicPageLayout>
       <JsonLd type="product" />
-      <main className="min-h-screen text-foreground px-6 py-24">
-        <div className="mx-auto max-w-6xl">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Simple pricing for every trader
+      <main className="page-container min-h-screen w-full py-24 text-foreground">
+        <div className="w-full">
+          <h1 className="brand-display-heading text-4xl md:text-5xl">
+            Simple pricing for every{" "}
+            <span className="brand-gradient-text">trader.</span>
           </h1>
           <p className="mt-3 text-foreground/60 max-w-2xl">
             Start free with paper trading. Upgrade when you are ready for live copy execution on MT5.

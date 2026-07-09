@@ -30,6 +30,7 @@ import {
   EmptyChartOverlay,
   StatCard,
 } from '../_components/AnalyticsShared';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 
 const MONTHS_BY_RANGE: Record<AnalyticsRange, number> = {
   '1d': 1,
@@ -98,6 +99,39 @@ export default function PerformanceAnalyticsPage() {
     queryClient.invalidateQueries({ queryKey: ['analytics', 'monthly-returns'] });
     toast.success('Performance refreshed');
   };
+
+  const isLoading = strategyQuery.isLoading || monthlyQuery.isLoading;
+  const isError = strategyQuery.isError && monthlyQuery.isError;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-5 pb-8 animate-pulse">
+        <div className="dashboard-card h-20" />
+        <div className="dashboard-card h-10 w-64" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="dashboard-card h-24" />
+          ))}
+        </div>
+        <div className="dashboard-card h-64" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-5 pb-8">
+        <AnalyticsPageHeader
+          title="Performance Lab"
+          description="Strategy comparisons, monthly return rhythm, and production-readiness scores."
+          icon={BarChart2}
+          iconBg="bg-chart-3/10 text-chart-3"
+          onRefresh={refreshData}
+        />
+        <DashErrorState message="Couldn't load performance analytics." onRetry={refreshData} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 pb-8">

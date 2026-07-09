@@ -45,7 +45,7 @@ const footerLinks = {
 export function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-border bg-bg-secondary pb-[calc(3rem+env(safe-area-inset-bottom,0px))] pt-16 sm:pt-24">
-      <div className="container relative z-10 mx-auto max-w-[1200px] px-[clamp(1rem,4vw,1.5rem)]">
+      <div className="page-container relative z-10 w-full">
         <div className="mb-12">
           <TrustBadges />
         </div>
@@ -53,7 +53,7 @@ export function Footer() {
           {/* Logo & Foundation */}
           <div className="lg:col-span-5">
             <Link href="/" className="flex items-center gap-3 mb-8 group">
-              <BrandLogo size="lg" showWordmark />
+              <BrandLogo size="lg" />
             </Link>
             <p className="text-foreground/40 text-sm mb-8 leading-relaxed max-w-sm font-medium">
               Building the future of trading success. Your edge, refined for tomorrow's markets.
@@ -63,7 +63,7 @@ export function Footer() {
                 { icon: MessageSquare, href: 'https://discord.gg/profytron', label: 'Discord', external: true },
                 { icon: InstagramIcon, href: 'https://www.instagram.com/profytron/', label: 'Instagram', external: true },
                 { icon: Globe, href: '/', label: 'Website', external: false },
-                { icon: Mail, href: 'mailto:hello@profytron.com', label: 'Email', external: false },
+                { icon: Mail, href: 'mailto:support@profytron.com', label: 'Email', external: false },
               ] as const).map(({ icon: Icon, href, label, external }) => (
                 <a
                   key={label}

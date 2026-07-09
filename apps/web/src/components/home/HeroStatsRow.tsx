@@ -11,8 +11,8 @@ const STATS = [
 
 export function HeroStatsRow() {
   return (
-    <div className="mt-12 sm:mt-14 border-y border-[var(--card-border)] bg-card/50 rounded-[20px] overflow-hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[var(--card-border)]">
+    <div className="landing-panel mt-12 overflow-hidden sm:mt-14">
+      <div className="grid grid-cols-1 divide-y divide-[var(--card-border)] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         {STATS.map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -23,7 +23,7 @@ export function HeroStatsRow() {
             className="px-6 py-6 sm:py-7 text-center sm:text-left"
           >
             <p className="text-sm font-medium text-muted-foreground mb-2">{stat.label}</p>
-            <p className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#47a7aa] via-[#1e6d48] to-[#47a7aa] tabular-nums tracking-tight">
+            <p className="text-3xl font-bold tabular-nums tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-[color-mix(in_srgb,var(--primary)_55%,var(--secondary))] to-primary sm:text-4xl">
               <AnimatedCounter
                 value={stat.value}
                 prefix={stat.prefix}

@@ -23,7 +23,7 @@ export function JoinWaitlistModal({ open, onOpenChange }: { open: boolean; onOpe
         setMessage('Thanks — we added you to the waitlist.');
         setEmail('');
       } else {
-        setMessage('Could not add to waitlist. Try mailto:community@profytron.com');
+        setMessage('Could not add to waitlist. Try mailto:support@profytron.com');
       }
     } catch (err) {
       setMessage('Network error — try again later.');

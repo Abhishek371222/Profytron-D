@@ -19,6 +19,7 @@ import {
   MetricRow,
   StatCard,
 } from '../_components/AnalyticsShared';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 
 const RISK_STATS: {
   key: keyof Pick<
@@ -63,6 +64,36 @@ export default function RiskAnalyticsPage() {
     queryClient.invalidateQueries({ queryKey: ['analytics', 'risk'] });
     toast.success('Risk refreshed');
   };
+
+  if (riskQuery.isLoading) {
+    return (
+      <div className="space-y-5 pb-8 animate-pulse">
+        <div className="dashboard-card h-20" />
+        <div className="dashboard-card h-10 w-64" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="dashboard-card h-24" />
+          ))}
+        </div>
+        <div className="dashboard-card h-64" />
+      </div>
+    );
+  }
+
+  if (riskQuery.isError) {
+    return (
+      <div className="space-y-5 pb-8">
+        <AnalyticsPageHeader
+          title="Risk Radar"
+          description="Scenario-aware drawdown tracking, exposure pressure, and capital protection intelligence."
+          icon={Shield}
+          iconBg="bg-destructive/10 text-destructive"
+          onRefresh={refreshData}
+        />
+        <DashErrorState message="Couldn't load risk analytics." onRetry={refreshData} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 pb-8">

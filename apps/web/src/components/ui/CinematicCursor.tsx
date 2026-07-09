@@ -90,7 +90,8 @@ export function CinematicCursor() {
           width: 500,
           height: 500,
           transform: 'translate(-50%, -50%)',
-          background: 'radial-gradient(circle, rgba(71,167,170,0.13) 0%, rgba(6,182,212,0.06) 50%, transparent 70%)',
+          background:
+            'radial-gradient(circle, color-mix(in srgb, var(--primary) 13%, transparent) 0%, color-mix(in srgb, var(--chart-5) 6%, transparent) 50%, transparent 70%)',
           mixBlendMode: 'screen',
           // No filter — keeps it smooth & GPU-friendly
         }}
@@ -107,8 +108,8 @@ export function CinematicCursor() {
           width: 8,
           height: 8,
           transform: 'translate(-50%, -50%)',
-          backgroundColor: '#818cf8', // p-light — slightly lighter for visibility
-          boxShadow: '0 0 6px 2px rgba(71,167,170,0.8)',
+          backgroundColor: 'var(--primary)',
+          boxShadow: '0 0 6px 2px color-mix(in srgb, var(--primary) 80%, transparent)',
           mixBlendMode: 'screen',
         }}
       />
@@ -125,7 +126,7 @@ export function CinematicCursor() {
           width: 26,
           height: 26,
           transform: 'translate(-50%, -50%)',
-          border: '1px solid rgba(129, 140, 248, 0.55)',
+          border: '1px solid color-mix(in srgb, var(--primary) 55%, transparent)',
           mixBlendMode: 'screen',
         }}
       />

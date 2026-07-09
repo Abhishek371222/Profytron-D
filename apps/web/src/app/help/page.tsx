@@ -1,5 +1,14 @@
+'use client';
+
 import Link from 'next/link';
+import { HelpCircle, ArrowRight } from 'lucide-react';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
+import {
+  MarketingHero,
+  MarketingSection,
+  MarketingGrid,
+  MarketingCard,
+} from '@/components/marketing/MarketingPage';
 
 const sections = [
   {
@@ -32,35 +41,36 @@ const sections = [
 export default function HelpPage() {
   return (
     <PublicPageLayout>
-      <main className="min-h-screen text-foreground px-6 py-24">
-        <div className="mx-auto max-w-3xl">
-          <h1 className="text-4xl font-bold tracking-tight">Help Center</h1>
-          <p className="mt-3 text-foreground/60">
-            Quick answers and links for Profytron copy trading, billing, and broker setup.
-          </p>
-          <div className="mt-12 space-y-10">
-            {sections.map((section) => (
-              <section key={section.title}>
-                <h2 className="text-lg font-semibold text-primary mb-4">
-                  {section.title}
-                </h2>
-                <ul className="space-y-2">
-                  {section.links.map((link) => (
-                    <li key={link.href}>
-                      <Link
-                        href={link.href}
-                        className="text-foreground/70 hover:text-foreground underline-offset-4 hover:underline"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
-          </div>
-        </div>
-      </main>
+      <MarketingHero
+        eyebrow="Help Center"
+        eyebrowIcon={HelpCircle}
+        title="Quick Answers &"
+        titleAccent="Resources."
+        description="Quick answers and links for Profytron copy trading, billing, and broker setup."
+      />
+
+      <MarketingSection narrow className="pb-20">
+        <MarketingGrid cols={3}>
+          {sections.map((section) => (
+            <MarketingCard key={section.title} hover className="h-full">
+              <h2 className="dash-section-title mb-4 text-base">{section.title}</h2>
+              <ul className="space-y-2.5">
+                {section.links.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="group flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-all group-hover:opacity-100" />
+                      <span className="group-hover:underline underline-offset-4">{link.label}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </MarketingCard>
+          ))}
+        </MarketingGrid>
+      </MarketingSection>
     </PublicPageLayout>
   );
 }

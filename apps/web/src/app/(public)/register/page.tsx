@@ -5,10 +5,13 @@ import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Sparkles, Zap, Lock, Mail, User, Shield, Check } from 'lucide-react';
+import { Sparkles, Lock, Mail, User, Shield, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+import { Button } from '@/components/ui/button';
+import { BrandLogo } from '@/components/brand/BrandLogo';
+import { BrandGradientText } from '@/components/brand/BrandGradientText';
 import { RegisterVisualPanel } from '@/components/auth/RegisterVisualPanel';
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
@@ -144,14 +147,12 @@ export default function RegisterPage() {
             <RegisterVisualPanel />
 
             <div className="flex flex-col justify-center bg-card px-7 py-10 sm:px-10 sm:py-12 lg:px-12 lg:py-14">
-              <div className="mb-8 flex items-center gap-3.5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-input bg-gradient-cta text-primary-foreground shadow-[var(--shadow-cta)]">
-                  <Zap className="h-5 w-5" aria-hidden />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-foreground">Register</h1>
-                  <p className="text-sm text-muted-foreground">Create your trading workspace</p>
-                </div>
+              <div className="mb-8">
+                <BrandLogo size="xl" className="mb-6" />
+                <h1 className="brand-display-heading text-2xl sm:text-3xl">
+                  Create your <BrandGradientText>account.</BrandGradientText>
+                </h1>
+                <p className="mt-1.5 text-sm text-muted-foreground">Create your trading workspace</p>
               </div>
 
               {mounted ? (
@@ -235,23 +236,22 @@ export default function RegisterPage() {
                   />
                 </div>
 
-                <button
+                <Button
                   type="submit"
+                  variant="primary"
                   disabled={isLoading || !isValid}
-                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-button bg-gradient-cta text-[15px] font-semibold text-primary-foreground shadow-[var(--shadow-cta)] transition-all hover:shadow-[var(--shadow-cta-hover)] hover:brightness-105 active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
+                  isLoading={isLoading}
+                  className="mt-2 h-12 w-full text-[15px]"
                 >
                   {isLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-                      Creating account...
-                    </>
+                    'Creating account...'
                   ) : (
                     <>
                       Create account
                       <Sparkles className="h-4 w-4" aria-hidden />
                     </>
                   )}
-                </button>
+                </Button>
               </form>
 
               <p className="mt-8 text-center text-sm text-muted-foreground">

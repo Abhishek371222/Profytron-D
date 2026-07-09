@@ -1,13 +1,11 @@
 import { PrismaClient, UserRole, KycStatus, SubscriptionTier, RiskLevel, StrategyCategory, VerificationStatus, TradeDirection, TradeStatus, SubscriptionStatus, TransactionType, TransactionDirection, TransactionStatus, AffiliateTier, AchievementTier, NotificationType, PaymentStatus, PaymentMethod } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
+import { PLATFORM_PLANS } from '../src/common/constants/pricing.constants';
 
-const PLATFORM_PLANS_SEED = [
-  { name: 'Free', description: 'Paper trading and marketplace exploration.', monthlyPrice: 0, annualPrice: 0, features: ['1 paper copy subscription', 'Paper trading account', 'Basic analytics (30 days)', '5 AI Coach sessions/month', 'Community support'], maxStrategies: 0, maxCopyTrades: 1, prioritySupport: false },
-  { name: 'Starter', description: 'For retail copy traders getting started with live execution.', monthlyPrice: 3999, annualPrice: 39990, features: ['3 live copy subscriptions', '2 strategy deployments', '2 broker accounts', '50 AI Coach sessions/month', '1 year trade history', 'Email support (48h)'], maxStrategies: 2, maxCopyTrades: 3, prioritySupport: false },
-  { name: 'Pro', description: 'For active traders and strategy builders.', monthlyPrice: 11999, annualPrice: 119990, features: ['Unlimited copy subscriptions', 'Unlimited strategy deployments', '5 broker accounts', 'Unlimited AI Coach', '1 VPS bot slot', 'Priority chat support (24h)'], maxStrategies: 999, maxCopyTrades: 999, prioritySupport: true },
-  { name: 'Business', description: 'For prop desks and small funds (5 seats).', monthlyPrice: 29999, annualPrice: 299990, features: ['Everything in Pro', '5 team seats', '20 broker accounts', '5 VPS bot slots', 'Dedicated CSM'], maxStrategies: 999, maxCopyTrades: 999, prioritySupport: true },
-];
+// Single source of truth for pricing lives in pricing.constants.ts — seed
+// from it directly so this table can never drift out of sync again.
+const PLATFORM_PLANS_SEED = PLATFORM_PLANS.filter((p) => p.monthlyPrice >= 0);
 
 const prisma = new PrismaClient();
 
@@ -401,7 +399,7 @@ async function main() {
         description: plan.description,
         monthlyPrice: plan.monthlyPrice,
         annualPrice: plan.annualPrice,
-        features: plan.features,
+        features: [...plan.features],
         maxStrategies: plan.maxStrategies,
         maxCopyTrades: plan.maxCopyTrades,
         prioritySupport: plan.prioritySupport,
@@ -410,7 +408,7 @@ async function main() {
         description: plan.description,
         monthlyPrice: plan.monthlyPrice,
         annualPrice: plan.annualPrice,
-        features: plan.features,
+        features: [...plan.features],
         maxStrategies: plan.maxStrategies,
         maxCopyTrades: plan.maxCopyTrades,
         prioritySupport: plan.prioritySupport,

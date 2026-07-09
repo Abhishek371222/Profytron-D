@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Param,
+  Query,
   UseGuards,
   Patch,
   Req,
@@ -59,8 +60,11 @@ export class AdminController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'List all users for management' })
   @Get('users')
-  async getUsers() {
-    return this.adminService.getAllUsers();
+  async getUsers(@Query('limit') limit?: string, @Query('skip') skip?: string) {
+    return this.adminService.getAllUsers(
+      limit ? Number(limit) : undefined,
+      skip ? Number(skip) : undefined,
+    );
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -99,15 +103,27 @@ export class AdminController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get strategy verification queue' })
   @Get('verifications')
-  async getVerifications() {
-    return this.adminService.getVerificationQueue();
+  async getVerifications(
+    @Query('limit') limit?: string,
+    @Query('skip') skip?: string,
+  ) {
+    return this.adminService.getVerificationQueue(
+      limit ? Number(limit) : undefined,
+      skip ? Number(skip) : undefined,
+    );
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get all strategies for admin management' })
   @Get('strategies')
-  async getStrategies() {
-    return this.adminService.getStrategies();
+  async getStrategies(
+    @Query('limit') limit?: string,
+    @Query('skip') skip?: string,
+  ) {
+    return this.adminService.getStrategies(
+      limit ? Number(limit) : undefined,
+      skip ? Number(skip) : undefined,
+    );
   }
 
   @ApiResponse({ status: 201, description: 'Created' })
@@ -294,8 +310,14 @@ export class AdminController {
     summary: 'List broker accounts for master copy-trade control',
   })
   @Get('broker-accounts')
-  async getBrokerAccounts() {
-    return this.adminService.getBrokerAccounts();
+  async getBrokerAccounts(
+    @Query('limit') limit?: string,
+    @Query('skip') skip?: string,
+  ) {
+    return this.adminService.getBrokerAccounts(
+      limit ? Number(limit) : undefined,
+      skip ? Number(skip) : undefined,
+    );
   }
 
   @ApiResponse({ status: 200, description: 'OK' })

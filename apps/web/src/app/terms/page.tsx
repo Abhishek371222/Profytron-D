@@ -1,4 +1,7 @@
+'use client';
+
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
+import { LegalDocumentLayout } from '@/components/marketing/MarketingPage';
 import { FileText } from 'lucide-react';
 
 const sections = [
@@ -27,7 +30,7 @@ If you use the Service on behalf of a company or legal entity, you represent tha
 You are solely responsible for:
 - Maintaining the confidentiality of your login credentials, API keys, and authentication tokens
 - All activities that occur under your account
-- Notifying us immediately at security@profytron.com upon becoming aware of any unauthorized access or suspected breach of your account
+- Notifying us immediately at support@profytron.com upon becoming aware of any unauthorized access or suspected breach of your account
 
 Profytron will not be liable for any loss or damage arising from unauthorized access to your account that results from your failure to take reasonable precautions.
 
@@ -126,7 +129,7 @@ Upon termination, your right to access the Service ceases immediately. Sections 
     title: '11. Governing Law & Dispute Resolution',
     content: `These Terms are governed by, and construed in accordance with, the laws of India, without regard to conflict of law principles.
 
-**Informal Resolution:** Before initiating formal proceedings, you agree to first contact legal@profytron.com and give us 30 days to resolve the dispute informally.
+**Informal Resolution:** Before initiating formal proceedings, you agree to first contact support@profytron.com and give us 30 days to resolve the dispute informally.
 
 **Arbitration:** If informal resolution fails, any dispute, controversy, or claim arising out of or relating to these Terms, or the breach, termination, or validity thereof, shall be referred to and finally resolved by binding arbitration under the Arbitration and Conciliation Act, 1996 (as amended), by a sole arbitrator mutually agreed upon by the parties, seated in Bengaluru, Karnataka, India. The language of arbitration shall be English. The arbitral award shall be final and binding.
 
@@ -152,60 +155,22 @@ Continued use of the Service after the effective date of a modification constitu
   },
   {
     title: '14. Contact',
-    content: `Legal Department\nProfytron Technologies Pvt. Ltd.\nBengaluru, Karnataka, India\nEmail: legal@profytron.com`,
+    content: `Legal Department\nProfytron Technologies Pvt. Ltd.\nBengaluru, Karnataka, India\nEmail: support@profytron.com`,
   },
 ];
 
 export default function TermsPage() {
   return (
     <PublicPageLayout>
-      <section className="relative py-24 overflow-hidden">
-        <div className="absolute top-0 left-1/3 w-[500px] h-62.5 bg-primary/8 blur-[100px] rounded-full pointer-events-none" />
-        <div className="container mx-auto px-6 max-w-4xl relative z-10">
-          <div>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-foreground/3 border border-border text-foreground/50 text-micro font-bold tracking-[0.4em] uppercase mb-8">
-              <FileText className="w-3 h-3 text-primary" /> Legal
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold tracking-[-0.03em] text-foreground leading-tight mb-6">Terms of Service</h1>
-            <div className="flex items-center gap-6 text-foreground/30 text-xs font-mono">
-              <span>Effective Date: April 12, 2026</span>
-              <span>Last Updated: April 12, 2026</span>
-            </div>
-            <p className="mt-6 text-foreground/50 leading-relaxed">
-              Please read these Terms of Service carefully. They govern your use of the Profytron platform and form a binding legal agreement between you and Profytron Technologies Pvt. Ltd.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="pb-8 sticky top-28 z-40">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <div className="flex flex-wrap gap-2 py-3 px-4 rounded-xl bg-black/60 backdrop-blur-xl border border-border">
-            {sections.map((s, i) => (
-              <a 
-                key={i} 
-                href={`#section-${i}`}
-                className="text-micro text-foreground/30 hover:text-primary font-mono transition-colors px-2 py-1"
-              >
-                §{i + 1}
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="pb-24">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <div className="flex flex-col gap-10">
-            {sections.map((s, i) => (
-              <div key={i} id={`section-${i}`} className="p-8 rounded-2xl bg-foreground/2 border border-border scroll-mt-32">
-                <h2 className="text-lg font-bold text-foreground mb-4 tracking-tight">{s.title}</h2>
-                <div className="text-foreground/55 text-sm leading-[1.85] whitespace-pre-line">{s.content}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <LegalDocumentLayout
+        eyebrow="Legal"
+        eyebrowIcon={FileText}
+        title="Terms of Service"
+        intro="The binding agreement governing your use of the Profytron platform."
+        effectiveDate="April 12, 2026"
+        lastUpdated="April 12, 2026"
+        sections={sections}
+      />
     </PublicPageLayout>
   );
 }

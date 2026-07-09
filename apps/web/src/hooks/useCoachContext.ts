@@ -38,5 +38,6 @@ export function useCoachContext() {
     hasBrokerAccount,
     defaultAccount,
     isLoading: portfolioQuery.isPending || openTradesQuery.isPending,
+    isError: portfolioQuery.isError || openTradesQuery.isError,
   };
 }
