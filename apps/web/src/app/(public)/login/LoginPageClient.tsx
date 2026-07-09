@@ -41,6 +41,11 @@ function LoginPageContent() {
   const expired = searchParams.get('expired');
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
+  React.useEffect(() => {
+    const challenge = searchParams.get('twoFaChallenge');
+    if (challenge) setTwoFaChallenge(challenge);
+  }, [searchParams]);
+
   const urlErrorMessage =
     authError === 'auth_failed'
       ? 'Sign-in failed. Please try again.'
@@ -48,9 +53,11 @@ function LoginPageContent() {
         ? 'We\'re experiencing a temporary issue. Please try again in a moment.'
         : authError === 'sync_failed'
           ? 'Sign-in succeeded but we hit a snag syncing your account. Please try again.'
-          : authError === 'backend_unavailable'
-            ? 'Service is temporarily unavailable. Please wait a moment and try again.'
-            : expired
+          : authError === 'rate_limited'
+            ? 'Too many sign-in attempts. Please wait a minute and try again.'
+            : authError === 'backend_unavailable'
+              ? 'Service is temporarily unavailable. Please wait a moment and try again.'
+              : expired
               ? 'Your session expired. Please sign in again.'
               : null;
 

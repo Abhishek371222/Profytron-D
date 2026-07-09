@@ -901,7 +901,22 @@ export class AuthService {
     }
 
     // 1. Verify token with Supabase
-    const { data, error } = await this.supabase.auth.getUser(dto.token);
+    let data: Awaited<ReturnType<SupabaseClient['auth']['getUser']>>['data'];
+    let error: Awaited<
+      ReturnType<SupabaseClient['auth']['getUser']>
+    >['error'];
+    try {
+      ({ data, error } = await this.supabase.auth.getUser(dto.token));
+    } catch (verifyError) {
+      this.logger.error(
+        `Supabase verification threw for ${dto.email}: ${(verifyError as Error).message}`,
+      );
+      appError(
+        HttpStatus.SERVICE_UNAVAILABLE,
+        'Account sync is temporarily unavailable',
+        ErrorCode.INTERNAL_ERROR,
+      );
+    }
 
     if (error || !data.user) {
       this.logger.error(
@@ -914,7 +929,9 @@ export class AuthService {
       );
     }
 
-    if (data.user.email !== dto.email) {
+    const verifiedEmail = data.user.email?.trim().toLowerCase();
+    const dtoEmail = dto.email?.trim().toLowerCase();
+    if (!verifiedEmail || !dtoEmail || verifiedEmail !== dtoEmail) {
       this.logger.error(
         `Email mismatch: Supabase=${data.user.email}, DTO=${dto.email}`,
       );
@@ -927,6 +944,13 @@ export class AuthService {
 
     // Ensure fullName has a meaningful default
     const fullName = dto.fullName?.trim() || 'User';
+    const metadata = data.user.user_metadata ?? {};
+    const googleId =
+      (typeof metadata.provider_id === 'string' && metadata.provider_id) ||
+      (typeof metadata.sub === 'string' && metadata.sub) ||
+      data.user.identities?.find((identity) => identity.provider === 'google')
+        ?.identity_data?.sub ||
+      null;
 
     this.logger.log(
       `Identity verified for ${dto.email}. Provider: ${dto.provider}. Profile: fullName="${fullName}", hasAvatar=${!!dto.avatarUrl}`,
@@ -934,12 +958,13 @@ export class AuthService {
 
     // 2. Sync/create user with profile data
     const user = await this.prisma.user.upsert({
-      where: { email: dto.email },
+      where: { email: verifiedEmail },
       create: {
-        email: dto.email,
+        email: verifiedEmail,
         fullName, // Use the ensured fullName
         avatarUrl: dto.avatarUrl || null,
         bio: dto.bio || null,
+        googleId,
         emailVerified: true,
         referralCode: randomUUID(),
       },
@@ -947,6 +972,7 @@ export class AuthService {
         fullName: fullName || undefined, // Update if we have a meaningful name
         avatarUrl: dto.avatarUrl || undefined,
         bio: dto.bio || undefined,
+        googleId: googleId || undefined,
         emailVerified: true,
       },
     });

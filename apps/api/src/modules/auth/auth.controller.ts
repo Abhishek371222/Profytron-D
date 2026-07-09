@@ -224,7 +224,8 @@ export class AuthController {
   @Public()
   @Post('supabase')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  // OAuth callbacks can fire twice (React Strict Mode) and users retry quickly.
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
   @ApiResponse({ status: 200, description: 'Synchronized — tokens issued' })
   @ApiResponse({ status: 401, description: 'Invalid Supabase token' })
   @ApiOperation({

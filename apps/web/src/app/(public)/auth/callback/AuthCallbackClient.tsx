@@ -1,20 +1,78 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
 import { resolvePostLoginRedirect } from '@/lib/utils';
+import type { AxiosError } from 'axios';
+
+const SYNC_MAX_ATTEMPTS = 4;
+const SYNC_RETRY_DELAYS_MS = [0, 800, 2000, 4000];
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function resolveOAuthEmail(
+  user: NonNullable<
+    Awaited<ReturnType<NonNullable<typeof supabase>['auth']['getSession']>>['data']['session']
+  >['user'],
+) {
+  const metadata = user.user_metadata ?? {};
+  return (
+    user.email ||
+    (typeof metadata.email === 'string' ? metadata.email : null) ||
+    null
+  );
+}
+
+function mapSyncError(error: unknown): string {
+  const status = (error as AxiosError)?.response?.status;
+  if (status === 429) return 'rate_limited';
+  if (status === 503) return 'backend_unavailable';
+  if (status === 401) return 'sync_failed';
+  return 'sync_failed';
+}
+
+async function syncSupabaseSession(payload: {
+  token: string;
+  email: string;
+  fullName: string;
+  avatarUrl?: string;
+  provider: string;
+}) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < SYNC_MAX_ATTEMPTS; attempt += 1) {
+    if (SYNC_RETRY_DELAYS_MS[attempt] > 0) {
+      await sleep(SYNC_RETRY_DELAYS_MS[attempt]);
+    }
+    try {
+      return await apiClient.post('/auth/supabase', payload);
+    } catch (error) {
+      lastError = error;
+      const status = (error as AxiosError)?.response?.status;
+      if (status !== 429 && status !== 502 && status !== 503 && status !== 504) {
+        throw error;
+      }
+    }
+  }
+  throw lastError;
+}
 
 export default function AuthCallbackClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuthStore();
+  const syncStartedRef = useRef(false);
 
   useEffect(() => {
     const handleCallback = async () => {
+      if (syncStartedRef.current) return;
+      syncStartedRef.current = true;
+
       // NestJS OAuth (Google/GitHub) returns a one-time code. Exchanging it here
       // (on this public route, proxied through our own origin) sets the
       // refresh_token cookie scoped to the frontend domain, so the middleware
@@ -94,7 +152,7 @@ export default function AuthCallbackClient() {
         error = retry.error;
       }
 
-      if (error || !session) {
+      if (error || !session?.access_token) {
         console.error('Supabase session retrieval failed:', error);
         router.push('/login?error=auth_failed');
         return;
@@ -102,10 +160,17 @@ export default function AuthCallbackClient() {
 
       try {
         const metadata = session.user.user_metadata ?? {};
+        const email = resolveOAuthEmail(session.user);
+        if (!email) {
+          console.error('Supabase session is missing an email address');
+          router.push('/login?error=auth_failed');
+          return;
+        }
+
         const fullName =
           metadata.full_name ||
           metadata.name ||
-          session.user.email?.split('@')[0] ||
+          email.split('@')[0] ||
           'User';
         const avatarUrl =
           metadata.avatar_url || metadata.picture || metadata.avatar;
@@ -114,23 +179,35 @@ export default function AuthCallbackClient() {
           session.user.identities?.[0]?.provider ||
           'oauth';
 
-        const response = await apiClient.post('/auth/supabase', {
+        const response = await syncSupabaseSession({
           token: session.access_token,
-          email: session.user.email,
+          email,
           fullName,
           avatarUrl,
           provider,
         });
-        const data = unwrapApiResponse<{ accessToken: string; user: any }>(
-          response.data,
-        );
+        const data = unwrapApiResponse<
+          | { accessToken: string; user: any }
+          | { requiresTwoFa: true; challengeToken: string }
+        >(response.data);
 
-        login(data.accessToken, data.user);
+        if ('requiresTwoFa' in data && data.requiresTwoFa) {
+          router.push(
+            `/login?twoFaChallenge=${encodeURIComponent(data.challengeToken)}&redirect=${encodeURIComponent(searchParams.get('redirect') || '/dashboard')}`,
+          );
+          return;
+        }
+
+        const { accessToken, user } = data as {
+          accessToken: string;
+          user: any;
+        };
+        login(accessToken, user);
         const redirectTo = searchParams.get('redirect') || '/dashboard';
-        router.replace(resolvePostLoginRedirect(data.user, redirectTo));
+        router.replace(resolvePostLoginRedirect(user, redirectTo));
       } catch (e) {
         console.error('Backend synchronization failed:', e);
-        router.push('/login?error=sync_failed');
+        router.push(`/login?error=${mapSyncError(e)}`);
       }
     };
 
