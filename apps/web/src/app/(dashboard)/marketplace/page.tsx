@@ -300,6 +300,7 @@ function MarketplacePageInner() {
                   <input
                     type="text"
                     placeholder="Search bots, developers…"
+                    aria-label="Search bots and developers"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="h-[var(--control-h-sm)] min-h-[var(--touch-min)] w-full min-w-0 rounded-[var(--radius-input)] border border-[var(--card-border)] bg-card pl-9 pr-3 text-sm outline-none transition-colors duration-200 focus:border-[color-mix(in_srgb,var(--primary)_40%,var(--card-border))] sm:w-52 md:w-64"

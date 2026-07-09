@@ -48,11 +48,13 @@ COPY --from=builder /app/apps/api/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
 COPY --from=builder /app/apps/api/package.json ./package.json
+COPY apps/api/docker-entrypoint.sh ./docker-entrypoint.sh
 
 # Run as the unprivileged `node` user (uid 1000, ships with the base image)
 # instead of root. Only the writable logs directory is chowned; the rest of the
 # app stays root-owned and read-only, which is the desired least-privilege setup.
-RUN mkdir -p /app/apps/api/logs && chown -R node:node /app/apps/api/logs
+RUN chmod +x ./docker-entrypoint.sh && \
+    mkdir -p /app/apps/api/logs && chown -R node:node /app/apps/api/logs
 USER node
 
 EXPOSE 4000
@@ -63,4 +65,4 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
   CMD node -e "const p=process.env.PORT||process.env.API_PORT||4000;require('http').get('http://127.0.0.1:'+p+'/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
-CMD ["node", "dist/src/main"]
+CMD ["./docker-entrypoint.sh"]

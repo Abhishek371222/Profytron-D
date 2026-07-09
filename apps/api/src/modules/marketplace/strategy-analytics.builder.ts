@@ -373,8 +373,8 @@ export function buildStrategyAnalytics(input: {
       backtestPeriod:
         (config.backtestPeriod as string) || 'Multi-year historical',
       dataSource: input.masterBrokerAccountId
-        ? 'MetaAPI Live Feed'
-        : 'Strategy Performance Ledger',
+        ? 'Live Trading Feed'
+        : 'Performance Ledger',
       trackRecordSince: input.createdAt.toISOString().slice(0, 10),
     },
     recommendations: {
@@ -382,10 +382,10 @@ export function buildStrategyAnalytics(input: {
       recommendedLeverage: (config.recommendedLeverage as string) || '1:100',
       leverageWarning:
         (config.leverageWarning as string) ||
-        'Use at least 1:100 leverage to align with the operator bot risk model. Lower leverage may cause margin rejections on mirrored positions.',
+        'Use at least 1:100 leverage to align with the operator bot risk model. Lower leverage may cause margin rejections on automated positions.',
       riskNote:
         (config.riskNote as string) ||
-        'Capital below the minimum may trigger lot-size rounding and amplified drawdown relative to the master account.',
+        'Capital below the minimum may trigger lot-size rounding and amplified drawdown relative to the reference account.',
     },
     meta: {
       performanceDays: performance.length,

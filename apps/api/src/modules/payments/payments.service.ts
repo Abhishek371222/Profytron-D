@@ -19,11 +19,13 @@ import {
   ActivationService,
   ACTIVATION_EVENTS,
 } from '../growth/activation.service';
-import { SubscriptionTier } from '@prisma/client';
+import { SubscriptionTier, SubscriptionStatus } from '@prisma/client';
 import { PLATFORM_PLANS } from '../../common/constants/pricing.constants';
 import { AgentEventService } from '../agents/agent-event.service';
 import { AGENT_EVENTS } from '../agents/agent.types';
 import { EmailService } from '../email/email.service';
+import { SubscriptionProvisioningService } from '../provisioning/subscription-provisioning.service';
+import { requireActiveMt5Broker } from '../../common/utils/broker-requirement.util';
 
 @Injectable()
 export class PaymentsService {
@@ -40,6 +42,7 @@ export class PaymentsService {
     private readonly activationService: ActivationService,
     private readonly agentEvents: AgentEventService,
     private readonly emailService: EmailService,
+    private readonly provisioning: SubscriptionProvisioningService,
     @Inject(REDIS_CLIENT) private readonly redis: IORedis,
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
@@ -182,6 +185,25 @@ export class PaymentsService {
     const amountRupees = Number(stored.amount) / 100;
     const notes = stored.notes ?? {};
 
+    if (notes.type === 'marketplace_subscription' && notes.strategyId) {
+      await this.activateSubscription(
+        userId,
+        notes.strategyId,
+        notes.planType ?? 'MONTHLY',
+        { id: paymentId, amount_total: stored.amount },
+      );
+      await this.redis.del(this.demoOrderRedisKey(orderId));
+      return {
+        success: true,
+        orderId,
+        paymentId,
+        amount: amountRupees,
+        currency: stored.currency,
+        demo: true,
+        provisioning: true,
+      };
+    }
+
     await this.creditWallet(
       userId,
       amountRupees,
@@ -202,6 +224,11 @@ export class PaymentsService {
         paymentId,
         amountRupees,
       );
+    } else if (notes.type === 'marketplace_subscription' && notes.strategyId) {
+      await this.activateSubscription(userId, notes.strategyId, notes.planType ?? 'MONTHLY', {
+        id: paymentId,
+        amount_total: stored.amount,
+      });
     } else {
       await this.activationService.track(
         userId,
@@ -299,25 +326,45 @@ export class PaymentsService {
     const creditUserId = orderUserId || userId;
     const amountRupees = Number(order.amount) / 100;
 
-    await this.creditWallet(
-      creditUserId,
-      amountRupees,
-      'DEPOSIT',
-      {
-        source: 'razorpay_checkout',
-        orderId: razorpay_order_id,
-        paymentId: razorpay_payment_id,
-      },
-      `razorpay_payment_${razorpay_payment_id}`,
-    );
+    const isMarketplacePayment =
+      orderNotes.type === 'marketplace_subscription' && orderNotes.strategyId;
+    const isPlatformPayment =
+      orderNotes.type === 'platform_subscription' && orderNotes.planId;
 
-    if (orderNotes.type === 'platform_subscription' && orderNotes.planId) {
+    if (!isMarketplacePayment) {
+      await this.creditWallet(
+        creditUserId,
+        amountRupees,
+        'DEPOSIT',
+        {
+          source: 'razorpay_checkout',
+          orderId: razorpay_order_id,
+          paymentId: razorpay_payment_id,
+        },
+        `razorpay_payment_${razorpay_payment_id}`,
+      );
+    }
+
+    if (isPlatformPayment) {
       await this.activatePlatformSubscriptionFromPayment(
         creditUserId,
         orderNotes.planId,
         orderNotes.billingCycle ?? 'MONTHLY',
         razorpay_payment_id,
         amountRupees,
+      );
+    } else if (
+      orderNotes.type === 'marketplace_subscription' &&
+      orderNotes.strategyId
+    ) {
+      await this.activateSubscription(
+        creditUserId,
+        orderNotes.strategyId,
+        orderNotes.planType ?? 'MONTHLY',
+        {
+          id: razorpay_payment_id,
+          amount_total: order.amount,
+        },
       );
     } else {
       await this.activationService.track(
@@ -338,12 +385,16 @@ export class PaymentsService {
 
     await this.notifications.create({
       userId: creditUserId,
-      title: 'Deposit Successful',
-      message: `₹${amountRupees.toFixed(2)} has been added to your wallet.`,
+      title: isMarketplacePayment
+        ? 'Payment Received'
+        : 'Deposit Successful',
+      message: isMarketplacePayment
+        ? `Your bot subscription payment of ₹${amountRupees.toFixed(2)} was confirmed. Setup is in progress.`
+        : `₹${amountRupees.toFixed(2)} has been added to your wallet.`,
       type: 'SUCCESS',
       category: 'PAYMENT',
       priority: 'HIGH',
-      actionUrl: '/wallet',
+      actionUrl: isMarketplacePayment ? '/my-bots' : '/wallet',
       sendPush: true,
     });
 
@@ -365,7 +416,9 @@ export class PaymentsService {
               description:
                 orderNotes.type === 'platform_subscription'
                   ? 'Platform subscription'
-                  : 'Wallet deposit',
+                  : orderNotes.type === 'marketplace_subscription'
+                    ? 'Bot subscription'
+                    : 'Wallet deposit',
             },
             creditUserId,
           );
@@ -551,6 +604,22 @@ export class PaymentsService {
         return { ok: true };
       }
 
+      if (notes.type === 'marketplace_subscription' && strategyId) {
+        await this.activateSubscription(userId, strategyId, planType, {
+          id: paymentEntity.id,
+          amount_total: paymentEntity.amount,
+        });
+        void this.agentEvents.emit({
+          type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
+          entityType: 'payment',
+          entityId: paymentEntity.id,
+          userId,
+          payload: { strategyId, type: 'marketplace_subscription' },
+          idempotencyKey: `payment-ok:${paymentEntity.id}`,
+        });
+        return { ok: true };
+      }
+
       await this.creditWallet(
         userId,
         Number(paymentEntity.amount || 0) / 100,
@@ -558,14 +627,6 @@ export class PaymentsService {
         { source: 'razorpay', paymentId: paymentEntity.id },
         `razorpay_payment_${paymentEntity.id}`,
       );
-
-      // If this payment is for a strategy subscription, activate it
-      if (strategyId) {
-        await this.activateSubscription(userId, strategyId, planType, {
-          id: paymentEntity.id,
-          amount_total: paymentEntity.amount,
-        });
-      }
 
       void this.agentEvents.emit({
         type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
@@ -660,6 +721,7 @@ export class PaymentsService {
         strategy: {
           select: {
             id: true,
+            name: true,
             creatorId: true,
           },
         },
@@ -669,6 +731,8 @@ export class PaymentsService {
     if (!listing) {
       throw new BadRequestException('Strategy listing not found');
     }
+
+    const followerBroker = await requireActiveMt5Broker(this.prisma, userId);
 
     const currentPeriodEndUnix =
       stripeObject.current_period_end ||
@@ -688,16 +752,7 @@ export class PaymentsService {
     const creatorShare = paidAmount * (listing.creatorSharePct ?? 0.8);
     const platformShare = Math.max(0, paidAmount - creatorShare);
 
-    const followerBroker = await this.prisma.brokerAccount.findFirst({
-      where: {
-        userId,
-        isActive: true,
-        isPaperTrading: false,
-        brokerName: { in: ['MT4', 'MT5'] },
-      },
-      orderBy: [{ isDefault: 'desc' }, { connectedAt: 'desc' }],
-      select: { id: true },
-    });
+    const followerBrokerId = followerBroker.id;
 
     const paymentReference =
       typeof stripeObject.subscription === 'string'
@@ -712,19 +767,19 @@ export class PaymentsService {
         create: {
           userId,
           strategyId,
-          status: 'ACTIVE',
+          status: SubscriptionStatus.PROVISIONING,
           planType,
           stripeSubId: paymentReference,
-          brokerAccountId: followerBroker?.id ?? null,
+          brokerAccountId: followerBrokerId,
           subscribedAt: new Date(),
           expiresAt,
           trialEndsAt: null,
         },
         update: {
-          status: 'ACTIVE',
+          status: SubscriptionStatus.PROVISIONING,
           planType,
           stripeSubId: paymentReference ?? undefined,
-          brokerAccountId: followerBroker?.id ?? undefined,
+          brokerAccountId: followerBrokerId,
           subscribedAt: new Date(),
           expiresAt,
           trialEndsAt: null,
@@ -781,24 +836,17 @@ export class PaymentsService {
       );
     }
 
-    await this.notifications.create(
-      userId,
-      'Subscription Active',
-      'Your marketplace subscription is now active.',
-      'SUCCESS',
-    );
-
-    this.tradingGateway.sendToUser(userId, 'strategy_activated', {
-      strategyId,
-      planType,
-      activatedAt: new Date().toISOString(),
-    });
-
     const subscription = await this.prisma.userStrategySubscription.findUnique({
       where: { userId_strategyId: { userId, strategyId } },
       select: { id: true },
     });
     if (subscription) {
+      await this.provisioning.startProvisioning(
+        subscription.id,
+        userId,
+        strategyId,
+        listing.strategy.name,
+      );
       await this.copyFactorySync.enqueueLinkSubscription(subscription.id);
     }
   }

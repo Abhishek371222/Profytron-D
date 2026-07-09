@@ -10,6 +10,28 @@ export class FcmService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   onModuleInit() {
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+    if (serviceAccountPath) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const serviceAccount = require(serviceAccountPath);
+        if (!admin.apps.length) {
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+          });
+        }
+        this.initialized = true;
+        this.logger.log(
+          'Firebase Admin initialized from service account file — FCM active',
+        );
+        return;
+      } catch (err) {
+        this.logger.error(
+          `Failed to load FIREBASE_SERVICE_ACCOUNT_PATH: ${(err as Error).message}`,
+        );
+      }
+    }
+
     const projectId = process.env.FIREBASE_PROJECT_ID;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');

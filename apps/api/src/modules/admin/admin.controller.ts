@@ -25,6 +25,7 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { RiskLevel, StrategyCategory, UserRole } from '@prisma/client';
+import { StrategyDocumentsService } from '../marketplace/strategy-documents.service';
 import { Request } from 'express';
 
 type AdminRequest = Request & { user: { id: string; role: string } };
@@ -41,6 +42,7 @@ export class AdminController {
   constructor(
     private adminService: AdminService,
     private tradingService: TradingService,
+    private strategyDocuments: StrategyDocumentsService,
   ) {}
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -258,6 +260,54 @@ export class AdminController {
       throw new BadRequestException('Uploaded file is required');
     }
     return this.adminService.parseStrategyPdf(file);
+  }
+
+  @ApiResponse({ status: 201, description: 'Created' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({ summary: 'Upload a PDF document for a bot strategy' })
+  @Post('strategies/:strategyId/documents')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 20 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        if (file.mimetype !== 'application/pdf') {
+          cb(new BadRequestException('Only PDF files are supported'), false);
+        } else {
+          cb(null, true);
+        }
+      },
+    }),
+  )
+  async uploadStrategyDocument(
+    @Param('strategyId') strategyId: string,
+    @Req() req: AdminRequest,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('title') title?: string,
+    @Body('description') description?: string,
+    @Body('sortOrder') sortOrder?: string,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Uploaded file is required');
+    }
+    return this.strategyDocuments.uploadDocument(
+      strategyId,
+      req.user.id,
+      file,
+      title,
+      description,
+      sortOrder !== undefined ? Number(sortOrder) : undefined,
+    );
+  }
+
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Delete a strategy document' })
+  @Delete('strategies/:strategyId/documents/:documentId')
+  async deleteStrategyDocument(
+    @Param('strategyId') strategyId: string,
+    @Param('documentId') documentId: string,
+  ) {
+    await this.strategyDocuments.deleteDocument(strategyId, documentId);
+    return { ok: true };
   }
 
   @ApiResponse({ status: 200, description: 'OK' })

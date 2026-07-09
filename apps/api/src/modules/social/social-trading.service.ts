@@ -46,17 +46,21 @@ export class SocialTradingService {
     });
   }
 
-  async getFollowers(userId: string) {
+  async getFollowers(userId: string, limit = 100, skip = 0) {
     return this.prisma.socialFollow.findMany({
       where: { followingId: userId },
       include: { follower: true },
+      take: Math.min(limit, 200),
+      skip,
     });
   }
 
-  async getFollowing(userId: string) {
+  async getFollowing(userId: string, limit = 100, skip = 0) {
     return this.prisma.socialFollow.findMany({
       where: { followerId: userId },
       include: { following: true },
+      take: Math.min(limit, 200),
+      skip,
     });
   }
 
@@ -71,13 +75,15 @@ export class SocialTradingService {
     });
   }
 
-  async getTradeComments(tradeId: string) {
+  async getTradeComments(tradeId: string, limit = 100, skip = 0) {
     return this.prisma.socialComment.findMany({
       where: { tradeId },
       include: {
         user: { select: { id: true, fullName: true, avatarUrl: true } },
       },
       orderBy: { createdAt: 'desc' },
+      take: Math.min(limit, 200),
+      skip,
     });
   }
 

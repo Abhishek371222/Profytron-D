@@ -189,6 +189,37 @@ export default function MarketplaceStrategyDetailPage() {
 
       <StrategyAnalyticsDashboard strategyId={strategyId} />
 
+      {(detail?.documents?.length ?? 0) > 0 && (
+        <DashboardCard className="p-6">
+          <DashSectionTitle className="mb-4">Reports & Documents</DashSectionTitle>
+          <div className="grid gap-3 md:grid-cols-2">
+            {detail.documents.map((doc: {
+              id: string;
+              title: string;
+              description?: string | null;
+              downloadUrl: string;
+              fileSizeBytes: number;
+            }) => (
+              <a
+                key={doc.id}
+                href={doc.downloadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="dashboard-card flex flex-col gap-1 p-4 transition-colors hover:border-primary/30"
+              >
+                <span className="text-sm font-semibold text-foreground">{doc.title}</span>
+                {doc.description && (
+                  <span className="text-caption text-muted-foreground line-clamp-2">{doc.description}</span>
+                )}
+                <span className="text-micro text-primary mt-1">
+                  Download PDF · {(doc.fileSizeBytes / 1024 / 1024).toFixed(1)} MB
+                </span>
+              </a>
+            ))}
+          </div>
+        </DashboardCard>
+      )}
+
       <DashboardCard className="p-6">
         <DashSectionTitle className="mb-4">Country Usage</DashSectionTitle>
         <div className="grid gap-3 md:grid-cols-2">

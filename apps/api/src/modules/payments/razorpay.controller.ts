@@ -23,7 +23,7 @@ export class RazorpayController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post('order')
-  @ApiOperation({ summary: 'Create a Razorpay order for wallet deposit' })
+  @ApiOperation({ summary: 'Create a Razorpay Standard Checkout order' })
   @ApiResponse({ status: 201, description: 'Order created' })
   @ApiResponse({ status: 400, description: 'Invalid amount' })
   async createOrder(@Req() req: any, @Body() body: CreateRazorpayOrderDto) {

@@ -1,4 +1,4 @@
-import { Process, Processor } from '@nestjs/bull';
+import { Process, Processor, OnQueueFailed } from '@nestjs/bull';
 import { Logger } from '@nestjs/common';
 import type { Job } from 'bull';
 import { SubscriptionStatus } from '@prisma/client';
@@ -7,6 +7,7 @@ import { CryptoService } from '../../common/crypto.service';
 import { isPaidCopySubscription } from '../../common/utils/copy-subscription.util';
 import { CopyFactoryService } from './copy-factory.service';
 import type { CopyFactorySyncJob } from './copy-factory-sync.service';
+import { SubscriptionProvisioningService } from '../provisioning/subscription-provisioning.service';
 
 @Processor('copyfactory_sync')
 export class CopyFactoryProcessor {
@@ -16,12 +17,16 @@ export class CopyFactoryProcessor {
     private readonly prisma: PrismaService,
     private readonly crypto: CryptoService,
     private readonly copyFactory: CopyFactoryService,
+    private readonly provisioning: SubscriptionProvisioningService,
   ) {}
 
   @Process('sync_copyfactory')
   async handle(job: Job<CopyFactorySyncJob>) {
     if (!this.copyFactory.isEnabled()) {
-      this.logger.debug('CopyFactory disabled — job ignored');
+      this.logger.debug('CopyFactory disabled — completing provisioning without link');
+      if (job.data.subscriptionId) {
+        await this.completeWithoutCopyFactory(job.data.subscriptionId);
+      }
       return;
     }
 
@@ -45,6 +50,49 @@ export class CopyFactoryProcessor {
       if (userId) {
         await this.linkAllForUser(userId);
       }
+    }
+  }
+
+  @OnQueueFailed({ name: 'sync_copyfactory' })
+  async onFailed(job: Job<CopyFactorySyncJob>, error: Error) {
+    if (job.data.action !== 'link' || !job.data.subscriptionId) return;
+
+    const sub = await this.prisma.userStrategySubscription.findUnique({
+      where: { id: job.data.subscriptionId },
+      include: { strategy: { select: { id: true, name: true } } },
+    });
+    if (!sub || sub.status !== SubscriptionStatus.PROVISIONING) return;
+
+    await this.provisioning.recordProvisioningAttempt(
+      job.data.subscriptionId,
+      error.message,
+    );
+
+    const maxAttempts = job.opts.attempts ?? 4;
+    if (job.attemptsMade >= maxAttempts) {
+      await this.provisioning.failProvisioning(
+        job.data.subscriptionId,
+        sub.userId,
+        sub.strategyId,
+        sub.strategy.name,
+        error.message,
+      );
+    }
+  }
+
+  private async completeWithoutCopyFactory(subscriptionId: string) {
+    const sub = await this.prisma.userStrategySubscription.findUnique({
+      where: { id: subscriptionId },
+      include: { strategy: { select: { id: true, name: true } } },
+    });
+    if (!sub) return;
+    if (sub.status === SubscriptionStatus.PROVISIONING) {
+      await this.provisioning.completeProvisioning(
+        subscriptionId,
+        sub.userId,
+        sub.strategyId,
+        sub.strategy.name,
+      );
     }
   }
 
@@ -102,8 +150,24 @@ export class CopyFactoryProcessor {
       },
     });
 
-    if (!sub || !sub.strategy.masterBrokerAccountId) return;
+    if (!sub) return;
+
+    // Bots without a hidden operator account activate immediately.
+    if (!sub.strategy.masterBrokerAccountId) {
+      if (sub.status === SubscriptionStatus.PROVISIONING) {
+        await this.provisioning.completeProvisioning(
+          subscriptionId,
+          sub.userId,
+          sub.strategyId,
+          sub.strategy.name,
+        );
+      }
+      return;
+    }
+
     if (!isPaidCopySubscription(sub)) return;
+
+    await this.provisioning.recordProvisioningAttempt(subscriptionId);
 
     let cfStrategyId = sub.strategy.copyFactoryStrategyId;
     if (!cfStrategyId) {
@@ -114,21 +178,24 @@ export class CopyFactoryProcessor {
       });
       cfStrategyId = refreshed?.copyFactoryStrategyId ?? null;
     }
-    if (!cfStrategyId) return;
+    if (!cfStrategyId) {
+      throw new Error('CopyFactory strategy could not be provisioned');
+    }
 
     const broker = await this.resolveBrokerAccount(
       sub.userId,
       sub.brokerAccountId,
     );
     if (!broker) {
-      this.logger.warn(
-        `Subscription ${subscriptionId}: no MT5 broker to link for user ${sub.userId}`,
+      throw new Error(
+        `No MT5 trading account available for user ${sub.userId}`,
       );
-      return;
     }
 
     const creds = JSON.parse(this.crypto.decrypt(broker.credentialsEncrypted));
-    if (!creds.metaApiAccountId) return;
+    if (!creds.metaApiAccountId) {
+      throw new Error('Broker account missing MetaAPI connection');
+    }
 
     await this.copyFactory.linkSubscriber({
       subscriberMetaApiAccountId: creds.metaApiAccountId,
@@ -136,6 +203,15 @@ export class CopyFactoryProcessor {
       multiplier: sub.lotMultiplier ?? 1,
       subscriberName: sub.user.fullName || sub.user.email,
     });
+
+    if (sub.status === SubscriptionStatus.PROVISIONING) {
+      await this.provisioning.completeProvisioning(
+        subscriptionId,
+        sub.userId,
+        sub.strategyId,
+        sub.strategy.name,
+      );
+    }
   }
 
   private async unlinkOne(subscriptionId: string) {
@@ -169,7 +245,7 @@ export class CopyFactoryProcessor {
     const subs = await this.prisma.userStrategySubscription.findMany({
       where: {
         userId,
-        status: SubscriptionStatus.ACTIVE,
+        status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PROVISIONING] },
         strategy: { masterBrokerAccountId: { not: null } },
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },

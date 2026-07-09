@@ -6,8 +6,21 @@ const backendApiOrigin =
   process.env.BACKEND_API_ORIGIN ||
   "http://localhost:4000";
 
+function backendWsOrigin(origin: string): string {
+  try {
+    const url = new URL(origin);
+    url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+    return url.origin;
+  } catch {
+    return "";
+  }
+}
+
+const backendWs = backendWsOrigin(backendApiOrigin);
+
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // Standalone is for self-hosted Docker; Vercel manages output itself.
+  ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
   transpilePackages: ["lucide-react"],
   reactCompiler: true,
   poweredByHeader: false,
@@ -57,6 +70,7 @@ const nextConfig: NextConfig = {
       { source: '/documentation', destination: '/docs', permanent: true },
       { source: '/signup', destination: '/register', permanent: true },
       { source: '/press', destination: '/', permanent: true },
+      { source: '/copy-trading', destination: '/my-bots', permanent: false },
     ];
   },
 
@@ -113,7 +127,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              `connect-src 'self' ${backendApiOrigin} https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com`,
+              `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io`,
               // Razorpay/Stripe render their payment UI inside iframes.
               "frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://js.stripe.com https://hooks.stripe.com",
               "frame-ancestors 'none'",

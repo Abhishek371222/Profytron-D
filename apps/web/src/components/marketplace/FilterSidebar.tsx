@@ -102,6 +102,7 @@ function FilterContent({
             step="500"
             value={price}
             onChange={(e) => onChange({ ...value, priceMax: parseInt(e.target.value, 10) })}
+            aria-label="Maximum price"
             className="marketplace-range h-1.5 w-full cursor-pointer appearance-none rounded-full"
           />
           <div className="flex justify-between px-1 text-[11px] font-medium text-muted-foreground">
@@ -216,6 +217,7 @@ function FilterContent({
                 verifiedOnly ? "bg-primary" : "bg-[color-mix(in_srgb,var(--muted)_80%,transparent)]",
               )}
               aria-pressed={verifiedOnly}
+              aria-label="Show verified creators only"
             >
               <div
                 className={cn(

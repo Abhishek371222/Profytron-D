@@ -63,6 +63,10 @@ export function useDashboardRealtime(enabled = true) {
         invalidate('open-trades', 'portfolio', 'dashboard-risk', 'copy-subscriptions');
       }),
       onTradingEvent('strategy_activated', () => invalidate('my-strategies', 'copy-subscriptions')),
+      onTradingEvent('bot_activated', () => invalidate('my-strategies', 'copy-subscriptions')),
+      onTradingEvent('subscription_status_changed', () =>
+        invalidate('my-strategies', 'copy-subscriptions', 'marketplace-strategy'),
+      ),
       onTradingEvent('new_notification', (payload: any) => {
         invalidate('notifications-unread');
         // Show a toast for the incoming notification

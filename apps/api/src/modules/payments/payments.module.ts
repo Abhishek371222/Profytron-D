@@ -10,6 +10,7 @@ import { CopyFactoryModule } from '../copy-factory/copy-factory.module';
 import { AffiliatesModule } from '../affiliates/affiliates.module';
 import { GrowthModule } from '../growth/growth.module';
 import { AgentsModule } from '../agents/agents.module';
+import { ProvisioningModule } from '../provisioning/provisioning.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AgentsModule } from '../agents/agents.module';
     AffiliatesModule,
     GrowthModule,
     AgentsModule,
+    ProvisioningModule,
   ],
   controllers: [
     PaymentsController,

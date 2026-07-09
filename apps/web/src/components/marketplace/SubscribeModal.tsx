@@ -1,14 +1,18 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2, X, Sparkles, Zap, Calendar, Infinity as InfinityIcon } from 'lucide-react';
+import { ArrowRight, CheckCircle2, X, Sparkles, Zap, Calendar, Infinity as InfinityIcon, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { marketplaceApi, PlanType } from '@/lib/api/marketplace';
+import { razorpayApi } from '@/lib/api/razorpay';
+import { openRazorpayCheckout } from '@/lib/razorpay/load-checkout';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { formatBotName } from '@/lib/bot-labels';
+import { formatApiErrorMessage, formatBotName } from '@/lib/bot-labels';
 import { useCurrency } from '@/lib/hooks/useCurrency';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
 
 interface SubscribeModalProps {
   strategy: any;
@@ -30,11 +34,13 @@ const ACCENT_STYLES: Record<string, { border: string; bg: string; ring: string; 
 
 export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProps) {
   const { currency, formatPrice } = useCurrency();
+  const user = useAuthStore((s) => s.user);
   const [step, setStep] = React.useState<1 | 2>(1);
   const [planType, setPlanType] = React.useState<PlanType>('ANNUAL');
   const [useTrial, setUseTrial] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
+  const [isProvisioning, setIsProvisioning] = React.useState(false);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -43,6 +49,7 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
       setUseTrial(false);
       setIsSubmitting(false);
       setShowSuccess(false);
+      setIsProvisioning(false);
     }
   }, [isOpen]);
 
@@ -57,23 +64,104 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
 
   const planPrice = priceFor(planType);
 
+  const handleRazorpayCheckout = async (response: {
+    orderId: string;
+    amount: number;
+    currency: string;
+    razorpayKeyId: string;
+    demo?: boolean;
+  }) => {
+    if (response.demo) {
+      await razorpayApi.completeDemoOrder(response.orderId);
+      setIsProvisioning(true);
+      setShowSuccess(true);
+      toast.success('Payment confirmed — your bot is being set up');
+      return;
+    }
+
+    await openRazorpayCheckout({
+      keyId: response.razorpayKeyId,
+      orderId: response.orderId,
+      amount: response.amount,
+      currency: response.currency,
+      name: 'Profytron',
+      description: `${formatBotName(strategy.name)} subscription`,
+      prefill: {
+        name: user?.fullName,
+        email: user?.email,
+      },
+      onSuccess: async (payload) => {
+        await razorpayApi.verifyPayment(payload);
+        setIsProvisioning(true);
+        setShowSuccess(true);
+        toast.success('Payment confirmed — your bot is being set up');
+      },
+      onDismiss: () => {
+        toast.info('Payment cancelled');
+      },
+      onFailed: (description) => {
+        toast.error(description || 'Payment failed');
+      },
+    });
+  };
+
   const submit = async () => {
     setIsSubmitting(true);
     try {
       const response = await marketplaceApi.subscribe(strategy.id, { planType, useTrial });
 
       if (!response.requiresPayment) {
+        setIsProvisioning(Boolean(response.provisioning));
         setShowSuccess(true);
-        toast.success(response.trial ? 'Trial activated successfully' : 'Subscription activated');
+        toast.success(
+          response.provisioning
+            ? 'Subscription processing — your bot will activate shortly'
+            : response.trial
+              ? 'Trial activated successfully'
+              : 'Subscription activated',
+        );
         return;
       }
+
+      if (response.paymentProvider === 'razorpay' && response.orderId && response.razorpayKeyId) {
+        await handleRazorpayCheckout({
+          orderId: response.orderId,
+          amount: response.amount,
+          currency: response.currency ?? 'INR',
+          razorpayKeyId: response.razorpayKeyId,
+          demo: response.demo,
+        });
+        return;
+      }
+
       if (response.checkoutUrl) {
         window.location.href = response.checkoutUrl;
         return;
       }
-      toast.error('Checkout URL was not returned by server');
+
+      toast.error('Checkout was not returned by server');
     } catch (error: any) {
-      toast.error(error?.response?.data?.error || error?.response?.data?.message || 'Failed to subscribe to strategy');
+      const code = error?.response?.data?.code;
+      const rawMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        'Failed to subscribe to this bot';
+      const message = formatApiErrorMessage(rawMessage);
+
+      if (code === 'BROKER_REQUIRED' || error?.response?.status === 428) {
+        toast.error('Connect your MT5 account first', {
+          description: message,
+          action: {
+            label: 'Connect MT5',
+            onClick: () => {
+              window.location.href = '/connected-accounts';
+            },
+          },
+        });
+        return;
+      }
+
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +171,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -93,7 +180,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
             className="absolute inset-0 bg-black/85 backdrop-blur-xl"
           />
 
-          {/* Panel */}
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.94 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -104,16 +190,13 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
               'dashboard-card shadow-[var(--shadow-lg)]',
             )}
           >
-            {/* Ambient corner glows */}
             <div className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 rounded-full bg-primary/15 blur-[80px]" />
             <div className="pointer-events-none absolute -bottom-24 -left-24 w-64 h-64 rounded-full bg-chart-2/10 blur-[80px]" />
-
-            {/* Top hairline */}
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
-            {/* Close button */}
             <button
               onClick={onClose}
+              aria-label="Close subscribe dialog"
               className="absolute right-4 top-4 z-10 grid place-items-center w-8 h-8 rounded-full border border-[var(--card-border)] bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-all"
             >
               <X className="h-4 w-4" />
@@ -121,7 +204,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
 
             <div className="relative p-7 sm:p-9">
               {showSuccess ? (
-                /* ─────────── SUCCESS STATE ─────────── */
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -134,18 +216,28 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                       transition={{ duration: 2, repeat: Infinity }}
                       className="absolute inset-0 rounded-full border-2 border-chart-3/60"
                     />
-                    <motion.div
-                      animate={{ scale: [1, 1.4], opacity: [0.3, 0] }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                      className="absolute inset-0 rounded-full border-2 border-chart-3/40"
-                    />
                     <div className="relative w-20 h-20 rounded-full bg-chart-3/15 border border-chart-3/40 grid place-items-center">
-                      <CheckCircle2 className="w-10 h-10 text-chart-3" />
+                      {isProvisioning ? (
+                        <Clock className="w-10 h-10 text-chart-3 animate-pulse" />
+                      ) : (
+                        <CheckCircle2 className="w-10 h-10 text-chart-3" />
+                      )}
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground tracking-tight">Subscription Activated</h3>
+                  <h3 className="text-2xl font-bold text-foreground tracking-tight">
+                    {isProvisioning ? 'Subscription Processing' : 'Subscription Activated'}
+                  </h3>
                   <p className="mt-2 text-sm text-foreground/45 max-w-sm">
-                    <span className="font-semibold text-foreground/70">{formatBotName(strategy.name)}</span> is now enabled. Your bot will execute on the next operator signal.
+                    {isProvisioning ? (
+                      <>
+                        <span className="font-semibold text-foreground/70">{formatBotName(strategy.name)}</span>{' '}
+                        is being provisioned. This usually completes within a few minutes. Your dashboard will update automatically.
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-semibold text-foreground/70">{formatBotName(strategy.name)}</span> is now enabled.
+                      </>
+                    )}
                   </p>
                   <div className="mt-6 flex gap-3">
                     <Button variant="outline" size="lg" onClick={onClose}>
@@ -159,7 +251,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                 </motion.div>
               ) : (
                 <>
-                  {/* ─────────── HEADER ─────────── */}
                   <div className="flex items-start justify-between gap-4 mb-7">
                     <div className="flex-1 min-w-0">
                       <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/15 border border-primary/25 text-micro font-bold uppercase tracking-[0.22em] text-primary mb-2.5">
@@ -172,9 +263,14 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                       <p className="mt-1 text-xs text-foreground/40 font-bold uppercase tracking-[0.18em]">
                         Step {step} of 2 — {step === 1 ? 'Choose plan' : 'Confirm'}
                       </p>
+                      <p className="mt-2 text-caption text-muted-foreground">
+                        MT5 account connection is required before purchase.{' '}
+                        <Link href="/connected-accounts" className="text-primary hover:underline">
+                          Connect account
+                        </Link>
+                      </p>
                     </div>
 
-                    {/* Step indicator */}
                     <div className="flex items-center gap-1.5 mt-1">
                       {[1, 2].map((s) => (
                         <div
@@ -190,7 +286,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
 
                   <AnimatePresence mode="wait">
                     {step === 1 ? (
-                      /* ─────────── STEP 1: PLAN PICKER ─────────── */
                       <motion.div
                         key="step-1"
                         initial={{ opacity: 0, x: -12 }}
@@ -220,7 +315,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                               )}
                             >
                               <div className="relative flex items-center gap-4">
-                                {/* Icon */}
                                 <div className={cn(
                                   'shrink-0 w-11 h-11 rounded-xl border grid place-items-center transition-colors',
                                   isSelected
@@ -230,7 +324,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                                   <config.icon className="w-5 h-5" />
                                 </div>
 
-                                {/* Label */}
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
                                     <p className="text-sm font-bold text-foreground">{config.label}</p>
@@ -246,7 +339,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                                   <p className="text-caption text-foreground/40 font-medium mt-0.5">{config.subtitle}</p>
                                 </div>
 
-                                {/* Price */}
                                 <div className="text-right shrink-0">
                                   <p className="text-lg font-bold text-foreground font-mono tabular-nums leading-none">
                                     {formatPrice(price)}
@@ -256,7 +348,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                                   </p>
                                 </div>
 
-                                {/* Radio */}
                                 <div className={cn(
                                   'shrink-0 w-5 h-5 rounded-full border-2 grid place-items-center transition-all',
                                   isSelected ? cn(accent.border, accent.bg) : 'border-border',
@@ -292,7 +383,6 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                         )}
                       </motion.div>
                     ) : (
-                      /* ─────────── STEP 2: CONFIRM ─────────── */
                       <motion.div
                         key="step-2"
                         initial={{ opacity: 0, x: 12 }}
@@ -303,8 +393,8 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                       >
                         {[
                           { label: 'Bot', value: formatBotName(strategy.name) },
-                          { label: 'Plan',     value: PLAN_CONFIG[planType].label },
-                          { label: 'Billing',  value: PLAN_CONFIG[planType].subtitle },
+                          { label: 'Plan', value: PLAN_CONFIG[planType].label },
+                          { label: 'Billing', value: PLAN_CONFIG[planType].subtitle },
                         ].map((row) => (
                           <div key={row.label} className="flex items-center justify-between text-sm">
                             <span className="text-caption text-foreground/35 font-bold uppercase tracking-[0.18em]">{row.label}</span>
@@ -325,20 +415,10 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                             </p>
                           </div>
                         </div>
-
-                        {useTrial && (
-                          <div className="mt-3 flex items-center gap-2 rounded-xl border border-chart-3/20 bg-chart-3/[0.07] px-3 py-2.5">
-                            <Sparkles className="w-3.5 h-3.5 text-chart-3 shrink-0" />
-                            <p className="text-caption text-chart-3 font-semibold">
-                              Trial activates instantly — no charge today
-                            </p>
-                          </div>
-                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  {/* ─────────── ACTIONS ─────────── */}
                   <div className="mt-7 flex items-center justify-between gap-3">
                     <Button
                       variant="ghost"

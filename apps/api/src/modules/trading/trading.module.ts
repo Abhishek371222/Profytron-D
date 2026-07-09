@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { TradingService } from './trading.service';
 import { TradingController } from './trading.controller';
@@ -20,7 +20,7 @@ import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.ser
 @Module({
   imports: [
     AuthModule,
-    CopyFactoryModule,
+    forwardRef(() => CopyFactoryModule),
     GrowthModule,
     MarketModule,
     AiRiskModule,

@@ -17,7 +17,7 @@ import { marketplaceApi } from '@/lib/api/marketplace';
 import { formatBotName } from '@/lib/bot-labels';
 import { DashButton } from '@/components/dashboard/DashboardPrimitives';
 
-type BotStatus = 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE';
+type BotStatus = 'ACTIVE' | 'PROVISIONING' | 'FAILED' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE';
 
 interface UserBot {
   id: string;
@@ -35,11 +35,13 @@ interface UserBot {
 }
 
 const STATUS_CFG: Record<BotStatus, { label: string; tone: 'primary' | 'destructive' | 'neutral' }> = {
-  ACTIVE:    { label: 'Active',    tone: 'primary' },
-  PAUSED:    { label: 'Paused',    tone: 'neutral' },
-  EXPIRED:   { label: 'Expired',   tone: 'destructive' },
-  CANCELLED: { label: 'Cancelled', tone: 'neutral' },
-  INACTIVE:  { label: 'Inactive',  tone: 'neutral' },
+  ACTIVE:       { label: 'Active',       tone: 'primary' },
+  PROVISIONING: { label: 'Processing',   tone: 'neutral' },
+  FAILED:       { label: 'Setup Failed', tone: 'destructive' },
+  PAUSED:       { label: 'Paused',       tone: 'neutral' },
+  EXPIRED:      { label: 'Expired',      tone: 'destructive' },
+  CANCELLED:    { label: 'Cancelled',    tone: 'neutral' },
+  INACTIVE:     { label: 'Inactive',     tone: 'neutral' },
 };
 
 const TONE_CLASSES: Record<'primary' | 'destructive' | 'neutral', { badge: string; dot: string; text: string }> = {

@@ -278,6 +278,15 @@ function TradeRow({ trade, onExplain, onAction }: { trade: any; onExplain: (t: a
         animate={{ opacity: 1, x: 0 }}
         className="group trade-row-mobile flex flex-col gap-3 border-b border-[var(--card-border)] p-4 hover:bg-muted/40 cursor-pointer transition-colors duration-150 md:hidden"
         onClick={() => onExplain(trade)}
+        role="button"
+        tabIndex={0}
+        aria-label={`View AI analysis for ${trade.asset} trade`}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onExplain(trade);
+          }
+        }}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
@@ -369,6 +378,15 @@ function TradeRowDesktop({
       animate={{ opacity: 1, x: 0 }}
       className="group trade-row-desktop grid-cols-7 items-center py-3.5 px-5 border-b border-[var(--card-border)] hover:bg-muted/40 cursor-pointer transition-colors duration-150"
       onClick={() => onExplain(trade)}
+      role="button"
+      tabIndex={0}
+      aria-label={`View AI analysis for ${trade.asset} trade`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onExplain(trade);
+        }
+      }}
     >
       {/* Asset */}
       <div className="flex items-center gap-3">
@@ -908,6 +926,7 @@ export default function DashboardPage() {
                 </div>
                 <button
                   onClick={() => setSelectedTrade(null)}
+                  aria-label="Close AI analysis panel"
                   className="w-9 h-9 rounded-xl bg-foreground/5 hover:bg-foreground/10 flex items-center justify-center transition-all group"
                 >
                   <X className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />

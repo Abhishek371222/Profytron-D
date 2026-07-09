@@ -22,6 +22,11 @@ import {
   ACTIVATION_EVENTS,
 } from '../growth/activation.service';
 import { RedisService } from '../auth/redis.service';
+import { requireActiveMt5Broker } from '../../common/utils/broker-requirement.util';
+import { PaymentsService } from '../payments/payments.service';
+import { SubscriptionProvisioningService } from '../provisioning/subscription-provisioning.service';
+import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
+import { StrategyDocumentsService } from './strategy-documents.service';
 
 // Short TTLs keep public marketplace reads fast without serving badly stale
 // data. Listings change rarely; subscription/price edits surface within a
@@ -38,6 +43,10 @@ export class MarketplaceService {
     private prisma: PrismaService,
     private activationService: ActivationService,
     private readonly redis: RedisService,
+    private readonly paymentsService: PaymentsService,
+    private readonly provisioning: SubscriptionProvisioningService,
+    private readonly copyFactorySync: CopyFactorySyncService,
+    private readonly strategyDocuments: StrategyDocumentsService,
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
       ? new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -292,9 +301,12 @@ export class MarketplaceService {
         })
       : null;
 
+    const documents = await this.strategyDocuments.listPublishedDocuments(id);
+
     return {
       strategy,
       listing: strategy.listing,
+      documents,
       reviews: {
         items: reviews,
         page: reviewsPage,
@@ -470,6 +482,8 @@ export class MarketplaceService {
     userId: string,
     dto: SubscribeStrategyDto,
   ) {
+    const broker = await requireActiveMt5Broker(this.prisma, userId);
+
     const listing = await this.prisma.marketplaceListing.findUnique({
       where: { strategyId },
       include: { strategy: true },
@@ -486,23 +500,30 @@ export class MarketplaceService {
     const existingSub = await this.prisma.userStrategySubscription.findUnique({
       where: { userId_strategyId: { userId, strategyId } },
     });
-    if (existingSub && existingSub.status === 'ACTIVE') {
-      throw new BadRequestException('Already subscribed to this strategy');
+    if (
+      existingSub &&
+      (existingSub.status === SubscriptionStatus.ACTIVE ||
+        existingSub.status === SubscriptionStatus.PROVISIONING)
+    ) {
+      throw new BadRequestException('Already subscribed to this bot');
     }
 
-    // Enforce the plan's concurrent copy-subscription quota (server-side — the
-    // limit was previously only shown in the UI and could be bypassed via API).
+    // Enforce the plan's concurrent bot subscription quota (server-side).
     const activeCopies = await this.prisma.userStrategySubscription.count({
-      where: { userId, status: 'ACTIVE', strategyId: { not: strategyId } },
+      where: {
+        userId,
+        status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PROVISIONING] },
+        strategyId: { not: strategyId },
+      },
     });
     const quotaUser = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { subscriptionTier: true },
+      select: { subscriptionTier: true, country: true },
     });
     const { maxCopyTrades } = getTierLimits(quotaUser?.subscriptionTier);
     if (activeCopies >= maxCopyTrades) {
       throw new ForbiddenException(
-        `Your plan allows ${maxCopyTrades} active copy subscription(s). Upgrade to add more.`,
+        `Your plan allows ${maxCopyTrades} active bot subscription(s). Upgrade to add more.`,
       );
     }
 
@@ -519,7 +540,7 @@ export class MarketplaceService {
       });
       if (!user || user.subscriptionTier === 'FREE') {
         throw new ForbiddenException(
-          'Upgrade to PRO or higher to subscribe to paid strategies',
+          'Upgrade to PRO or higher to subscribe to paid bots',
         );
       }
     }
@@ -530,14 +551,16 @@ export class MarketplaceService {
         create: {
           userId,
           strategyId,
-          status: 'ACTIVE',
+          brokerAccountId: broker.id,
+          status: SubscriptionStatus.PROVISIONING,
           planType,
           subscribedAt: new Date(),
           riskOverrideEnabled: false,
           executionPriority: 0,
         },
         update: {
-          status: 'ACTIVE',
+          brokerAccountId: broker.id,
+          status: SubscriptionStatus.PROVISIONING,
           planType,
           subscribedAt: new Date(),
         },
@@ -547,7 +570,19 @@ export class MarketplaceService {
         ACTIVATION_EVENTS.FIRST_MARKETPLACE_SUB,
         { strategyId },
       );
-      return { subscription, requiresPayment: false };
+      await this.provisioning.startProvisioning(
+        subscription.id,
+        userId,
+        strategyId,
+        listing.strategy.name,
+      );
+      await this.copyFactorySync.enqueueLinkSubscription(subscription.id);
+      return {
+        subscription,
+        requiresPayment: false,
+        provisioning: true,
+        estimatedReadyMinutes: 5,
+      };
     }
 
     if (
@@ -564,7 +599,8 @@ export class MarketplaceService {
         create: {
           userId,
           strategyId,
-          status: 'ACTIVE',
+          brokerAccountId: broker.id,
+          status: SubscriptionStatus.PROVISIONING,
           planType,
           trialEndsAt,
           subscribedAt: new Date(),
@@ -572,7 +608,8 @@ export class MarketplaceService {
           executionPriority: 0,
         },
         update: {
-          status: 'ACTIVE',
+          brokerAccountId: broker.id,
+          status: SubscriptionStatus.PROVISIONING,
           planType,
           trialEndsAt,
           subscribedAt: new Date(),
@@ -583,11 +620,20 @@ export class MarketplaceService {
         ACTIVATION_EVENTS.FIRST_MARKETPLACE_SUB,
         { strategyId },
       );
+      await this.provisioning.startProvisioning(
+        subscription.id,
+        userId,
+        strategyId,
+        listing.strategy.name,
+      );
+      await this.copyFactorySync.enqueueLinkSubscription(subscription.id);
       return {
         subscription,
         requiresPayment: false,
         trial: true,
         trialEndsAt,
+        provisioning: true,
+        estimatedReadyMinutes: 5,
       };
     }
 
@@ -602,6 +648,41 @@ export class MarketplaceService {
       throw new BadRequestException('Invalid listing amount for selected plan');
     }
 
+    const useRazorpay =
+      (quotaUser?.country ?? 'IN').toUpperCase() === 'IN' ||
+      process.env.MARKETPLACE_PAYMENT_PROVIDER === 'razorpay';
+
+    if (useRazorpay) {
+      const amountPaise = Math.round(amount * 100);
+      const order = await this.paymentsService.createRazorpayOrder(
+        userId,
+        amountPaise,
+        'INR',
+        `bot_${strategyId.slice(0, 8)}`,
+        {
+          type: 'marketplace_subscription',
+          strategyId,
+          planType,
+          userId,
+        },
+      );
+      return {
+        requiresPayment: true,
+        paymentProvider: 'razorpay',
+        orderId: order.orderId,
+        amount: order.amount,
+        currency: order.currency,
+        razorpayKeyId: order.keyId,
+        demo: order.demo ?? false,
+      };
+    }
+
+    if (!this.stripe) {
+      throw new BadRequestException(
+        'Card checkout is not configured. Use INR/Razorpay or contact support.',
+      );
+    }
+
     const mode = planType === 'LIFETIME' ? 'payment' : 'subscription';
     const session = await this.stripe.checkout.sessions.create({
       mode,
@@ -610,8 +691,6 @@ export class MarketplaceService {
         {
           quantity: 1,
           price_data: {
-            // Listing prices are stored in INR (rupees) — match wallet deposits.
-            // Charging the rupee amount as USD overcharges ~83x.
             currency: (process.env.STRIPE_CURRENCY || 'inr').toLowerCase(),
             product_data: {
               name: listing.strategy.name,
@@ -638,7 +717,11 @@ export class MarketplaceService {
       customer_creation: 'always',
     });
 
-    return { checkoutUrl: session.url, requiresPayment: true };
+    return {
+      checkoutUrl: session.url,
+      requiresPayment: true,
+      paymentProvider: 'stripe',
+    };
   }
 
   async updateSubscriptionRiskControls(

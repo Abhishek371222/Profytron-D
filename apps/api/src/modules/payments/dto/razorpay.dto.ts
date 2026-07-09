@@ -4,10 +4,13 @@ import {
   IsPositive,
   IsString,
   MaxLength,
+  Min,
 } from 'class-validator';
 
 export class CreateRazorpayOrderDto {
+  /** Amount in paise (minimum 100 = ₹1). */
   @IsInt()
+  @Min(100)
   @IsPositive()
   amount: number;
 
@@ -23,17 +26,14 @@ export class CreateRazorpayOrderDto {
 }
 
 export class VerifyRazorpayPaymentDto {
-  @IsOptional()
   @IsString()
-  razorpay_order_id?: string;
+  razorpay_order_id: string;
 
-  @IsOptional()
   @IsString()
-  razorpay_payment_id?: string;
+  razorpay_payment_id: string;
 
-  @IsOptional()
   @IsString()
-  razorpay_signature?: string;
+  razorpay_signature: string;
 }
 
 export class DemoCompleteRazorpayDto {

@@ -76,6 +76,8 @@ enum VerificationStatus {
 enum SubscriptionStatus {
   ACTIVE
   INACTIVE
+  PROVISIONING
+  FAILED
   CANCELLED
   EXPIRED
   PAUSED
@@ -344,6 +346,7 @@ model Strategy {
   listing        MarketplaceListing?
   reviews        StrategyReview[]
   aiExplanations AITradeExplanation[]
+  documents      StrategyDocument[]
 
   @@index([creatorId])
   @@index([category])
@@ -378,7 +381,8 @@ model UserStrategySubscription {
   strategy             Strategy           @relation(fields: [strategyId], references: [id], onDelete: Cascade)
   brokerAccountId      String?
   brokerAccount        BrokerAccount?     @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
-  status               SubscriptionStatus @default(ACTIVE)
+  status               SubscriptionStatus @default(INACTIVE)
+  provisioningJob      ProvisioningJob?
   planType             String?
   stripeSubId          String?
   stripeItemId         String?
@@ -1309,6 +1313,50 @@ model TradeExecution {
   @@index([masterPositionId])
   @@index([followerUserId, createdAt])
   @@index([status])
+}
+
+model StrategyDocument {
+  id            String   @id @default(uuid())
+  strategyId    String
+  strategy      Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?  @db.Text
+  storageKey    String
+  mimeType      String   @default("application/pdf")
+  fileSizeBytes Int
+  sortOrder     Int      @default(0)
+  isPublished   Boolean  @default(true)
+  uploadedBy    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([strategyId, isPublished, sortOrder])
+}
+
+model ProvisioningJob {
+  id             String                   @id @default(uuid())
+  subscriptionId String                   @unique
+  subscription   UserStrategySubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  status         String                   @default("PENDING")
+  attempts       Int                      @default(0)
+  lastError      String?                  @db.Text
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model PaymentIdempotency {
+  idempotencyKey String   @id
+  paymentId      String?
+  status         String
+  responseJson   Json?
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime
+
+  @@index([expiresAt])
 }
 
 model EmailLog {
