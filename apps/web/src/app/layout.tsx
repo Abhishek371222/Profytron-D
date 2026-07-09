@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from"next";
 import { Suspense } from "react";
 import { Geist, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import"@/styles/globals.css";
 import"@/styles/animations.css";
 import { WebVitalsProvider } from "@/components/providers/WebVitalsProvider";
@@ -123,6 +124,7 @@ export default function RootLayout({
           <PostHogProvider>{children}</PostHogProvider>
         </Suspense>
         <LazyChatbotWidget />
+        <Analytics />
         </ThemeProvider>
       </body>
     </html>
