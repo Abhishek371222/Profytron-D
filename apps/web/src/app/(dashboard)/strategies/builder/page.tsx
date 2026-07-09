@@ -41,7 +41,7 @@ export default function StrategyBuilderPage() {
               </Link>
               <div>
                 <p className="text-sm font-semibold text-foreground">New Strategy</p>
-                <p className="text-xs text-amber-600 font-medium">Draft · Builder preview</p>
+                <p className="text-xs text-[var(--info)] font-medium">Draft · Builder preview</p>
               </div>
             </div>
             <DashButton disabled className="opacity-50 cursor-not-allowed">Run Backtest</DashButton>

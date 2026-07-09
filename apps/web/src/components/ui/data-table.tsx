@@ -85,8 +85,53 @@ export function DataTable<T extends object>({
   };
 
   return (
-    <div className={cn("w-full", className)}>
-      <div className="overflow-x-auto rounded-card border border-card-border">
+    <div className={cn("w-full min-w-0", className)}>
+      {/* Mobile card stack */}
+      <div className="space-y-3 md:hidden">
+        {isLoading
+          ? Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-card border border-card-border bg-card p-4">
+                <Skeleton className="mb-2 h-4 w-2/3" />
+                <Skeleton className="h-3 w-1/2" />
+              </div>
+            ))
+          : paginated.length === 0
+            ? (
+                <div className="rounded-card border border-card-border bg-card px-4 py-12 text-center text-sm text-text-muted">
+                  {emptyMessage}
+                </div>
+              )
+            : paginated.map((row, i) => (
+                <div
+                  key={keyField ? String(getCellValue(row, keyField as string)) : i}
+                  onClick={() => onRowClick?.(row)}
+                  className={cn(
+                    "rounded-card border border-card-border bg-card p-4",
+                    onRowClick && "cursor-pointer active:bg-muted/50",
+                  )}
+                >
+                  {columns.map((col) => (
+                    <div
+                      key={String(col.key)}
+                      className={cn(
+                        "flex items-start justify-between gap-3 border-b border-border py-2 last:border-0",
+                        col.className,
+                      )}
+                    >
+                      <span className="shrink-0 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                        {col.header}
+                      </span>
+                      <span className="min-w-0 text-right text-sm text-foreground/80">
+                        {col.cell ? col.cell(row) : String(getCellValue(row, String(col.key)) ?? "—")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+      </div>
+
+      {/* Desktop table */}
+      <div className="hidden overflow-x-auto rounded-card border border-card-border md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-card-border bg-muted/40">

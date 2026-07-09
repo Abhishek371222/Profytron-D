@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ChevronRight, Plus } from 'lucide-react';
 
@@ -17,11 +18,11 @@ export const STRATEGY_CATEGORIES = [
 
 export const CATEGORY_COLORS: Record<string, string> = {
   TREND: 'bg-primary/15 text-primary border-primary/25',
-  RANGE: 'bg-violet-500/15 text-violet-400 border-violet-500/25',
-  SCALPING: 'bg-orange-500/15 text-orange-400 border-orange-500/25',
+  RANGE: 'bg-chart-2/15 text-chart-2 border-chart-2/25',
+  SCALPING: 'bg-chart-4/15 text-chart-4 border-chart-4/25',
   VOLATILITY: 'bg-destructive/15 text-destructive border-destructive/25',
-  ARBITRAGE: 'bg-blue-500/15 text-blue-400 border-blue-500/25',
-  'MEAN REVERT': 'bg-teal-500/15 text-teal-400 border-teal-500/25',
+  ARBITRAGE: 'bg-chart-5/15 text-chart-5 border-chart-5/25',
+  'MEAN REVERT': 'bg-chart-3/15 text-chart-3 border-chart-3/25',
 };
 
 export function StrategiesBreadcrumbs({ current }: { current?: string }) {
@@ -56,7 +57,12 @@ export function StrategiesPageHeader({
   onDeploy: () => void;
 }) {
   return (
-    <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      className="flex flex-col xl:flex-row xl:items-end justify-between gap-6"
+    >
       <div className="flex items-start gap-5">
         <div className="space-y-2 flex-1">
           <div className="flex items-center gap-2">
@@ -71,9 +77,24 @@ export function StrategiesPageHeader({
         </div>
         {/* Decorative illustration */}
         <div className="hidden lg:flex relative h-24 w-28 shrink-0 items-end justify-center" aria-hidden>
-          <div className="absolute bottom-0 left-2 h-14 w-16 rounded-xl bg-primary/20 border border-primary/30 rotate-[-8deg] shadow-lg" />
-          <div className="absolute bottom-2 left-8 h-16 w-14 rounded-xl bg-primary/30 border border-primary/40 rotate-[6deg] shadow-lg" />
-          <div className="absolute bottom-4 right-0 h-12 w-12 rounded-lg bg-primary/15 border border-primary/25 rotate-[12deg]" />
+          <motion.div
+            className="absolute bottom-0 left-2 h-14 w-16 rounded-xl bg-primary/20 border border-primary/30 shadow-lg"
+            initial={{ rotate: -8 }}
+            animate={{ y: [0, -4, 0] }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute bottom-2 left-8 h-16 w-14 rounded-xl bg-primary/30 border border-primary/40 shadow-lg"
+            initial={{ rotate: 6 }}
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+          />
+          <motion.div
+            className="absolute bottom-4 right-0 h-12 w-12 rounded-lg bg-primary/15 border border-primary/25"
+            initial={{ rotate: 12 }}
+            animate={{ y: [0, -3, 0] }}
+            transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
+          />
         </div>
       </div>
 
@@ -98,13 +119,13 @@ export function StrategiesPageHeader({
         <button
           type="button"
           onClick={onDeploy}
-          className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-primary text-primary-foreground text-[11px] font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors shadow-sm"
+          className="btn-premium inline-flex items-center gap-2 h-10 px-5 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-[11px] font-bold uppercase tracking-wide"
         >
           <Plus className="h-4 w-4" />
           Open Builder
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

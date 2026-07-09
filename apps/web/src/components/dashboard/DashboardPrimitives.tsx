@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -47,10 +48,15 @@ export function DashboardPageHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+    >
       <div className="flex items-start gap-3 min-w-0">
         {Icon ? (
-          <div className={cn('dash-icon-box', iconClassName)}>
+          <div className={cn('dash-icon-box shadow-[0_4px_16px_rgba(0,0,0,0.06)]', iconClassName)}>
             <Icon className="h-5 w-5" />
           </div>
         ) : null}
@@ -59,8 +65,12 @@ export function DashboardPageHeader({
           {description ? <p className="dash-subtitle mt-1">{description}</p> : null}
         </div>
       </div>
-      {actions ? <div className="flex items-center gap-2 shrink-0 flex-wrap">{actions}</div> : null}
-    </div>
+      {actions ? (
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:flex-wrap sm:shrink-0">
+          {actions}
+        </div>
+      ) : null}
+    </motion.div>
   );
 }
 
@@ -159,10 +169,16 @@ export function DashStatCard({
   className?: string;
 }) {
   return (
-    <div className={cn(
-      'dashboard-card kpi-card relative overflow-hidden',
-      className,
-    )}>
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -4 }}
+      className={cn(
+        'dashboard-card kpi-card relative overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]',
+        className,
+      )}
+    >
       {/* Subtle top-left teal glow */}
       <div className="pointer-events-none absolute -top-6 -left-6 w-24 h-24 rounded-full bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] blur-2xl" />
 
@@ -192,7 +208,7 @@ export function DashStatCard({
         )}
         {hint && <div className="text-xs text-muted-foreground">{hint}</div>}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -213,16 +229,19 @@ export function DashboardSubNav({
   items: { name: string; href: string; icon: React.ElementType }[];
 }) {
   return (
-    <nav className="space-y-0.5 w-full lg:w-56 shrink-0">
+    <nav className="dash-subnav-horizontal md:space-y-0.5 w-full md:w-56 shrink-0">
       {items.map((item) => {
         const isActive = pathname === item.href;
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={cn('dash-nav-link', isActive && 'dash-nav-link-active')}
+            className={cn(
+              'dash-nav-link shrink-0 md:shrink',
+              isActive && 'dash-nav-link-active',
+            )}
           >
-            <div className="flex items-center gap-2.5 w-full pl-3 pr-2">
+            <div className="flex items-center gap-2.5 w-full pl-3 pr-3 md:pr-2 whitespace-nowrap md:whitespace-normal">
               <item.icon className="w-[18px] h-[18px] shrink-0" />
               <span className="truncate">{item.name}</span>
             </div>

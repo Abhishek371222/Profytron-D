@@ -85,19 +85,24 @@ export default function SupportPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-start justify-between gap-4">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="flex items-start justify-between gap-4"
+      >
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold text-foreground uppercase tracking-tight">Support Center</h2>
           <p className="text-xs text-foreground/30 uppercase tracking-widest font-semibold">Submit tickets · Track responses · Get help</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-foreground text-xs font-bold uppercase tracking-widest hover:bg-primary/90 transition-colors"
+          className="btn-premium flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest"
         >
           <Plus className="w-4 h-4" />
           New Ticket
         </button>
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {showCreate && (
@@ -125,7 +130,7 @@ export default function SupportPage() {
                       className={cn(
                         'px-3 py-1.5 rounded-full text-micro font-bold uppercase tracking-widest border transition-all',
                         form.category === cat
-                          ? 'bg-primary text-foreground border-primary/40'
+                          ? 'bg-primary text-primary-foreground border-primary/40'
                           : 'bg-foreground/3 text-foreground/30 border-border hover:text-foreground hover:border-border',
                       )}
                     >
@@ -159,7 +164,7 @@ export default function SupportPage() {
               <button
                 onClick={handleCreate}
                 disabled={createMutation.isPending}
-                className="w-full h-11 bg-primary text-foreground rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 disabled:opacity-50"
+                className="w-full h-11 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 disabled:opacity-50"
               >
                 {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
                 {createMutation.isPending ? 'Submitting...' : 'Submit Ticket'}
@@ -186,17 +191,21 @@ export default function SupportPage() {
               <p className="text-sm text-foreground/20 uppercase tracking-widest font-semibold">No tickets yet</p>
             </div>
           ) : (
-            tickets.map((ticket) => {
+            tickets.map((ticket, idx) => {
               const isSelected = selectedTicket?.id === ticket.id;
               return (
-                <button
+                <motion.button
                   key={ticket.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.04, duration: 0.3, ease: 'easeOut' }}
+                  whileHover={{ y: -2 }}
                   onClick={() => setSelectedTicket(ticket)}
                   className={cn(
-                    'w-full text-left p-4 rounded-2xl border transition-all',
+                    'w-full text-left p-4 rounded-2xl border transition-all duration-200',
                     isSelected
-                      ? 'bg-primary/10 border-primary/30'
-                      : 'bg-foreground/2 border-border hover:border-border hover:bg-foreground/4',
+                      ? 'bg-primary/10 border-primary/30 shadow-[var(--shadow-card-hover)]'
+                      : 'bg-foreground/2 border-border hover:border-primary/20 hover:bg-foreground/4 hover:shadow-[var(--shadow-card)]',
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -209,7 +218,7 @@ export default function SupportPage() {
                       <ChevronRight className="w-3.5 h-3.5 text-foreground/20" />
                     </div>
                   </div>
-                </button>
+                </motion.button>
               );
             })
           )}
@@ -274,7 +283,7 @@ export default function SupportPage() {
                   <button
                     onClick={handleReply}
                     disabled={!replyText.trim() || replyMutation.isPending}
-                    className="h-11 px-4 bg-primary text-foreground rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-primary/90 disabled:opacity-50"
+                    className="h-11 px-4 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 hover:bg-primary/90 disabled:opacity-50"
                   >
                     {replyMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send'}
                   </button>

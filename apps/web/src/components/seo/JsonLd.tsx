@@ -129,7 +129,7 @@ function buildSchema(props: JsonLdProps): object | null {
         },
         featureList: [
           'Copy Trading',
-          'AI Trading Coach',
+          'Alpha Coach',
           'Strategy Marketplace',
           'MT4/MT5 Integration',
           'Paper Trading',

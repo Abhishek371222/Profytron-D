@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -44,10 +44,10 @@ const EMOTION_COLORS: Record<string, string> = {
   Calm: 'text-chart-5 bg-chart-5/10 border-chart-5/20',
   Disciplined: 'text-primary bg-primary/10 border-primary/20',
   Anxious: 'text-chart-4 bg-chart-4/10 border-chart-4/20',
-  Greedy: 'text-orange-400 bg-orange-400/10 border-orange-400/20',
-  Fearful: 'text-red-400 bg-red-400/10 border-red-400/20',
-  Impulsive: 'text-destructive bg-destructive/10 border-destructive/20',
-  Frustrated: 'text-red-500 bg-red-500/10 border-red-500/20',
+  Greedy: 'text-chart-2 bg-chart-2/10 border-chart-2/20',
+  Fearful: 'text-destructive bg-destructive/10 border-destructive/20',
+  Impulsive: 'text-destructive bg-destructive/15 border-destructive/25',
+  Frustrated: 'text-[var(--brand-crimson-dark)] bg-[color-mix(in_srgb,var(--brand-crimson-dark)_10%,transparent)] border-[color-mix(in_srgb,var(--brand-crimson-dark)_25%,transparent)]',
 };
 
 function EmotionTag({ emotion }: { emotion: string }) {
@@ -102,7 +102,7 @@ function JournalCard({
       className={cn(
         'w-full text-left p-4 rounded-[20px] border transition-all duration-300 group',
         isSelected
-          ? 'bg-primary/8 border-primary/25 shadow-[0_0_20px_rgba(71,167,170,0.08)]'
+          ? 'bg-primary/8 border-primary/25 shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_20%,transparent)]'
           : 'bg-muted/2 border-white/[0.05] hover:border-border hover:bg-muted',
       )}
     >
@@ -186,13 +186,13 @@ function InsightsBar() {
         <div className="w-px h-8 bg-foreground/10" />
         <div className="text-center">
           <p className="text-lg font-bold text-yellow-400">
-            {data.averageRating > 0 ? data.averageRating.toFixed(1) : '—'}
+            {data.averageRating > 0 ? data.averageRating.toFixed(1) : '�'}
           </p>
           <p className="text-micro text-foreground/25 uppercase tracking-widest">Avg Rating</p>
         </div>
         <div className="w-px h-8 bg-foreground/10" />
         <div className="text-center">
-          <p className="text-sm font-bold text-foreground truncate max-w-[80px]">{topEmotion ? topEmotion[0] : '—'}</p>
+          <p className="text-sm font-bold text-foreground truncate max-w-[80px]">{topEmotion ? topEmotion[0] : '�'}</p>
           <p className="text-micro text-foreground/25 uppercase tracking-widest">Top Emotion</p>
         </div>
       </div>
@@ -277,10 +277,10 @@ export default function JournalPage() {
         icon={BookOpen}
       />
 
-      {/* ── Insights bar ── */}
+      {/* -- Insights bar -- */}
       <InsightsBar />
 
-      {/* ── Main split panel ── */}
+      {/* -- Main split panel -- */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.35fr] gap-4">
         {/* Entry List */}
         <div className="space-y-2.5">
@@ -326,7 +326,7 @@ export default function JournalPage() {
           )}
         </div>
 
-        {/* ── Detail Panel ── */}
+        {/* -- Detail Panel -- */}
         <motion.div
           layout
           className="rounded-[24px] border border-[var(--card-border)] bg-muted/505 flex flex-col min-h-[520px] overflow-hidden"
@@ -411,7 +411,7 @@ export default function JournalPage() {
                             className={cn(
                               'px-3 py-1.5 rounded-full text-micro font-bold uppercase tracking-widest border transition-all duration-200',
                               editingEmotions.includes(e)
-                                ? EMOTION_COLORS[e] ?? 'bg-primary text-foreground border-primary/40'
+                                ? EMOTION_COLORS[e] ?? 'bg-primary text-primary-foreground border-primary/40'
                                 : 'bg-muted text-foreground/30 border-[var(--card-border)] hover:border-border',
                             )}
                           >
@@ -481,7 +481,7 @@ export default function JournalPage() {
                       <button
                         onClick={handleSave}
                         disabled={updateMutation.isPending}
-                        className="flex-1 h-10 bg-primary text-foreground rounded-xl text-caption font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(71,167,170,0.25)]"
+                        className="flex-1 h-10 bg-primary text-primary-foreground rounded-xl text-caption font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary disabled:opacity-50 transition-all shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_35%,transparent)]"
                       >
                         {updateMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Entry'}
                       </button>

@@ -43,10 +43,10 @@ export default function BestAffiliatesPage() {
       <section className="relative overflow-hidden rounded-[38px] border border-border bg-card px-6 py-7 md:px-8 md:py-8 shadow-card">
         <motion.div className="absolute -right-16 top-0 h-52 w-52 rounded-full bg-chart-4/15 blur-3xl" animate={{ x: [0, -14, 0], y: [0, 10, 0] }} transition={{ duration: 7.5, repeat: Infinity, ease: 'easeInOut' }} />
         <motion.div className="absolute -left-16 bottom-0 h-56 w-56 rounded-full bg-primary/15 blur-3xl" animate={{ x: [0, 12, 0], y: [0, -12, 0] }} transition={{ duration: 8.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }} />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(245,158,11,0.18),_transparent_40%),radial-gradient(circle_at_bottom_left,_rgba(71,167,170,0.18),_transparent_45%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_color-mix(in_srgb,var(--chart-4)_18%,transparent),_transparent_40%),radial-gradient(circle_at_bottom_left,_color-mix(in_srgb,var(--primary)_18%,transparent),_transparent_45%)]" />
 
         <div className="relative mb-6 flex items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-chart-4/20 bg-chart-4/10 px-3 py-1 text-micro font-semibold uppercase tracking-[0.26em] text-amber-200">
+          <div className="inline-flex items-center gap-2 rounded-full border border-chart-4/20 bg-chart-4/10 px-3 py-1 text-micro font-semibold uppercase tracking-[0.26em] text-chart-4">
             <Medal className="h-3.5 w-3.5" />
             Best affiliates
           </div>
@@ -98,7 +98,7 @@ export default function BestAffiliatesPage() {
                     <p className={cn('mt-3 text-2xl font-semibold', item.tone)}>{item.value}</p>
                     <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-foreground/8">
                       <motion.div
-                        className={cn('h-full rounded-full bg-gradient-to-r', index === 0 ? 'from-chart-3 via-chart-5 to-primary' : index === 1 ? 'from-chart-5 via-sky-400 to-chart-2' : 'from-chart-4 via-orange-400 to-destructive')}
+                        className={cn('h-full rounded-full bg-gradient-to-r', index === 0 ? 'from-chart-3 via-chart-5 to-primary' : index === 1 ? 'from-chart-5 via-chart-1 to-chart-2' : 'from-chart-4 via-chart-5 to-destructive')}
                         initial={{ width: '20%' }}
                         animate={{ width: ['20%', '86%', '20%'] }}
                         transition={{ duration: 4.8 + index * 0.2, repeat: Infinity, ease: 'easeInOut' }}
@@ -137,7 +137,7 @@ export default function BestAffiliatesPage() {
                         className={cn(
                           'rounded-full border px-4 py-2 text-micro font-semibold uppercase tracking-[0.22em] transition-all',
                           activeTier === tier
-                            ? 'border-chart-5/30 bg-chart-5/15 text-cyan-200 shadow-[0_0_24px_rgba(34,211,238,0.16)]'
+                            ? 'border-chart-5/30 bg-chart-5/15 text-chart-5 shadow-[0_0_24px_color-mix(in_srgb,var(--chart-5)_35%,transparent)]'
                             : 'border-border bg-foreground/4 text-foreground/40 hover:border-border hover:text-foreground/70',
                         )}
                         transition={{ delay: index * 0.03 }}
@@ -163,7 +163,7 @@ export default function BestAffiliatesPage() {
                         className={cn(
                           'rounded-full border px-4 py-2 text-micro font-semibold uppercase tracking-[0.22em] transition-all',
                           activeRegion === region
-                            ? 'border-chart-3/30 bg-chart-3/15 text-emerald-200 shadow-[0_0_24px_rgba(52,211,153,0.16)]'
+                            ? 'border-chart-3/30 bg-chart-3/15 text-chart-3 shadow-[0_0_24px_color-mix(in_srgb,var(--chart-3)_35%,transparent)]'
                             : 'border-border bg-foreground/4 text-foreground/40 hover:border-border hover:text-foreground/70',
                         )}
                         transition={{ delay: index * 0.03 }}
@@ -225,16 +225,16 @@ export default function BestAffiliatesPage() {
                 { label: 'Elite branch', value: dashboard ? `${dashboard.tier} tier` : 'No data', tone: 'text-chart-5' },
                 { label: 'Growth branch', value: stats ? `${stats.signups.toLocaleString()} signups` : 'No data', tone: 'text-chart-4' },
                 { label: 'Payout pool', value: stats ? `$${stats.pendingPayout.toLocaleString()}` : 'No data', tone: 'text-chart-2' },
-                { label: 'Momentum', value: dashboard ? 'Live now' : 'No data', tone: 'text-sky-300' },
+                { label: 'Momentum', value: dashboard ? 'Live now' : 'No data', tone: 'text-chart-5' },
               ]}
-              accentClassName="from-chart-4/16 via-fuchsia-400/10 to-transparent"
+              accentClassName="from-chart-4/16 via-chart-2/10 to-transparent"
             />
 
             <div className="grid gap-3 md:grid-cols-3">
               {[
                 { label: 'API feed', value: dashboardQuery.isError ? 'Fallback' : 'Live', tone: dashboardQuery.isError ? 'text-chart-4' : 'text-chart-3' },
                 { label: 'Payout pool', value: stats ? stats.pendingPayout.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }) : '—', tone: 'text-foreground' },
-                { label: 'Tier', value: dashboard?.tier ?? '—', tone: 'text-cyan-200' },
+                { label: 'Tier', value: dashboard?.tier ?? '—', tone: 'text-chart-5' },
               ].map((item) => (
                 <motion.div
                   key={item.label}
@@ -271,7 +271,7 @@ export default function BestAffiliatesPage() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="text-lg font-semibold">{leader.name}</h3>
-                      <span className={cn('rounded-full border px-2 py-0.5 text-micro font-semibold uppercase tracking-[0.22em]', leader.tier === 'ELITE' ? 'border-chart-3/20 bg-chart-3/10 text-chart-3' : 'border-chart-5/20 bg-chart-5/10 text-cyan-200')}>
+                      <span className={cn('rounded-full border px-2 py-0.5 text-micro font-semibold uppercase tracking-[0.22em]', leader.tier === 'ELITE' ? 'border-chart-3/20 bg-chart-3/10 text-chart-3' : 'border-chart-5/20 bg-chart-5/10 text-chart-5')}>
                         {leader.tier}
                       </span>
                     </div>

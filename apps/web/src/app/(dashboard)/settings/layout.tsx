@@ -15,7 +15,6 @@ import {
   DashboardBreadcrumbs,
   DashboardPageHeader,
   DashboardSubNav,
-  DashboardCard,
 } from '@/components/dashboard/DashboardPrimitives';
 
 const navItems = [
@@ -45,9 +44,9 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         icon={User}
       />
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
+      <div className="dash-settings-layout">
         <DashboardSubNav items={navItems} pathname={pathname ?? ''} />
-        <DashboardCard className="flex-1 w-full min-w-0 p-5 sm:p-6 lg:p-8">{children}</DashboardCard>
+        <div className="min-w-0 w-full max-w-none">{children}</div>
       </div>
     </DashboardPage>
   );

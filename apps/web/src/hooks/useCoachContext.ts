@@ -6,7 +6,7 @@ import { tradingApi } from '@/lib/api/trading';
 import { useAccountContext } from '@/hooks/useAccountContext';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 
-/** Lightweight data hook for AI Coach — no WebSockets or market feed. */
+/** Lightweight data hook for Alpha Coach — no WebSockets or market feed. */
 export function useCoachContext() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { hasBrokerAccount, defaultAccount } = useAccountContext();

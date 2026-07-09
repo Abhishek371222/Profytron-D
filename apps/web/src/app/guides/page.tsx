@@ -1,4 +1,4 @@
-ï»¿'use client';
+'use client';
 import { motion } from 'framer-motion';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
 import { TrendingUp, BookOpen, ArrowRight, BarChart2, Shield, Cpu, Clock } from 'lucide-react';
@@ -13,13 +13,13 @@ const categories = [
 
 const guides = [
   { category: 'Algorithmic Strategies', level: 'Beginner', title: 'Introduction to Algorithmic Trading', desc: 'The fundamentals of systematic trading: how algorithms replace discretion and why execution consistency creates an edge over time.', readTime: '10 min', icon: TrendingUp },
-  { category: 'Risk Management', level: 'Intermediate', title: 'Kelly Criterion & Position Sizing', desc: 'How to size positions to maximize geometric growth without risking ruin â€” the mathematics behind institutional bankroll management.', readTime: '14 min', icon: Shield },
+  { category: 'Risk Management', level: 'Intermediate', title: 'Kelly Criterion & Position Sizing', desc: 'How to size positions to maximize geometric growth without risking ruin — the mathematics behind institutional bankroll management.', readTime: '14 min', icon: Shield },
   { category: 'Market Microstructure', level: 'Advanced', title: 'Order Flow Toxicity & Adverse Selection', desc: 'Understanding why certain order flows are exploited by market makers, and how to measure the "toxicity" of your execution.', readTime: '18 min', icon: BarChart2 },
-  { category: 'Algorithmic Strategies', level: 'Intermediate', title: 'Mean Reversion vs. Momentum Strategies', desc: 'When markets mean-revert and when they trend â€” a framework for regime detection and strategy selection.', readTime: '12 min', icon: TrendingUp },
+  { category: 'Algorithmic Strategies', level: 'Intermediate', title: 'Mean Reversion vs. Momentum Strategies', desc: 'When markets mean-revert and when they trend — a framework for regime detection and strategy selection.', readTime: '12 min', icon: TrendingUp },
   { category: 'AI & Signal Analysis', level: 'Advanced', title: 'Building a Sentiment-Driven Signal Pipeline', desc: 'Ingesting news, social, and alternative data sources into a real-time scoring pipeline that feeds execution logic.', readTime: '20 min', icon: Cpu },
-  { category: 'Risk Management', level: 'Beginner', title: 'Understanding Losing period & Maximum Risk', desc: 'How to measure, monitor, and set hard limits on portfolio drawdown â€” the system behind Profytron\'s Safety Check.', readTime: '8 min', icon: Shield },
+  { category: 'Risk Management', level: 'Beginner', title: 'Understanding Losing period & Maximum Risk', desc: 'How to measure, monitor, and set hard limits on portfolio drawdown — the system behind Profytron\'s Safety Check.', readTime: '8 min', icon: Shield },
   { category: 'Market Microstructure', level: 'Intermediate', title: 'The Economics of Market Making', desc: 'Why spreads exist, how market makers profit from them, and how directional traders can avoid being picked off.', readTime: '16 min', icon: BarChart2 },
-  { category: 'AI & Signal Analysis', level: 'Beginner', title: 'MACD, RSI, and Signal Stacking', desc: 'Classic technical indicators explained rigorously â€” and how Signal Core AI validates or overrides them with multi-modal inputs.', readTime: '9 min', icon: Cpu },
+  { category: 'AI & Signal Analysis', level: 'Beginner', title: 'MACD, RSI, and Signal Stacking', desc: 'Classic technical indicators explained rigorously — and how Signal Core AI validates or overrides them with multi-modal inputs.', readTime: '9 min', icon: Cpu },
 ];
 
 const levelColors: Record<string, string> = {
@@ -105,7 +105,7 @@ export default function GuidesPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="text-3xl font-bold text-foreground mb-4 tracking-tight">Ready to Deploy?</h2>
             <p className="text-foreground/50 mb-8">Put the theory to work. Build and backtest your first strategy in minutes.</p>
-            <Link href="/register" className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold transition-all shadow-[0_0_30px_rgba(71,167,170,0.3)]">
+            <Link href="/register" className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl font-semibold transition-all shadow-[0_0_30px_rgba(71,167,170,0.3)]">
               Start Building <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>

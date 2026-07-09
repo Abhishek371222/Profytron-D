@@ -62,11 +62,11 @@ const STATUS_FILTER_TABS: Array<{ label: string; value: SubscriptionStatus | 'AL
 ];
 
 const STATUS_BADGE: Record<SubscriptionStatus, { label: string; cls: string }> = {
-  ACTIVE: { label: 'Active', cls: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-  PAUSED: { label: 'Paused', cls: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
-  EXPIRED: { label: 'Expired', cls: 'bg-red-500/10 text-red-400 border-red-500/20' },
-  CANCELLED: { label: 'Cancelled', cls: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20' },
-  INACTIVE: { label: 'Inactive', cls: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20' },
+  ACTIVE: { label: 'Active', cls: 'bg-primary/10 text-primary border-primary/20' },
+  PAUSED: { label: 'Paused', cls: 'bg-muted/60 text-muted-foreground border-[var(--card-border)]' },
+  EXPIRED: { label: 'Expired', cls: 'bg-destructive/10 text-destructive border-destructive/20' },
+  CANCELLED: { label: 'Cancelled', cls: 'bg-muted/60 text-muted-foreground border-[var(--card-border)]' },
+  INACTIVE: { label: 'Inactive', cls: 'bg-muted/60 text-muted-foreground border-[var(--card-border)]' },
 };
 
 function getStatusFromBot(bot: SubscribedBot): SubscriptionStatus {
@@ -144,11 +144,12 @@ function SummaryCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: delay ?? 0 }}
-      className="dashboard-card p-5"
+      transition={{ delay: delay ?? 0, duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -4 }}
+      className="group dashboard-card p-5 transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-xl', iconCls)}>
+        <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105', iconCls)}>
           <Icon className="h-4 w-4" />
         </div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
@@ -210,7 +211,7 @@ function ActionMenu({
             <button
               type="button"
               onClick={() => { onPause(bot.id); setOpen(false); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-yellow-400 hover:bg-yellow-500/10 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-muted-foreground hover:bg-muted/40 transition-colors"
             >
               <Pause className="h-3.5 w-3.5" />
               Pause
@@ -220,7 +221,7 @@ function ActionMenu({
             <button
               type="button"
               onClick={() => { onResume(bot.id); setOpen(false); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/10 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
             >
               <Play className="h-3.5 w-3.5" />
               Resume
@@ -230,7 +231,7 @@ function ActionMenu({
             <button
               type="button"
               onClick={() => { onCancel(bot.id, bot.name); setOpen(false); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-red-400 hover:bg-red-500/10 transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
             >
               <X className="h-3.5 w-3.5" />
               Cancel
@@ -271,7 +272,7 @@ function CancelDialog({
         className="relative dashboard-card p-6 max-w-sm w-full space-y-4 z-10"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-400">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
             <AlertCircle className="h-5 w-5" />
           </div>
           <div>
@@ -295,7 +296,7 @@ function CancelDialog({
             type="button"
             onClick={onConfirm}
             disabled={isPending}
-            className="flex-1 h-9 rounded-xl bg-red-500 text-white text-xs font-bold hover:bg-red-600 transition-colors disabled:opacity-50"
+            className="flex-1 h-9 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold hover:bg-[var(--brand-crimson-dark)] transition-colors disabled:opacity-50"
           >
             {isPending ? 'Cancelling…' : 'Yes, Cancel'}
           </button>
@@ -425,7 +426,7 @@ export default function SubscriptionsPage() {
         className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
       >
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-primary/10 text-primary shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_10%,transparent)]">
             <CreditCard className="h-5 w-5" />
           </div>
           <div>
@@ -437,14 +438,14 @@ export default function SubscriptionsPage() {
           <button
             type="button"
             onClick={() => queryClient.invalidateQueries({ queryKey: ['subscriptions'] })}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground transition-colors"
+            className="btn-premium-ghost inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground"
             aria-label="Refresh"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
           <Link
             href="/marketplace"
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors shadow-sm"
+            className="btn-premium inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide"
           >
             <Bot className="h-4 w-4" />
             Browse Bots
@@ -466,7 +467,7 @@ export default function SubscriptionsPage() {
           label="Monthly Spend"
           value={formatINR(monthlySpend)}
           icon={IndianRupee}
-          iconCls="bg-blue-500/10 text-blue-400"
+          iconCls="bg-[color-mix(in_srgb,var(--accent)_20%,transparent)] text-[var(--accent-foreground)]"
           isLoading={isLoading}
           delay={0.06}
         />
@@ -474,7 +475,7 @@ export default function SubscriptionsPage() {
           label="Annual Spend"
           value={formatINR(annualSpend)}
           icon={TrendingUp}
-          iconCls="bg-orange-500/10 text-orange-400"
+          iconCls="bg-primary/10 text-primary"
           isLoading={isLoading}
           delay={0.12}
         />
@@ -482,7 +483,7 @@ export default function SubscriptionsPage() {
           label="Next Renewal"
           value={formatDate(nextRenewal)}
           icon={Calendar}
-          iconCls="bg-emerald-500/10 text-emerald-400"
+          iconCls="bg-muted/60 text-muted-foreground"
           isLoading={isLoading}
           delay={0.18}
         />
@@ -513,7 +514,7 @@ export default function SubscriptionsPage() {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="responsive-table-shell">
           <table className="w-full min-w-[860px]">
             <thead>
               <tr className="border-b border-[var(--card-border)] bg-muted/20">
@@ -608,7 +609,7 @@ export default function SubscriptionsPage() {
                       {/* Auto-Renewal */}
                       <td className="px-4 py-3.5">
                         {autoRenew ? (
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
+                          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary">
                             <ToggleRight className="h-4 w-4" />
                             On
                           </span>

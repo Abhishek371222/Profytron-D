@@ -108,6 +108,7 @@ import {
  Trophy,
  BookOpen,
  MemoryStick,
+ Menu,
  type LucideIcon
 } from 'lucide-react';
 
@@ -254,6 +255,7 @@ export {
  Trophy,
  BookOpen,
  MemoryStick,
+ Menu,
 };
 
 export type { LucideIcon };

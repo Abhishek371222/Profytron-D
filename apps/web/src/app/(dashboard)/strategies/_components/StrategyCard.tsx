@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { Area, AreaChart, ResponsiveContainer } from 'recharts';
 import { ArrowRight, BarChart3, CheckCircle2, Target, Zap, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -59,16 +60,20 @@ export function StrategyCard({
   const subscribers = toNumber(strategy.subscribers, toNumber(strategy.copiesCount));
   const monthlyPrice = toNumber(strategy.price, toNumber(strategy.monthlyPrice));
   const chartData = React.useMemo(() => buildChartData(strategy), [strategy]);
-  const chartColor = maxDrawdown > 15 ? '#DC2626' : '#47a7aa';
+  const chartColor = maxDrawdown > 15 ? 'var(--destructive)' : 'var(--primary)';
   const CategoryIcon = CATEGORY_ICONS[strategy.category] ?? BarChart3;
   const creatorName = strategy.creator?.fullName ?? 'Unknown';
   const catStyle = CATEGORY_COLORS[strategy.category] ?? 'bg-muted text-muted-foreground border-[var(--card-border)]';
 
   if (viewMode === 'list') {
     return (
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.03, duration: 0.3, ease: 'easeOut' }}
+        whileHover={{ y: -3 }}
         onClick={() => router.push(`/strategies/${strategy.id}`)}
-        className="group dashboard-card p-4 flex flex-col lg:flex-row lg:items-center gap-4 cursor-pointer hover:border-primary/25 transition-colors"
+        className="group dashboard-card p-4 flex flex-col lg:flex-row lg:items-center gap-4 cursor-pointer transition-all duration-300 hover:border-primary/25 hover:shadow-[var(--shadow-card-hover)]"
       >
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
@@ -88,15 +93,18 @@ export function StrategyCard({
         <DashButton onClick={(e) => { e.stopPropagation(); onActivate(); }} className="shrink-0 gap-1">
           Activate <ArrowRight className="h-3.5 w-3.5" />
         </DashButton>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.04, duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -5 }}
       onClick={() => router.push(`/strategies/${strategy.id}`)}
-      className="dashboard-card p-5 flex flex-col cursor-pointer hover:border-primary/25 transition-colors min-h-[380px]"
-      style={{ animationDelay: `${index * 30}ms` }}
+      className="dashboard-card p-5 flex flex-col cursor-pointer transition-all duration-300 hover:border-primary/25 hover:shadow-[var(--shadow-card-hover)] min-h-[380px]"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -155,7 +163,7 @@ export function StrategyCard({
           Activate
         </DashButton>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

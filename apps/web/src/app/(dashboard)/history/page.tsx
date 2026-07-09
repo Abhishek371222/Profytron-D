@@ -245,7 +245,7 @@ export default function HistoryPage() {
 
  {/* Main Table */}
  <div className="dash-table-wrap overflow-hidden">
- <div className="overflow-x-auto">
+ <div className="responsive-table-shell">
  <table className="w-full border-collapse">
  <thead>
  <tr className="border-b border-[var(--card-border)] bg-muted/50">

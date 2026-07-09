@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
@@ -65,7 +65,7 @@ export default function CareersPage() {
                 </span>
               </h1>
               <p className="mt-8 text-lg text-foreground/50 leading-relaxed max-w-xl mx-auto font-medium">
-                Profytron is assembling an elite group of engineers, quants, and builders. Formal job listings are coming soon — get notified the moment we go live.
+                Profytron is assembling an elite group of engineers, quants, and builders. Formal job listings are coming soon � get notified the moment we go live.
               </p>
             </div>
 
@@ -90,7 +90,7 @@ export default function CareersPage() {
                   </div>
                   <button
                     type="submit"
-                    className="h-12 px-6 rounded-xl bg-primary hover:bg-primary text-foreground text-sm font-semibold transition-all shadow-[0_0_24px_rgba(71,167,170,0.35)] hover:shadow-[0_0_40px_rgba(71,167,170,0.5)] flex items-center gap-2 whitespace-nowrap"
+                    className="h-12 px-6 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-semibold transition-all shadow-[0_0_24px_rgba(71,167,170,0.35)] hover:shadow-[0_0_40px_rgba(71,167,170,0.5)] flex items-center gap-2 whitespace-nowrap"
                   >
                     Notify Me <ArrowRight className="w-4 h-4" />
                   </button>
@@ -126,7 +126,7 @@ export default function CareersPage() {
             </p>
             <a
               href="mailto:careers@profytron.com"
-              className="inline-flex items-center gap-3 px-7 py-3.5 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(71,167,170,0.3)]"
+              className="inline-flex items-center gap-3 px-7 py-3.5 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(71,167,170,0.3)]"
             >
               <Mail className="w-4 h-4" /> careers@profytron.com
             </a>

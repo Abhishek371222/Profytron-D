@@ -22,7 +22,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
 
   return (
     <div className="relative overflow-hidden rounded-[32px] border border-border bg-card p-5 shadow-card">
-      <div className={cn('absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(71,167,170,0.22),_transparent_52%)]', accentClassName)} />
+      <div className={cn('absolute inset-0 bg-[radial-gradient(circle_at_top,_color-mix(in_srgb,var(--primary)_22%,transparent),_transparent_52%)]', accentClassName)} />
       <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:32px_32px]" />
       <motion.div
         className="absolute -right-10 top-4 h-28 w-28 rounded-full bg-chart-5/10 blur-3xl"
@@ -49,7 +49,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 900 460" fill="none" aria-hidden="true">
           <motion.path
             d="M450 60 C 410 110, 360 150, 310 190 S 210 275, 150 330"
-            stroke="rgba(71,167,170,0.32)"
+            stroke="color-mix(in srgb, var(--primary) 32%, transparent)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray="10 12"
@@ -83,7 +83,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
           animate={reduceMotion ? undefined : { y: [0, 8, 0], scale: [1, 1.05, 1] }}
           transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-border bg-gradient-to-br from-white/10 via-primary/20 to-chart-5/10 shadow-[0_0_30px_rgba(71,167,170,0.22)]">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-border bg-gradient-to-br from-white/10 via-primary/20 to-chart-5/10 shadow-[0_0_30px_color-mix(in_srgb,var(--primary)_22%,transparent)]">
             <div className="flex h-14 w-14 items-center justify-center rounded-full border border-primary/30 bg-primary/15 text-xs font-bold uppercase tracking-[0.3em] text-foreground">
               Root
             </div>
@@ -123,7 +123,7 @@ export function AffiliateTreeScene({ title, subtitle, nodes, accentClassName }: 
               </div>
               <div className="relative mt-4 h-1 overflow-hidden rounded-full bg-foreground/8">
                 <motion.div
-                  className={cn('absolute inset-y-0 left-0 rounded-full bg-gradient-to-r', index % 2 === 0 ? 'from-primary via-chart-5 to-chart-3' : 'from-chart-4 via-orange-400 to-destructive')}
+                  className={cn('absolute inset-y-0 left-0 rounded-full bg-gradient-to-r', index % 2 === 0 ? 'from-primary via-chart-5 to-chart-3' : 'from-chart-4 via-chart-5 to-destructive')}
                   initial={{ width: '22%' }}
                   animate={reduceMotion ? undefined : { width: ['22%', '82%', '22%'] }}
                   transition={{ duration: 4 + index * 0.2, repeat: Infinity, ease: 'easeInOut' }}

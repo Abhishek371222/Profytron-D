@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import {
   Copy,
@@ -27,7 +28,6 @@ import {
   DashboardPage,
   DashboardBreadcrumbs,
   DashButton,
-  DashboardCard,
   DashStatCard,
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
@@ -152,7 +152,12 @@ export default function AffiliatePage() {
       <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Affiliate' }]} />
 
       {/* Hero */}
-      <DashboardCard className="p-6 md:p-8 overflow-hidden relative">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="dashboard-card p-6 md:p-8 overflow-hidden relative"
+      >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-chart-3/5 pointer-events-none" />
         <div className="relative grid gap-6 lg:grid-cols-[1fr_auto] items-start">
           <div className="space-y-4 max-w-2xl">
@@ -201,7 +206,7 @@ export default function AffiliatePage() {
             </svg>
           </div>
         </div>
-      </DashboardCard>
+      </motion.div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
         {/* Left column */}
@@ -219,7 +224,12 @@ export default function AffiliatePage() {
           </div>
 
           {/* Referral activity chart */}
-          <DashboardCard className="p-5">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.05, ease: 'easeOut' }}
+            className="dashboard-card p-5"
+          >
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-base font-semibold text-foreground">Referral Activity</h2>
@@ -234,26 +244,31 @@ export default function AffiliatePage() {
                 <AreaChart data={CHART_DATA}>
                   <defs>
                     <linearGradient id="affClicks" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#47a7aa" stopOpacity={0.25} />
-                      <stop offset="100%" stopColor="#47a7aa" stopOpacity={0} />
+                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="affSignups" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#16A34A" stopOpacity={0.2} />
-                      <stop offset="100%" stopColor="#16A34A" stopOpacity={0} />
+                      <stop offset="0%" stopColor="var(--chart-5)" stopOpacity={0.2} />
+                      <stop offset="100%" stopColor="var(--chart-5)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} width={32} />
+                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} width={32} />
                   <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid var(--card-border)', fontSize: 12 }} />
-                  <Area type="monotone" dataKey="clicks" stroke="#47a7aa" fill="url(#affClicks)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="signups" stroke="#16A34A" fill="url(#affSignups)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="clicks" stroke="var(--primary)" fill="url(#affClicks)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="signups" stroke="var(--chart-5)" fill="url(#affSignups)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-          </DashboardCard>
+          </motion.div>
 
           {/* Funnel */}
-          <DashboardCard className="p-5">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.1, ease: 'easeOut' }}
+            className="dashboard-card p-5"
+          >
             <h2 className="text-base font-semibold text-foreground mb-4">Live Funnel Pulse</h2>
             <div className="space-y-3">
               {funnel.map((row) => (
@@ -270,12 +285,17 @@ export default function AffiliatePage() {
                 </div>
               ))}
             </div>
-          </DashboardCard>
+          </motion.div>
         </div>
 
         {/* Right column — referral code */}
         <div className="space-y-4">
-          <DashboardCard className="p-5">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.05, ease: 'easeOut' }}
+            className="dashboard-card p-5"
+          >
             <div className="flex items-start justify-between gap-3 mb-4">
               <div>
                 <p className="text-xs font-medium text-muted-foreground">Your Referral Code</p>
@@ -319,10 +339,15 @@ export default function AffiliatePage() {
               <Copy className="h-4 w-4" />
               Copy Link
             </DashButton>
-          </DashboardCard>
+          </motion.div>
 
           {/* Network tree */}
-          <DashboardCard className="p-5">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.1, ease: 'easeOut' }}
+            className="dashboard-card p-5"
+          >
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-base font-semibold text-foreground">Affiliate Network</h2>
@@ -347,7 +372,7 @@ export default function AffiliatePage() {
               <Wallet className="h-4 w-4 text-primary shrink-0" />
               Pending: {stats ? formatCurrency(stats.pendingPayout) : '$0.00'}
             </div>
-          </DashboardCard>
+          </motion.div>
         </div>
       </div>
     </DashboardPage>

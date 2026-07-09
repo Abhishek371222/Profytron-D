@@ -1,4 +1,4 @@
-ï»¿"use client";
+"use client";
 import { motion } from "framer-motion";
 import { PublicPageLayout } from "@/components/layout/PublicPageLayout";
 import {
@@ -32,7 +32,7 @@ const values = [
   {
     icon: Cpu,
     title: "AI-Native Architecture",
-    desc: "Signal Core AI isn't a feature add-on â€” it's the foundation. Every module is designed around neural-network decision primitives.",
+    desc: "Signal Core AI isn't a feature add-on — it's the foundation. Every module is designed around neural-network decision primitives.",
   },
 ];
 
@@ -78,10 +78,10 @@ export default function AboutPage() {
             className="text-3xl md:text-4xl font-bold text-foreground/80 leading-relaxed border-l-2 border-primary pl-8"
           >
             "The gap between retail trading and institutional execution is not
-            talent â€” it's infrastructure. We close that gap."
+            talent — it's infrastructure. We close that gap."
           </motion.blockquote>
           <p className="mt-6 text-foreground/30 text-sm pl-8 font-mono uppercase tracking-widest">
-            â€” Profytron
+            — Profytron
           </p>
         </div>
       </section>
@@ -213,7 +213,7 @@ export default function AboutPage() {
             </p>
             <Link
               href="/careers"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold transition-all shadow-[0_0_30px_rgba(71,167,170,0.3)] hover:shadow-[0_0_50px_rgba(71,167,170,0.5)]"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl font-semibold transition-all shadow-[0_0_30px_rgba(71,167,170,0.3)] hover:shadow-[0_0_50px_rgba(71,167,170,0.5)]"
             >
               View Open Roles <ArrowRight className="w-4 h-4" />
             </Link>

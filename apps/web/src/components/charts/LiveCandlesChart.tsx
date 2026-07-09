@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -31,10 +31,10 @@ const SYMBOL_STORAGE_KEY = 'profytron.dashboard.chart.symbol';
 const symbolOptions: MarketSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'];
 const timeframeOptions: MarketTimeframe[] = ['1m', '5m', '15m', '1h', '4h', '1d'];
 
-const BULL = '#16A34A';
-const BEAR = '#DC2626';
-const VOL_BULL = 'rgba(71,167,170,0.35)';
-const VOL_BEAR = 'rgba(239,68,68,0.28)';
+const BULL = '#348398';
+const BEAR = '#973336';
+const VOL_BULL = 'color-mix(in srgb, #348398 18%, transparent)';
+const VOL_BEAR = 'color-mix(in srgb, #973336 18%, transparent)';
 
 const rangeToTimeframe = (rangeLabel: string): MarketTimeframe => {
 	switch (rangeLabel) {

@@ -196,7 +196,7 @@ function LoginPageContent() {
   };
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-background p-4 sm:p-6">
+    <main className="min-h-[100dvh] w-full min-w-0 overflow-x-hidden bg-background p-4 pb-safe pt-safe sm:p-6">
       <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_20%_20%,color-mix(in_srgb,var(--primary)_25%,transparent),transparent_45%),radial-gradient(circle_at_80%_80%,color-mix(in_srgb,var(--primary)_20%,transparent),transparent_40%)]" />
 
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-3rem)]">

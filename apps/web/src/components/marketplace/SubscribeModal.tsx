@@ -273,7 +273,7 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.15 }}
-                            className="flex items-center gap-3 rounded-xl border border-chart-3/20 bg-chart-3/[0.06] p-3.5 text-sm text-emerald-100 cursor-pointer hover:border-chart-3/35 transition-colors"
+                            className="flex items-center gap-3 rounded-xl border border-chart-3/20 bg-chart-3/[0.06] p-3.5 text-sm text-chart-3 cursor-pointer hover:border-chart-3/35 transition-colors"
                           >
                             <input
                               type="checkbox"
@@ -329,7 +329,7 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                         {useTrial && (
                           <div className="mt-3 flex items-center gap-2 rounded-xl border border-chart-3/20 bg-chart-3/[0.07] px-3 py-2.5">
                             <Sparkles className="w-3.5 h-3.5 text-chart-3 shrink-0" />
-                            <p className="text-caption text-emerald-200 font-semibold">
+                            <p className="text-caption text-chart-3 font-semibold">
                               Trial activates instantly — no charge today
                             </p>
                           </div>

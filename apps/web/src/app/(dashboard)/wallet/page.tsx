@@ -44,7 +44,7 @@ const TYPE_STYLES: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  PENDING: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
+  PENDING: 'bg-chart-4/10 text-chart-4 border-chart-4/20',
   CONFIRMED: 'bg-chart-3/10 text-chart-3 border-chart-3/20',
   FAILED: 'bg-destructive/10 text-destructive border-destructive/20',
 };
@@ -89,8 +89,9 @@ function BalanceCard({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className={cn('dashboard-card relative overflow-hidden p-5 min-h-[140px]', gradient)}
+      transition={{ delay, duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -4 }}
+      className={cn('dashboard-card relative overflow-hidden p-5 min-h-[140px] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]', gradient)}
     >
       <div className={cn('absolute -right-2 -bottom-2 opacity-[0.12] pointer-events-none', decorClass)}>
         <DecorIcon className="h-24 w-24" strokeWidth={1.25} />
@@ -283,9 +284,14 @@ export default function WalletPage() {
       </div>
 
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+      >
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-primary/10 text-primary shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_10%,transparent)]">
             <WalletIcon className="h-5 w-5" />
           </div>
           <div>
@@ -297,7 +303,7 @@ export default function WalletPage() {
           <button
             type="button"
             onClick={refreshWallet}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground transition-colors"
+            className="btn-premium-ghost inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground"
             aria-label="Refresh wallet"
           >
             <RefreshCcw className="h-4 w-4" />
@@ -305,7 +311,7 @@ export default function WalletPage() {
           <button
             type="button"
             onClick={() => setIsDepositOpen(true)}
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors shadow-sm"
+            className="btn-premium inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide"
           >
             <Plus className="h-4 w-4" />
             Deposit
@@ -313,13 +319,13 @@ export default function WalletPage() {
           <button
             type="button"
             onClick={() => setIsWithdrawOpen(true)}
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-xl border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+            className="btn-premium-ghost inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30"
           >
             <ArrowUpRight className="h-4 w-4" />
             Withdraw
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Balance Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -352,11 +358,11 @@ export default function WalletPage() {
           value={formatCurrency(reserved, currency)}
           footer="Pending settlement"
           footerIcon={Clock}
-          footerClass="text-orange-600"
-          valueClass="text-orange-600"
-          gradient="bg-gradient-to-br from-orange-500/[0.08] to-orange-500/[0.02]"
+          footerClass="text-chart-4"
+          valueClass="text-chart-4"
+          gradient="bg-gradient-to-br from-chart-4/[0.08] to-chart-4/[0.02]"
           decorIcon={Lock}
-          decorClass="text-orange-500"
+          decorClass="text-chart-4"
           loading={loading}
           delay={0.1}
         />
@@ -414,7 +420,7 @@ export default function WalletPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="responsive-table-shell">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[var(--card-border)] bg-muted/20">
@@ -453,7 +459,7 @@ export default function WalletPage() {
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.03 }}
-                        className="group hover:bg-muted0 transition-colors"
+                        className="group hover:bg-[color-mix(in_srgb,var(--primary)_4%,var(--muted))] transition-colors duration-200"
                       >
                         <td className="px-5 py-4">
                           <p className="text-sm font-medium text-foreground">{date.toLocaleDateString()}</p>
@@ -584,7 +590,7 @@ export default function WalletPage() {
             {[
               { label: 'Total Deposit', value: formatCurrency(summaryStats.totalDeposit, currency), icon: ArrowDownLeft, iconBg: 'bg-chart-3/10 text-chart-3' },
               { label: 'Total Withdrawal', value: formatCurrency(summaryStats.totalWithdrawal, currency), icon: ArrowUpRight, iconBg: 'bg-destructive/10 text-destructive' },
-              { label: 'Net Flow', value: formatCurrency(summaryStats.netFlow, currency), icon: ArrowLeftRight, iconBg: 'bg-blue-500/10 text-blue-600' },
+              { label: 'Net Flow', value: formatCurrency(summaryStats.netFlow, currency), icon: ArrowLeftRight, iconBg: 'bg-chart-5/10 text-chart-5' },
               { label: 'Transactions', value: summaryQuery.isLoading ? '—' : String(summaryStats.count), icon: List, iconBg: 'bg-primary/10 text-primary' },
             ].map(({ label, value, icon: Icon, iconBg }) => (
               <div key={label} className="flex items-center gap-3 rounded-xl border border-[var(--card-border)] bg-muted/20 p-3">

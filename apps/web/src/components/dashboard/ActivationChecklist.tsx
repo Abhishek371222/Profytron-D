@@ -88,7 +88,7 @@ export function ActivationChecklist() {
         {next && (
           <Link
             href={next.href}
-            className="inline-flex items-center justify-center w-full h-10 rounded-xl bg-primary hover:bg-primary text-foreground text-caption font-bold uppercase tracking-widest transition-colors"
+            className="inline-flex items-center justify-center w-full h-[var(--control-h-sm)] rounded-[var(--radius-button)] bg-primary hover:bg-primary-hover text-primary-foreground text-caption font-bold uppercase tracking-widest transition-colors duration-200"
           >
             {next.label}
           </Link>

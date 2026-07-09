@@ -44,8 +44,8 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="pt-24 pb-12 bg-bg-secondary border-t border-border relative overflow-hidden">
-      <div className="container mx-auto px-6 relative z-10 max-w-[1200px]">
+    <footer className="relative overflow-hidden border-t border-border bg-bg-secondary pb-[calc(3rem+env(safe-area-inset-bottom,0px))] pt-16 sm:pt-24">
+      <div className="container relative z-10 mx-auto max-w-[1200px] px-[clamp(1rem,4vw,1.5rem)]">
         <div className="mb-12">
           <TrustBadges />
         </div>

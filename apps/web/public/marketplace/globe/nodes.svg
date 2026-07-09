@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" fill="none">
+  <defs>
+    <filter id="nodeGlow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g filter="url(#nodeGlow)">
+  <g class="globe-node" style="animation-delay:0s">
+    <circle cx="295" cy="370" r="14" fill="#348398" fill-opacity="0.08"/>
+    <circle cx="295" cy="370" r="8" fill="#9FE1F3" fill-opacity="0.15"/>
+    <circle cx="295" cy="370" r="4" fill="#9FE1F3"/>
+    <circle cx="295" cy="370" r="1.5" fill="#ADFFFC"/>
+  </g>
+  <g class="globe-node" style="animation-delay:0.4s">
+    <circle cx="495" cy="320" r="14" fill="#348398" fill-opacity="0.08"/>
+    <circle cx="495" cy="320" r="8" fill="#9FE1F3" fill-opacity="0.15"/>
+    <circle cx="495" cy="320" r="4" fill="#9FE1F3"/>
+    <circle cx="495" cy="320" r="1.5" fill="#ADFFFC"/>
+  </g>
+  <g class="globe-node" style="animation-delay:0.8s">
+    <circle cx="595" cy="380" r="14" fill="#348398" fill-opacity="0.08"/>
+    <circle cx="595" cy="380" r="8" fill="#9FE1F3" fill-opacity="0.15"/>
+    <circle cx="595" cy="380" r="4" fill="#9FE1F3"/>
+    <circle cx="595" cy="380" r="1.5" fill="#ADFFFC"/>
+  </g>
+  <g class="globe-node" style="animation-delay:1.2000000000000002s">
+    <circle cx="680" cy="470" r="14" fill="#348398" fill-opacity="0.08"/>
+    <circle cx="680" cy="470" r="8" fill="#9FE1F3" fill-opacity="0.15"/>
+    <circle cx="680" cy="470" r="4" fill="#9FE1F3"/>
+    <circle cx="680" cy="470" r="1.5" fill="#ADFFFC"/>
+  </g>
+  <g class="globe-node" style="animation-delay:1.6s">
+    <circle cx="740" cy="340" r="14" fill="#348398" fill-opacity="0.08"/>
+    <circle cx="740" cy="340" r="8" fill="#9FE1F3" fill-opacity="0.15"/>
+    <circle cx="740" cy="340" r="4" fill="#9FE1F3"/>
+    <circle cx="740" cy="340" r="1.5" fill="#ADFFFC"/>
+  </g>
+  <g class="globe-node" style="animation-delay:2s">
+    <circle cx="780" cy="560" r="14" fill="#348398" fill-opacity="0.08"/>
+    <circle cx="780" cy="560" r="8" fill="#9FE1F3" fill-opacity="0.15"/>
+    <circle cx="780" cy="560" r="4" fill="#9FE1F3"/>
+    <circle cx="780" cy="560" r="1.5" fill="#ADFFFC"/>
+  </g>
+  </g>
+</svg>

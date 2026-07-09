@@ -17,7 +17,7 @@ import { useUIStore } from '@/lib/stores/useUIStore';
 const APP_SHELL_ROUTES = [
   '/dashboard', '/analytics', '/wallet', '/strategies', '/marketplace',
   '/journal', '/history', '/leaderboard', '/bots', '/copy-trading',
-  '/notifications', '/affiliate', '/ai-coach', '/settings', '/admin',
+  '/notifications', '/affiliate', '/alpha-coach', '/settings', '/admin',
   '/my-bots', '/subscriptions', '/billing', '/team-plans', '/connected-accounts',
 ];
 
@@ -39,7 +39,7 @@ const QUICK_SUGGESTIONS = [
   'What is Profytron?',
   'How do I connect a broker?',
   'How do automated trading bots work?',
-  'How does the AI Coach work?',
+  'How does Alpha Coach work?',
   'How do I build a strategy?',
   'What is Paper Trading?',
 ];
@@ -237,7 +237,7 @@ export function ChatbotWidget() {
             exit={{ opacity: 0, scale: 0.88, y: 16 }}
             transition={{ type: 'spring', stiffness: 420, damping: 30 }}
             style={{ transformOrigin: 'bottom right' }}
-            className="w-[370px] max-w-[calc(100vw-24px)] rounded-[20px] overflow-hidden flex flex-col bg-card backdrop-blur-xl border border-[var(--card-border)] shadow-card-premium h-[540px] max-h-[calc(100dvh-7rem)]"
+            className="w-[min(370px,calc(100vw-1.5rem))] max-w-[calc(100vw-24px)] rounded-[20px] overflow-hidden flex flex-col bg-card backdrop-blur-xl border border-[var(--card-border)] shadow-card-premium h-[min(540px,calc(100dvh-7rem))] max-h-[calc(100dvh-5rem-env(safe-area-inset-bottom,0px))]"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-primary via-primary to-chart-2 px-5 py-4 flex items-center justify-between shrink-0 relative overflow-hidden">

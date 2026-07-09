@@ -35,8 +35,8 @@ import {
 import { StrategyActivationModal } from '@/components/strategies/StrategyActivationModal';
 import { StrategiesBreadcrumbs, CATEGORY_COLORS } from '../_components/StrategiesShared';
 
-const CHART_GRID = 'rgba(15,23,42,0.06)';
-const CHART_TICK = { fill: '#94A3B8', fontSize: 10 };
+const CHART_GRID = 'var(--card-border)';
+const CHART_TICK = { fill: 'var(--muted-foreground)', fontSize: 10 };
 
 export default function StrategyDetailPage() {
   const { id } = useParams();
@@ -172,7 +172,7 @@ export default function StrategyDetailPage() {
         <StatCard label="30D Return" value={`+${perf.winRate ?? 0}%`} icon={TrendingUp} iconBg="bg-chart-3/10 text-chart-3" valueClass="text-chart-3" />
         <StatCard label="Sharpe Ratio" value={perf.sharpeRatio ?? 0} icon={Zap} iconBg="bg-primary/10 text-primary" valueClass="text-primary" />
         <StatCard label="Max Drawdown" value={`-${perf.maxDrawdown ?? 0}%`} icon={AlertTriangle} iconBg="bg-destructive/10 text-destructive" valueClass="text-destructive" />
-        <StatCard label="Subscribers" value={strategy.copiesCount ?? 0} icon={Globe} iconBg="bg-blue-500/10 text-blue-600" valueClass="text-blue-600" />
+        <StatCard label="Subscribers" value={strategy.copiesCount ?? 0} icon={Globe} iconBg="bg-chart-5/10 text-chart-5" valueClass="text-chart-5" />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
@@ -207,8 +207,8 @@ export default function StrategyDetailPage() {
                 <AreaChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="strategyEq" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#47a7aa" stopOpacity={0.25} />
-                      <stop offset="100%" stopColor="#47a7aa" stopOpacity={0.02} />
+                      <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="var(--primary)" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} vertical={false} />
@@ -230,7 +230,7 @@ export default function StrategyDetailPage() {
                       ) : null
                     }
                   />
-                  <Area type="monotone" dataKey="value" stroke="#47a7aa" fill="url(#strategyEq)" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="value" stroke="var(--primary)" fill="url(#strategyEq)" strokeWidth={2} dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -345,7 +345,7 @@ export default function StrategyDetailPage() {
             </p>
             <Button
               variant="ghost"
-              onClick={() => router.push(`/ai-coach?topic=${encodeURIComponent(strategy.name)}`)}
+              onClick={() => router.push(`/alpha-coach?topic=${encodeURIComponent(strategy.name)}`)}
               className="w-full rounded-xl border border-[var(--card-border)] text-xs font-semibold uppercase tracking-wide"
             >
               Contact Creator

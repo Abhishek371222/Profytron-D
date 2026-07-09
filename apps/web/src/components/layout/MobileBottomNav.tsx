@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Sparkles,
+  Server,
   ShoppingBag,
   Wallet,
   Trophy,
@@ -16,8 +16,8 @@ import { motion } from "framer-motion";
 const bottomNavItems = [
   { name: "Home", icon: LayoutDashboard, href: "/dashboard" },
   { name: "Market", icon: ShoppingBag, href: "/marketplace" },
+  { name: "Bots", icon: Server, href: "/my-bots" },
   { name: "Wallet", icon: Wallet, href: "/wallet" },
-  { name: "AI", icon: Sparkles, href: "/ai-coach" },
   { name: "Ranks", icon: Trophy, href: "/leaderboard" },
 ];
 
@@ -53,7 +53,7 @@ export function MobileBottomNav() {
                 {isActive && (
                   <motion.div
                     layoutId="mobile-nav-bar"
-                    className="absolute top-0 inset-x-4 h-[2px] rounded-b-full bg-gradient-to-r from-[var(--primary)] to-[var(--brand-crimson)]"
+                    className="absolute top-0 inset-x-4 h-[2px] rounded-b-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"
                     style={{ boxShadow: "0 0 10px color-mix(in srgb, var(--primary) 55%, transparent)" }}
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />

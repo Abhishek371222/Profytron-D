@@ -68,21 +68,14 @@ export function TopBar() {
   };
 
   return (
-    <header suppressHydrationWarning className="relative h-16 sm:h-[68px] w-full flex items-center justify-between px-3 sm:px-5 lg:px-6 z-30 gap-2 sm:gap-4">
-      {/* Glass backdrop */}
-      <div className="absolute inset-0 glass-navbar border-b border-[var(--card-border)]" />
-
-      {/* Top hairline accent */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
-
-      {/* Ambient glow */}
-      <div className="pointer-events-none absolute right-24 -top-8 w-48 h-16 rounded-full bg-primary/[0.06] blur-2xl" />
+    <header suppressHydrationWarning className="relative h-full w-full flex items-center justify-between px-[var(--dashboard-p)] z-30 gap-[clamp(0.5rem,1vw,1rem)] topbar-float">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
 
       {/* ─── Left: Mobile menu + Search ─── */}
       <div className="relative z-10 flex items-center gap-2 sm:gap-3 flex-1 max-w-xl min-w-0">
         <button
           onClick={toggleSidebar}
-          className="lg:hidden h-10 w-10 shrink-0 rounded-button border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-hover flex items-center justify-center"
+          className="lg:hidden h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] shrink-0 rounded-button border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-hover flex items-center justify-center"
           aria-label="Toggle sidebar"
         >
           <Menu className="w-[18px] h-[18px]" />
@@ -92,10 +85,10 @@ export function TopBar() {
           type="button"
           onClick={() => setCommandPaletteOpen(true)}
           className={cn(
-            "relative w-full min-w-0 flex items-center gap-2.5 px-3.5 h-10 sm:h-[42px] rounded-xl transition-all duration-200 group overflow-hidden",
+            "relative w-full min-w-0 flex items-center gap-2.5 px-3.5 h-[clamp(2.375rem,2.6vw,2.625rem)] rounded-[14px] transition-all duration-[220ms] ease-out group overflow-hidden",
             searchFocused
-              ? "bg-[color-mix(in_srgb,var(--primary)_6%,transparent)] border border-[color-mix(in_srgb,var(--primary)_30%,transparent)] shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_14%,transparent)] scale-[1.01]"
-              : "bg-card border border-border hover:bg-muted hover:border-[color-mix(in_srgb,var(--primary)_15%,var(--border))]",
+              ? "bg-card border border-[color-mix(in_srgb,var(--primary)_28%,var(--card-border))] shadow-[0_4px_24px_color-mix(in_srgb,var(--primary)_10%,transparent)]"
+              : "bg-card/70 border border-[color-mix(in_srgb,var(--card-border)_80%,transparent)] hover:bg-card hover:border-[color-mix(in_srgb,var(--primary)_12%,var(--card-border))]",
           )}
           onMouseEnter={() => setSearchFocused(true)}
           onMouseLeave={() => setSearchFocused(false)}

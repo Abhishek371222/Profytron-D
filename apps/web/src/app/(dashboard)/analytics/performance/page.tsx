@@ -131,8 +131,8 @@ export default function PerformanceAnalyticsPage() {
           label="Strategies"
           value={totalStrategies || '—'}
           icon={BarChart2}
-          iconBg="bg-blue-500/10 text-blue-600"
-          valueClass="text-blue-600"
+          iconBg="bg-chart-5/10 text-chart-5"
+          valueClass="text-chart-5"
           delay={0.1}
         />
         <StatCard
@@ -186,13 +186,13 @@ export default function PerformanceAnalyticsPage() {
                     />
                   }
                 />
-                <Bar yAxisId="left" dataKey="netPnlK" fill="#16A34A" radius={[6, 6, 0, 0]} opacity={0.85} />
+                <Bar yAxisId="left" dataKey="netPnlK" fill="var(--chart-bull)" radius={[6, 6, 0, 0]} opacity={0.85} />
                 <Line
                   yAxisId="right"
                   dataKey="winRate"
-                  stroke="#47a7aa"
+                  stroke="var(--primary)"
                   strokeWidth={2}
-                  dot={{ r: 3, fill: '#47a7aa' }}
+                  dot={{ r: 3, fill: 'var(--primary)' }}
                   activeDot={{ r: 5 }}
                 />
               </ComposedChart>
@@ -230,7 +230,7 @@ export default function PerformanceAnalyticsPage() {
                   {monthly.months.map((item) => (
                     <Cell
                       key={`${item.month}-${item.year}`}
-                      fill={item.returnPct >= 0 ? '#16A34A' : '#DC2626'}
+                      fill={item.returnPct >= 0 ? 'var(--chart-bull)' : 'var(--chart-bear)'}
                       fillOpacity={0.85}
                     />
                   ))}

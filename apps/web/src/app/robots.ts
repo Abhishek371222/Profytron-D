@@ -6,7 +6,7 @@ const PRIVATE_PREFIXES = [
   '/strategies',
   '/marketplace',
   '/analytics',
-  '/ai-coach',
+  '/alpha-coach',
   '/wallet',
   '/affiliate',
   '/settings',

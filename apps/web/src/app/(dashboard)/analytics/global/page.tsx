@@ -267,9 +267,9 @@ export default function GlobalAnalyticsPage() {
           </div>
         ) : (
           !leaderboardQuery.isLoading && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-amber-200/80 bg-amber-50 w-fit">
-              <AlertTriangle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-              <p className="text-xs text-amber-900/80">No leaderboard entries yet.</p>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)] w-fit">
+              <AlertTriangle className="h-3.5 w-3.5 text-[var(--info)] shrink-0" />
+              <p className="text-xs text-foreground/80">No leaderboard entries yet.</p>
             </div>
           )
         )}

@@ -27,17 +27,17 @@ const drawdownData = [
 const riskMetrics = [
  { label: 'VaR 95%', val: '$8,240', sub: 'DAILY VALUE AT RISK', icon: Shield , color : 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20' },
  { label: 'Max Consec Losses', val: '4', sub: 'HISTORICAL PEAK', icon: AlertTriangle, color: 'text-chart-4', bg: 'bg-chart-4/10', border: 'border-chart-4/20' },
- { label: 'Largest Loss', val: '-$3,120', sub: 'NOV 12 LIQUIDITY EVENT', icon: TrendingDown, color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+ { label: 'Largest Loss', val: '-$3,120', sub: 'NOV 12 LIQUIDITY EVENT', icon: TrendingDown, color: 'text-destructive', bg: 'bg-destructive/10', border: 'border-destructive/20' },
  { label: 'Best Single Win', val: '+$5,840', sub: 'DEC 05 VOL BREAKOUT', icon: ShieldCheck, color: 'text-chart-3', bg: 'bg-chart-3/10', border: 'border-chart-3/20' },
  { label: 'Avg Risk/Reward', val: '1 : 2.4', sub: 'EXPECTED UTILITY SCORE', icon: Gauge, color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/20' },
  { label: 'Calmar Ratio', val: '1.45', sub: 'EFFICIENCY MULTIPLIER', icon: Activity, color: 'text-chart-5', bg: 'bg-chart-5/10', border: 'border-chart-5/20' },
 ];
 
 const riskZones = [
- { label: 'CRITICAL', range: '>15%', color: '#ef4444', pct: 5 },
- { label: 'HIGH', range: '10–15%', color: '#f59e0b', pct: 15 },
- { label: 'MODERATE', range: '5–10%', color: '#eab308', pct: 30 },
- { label: 'LOW', range: '<5%', color: '#10b981', pct: 50 },
+ { label: 'CRITICAL', range: '>15%', color: 'var(--destructive)', pct: 5 },
+ { label: 'HIGH', range: '10–15%', color: 'var(--chart-4)', pct: 15 },
+ { label: 'MODERATE', range: '5–10%', color: 'var(--chart-4)', pct: 30 },
+ { label: 'LOW', range: '<5%', color: 'var(--chart-bull)', pct: 50 },
 ];
 
 const containerVariants = {
@@ -53,9 +53,9 @@ const CustomTooltip = React.memo(function CustomTooltip({ active, payload, label
  if (active && payload?.[0]) {
  const v = payload[0].value as number;
  return (
- <div className="bg-popover/95 border-2 border-red-500/20 rounded-[20px] p-5 shadow-[0_30px_60px_rgba(239,68,68,0.2)] backdrop-blur-3xl">
- <p className="text-xs font-semibold text-red-500/40 uppercase tracking-[0.4em] mb-2">{label}</p>
- <p className="text-xl font-semibold text-red-500">{v.toFixed(2)}% <span className="text-xs text-foreground/20 ml-2 font-normal uppercase tracking-wider">drawdown</span></p>
+ <div className="bg-popover/95 border-2 border-destructive/20 rounded-[20px] p-5 shadow-[0_30px_60px_color-mix(in_srgb,var(--destructive)_20%,transparent)] backdrop-blur-3xl">
+ <p className="text-xs font-semibold text-destructive/40 uppercase tracking-[0.4em] mb-2">{label}</p>
+ <p className="text-xl font-semibold text-destructive">{v.toFixed(2)}% <span className="text-xs text-foreground/20 ml-2 font-normal uppercase tracking-wider">drawdown</span></p>
  </div>
  );
  }
@@ -91,9 +91,9 @@ export default function RiskTab() {
  <svg className="w-full h-full" viewBox="0 0 200 110">
  <defs>
  <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
- <stop offset="0%" stopColor="#ef4444" />
- <stop offset="50%" stopColor="#f59e0b" />
- <stop offset="100%" stopColor="#10b981" />
+ <stop offset="0%" stopColor="var(--destructive)" />
+ <stop offset="50%" stopColor="var(--chart-4)" />
+ <stop offset="100%" stopColor="var(--chart-bull)" />
  </linearGradient>
  </defs>
  {/* Background track */}
@@ -128,7 +128,7 @@ export default function RiskTab() {
  style={{ originX: '50%', originY: '100%' }}
  className="absolute bottom-0 left-1/2 -ml-0.5 w-1 h-28 z-20"
  >
- <div className="h-full bg-linear-to-t from-white via-chart-4 to-transparent rounded-full shadow-[0_0_16px_rgba(245,158,11,0.6)]" />
+ <div className="h-full bg-linear-to-t from-white via-chart-4 to-transparent rounded-full shadow-[0_0_16px_color-mix(in_srgb,var(--chart-4)_60%,transparent)]" />
  <div className="w-6 h-6 rounded-full bg-black border-4 border-chart-4 absolute -bottom-3 -left-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex items-center justify-center">
  <div className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
  </div>
@@ -169,12 +169,12 @@ export default function RiskTab() {
  {/* Losing period Chart */}
  <motion.div variants={itemVariants} className="lg:col-span-2">
  <Card className="p-10 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[40px]">
- <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-red-500/50 to-transparent" />
+ <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-destructive/50 to-transparent" />
  <div className="flex flex-col md:flex-row md:items-start justify-between gap-8 mb-8 relative z-10">
  <div className="space-y-3">
  <div className="flex items-center gap-4">
- <div className="w-10 h-10 rounded-[14px] bg-red-500/10 border-2 border-red-500/20 flex items-center justify-center">
- <Shield className="w-5 h-5 text-red-400" />
+ <div className="w-10 h-10 rounded-[14px] bg-destructive/10 border-2 border-destructive/20 flex items-center justify-center">
+ <Shield className="w-5 h-5 text-destructive" />
  </div>
  <h4 className="text-xl font-semibold text-foreground uppercase tracking-tight">Stress_Profile_Lattice</h4>
  </div>
@@ -182,10 +182,10 @@ export default function RiskTab() {
  Underwater analytics relative to High-Water Mark. Visualizing drawdown recovery velocity.
  </p>
  </div>
- <div className="flex bg-red-500/5 px-6 py-4 rounded-3xl border border-red-500/20 shrink-0">
+ <div className="flex bg-destructive/5 px-6 py-4 rounded-3xl border border-destructive/20 shrink-0">
  <div className="flex flex-col items-end gap-1">
- <span className="text-xs font-semibold text-red-500/40 uppercase tracking-[0.3em]">PEAK_VARIANCE</span>
- <span className="text-2xl font-semibold text-red-500 tracking-tight">-12.48%</span>
+ <span className="text-xs font-semibold text-destructive/40 uppercase tracking-[0.3em]">PEAK_VARIANCE</span>
+ <span className="text-2xl font-semibold text-destructive tracking-tight">-12.48%</span>
  </div>
  </div>
  </div>
@@ -196,16 +196,16 @@ export default function RiskTab() {
  <AreaChart data={drawdownData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
  <defs>
  <linearGradient id="ddGrad" x1="0" y1="0" x2="0" y2="1">
- <stop offset="5%" stopColor="#ef4444" stopOpacity={0.5} />
- <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+ <stop offset="5%" stopColor="var(--destructive)" stopOpacity={0.5} />
+ <stop offset="95%" stopColor="var(--destructive)" stopOpacity={0} />
  </linearGradient>
  </defs>
  <CartesianGrid strokeDasharray="4 4" stroke="rgba(255,255,255,0.03)" vertical={false} />
  <XAxis dataKey="time" hide />
  <YAxis axisLine={false} tickLine={false} tick={{ fill: 'rgba(255,255,255,0.1)', fontSize: 10, fontWeight: 900 }} tickFormatter={(v) => `${v}%`} dx={-10} />
  <Tooltip content={<CustomTooltip />} />
- <ReferenceLine y={-12.4} stroke="rgba(239,68,68,0.3)" strokeDasharray="6 6" label={{ value: 'MAX DD', fill: 'rgba(239,68,68,0.4)', fontSize: 9, fontWeight: 900 }} />
- <Area type="monotone" dataKey="val" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#ddGrad)" animationDuration={2000} strokeLinecap="round" dot={false} />
+ <ReferenceLine y={-12.4} stroke="color-mix(in srgb, var(--destructive) 30%, transparent)" strokeDasharray="6 6" label={{ value: 'MAX DD', fill: 'color-mix(in srgb, var(--destructive) 40%, transparent)', fontSize: 9, fontWeight: 900 }} />
+ <Area type="monotone" dataKey="val" stroke="var(--destructive)" strokeWidth={3} fillOpacity={1} fill="url(#ddGrad)" animationDuration={2000} strokeLinecap="round" dot={false} />
  </AreaChart>
  </ResponsiveContainer>
  </div>
@@ -264,18 +264,18 @@ export default function RiskTab() {
  ].map((s, i) => (
  <div key={i} className={cn(
  'p-6 rounded-3xl border-2 relative overflow-hidden',
- s.color === 'red' ? 'bg-red-500/4 border-red-500/10' :
+ s.color === 'red' ? 'bg-destructive/4 border-destructive/10' :
  s.color === 'amber' ? 'bg-chart-4/4 border-chart-4/10' :
  'bg-chart-3/4 border-chart-3/10'
  )}>
  <p className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.3em] leading-relaxed">{s.scenario}</p>
  <p className={cn('text-2xl font-semibold tracking-tight mt-3',
- s.impact.startsWith('+') ? 'text-chart-3' : 'text-red-400'
+ s.impact.startsWith('+') ? 'text-chart-3' : 'text-destructive'
  )}>{s.impact}</p>
  <span className={cn(
  'text-xs font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full border mt-2 inline-block',
  s.color === 'emerald' ? 'text-chart-3 bg-chart-3/10 border-chart-3/20' :
- s.color === 'red' ? 'text-red-400 bg-red-500/10 border-red-500/20' :
+ s.color === 'red' ? 'text-destructive bg-destructive/10 border-destructive/20' :
  'text-chart-4 bg-chart-4/10 border-chart-4/20'
  )}>
  {s.prob}_PROB

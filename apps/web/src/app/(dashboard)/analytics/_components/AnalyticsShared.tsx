@@ -16,8 +16,8 @@ export const RANGE_OPTIONS: { key: AnalyticsRange; label: string }[] = [
   { key: 'all', label: 'ALL' },
 ];
 
-export const CHART_GRID_STROKE = 'rgba(15,23,42,0.06)';
-export const CHART_AXIS_TICK = { fill: '#94A3B8', fontSize: 10 };
+export const CHART_GRID_STROKE = 'var(--card-border)';
+export const CHART_AXIS_TICK = { fill: 'var(--muted-foreground)', fontSize: 10 };
 
 export function AnalyticsPageHeader({
   title,
@@ -33,9 +33,14 @@ export function AnalyticsPageHeader({
   onRefresh: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+    >
       <div className="flex items-start gap-3">
-        <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', iconBg)}>
+        <div className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] shadow-[0_4px_16px_rgba(0,0,0,0.06)]', iconBg)}>
           <Icon className="h-5 w-5" />
         </div>
         <div>
@@ -46,12 +51,12 @@ export function AnalyticsPageHeader({
       <button
         type="button"
         onClick={onRefresh}
-        className="dash-btn-outline shrink-0"
+        className="dash-btn-outline btn-premium-ghost shrink-0"
       >
         <RefreshCcw className="h-3.5 w-3.5" />
         Refresh
       </button>
-    </div>
+    </motion.div>
   );
 }
 
@@ -85,9 +90,9 @@ export function AnalyticsRangeSelector({
 
 export function AnalyticsInfoBanner({ message }: { message: string }) {
   return (
-    <div className="rounded-xl border border-amber-200/80 bg-amber-50 px-4 py-3 flex items-start gap-3">
-      <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-      <p className="text-sm text-amber-900/80 leading-relaxed">{message}</p>
+    <div className="rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)] px-4 py-3 flex items-start gap-3">
+      <Info className="h-4 w-4 text-[var(--info)] shrink-0 mt-0.5" />
+      <p className="text-sm text-foreground/80 leading-relaxed">{message}</p>
     </div>
   );
 }
@@ -111,8 +116,9 @@ export function ChartCard({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className={cn('dashboard-card p-5 relative overflow-hidden', className)}
+      transition={{ delay, duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -3 }}
+      className={cn('dashboard-card p-5 relative overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]', className)}
     >
       <div className="mb-4">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{eyebrow}</p>

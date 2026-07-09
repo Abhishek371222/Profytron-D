@@ -59,10 +59,10 @@ const PLANS = [
     name: 'Basic',
     monthlyPrice: 999,
     icon: Zap,
-    iconBg: 'bg-blue-500/10 text-blue-500',
+    iconBg: 'bg-chart-5/10 text-chart-5',
     highlight: false,
     badge: '7-day free trial',
-    badgeClass: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    badgeClass: 'bg-chart-5/10 text-chart-5 border-chart-5/20',
     description: 'For individual traders building consistency.',
     features: [
       'Max 5 active bots',
@@ -109,10 +109,10 @@ const PLANS = [
     name: 'Team',
     monthlyPrice: 7999,
     icon: Users,
-    iconBg: 'bg-purple-500/10 text-purple-400',
+    iconBg: 'bg-chart-2/10 text-chart-2',
     highlight: false,
     badge: 'For firms',
-    badgeClass: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    badgeClass: 'bg-chart-2/10 text-chart-2 border-chart-2/20',
     description: 'For prop firms, funds and trading teams.',
     features: [
       'Everything in Premium',
@@ -279,9 +279,10 @@ export default function TeamPlansPage() {
               key={plan.id}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + idx * 0.06 }}
+              transition={{ delay: 0.1 + idx * 0.06, duration: 0.35, ease: 'easeOut' }}
+              whileHover={{ y: -6 }}
               className={cn(
-                'dashboard-card flex flex-col relative overflow-hidden',
+                'dashboard-card flex flex-col relative overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]',
                 plan.highlight
                   ? 'border-primary/40 bg-gradient-to-b from-primary/[0.07] to-primary/[0.02] shadow-lg shadow-primary/10'
                   : '',
@@ -430,7 +431,7 @@ export default function TeamPlansPage() {
           <p className="text-xs text-muted-foreground mt-0.5">Full feature comparison across all tiers</p>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="responsive-table-shell">
           <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-[var(--card-border)] bg-muted/20">

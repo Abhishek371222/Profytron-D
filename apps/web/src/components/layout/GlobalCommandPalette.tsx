@@ -35,7 +35,7 @@ const TYPE_CONFIG: Record<
 const QUICK_LINKS: { title: string; href: string; icon: LucideIcon; hint: string }[] = [
   { title: "Dashboard",   href: "/dashboard",   icon: LayoutDashboard, hint: "Home"   },
   { title: "Marketplace", href: "/marketplace", icon: ShoppingBag,     hint: "Browse" },
-  { title: "AI Coach",    href: "/ai-coach",    icon: Sparkles,        hint: "Ask AI" },
+  { title: "Alpha Coach",  href: "/alpha-coach", icon: Sparkles,        hint: "Ask Alpha" },
   { title: "Analytics",   href: "/analytics",   icon: BarChart3,       hint: "Stats"  },
 ];
 

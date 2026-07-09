@@ -77,8 +77,8 @@ const KPI_CONFIG = [
     label: 'Sharpe Ratio',
     icon: Activity,
     format: (v: number) => v.toFixed(2),
-    iconBg: 'bg-blue-500/10 text-blue-600',
-    valueClass: 'text-blue-600',
+    iconBg: 'bg-chart-5/10 text-chart-5',
+    valueClass: 'text-chart-5',
     sparkPositive: true,
     compareFormat: (v: number) => v.toFixed(2),
   },
@@ -114,7 +114,7 @@ const NAV_SECTIONS = [
     title: 'Trade Forensics',
     desc: 'Inspect distributions and symbol outcomes',
     icon: Activity,
-    iconBg: 'bg-blue-500/10 text-blue-600',
+    iconBg: 'bg-chart-5/10 text-chart-5',
   },
   {
     href: '/analytics/global',
@@ -133,7 +133,7 @@ function MiniSparkline({ data, positive }: { data: number[]; positive: boolean }
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
-  const color = positive ? '#16A34A' : '#DC2626';
+  const color = positive ? 'var(--chart-bull)' : 'var(--chart-bear)';
   const pts = data.map((v, i) => {
     const x = (i / (data.length - 1)) * w;
     const y = h - ((v - min) / range) * (h - 4) - 2;
@@ -260,8 +260,9 @@ export default function AnalyticsPage() {
               key={kpi.key}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="dashboard-card p-5 flex flex-col gap-3 dashboard-enter"
+              transition={{ delay: idx * 0.05, duration: 0.35, ease: 'easeOut' }}
+              whileHover={{ y: -4 }}
+              className="group dashboard-card p-5 flex flex-col gap-3 dashboard-enter transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
               style={{ animationDelay: `${idx * 0.05}s` }}
             >
               <div className="flex items-start justify-between gap-2">
@@ -292,9 +293,9 @@ export default function AnalyticsPage() {
 
       {/* Info banner */}
       {!isLoading && !hasTrades && (
-        <div className="rounded-xl border border-amber-200/80 bg-amber-50 px-4 py-3 flex items-start gap-3">
-          <Info className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-sm text-amber-900/80 leading-relaxed">
+        <div className="rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)] px-4 py-3 flex items-start gap-3">
+          <Info className="h-4 w-4 text-[var(--info)] shrink-0 mt-0.5" />
+          <p className="text-sm text-foreground/80 leading-relaxed">
             Analytics populate once closed trades exist in your account history. Connecting MT5 alone does not
             create these values.
           </p>
@@ -303,7 +304,7 @@ export default function AnalyticsPage() {
 
       {/* Equity + sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5 items-start">
-        <div className="dashboard-card p-5 relative overflow-hidden min-h-[360px]">
+        <div className="dashboard-card p-5 relative overflow-hidden min-h-[360px] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]">
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Equity Curve</p>

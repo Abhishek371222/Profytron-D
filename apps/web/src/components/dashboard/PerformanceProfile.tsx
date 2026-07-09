@@ -35,17 +35,20 @@ export function PerformanceProfile({
           <div className="space-y-3.5">
             {bars.map(({ label, score }, index) => {
               const pct = Math.min(100, Math.max(0, score));
+              const isDrawdown = label === "Drawdown";
               return (
                 <div
                   key={label}
                   className="grid grid-cols-[4.5rem_1fr] sm:grid-cols-[5rem_1fr] items-center gap-3"
                 >
                   <span className="text-sm text-muted-foreground pl-1">{label}</span>
-                  <div className="h-2.5 rounded-full bg-primary/[0.08] overflow-hidden">
+                  <div className="h-2.5 rounded-full bg-primary/[0.08] overflow-hidden relative">
                     <motion.div
                       className={cn(
                         "h-full rounded-full",
-                        label === "Drawdown" ? "bg-destructive/45" : "bg-primary/45",
+                        isDrawdown
+                          ? "bg-gradient-to-r from-destructive/70 to-destructive/40"
+                          : "bg-gradient-to-r from-primary to-secondary",
                       )}
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}

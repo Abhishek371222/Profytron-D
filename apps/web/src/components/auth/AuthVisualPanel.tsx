@@ -85,7 +85,7 @@ export const AuthVisualPanel = ({
  <div className={`absolute inset-0 bg-linear-to-tr ${i % 2 === 0 ? 'from-primary to-purple' : 'from-s to-primary'} opacity-40`} />
  </div>
  ))}
- <div className="w-10 h-10 rounded-full border-2 border-bg-card bg-primary flex items-center justify-center text-xs font-semibold text-foreground shadow-2xl">
+ <div className="w-10 h-10 rounded-full border-2 border-bg-card bg-primary flex items-center justify-center text-xs font-semibold text-primary-foreground shadow-2xl">
  +12k
  </div>
  </div>

@@ -84,9 +84,9 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
               {(step === 'form' || step === 'error') && (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   {step === 'error' && (
-                    <div className="flex items-start gap-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                      <AlertCircle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
-                      <p className="text-sm text-red-400">{error}</p>
+                    <div className="flex items-start gap-3 p-3 rounded-xl bg-destructive/10 border border-destructive/20">
+                      <AlertCircle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
+                      <p className="text-sm text-destructive">{error}</p>
                     </div>
                   )}
 

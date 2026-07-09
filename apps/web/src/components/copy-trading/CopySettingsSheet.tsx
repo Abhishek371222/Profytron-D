@@ -182,7 +182,7 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
               <button
                 onClick={() => setIsPaused(!isPaused)}
                 className={`relative w-11 h-6 rounded-full transition-colors ${
-                  isPaused ? 'bg-chart-4' : 'bg-gray-600'
+                  isPaused ? 'bg-chart-4' : 'bg-muted-foreground/40'
                 }`}
               >
                 <span

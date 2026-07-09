@@ -6,7 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   ChevronLeft,
-  Sparkles,
+  ChevronDown,
   Wallet,
   Network,
   Trophy,
@@ -15,13 +15,25 @@ import {
   CreditCard,
   Unplug,
   Shield,
-} from "@/components/ui/icons";
+  Settings,
+  Target,
+  User,
+  LogOut,
+} from "lucide-react";
 import { cn, isAdminUser } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/useUIStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type NavItem = {
   name: string;
@@ -32,7 +44,6 @@ type NavItem = {
 type NavGroup = {
   id: string;
   label: string;
-  emoji: string;
   items: NavItem[];
 };
 
@@ -40,26 +51,21 @@ const navGroups: NavGroup[] = [
   {
     id: "dashboard",
     label: "Dashboard",
-    emoji: "🏠",
-    items: [
-      { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
-      { name: "AI Assistant", icon: Sparkles, href: "/ai-coach" },
-    ],
+    items: [{ name: "Overview", icon: LayoutDashboard, href: "/dashboard" }],
   },
   {
     id: "trading",
     label: "Trading",
-    emoji: "🤖",
     items: [
       { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
       { name: "My Bots", icon: Server, href: "/my-bots" },
       { name: "Connected Accounts", icon: Unplug, href: "/connected-accounts" },
+      { name: "Alpha Coach", icon: Target, href: "/alpha-coach" },
     ],
   },
   {
     id: "finance",
     label: "Finance",
-    emoji: "💰",
     items: [
       { name: "Wallet", icon: Wallet, href: "/wallet" },
       { name: "Subscription", icon: CreditCard, href: "/subscriptions" },
@@ -68,10 +74,16 @@ const navGroups: NavGroup[] = [
   {
     id: "community",
     label: "Community",
-    emoji: "🏆",
     items: [
       { name: "Leaderboard", icon: Trophy, href: "/leaderboard" },
       { name: "Affiliate Program", icon: Network, href: "/affiliate" },
+    ],
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    items: [
+      { name: "Preferences", icon: Settings, href: "/settings/profile" },
     ],
   },
 ];
@@ -79,13 +91,23 @@ const navGroups: NavGroup[] = [
 function isItemActive(pathname: string | null, href: string) {
   if (!pathname) return false;
   if (href === "/dashboard") return pathname === "/dashboard";
+  if (href === "/settings/profile") return pathname.startsWith("/settings");
   return pathname === href || pathname.startsWith(`${href}/`);
 }
+
+const TIER_STYLES: Record<string, string> = {
+  FREE: "bg-muted/60 text-muted-foreground",
+  BASIC: "bg-primary/10 text-primary",
+  PRO: "bg-primary/15 text-primary",
+  VIP: "bg-[color-mix(in_srgb,var(--secondary)_25%,transparent)] text-primary",
+  PREMIUM: "bg-[color-mix(in_srgb,var(--secondary)_30%,transparent)] text-primary",
+};
 
 export function Sidebar({ mobile = false }: { mobile?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
   const { sidebarOpen, toggleSidebar } = useUIStore();
+  const { logout } = useAuthStore();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => setMounted(true), []);
@@ -94,172 +116,233 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
   const expanded = mobile ? true : sidebarOpen;
   const showAdminLink = isAdminUser(user);
 
+  const displayName = user?.fullName || "User";
+  const displayTier =
+    user?.subscriptionTier ||
+    user?.tier ||
+    (typeof user?.role === "string" ? user.role.toUpperCase() : null) ||
+    "FREE";
+  const tierClass = TIER_STYLES[displayTier] ?? TIER_STYLES.FREE;
+
   const handleBrandClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     router.push("/");
   };
 
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
+
   return (
     <motion.aside
       initial={false}
-      animate={{ width: mobile ? 280 : !mounted ? 260 : sidebarOpen ? 260 : 80 }}
-      transition={{ duration: 0.28, ease: [0, 0, 0.2, 1] }}
+      animate={{
+        width: mobile
+          ? "var(--sidebar-w)"
+          : !mounted
+            ? "var(--sidebar-w)"
+            : sidebarOpen
+              ? "var(--sidebar-w)"
+              : "var(--sidebar-w-collapsed)",
+      }}
+      transition={{ duration: 0.3, ease: [0, 0, 0.2, 1] }}
       className={cn(
-        "relative h-full min-h-[100dvh] flex flex-col bg-sidebar border-r border-[var(--sidebar-border)] z-40 shrink-0 overflow-hidden",
-        !mounted || !expanded ? "items-center" : "",
+        "relative h-full flex flex-col shrink-0 z-40",
+        mobile ? "min-h-[100dvh]" : "min-h-0",
       )}
       suppressHydrationWarning
     >
-      {/* Brand */}
-      <Link
-        href="/"
-        onClick={handleBrandClick}
-        className={cn(
-          "relative flex items-center h-[68px] w-full border-b border-[var(--sidebar-border)]",
-          expanded ? "px-4" : "justify-center px-2",
-        )}
-        aria-label="Profytron Home"
-      >
-        <AnimatePresence mode="wait">
-          {expanded ? (
-            <motion.div
-              key="expanded"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <BrandLogo size="md" showWordmark />
-            </motion.div>
-          ) : (
-            <motion.div key="collapsed" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <BrandLogo size="md" showWordmark={false} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Link>
-
-      {/* Navigation groups */}
-      <nav className="flex-1 px-2 py-3 overflow-y-auto overflow-x-hidden custom-scrollbar">
-        <div className={cn("space-y-5", !expanded && "space-y-3")}>
-          {navGroups.map((group) => (
-            <div key={group.id}>
+      <div className="sidebar-panel flex flex-col h-full min-h-0 overflow-hidden">
+        {/* Brand header */}
+        <div className="sidebar-panel-header">
+          <Link
+            href="/"
+            onClick={handleBrandClick}
+            className={cn(
+              "relative flex items-center w-full min-h-[clamp(3.5rem,4.5vw,4.25rem)] transition-opacity duration-200 hover:opacity-90",
+              expanded ? "px-[var(--sidebar-pad)] justify-between" : "justify-center px-2",
+            )}
+            aria-label="Profytron Home"
+          >
+            <AnimatePresence mode="wait">
               {expanded ? (
-                <div className="px-3 mb-1.5 flex items-center gap-1.5">
-                  <span className="text-[11px] leading-none select-none" aria-hidden>
-                    {group.emoji}
-                  </span>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground/70">
-                    {group.label}
-                  </span>
-                </div>
+                <motion.div
+                  key="expanded"
+                  initial={{ opacity: 0, x: -4 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -4 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <BrandLogo size="md" showWordmark />
+                </motion.div>
               ) : (
-                <div className="mx-auto mb-1.5 h-px w-6 bg-[var(--sidebar-border)]" />
+                <motion.div
+                  key="collapsed"
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.92 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <BrandLogo size="md" showWordmark={false} />
+                </motion.div>
               )}
+            </AnimatePresence>
 
-              <div className="space-y-0.5">
-                {group.items.map((item) => {
-                  const active = isItemActive(pathname, item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      title={!expanded ? item.name : undefined}
-                      className={cn(
-                        "dash-nav-link group/nav relative",
-                        active && "dash-nav-link-active",
-                        !expanded && "justify-center w-10 mx-auto",
-                      )}
-                    >
-                      {active && (
-                        <>
-                          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-gradient-to-b from-primary to-[var(--brand-crimson)]" />
-                          <span className="absolute inset-0 rounded-[10px] bg-[color-mix(in_srgb,var(--primary)_9%,transparent)] pointer-events-none" />
-                        </>
-                      )}
-                      <div
+            {expanded && !mobile && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  toggleSidebar();
+                }}
+                className="sidebar-collapse-inline"
+                aria-label="Collapse sidebar"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            )}
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-[calc(var(--sidebar-pad)*0.65)] py-3">
+          <div className={cn("space-y-[clamp(1rem,1.2vw,1.25rem)]", !expanded && "space-y-2")}>
+            {navGroups.map((group) => (
+              <div key={group.id}>
+                {expanded ? (
+                  <p className="sidebar-section-label px-3 mb-2">{group.label}</p>
+                ) : (
+                  <div className="sidebar-section-divider" aria-hidden />
+                )}
+
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const active = isItemActive(pathname, item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        title={!expanded ? item.name : undefined}
                         className={cn(
-                          "relative flex items-center gap-2.5 w-full",
-                          expanded ? "pl-3 pr-2" : "justify-center",
+                          "sidebar-nav-link group/nav",
+                          active && "sidebar-nav-link-active",
+                          !expanded && "sidebar-nav-link-collapsed",
                         )}
                       >
-                        <item.icon
-                          className={cn(
-                            "shrink-0 transition-colors duration-150 w-[18px] h-[18px]",
-                            active
-                              ? "text-primary"
-                              : "text-muted-foreground group-hover/nav:text-foreground",
-                          )}
-                        />
+                        <item.icon className="sidebar-nav-icon" aria-hidden />
                         {expanded && (
-                          <span className="truncate font-medium">{item.name}</span>
+                          <span className="sidebar-nav-label truncate">{item.name}</span>
                         )}
-                      </div>
-                    </Link>
-                  );
-                })}
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
-          {showAdminLink && (
-            <Link
-              href="/admin"
-              className={cn(
-                "flex items-center h-10 rounded-[10px] text-sm font-medium border border-destructive/20",
-                pathname?.startsWith("/admin")
-                  ? "bg-destructive/10 text-destructive"
-                  : "text-destructive/80 hover:bg-destructive/5",
-                !expanded && "justify-center w-10 mx-auto",
-              )}
+            {showAdminLink && (
+              <Link
+                href="/admin"
+                className={cn(
+                  "sidebar-nav-link border border-destructive/20",
+                  pathname?.startsWith("/admin")
+                    ? "bg-destructive/10 text-destructive"
+                    : "text-destructive/80 hover:bg-destructive/5",
+                  !expanded && "sidebar-nav-link-collapsed",
+                )}
+              >
+                <Shield className="sidebar-nav-icon" />
+                {expanded && <span className="sidebar-nav-label">Admin</span>}
+              </Link>
+            )}
+          </div>
+        </nav>
+
+        {/* Profile + collapse */}
+        <div className="shrink-0 p-[calc(var(--sidebar-pad)*0.75)] space-y-2">
+          {user && expanded && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button type="button" className="sidebar-profile-card group w-full py-3">
+                  <UserAvatar name={displayName} size="md" className="ring-2 ring-primary/20" />
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="text-[var(--nav-text)] font-semibold text-foreground truncate leading-tight">
+                      {displayName}
+                    </p>
+                    <span
+                      className={cn(
+                        "inline-flex mt-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-[0.14em]",
+                        tierClass,
+                      )}
+                    >
+                      {displayTier}
+                    </span>
+                  </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:text-muted-foreground transition-colors shrink-0" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-[calc(var(--sidebar-w)-1.5rem)] mb-2 rounded-[14px] border border-[var(--card-border)] bg-popover/95 backdrop-blur-xl p-1.5"
+              >
+                <DropdownMenuItem
+                  onClick={() => router.push("/settings/profile")}
+                  className="rounded-xl gap-2.5 cursor-pointer"
+                >
+                  <User className="w-4 h-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => router.push("/settings")}
+                  className="rounded-xl gap-2.5 cursor-pointer"
+                >
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="rounded-xl gap-2.5 text-destructive focus:text-destructive cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {user && !expanded && (
+            <button
+              type="button"
+              onClick={() => router.push("/settings/profile")}
+              className="sidebar-profile-avatar-only mx-auto"
+              title={displayName}
             >
-              <div className={cn("flex items-center gap-2.5", expanded ? "px-3" : "justify-center")}>
-                <Shield className="w-[18px] h-[18px]" />
-                {expanded && <span>Admin</span>}
-              </div>
-            </Link>
+              <UserAvatar name={displayName} size="sm" className="ring-2 ring-primary/20" />
+            </button>
+          )}
+
+          {!mobile && (
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              className={cn(
+                "sidebar-collapse-fab",
+                !expanded && "sidebar-collapse-fab-collapsed",
+              )}
+              aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              <ChevronLeft
+                className={cn(
+                  "w-4 h-4 transition-transform duration-300",
+                  !sidebarOpen && "rotate-180",
+                )}
+              />
+              {expanded && <span className="text-xs font-medium tracking-wide">Collapse</span>}
+            </button>
           )}
         </div>
-      </nav>
-
-      {/* Footer — profile shortcut */}
-      <div className="p-2 border-t border-[var(--sidebar-border)] space-y-1 shrink-0">
-        {user && (
-          <button
-            type="button"
-            onClick={() => router.push("/settings/profile")}
-            className={cn(
-              "w-full flex items-center gap-2.5 p-2 rounded-[10px] transition-colors",
-              "hover:bg-[color-mix(in_srgb,var(--primary)_8%,transparent)]",
-              !expanded && "justify-center",
-            )}
-            title="Profile"
-          >
-            <UserAvatar name={user.fullName || "User"} size="sm" />
-            {expanded && (
-              <div className="min-w-0 text-left">
-                <p className="text-sm font-semibold text-foreground truncate">
-                  {user.fullName || "User"}
-                </p>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  {user.subscriptionTier || "FREE"}
-                </p>
-              </div>
-            )}
-          </button>
-        )}
-
-        {!mobile && (
-          <button
-            type="button"
-            onClick={toggleSidebar}
-            className="flex items-center justify-center w-full h-9 rounded-[10px] border border-[var(--sidebar-border)] text-muted-foreground hover:text-foreground hover:bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] hover:border-[color-mix(in_srgb,var(--primary)_20%,var(--sidebar-border))] transition-all duration-200 text-xs font-medium"
-          >
-            <ChevronLeft
-              className={cn("w-4 h-4 transition-transform duration-300", !sidebarOpen && "rotate-180")}
-            />
-            {expanded && <span className="ml-1.5">Collapse</span>}
-          </button>
-        )}
       </div>
     </motion.aside>
   );

@@ -19,12 +19,12 @@ import { cn } from '@/lib/utils';
 import { History, Activity, TrendingUp, Layers, ArrowUpRight, ArrowDownRight, Clock } from '@/components/ui/icons';
 
 const pnlDist = [
- { range: '< -5k', count: 4, fill: '#ef4444' },
- { range: '-5k to -2k', count: 12, fill: '#ef4444' },
- { range: '-2k to 0', count: 28, fill: '#ef4444' },
- { range: '0 to 2k', count: 44, fill: '#10b981' },
- { range: '2k to 5k', count: 68, fill: '#10b981' },
- { range: '> 5k', count: 22, fill: '#10b981' },
+ { range: '< -5k', count: 4, fill: 'var(--chart-bear)' },
+ { range: '-5k to -2k', count: 12, fill: 'var(--chart-bear)' },
+ { range: '-2k to 0', count: 28, fill: 'var(--chart-bear)' },
+ { range: '0 to 2k', count: 44, fill: 'var(--chart-bull)' },
+ { range: '2k to 5k', count: 68, fill: 'var(--chart-bull)' },
+ { range: '> 5k', count: 22, fill: 'var(--chart-bull)' },
 ];
 
 const durationData = [
@@ -46,8 +46,8 @@ const symbolRanking = [
 ];
 
 const winLossData = [
- { name: 'Wins', value: 185, color: '#10b981' },
- { name: 'Losses', value: 72, color: '#ef4444' },
+ { name: 'Wins', value: 185, color: 'var(--chart-bull)' },
+ { name: 'Losses', value: 72, color: 'var(--chart-bear)' },
 ];
 
 const containerVariants = {
@@ -232,8 +232,8 @@ function TradeAnalysisTabView() {
  </div>
  <div className="flex flex-col items-center gap-4 group/loss">
  <div className="flex items-center gap-4">
- <div className="w-10 h-10 rounded-xl bg-red-500/10 border-2 border-red-500/20 flex items-center justify-center group-hover/loss:-rotate-12 transition-transform">
- <ArrowDownRight className="w-5 h-5 text-red-500" />
+ <div className="w-10 h-10 rounded-xl bg-destructive/10 border-2 border-destructive/20 flex items-center justify-center group-hover/loss:-rotate-12 transition-transform">
+ <ArrowDownRight className="w-5 h-5 text-destructive" />
  </div>
  <span className="text-4xl font-semibold text-foreground tracking-tight">72</span>
  </div>
@@ -270,7 +270,7 @@ function TradeAnalysisTabView() {
  <span className="text-xs font-semibold text-foreground/20 uppercase tracking-[0.3em]">{item.trades}_EXECUTIONS_SYNCED</span>
  </div>
  <div className="flex flex-col items-end gap-1">
- <span className={cn("text-2xl font-semibold tracking-tight leading-tight shadow-sm", item.pnl > 0 ?"text-chart-3" :"text-red-400")}>
+ <span className={cn("text-2xl font-semibold tracking-tight leading-tight shadow-sm", item.pnl > 0 ?"text-chart-3" :"text-destructive")}>
  {item.pnl > 0 ? '+' : ''}${item.pnl.toLocaleString()}
  </span>
  <div className="h-0.5 w-12 bg-foreground/5" />
@@ -281,7 +281,7 @@ function TradeAnalysisTabView() {
  initial={{ width: 0 }}
  animate={{ width: `${Math.abs(item.pnl) / 450}%` }}
  transition={{ duration: 2, delay: idx * 0.15, ease: [0.22, 1, 0.36, 1] }}
- className={cn("h-full rounded-full relative", item.pnl > 0 ?"bg-linear-to-r from-chart-3 to-chart-3 shadow-[0_0_20px_rgba(16,185,129,0.5)]" :"bg-linear-to-r from-red-600 to-red-400 shadow-[0_0_20px_rgba(239,68,68,0.5)]")}
+ className={cn("h-full rounded-full relative", item.pnl > 0 ?"bg-linear-to-r from-chart-3 to-chart-3 shadow-[0_0_20px_rgba(16,185,129,0.5)]" :"bg-linear-to-r from-destructive to-destructive shadow-[0_0_20px_rgba(239,68,68,0.5)]")}
  >
  <div className="absolute inset-0 bg-scanlines opacity-20" />
  </motion.div>
@@ -339,7 +339,7 @@ function TradeAnalysisTabView() {
  {durationData.map((entry, index) => (
  <Cell 
  key={`cell-${index}`} 
- fill={index < 2 ? '#1e6d48' : index < 4 ? '#06b6d4' : '#f59e0b'} 
+ fill={index < 2 ? 'var(--primary)' : index < 4 ? 'var(--chart-5)' : 'var(--chart-4)'}
  fillOpacity={0.85}
  className="drop-shadow-lg transition-all hover:fill-opacity-100"
  />
@@ -351,7 +351,7 @@ function TradeAnalysisTabView() {
  
  <div className="mt-14 flex items-center justify-between border-t-2 border-border pt-10 relative z-10">
  <div className="flex items-center gap-4 group/l1">
- <div className="w-4 h-4 rounded-full bg-primary shadow-[0_0_10px_rgba(71,167,170,0.5)] group-hover:scale-125 transition-transform" />
+ <div className="w-4 h-4 rounded-full bg-primary shadow-[0_0_10px_color-mix(in_srgb,var(--primary)_50%,transparent)] group-hover:scale-125 transition-transform" />
  <span className="text-xs font-semibold text-foreground/30 uppercase tracking-[0.3em]">EPOCH_SCALP</span>
  </div>
  <div className="flex items-center gap-4 group/l2">

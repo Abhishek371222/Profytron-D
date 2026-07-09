@@ -1,7 +1,6 @@
-﻿"use client";
+"use client";
 
 import React from "react";
-import dynamic from "next/dynamic";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { GlobalCommandPalette } from "./GlobalCommandPalette";
@@ -10,35 +9,13 @@ import { useUIStore } from "@/lib/stores/useUIStore";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 
-const AIAssistantOrb = dynamic(
-  () => import("@/components/ai/AIAssistantOrb").then((m) => ({ default: m.AIAssistantOrb })),
-  { ssr: false },
-);
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const pathname = usePathname();
   const [mounted, setMounted] = React.useState(false);
-  const [showOrb, setShowOrb] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
 
-  React.useEffect(() => {
-    setMounted(true);
-    let idleId: number | undefined;
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      idleId = window.requestIdleCallback(() => setShowOrb(true), { timeout: 4000 });
-    } else {
-      idleId = globalThis.setTimeout(() => setShowOrb(true), 2000) as unknown as number;
-    }
-    return () => {
-      if (typeof window === 'undefined') return;
-      if ('cancelIdleCallback' in window && 'requestIdleCallback' in window) {
-        window.cancelIdleCallback(idleId as number);
-      } else {
-        globalThis.clearTimeout(idleId);
-      }
-    };
-  }, []);
+  React.useEffect(() => setMounted(true), []);
 
   React.useEffect(() => {
     if (typeof window === "undefined") return;
@@ -50,13 +27,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
 
     syncViewport();
-    window.addEventListener("resize", syncViewport);
+    window.addEventListener("resize", syncViewport, { passive: true });
     return () => window.removeEventListener("resize", syncViewport);
   }, [setSidebarOpen]);
 
   React.useEffect(() => {
     if (isMobile) setSidebarOpen(false);
   }, [pathname, isMobile, setSidebarOpen]);
+
+  React.useEffect(() => {
+    if (!isMobile || !sidebarOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isMobile, sidebarOpen]);
+
+  React.useEffect(() => {
+    if (!isMobile || !sidebarOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSidebarOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isMobile, sidebarOpen, setSidebarOpen]);
 
   const isBuilder = React.useMemo(
     () => pathname?.includes("/strategies/builder"),
@@ -66,30 +61,33 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div
       className={cn(
-        "flex bg-[var(--bg-secondary)] overflow-x-hidden relative",
-        isMobile ? "min-h-screen" : "h-[100dvh] max-h-[100dvh] overflow-hidden",
+        "flex bg-[var(--bg-secondary)] overflow-x-hidden relative min-w-0",
+        isMobile ? "min-h-[100dvh]" : "h-[100dvh] max-h-[100dvh] overflow-hidden",
       )}
       suppressHydrationWarning
     >
       {mounted && !isBuilder && (
-        <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--primary)_4%,transparent)_0%,transparent_55%)]" />
+        <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--primary)_5%,transparent)_0%,transparent_58%)]" />
       )}
 
       {isMobile && sidebarOpen && (
         <button
+          type="button"
           aria-label="Close sidebar"
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-30 bg-[var(--overlay)] backdrop-blur-[2px]"
+          className="fixed inset-0 z-30 bg-[var(--overlay)] backdrop-blur-[3px]"
         />
       )}
 
       <div
         className={cn(
-          "transition-transform duration-300 flex z-40 shrink-0 will-change-transform",
+          "transition-transform duration-300 ease-out flex z-40 shrink-0 will-change-transform",
           isMobile
-            ? cn("fixed inset-y-0 left-0", sidebarOpen ? "translate-x-0" : "-translate-x-full")
-            : "sticky top-0 h-[100dvh]",
-          "w-auto",
+            ? cn(
+                "fixed inset-y-0 left-0 pt-safe pb-safe pl-safe",
+                sidebarOpen ? "translate-x-0" : "-translate-x-full",
+              )
+            : "h-[100dvh] py-[var(--sidebar-pad)] pl-[var(--sidebar-pad)]",
         )}
       >
         <Sidebar mobile={isMobile} />
@@ -97,11 +95,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <main
         className={cn(
-          "flex-1 min-w-0 relative transition-all duration-300 z-20 w-full flex flex-col",
-          isMobile ? "min-h-screen" : "min-h-0 h-[100dvh] overflow-hidden",
+          "flex-1 min-w-0 relative z-20 w-full flex flex-col",
+          isMobile ? "min-h-[100dvh]" : "min-h-0 h-[100dvh] overflow-hidden",
+          !isMobile && "pr-[var(--sidebar-pad)]",
         )}
       >
-        <div className="shrink-0 z-30 h-16 sm:h-[68px]">
+        <div className="shrink-0 z-30 h-[clamp(3.5rem,4.5vw,4.25rem)] pt-safe">
           <TopBar />
         </div>
 
@@ -116,7 +115,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className={cn(
               isBuilder
                 ? "p-0 max-w-none w-full h-full min-h-0"
-                : "p-[var(--dashboard-p)] pb-28 lg:pb-16 max-w-[1800px] mx-auto w-full min-w-0",
+                : "p-[var(--dashboard-p)] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-[clamp(3rem,4vw,4rem)] max-w-[1920px] mx-auto w-full min-w-0",
             )}
           >
             {children}
@@ -126,8 +125,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <GlobalCommandPalette />
       <MobileBottomNav />
-      {/* Floating orb is desktop-only; mobile uses the dedicated "AI" tab in the bottom nav. */}
-      {mounted && showOrb && <AIAssistantOrb />}
     </div>
   );
 }

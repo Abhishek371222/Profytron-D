@@ -191,7 +191,7 @@ export default function AdminAgentsPage() {
             type="button"
             disabled={runAll.isPending || isBatchRunning}
             onClick={() => runAll.mutate()}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-foreground hover:bg-primary disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
           >
             {runAll.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />

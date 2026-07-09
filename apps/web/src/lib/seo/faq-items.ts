@@ -22,9 +22,9 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Profytron never holds your funds. All capital stays in your own broker account — we only connect to execute trades on your behalf using read/write API access. You retain full custody of your money at all times. Our platform is a SaaS tool, not a broker or fund manager.",
   },
   {
-    question: "What is the AI Trading Coach and how does it help me?",
+    question: "What is Alpha Coach and how does it help me?",
     answer:
-      "The AI Trading Coach analyzes every trade you take — entry timing, risk-reward ratio, emotional patterns, and market context — and delivers plain-English feedback after each session. It identifies your strengths (e.g., excellent trend identification) and weaknesses (e.g., early exits on winning trades) and gives you a structured improvement plan.",
+      "Alpha Coach analyzes every trade you take — entry timing, risk-reward ratio, emotional patterns, and market context — and delivers plain-English feedback after each session. It identifies your strengths (e.g., excellent trend identification) and weaknesses (e.g., early exits on winning trades) and gives you a structured improvement plan.",
   },
   {
     question: "How is my trading data and account secured?",
@@ -84,7 +84,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "What is the Trading Journal?",
     answer:
-      "The Trading Journal lets you attach notes, screenshots, and emotional tags to every trade. After each session, the AI Coach analyzes your journal entries alongside trade data to detect psychological patterns — such as revenge trading after losses or position sizing inconsistency during high-volatility periods.",
+      "The Trading Journal lets you attach notes, screenshots, and emotional tags to every trade. After each session, Alpha Coach analyzes your journal entries alongside trade data to detect psychological patterns — such as revenge trading after losses or position sizing inconsistency during high-volatility periods.",
   },
   {
     question: "What is VPS hosting and why do I need it?",

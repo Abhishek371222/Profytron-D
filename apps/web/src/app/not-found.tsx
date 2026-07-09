@@ -51,7 +51,7 @@ export default function NotFound() {
  {/* Action Buttons */}
  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
  <Link href="/">
- <Button className="h-14 px-8 rounded-2xl bg-primary text-foreground font-semibold uppercase tracking-widest gap-3 hover:bg-primary/90 transition-all">
+ <Button className="h-14 px-8 rounded-2xl bg-primary text-primary-foreground font-semibold uppercase tracking-widest gap-3 hover:bg-primary/90 transition-all">
  <Home className="w-5 h-5" />
  Return Home
  </Button>

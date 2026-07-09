@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, CreditCard, History, Zap } from '@/components/ui/icons';
@@ -9,6 +10,7 @@ import { subscriptionsApi, type SubscriptionPlan } from '@/lib/api/subscriptions
 import { RazorpaySubscriptionButton } from '@/components/payments/RazorpaySubscriptionButton';
 import { formatInr } from '@/lib/pricing/plans';
 import { trackEvent, ACTIVATION_EVENTS } from '@/lib/analytics/track';
+import { SettingsSection } from '@/components/settings/SettingsUi';
 import Link from 'next/link';
 
 function parseFeatures(features: SubscriptionPlan['features']): string[] {
@@ -49,8 +51,13 @@ export default function BillingPage() {
   };
 
   return (
-    <div className="space-y-12 pb-20">
-      <section className="space-y-6">
+    <div className="space-y-6 pb-20">
+      <motion.section
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="space-y-6 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)]"
+      >
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
             <Zap className="w-6 h-6 text-primary" />
@@ -74,7 +81,7 @@ export default function BillingPage() {
               className={cn(
                 'px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-widest transition-colors',
                 billingCycle === cycle
-                  ? 'bg-primary text-foreground'
+                  ? 'bg-primary text-primary-foreground'
                   : 'text-foreground/50 hover:text-foreground',
               )}
             >
@@ -87,7 +94,7 @@ export default function BillingPage() {
           {plansQuery.isLoading && (
             <div className="col-span-3 text-foreground/40 text-sm">Loading plans…</div>
           )}
-          {plans.map((plan) => {
+          {plans.map((plan, idx) => {
             const isActive = activePlanId === plan.id || activePlanName === plan.name;
             const price =
               billingCycle === 'ANNUAL'
@@ -96,10 +103,14 @@ export default function BillingPage() {
             const features = parseFeatures(plan.features);
 
             return (
-              <div
+              <motion.div
                 key={plan.id}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05, duration: 0.3, ease: 'easeOut' }}
+                whileHover={{ y: -4 }}
                 className={cn(
-                  'p-6 rounded-2xl border flex flex-col',
+                  'p-6 rounded-2xl border flex flex-col transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]',
                   isActive
                     ? 'border-primary/40 bg-primary/10'
                     : 'border-border bg-muted/2',
@@ -160,32 +171,30 @@ export default function BillingPage() {
                     {isActive ? 'Current plan' : `Upgrade to ${plan.name}`}
                   </RazorpaySubscriptionButton>
                 )}
-              </div>
+              </motion.div>
             );
           })}
         </div>
-      </section>
+      </motion.section>
 
-      <section className="space-y-4">
-        <div className="flex items-center gap-3">
+      <SettingsSection title="Wallet & deposits" delay={0.05}>
+        <div className="flex items-center gap-3 mb-2">
           <CreditCard className="w-5 h-5 text-foreground/40" />
-          <h2 className="text-lg font-semibold text-foreground">Wallet & deposits</h2>
         </div>
         <p className="text-sm text-foreground/50">
           Fund your wallet for marketplace strategy subscriptions. UPI, cards, and netbanking via Razorpay.
         </p>
         <Link
           href="/wallet"
-          className={cn(buttonVariants({ variant: 'outline' }))}
+          className={cn(buttonVariants({ variant: 'outline' }), 'mt-3')}
         >
           Go to Wallet
         </Link>
-      </section>
+      </SettingsSection>
 
-      <section className="space-y-4">
-        <div className="flex items-center gap-3">
+      <SettingsSection title="Invoice history" delay={0.1}>
+        <div className="flex items-center gap-3 mb-2">
           <History className="w-5 h-5 text-foreground/40" />
-          <h2 className="text-lg font-semibold text-foreground">Invoice history</h2>
         </div>
         <div className="rounded-xl border border-border overflow-hidden">
           {(invoicesQuery.data ?? []).length === 0 ? (
@@ -205,8 +214,14 @@ export default function BillingPage() {
                   invoiceNumber?: string;
                   issuedAt?: string;
                   total?: number;
-                }) => (
-                  <tr key={inv.id} className="border-t border-border">
+                }, idx: number) => (
+                  <motion.tr
+                    key={inv.id}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.03 }}
+                    className="border-t border-border hover:bg-muted/30 transition-colors"
+                  >
                     <td className="p-4 font-mono text-foreground/80">
                       {inv.invoiceNumber ?? inv.id.slice(0, 8)}
                     </td>
@@ -218,13 +233,13 @@ export default function BillingPage() {
                     <td className="p-4 text-foreground">
                       {formatInr(inv.total ?? 0)}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
           )}
         </div>
-      </section>
+      </SettingsSection>
     </div>
   );
 }

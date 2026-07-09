@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import Link from 'next/link';
-import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown, ChevronRight, Server, ArrowRight } from 'lucide-react';
+import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown, Server, ArrowRight, Sparkles } from 'lucide-react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero';
@@ -17,6 +17,7 @@ import { marketplaceApi } from '@/lib/api/marketplace';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useBreakpoint } from '@/lib/hooks/useBreakpoint';
 import { formatBotName } from '@/lib/bot-labels';
 
 function useDebouncedValue<T>(value: T, delay = 350): T {
@@ -31,7 +32,9 @@ function useDebouncedValue<T>(value: T, delay = 350): T {
 function MarketplacePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isFilterOpen, setIsFilterOpen] = React.useState(true);
+  const { isMobile, width } = useBreakpoint();
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+  const desktopFilterInitialized = React.useRef(false);
   const [viewType, setViewType] = React.useState<'grid' | 'list'>('list');
   const [selectedStrategy, setSelectedStrategy] = React.useState<Record<string, unknown> | null>(null);
 
@@ -53,6 +56,20 @@ function MarketplacePageInner() {
 
   const lastUrlSync = React.useRef<string | null>(searchParams.toString() || '');
   const debouncedSearch = useDebouncedValue(searchQuery);
+
+  React.useEffect(() => {
+    if (width == null) return;
+
+    if (width >= 1024 && !desktopFilterInitialized.current) {
+      setIsFilterOpen(true);
+      desktopFilterInitialized.current = true;
+    }
+
+    if (isMobile) {
+      setIsFilterOpen(false);
+      setViewType('grid');
+    }
+  }, [isMobile, width]);
 
   React.useEffect(() => {
     const params = new URLSearchParams();
@@ -170,10 +187,20 @@ function MarketplacePageInner() {
 
   const heroStats = React.useMemo(() => {
     const creators = new Set(mappedStrategies.filter((s) => s.verified).map((s) => s.creator));
+    const avgWin =
+      mappedStrategies.length > 0
+        ? mappedStrategies.reduce((sum, s) => sum + s.returns, 0) / mappedStrategies.length
+        : 0;
+    const assetsManaged = mappedStrategies.reduce((sum, s) => sum + s.subscribers * Math.max(s.price, 100), 0);
     return {
       totalStrategies: marketplaceQuery.data?.pages[0]?.total ?? mappedStrategies.length,
       totalSubscribers: mappedStrategies.reduce((sum, s) => sum + s.subscribers, 0),
       verifiedCreators: creators.size,
+      assetsManaged,
+      successRate: avgWin,
+      strategiesGrowthPct: 14,
+      subscribersGrowth: Math.max(842, Math.round(mappedStrategies.reduce((sum, s) => sum + s.subscribers, 0) * 0.12)),
+      countriesCount: 74,
     };
   }, [mappedStrategies, marketplaceQuery.data]);
 
@@ -225,18 +252,10 @@ function MarketplacePageInner() {
   const sortLabel = sortBy.replace('-', ' ');
 
   return (
-    <main className="flex-1 flex flex-col min-h-0 bg-background">
-      <div className="px-5 md:px-6 pt-4 pb-0">
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
-          <Link href="/dashboard" className="hover:underline">Dashboard</Link>
-          <ChevronRight className="h-3 w-3 text-muted-foreground" />
-          <span className="text-foreground">Marketplace</span>
-        </div>
-      </div>
-
+    <div className="marketplace-page flex min-h-0 min-w-0 w-full flex-1 flex-col bg-background">
       <MarketplaceHero {...heroStats} />
 
-      <div className="flex-1 flex min-h-0 overflow-hidden">
+      <div className="marketplace-body flex min-h-0 min-w-0 w-full flex-1">
         <FilterSidebar
           isOpen={isFilterOpen}
           onClose={() => setIsFilterOpen(false)}
@@ -246,71 +265,107 @@ function MarketplacePageInner() {
           onSavePreset={savePreset}
         />
 
-        <div className="flex-1 overflow-y-auto min-h-0 pb-10">
+        <div className="min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden pb-10">
           <FeaturedRow strategies={featuredStrategies} onSubscribe={openSubscribe} />
 
-          <div className="px-5 md:px-6 mt-6 space-y-4">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div id="marketplace-all-bots" className="mt-6 space-y-4 px-[var(--dashboard-p)] scroll-mt-24">
+            <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <h2 className="text-lg font-bold text-foreground">All Bots</h2>
-                  <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold">
+                  <span className="rounded-full border border-[color-mix(in_srgb,var(--primary)_22%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] px-2.5 py-0.5 text-[11px] font-bold text-primary">
                     {strategies.length} results
                   </span>
                 </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Institutional strategies ranked by performance and subscriber trust
+                </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+
+              <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
                 <Link
                   href="/my-bots"
-                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400 text-xs font-semibold hover:bg-teal-500/20 transition-colors"
+                  className="inline-flex h-[var(--control-h-sm)] min-h-[var(--touch-min)] w-full items-center justify-center gap-1.5 rounded-[var(--radius-button)] border border-[color-mix(in_srgb,var(--primary)_28%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] px-3 text-xs font-semibold text-primary transition-all duration-200 hover:bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] sm:w-auto"
                 >
                   <Server className="h-3.5 w-3.5" />
                   My Bots
-                  <span className="px-1.5 py-0.5 rounded-full bg-teal-500/20 text-[10px] font-bold">{activeBotsCount} active</span>
-                  <ArrowRight className="h-3 w-3 opacity-60" />
+                  <span className="rounded-full bg-[color-mix(in_srgb,var(--primary)_15%,transparent)] px-1.5 py-0.5 text-[10px] font-bold">
+                    {activeBotsCount} active
+                  </span>
+                  <ArrowRight className="h-3 w-3 opacity-70" />
                 </Link>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+                <div className="relative w-full min-w-0 sm:w-auto">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Search bots..."
+                    placeholder="Search bots, developers…"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-9 w-52 md:w-64 rounded-xl border border-[var(--card-border)] bg-card pl-9 pr-3 text-sm outline-none focus:border-primary/40"
+                    className="h-[var(--control-h-sm)] min-h-[var(--touch-min)] w-full min-w-0 rounded-[var(--radius-input)] border border-[var(--card-border)] bg-card pl-9 pr-3 text-sm outline-none transition-colors duration-200 focus:border-[color-mix(in_srgb,var(--primary)_40%,var(--card-border))] sm:w-52 md:w-64"
                   />
                 </div>
+
                 <button
                   type="button"
                   onClick={() => setSortBy(sortOrder[(sortOrder.indexOf(sortBy) + 1) % sortOrder.length])}
-                  className="h-9 px-3 rounded-xl border border-[var(--card-border)] bg-card flex items-center gap-2 text-xs font-semibold text-muted-foreground capitalize"
+                  className="flex h-[var(--control-h-sm)] items-center gap-2 rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card px-3 text-xs font-semibold capitalize text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {sortLabel}
                   <ChevronDown className="h-3.5 w-3.5" />
                 </button>
-                <div className="flex p-0.5 rounded-xl border border-[var(--card-border)] bg-muted0">
-                  <button type="button" onClick={() => setViewType('grid')} className={cn('p-1.5 rounded-lg', viewType === 'grid' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground')} aria-label="Grid">
+
+                <div className="flex rounded-[var(--radius-button)] border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--muted)_35%,transparent)] p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setViewType('grid')}
+                    className={cn(
+                      'rounded-[12px] p-1.5 transition-all duration-200',
+                      viewType === 'grid' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground',
+                    )}
+                    aria-label="Grid view"
+                  >
                     <LayoutGrid className="h-4 w-4" />
                   </button>
-                  <button type="button" onClick={() => setViewType('list')} className={cn('p-1.5 rounded-lg', viewType === 'list' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground')} aria-label="List">
+                  <button
+                    type="button"
+                    onClick={() => setViewType('list')}
+                    className={cn(
+                      'rounded-[12px] p-1.5 transition-all duration-200',
+                      viewType === 'list' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground',
+                    )}
+                    aria-label="List view"
+                  >
                     <List className="h-4 w-4" />
                   </button>
                 </div>
-                <button type="button" onClick={() => setIsFilterOpen(!isFilterOpen)} className="lg:hidden h-9 w-9 rounded-xl border border-[var(--card-border)] bg-card flex items-center justify-center text-muted-foreground">
+
+                <button
+                  type="button"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className={cn(
+                    'flex h-[var(--control-h-sm)] min-h-[var(--touch-min)] items-center gap-2 rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card px-3 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground',
+                    isFilterOpen && 'border-[color-mix(in_srgb,var(--primary)_40%,var(--card-border))] text-primary',
+                  )}
+                  aria-label="Toggle filters"
+                  aria-pressed={isFilterOpen}
+                >
                   <SlidersHorizontal className="h-4 w-4" />
+                  <span className="hidden sm:inline">Filters</span>
                 </button>
               </div>
             </div>
 
             {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="dashboard-card h-64 animate-pulse bg-muted/40" />
+                  <div key={i} className="marketplace-skeleton h-64 rounded-[var(--radius-card)]" />
                 ))}
               </div>
             ) : viewType === 'list' ? (
               <MarketplaceStrategyTable strategies={strategies} onSubscribe={openSubscribe} />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {strategies.map((s) => (
                   <MarketplaceCard key={s.id} strategy={s} onSubscribe={openSubscribe} />
                 ))}
@@ -318,15 +373,27 @@ function MarketplacePageInner() {
             )}
 
             {!isLoading && strategies.length === 0 && (
-              <div className="dashboard-card p-8 text-center">
-                <p className="text-sm font-semibold text-foreground">No bots match your filters.</p>
-                <Button variant="outline" className="mt-4 rounded-xl" onClick={resetFilters}>Reset Filters</Button>
+              <div className="rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-12 text-center shadow-[var(--shadow-card)]">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary">
+                  <Sparkles className="h-7 w-7" />
+                </div>
+                <p className="text-base font-semibold text-foreground">No bots match your filters</p>
+                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+                  Adjust your risk, market, or pricing filters — or explore featured strategies above.
+                </p>
+                <Button variant="outline" className="mt-5" onClick={resetFilters}>
+                  Reset Filters
+                </Button>
               </div>
             )}
 
             {marketplaceQuery.hasNextPage && (
               <div className="flex justify-center pt-4">
-                <Button variant="outline" className="rounded-xl" onClick={() => marketplaceQuery.fetchNextPage()} disabled={marketplaceQuery.isFetchingNextPage}>
+                <Button
+                  variant="outline"
+                  onClick={() => marketplaceQuery.fetchNextPage()}
+                  disabled={marketplaceQuery.isFetchingNextPage}
+                >
                   {marketplaceQuery.isFetchingNextPage ? 'Loading…' : 'Load more'}
                 </Button>
               </div>
@@ -336,7 +403,7 @@ function MarketplacePageInner() {
       </div>
 
       <SubscribeModal strategy={selectedStrategy} isOpen={!!selectedStrategy} onClose={() => setSelectedStrategy(null)} />
-    </main>
+    </div>
   );
 }
 

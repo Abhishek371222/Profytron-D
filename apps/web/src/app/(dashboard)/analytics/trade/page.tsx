@@ -85,7 +85,7 @@ export default function TradeAnalyticsPage() {
         title="Trade Forensics"
         description="Distribution analytics, win-loss geometry, and symbol-level trade quality."
         icon={Activity}
-        iconBg="bg-blue-500/10 text-blue-600"
+        iconBg="bg-chart-5/10 text-chart-5"
         onRefresh={refreshData}
       />
 
@@ -119,8 +119,8 @@ export default function TradeAnalyticsPage() {
           label="Symbols Traded"
           value={trade?.symbolPerformance?.length ?? '—'}
           icon={Activity}
-          iconBg="bg-blue-500/10 text-blue-600"
-          valueClass="text-blue-600"
+          iconBg="bg-chart-5/10 text-chart-5"
+          valueClass="text-chart-5"
           delay={0.15}
         />
       </div>
@@ -140,7 +140,7 @@ export default function TradeAnalyticsPage() {
                 <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                   {(trade?.distribution ?? []).map((_, i) => (
-                    <Cell key={i} fill="#47a7aa" fillOpacity={0.85 - i * 0.05} />
+                    <Cell key={i} fill="var(--primary)" fillOpacity={0.85 - i * 0.05} />
                   ))}
                 </Bar>
               </BarChart>
@@ -174,7 +174,7 @@ export default function TradeAnalyticsPage() {
                       {trade!.winLoss.map((entry, idx) => (
                         <Cell
                           key={`${entry.name}-${idx}`}
-                          fill={idx === 0 ? '#16A34A' : '#DC2626'}
+                          fill={idx === 0 ? 'var(--chart-bull)' : 'var(--chart-bear)'}
                           fillOpacity={0.85}
                         />
                       ))}
@@ -246,9 +246,9 @@ export default function TradeAnalyticsPage() {
           </div>
         ) : (
           !tradeQuery.isLoading && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-amber-200/80 bg-amber-50 w-fit">
-              <AlertTriangle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-              <p className="text-xs text-amber-900/80">No symbol data yet. Values appear after closed trades are recorded.</p>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)] w-fit">
+              <AlertTriangle className="h-3.5 w-3.5 text-[var(--info)] shrink-0" />
+              <p className="text-xs text-foreground/80">No symbol data yet. Values appear after closed trades are recorded.</p>
             </div>
           )
         )}

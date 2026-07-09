@@ -1,11 +1,13 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
-import { ShieldCheck, Star, Zap, Activity, ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { UserAvatar } from '@/components/ui/UserAvatar';
-import { useCurrency } from '@/lib/hooks/useCurrency';
+import React from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { ShieldCheck, Star, Activity, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { UserAvatar } from "@/components/ui/UserAvatar";
+import { Button } from "@/components/ui/button";
+import { useCurrency } from "@/lib/hooks/useCurrency";
 
 interface MarketplaceCardProps {
   strategy: {
@@ -21,93 +23,113 @@ interface MarketplaceCardProps {
     price: number;
     rating?: number;
     reviewCount?: number;
+    drawdown?: number;
   };
-  onSubscribe: (strategy: MarketplaceCardProps['strategy']) => void;
+  onSubscribe: (strategy: MarketplaceCardProps["strategy"]) => void;
 }
 
 export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps) {
-  const { returns, sharpe, risk, subscribers, price, rating = 0, reviewCount = 0 } = strategy;
+  const { returns, sharpe, subscribers, price, rating = 0, reviewCount = 0, drawdown = 0 } = strategy;
   const { currency, formatPrice } = useCurrency();
   const roundedRating = Math.round(rating);
+  const aiScore = rating > 0 ? rating : Math.min(99, 60 + sharpe * 12);
 
   return (
-    <div className="dashboard-card p-5 flex flex-col gap-4 interactive-lift border border-[var(--card-border)]">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--primary)_15%,transparent)] text-primary">
-            <Activity className="h-5 w-5" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">{strategy.category}</p>
-            <h3 className="text-sm font-bold text-foreground truncate">{strategy.name}</h3>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2">
-        <Stat label="Win Rate" value={returns > 0 ? `${returns.toFixed(1)}%` : '—'} className="text-chart-3" />
-        <Stat label="Sharpe" value={sharpe > 0 ? sharpe.toFixed(2) : '—'} />
-        <Stat label="Risk" value={risk} />
-      </div>
-
-      <div className="flex items-center justify-between pt-1 border-t border-[var(--card-border)]">
-        <div>
-          <p className="text-lg font-bold text-foreground">{formatPrice(price)}</p>
-          {price > 0 && (
-            <p className="text-[10px] text-muted-foreground uppercase">
-              / month · {currency.code}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <span className="font-semibold tabular-nums">{subscribers.toLocaleString()}</span> subs
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <UserAvatar name={strategy.creator} size="sm" />
-        <div className="flex-1 min-w-0 flex items-center gap-1">
-          <span className="text-xs font-semibold text-foreground truncate">{strategy.creator}</span>
-          {strategy.verified && <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />}
-        </div>
-        {reviewCount > 0 ? (
-          <div className="flex items-center gap-1" title={`${rating.toFixed(1)} from ${reviewCount} review${reviewCount !== 1 ? 's' : ''}`}>
-            <div className="flex gap-0.5 text-chart-4">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <Star key={s} className={cn('h-2.5 w-2.5', s <= roundedRating && 'fill-current')} />
-              ))}
+    <motion.article
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="marketplace-featured-card group relative overflow-hidden rounded-[var(--radius-card)] p-[1px]"
+    >
+      <div className="flex h-full flex-col gap-4 rounded-[calc(var(--radius-card)-1px)] bg-card p-5 transition-shadow duration-[250ms] group-hover:shadow-[var(--shadow-card-hover)]">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary">
+              <Activity className="h-5 w-5" />
             </div>
-            <span className="text-[10px] font-semibold text-muted-foreground tabular-nums">{rating.toFixed(1)}</span>
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {strategy.category}
+              </p>
+              <h3 className="truncate text-sm font-bold text-foreground">{strategy.name}</h3>
+            </div>
           </div>
-        ) : (
-          <span className="text-[10px] text-muted-foreground">No reviews</span>
-        )}
-      </div>
+          <span className="rounded-[10px] bg-[color-mix(in_srgb,var(--secondary)_18%,transparent)] px-2 py-1 text-[10px] font-bold tabular-nums text-primary">
+            AI {aiScore.toFixed(0)}
+          </span>
+        </div>
 
-      <button
-        type="button"
-        onClick={() => onSubscribe(strategy)}
-        className="w-full h-10 rounded-xl bg-gradient-to-r from-[#47a7aa] to-[#1e6d48] text-white text-[11px] font-bold uppercase tracking-wide flex items-center justify-center gap-2 transition-all duration-200 shadow-[0_2px_8px_rgba(71,167,170,0.25)] hover:shadow-[0_4px_16px_rgba(71,167,170,0.38)] hover:brightness-110 hover:scale-[1.02] active:scale-[0.98]"
-      >
-        <Zap className="h-3.5 w-3.5" />
-        Subscribe
-        <ArrowRight className="h-3.5 w-3.5" />
-      </button>
-      <Link
-        href={`/marketplace/${strategy.id}`}
-        className="text-center text-[10px] font-semibold text-muted-foreground hover:text-primary uppercase tracking-wide"
-      >
-        View Details →
-      </Link>
-    </div>
+        <div className="grid grid-cols-3 gap-2">
+          <Stat label="Win Rate" value={returns > 0 ? `${returns.toFixed(1)}%` : "—"} positive />
+          <Stat label="Sharpe" value={sharpe > 0 ? sharpe.toFixed(2) : "—"} />
+          <Stat label="Max DD" value={drawdown > 0 ? `-${drawdown.toFixed(1)}%` : "—"} danger />
+        </div>
+
+        <div className="flex items-center justify-between border-t border-[var(--card-border)] pt-3">
+          <div>
+            <p className="text-lg font-bold text-foreground">{formatPrice(price)}</p>
+            {price > 0 && (
+              <p className="text-[10px] uppercase text-muted-foreground">/ month · {currency.code}</p>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            <span className="font-semibold tabular-nums text-foreground">{subscribers.toLocaleString()}</span> subs
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <UserAvatar name={strategy.creator} size="sm" />
+          <div className="flex min-w-0 flex-1 items-center gap-1">
+            <span className="truncate text-xs font-semibold text-foreground">{strategy.creator}</span>
+            {strategy.verified && <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-primary" />}
+          </div>
+          {reviewCount > 0 ? (
+            <div className="flex items-center gap-1">
+              <div className="flex gap-0.5 text-primary">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star key={s} className={cn("h-2.5 w-2.5", s <= roundedRating && "fill-current")} />
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <Button variant="primary" size="sm" className="group/btn w-full uppercase tracking-[0.1em]" onClick={() => onSubscribe(strategy)}>
+          Subscribe
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
+        </Button>
+        <Link
+          href={`/marketplace/${strategy.id}`}
+          className="text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary"
+        >
+          View Details →
+        </Link>
+      </div>
+    </motion.article>
   );
 }
 
-function Stat({ label, value, className }: { label: string; value: string; className?: string }) {
+function Stat({
+  label,
+  value,
+  positive,
+  danger,
+}: {
+  label: string;
+  value: string;
+  positive?: boolean;
+  danger?: boolean;
+}) {
   return (
-    <div className="rounded-lg border border-[var(--card-border)] bg-muted/20 p-2">
-      <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wide">{label}</p>
-      <p className={cn('text-xs font-bold tabular-nums mt-0.5', className ?? 'text-foreground')}>{value}</p>
+    <div className="rounded-[12px] bg-[color-mix(in_srgb,var(--muted)_35%,transparent)] p-2">
+      <p className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p
+        className={cn(
+          "mt-0.5 text-xs font-bold tabular-nums",
+          danger ? "text-destructive" : positive ? "text-primary" : "text-foreground",
+        )}
+      >
+        {value}
+      </p>
     </div>
   );
 }

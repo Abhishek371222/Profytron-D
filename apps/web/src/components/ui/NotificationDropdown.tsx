@@ -35,14 +35,14 @@ const CATEGORY_STYLES: Record<string, {
   borderColor: string;
   dot: string;
 }> = {
-  SECURITY:     { iconColor: 'text-amber-400',   iconBg: 'bg-amber-400/20',   rowBg: 'bg-amber-400/[0.08]',   borderColor: 'border-l-amber-500',   dot: 'bg-amber-400'   },
-  TRADING:      { iconColor: 'text-emerald-400', iconBg: 'bg-emerald-400/20', rowBg: 'bg-emerald-400/[0.07]', borderColor: 'border-l-emerald-500', dot: 'bg-emerald-400' },
-  COPY_TRADING: { iconColor: 'text-emerald-400', iconBg: 'bg-emerald-400/20', rowBg: 'bg-emerald-400/[0.07]', borderColor: 'border-l-emerald-500', dot: 'bg-emerald-400' },
-  PAYMENT:      { iconColor: 'text-green-400',   iconBg: 'bg-green-400/20',   rowBg: 'bg-green-400/[0.07]',   borderColor: 'border-l-green-500',   dot: 'bg-green-400'   },
-  STRATEGY:     { iconColor: 'text-cyan-400',    iconBg: 'bg-cyan-400/20',    rowBg: 'bg-cyan-400/[0.07]',    borderColor: 'border-l-cyan-500',    dot: 'bg-cyan-400'    },
-  ACCOUNT:      { iconColor: 'text-sky-400',     iconBg: 'bg-sky-400/20',     rowBg: 'bg-sky-400/[0.07]',     borderColor: 'border-l-sky-500',     dot: 'bg-sky-400'     },
-  SYSTEM:       { iconColor: 'text-foreground/60', iconBg: 'bg-foreground/10', rowBg: 'bg-foreground/[0.04]',  borderColor: 'border-l-slate-500',   dot: 'bg-slate-400'   },
-  DEFAULT:      { iconColor: 'text-foreground/60', iconBg: 'bg-foreground/10', rowBg: 'bg-foreground/[0.04]',  borderColor: 'border-l-slate-500',   dot: 'bg-slate-400'   },
+  SECURITY:     { iconColor: 'text-chart-4', iconBg: 'bg-chart-4/20', rowBg: 'bg-chart-4/[0.08]', borderColor: 'border-l-chart-4',   dot: 'bg-chart-4'   },
+  TRADING:      { iconColor: 'text-primary', iconBg: 'bg-primary/20', rowBg: 'bg-primary/[0.07]', borderColor: 'border-l-primary',   dot: 'bg-primary'   },
+  COPY_TRADING: { iconColor: 'text-chart-3', iconBg: 'bg-chart-3/20', rowBg: 'bg-chart-3/[0.07]', borderColor: 'border-l-chart-3',   dot: 'bg-chart-3'   },
+  PAYMENT:      { iconColor: 'text-chart-3', iconBg: 'bg-chart-3/20', rowBg: 'bg-chart-3/[0.07]', borderColor: 'border-l-chart-3',   dot: 'bg-chart-3'   },
+  STRATEGY:     { iconColor: 'text-chart-5', iconBg: 'bg-chart-5/20', rowBg: 'bg-chart-5/[0.07]', borderColor: 'border-l-chart-5',   dot: 'bg-chart-5'   },
+  ACCOUNT:      { iconColor: 'text-chart-2', iconBg: 'bg-chart-2/20', rowBg: 'bg-chart-2/[0.07]', borderColor: 'border-l-chart-2',   dot: 'bg-chart-2'   },
+  SYSTEM:       { iconColor: 'text-foreground/60', iconBg: 'bg-foreground/10', rowBg: 'bg-foreground/[0.04]',  borderColor: 'border-l-muted-foreground',   dot: 'bg-muted-foreground'   },
+  DEFAULT:      { iconColor: 'text-foreground/60', iconBg: 'bg-foreground/10', rowBg: 'bg-foreground/[0.04]',  borderColor: 'border-l-muted-foreground',   dot: 'bg-muted-foreground'   },
 };
 
 function getStyle(item: NotificationItem) {

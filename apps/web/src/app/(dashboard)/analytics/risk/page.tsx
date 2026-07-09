@@ -33,7 +33,7 @@ const RISK_STATS: {
   { key: 'maxConsecutiveLosses', label: 'Max Consec Losses', format: (v) => `${v}`, color: 'text-chart-4' },
   { key: 'largestLoss', label: 'Largest Loss', format: (v) => `$${v.toLocaleString()}`, color: 'text-destructive' },
   { key: 'bestSingleWin', label: 'Best Single Win', format: (v) => `$${v.toLocaleString()}`, color: 'text-chart-3' },
-  { key: 'avgRiskReward', label: 'Avg Risk / Reward', format: (v) => `${v}`, color: 'text-blue-600' },
+  { key: 'avgRiskReward', label: 'Avg Risk / Reward', format: (v) => `${v}`, color: 'text-chart-5' },
   { key: 'calmarRatio', label: 'Calmar Ratio', format: (v) => `${v}`, color: 'text-primary' },
 ];
 
@@ -104,8 +104,8 @@ export default function RiskAnalyticsPage() {
           label="Avg Risk / Reward"
           value={risk ? risk.avgRiskReward : '—'}
           icon={Activity}
-          iconBg="bg-blue-500/10 text-blue-600"
-          valueClass="text-blue-600"
+          iconBg="bg-chart-5/10 text-chart-5"
+          valueClass="text-chart-5"
           delay={0.15}
         />
       </div>
@@ -121,8 +121,8 @@ export default function RiskAnalyticsPage() {
               <AreaChart data={risk?.drawdownCurve ?? []} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="riskFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#DC2626" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="#DC2626" stopOpacity={0.02} />
+                    <stop offset="0%" stopColor="var(--chart-bear)" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="var(--chart-bear)" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
@@ -132,7 +132,7 @@ export default function RiskAnalyticsPage() {
                 <Area
                   type="monotone"
                   dataKey="val"
-                  stroke="#DC2626"
+                  stroke="var(--chart-bear)"
                   fill="url(#riskFill)"
                   strokeWidth={2}
                   dot={false}
@@ -162,9 +162,9 @@ export default function RiskAnalyticsPage() {
               );
             })}
             {!risk && !riskQuery.isLoading && (
-              <div className="flex items-center gap-2 mt-3 px-3 py-2 rounded-xl border border-amber-200/80 bg-amber-50">
-                <AlertTriangle className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                <p className="text-xs text-amber-900/80">No risk statistics yet.</p>
+              <div className="flex items-center gap-2 mt-3 px-3 py-2 rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)]">
+                <AlertTriangle className="h-3.5 w-3.5 text-[var(--info)] shrink-0" />
+                <p className="text-xs text-foreground/80">No risk statistics yet.</p>
               </div>
             )}
           </div>

@@ -5,6 +5,9 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const BULL = "#348398";
+const BEAR = "#973336";
+
 /** Builds a jagged sparkline — uses live history when varied, else a natural zigzag from 24h change. */
 export function buildSparklinePoints(
   history: number[] | undefined,
@@ -62,7 +65,7 @@ function MarketSparkline({
     return { linePath: line, fillPath: fill };
   }, [data, width, height]);
 
-  const color = positive ? "#16A34A" : "#DC2626";
+  const color = positive ? BULL : BEAR;
 
   if (data.length < 2) {
     return <div className={cn("h-10", className)} aria-hidden />;
@@ -77,7 +80,7 @@ function MarketSparkline({
     >
       <defs>
         <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.22" />
+          <stop offset="0%" stopColor={color} stopOpacity="0.24" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
@@ -128,10 +131,10 @@ function AnimatedPrice({
   return (
     <motion.span
       animate={{
-        color: flash === "up" ? "#16A34A" : flash === "down" ? "#DC2626" : "var(--foreground)",
+        color: flash === "up" ? BULL : flash === "down" ? BEAR : "var(--foreground)",
       }}
       transition={{ duration: 0.35 }}
-      className={cn("text-xl font-bold tabular-nums leading-none", className)}
+      className={cn("text-[clamp(1.125rem,1.2vw,1.25rem)] font-bold tabular-nums leading-none", className)}
     >
       {formatted}
     </motion.span>
@@ -144,21 +147,21 @@ const ASSETS = [
     label: "BTC/USD",
     precision: 0,
     icon: "₿",
-    iconClass: "bg-orange-500 text-white",
+    iconBg: "bg-[linear-gradient(135deg,#348398_0%,#2D7284_100%)]",
   },
   {
     key: "EURUSD",
     label: "EUR/USD",
     precision: 5,
     icon: "€",
-    iconClass: "bg-blue-500 text-white",
+    iconBg: "bg-[linear-gradient(135deg,#9FE1F3_0%,#348398_100%)]",
   },
   {
     key: "XAUUSD",
     label: "XAU/USD",
     precision: 2,
     icon: "Au",
-    iconClass: "bg-amber-500 text-white text-[10px]",
+    iconBg: "bg-[linear-gradient(135deg,#B6F5F3_0%,#348398_100%)]",
   },
 ] as const;
 
@@ -180,8 +183,8 @@ export function DashboardMarketCards({
   showConnectHint?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-      {ASSETS.map(({ key, label, precision, icon, iconClass }, index) => {
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[var(--dashboard-gap)]">
+      {ASSETS.map(({ key, label, precision, icon, iconBg }, index) => {
         const q = quotes[key];
         const isUp = (q?.change24hPct ?? 0) >= 0;
         const spark = q
@@ -200,30 +203,56 @@ export function DashboardMarketCards({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
-            whileHover={{ y: -2, transition: { duration: 0.2 } }}
-            className="dashboard-card card-lift overflow-hidden flex flex-col"
+            whileHover={{ y: -3, transition: { duration: 0.22 } }}
+            className="dashboard-card card-lift overflow-hidden flex flex-col group"
           >
-            <div className="p-4 flex-1">
+            <div className="p-[var(--card-p)] flex-1 relative">
+              <div
+                className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{
+                  background: `linear-gradient(90deg, transparent, ${isUp ? BULL : BEAR}, transparent)`,
+                }}
+              />
               {isLoading && !q ? (
                 <div className="space-y-3">
-                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-9 w-9 rounded-full" />
                   <Skeleton className="h-4 w-20" />
                   <Skeleton className="h-7 w-28" />
                 </div>
               ) : (
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-3">
                   <div
                     className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-sm",
-                      iconClass,
+                      "flex h-[clamp(2rem,2.2vw,2.25rem)] w-[clamp(2rem,2.2vw,2.25rem)] shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm",
+                      iconBg,
                     )}
                   >
                     {icon}
                   </div>
-                  <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-3">
-                    <div className="shrink-0 min-w-0">
+                  <div className="flex flex-1 min-w-0 flex-col gap-2">
+                    <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-medium text-muted-foreground leading-none">{label}</p>
-                      <div className="flex items-baseline gap-2 mt-1.5 flex-wrap">
+                      {q && (
+                        <span
+                          className={cn(
+                            "inline-flex items-center gap-1 text-[11px] font-semibold tabular-nums px-1.5 py-0.5 rounded-full",
+                            isUp
+                              ? "text-primary bg-primary/10"
+                              : "text-destructive bg-destructive/10",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "w-1.5 h-1.5 rounded-full",
+                              isUp ? "bg-primary" : "bg-destructive",
+                            )}
+                          />
+                          {isUp ? "▲" : "▼"} {Math.abs(q.change24hPct).toFixed(2)}%
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-end justify-between gap-2">
+                      <div>
                         {q ? (
                           <AnimatedPrice value={q.price} formatted={formattedPrice} />
                         ) : showConnectHint ? (
@@ -231,19 +260,8 @@ export function DashboardMarketCards({
                         ) : (
                           <span className="text-xl font-bold text-foreground">—</span>
                         )}
-                        {q && (
-                          <span
-                            className={cn(
-                              "text-sm font-semibold tabular-nums whitespace-nowrap",
-                              isUp ? "text-chart-3" : "text-destructive",
-                            )}
-                          >
-                            {isUp ? "▲" : "▼"} {Math.abs(q.change24hPct).toFixed(2)}%
-                          </span>
-                        )}
+                        <p className="text-[11px] text-muted-foreground mt-1">24h change</p>
                       </div>
-                    </div>
-                    <div className="flex-1 flex items-center justify-end min-w-[90px] pl-1">
                       <MarketSparkline data={spark} positive={isUp} />
                     </div>
                   </div>
@@ -253,7 +271,7 @@ export function DashboardMarketCards({
             <motion.div
               className={cn(
                 "h-[3px] w-full shrink-0",
-                q ? (isUp ? "bg-chart-3" : "bg-destructive") : "bg-muted",
+                q ? (isUp ? "bg-primary" : "bg-destructive") : "bg-muted",
               )}
               layout
               transition={{ duration: 0.3 }}
@@ -266,22 +284,22 @@ export function DashboardMarketCards({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-        className="dashboard-card card-lift overflow-hidden flex flex-col hidden sm:flex"
+        className="dashboard-card card-lift overflow-hidden flex flex-col hidden sm:flex group"
       >
-        <div className="p-4 flex flex-col justify-center flex-1 min-h-[76px]">
+        <div className="p-[var(--card-p)] flex flex-col justify-center flex-1 min-h-[5rem]">
           <p className="text-sm font-medium text-muted-foreground">Markets</p>
-          <div className="flex items-center gap-2 mt-2">
+          <div className="flex items-center gap-2 mt-2.5">
             <motion.span
-              animate={{ opacity: live ? [1, 0.35, 1] : 1, scale: live ? [1, 1.15, 1] : 1 }}
+              animate={{ opacity: live ? [1, 0.35, 1] : 1, scale: live ? [1, 1.12, 1] : 1 }}
               transition={{ repeat: live ? Infinity : 0, duration: 2 }}
-              className={cn("h-2 w-2 rounded-full", live ? "bg-chart-3" : "bg-muted-foreground/40")}
+              className={cn("h-2 w-2 rounded-full", live ? "bg-primary" : "bg-muted-foreground/40")}
             />
-            <span className={cn("text-sm font-semibold", live ? "text-chart-3" : "text-muted-foreground")}>
+            <span className={cn("text-sm font-semibold", live ? "text-primary" : "text-muted-foreground")}>
               {live ? "Live" : "Updating…"}
             </span>
           </div>
         </div>
-        <div className={cn("h-[3px] w-full shrink-0", live ? "bg-chart-3" : "bg-muted")} />
+        <div className={cn("h-[3px] w-full shrink-0", live ? "bg-primary" : "bg-muted")} />
       </motion.div>
     </div>
   );

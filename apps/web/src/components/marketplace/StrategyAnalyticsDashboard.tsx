@@ -123,7 +123,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
 
   if (analyticsQuery.isError || !analytics) {
     return (
-      <div className="rounded-3xl border border-chart-4/20 bg-chart-4/5 p-8 text-amber-200">
+      <div className="rounded-3xl border border-chart-4/20 bg-chart-4/5 p-8 text-chart-4">
         Analytics unavailable for this strategy. Performance data will appear once trades are recorded.
       </div>
     );
@@ -283,8 +283,8 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
                 />
                 <Tooltip content={<ChartTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }} />
-                <Line type="monotone" dataKey="balance" name="Balance" stroke="#1e6d48" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="equity" name="Equity" stroke="#10b981" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="balance" name="Balance" stroke="var(--primary)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="equity" name="Equity" stroke="var(--chart-bull)" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -307,7 +307,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
                         month.val > 0
                           ? 'bg-chart-3/25 text-chart-3'
                           : month.val < 0
-                            ? 'bg-destructive/25 text-rose-300'
+                            ? 'bg-destructive/25 text-destructive'
                             : 'bg-muted/3 text-foreground/20',
                       )}
                     >
@@ -327,7 +327,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
                 <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="returnPct" radius={[4, 4, 0, 0]}>
                   {(charts?.monthlyReturns ?? []).map((item: any, idx: number) => (
-                    <Cell key={idx} fill={item.returnPct >= 0 ? '#10b981' : '#f43f5e'} fillOpacity={0.85} />
+                    <Cell key={idx} fill={item.returnPct >= 0 ? 'var(--chart-bull)' : 'var(--chart-bear)'} fillOpacity={0.85} />
                   ))}
                 </Bar>
               </BarChart>
@@ -499,7 +499,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
                         'rounded-full px-2 py-0.5 text-micro font-bold uppercase',
                         trade.type === 'Buy'
                           ? 'bg-chart-3/15 text-chart-3'
-                          : 'bg-destructive/15 text-rose-300',
+                          : 'bg-destructive/15 text-destructive',
                       )}
                     >
                       {trade.type}

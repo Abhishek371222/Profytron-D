@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,9 +13,9 @@ interface SubscriptionModalProps {
 }
 
 const PLANS = [
- { id: 'monthly', name: 'Monthly', price: '₹2,499', period: '/ mo', desc: 'Full access, cancel anytime' },
- { id: 'annual', name: 'Annual', price: '₹1,999', period: '/ mo', desc: 'Billed ₹23,988 yearly', badge: 'Save 20%' },
- { id: 'lifetime', name: 'Lifetime', price: '₹14,999', period: ' once', desc: 'One-time investment', badge: 'Best Value' },
+ { id: 'monthly', name: 'Monthly', price: '?2,499', period: '/ mo', desc: 'Full access, cancel anytime' },
+ { id: 'annual', name: 'Annual', price: '?1,999', period: '/ mo', desc: 'Billed ?23,988 yearly', badge: 'Save 20%' },
+ { id: 'lifetime', name: 'Lifetime', price: '?14,999', period: ' once', desc: 'One-time investment', badge: 'Best Value' },
 ];
 
 export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionModalProps) {
@@ -179,7 +179,7 @@ export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionMod
  </div>
  <div className="flex justify-between text-xs">
  <span className="text-foreground/40">Transaction Fee (0%)</span>
- <span className="text-chart-3 font-mono">₹0</span>
+ <span className="text-chart-3 font-mono">?0</span>
  </div>
  <div className="h-px bg-foreground/5 my-2" />
  <div className="flex justify-between">
@@ -234,7 +234,7 @@ export function SubscriptionModal({ strategy, isOpen, onClose }: SubscriptionMod
  </button>
  <Button 
  onClick={() => setStep(step + 1)}
- className="h-12 px-10 rounded-2xl bg-primary hover:bg-primary text-foreground font-semibold text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 active:scale-95 transition-all"
+ className="h-12 px-10 rounded-2xl bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 active:scale-95 transition-all"
  >
  {step === 1 ? 'Continue to Checkout' : 'Complete Purchase'} <ArrowRight className="w-4 h-4 ml-4" />
  </Button>

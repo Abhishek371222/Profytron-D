@@ -12,7 +12,7 @@ function buildSystemPrompt(customTraining: TrainingItem[]): string {
 Profytron is an institutional-grade algorithmic trading and portfolio management platform.
 
 **Core Features:**
-- AI Coach: Personalized trading coaching, trade-by-trade explanation, market regime analysis, coaching reports
+- Alpha Coach: Personalized trading coaching, trade-by-trade explanation, market regime analysis, coaching reports
 - Strategy Builder: Visual drag-and-drop node-based strategy creation with live backtesting
 - Strategy Marketplace: Browse, subscribe to, and deploy community-created strategies
 - Automated Bots: Purchase and enable trading bots from the marketplace; execution runs on your connected MT5 account

@@ -30,15 +30,15 @@ const PROVIDER_LABELS: Record<Provider, string> = {
 };
 
 const PROVIDER_COLORS: Record<Provider, string> = {
-  AWS: 'from-chart-4/10 to-orange-500/10 border-chart-4/15',
+  AWS: 'from-chart-4/10 to-chart-1/10 border-chart-4/15',
   DIGITALOCEAN: 'from-primary/10 to-chart-5/10 border-primary/15',
-  LINODE: 'from-green-500/10 to-chart-3/10 border-green-500/15',
-  VULTR: 'from-chart-2/10 to-purple-500/10 border-chart-2/15',
+  LINODE: 'from-chart-3/10 to-primary/10 border-chart-3/15',
+  VULTR: 'from-chart-2/10 to-chart-4/10 border-chart-2/15',
 };
 
 const STATUS_CONFIG: Record<string, { dot: string; badge: string; label: string }> = {
   RUNNING: {
-    dot: 'bg-chart-3 shadow-[0_0_8px_#34d399]',
+    dot: 'bg-chart-3 shadow-[0_0_8px_var(--chart-3)]',
     badge: 'bg-chart-3/10 text-chart-3 border-chart-3/20',
     label: 'Running',
   },
@@ -53,8 +53,8 @@ const STATUS_CONFIG: Record<string, { dot: string; badge: string; label: string 
     label: 'Provisioning',
   },
   ERROR: {
-    dot: 'bg-red-400',
-    badge: 'bg-red-400/10 text-red-400 border-red-400/20',
+    dot: 'bg-destructive',
+    badge: 'bg-destructive/10 text-destructive border-destructive/20',
     label: 'Error',
   },
 };
@@ -88,7 +88,7 @@ function BotRow({ bot, onStart, onStop }: { bot: BotInstance; onStart: () => voi
         className={cn(
           'w-8 h-8 rounded-lg flex items-center justify-center transition-all',
           isRunning
-            ? 'bg-red-400/8 hover:bg-red-400/18 text-red-400 border border-red-400/15'
+            ? 'bg-destructive/8 hover:bg-destructive/18 text-destructive border border-destructive/15'
             : 'bg-chart-3/8 hover:bg-chart-3/18 text-chart-3 border border-chart-3/15',
         )}
       >
@@ -148,8 +148,9 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
       layout
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06 }}
-      className={cn('rounded-2xl border bg-gradient-to-br overflow-hidden', gradientClass)}
+      transition={{ delay: index * 0.06, duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -4 }}
+      className={cn('rounded-2xl border bg-gradient-to-br overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]', gradientClass)}
     >
       <div className="p-5 space-y-4">
         {/* Header */}
@@ -192,7 +193,7 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
               <button
                 onClick={() => stopMutation.mutate()}
                 disabled={stopMutation.isPending}
-                className="h-8 px-3 rounded-lg bg-red-400/8 border border-red-400/20 text-red-400 text-micro font-bold uppercase tracking-widest hover:bg-red-400/15 disabled:opacity-40 flex items-center gap-1.5 transition-all"
+                className="h-8 px-3 rounded-lg bg-destructive/8 border border-destructive/20 text-destructive text-micro font-bold uppercase tracking-widest hover:bg-destructive/15 disabled:opacity-40 flex items-center gap-1.5 transition-all"
               >
                 {stopMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Square className="w-3 h-3" />}
                 Stop
@@ -225,7 +226,7 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
               }
             }}
             disabled={deleteMutation.isPending}
-            className="w-8 h-8 rounded-lg bg-muted border border-[var(--card-border)] text-foreground/20 hover:text-red-400 hover:bg-red-400/8 hover:border-red-400/15 flex items-center justify-center transition-all"
+            className="w-8 h-8 rounded-lg bg-muted border border-[var(--card-border)] text-foreground/20 hover:text-destructive hover:bg-destructive/8 hover:border-destructive/15 flex items-center justify-center transition-all"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -342,7 +343,7 @@ function ProvisionModal({ onClose }: { onClose: () => void }) {
                     onClick={() => setCpu(c)}
                     className={cn(
                       'flex-1 h-10 rounded-xl border text-sm font-bold transition-all',
-                      cpu === c ? 'bg-primary text-foreground border-primary/50' : 'bg-muted text-foreground/40 border-[var(--card-border)] hover:border-border',
+                      cpu === c ? 'bg-primary text-primary-foreground border-primary/50' : 'bg-muted text-foreground/40 border-[var(--card-border)] hover:border-border',
                     )}
                   >
                     {c}
@@ -359,7 +360,7 @@ function ProvisionModal({ onClose }: { onClose: () => void }) {
                     onClick={() => setRam(r)}
                     className={cn(
                       'flex-1 h-10 rounded-xl border text-sm font-bold transition-all',
-                      ram === r ? 'bg-primary text-foreground border-primary/50' : 'bg-muted text-foreground/40 border-[var(--card-border)] hover:border-border',
+                      ram === r ? 'bg-primary text-primary-foreground border-primary/50' : 'bg-muted text-foreground/40 border-[var(--card-border)] hover:border-border',
                     )}
                   >
                     {r}
@@ -378,7 +379,7 @@ function ProvisionModal({ onClose }: { onClose: () => void }) {
         <button
           onClick={() => createMutation.mutate()}
           disabled={createMutation.isPending}
-          className="w-full h-11 bg-primary hover:bg-primary/90 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
+          className="w-full h-11 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
         >
           {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Server className="w-4 h-4" />}
           {createMutation.isPending ? 'Provisioning...' : 'Provision Instance'}
@@ -432,7 +433,7 @@ export default function BotsPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="py-20 rounded-2xl bg-muted/505 border border-[var(--card-border)] flex flex-col items-center gap-5"
+          className="py-20 rounded-2xl bg-muted/50 border border-[var(--card-border)] flex flex-col items-center gap-5"
         >
           <div className="w-20 h-20 rounded-3xl bg-muted border border-[var(--card-border)] flex items-center justify-center">
             <Server className="w-10 h-10 text-foreground/10" />

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" fill="none">
+  <defs>
+    <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9FE1F3" stop-opacity="0"/>
+      <stop offset="35%" stop-color="#9FE1F3" stop-opacity="0.9"/>
+      <stop offset="65%" stop-color="#348398" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#9FE1F3" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <path class="route-path" d="M 295 370 Q 390 280, 495 320" stroke="url(#routeGrad)" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" opacity="1"/>
+  <path class="route-path" d="M 495 320 Q 545 340, 595 380" stroke="url(#routeGrad)" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" opacity="1"/>
+  <path class="route-path" d="M 595 380 Q 640 420, 680 470" stroke="url(#routeGrad)" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" opacity="1"/>
+  <path class="route-path" d="M 295 370 Q 450 220, 595 380" stroke="url(#routeGrad)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" opacity="0.55"/>
+  <path class="route-path" d="M 495 320 Q 620 480, 680 470" stroke="url(#routeGrad)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" opacity="0.55"/>
+  <path class="route-path" d="M 680 470 Q 720 400, 740 340" stroke="url(#routeGrad)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" opacity="0.55"/>
+  <path class="route-path" d="M 740 340 Q 760 450, 780 560" stroke="url(#routeGrad)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" opacity="0.55"/>
+  <path class="route-path" d="M 495 320 Q 680 300, 740 340" stroke="url(#routeGrad)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" opacity="0.55"/>
+</svg>

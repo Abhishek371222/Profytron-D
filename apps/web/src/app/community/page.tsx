@@ -1,11 +1,11 @@
-ï»¿ 'use client';
+ 'use client';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
 import { ArrowRight, Mail, MessageSquare } from 'lucide-react';
 import JoinWaitlistModal from '@/components/community/JoinWaitlistModal';
 
-// Instagram SVG (inline â€” not available in all lucide-react versions)
+// Instagram SVG (inline — not available in all lucide-react versions)
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
@@ -45,7 +45,7 @@ export default function CommunityPage() {
             </h1>
 
             <p className="text-xl text-foreground/50 leading-relaxed max-w-2xl font-medium">
-              Profytron is brand new. The community is forming right now â€” which means you get to help shape it from day one. Join early, get direct access to the team, and influence how the platform evolves.
+              Profytron is brand new. The community is forming right now — which means you get to help shape it from day one. Join early, get direct access to the team, and influence how the platform evolves.
             </p>
           </motion.div>
         </div>
@@ -56,7 +56,7 @@ export default function CommunityPage() {
         <div className="container mx-auto px-6 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-16">
 
-            {/* Discord â€” Coming Soon */}
+            {/* Discord — Coming Soon */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -88,7 +88,7 @@ export default function CommunityPage() {
                   <a
                     href="#"
                     onClick={(e) => { e.preventDefault(); setIsWaitlistOpen(true); }}
-                    className="inline-flex items-center gap-3 px-4 py-2 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(71,167,170,0.15)]"
+                    className="inline-flex items-center gap-3 px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(71,167,170,0.15)]"
                   >
                     Join Waitlist
                   </a>
@@ -127,7 +127,7 @@ export default function CommunityPage() {
                   <div className="text-xs font-mono mb-1 text-pink-400 opacity-70">@profytron</div>
                   <h3 className="text-xl font-bold text-foreground mb-3 tracking-tight">Instagram</h3>
                   <p className="text-foreground/50 text-sm leading-relaxed">
-                    Behind-the-scenes of building Profytron â€” platform updates, trading content, and team moments.
+                    Behind-the-scenes of building Profytron — platform updates, trading content, and team moments.
                   </p>
                 </div>
                 <div className="flex items-center gap-2 mt-6 text-sm font-semibold text-pink-400 group-hover:gap-3 transition-all">
@@ -157,7 +157,7 @@ export default function CommunityPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             {[
-              { title: 'Direct Team Access', desc: 'Early members get to talk directly with the founders and engineers â€” not a support bot.' },
+              { title: 'Direct Team Access', desc: 'Early members get to talk directly with the founders and engineers — not a support bot.' },
               { title: 'Shape the Roadmap', desc: 'Your feedback on what to build next actually reaches the people building it.' },
               { title: 'Early Feature Access', desc: 'New features and beta programmes go to community members first, before public release.' },
             ].map((item, i) => (
@@ -193,7 +193,7 @@ export default function CommunityPage() {
             </div>
             <a
               href="mailto:community@profytron.com"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary text-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(71,167,170,0.3)] whitespace-nowrap"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary-hover text-primary-foreground rounded-xl font-semibold text-sm transition-all shadow-[0_0_24px_rgba(71,167,170,0.3)] whitespace-nowrap"
             >
               <Mail className="w-4 h-4" /> community@profytron.com
             </a>

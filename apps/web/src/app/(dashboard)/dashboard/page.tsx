@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -88,7 +88,7 @@ function Sparkline({ data, positive = true, width = 96, height = 30 }: {
     const y = height - ((v - min) / range) * (height - 4) - 2;
     return `${x.toFixed(1)},${y.toFixed(1)}`;
   });
-  const color = positive ? '#34d399' : '#fb7185';
+  const color = positive ? 'var(--chart-bull)' : 'var(--chart-bear)';
   const linePath = `M ${pts.join(' L ')}`;
   const fillPath = `${linePath} L ${width},${height} L 0,${height} Z`;
   return (
@@ -108,7 +108,7 @@ function Sparkline({ data, positive = true, width = 96, height = 30 }: {
 // ─────────────────────────────────────────────────────────────────────────────
 // Radial ring gauge
 // ─────────────────────────────────────────────────────────────────────────────
-function RadialRing({ value, max = 100, size = 96, sw = 8, color = '#22d3ee', label, sub }: {
+function RadialRing({ value, max = 100, size = 96, sw = 8, color = 'var(--primary)', label, sub }: {
   value: number; max?: number; size?: number; sw?: number; color?: string; label: string; sub?: string;
 }) {
   const r = (size - sw) / 2;
@@ -138,13 +138,13 @@ function RadialRing({ value, max = 100, size = 96, sw = 8, color = '#22d3ee', la
 // ─────────────────────────────────────────────────────────────────────────────
 // Main page
 // ─────────────────────────────────────────────────────────────────────────────
-type AccentKey = 'cyan' | 'violet' | 'emerald' | 'rose' | 'amber';
+type AccentKey = 'cyan' | 'teal' | 'primary' | 'rose' | 'ice';
 const ACCENTS: Record<AccentKey, { iconBg: string; iconText: string; badge: string; glow: string }> = {
-  cyan:    { iconBg: 'bg-chart-5/10',    iconText: 'text-chart-5',    badge: 'text-chart-5',    glow: '#22d3ee' },
-  violet:  { iconBg: 'bg-chart-2/10',  iconText: 'text-chart-2',  badge: 'text-chart-2',  glow: '#818cf8' },
-  emerald: { iconBg: 'bg-chart-3/10', iconText: 'text-chart-3', badge: 'text-chart-3', glow: '#34d399' },
-  rose:    { iconBg: 'bg-destructive/10',    iconText: 'text-destructive',    badge: 'text-destructive',    glow: '#fb7185' },
-  amber:   { iconBg: 'bg-chart-4/10',   iconText: 'text-chart-4',   badge: 'text-chart-4',   glow: '#fbbf24' },
+  cyan:    { iconBg: 'bg-primary/10',    iconText: 'text-primary',    badge: 'text-primary',    glow: 'var(--primary)' },
+  teal:    { iconBg: 'bg-secondary/15',  iconText: 'text-primary',    badge: 'text-primary',    glow: 'var(--accent)' },
+  primary: { iconBg: 'bg-primary/10',      iconText: 'text-primary',    badge: 'text-primary',    glow: 'var(--primary)' },
+  rose:    { iconBg: 'bg-destructive/10', iconText: 'text-destructive', badge: 'text-destructive', glow: 'var(--destructive)' },
+  ice:     { iconBg: 'bg-secondary/20',   iconText: 'text-primary',    badge: 'text-primary',    glow: 'var(--teal-tint-1)' },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ function KpiCard({ label, value, prefix = '', suffix = '', decimals = 2, trend, 
             animate={{ opacity: [1, 0.35, 1], scale: [1, 1.3, 1] }}
             transition={{ repeat: Infinity, duration: 2.4 }}
             className="w-1 h-1 rounded-full bg-chart-3"
-            style={{ boxShadow: '0 0 4px #34d399' }}
+            style={{ boxShadow: '0 0 4px var(--chart-3)' }}
           />
           <span className="text-micro font-bold text-chart-3 uppercase tracking-widest">Live</span>
         </div>
@@ -272,10 +272,102 @@ function TradeRow({ trade, onExplain, onAction }: { trade: any; onExplain: (t: a
   }, [trade.timestamp]);
 
   return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, x: -10 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="group trade-row-mobile flex flex-col gap-3 border-b border-[var(--card-border)] p-4 hover:bg-muted/40 cursor-pointer transition-colors duration-150 md:hidden"
+        onClick={() => onExplain(trade)}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-border bg-gradient-to-br from-white/10 to-white/5 text-micro font-bold text-foreground/60">
+              {trade.asset?.slice(0, 2)}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-bold text-foreground">{trade.asset}</p>
+              <p className="text-micro uppercase tracking-wider text-foreground/25">{trade.strategyId || 'Manual'}</p>
+            </div>
+          </div>
+          <span
+            className={cn(
+              'shrink-0 text-micro font-bold px-2.5 py-1 rounded-full border uppercase tracking-widest',
+              isLong ? 'bg-chart-3/10 text-chart-3 border-chart-3/20' : 'bg-destructive/10 text-destructive border-destructive/20',
+            )}
+          >
+            {trade.type}
+          </span>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <span className="text-muted-foreground">Vol </span>
+            <span className="font-mono">{typeof trade.amount === 'number' ? trade.amount.toFixed(2) : trade.amount}</span>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Entry </span>
+            <span className="font-mono">{trade.entry}</span>
+          </div>
+          <div className={cn('font-bold font-mono', isProfit ? 'text-chart-3' : 'text-destructive')}>
+            <Counter value={Math.abs(trade.pnl)} prefix={isProfit ? '+$' : '-$'} decimals={2} />
+          </div>
+          <div className="flex items-center gap-1 text-foreground/45">
+            <Clock className="h-3 w-3" />
+            <span className="font-mono">{age}</span>
+          </div>
+        </div>
+        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="min-h-[var(--touch-min)] flex-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              onExplain(trade);
+            }}
+          >
+            <Brain className="mr-1 h-3 w-3" /> AI
+          </Button>
+          <PositionActionsMenu onAction={(mode) => onAction(trade, mode)} />
+        </div>
+      </motion.div>
+      <TradeRowDesktop trade={trade} onExplain={onExplain} onAction={onAction} />
+    </>
+  );
+}
+
+function TradeRowDesktop({
+  trade,
+  onExplain,
+  onAction,
+}: {
+  trade: any;
+  onExplain: (t: any) => void;
+  onAction: (t: any, mode: TradeActionMode) => void;
+}) {
+  const isLong = trade.type === 'Long';
+  const isProfit = trade.pnl >= 0;
+  const [age, setAge] = React.useState('—');
+  React.useEffect(() => {
+    if (!trade.timestamp) {
+      setAge('—');
+      return;
+    }
+    const compute = () => {
+      const ms = Date.now() - new Date(trade.timestamp).getTime();
+      const h = Math.floor(ms / 3_600_000);
+      const m = Math.floor((ms % 3_600_000) / 60_000);
+      setAge(h > 0 ? `${h}h ${m}m` : `${m}m`);
+    };
+    compute();
+    const id = setInterval(compute, 60_000);
+    return () => clearInterval(id);
+  }, [trade.timestamp]);
+
+  return (
     <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
-      className="group grid grid-cols-7 items-center py-3.5 px-5 border-b border-[var(--card-border)] hover:bg-muted/40 cursor-pointer transition-colors duration-150"
+      className="group trade-row-desktop grid-cols-7 items-center py-3.5 px-5 border-b border-[var(--card-border)] hover:bg-muted/40 cursor-pointer transition-colors duration-150"
       onClick={() => onExplain(trade)}
     >
       {/* Asset */}
@@ -325,7 +417,7 @@ function TradeRow({ trade, onExplain, onAction }: { trade: any; onExplain: (t: a
         <Button
           variant="ghost" size="sm"
           onClick={(e) => { e.stopPropagation(); onExplain(trade); }}
-          className="h-7 px-3 text-micro font-bold uppercase tracking-widest text-chart-2/60 hover:text-violet-200 hover:bg-chart-2/10 border border-transparent hover:border-chart-2/20 transition-all gap-1.5 rounded-lg"
+          className="h-7 px-3 text-micro font-bold uppercase tracking-widest text-chart-2/60 hover:text-chart-2 hover:bg-chart-2/10 border border-transparent hover:border-chart-2/20 transition-all gap-1.5 rounded-lg"
         >
           <Brain className="w-3 h-3" />
           AI
@@ -359,7 +451,7 @@ function RiskMonitor({
   isLoading?: boolean;
 }) {
   const pct = Math.min(limitPct, 100);
-  const color = pct > 80 ? '#DC2626' : pct > 50 ? '#F59E0B' : '#47a7aa';
+  const color = pct > 80 ? 'var(--destructive)' : pct > 50 ? 'var(--accent)' : 'var(--primary)';
   const dailyPct = dailyLossCap > 0 ? Math.min((dailyLossUsed / dailyLossCap) * 100, 100) : 0;
   const ddPct = maxDrawdownPct > 0 ? Math.min((drawdownPct / maxDrawdownPct) * 100, 100) : 0;
 
@@ -413,7 +505,7 @@ function RiskMonitor({
             </div>
             <div className="h-1.5 rounded-full bg-muted overflow-hidden">
               <motion.div
-                className={cn('h-full rounded-full', pctVal > 75 ? 'bg-destructive' : pctVal > 50 ? 'bg-chart-4' : 'bg-primary')}
+                className={cn('h-full rounded-full', pctVal > 75 ? 'bg-destructive' : pctVal > 50 ? 'bg-secondary' : 'bg-primary')}
                 initial={{ width: 0 }}
                 animate={{ width: `${pctVal}%` }}
                 transition={{ duration: 0.9, ease: 'easeOut' }}
@@ -574,12 +666,12 @@ export default function DashboardPage() {
   const firstName = currentUser?.fullName?.split(' ')[0] || currentUser?.name?.split(' ')[0] || 'Trader';
 
   return (
-    <div className="space-y-6 pb-4" suppressHydrationWarning>
+    <div className="space-y-[var(--section-gap)] pb-4" suppressHydrationWarning>
 
       {/* ── 1. GREETING ─────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 dashboard-enter">
         <div>
-          <h1 className="dashboard-page-title text-2xl sm:text-3xl font-bold tracking-tight">
+          <h1 className="dashboard-page-title font-bold tracking-tight">
             {greeting},{' '}
             <span className="text-gradient-hero">{firstName}</span>
             <span className="ml-1">👋</span>
@@ -646,8 +738,8 @@ export default function DashboardPage() {
       )}
 
       {/* ── 2. MAIN GRID ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-6 items-start">
-        <div className="space-y-5 min-w-0">
+      <div className="dashboard-grid-main">
+        <div className="space-y-[var(--dashboard-gap)] min-w-0">
           <DashboardMarketCards
             quotes={marketQuotesWithSpark}
             isLoading={(isDashboardLoading && !btcQuote) || quotesLoading}
@@ -656,19 +748,19 @@ export default function DashboardPage() {
           />
 
           {/* Trading chart — mockup layout */}
-          <div className="dashboard-card overflow-hidden dashboard-enter" style={{ animationDelay: '0.1s' }}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-b border-[var(--card-border)]">
+          <div className="dashboard-card overflow-hidden dashboard-enter card-lift" style={{ animationDelay: '0.1s' }}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-[var(--card-p)] py-4 border-b border-[var(--card-border)]">
               <div className="flex items-center gap-3 min-w-0">
                 <div>
                   <div className="flex items-center gap-2.5">
-                    <h2 className="text-base font-bold text-foreground">Trading Chart</h2>
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-chart-3/10 border border-chart-3/20">
+                    <h2 className="text-[clamp(1rem,1.1vw,1.125rem)] font-bold text-foreground">Trading Chart</h2>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
                       <motion.span
                         animate={{ opacity: [1, 0.4, 1] }}
                         transition={{ repeat: Infinity, duration: 2 }}
-                        className="w-1.5 h-1.5 rounded-full bg-chart-3"
+                        className="w-1.5 h-1.5 rounded-full bg-primary"
                       />
-                      <span className="text-[10px] font-bold text-chart-3 uppercase tracking-widest">Live</span>
+                      <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Live</span>
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-0.5">
@@ -677,18 +769,18 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-            <div className="h-[400px] sm:h-[420px] w-full px-4 pb-3 flex flex-col">
+            <div className="w-full px-4 pb-3 flex flex-col" style={{ height: 'var(--chart-h-lg)' }}>
               <EquityChart embedded decoupleRange data={[]} rangeLabel="1M" />
             </div>
-            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3 border-t border-[var(--card-border)] text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-[var(--card-p)] py-3 border-t border-[var(--card-border)] text-sm text-muted-foreground">
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-chart-3" /> Bull candle</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-primary" /> Bull candle</span>
                 <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-destructive" /> Bear candle</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-primary/50" /> Volume</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-primary/40" /> Volume</span>
               </div>
               {chartLive && (
-                <span className="flex items-center gap-1.5 text-caption font-medium text-chart-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-chart-3 animate-pulse" />
+                <span className="flex items-center gap-1.5 text-caption font-medium text-primary">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                   Live
                 </span>
               )}
@@ -696,7 +788,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Risk + Open positions */}
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(240px,280px)_1fr] gap-5 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(15rem,18vw)_1fr] gap-[var(--dashboard-gap)] items-stretch">
             <div className="dashboard-enter" style={{ animationDelay: '0.16s' }}>
               <RiskMonitor
                 limitPct={risk?.limitPct ?? 0}
@@ -710,8 +802,8 @@ export default function DashboardPage() {
               />
             </div>
 
-            <div className="dashboard-card overflow-hidden min-w-0 dashboard-enter" style={{ animationDelay: '0.2s' }}>
-              <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--card-border)]">
+            <div className="dashboard-card overflow-hidden min-w-0 dashboard-enter card-lift" style={{ animationDelay: '0.2s' }}>
+              <div className="flex items-center justify-between px-[var(--card-p)] py-4 border-b border-[var(--card-border)]">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Activity className="w-3.5 h-3.5 text-primary" />
@@ -739,9 +831,9 @@ export default function DashboardPage() {
                 </div>
               </div>
               {activeTrades.length > 0 && <BulkCloseBar />}
-              <div className="overflow-x-auto">
-                <div className="min-w-[640px]">
-                  <div className="grid grid-cols-7 px-5 py-2.5 bg-muted/40 border-b border-[var(--card-border)]">
+              <div className="min-w-0 md:overflow-x-auto">
+                <div className="min-w-0 md:min-w-[640px]">
+                  <div className="hidden md:grid grid-cols-7 px-[var(--card-p)] py-2.5 bg-muted/30 border-b border-[var(--card-border)]">
                     {['Asset', 'Direction', 'Volume', 'Entry', 'P&L', 'Duration', 'Action'].map((h) => (
                       <span key={h} className="text-caption font-medium text-muted-foreground">{h}</span>
                     ))}
@@ -751,12 +843,12 @@ export default function DashboardPage() {
                       <TradeRow key={trade.id} trade={trade} onExplain={setSelectedTrade} onAction={openTradeAction} />
                     ))
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-12 text-center px-4">
-                      <div className="w-12 h-12 rounded-2xl bg-muted border border-[var(--card-border)] flex items-center justify-center mb-3">
-                        <Activity className="w-6 h-6 text-muted-foreground/40" />
+                    <div className="flex flex-col items-center justify-center py-14 text-center px-4">
+                      <div className="w-14 h-14 rounded-[18px] bg-muted/50 border border-[var(--card-border)] flex items-center justify-center mb-4">
+                        <Activity className="w-7 h-7 text-muted-foreground/35" />
                       </div>
-                      <p className="text-sm font-medium text-muted-foreground">No open positions</p>
-                      <p className="text-caption text-muted-foreground/80 mt-1 max-w-[240px]">
+                      <p className="text-base font-semibold text-foreground">No open positions</p>
+                      <p className="text-sm text-muted-foreground mt-1.5 max-w-[260px] leading-relaxed">
                         Connect a broker or place a trade to see live positions here
                       </p>
                     </div>

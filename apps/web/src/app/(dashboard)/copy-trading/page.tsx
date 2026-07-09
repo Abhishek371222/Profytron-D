@@ -58,7 +58,7 @@ const PLANS = [
     name: 'VIP',
     price: 1399,
     icon: Crown,
-    color: 'from-chart-4/20 to-amber-600/5',
+    color: 'from-chart-4/20 to-chart-2/5',
     border: 'border-chart-4/30',
     badge: 'text-chart-4',
     maxLot: '5x',
@@ -68,10 +68,10 @@ const PLANS = [
 
 const STATUS_STYLES: Record<string, string> = {
   ACTIVE: 'bg-chart-3/10 text-chart-3 border-chart-3/20',
-  INACTIVE: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
+  INACTIVE: 'bg-muted/60 text-muted-foreground border-[var(--card-border)]',
   PAUSED: 'bg-chart-4/10 text-chart-4 border-chart-4/20',
-  CANCELLED: 'bg-red-500/10 text-red-400 border-red-500/20',
-  EXPIRED: 'bg-red-500/10 text-red-400 border-red-500/20',
+  CANCELLED: 'bg-destructive/10 text-destructive border-destructive/20',
+  EXPIRED: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
 export default function CopyTradingPage() {
@@ -166,10 +166,14 @@ export default function CopyTradingPage() {
         <div>
           <DashSectionTitle className="mb-4">Public master traders</DashSectionTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {masters.slice(0, 6).map((master) => (
-              <div
+            {masters.slice(0, 6).map((master, idx) => (
+              <motion.div
                 key={master.id}
-                className="rounded-xl border border-[var(--card-border)] p-4 flex items-center justify-between"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.04, duration: 0.3, ease: 'easeOut' }}
+                whileHover={{ y: -3 }}
+                className="rounded-xl border border-[var(--card-border)] p-4 flex items-center justify-between transition-all duration-200 hover:border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] hover:shadow-[var(--shadow-card-hover)]"
               >
                 <div>
                   <p className="font-medium text-foreground">{master.displayName}</p>
@@ -178,7 +182,7 @@ export default function CopyTradingPage() {
                   </p>
                 </div>
                 <span className="text-xs text-muted-foreground">{master.followersCount} followers</span>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -188,16 +192,19 @@ export default function CopyTradingPage() {
         <div>
           <DashSectionTitle className="mb-4">Your copy relationships</DashSectionTitle>
           <div className="space-y-2">
-            {relationships.map((rel: any) => (
-              <div
+            {relationships.map((rel: any, idx: number) => (
+              <motion.div
                 key={rel.id}
-                className="rounded-xl border border-[var(--card-border)] px-4 py-3 flex items-center justify-between text-sm"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.04, duration: 0.3, ease: 'easeOut' }}
+                className="rounded-xl border border-[var(--card-border)] px-4 py-3 flex items-center justify-between text-sm transition-colors duration-200 hover:border-[color-mix(in_srgb,var(--primary)_18%,var(--card-border))]"
               >
                 <span className="font-medium">{rel.masterProfile?.displayName ?? 'Master'}</span>
                 <span className={cn('px-2 py-0.5 rounded-md text-xs border', STATUS_STYLES[rel.status] ?? STATUS_STYLES.INACTIVE)}>
                   {rel.status}
                 </span>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -222,8 +229,10 @@ export default function CopyTradingPage() {
                 key={plan.name}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                whileHover={{ y: -4 }}
                 className={cn(
-                  'relative flex flex-col p-5 rounded-2xl border bg-gradient-to-br glass',
+                  'relative flex flex-col p-5 rounded-2xl border bg-gradient-to-br glass transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]',
                   plan.color,
                   plan.border,
                   plan.popular && 'ring-1 ring-chart-2/40',

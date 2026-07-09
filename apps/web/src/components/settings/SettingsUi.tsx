@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 export function SettingsSection({
@@ -8,20 +9,28 @@ export function SettingsSection({
   description,
   children,
   className,
+  delay = 0,
 }: {
   title: string;
   description?: string;
   children: React.ReactNode;
   className?: string;
+  delay?: number;
 }) {
   return (
-    <section className={cn('space-y-4', className)}>
+    <motion.section
+      initial={{ opacity: 0, y: 14 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.35, delay, ease: 'easeOut' }}
+      className={cn('space-y-4 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]', className)}
+    >
       <div>
         <h2 className="text-base font-semibold text-foreground">{title}</h2>
         {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
       </div>
       {children}
-    </section>
+    </motion.section>
   );
 }
 
@@ -94,11 +103,10 @@ export function SettingsToggle({
           checked ? 'bg-primary' : 'bg-foreground/20',
         )}
       >
-        <span
-          className={cn(
-            'absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200',
-            checked ? 'translate-x-5' : 'translate-x-0',
-          )}
+        <motion.span
+          animate={{ x: checked ? 20 : 0 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+          className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-md"
         />
       </button>
     </div>

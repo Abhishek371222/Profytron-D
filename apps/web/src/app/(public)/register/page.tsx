@@ -132,7 +132,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen w-full bg-background p-4 sm:p-6 lg:p-8">
+    <main className="min-h-[100dvh] w-full min-w-0 bg-background p-4 pb-safe pt-safe sm:p-6 lg:p-8">
       <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1080px] items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

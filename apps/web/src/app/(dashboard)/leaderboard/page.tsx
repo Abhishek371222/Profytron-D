@@ -311,18 +311,30 @@ export default function LeaderboardPage() {
       {myRank && (myRank.monthly || myRank.allTime) && (
         <div className="grid grid-cols-2 gap-4">
           {myRank.monthly && (
-            <div className="dashboard-card p-5 space-y-1 border-primary/20 bg-primary/5">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+              whileHover={{ y: -4 }}
+              className="dashboard-card p-5 space-y-1 border-primary/20 bg-primary/5 transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
+            >
               <p className="dash-eyebrow">Your Monthly Rank</p>
-              <p className="text-3xl font-bold text-foreground">#{myRank.monthly.rank}</p>
+              <p className="text-3xl font-bold text-foreground tabular-nums">#{myRank.monthly.rank}</p>
               <p className="text-xs text-primary font-semibold">{myRank.monthly.winRate.toFixed(1)}% win rate</p>
-            </div>
+            </motion.div>
           )}
           {myRank.allTime && (
-            <div className="dashboard-card p-5 space-y-1">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: 0.05, ease: 'easeOut' }}
+              whileHover={{ y: -4 }}
+              className="dashboard-card p-5 space-y-1 transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
+            >
               <p className="dash-eyebrow">Your All-Time Rank</p>
-              <p className="text-3xl font-bold text-foreground">#{myRank.allTime.rank}</p>
+              <p className="text-3xl font-bold text-foreground tabular-nums">#{myRank.allTime.rank}</p>
               <p className="text-xs text-muted-foreground font-semibold">{myRank.allTime.totalTrades} trades</p>
-            </div>
+            </motion.div>
           )}
         </div>
       )}

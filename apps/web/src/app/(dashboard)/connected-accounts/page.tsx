@@ -57,12 +57,12 @@ interface LinkedBot {
 const STATUS_STYLE: Record<AccountStatus, string> = {
   CONNECTED: 'bg-chart-3/10 text-chart-3 border-chart-3/20',
   DISCONNECTED: 'bg-destructive/10 text-destructive border-destructive/20',
-  SYNCING: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+  SYNCING: 'bg-chart-4/10 text-chart-4 border-chart-4/20',
 };
 const STATUS_DOT: Record<AccountStatus, string> = {
   CONNECTED: 'bg-chart-3',
   DISCONNECTED: 'bg-destructive',
-  SYNCING: 'bg-orange-500 animate-pulse',
+  SYNCING: 'bg-chart-4 animate-pulse',
 };
 
 const BROKER_ICON_MAP: Record<string, React.ElementType> = {};
@@ -224,9 +224,14 @@ export default function ConnectedAccountsPage() {
       </div>
 
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+      >
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-primary/10 text-primary shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_10%,transparent)]">
             <Link2 className="h-5 w-5" />
           </div>
           <div>
@@ -238,7 +243,7 @@ export default function ConnectedAccountsPage() {
           <button
             type="button"
             onClick={refresh}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground transition-colors"
+            className="btn-premium-ghost inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground"
             aria-label="Refresh accounts"
           >
             <RefreshCcw className="h-4 w-4" />
@@ -246,13 +251,13 @@ export default function ConnectedAccountsPage() {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors shadow-sm"
+            className="btn-premium inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide"
           >
             <Plus className="h-4 w-4" />
             Connect New Broker
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Account Health Banner */}
       {!accountsQuery.isLoading && totalAccounts > 0 && (
@@ -264,7 +269,7 @@ export default function ConnectedAccountsPage() {
             healthStatus === 'green'
               ? 'bg-chart-3/10 border-chart-3/20 text-chart-3'
               : healthStatus === 'yellow'
-              ? 'bg-orange-500/10 border-orange-500/20 text-orange-500'
+              ? 'bg-chart-4/10 border-chart-4/20 text-chart-4'
               : 'bg-destructive/10 border-destructive/20 text-destructive',
           )}
         >
@@ -326,13 +331,14 @@ export default function ConnectedAccountsPage() {
               key={account.id}
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.06 }}
-              className="dashboard-card p-5 flex flex-col gap-4"
+              transition={{ delay: idx * 0.06, duration: 0.35, ease: 'easeOut' }}
+              whileHover={{ y: -4 }}
+              className="group dashboard-card p-5 flex flex-col gap-4 transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)] hover:border-[color-mix(in_srgb,var(--primary)_18%,var(--card-border))]"
             >
               {/* Header */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-200 group-hover:scale-105">
                     <BrokerIcon name={account.brokerName} />
                   </div>
                   <div>
@@ -425,7 +431,7 @@ export default function ConnectedAccountsPage() {
             )}
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="responsive-table-shell">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[var(--card-border)] bg-muted/20">
@@ -481,12 +487,12 @@ export default function ConnectedAccountsPage() {
                             bot.status === 'ACTIVE'
                               ? 'bg-chart-3/10 text-chart-3 border-chart-3/20'
                               : bot.status === 'PAUSED'
-                              ? 'bg-orange-500/10 text-orange-500 border-orange-500/20'
+                              ? 'bg-chart-4/10 text-chart-4 border-chart-4/20'
                               : 'bg-muted text-muted-foreground border-[var(--card-border)]',
                           )}>
                             <span className={cn(
                               'h-1.5 w-1.5 rounded-full',
-                              bot.status === 'ACTIVE' ? 'bg-chart-3' : bot.status === 'PAUSED' ? 'bg-orange-500' : 'bg-muted-foreground',
+                              bot.status === 'ACTIVE' ? 'bg-chart-3' : bot.status === 'PAUSED' ? 'bg-chart-4' : 'bg-muted-foreground',
                             )} />
                             {bot.status}
                           </span>

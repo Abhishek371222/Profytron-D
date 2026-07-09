@@ -1,11 +1,10 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import Link from "next/link";
 import { Shield, Target, Bot, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { DashboardAIWidget } from "./DashboardAIWidget";
 import { PerformanceProfile } from "./PerformanceProfile";
 
 function RadialRing({
@@ -13,7 +12,7 @@ function RadialRing({
   max = 100,
   size = 96,
   sw = 8,
-  color = "#47a7aa",
+  color = "#348398",
   label,
   sub,
 }: {
@@ -43,10 +42,11 @@ function RadialRing({
           strokeDasharray={circ}
           strokeDashoffset={circ - circ * pct}
           className="transition-[stroke-dashoffset] duration-700 ease-out"
+          style={{ filter: `drop-shadow(0 0 6px color-mix(in srgb, ${color} 40%, transparent))` }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="text-lg font-bold text-foreground leading-none">{label}</span>
+        <span className="text-lg font-bold text-foreground leading-none tabular-nums">{label}</span>
         {sub && <span className="text-caption text-muted-foreground mt-1">{sub}</span>}
       </div>
     </div>
@@ -81,19 +81,19 @@ export function DashboardRightRail({
   className,
   isLoading = false,
 }: Props) {
-  const ringColor = winRate >= 60 ? "#16A34A" : winRate >= 40 ? "#F59E0B" : "#47a7aa";
+  const ringColor =
+    winRate >= 60 ? "#348398" : winRate >= 40 ? "#9FE1F3" : "#348398";
 
   return (
     <div
-        className={cn(
-          "flex flex-col gap-4 w-full min-w-0",
-          className ?? "hidden xl:flex xl:sticky xl:top-4 xl:self-start",
-        )}
+      className={cn(
+        "flex flex-col gap-[var(--dashboard-gap)] w-full min-w-0",
+        className ?? "hidden xl:flex xl:sticky xl:top-4 xl:self-start",
+      )}
     >
-      {/* Portfolio Health */}
-      <div className="dashboard-card p-5 dashboard-enter" style={{ animationDelay: "0.08s" }}>
-        <div className="flex items-center gap-2 mb-5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+      <div className="dashboard-card p-[var(--card-p)] dashboard-enter" style={{ animationDelay: "0.08s" }}>
+        <div className="flex items-center gap-2.5 mb-5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
             <Shield className="h-4 w-4 text-primary" />
           </div>
           <span className="text-sm font-semibold text-foreground">Portfolio Health</span>
@@ -127,7 +127,7 @@ export function DashboardRightRail({
               <span
                 className={cn(
                   "text-sm font-semibold tabular-nums text-right",
-                  good ? "text-chart-3" : "text-destructive",
+                  good ? "text-primary" : "text-destructive",
                 )}
               >
                 {isLoading ? "—" : val}
@@ -139,17 +139,16 @@ export function DashboardRightRail({
         <PerformanceProfile bars={performanceBars} isLoading={isLoading} />
       </div>
 
-      {/* Active Strategies */}
-      <div className="dashboard-card p-5 dashboard-enter" style={{ animationDelay: "0.14s" }}>
+      <div className="dashboard-card p-[var(--card-p)] dashboard-enter" style={{ animationDelay: "0.14s" }}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 min-w-0">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/10">
               <Target className="h-4 w-4 text-primary" />
             </div>
             <span className="text-sm font-semibold text-foreground truncate">Active Strategies</span>
           </div>
           <Link
-            href="/strategies"
+            href="/my-bots"
             className="flex shrink-0 items-center gap-0.5 text-caption font-medium text-primary hover:underline"
           >
             Manage <ChevronRight className="h-3 w-3" />
@@ -170,9 +169,9 @@ export function DashboardRightRail({
             <p className="text-caption text-muted-foreground mt-1 px-4 leading-relaxed">
               Build or subscribe to a strategy to start automated trading
             </p>
-            <Link href="/strategies/builder" className="mt-4 w-full">
+            <Link href="/my-bots" className="mt-4 w-full">
               <Button variant="outline" size="sm" className="w-full border-primary/30 text-primary hover:bg-primary/5">
-                Build Strategy
+                Go to My Bots
               </Button>
             </Link>
           </div>
@@ -181,15 +180,15 @@ export function DashboardRightRail({
             {activeStrategies.slice(0, 3).map((strat) => (
               <div
                 key={strat.id}
-                className="rounded-xl border border-[var(--card-border)] bg-muted/40 p-3"
+                className="rounded-xl border border-[var(--card-border)] bg-muted/30 p-3 transition-colors duration-200 hover:bg-muted/50"
               >
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <p className="text-sm font-semibold text-foreground truncate">{strat.name}</p>
-                  <span className="text-caption font-medium text-chart-3 shrink-0">Running</span>
+                  <span className="text-caption font-medium text-primary shrink-0">Running</span>
                 </div>
-                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                <div className="h-1.5 rounded-full bg-primary/10 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-primary transition-all duration-700 ease-out"
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-700 ease-out"
                     style={{ width: `${strat.winRate}%` }}
                   />
                 </div>
@@ -198,8 +197,6 @@ export function DashboardRightRail({
           </div>
         )}
       </div>
-
-      <DashboardAIWidget sharpeRatio={sharpeRatio} />
     </div>
   );
 }

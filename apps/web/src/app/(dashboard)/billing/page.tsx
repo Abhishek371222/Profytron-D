@@ -63,20 +63,20 @@ function formatInr(amount: number) {
 
 const PLAN_COLOR: Record<string, string> = {
   FREE: 'bg-muted/40 text-muted-foreground border-[var(--card-border)]',
-  STARTER: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  STARTER: 'bg-chart-5/10 text-chart-5 border-chart-5/20',
   PRO: 'bg-primary/10 text-primary border-primary/20',
-  BUSINESS: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+  BUSINESS: 'bg-chart-2/10 text-chart-2 border-chart-2/20',
 };
 
 const STATUS_STYLE: Record<PaymentStatus, string> = {
   COMPLETED: 'bg-chart-3/10 text-chart-3 border-chart-3/20',
-  PENDING: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
+  PENDING: 'bg-chart-4/10 text-chart-4 border-chart-4/20',
   FAILED: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
 const STATUS_DOT: Record<PaymentStatus, string> = {
   COMPLETED: 'bg-chart-3',
-  PENDING: 'bg-orange-500',
+  PENDING: 'bg-chart-4',
   FAILED: 'bg-destructive',
 };
 
@@ -99,10 +99,11 @@ function StatCard({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className="dashboard-card p-5 flex items-center gap-4"
+      transition={{ delay, duration: 0.35, ease: 'easeOut' }}
+      whileHover={{ y: -4 }}
+      className="group dashboard-card p-5 flex items-center gap-4 transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
     >
-      <div className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-xl', iconClass)}>
+      <div className={cn('flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105', iconClass)}>
         <Icon className="h-5 w-5" />
       </div>
       <div className="min-w-0">
@@ -191,9 +192,14 @@ export default function BillingPage() {
       </div>
 
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+      >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-primary/10 text-primary shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_10%,transparent)]">
             <Receipt className="h-5 w-5" />
           </div>
           <div>
@@ -203,18 +209,20 @@ export default function BillingPage() {
         </div>
         <Link
           href="/team-plans"
-          className="inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors shadow-sm shrink-0"
+          className="btn-premium inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide shrink-0"
         >
           <Zap className="h-4 w-4" />
           Upgrade Plan
         </Link>
-      </div>
+      </motion.div>
 
       {/* Current Plan Card */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="dashboard-card p-6 bg-gradient-to-br from-primary/[0.07] to-primary/[0.02]"
+        transition={{ duration: 0.35, delay: 0.05, ease: 'easeOut' }}
+        whileHover={{ y: -3 }}
+        className="dashboard-card p-6 bg-gradient-to-br from-primary/[0.07] to-primary/[0.02] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
       >
         <div className="flex flex-col sm:flex-row sm:items-center gap-5">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary">
@@ -264,7 +272,7 @@ export default function BillingPage() {
           label="Total Spent This Year"
           value={paymentsQuery.isLoading ? <span className="h-6 w-24 rounded bg-muted animate-pulse inline-block" /> : formatInr(spentThisYear)}
           icon={Receipt}
-          iconClass="bg-blue-500/10 text-blue-500"
+          iconClass="bg-chart-5/10 text-chart-5"
           delay={0.05}
         />
         <StatCard
@@ -284,7 +292,7 @@ export default function BillingPage() {
               : 'None'
           }
           icon={Calendar}
-          iconClass="bg-orange-500/10 text-orange-500"
+          iconClass="bg-chart-4/10 text-chart-4"
           delay={0.15}
         />
       </div>
@@ -301,7 +309,7 @@ export default function BillingPage() {
           <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">Payment History</h2>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="responsive-table-shell">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[var(--card-border)] bg-muted/20">
@@ -508,7 +516,7 @@ export default function BillingPage() {
           className="dashboard-card p-5 lg:col-span-1"
         >
           <div className="flex items-start gap-3 mb-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-chart-4/10 text-chart-4">
               <FileText className="h-5 w-5" />
             </div>
             <div>
