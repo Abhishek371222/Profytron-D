@@ -261,9 +261,14 @@ results.push(
     const id = env.GOOGLE_CLIENT_ID;
     const secret = env.GOOGLE_CLIENT_SECRET;
     if (!id || !secret) return { ok: false, detail: 'not set' };
+    const expectedId =
+      '507164728830-r5meeu6mocu22lhmbu4lk83lbadlg7j8.apps.googleusercontent.com';
+    const idOk = id === expectedId;
     return {
-      ok: false,
-      detail: 'keys present; login only works if http://localhost:4000/v1/auth/google/callback is added in Google Cloud Console',
+      ok: idOk,
+      detail: idOk
+        ? 'keys present; paste same Client ID/Secret in Supabase Dashboard → Providers → Google; Google Cloud redirect: https://latlennltsqzjveovldf.supabase.co/auth/v1/callback'
+        : `GOOGLE_CLIENT_ID mismatch (expected ${expectedId})`,
     };
   }),
 );

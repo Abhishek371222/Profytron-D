@@ -1,5 +1,10 @@
 @echo off
 REM OAuth Configuration Verification Script for Profytron (Windows)
+setlocal EnableDelayedExpansion
+
+set "EXPECTED_GOOGLE_CLIENT_ID=507164728830-r5meeu6mocu22lhmbu4lk83lbadlg7j8.apps.googleusercontent.com"
+set "SUPABASE_PROJECT_REF=latlennltsqzjveovldf"
+set "SUPABASE_CALLBACK=https://%SUPABASE_PROJECT_REF%.supabase.co/auth/v1/callback"
 
 echo.
 echo ============================================
@@ -7,25 +12,87 @@ echo Profytron OAuth Configuration Checker
 echo ============================================
 echo.
 
-REM Check 1: Environment variables
-echo Step 1: Checking Environment Variables...
-type apps\web\.env.local | find "NEXT_PUBLIC_SUPABASE_URL" >nul
+REM Step 1: Web Supabase env
+echo Step 1: Checking Web Environment (apps\web\.env.local)...
+type apps\web\.env.local 2>nul | find "NEXT_PUBLIC_SUPABASE_URL" >nul
 if %errorlevel% equ 0 (
     echo    [OK] NEXT_PUBLIC_SUPABASE_URL is set
 ) else (
     echo    [FAIL] NEXT_PUBLIC_SUPABASE_URL is MISSING
 )
 
-type apps\web\.env.local | find "NEXT_PUBLIC_SUPABASE_ANON_KEY" >nul
+type apps\web\.env.local 2>nul | find "NEXT_PUBLIC_SUPABASE_ANON_KEY" >nul
 if %errorlevel% equ 0 (
     echo    [OK] NEXT_PUBLIC_SUPABASE_ANON_KEY is set
 ) else (
-    echo    [FAIL] NEXT_PUBLIC_SUPABASE_ANON_KEY is MISSING
+    type apps\web\.env.local 2>nul | find "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" >nul
+    if !errorlevel! equ 0 (
+        echo    [OK] NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is set
+    ) else (
+        echo    [FAIL] Supabase anon/publishable key is MISSING
+    )
+)
+echo    [INFO] Web app does NOT need GOOGLE_CLIENT_ID — OAuth runs through Supabase
+echo.
+
+REM Step 2: API Google credentials
+echo Step 2: Checking API Google Credentials...
+type apps\api\.env 2>nul | find "GOOGLE_CLIENT_ID=%EXPECTED_GOOGLE_CLIENT_ID%" >nul
+if %errorlevel% equ 0 (
+    echo    [OK] GOOGLE_CLIENT_ID matches expected value in apps\api\.env
+) else (
+    type apps\api\.env 2>nul | find "GOOGLE_CLIENT_ID=" >nul
+    if %errorlevel% equ 0 (
+        echo    [FAIL] GOOGLE_CLIENT_ID in apps\api\.env does NOT match expected value
+        echo           Expected: %EXPECTED_GOOGLE_CLIENT_ID%
+    ) else (
+        echo    [FAIL] GOOGLE_CLIENT_ID is MISSING in apps\api\.env
+    )
+)
+
+type apps\api\.env 2>nul | find "GOOGLE_CLIENT_SECRET=" >nul
+if %errorlevel% equ 0 (
+    echo    [OK] GOOGLE_CLIENT_SECRET is set in apps\api\.env
+) else (
+    echo    [FAIL] GOOGLE_CLIENT_SECRET is MISSING in apps\api\.env
+)
+
+if exist render.env (
+    type render.env 2>nul | find "GOOGLE_CLIENT_ID=%EXPECTED_GOOGLE_CLIENT_ID%" >nul
+    if %errorlevel% equ 0 (
+        echo    [OK] GOOGLE_CLIENT_ID matches in render.env
+    ) else (
+        echo    [FAIL] GOOGLE_CLIENT_ID missing or wrong in render.env
+    )
+    type render.env 2>nul | find "GOOGLE_CLIENT_SECRET=" >nul
+    if %errorlevel% equ 0 (
+        echo    [OK] GOOGLE_CLIENT_SECRET is set in render.env
+    ) else (
+        echo    [FAIL] GOOGLE_CLIENT_SECRET is MISSING in render.env
+    )
+) else (
+    echo    [WARN] render.env not found
 )
 echo.
 
-REM Check 2: Auth callback page exists
-echo Step 2: Checking Auth Callback Page...
+REM Step 3: Supabase backend sync
+echo Step 3: Checking Supabase Backend Sync (POST /auth/supabase)...
+type apps\api\.env 2>nul | find "SUPABASE_URL=https://%SUPABASE_PROJECT_REF%.supabase.co" >nul
+if %errorlevel% equ 0 (
+    echo    [OK] SUPABASE_URL points to project %SUPABASE_PROJECT_REF%
+) else (
+    echo    [FAIL] SUPABASE_URL missing or wrong in apps\api\.env
+)
+type apps\api\.env 2>nul | find "SUPABASE_SERVICE_ROLE_KEY=" >nul
+if %errorlevel% equ 0 (
+    echo    [OK] SUPABASE_SERVICE_ROLE_KEY is set
+) else (
+    echo    [FAIL] SUPABASE_SERVICE_ROLE_KEY is MISSING
+)
+echo.
+
+REM Step 4: Auth callback page
+echo Step 4: Checking Auth Callback Page...
 if exist "apps\web\src\app\(public)\auth\callback\page.tsx" (
     echo    [OK] Auth callback page exists
 ) else (
@@ -33,90 +100,46 @@ if exist "apps\web\src\app\(public)\auth\callback\page.tsx" (
 )
 echo.
 
-REM Check 3: Frontend is accessible
-echo Step 3: Checking Frontend...
-for /f %%i in ('powershell -Command "try { (Invoke-WebRequest -UseBasicParsing http://localhost:3000 -TimeoutSec 2 -ErrorAction Stop).StatusCode } catch { '999' }"') do set FRONTEND_RESPONSE=%%i
-if "%FRONTEND_RESPONSE%"=="200" (
-    echo    [OK] Frontend is running on http://localhost:3000
-) else (
-    echo    [WARNING] Frontend returned status %FRONTEND_RESPONSE% ^(should be 200^)
-)
-echo.
-
-REM Check 4: Backend is accessible
-echo Step 4: Checking Backend...
-for /f %%i in ('powershell -Command "try { (Invoke-WebRequest -UseBasicParsing http://localhost:4000/health -TimeoutSec 2 -ErrorAction Stop).StatusCode } catch { '999' }"') do set BACKEND_RESPONSE=%%i
-if "%BACKEND_RESPONSE%"=="200" (
-    echo    [OK] Backend is running on http://localhost:4000
-) else (
-    echo    [WARNING] Backend returned status %BACKEND_RESPONSE% ^(should be 200^)
-)
-echo.
-
 echo ============================================
 echo REQUIRED: Manual OAuth Configuration
 echo ============================================
 echo.
-echo You should have received the error:
-echo   "Error 400: redirect_uri_mismatch"
+echo PRIMARY FLOW: Login/Register -^> Supabase OAuth -^> /auth/callback -^> POST /auth/supabase
+echo (NOT the legacy /api/auth/google or /v1/auth/google routes)
 echo.
-echo This means you need to add the redirect URI to:
-echo   1. Supabase Console
-echo   2. Google Cloud Console
+echo -- Supabase Dashboard (REQUIRED) --
+echo Project: https://app.supabase.com/project/%SUPABASE_PROJECT_REF%
 echo.
-echo Follow these steps:
+echo 1. Authentication ^> Providers ^> Google
+echo    - Enable Google provider
+echo    - Client ID (paste exactly^):
+echo      %EXPECTED_GOOGLE_CLIENT_ID%
+echo    - Client Secret: same as GOOGLE_CLIENT_SECRET in apps\api\.env / render.env
 echo.
-echo STEP 1: Supabase Configuration
-echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-echo   1. Go to: https://app.supabase.com
-echo   2. Log in with your account
-echo   3. Select your PROJECT: latlennltsqzjveovldf
-echo   4. Go to: Authentication ^> Providers ^> Google
-echo   5. Enable Google Provider if not already enabled
-echo   6. Find: "Authorized redirect URIs" section
-echo   7. ADD THIS URL (if not already there):
-echo      ► http://localhost:3000/auth/callback
-echo   8. SAVE
+echo 2. Authentication ^> URL Configuration
+echo    - Site URL: https://www.profytron.com
+echo    - Redirect URLs:
+echo      * http://localhost:3000/auth/callback
+echo      * https://www.profytron.com/auth/callback
+echo      * https://profytron.com/auth/callback
 echo.
-echo STEP 2: Google Cloud Console
-echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-echo   1. Go to: https://console.cloud.google.com
-echo   2. Select your PROJECT: profytron-44bdc
-echo   3. Go to: APIs ^& Services ^> Credentials
-echo   4. Find your OAuth 2.0 Client ID ^(Web application^)
-echo   5. Click on it to EDIT
-echo   6. Find: "Authorized redirect URIs" section
-echo   7. ADD BOTH of these URLs (if not already there^):
-echo      ► http://localhost:3000/auth/callback
-echo      ► https://latlennltsqzjveovldf.supabase.co/auth/v1/callback
-echo   8. SAVE
+echo -- Google Cloud Console (REQUIRED) --
+echo https://console.cloud.google.com/apis/credentials
+echo OAuth 2.0 Client -^> Authorized redirect URIs:
+echo    * %SUPABASE_CALLBACK%
+echo Optional legacy NestJS only:
+echo    * https://profytron-api.onrender.com/v1/auth/google/callback
 echo.
-echo STEP 3: Test the OAuth Flow
-echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━
-echo   1. Open: http://localhost:3000/register
-echo   2. Click the "Google" button
-echo   3. You should be redirected to Google login
-echo   4. After auth, you should be redirected back to the app
-echo   5. If you still get redirect_uri_mismatch:
-echo      - Clear browser cache (Ctrl+Shift+Delete)
-echo      - Try incognito/private window
-echo      - Wait 2-3 min for changes to sync
-echo      - Check URLs are EXACTLY the same (case-sensitive!)
+echo -- Render (profytron-api) --
+echo Set from render.env:
+echo    GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+echo    SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 echo.
 echo ============================================
 echo Useful Links:
 echo ============================================
-echo.
 echo Supabase OAuth Guide:
 echo   https://supabase.com/docs/guides/auth/social-login/auth-google
-echo.
-echo Google OAuth Setup:
-echo   https://developers.google.com/identity/protocols/oauth2
-echo.
 echo Supabase Project:
-echo   https://app.supabase.com/project/latlennltsqzjveovldf
-echo.
-echo Google Cloud Project:
-echo   https://console.cloud.google.com/apis/credentials
-echo.
+echo   https://app.supabase.com/project/%SUPABASE_PROJECT_REF%
 echo ============================================

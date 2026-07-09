@@ -6,7 +6,9 @@ type SocialAuthContext = 'login' | 'register';
 
 /**
  * Social sign-in via Supabase Auth (Google/GitHub).
- * Configure providers in Supabase Dashboard → Authentication → Providers.
+ * Google Client ID/Secret are configured in Supabase Dashboard → Authentication →
+ * Providers → Google (not in web env). The API uses GOOGLE_CLIENT_ID/SECRET only
+ * for the legacy NestJS /v1/auth/google route.
  */
 export async function startSocialOAuth(
   provider: SocialProvider,
