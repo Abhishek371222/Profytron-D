@@ -8,6 +8,7 @@ import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LazyChatbotWidget } from "@/components/chatbot/LazyChatbotWidget";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { Analytics } from '@vercel/analytics/next';
 
 const geist = Geist({
   subsets: ["latin"],
@@ -123,6 +124,7 @@ export default function RootLayout({
           <PostHogProvider>{children}</PostHogProvider>
         </Suspense>
         <LazyChatbotWidget />
+        <Analytics />
         </ThemeProvider>
       </body>
     </html>
