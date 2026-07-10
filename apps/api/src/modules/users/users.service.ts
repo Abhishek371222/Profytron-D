@@ -46,7 +46,10 @@ export class UsersService {
   }
 
   private normalizeOtp(value: unknown): string {
-    return String(value ?? '').trim();
+    if (typeof value === 'string' || typeof value === 'number') {
+      return String(value).trim();
+    }
+    return '';
   }
 
   private rememberDeleteOtp(userId: string, otp: string, ttlSeconds: number) {
