@@ -16,7 +16,9 @@ export const brokerApi = {
   },
 
   async disconnectBroker(accountId: string) {
-    const res = await apiClient.delete(`/broker/accounts/${accountId}`);
+    const res = await apiClient.delete(`/broker/accounts/${accountId}`, {
+      timeout: 15_000,
+    });
     return unwrapApiResponse<any>(res.data);
   },
 

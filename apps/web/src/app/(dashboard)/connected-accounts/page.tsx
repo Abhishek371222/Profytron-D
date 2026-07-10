@@ -458,6 +458,20 @@ export default function ConnectedAccountsPage() {
               </div>
 
                 <div className="flex flex-col gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => handleDisconnect(account)}
+                  disabled={disconnectingId === account.id}
+                  className="w-full h-10 rounded-lg border border-destructive/40 bg-destructive text-destructive-foreground text-[12px] font-bold uppercase tracking-wide hover:bg-destructive/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
+                  aria-label="Disconnect account"
+                >
+                  {disconnectingId === account.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Link2Off className="h-4 w-4" />
+                  )}
+                  Disconnect account
+                </button>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -501,20 +515,6 @@ export default function ConnectedAccountsPage() {
                     Bridge EA token
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={() => handleDisconnect(account)}
-                  disabled={disconnectingId === account.id}
-                  className="w-full h-9 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive text-[11px] font-bold uppercase tracking-wide hover:bg-destructive/20 transition-colors flex items-center justify-center gap-2 disabled:opacity-40"
-                  aria-label="Disconnect account"
-                >
-                  {disconnectingId === account.id ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Link2Off className="h-3.5 w-3.5" />
-                  )}
-                  Disconnect account
-                </button>
               </div>
             </motion.div>
           ))}

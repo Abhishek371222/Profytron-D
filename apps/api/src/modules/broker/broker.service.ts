@@ -382,37 +382,8 @@ export class BrokerService {
     });
     if (!account) throw new BadRequestException('Account not found');
 
-    // Unlink CopyFactory while MetaAPI credentials still exist, then deprovision.
-    const linkedSubs = await this.prisma.userStrategySubscription.findMany({
-      where: { brokerAccountId: accountId },
-      select: { id: true },
-    });
-    for (const sub of linkedSubs) {
-      await this.copyFactoryQueue.add(
-        'sync_copyfactory',
-        { action: 'unlink', subscriptionId: sub.id },
-        {
-          removeOnComplete: true,
-          attempts: 4,
-          backoff: { type: 'exponential', delay: 5000 },
-        },
-      );
-    }
-
-    // Deprovision from MetaAPI if applicable
-    if (!account.isPaperTrading && this.mtAdapter.isLive) {
-      try {
-        const creds = JSON.parse(
-          this.cryptoService.decrypt(account.credentialsEncrypted),
-        );
-        if (creds.metaApiAccountId) {
-          await this.mtAdapter.deprovision(creds.metaApiAccountId);
-        }
-      } catch (_) {
-        /* non-fatal */
-      }
-    }
-
+    // Soft-delete FIRST so the UI always frees the slot, even if MetaApi / Redis
+    // cleanup hangs or fails (common on localhost without a healthy queue).
     await this.prisma.$transaction([
       this.prisma.brokerAccount.update({
         where: { id: accountId },
@@ -424,7 +395,53 @@ export class BrokerService {
       }),
     ]);
 
-    return { success: true };
+    // Best-effort background cleanup — never fail the disconnect response.
+    void this.cleanupDisconnectedAccount(account).catch((err) => {
+      this.logger.warn(
+        `Post-disconnect cleanup failed for ${accountId}: ${(err as Error).message}`,
+      );
+    });
+
+    return { success: true, disconnected: true, accountId };
+  }
+
+  private async cleanupDisconnectedAccount(account: {
+    id: string;
+    isPaperTrading: boolean;
+    credentialsEncrypted: string;
+  }) {
+    const linkedSubs = await this.prisma.userStrategySubscription.findMany({
+      where: { brokerAccountId: account.id },
+      select: { id: true },
+    });
+    for (const sub of linkedSubs) {
+      try {
+        await this.copyFactoryQueue.add(
+          'sync_copyfactory',
+          { action: 'unlink', subscriptionId: sub.id },
+          {
+            removeOnComplete: true,
+            attempts: 2,
+            backoff: { type: 'exponential', delay: 2000 },
+          },
+        );
+      } catch {
+        /* Redis unavailable — ignore */
+      }
+    }
+
+    if (!account.isPaperTrading && this.mtAdapter.isLive) {
+      try {
+        const creds = JSON.parse(
+          this.cryptoService.decrypt(account.credentialsEncrypted),
+        );
+        if (creds.metaApiAccountId) {
+          await this.mtAdapter.deprovision(creds.metaApiAccountId);
+        }
+      } catch {
+        /* non-fatal */
+      }
+    }
   }
 
   async testConnection(userId: string, accountId: string) {
