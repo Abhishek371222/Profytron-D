@@ -38,9 +38,6 @@ export class AppController {
     const executionMode = (
       process.env.EXECUTION_MODE || 'master_only'
     ).toLowerCase();
-    const executionMode = (
-      process.env.EXECUTION_MODE || 'master_only'
-    ).toLowerCase();
     const isCopyFactory = executionMode === 'copyfactory';
     return {
       status: 'ok',

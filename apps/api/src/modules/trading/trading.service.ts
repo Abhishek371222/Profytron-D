@@ -41,19 +41,30 @@ export class TradingService {
     // Never start CopyFactory subscriber sync; never require CF in production.
     if (masterOnly) {
       if (!hasMetaApiToken) {
-        this.logger.error(
-          'FATAL: EXECUTION_MODE=master_only requires METAAPI_TOKEN for the operator master account.',
+        // Fail-fast only on real production boots — unit/integration Jest runs
+        // (and local dev) must not require a live MetaApi token to construct
+        // TradingService.
+        const isRealProductionBoot =
+          process.env.NODE_ENV === 'production' && !process.env.JEST_WORKER_ID;
+        if (isRealProductionBoot) {
+          this.logger.error(
+            'FATAL: EXECUTION_MODE=master_only requires METAAPI_TOKEN for the operator master account.',
+          );
+          throw new Error(
+            'Boot refused: master_only mode needs METAAPI_TOKEN (master bridge).',
+          );
+        }
+        this.logger.warn(
+          'METAAPI_TOKEN missing — MasterSync polling disabled (test/dev)',
         );
-        throw new Error(
-          'Boot refused: master_only mode needs METAAPI_TOKEN (master bridge).',
+      } else {
+        this.logger.log(
+          'EXECUTION_MODE=master_only — MasterSync on; CopyFactory subscriber path off',
+        );
+        this.masterSync.startPolling(
+          Number(process.env.MASTER_SYNC_INTERVAL_MS) || 3000,
         );
       }
-      this.logger.log(
-        'EXECUTION_MODE=master_only — MasterSync on; CopyFactory subscriber path off (no per-user MetaApi seats)',
-      );
-      this.masterSync.startPolling(
-        Number(process.env.MASTER_SYNC_INTERVAL_MS) || 3000,
-      );
     } else {
       const isProduction = process.env.NODE_ENV === 'production';
       const copyFactoryRequested = process.env.COPYFACTORY_ENABLED !== 'false';
