@@ -252,10 +252,49 @@ export class NotificationsService {
       quietHoursEnd: string;
     }>,
   ) {
+    const allowed = {
+      ...(typeof updates.inAppEnabled === 'boolean'
+        ? { inAppEnabled: updates.inAppEnabled }
+        : {}),
+      ...(typeof updates.emailEnabled === 'boolean'
+        ? { emailEnabled: updates.emailEnabled }
+        : {}),
+      ...(typeof updates.pushEnabled === 'boolean'
+        ? { pushEnabled: updates.pushEnabled }
+        : {}),
+      ...(typeof updates.securityAlerts === 'boolean'
+        ? { securityAlerts: updates.securityAlerts }
+        : {}),
+      ...(typeof updates.tradingAlerts === 'boolean'
+        ? { tradingAlerts: updates.tradingAlerts }
+        : {}),
+      ...(typeof updates.paymentAlerts === 'boolean'
+        ? { paymentAlerts: updates.paymentAlerts }
+        : {}),
+      ...(typeof updates.systemAlerts === 'boolean'
+        ? { systemAlerts: updates.systemAlerts }
+        : {}),
+      ...(typeof updates.marketingAlerts === 'boolean'
+        ? { marketingAlerts: updates.marketingAlerts }
+        : {}),
+      ...(typeof updates.accountAlerts === 'boolean'
+        ? { accountAlerts: updates.accountAlerts }
+        : {}),
+      ...(typeof updates.quietHoursEnabled === 'boolean'
+        ? { quietHoursEnabled: updates.quietHoursEnabled }
+        : {}),
+      ...(typeof updates.quietHoursStart === 'string'
+        ? { quietHoursStart: updates.quietHoursStart }
+        : {}),
+      ...(typeof updates.quietHoursEnd === 'string'
+        ? { quietHoursEnd: updates.quietHoursEnd }
+        : {}),
+    };
+
     return this.prisma.notificationPreference.upsert({
       where: { userId },
-      create: { userId, ...updates },
-      update: updates,
+      create: { userId, ...allowed },
+      update: allowed,
     });
   }
 

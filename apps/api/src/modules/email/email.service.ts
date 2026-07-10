@@ -335,6 +335,58 @@ export class EmailService {
     });
   }
 
+  async sendSupportTicketEmail(data: {
+    to?: string;
+    ticketId: string;
+    subject: string;
+    description: string;
+    category: string;
+    user: {
+      id: string;
+      email: string;
+      fullName?: string | null;
+    };
+  }) {
+    const supportInbox =
+      data.to ||
+      process.env.SUPPORT_EMAIL?.trim() ||
+      'support@profytron.com';
+    const senderName = data.user.fullName?.trim() || 'Profytron user';
+    const html = `${BASE}
+      <p style="font-size:20px;font-weight:700;margin:0 0 12px;">New support ticket</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">A user raised a ticket from the Profytron Support Center.</p>
+      <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;margin-bottom:16px;">
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Ticket ID:</span> <strong>${data.ticketId}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">From:</span> <strong>${senderName}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Email:</span> <strong>${data.user.email}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">User ID:</span> <strong>${data.user.id}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Category:</span> <strong>${data.category}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Subject:</span> <strong>${data.subject}</strong></p>
+        <p style="margin:12px 0 0;color:#64748b;">Description</p>
+        <p style="margin:6px 0 0;white-space:pre-wrap;color:#e2e8f0;">${data.description
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')}</p>
+      </div>
+      <p style="color:#64748b;font-size:13px;">Reply to the user at <a href="mailto:${data.user.email}" style="color:#6366f1;">${data.user.email}</a>.</p>
+    ${FOOTER}`;
+
+    return this.send(
+      supportInbox,
+      `[Support Ticket] ${data.category.toUpperCase()}: ${data.subject}`,
+      html,
+      {
+        type: 'SUPPORT_TICKET',
+        userId: data.user.id,
+        metadata: {
+          ticketId: data.ticketId,
+          category: data.category,
+          userEmail: data.user.email,
+        },
+      },
+    );
+  }
+
   private async send(
     to: string,
     subject: string,

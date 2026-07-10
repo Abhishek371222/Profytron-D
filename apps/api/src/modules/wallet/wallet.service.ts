@@ -335,6 +335,85 @@ export class WalletService {
     };
   }
 
+  /**
+   * Admin-only withdrawal from any user wallet (including deleted accounts).
+   * Skips OTP and KYC — audited via metadata.
+   */
+  async adminForceWithdrawal(
+    targetUserId: string,
+    adminId: string,
+    dto: { amount: number; bankAccount?: string; note?: string },
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { id: true, email: true, fullName: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!dto.amount || dto.amount <= 0) {
+      throw new BadRequestException('Amount must be greater than 0');
+    }
+
+    const transaction = await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${targetUserId}`}))`;
+
+      const grouped = await this.getGroupedSums(targetUserId, tx);
+      const confirmedIn = this.extractAmount(grouped, 'IN', 'CONFIRMED');
+      const confirmedOut = this.extractAmount(grouped, 'OUT', 'CONFIRMED');
+      const pendingOut = this.extractAmount(grouped, 'OUT', 'PENDING');
+      const available = confirmedIn - confirmedOut - pendingOut;
+
+      if (dto.amount > available) {
+        throw new BadRequestException(
+          `Insufficient balance. Available: ${available}`,
+        );
+      }
+
+      return tx.walletTransaction.create({
+        data: {
+          userId: targetUserId,
+          type: 'WITHDRAWAL',
+          direction: 'OUT',
+          amount: dto.amount,
+          status: 'PENDING',
+          balanceAfter: available - dto.amount,
+          idempotencyKey: `admin_wd_${randomUUID()}`,
+          reference: dto.bankAccount || 'Admin forced withdrawal',
+          description: dto.note?.trim() || 'Admin withdrawal',
+          metadataJson: {
+            adminForced: true,
+            adminId,
+            bankAccount: dto.bankAccount || null,
+            note: dto.note || null,
+            targetEmail: user.email,
+          },
+        },
+      });
+    });
+
+    await this.withdrawalQueue.add(
+      'process',
+      {
+        transactionId: transaction.id,
+        userId: targetUserId,
+        amount: dto.amount,
+      },
+      { attempts: 3, backoff: { type: 'exponential', delay: 3000 } },
+    );
+
+    this.logger.log(
+      `Admin ${adminId} withdrew ${dto.amount} from user ${targetUserId}`,
+    );
+
+    return {
+      transaction,
+      user: { id: user.id, email: user.email, fullName: user.fullName },
+      estimatedArrival: '1-2 business days',
+    };
+  }
+
   async getTransactionDetail(userId: string, transactionId: string) {
     const tx = await this.prisma.walletTransaction.findFirst({
       where: { id: transactionId, userId },

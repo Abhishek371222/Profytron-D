@@ -16,6 +16,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminService } from './admin.service';
 import { TradingService } from '../trading/trading.service';
+import { WalletService } from '../wallet/wallet.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard, Roles } from '../auth/guards/auth.guard';
 import {
@@ -27,8 +28,34 @@ import {
 import { RiskLevel, StrategyCategory, UserRole } from '@prisma/client';
 import { StrategyDocumentsService } from '../marketplace/strategy-documents.service';
 import { Request } from 'express';
+import {
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
-type AdminRequest = Request & { user: { id: string; role: string } };
+class AdminWithdrawDto {
+  @Type(() => Number)
+  @IsNumber()
+  @IsPositive()
+  amount: number;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  bankAccount?: string;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
+}
+
+type AdminRequest = Request & {
+  user: { id: string; userId?: string; role: string };
+};
 
 @ApiTags('Admin')
 @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -43,6 +70,7 @@ export class AdminController {
     private adminService: AdminService,
     private tradingService: TradingService,
     private strategyDocuments: StrategyDocumentsService,
+    private walletService: WalletService,
   ) {}
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -75,6 +103,23 @@ export class AdminController {
   @Get('users/:id')
   async getUserById(@Param('id') id: string) {
     return this.adminService.getUserDetail(id);
+  }
+
+  @ApiResponse({ status: 200, description: 'Withdrawal queued' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({
+    summary:
+      'Admin force-withdraw from a user wallet (works on deleted accounts, no OTP/KYC)',
+  })
+  @Post('users/:id/withdraw')
+  async adminWithdrawFromUser(
+    @Req() req: AdminRequest,
+    @Param('id') id: string,
+    @Body() dto: AdminWithdrawDto,
+  ) {
+    const adminId = req.user.id || req.user.userId || '';
+    return this.walletService.adminForceWithdrawal(id, adminId, dto);
   }
 
   @ApiResponse({ status: 200, description: 'OK' })

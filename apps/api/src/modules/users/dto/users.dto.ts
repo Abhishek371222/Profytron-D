@@ -3,14 +3,17 @@ import {
   IsOptional,
   IsNumber,
   IsObject,
-  MaxLength,
+  IsBoolean,
+  Equals,
+  Length,
   Matches,
+  MaxLength,
   IsUrl,
   IsStrongPassword,
   Min,
   Max,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateProfileDto {
@@ -92,8 +95,23 @@ export class ChangePasswordDto {
   newPassword: string;
 }
 
-export class DeleteAccountDto {
-  @ApiProperty({ description: 'Must be "DELETE" to confirm' })
+export class VerifyDeleteAccountOtpDto {
+  @ApiProperty({ description: '6-digit OTP sent to the user email' })
+  // enableImplicitConversion can turn digit-only strings into numbers;
+  // force a trimmed string before validation/compare.
+  @Transform(({ value }) => String(value ?? '').trim())
   @IsString()
-  confirmText: string;
+  @Length(6, 6)
+  @Matches(/^\d{6}$/, { message: 'OTP must be a 6-digit code' })
+  otp: string;
+}
+
+export class DeleteAccountDto {
+  @ApiProperty({
+    description:
+      'Must be true after OTP verification to confirm permanent deletion',
+  })
+  @IsBoolean()
+  @Equals(true, { message: 'finalConfirm must be true' })
+  finalConfirm: boolean;
 }

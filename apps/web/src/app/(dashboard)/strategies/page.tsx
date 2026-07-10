@@ -151,7 +151,7 @@ export default function StrategiesPage() {
                 Verified only
               </span>
             </div>
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select defaultValue={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[160px] h-10 rounded-xl border-[var(--card-border)] bg-card text-xs font-medium">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>

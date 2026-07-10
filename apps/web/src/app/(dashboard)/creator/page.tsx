@@ -69,8 +69,8 @@ export default function CreatorStudioPage() {
   });
 
   const marketplaceQuery = useQuery({
-    queryKey: ['creator-marketplace-preview'],
-    queryFn: () => marketplaceApi.getMarketplace({ limit: 6, sort: 'newest' }),
+    queryKey: ['creator-marketplace-preview', user?.id],
+    queryFn: () => marketplaceApi.getMarketplace({ limit: 12, sort: 'newest' }),
     staleTime: 60_000,
   });
 
@@ -122,8 +122,29 @@ export default function CreatorStudioPage() {
         : Array.isArray((raw as { data?: unknown[] })?.data)
           ? (raw as { data: unknown[] }).data
           : [];
-    return list.slice(0, 6) as Array<Record<string, unknown>>;
-  }, [marketplaceQuery.data]);
+
+    const myBotIds = new Set(myBots.map((bot) => bot.id));
+    const myUserId = user?.id;
+
+    return (list as Array<Record<string, unknown>>)
+      .filter((item) => {
+        const strategy = (item.strategy as Record<string, unknown>) || item;
+        const strategyId = String(item.strategyId || strategy.id || item.id || '');
+        if (strategyId && myBotIds.has(strategyId)) return false;
+
+        const creator =
+          (strategy.creator as { id?: string } | undefined) ||
+          (item.creator as { id?: string } | undefined);
+        const creatorId =
+          creator?.id ||
+          (typeof strategy.creatorId === 'string' ? strategy.creatorId : undefined) ||
+          (typeof item.creatorId === 'string' ? item.creatorId : undefined);
+
+        if (myUserId && creatorId && creatorId === myUserId) return false;
+        return true;
+      })
+      .slice(0, 6);
+  }, [marketplaceQuery.data, myBots, user?.id]);
 
   const liveCount = myBots.filter((b) => b.isPublished && b.isVerified).length;
   const pendingCount = myBots.filter((b) => b.verificationStatus === 'PENDING').length;

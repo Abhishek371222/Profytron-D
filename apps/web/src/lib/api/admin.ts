@@ -41,6 +41,14 @@ export const adminApi = {
     return unwrap<any>(res.data);
   },
 
+  async withdrawFromUser(
+    id: string,
+    payload: { amount: number; bankAccount?: string; note?: string },
+  ) {
+    const res = await apiClient.post(`/admin/users/${id}/withdraw`, payload);
+    return unwrap<any>(res.data);
+  },
+
   async suspendUser(id: string) {
     return this.updateUserStatus(id, true);
   },

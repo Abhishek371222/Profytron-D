@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Req,
+  Res,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -28,9 +29,10 @@ import {
   UpdateRiskProfileDto,
   ChangePasswordDto,
   DeleteAccountDto,
+  VerifyDeleteAccountOtpDto,
 } from './dto/users.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
-import type { Request, Express } from 'express';
+import type { Request, Response, Express } from 'express';
 
 type AuthenticatedRequest = Request & {
   user: {
@@ -154,15 +156,60 @@ export class UsersController {
     return this.usersService.changePassword(req.user.userId, dto);
   }
 
+  @Post('me/delete/request-otp')
+  @ApiResponse({ status: 200, description: 'OTP sent' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({
+    summary: 'Send OTP to email to begin account deletion',
+  })
+  async requestDeleteAccountOtp(@Req() req: AuthenticatedRequest) {
+    return this.usersService.requestDeleteAccountOtp(req.user.userId);
+  }
+
+  @Post('me/delete/verify-otp')
+  @ApiResponse({ status: 200, description: 'OTP verified' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({
+    summary: 'Verify delete-account OTP before final confirmation',
+  })
+  async verifyDeleteAccountOtp(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: VerifyDeleteAccountOtpDto,
+  ) {
+    return this.usersService.verifyDeleteAccountOtp(req.user.userId, dto.otp);
+  }
+
   @Delete('me')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiOperation({ summary: 'Delete account' })
+  @ApiOperation({
+    summary:
+      'Permanently deactivate account after OTP verification and final confirm',
+  })
   async deleteAccount(
     @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
     @Body() dto: DeleteAccountDto,
   ) {
-    return this.usersService.deleteAccount(req.user.userId, dto.confirmText);
+    const result = await this.usersService.deleteAccount(
+      req.user.userId,
+      dto.finalConfirm,
+    );
+
+    const isSecure =
+      process.env.NODE_ENV === 'production' ||
+      process.env.COOKIE_SECURE === 'true';
+    const cookieOpts = {
+      httpOnly: true,
+      secure: isSecure,
+      sameSite: 'lax' as const,
+      path: '/',
+    };
+    res.clearCookie('refresh_token', cookieOpts);
+    res.clearCookie('user_role', { ...cookieOpts, httpOnly: false });
+    res.clearCookie('onboarding_completed', { ...cookieOpts, httpOnly: false });
+
+    return result;
   }
 
   // ──────────────────────────── KYC ────────────────────────────

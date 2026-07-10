@@ -61,11 +61,22 @@ export default function NotificationsPage() {
     setSaving(true);
     try {
       const saved = await notificationsApi.updatePreferences(prefs);
-      setPrefs(saved);
+      setPrefs({ ...DEFAULT_PREFS, ...saved });
       setIsDirty(false);
       toast.success('Notification preferences saved');
-    } catch {
-      toast.error('Failed to save preferences');
+    } catch (error: unknown) {
+      const payload =
+        typeof error === 'object' && error !== null && 'response' in error
+          ? (error as { response?: { data?: { error?: string | string[]; message?: string | string[] } } })
+              .response?.data
+          : undefined;
+      const raw = payload?.error ?? payload?.message;
+      const message = Array.isArray(raw)
+        ? raw.join(', ')
+        : typeof raw === 'string' && raw.trim()
+          ? raw
+          : 'Failed to save preferences';
+      toast.error(message);
     } finally {
       setSaving(false);
     }

@@ -49,9 +49,21 @@ export const usersApi = {
     return unwrapApiResponse<any>(res.data);
   },
 
-  async deleteAccount(confirmText: string) {
-    const res = await apiClient.delete('/users/me', { data: { confirmText } });
-    return unwrapApiResponse<any>(res.data);
+  async requestDeleteAccountOtp() {
+    const res = await apiClient.post('/users/me/delete/request-otp');
+    return unwrapApiResponse<{ sent: boolean }>(res.data);
+  },
+
+  async verifyDeleteAccountOtp(otp: string) {
+    const res = await apiClient.post('/users/me/delete/verify-otp', { otp });
+    return unwrapApiResponse<{ verified: boolean }>(res.data);
+  },
+
+  async deleteAccount() {
+    const res = await apiClient.delete('/users/me', {
+      data: { finalConfirm: true },
+    });
+    return unwrapApiResponse<{ success: boolean }>(res.data);
   },
   
   async checkUsername(username: string) {

@@ -5,6 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { appError, ErrorCode } from '../../common/errors';
 import { AgentEventService } from '../agents/agent-event.service';
 import { AGENT_EVENTS } from '../agents/agent.types';
@@ -16,6 +17,7 @@ export class SupportService {
   constructor(
     private prisma: PrismaService,
     private agentEvents: AgentEventService,
+    private emailService: EmailService,
   ) {}
 
   async createTicket(
@@ -24,32 +26,60 @@ export class SupportService {
     description: string,
     category: string,
   ) {
-    return this.prisma.supportTicket
-      .create({
-        data: {
-          userId,
-          subject,
-          description,
-          category,
-          status: 'OPEN',
-          priority: 'MEDIUM',
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, fullName: true },
+    });
+    if (!user) {
+      appError(HttpStatus.NOT_FOUND, 'User not found', ErrorCode.USER_NOT_FOUND);
+    }
+
+    const ticket = await this.prisma.supportTicket.create({
+      data: {
+        userId,
+        subject,
+        description,
+        category,
+        status: 'OPEN',
+        priority: 'MEDIUM',
+      },
+    });
+
+    void this.agentEvents.emit({
+      type: AGENT_EVENTS.SUPPORT_TICKET_CREATED,
+      entityType: 'ticket',
+      entityId: ticket.id,
+      userId,
+      payload: {
+        subject,
+        category,
+        description: description.slice(0, 500),
+      },
+      idempotencyKey: `ticket:${ticket.id}`,
+    });
+
+    try {
+      await this.emailService.sendSupportTicketEmail({
+        ticketId: ticket.id,
+        subject,
+        description,
+        category,
+        user: {
+          id: user.id,
+          email: user.email,
+          fullName: user.fullName,
         },
-      })
-      .then(async (ticket) => {
-        void this.agentEvents.emit({
-          type: AGENT_EVENTS.SUPPORT_TICKET_CREATED,
-          entityType: 'ticket',
-          entityId: ticket.id,
-          userId,
-          payload: {
-            subject,
-            category,
-            description: description.slice(0, 500),
-          },
-          idempotencyKey: `ticket:${ticket.id}`,
-        });
-        return ticket;
       });
+    } catch (error) {
+      // Ticket is already saved — email failure should not roll back the request.
+      this.logger.error(
+        `Failed to email support inbox for ticket ${ticket.id}: ${
+          error instanceof Error ? error.message : 'unknown error'
+        }`,
+      );
+    }
+
+    return ticket;
   }
 
   async getTickets(userId: string, status?: string) {

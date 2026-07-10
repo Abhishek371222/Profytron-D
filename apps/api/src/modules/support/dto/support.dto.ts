@@ -5,6 +5,16 @@ import {
   IsIn,
   IsOptional,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
+
+const SUPPORT_CATEGORIES = [
+  'general',
+  'billing',
+  'technical',
+  'trading',
+  'account',
+  'other',
+] as const;
 
 export class CreateTicketDto {
   @IsString()
@@ -17,8 +27,13 @@ export class CreateTicketDto {
   @MaxLength(5000)
   description: string;
 
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
   @IsString()
-  @IsIn(['billing', 'technical', 'trading', 'account', 'other'])
+  @IsIn([...SUPPORT_CATEGORIES], {
+    message: `category must be one of: ${SUPPORT_CATEGORIES.join(', ')}`,
+  })
   category: string;
 }
 

@@ -129,6 +129,7 @@ export class AdminService {
         subscriptionTier: true,
         isActive: true,
         isSuspended: true,
+        deletedAt: true,
         createdAt: true,
         lastLoginAt: true,
       },
@@ -148,6 +149,7 @@ export class AdminService {
         subscriptionTier: true,
         isActive: true,
         isSuspended: true,
+        deletedAt: true,
         emailVerified: true,
         kycStatus: true,
         onboardingCompleted: true,
@@ -168,14 +170,31 @@ export class AdminService {
       throw new NotFoundException('User not found');
     }
 
-    const wallet = await this.prisma.walletTransaction.aggregate({
-      where: { userId, status: 'CONFIRMED' },
+    const grouped = await this.prisma.walletTransaction.groupBy({
+      by: ['direction', 'status'],
+      where: { userId },
       _sum: { amount: true },
     });
 
+    const sum = (
+      direction: 'IN' | 'OUT',
+      status: 'CONFIRMED' | 'PENDING',
+    ) =>
+      grouped.find((g) => g.direction === direction && g.status === status)?._sum
+        .amount ?? 0;
+
+    const confirmedIn = sum('IN', 'CONFIRMED');
+    const confirmedOut = sum('OUT', 'CONFIRMED');
+    const pendingOut = sum('OUT', 'PENDING');
+    const total = confirmedIn - confirmedOut;
+    const available = total - pendingOut;
+
     return {
       ...user,
-      walletGross: wallet._sum.amount || 0,
+      walletGross: total,
+      walletAvailable: available,
+      walletPendingOut: pendingOut,
+      isDeleted: Boolean(user.deletedAt) || user.isActive === false,
     };
   }
 

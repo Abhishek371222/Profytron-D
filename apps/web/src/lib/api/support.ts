@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, unwrapApiResponse } from './client';
 
 export interface SupportTicket {
   id: string;
@@ -32,27 +32,46 @@ export interface CreateTicketPayload {
 }
 
 export const supportApi = {
-  createTicket: (payload: CreateTicketPayload) =>
-    apiClient.post<SupportTicket>('/support/tickets', payload).then((r) => r.data),
+  createTicket: async (payload: CreateTicketPayload) => {
+    const res = await apiClient.post('/support/tickets', {
+      ...payload,
+      category: payload.category.trim().toLowerCase(),
+      subject: payload.subject.trim(),
+      description: payload.description.trim(),
+    });
+    return unwrapApiResponse<SupportTicket>(res.data);
+  },
 
-  getTickets: (status?: string) =>
-    apiClient
-      .get('/support/tickets', { params: status ? { status } : undefined })
-      .then((r) => {
-        const raw = r.data?.data ?? r.data ?? [];
-        return (Array.isArray(raw) ? raw : []) as SupportTicket[];
-      }),
+  getTickets: async (status?: string) => {
+    const res = await apiClient.get('/support/tickets', {
+      params: status ? { status } : undefined,
+    });
+    const raw = unwrapApiResponse<SupportTicket[] | { items?: SupportTicket[] }>(
+      res.data,
+    );
+    if (Array.isArray(raw)) return raw;
+    if (raw && Array.isArray((raw as { items?: SupportTicket[] }).items)) {
+      return (raw as { items: SupportTicket[] }).items;
+    }
+    return [];
+  },
 
-  getTicket: (id: string) =>
-    apiClient.get(`/support/tickets/${id}`).then((r) => (r.data?.data ?? r.data) as SupportTicket),
+  getTicket: async (id: string) => {
+    const res = await apiClient.get(`/support/tickets/${id}`);
+    return unwrapApiResponse<SupportTicket>(res.data);
+  },
 
-  addResponse: (ticketId: string, message: string) =>
-    apiClient
-      .post(`/support/tickets/${ticketId}/responses`, { message })
-      .then((r) => (r.data?.data ?? r.data) as SupportTicketResponse),
+  addResponse: async (ticketId: string, message: string) => {
+    const res = await apiClient.post(`/support/tickets/${ticketId}/responses`, {
+      message,
+    });
+    return unwrapApiResponse<SupportTicketResponse>(res.data);
+  },
 
-  updateStatus: (ticketId: string, status: string) =>
-    apiClient
-      .patch(`/support/tickets/${ticketId}/status`, { status })
-      .then((r) => (r.data?.data ?? r.data) as SupportTicket),
+  updateStatus: async (ticketId: string, status: string) => {
+    const res = await apiClient.patch(`/support/tickets/${ticketId}/status`, {
+      status,
+    });
+    return unwrapApiResponse<SupportTicket>(res.data);
+  },
 };

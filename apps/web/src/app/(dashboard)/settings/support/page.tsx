@@ -8,7 +8,14 @@ import { cn } from '@/lib/utils';
 import { MessageSquare, Plus, X, ChevronRight, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const CATEGORIES = ['General', 'Billing', 'Technical', 'Trading', 'Account', 'Other'];
+const CATEGORIES = [
+  { label: 'General', value: 'general' },
+  { label: 'Billing', value: 'billing' },
+  { label: 'Technical', value: 'technical' },
+  { label: 'Trading', value: 'trading' },
+  { label: 'Account', value: 'account' },
+  { label: 'Other', value: 'other' },
+];
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }> = {
   OPEN: { label: 'Open', color: 'text-chart-4 bg-chart-4/10 border-chart-4/20', icon: Clock },
@@ -34,7 +41,11 @@ export default function SupportPage() {
   const [selectedTicket, setSelectedTicket] = React.useState<SupportTicket | null>(null);
   const [replyText, setReplyText] = React.useState('');
 
-  const [form, setForm] = React.useState({ subject: '', description: '', category: 'General' });
+  const [form, setForm] = React.useState({
+    subject: '',
+    description: '',
+    category: 'general',
+  });
 
   const { data: ticketsRaw, isLoading } = useQuery({
     queryKey: ['support-tickets'],
@@ -53,10 +64,23 @@ export default function SupportPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['support-tickets'] });
       setShowCreate(false);
-      setForm({ subject: '', description: '', category: 'General' });
-      toast.success('Support ticket created');
+      setForm({ subject: '', description: '', category: 'general' });
+      toast.success('Support ticket submitted — our team was notified by email');
     },
-    onError: () => toast.error('Failed to create ticket'),
+    onError: (error: unknown) => {
+      const payload =
+        typeof error === 'object' && error !== null && 'response' in error
+          ? (error as { response?: { data?: { error?: string | string[]; message?: string | string[] } } })
+              .response?.data
+          : undefined;
+      const raw = payload?.error ?? payload?.message;
+      const message = Array.isArray(raw)
+        ? raw.join(', ')
+        : typeof raw === 'string' && raw.trim()
+          ? raw
+          : 'Failed to create ticket';
+      toast.error(message);
+    },
   });
 
   const replyMutation = useMutation({
@@ -71,11 +95,19 @@ export default function SupportPage() {
   });
 
   const handleCreate = () => {
-    if (!form.subject.trim() || !form.description.trim()) {
-      toast.error('Please fill in all fields');
+    if (form.subject.trim().length < 5) {
+      toast.error('Subject must be at least 5 characters');
       return;
     }
-    createMutation.mutate(form);
+    if (form.description.trim().length < 10) {
+      toast.error('Description must be at least 10 characters');
+      return;
+    }
+    createMutation.mutate({
+      subject: form.subject.trim(),
+      description: form.description.trim(),
+      category: form.category,
+    });
   };
 
   const handleReply = () => {
@@ -125,16 +157,17 @@ export default function SupportPage() {
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => (
                     <button
-                      key={cat}
-                      onClick={() => setForm((f) => ({ ...f, category: cat }))}
+                      key={cat.value}
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, category: cat.value }))}
                       className={cn(
                         'px-3 py-1.5 rounded-full text-micro font-bold uppercase tracking-widest border transition-all',
-                        form.category === cat
+                        form.category === cat.value
                           ? 'bg-primary text-primary-foreground border-primary/40'
                           : 'bg-foreground/3 text-foreground/30 border-border hover:text-foreground hover:border-border',
                       )}
                     >
-                      {cat}
+                      {cat.label}
                     </button>
                   ))}
                 </div>
@@ -162,6 +195,7 @@ export default function SupportPage() {
               </div>
 
               <button
+                type="button"
                 onClick={handleCreate}
                 disabled={createMutation.isPending}
                 className="w-full h-11 bg-primary text-primary-foreground rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 disabled:opacity-50"

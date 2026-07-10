@@ -24,6 +24,7 @@ import {
 import { AgentEventService } from '../agents/agent-event.service';
 import { AGENT_EVENTS } from '../agents/agent.types';
 import { NotificationsService } from '../notifications/notifications.service';
+import { isClosedAccount } from './account-lifecycle';
 
 @Injectable()
 export class AuthService {
@@ -106,12 +107,20 @@ export class AuthService {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    if (existing)
+    if (existing) {
+      if (isClosedAccount(existing)) {
+        appError(
+          HttpStatus.CONFLICT,
+          'This email belongs to a deleted account and cannot be used to register again.',
+          ErrorCode.EMAIL_ALREADY_REGISTERED,
+        );
+      }
       appError(
         HttpStatus.CONFLICT,
         'Email already registered',
         ErrorCode.EMAIL_ALREADY_REGISTERED,
       );
+    }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
     let user;
@@ -390,12 +399,23 @@ export class AuthService {
     // timing (missing users return ~0 ms; valid users return ~100 ms).
     const DUMMY_HASH =
       '$2b$12$invalidhashpaddingtomakethislooklikearealbcrypthash00000';
+
+    if (user && isClosedAccount(user)) {
+      await bcrypt.compare(dto.password, user.passwordHash ?? DUMMY_HASH);
+      appError(
+        HttpStatus.FORBIDDEN,
+        'This account has been deleted and can no longer be accessed.',
+        ErrorCode.USER_NOT_FOUND,
+      );
+    }
+
+    const activeUser = user && !isClosedAccount(user) ? user : null;
     const isMatch = await bcrypt.compare(
       dto.password,
-      user?.passwordHash ?? DUMMY_HASH,
+      activeUser?.passwordHash ?? DUMMY_HASH,
     );
 
-    if (!user || !user.passwordHash || !isMatch) {
+    if (!activeUser || !activeUser.passwordHash || !isMatch) {
       // Increment fail counter regardless of whether the user exists to prevent
       // non-existent-email addresses from bypassing rate limiting
       try {
@@ -405,33 +425,42 @@ export class AuthService {
         );
         const next = current + 1;
         await this.redisService.set(failKey, String(next), LOCKOUT_SECONDS);
-        if (user && next >= MAX_ATTEMPTS) {
+        if (activeUser && next >= MAX_ATTEMPTS) {
           const hour = new Date().toISOString().slice(0, 13);
           void this.agentEvents.emit({
             type: AGENT_EVENTS.AUTH_LOGIN_FAILED_THRESHOLD,
             entityType: 'user',
-            entityId: user.id,
-            userId: user.id,
+            entityId: activeUser.id,
+            userId: activeUser.id,
             payload: { failCount: next, ip: req.ip },
-            idempotencyKey: `login-fail:${user.id}:${hour}`,
+            idempotencyKey: `login-fail:${activeUser.id}:${hour}`,
           });
         }
       } catch {
         // Non-critical
       }
+
+      if (!activeUser) {
+        appError(
+          HttpStatus.UNAUTHORIZED,
+          'No account found with this email. Create a new account to continue.',
+          ErrorCode.USER_NOT_FOUND,
+        );
+      }
+
       appError(
         HttpStatus.UNAUTHORIZED,
         'Invalid credentials',
         ErrorCode.INVALID_CREDENTIALS,
       );
     }
-    if (user.isSuspended)
+    if (activeUser.isSuspended)
       appError(
         HttpStatus.FORBIDDEN,
         'Account suspended',
         ErrorCode.ACCOUNT_SUSPENDED,
       );
-    if (!user.emailVerified)
+    if (!activeUser.emailVerified)
       appError(
         HttpStatus.FORBIDDEN,
         'Please verify your email first',
@@ -451,27 +480,31 @@ export class AuthService {
     // If 2FA is enabled, issue a short-lived challenge token instead of full
     // session tokens. The client must call POST /auth/2fa/complete-login with
     // the challenge token + TOTP/backup code to receive a real session.
-    if (user.twoFactorEnabled) {
+    if (activeUser.twoFactorEnabled) {
       const challengeToken = randomUUID();
       await this.redisService.set(
         `auth:2fa:challenge:${challengeToken}`,
-        user.id,
+        activeUser.id,
         5 * 60,
       );
       return { requiresTwoFa: true as const, challengeToken };
     }
 
-    const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    const tokens = await this.generateTokenPair(
+      activeUser.id,
+      activeUser.email,
+      activeUser.role,
+    );
+    await this.persistRefreshTokenSafely(activeUser.id, tokens.refreshToken);
 
     try {
       await this.prisma.user.update({
-        where: { id: user.id },
+        where: { id: activeUser.id },
         data: { lastLoginAt: new Date() },
       });
       await this.prisma.userSession.create({
         data: {
-          userId: user.id,
+          userId: activeUser.id,
           deviceId: 'default',
           ipAddress: ip,
           browser: userAgent,
@@ -480,21 +513,25 @@ export class AuthService {
       await this.prisma.auditLog.create({
         data: {
           eventType: 'LOGIN',
-          userId: user.id,
+          userId: activeUser.id,
           detailsJson: { ip, userAgent },
-          triggeredBy: user.id,
+          triggeredBy: activeUser.id,
           ipAddress: ip,
           userAgent,
         },
       });
-      void this.emailService.sendLoginEmail(user.email, user.fullName, {
-        ip,
-        device: userAgent,
-        time: new Date().toUTCString(),
-        userId: user.id,
-      });
+      void this.emailService.sendLoginEmail(
+        activeUser.email,
+        activeUser.fullName,
+        {
+          ip,
+          device: userAgent,
+          time: new Date().toUTCString(),
+          userId: activeUser.id,
+        },
+      );
       void this.notificationsService.create({
-        userId: user.id,
+        userId: activeUser.id,
         title: 'New Login Detected',
         message: `New sign-in detected from ${ip}. If this wasn't you, secure your account immediately.`,
         type: 'INFO',
@@ -505,7 +542,7 @@ export class AuthService {
       });
     } catch (error) {
       this.logger.warn(
-        `Login bookkeeping failed for user ${user.id}. Continuing with successful authentication.`,
+        `Login bookkeeping failed for user ${activeUser.id}. Continuing with successful authentication.`,
       );
       this.logger.debug?.((error as Error).message);
     }
@@ -513,7 +550,7 @@ export class AuthService {
     return {
       requiresTwoFa: false as const,
       accessToken: tokens.accessToken,
-      user: this.sanitizeUser(user),
+      user: this.sanitizeUser(activeUser),
       refreshTokenForCookie: tokens.refreshToken,
     };
   }
@@ -544,11 +581,18 @@ export class AuthService {
     }
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) {
+    if (!user || isClosedAccount(user)) {
       appError(
         HttpStatus.UNAUTHORIZED,
-        'User not found',
+        'No account found with this email. Create a new account to continue.',
         ErrorCode.USER_NOT_FOUND,
+      );
+    }
+    if (user.isSuspended) {
+      appError(
+        HttpStatus.FORBIDDEN,
+        'Account suspended',
+        ErrorCode.ACCOUNT_SUSPENDED,
       );
     }
 
@@ -612,12 +656,13 @@ export class AuthService {
       );
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user)
+    if (!user || isClosedAccount(user)) {
       appError(
         HttpStatus.UNAUTHORIZED,
-        'User not found',
+        'No account found with this email. Create a new account to continue.',
         ErrorCode.USER_NOT_FOUND,
       );
+    }
 
     // Do not rotate/issue tokens for a suspended account (parity with login).
     if (user.isSuspended)
@@ -687,7 +732,7 @@ export class AuthService {
 
   async forgotPassword(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (user) {
+    if (user && !isClosedAccount(user)) {
       const resetToken = randomUUID();
       await this.redisService.set(`auth:reset:${resetToken}`, email, 3600);
       await this.emailService.sendPasswordResetEmail(email, resetToken);
@@ -790,6 +835,17 @@ export class AuthService {
     this.logger.log(
       `Google OAuth callback for ${profile.email}. Profile: fullName="${fullName}", hasAvatar=${!!avatarUrl}`,
     );
+
+    const existingGoogleUser = await this.prisma.user.findUnique({
+      where: { email: profile.email },
+    });
+    if (existingGoogleUser && isClosedAccount(existingGoogleUser)) {
+      appError(
+        HttpStatus.FORBIDDEN,
+        'This account has been deleted and can no longer be accessed.',
+        ErrorCode.USER_NOT_FOUND,
+      );
+    }
 
     const user = await this.prisma.user.upsert({
       where: { email: profile.email },
@@ -965,6 +1021,17 @@ export class AuthService {
     );
 
     // 2. Sync/create user with profile data
+    const existingSupabaseUser = await this.prisma.user.findUnique({
+      where: { email: verifiedEmail },
+    });
+    if (existingSupabaseUser && isClosedAccount(existingSupabaseUser)) {
+      appError(
+        HttpStatus.FORBIDDEN,
+        'This account has been deleted and can no longer be accessed.',
+        ErrorCode.USER_NOT_FOUND,
+      );
+    }
+
     const user = await this.prisma.user.upsert({
       where: { email: verifiedEmail },
       create: {
@@ -1011,13 +1078,19 @@ export class AuthService {
     role: string;
     twoFactorEnabled?: boolean;
   }) {
-    // OAuth/Supabase/magic-link paths reach here; block suspended accounts so
-    // they cannot obtain a session via a non-password login (parity with login).
+    // OAuth/Supabase/magic-link paths reach here; block suspended/closed accounts
+    // so they cannot obtain a session via a non-password login (parity with login).
     const account = await this.prisma.user.findUnique({
       where: { id: user.id },
-      select: { isSuspended: true },
+      select: { isSuspended: true, isActive: true, deletedAt: true },
     });
-    if (account?.isSuspended)
+    if (!account || isClosedAccount(account))
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'No account found with this email. Create a new account to continue.',
+        ErrorCode.USER_NOT_FOUND,
+      );
+    if (account.isSuspended)
       appError(
         HttpStatus.FORBIDDEN,
         'Account suspended',
@@ -1087,7 +1160,7 @@ export class AuthService {
   async sendMagicLink(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
     // Always return success to prevent email enumeration
-    if (user && !user.isSuspended) {
+    if (user && !user.isSuspended && !isClosedAccount(user)) {
       const token = randomUUID();
       await this.redisService.set(`auth:magic:${token}`, user.id, 900); // 15 min
       const link = `${process.env.FRONTEND_URL}/auth/magic?token=${token}`;
@@ -1110,10 +1183,10 @@ export class AuthService {
 
     await this.redisService.del(`auth:magic:${token}`);
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user)
+    if (!user || isClosedAccount(user))
       appError(
         HttpStatus.BAD_REQUEST,
-        'User not found',
+        'No account found with this email. Create a new account to continue.',
         ErrorCode.USER_NOT_FOUND,
       );
     if (user.isSuspended)
@@ -1160,6 +1233,13 @@ export class AuthService {
     let user = await this.prisma.user.findUnique({
       where: { email: profile.email },
     });
+    if (user && isClosedAccount(user)) {
+      appError(
+        HttpStatus.FORBIDDEN,
+        'This account has been deleted and can no longer be accessed.',
+        ErrorCode.USER_NOT_FOUND,
+      );
+    }
     if (!user) {
       user = await this.prisma.user.create({
         data: {

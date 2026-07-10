@@ -87,7 +87,21 @@ export const notificationsApi = {
   },
 
   async updatePreferences(prefs: Partial<NotificationPreferences>) {
-    const res = await apiClient.patch('/notifications/preferences', prefs);
+    const payload = {
+      inAppEnabled: prefs.inAppEnabled,
+      emailEnabled: prefs.emailEnabled,
+      pushEnabled: prefs.pushEnabled,
+      securityAlerts: prefs.securityAlerts,
+      tradingAlerts: prefs.tradingAlerts,
+      paymentAlerts: prefs.paymentAlerts,
+      systemAlerts: prefs.systemAlerts,
+      marketingAlerts: prefs.marketingAlerts,
+      accountAlerts: prefs.accountAlerts,
+      quietHoursEnabled: prefs.quietHoursEnabled,
+      quietHoursStart: prefs.quietHoursStart,
+      quietHoursEnd: prefs.quietHoursEnd,
+    };
+    const res = await apiClient.patch('/notifications/preferences', payload);
     return unwrap<NotificationPreferences>(res.data);
   },
 

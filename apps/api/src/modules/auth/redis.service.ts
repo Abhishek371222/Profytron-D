@@ -9,6 +9,7 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
 const SECURITY_CRITICAL_PREFIXES = [
   'auth:blacklist:',
   'auth:otp:',
+  'auth:delete:',
   'auth:reset:',
   'auth:magic:',
   'auth:refresh:',
@@ -56,6 +57,18 @@ export class RedisService {
       } else {
         await this.redis.set(key, value);
       }
+      // Mirror locally so same-process reads still work if Redis briefly
+      // returns null (common with flaky managed Redis / reconnect windows).
+      this.memoryStore.set(key, value);
+      if (ttlSeconds) {
+        this.setMemoryTtl(key, ttlSeconds);
+      } else {
+        const existing = this.memoryTimers.get(key);
+        if (existing) {
+          clearTimeout(existing);
+          this.memoryTimers.delete(key);
+        }
+      }
       return;
     } catch (error) {
       if (isSecurityCriticalKey(key)) {
@@ -76,9 +89,19 @@ export class RedisService {
 
   async get(key: string): Promise<string | null> {
     try {
-      return await this.redis.get(key);
+      const value = await this.redis.get(key);
+      if (value != null) return value;
+      // Redis miss → fall back to process memory mirror (same TTL).
+      return this.memoryStore.get(key) ?? null;
     } catch (error) {
       if (isSecurityCriticalKey(key)) {
+        const mirrored = this.memoryStore.get(key);
+        if (mirrored != null) {
+          this.logger.warn(
+            `Redis unavailable for security-critical get(${key}); using in-process mirror.`,
+          );
+          return mirrored;
+        }
         this.logger.error(
           `Redis unavailable for security-critical get(${key}). Failing hard to protect auth state.`,
         );
@@ -131,9 +154,16 @@ export class RedisService {
   async exists(key: string): Promise<boolean> {
     try {
       const result = await this.redis.exists(key);
-      return result > 0;
+      if (result > 0) return true;
+      return this.memoryStore.has(key);
     } catch (error) {
       if (isSecurityCriticalKey(key)) {
+        if (this.memoryStore.has(key)) {
+          this.logger.warn(
+            `Redis unavailable for security-critical exists(${key}); using in-process mirror.`,
+          );
+          return true;
+        }
         this.logger.error(
           `Redis unavailable for security-critical exists(${key}). Failing hard to protect auth state.`,
         );

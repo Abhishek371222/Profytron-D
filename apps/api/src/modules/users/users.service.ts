@@ -8,6 +8,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
+import { EmailService } from '../email/email.service';
 import {
   UpdateProfileDto,
   UpdateRiskProfileDto,
@@ -21,20 +22,52 @@ import {
   ActivationService,
   ACTIVATION_EVENTS,
 } from '../growth/activation.service';
+import { closeUserAccount } from '../auth/account-lifecycle';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
   private supabase: any;
+  /** Process-local OTP mirror so verify still works if Redis read is flaky. */
+  private readonly deleteAccountOtps = new Map<
+    string,
+    { otp: string; expiresAt: number }
+  >();
 
   constructor(
     private prisma: PrismaService,
     private redisService: RedisService,
     private activationService: ActivationService,
+    private emailService: EmailService,
   ) {
     const url = process.env.SUPABASE_URL;
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
     this.supabase = url && key ? createClient(url, key) : null;
+  }
+
+  private normalizeOtp(value: unknown): string {
+    return String(value ?? '').trim();
+  }
+
+  private rememberDeleteOtp(userId: string, otp: string, ttlSeconds: number) {
+    this.deleteAccountOtps.set(userId, {
+      otp,
+      expiresAt: Date.now() + ttlSeconds * 1000,
+    });
+  }
+
+  private readRememberedDeleteOtp(userId: string): string | null {
+    const entry = this.deleteAccountOtps.get(userId);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) {
+      this.deleteAccountOtps.delete(userId);
+      return null;
+    }
+    return entry.otp;
+  }
+
+  private clearRememberedDeleteOtp(userId: string) {
+    this.deleteAccountOtps.delete(userId);
   }
 
   async findByEmail(email: string) {
@@ -263,21 +296,97 @@ export class UsersService {
     return { success: true, documentId: doc.id, status: 'PENDING' };
   }
 
-  async deleteAccount(userId: string, confirmText: string) {
-    if (confirmText !== 'DELETE') {
-      throw new BadRequestException('Confirmation text must match "DELETE"');
+  async requestDeleteAccountOtp(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, deletedAt: true, isActive: true },
+    });
+    if (!user || user.deletedAt || !user.isActive) {
+      throw new NotFoundException('User not found');
     }
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        deletedAt: new Date(),
-        isActive: false,
-      },
-    });
+    const otpKey = `auth:delete:otp:${userId}`;
+    const ttlSeconds = 600;
 
-    // Revoke active sessions so tokens can't be used after account deletion.
-    await this.redisService.del(`auth:refresh:${userId}:default`);
+    // Reuse an unexpired OTP on resend/double-click so the email code still matches.
+    const existingRedis = this.normalizeOtp(
+      await this.redisService.get(otpKey),
+    );
+    const existingMemory = this.normalizeOtp(
+      this.readRememberedDeleteOtp(userId),
+    );
+    const otp =
+      (existingRedis.length === 6 ? existingRedis : '') ||
+      (existingMemory.length === 6 ? existingMemory : '') ||
+      crypto.randomInt(100000, 1000000).toString();
+
+    this.rememberDeleteOtp(userId, otp, ttlSeconds);
+    await this.redisService.set(otpKey, otp, ttlSeconds);
+    // Clear any prior verification so OTP must be re-entered.
+    await this.redisService.del(`auth:delete:verified:${userId}`);
+
+    await this.emailService.sendOtpEmail(user.email, otp, userId);
+    this.logger.log(`Delete-account OTP sent to user ${userId}`);
+
+    return { sent: true };
+  }
+
+  async verifyDeleteAccountOtp(userId: string, otp: string) {
+    const provided = this.normalizeOtp(otp);
+    const otpKey = `auth:delete:otp:${userId}`;
+
+    const fromRedis = this.normalizeOtp(await this.redisService.get(otpKey));
+    const fromMemory = this.normalizeOtp(this.readRememberedDeleteOtp(userId));
+    const storedOtp = fromRedis || fromMemory;
+
+    if (!storedOtp) {
+      throw new BadRequestException(
+        'OTP expired or not requested. Please request a new code.',
+      );
+    }
+    if (storedOtp !== provided) {
+      this.logger.warn(
+        `Delete-account OTP mismatch for user ${userId} (provided length=${provided.length}, stored length=${storedOtp.length})`,
+      );
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    await this.redisService.del(otpKey);
+    this.clearRememberedDeleteOtp(userId);
+    // Short window to complete the final confirmation step.
+    await this.redisService.set(`auth:delete:verified:${userId}`, '1', 300);
+
+    return { verified: true };
+  }
+
+  async deleteAccount(userId: string, finalConfirm: boolean) {
+    if (!finalConfirm) {
+      throw new BadRequestException('Final confirmation is required');
+    }
+
+    const verified = await this.redisService.get(
+      `auth:delete:verified:${userId}`,
+    );
+    if (!verified) {
+      throw new BadRequestException(
+        'OTP verification required before deleting your account',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Soft-delete: user cannot log in or re-register this email; admin retains access.
+    await closeUserAccount(this.prisma, this.redisService, user);
+
+    await this.redisService.del(`auth:delete:verified:${userId}`);
+    await this.redisService.del(`auth:delete:otp:${userId}`);
+    this.clearRememberedDeleteOtp(userId);
     await this.prisma.userSession.deleteMany({ where: { userId } });
 
     return { success: true };

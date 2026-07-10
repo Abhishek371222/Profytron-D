@@ -14,6 +14,14 @@ import {
   SettingsToggle,
 } from '@/components/settings/SettingsUi';
 import { DashButton } from '@/components/dashboard/DashboardPrimitives';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 const AUDIT_EVENTS = [
@@ -28,8 +36,11 @@ const LEVEL_BADGE = {
   critical: 'bg-destructive/10 text-destructive border-destructive/20',
 };
 
+type DeleteStep = 'confirm' | 'otp' | 'final' | null;
+
 export default function SecuritySettingsPage() {
   const user = useAuthStore((s) => s.user);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
   const [is2faEnabled, setIs2faEnabled] = React.useState(!!user?.twoFactorEnabled);
   const [setupSecret, setSetupSecret] = React.useState<string | null>(null);
   const [setupQr, setSetupQr] = React.useState<string | null>(null);
@@ -39,7 +50,10 @@ export default function SecuritySettingsPage() {
   const [currentPassword, setCurrentPassword] = React.useState('');
   const [newPassword, setNewPassword] = React.useState('');
   const [isChangingPassword, setIsChangingPassword] = React.useState(false);
-  const [deleteConfirm, setDeleteConfirm] = React.useState('');
+  const [deleteStep, setDeleteStep] = React.useState<DeleteStep>(null);
+  const [deleteOtp, setDeleteOtp] = React.useState('');
+  const [isDeleteBusy, setIsDeleteBusy] = React.useState(false);
+  const deleteBusyRef = React.useRef(false);
 
   React.useEffect(() => {
     setIs2faEnabled(!!user?.twoFactorEnabled);
@@ -51,6 +65,84 @@ export default function SecuritySettingsPage() {
     staleTime: 60_000,
     refetchOnWindowFocus: false,
   });
+
+  const resetDeleteFlow = () => {
+    setDeleteStep(null);
+    setDeleteOtp('');
+    setIsDeleteBusy(false);
+    deleteBusyRef.current = false;
+  };
+
+  const runDeleteAction = async (action: () => Promise<void>) => {
+    if (deleteBusyRef.current) return;
+    deleteBusyRef.current = true;
+    setIsDeleteBusy(true);
+    try {
+      await action();
+    } finally {
+      deleteBusyRef.current = false;
+      setIsDeleteBusy(false);
+    }
+  };
+
+  const apiErrorMessage = (error: any, fallback: string) => {
+    const payload = error?.response?.data;
+    const message = payload?.message ?? payload?.error;
+    if (Array.isArray(message)) return message.join(', ');
+    if (typeof message === 'string' && message.trim()) return message;
+    return fallback;
+  };
+
+  const handleConfirmDeleteIntent = () =>
+    runDeleteAction(async () => {
+      try {
+        await usersApi.requestDeleteAccountOtp();
+        setDeleteOtp('');
+        setDeleteStep('otp');
+        toast.success('OTP sent to your registered email');
+      } catch (error: any) {
+        toast.error(apiErrorMessage(error, 'Failed to send OTP'));
+      }
+    });
+
+  const handleVerifyDeleteOtp = () => {
+    if (!/^\d{6}$/.test(deleteOtp)) {
+      toast.error('Enter the 6-digit OTP from your email');
+      return;
+    }
+    return runDeleteAction(async () => {
+      try {
+        await usersApi.verifyDeleteAccountOtp(deleteOtp.trim());
+        setDeleteStep('final');
+        toast.success('OTP verified');
+      } catch (error: any) {
+        toast.error(apiErrorMessage(error, 'Invalid or expired OTP'));
+      }
+    });
+  };
+
+  const handleFinalDelete = () =>
+    runDeleteAction(async () => {
+      try {
+        await usersApi.deleteAccount();
+        clearAuth();
+        toast.success('Your account has been deleted');
+        window.location.href = '/login?accountDeleted=1';
+      } catch (error: any) {
+        toast.error(apiErrorMessage(error, 'Deletion failed'));
+      }
+    });
+
+  const handleResendDeleteOtp = () =>
+    runDeleteAction(async () => {
+      try {
+        await usersApi.requestDeleteAccountOtp();
+        setDeleteOtp('');
+        toast.success('OTP sent to your email');
+      } catch (error: any) {
+        toast.error(apiErrorMessage(error, 'Failed to resend OTP'));
+      }
+    });
 
   const handleRotateKey = async () => {
     if (!currentPassword || !newPassword) {
@@ -239,19 +331,105 @@ export default function SecuritySettingsPage() {
 
       <SettingsSection title="Delete account">
         <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 space-y-3">
-          <p className="text-sm text-muted-foreground">Type DELETE to confirm permanent account removal.</p>
-          <SettingsInput value={deleteConfirm} onChange={(e) => setDeleteConfirm(e.target.value)} placeholder="DELETE" />
+          <p className="text-sm text-muted-foreground">
+            Permanently remove your account. You will confirm twice and verify a one-time code sent to your email.
+          </p>
           <DashButton
             variant="outline"
-            disabled={deleteConfirm !== 'DELETE'}
             className="border-destructive/40 text-destructive"
-            onClick={() => usersApi.deleteAccount(deleteConfirm).then(() => { window.location.href = '/login'; }).catch(() => toast.error('Deletion failed'))}
+            onClick={() => setDeleteStep('confirm')}
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Delete Account
           </DashButton>
         </div>
       </SettingsSection>
+
+      <Dialog
+        open={deleteStep !== null}
+        onOpenChange={(open) => {
+          if (!open && !isDeleteBusy) resetDeleteFlow();
+        }}
+      >
+        <DialogContent className="max-w-md bg-card border border-[var(--card-border)] text-foreground" showCloseButton={!isDeleteBusy}>
+          {deleteStep === 'confirm' && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Delete your account?</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete your account? We will send a one-time code to{' '}
+                  <span className="font-medium text-foreground">{user?.email || 'your email'}</span> to continue.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DashButton variant="outline" disabled={isDeleteBusy} onClick={resetDeleteFlow}>
+                  Cancel
+                </DashButton>
+                <DashButton
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  disabled={isDeleteBusy}
+                  onClick={handleConfirmDeleteIntent}
+                >
+                  {isDeleteBusy ? 'Sending OTP…' : 'Yes, send OTP'}
+                </DashButton>
+              </DialogFooter>
+            </>
+          )}
+
+          {deleteStep === 'otp' && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Enter verification code</DialogTitle>
+                <DialogDescription>
+                  Enter the 6-digit OTP sent to your email. Your account will not be deleted until you confirm again.
+                </DialogDescription>
+              </DialogHeader>
+              <SettingsInput
+                value={deleteOtp}
+                onChange={(e) => setDeleteOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="6-digit OTP"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                aria-label="Delete account OTP"
+              />
+              <DialogFooter>
+                <DashButton variant="outline" disabled={isDeleteBusy} onClick={handleResendDeleteOtp}>
+                  {isDeleteBusy ? 'Please wait…' : 'Resend OTP'}
+                </DashButton>
+                <DashButton
+                  disabled={isDeleteBusy || deleteOtp.length !== 6}
+                  onClick={handleVerifyDeleteOtp}
+                >
+                  {isDeleteBusy ? 'Verifying…' : 'Verify OTP'}
+                </DashButton>
+              </DialogFooter>
+            </>
+          )}
+
+          {deleteStep === 'final' && (
+            <>
+              <DialogHeader>
+                <DialogTitle>This cannot be undone</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to permanently delete this account? This action is non-recoverable. You will lose access to your profile, bots, and related data.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DashButton variant="outline" disabled={isDeleteBusy} onClick={resetDeleteFlow}>
+                  Cancel
+                </DashButton>
+                <DashButton
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  disabled={isDeleteBusy}
+                  onClick={handleFinalDelete}
+                >
+                  {isDeleteBusy ? 'Deleting…' : 'Yes, delete forever'}
+                </DashButton>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -27,7 +27,13 @@ import {
 } from './dto/support.dto';
 import type { Request } from 'express';
 
-type AuthRequest = Request & { user: { id: string; role?: string } };
+type AuthRequest = Request & {
+  user: { id?: string; userId?: string; role?: string };
+};
+
+function authUserId(req: AuthRequest): string {
+  return req.user.id || req.user.userId || '';
+}
 
 @ApiTags('Support')
 @ApiBearerAuth()
@@ -42,7 +48,7 @@ export class SupportController {
   @Post('tickets')
   createTicket(@Req() req: AuthRequest, @Body() dto: CreateTicketDto) {
     return this.supportService.createTicket(
-      req.user.id,
+      authUserId(req),
       dto.subject,
       dto.description,
       dto.category,
@@ -53,7 +59,7 @@ export class SupportController {
   @ApiResponse({ status: 200, description: 'OK' })
   @Get('tickets')
   getTickets(@Req() req: AuthRequest, @Query('status') status?: string) {
-    return this.supportService.getTickets(req.user.id, status);
+    return this.supportService.getTickets(authUserId(req), status);
   }
 
   @ApiOperation({ summary: 'Get a single support ticket (own tickets only)' })
@@ -66,7 +72,7 @@ export class SupportController {
       req.user.role === 'ADMIN' || req.user.role === 'SUPER_ADMIN';
     const ticket = await this.supportService.getTicket(id);
     if (!ticket) return null;
-    if (!isAdmin && ticket.userId !== req.user.id) {
+    if (!isAdmin && ticket.userId !== authUserId(req)) {
       throw new ForbiddenException('You do not have access to this ticket');
     }
     return ticket;
@@ -84,7 +90,7 @@ export class SupportController {
       req.user.role === 'ADMIN' || req.user.role === 'SUPER_ADMIN';
     return this.supportService.addResponse(
       id,
-      req.user.id,
+      authUserId(req),
       dto.message,
       isAdmin,
     );
@@ -111,7 +117,10 @@ export class SupportController {
     @Param('id') id: string,
     @Body() dto: AssignTicketDto,
   ) {
-    return this.supportService.assignTicket(id, dto.adminId || req.user.id);
+    return this.supportService.assignTicket(
+      id,
+      dto.adminId || authUserId(req),
+    );
   }
 
   @ApiOperation({ summary: 'Get all pending tickets (admin only)' })

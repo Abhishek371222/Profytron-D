@@ -13,6 +13,7 @@ import { usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { brokerApi } from '@/lib/api/broker';
 import { useFcmToken } from '@/hooks/useFcmToken';
+import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 
 const BrokerConnectModal = dynamic(
   () =>
@@ -28,6 +29,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
   const isAdmin = isAdminUser(user);
 
   useFcmToken();
+  useInactivityLogout(Boolean(user));
   const [showDemoBanner, setShowDemoBanner] = React.useState(false);
   const [showBrokerModal, setShowBrokerModal] = React.useState(false);
   const [connectingDemo, setConnectingDemo] = React.useState(false);

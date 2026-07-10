@@ -62,7 +62,11 @@ class UpdatePreferencesDto {
   @IsOptional() @IsString() quietHoursEnd?: string;
 }
 
-type AuthReq = { user: { id: string } };
+type AuthReq = { user: { id?: string; userId?: string } };
+
+function authUserId(req: AuthReq): string {
+  return req.user.id || req.user.userId || '';
+}
 
 @ApiTags('Notifications')
 @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -89,7 +93,7 @@ export class NotificationsController {
     @Query('category') category?: string,
   ) {
     return this.notificationsService.findAll(
-      req.user.id,
+      authUserId(req),
       Number(page || 1),
       Number(limit || 20),
       unreadOnly === 'true',
@@ -101,14 +105,14 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'OK' })
   @Get('unread-count')
   async getUnreadCount(@Req() req: AuthReq) {
-    return this.notificationsService.getUnreadCount(req.user.id);
+    return this.notificationsService.getUnreadCount(authUserId(req));
   }
 
   @ApiOperation({ summary: 'Get notification preferences' })
   @ApiResponse({ status: 200, description: 'OK' })
   @Get('preferences')
   async getPreferences(@Req() req: AuthReq) {
-    return this.notificationsService.getPreferences(req.user.id);
+    return this.notificationsService.getPreferences(authUserId(req));
   }
 
   @ApiOperation({ summary: 'Update notification preferences' })
@@ -118,7 +122,7 @@ export class NotificationsController {
     @Req() req: AuthReq,
     @Body() dto: UpdatePreferencesDto,
   ) {
-    return this.notificationsService.updatePreferences(req.user.id, dto);
+    return this.notificationsService.updatePreferences(authUserId(req), dto);
   }
 
   @ApiOperation({
@@ -128,14 +132,14 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'OK' })
   @Patch('mark-seen')
   async markSeen(@Req() req: AuthReq) {
-    return this.notificationsService.markSeen(req.user.id);
+    return this.notificationsService.markSeen(authUserId(req));
   }
 
   @ApiOperation({ summary: 'Mark all notifications as read' })
   @ApiResponse({ status: 200, description: 'OK' })
   @Patch('mark-all-read')
   async markAllAsRead(@Req() req: AuthReq) {
-    return this.notificationsService.markAllAsRead(req.user.id);
+    return this.notificationsService.markAllAsRead(authUserId(req));
   }
 
   @ApiOperation({ summary: 'Mark notification as read' })
@@ -143,21 +147,21 @@ export class NotificationsController {
   @ApiResponse({ status: 404, description: 'Not found' })
   @Patch(':id/read')
   async markAsRead(@Req() req: AuthReq, @Param('id') id: string) {
-    return this.notificationsService.markAsRead(id, req.user.id);
+    return this.notificationsService.markAsRead(id, authUserId(req));
   }
 
   @ApiOperation({ summary: 'Delete a single notification' })
   @ApiResponse({ status: 200, description: 'OK' })
   @Delete(':id')
   async deleteOne(@Req() req: AuthReq, @Param('id') id: string) {
-    return this.notificationsService.deleteNotification(id, req.user.id);
+    return this.notificationsService.deleteNotification(id, authUserId(req));
   }
 
   @ApiOperation({ summary: 'Delete all notifications for the user' })
   @ApiResponse({ status: 200, description: 'OK' })
   @Delete()
   async deleteAll(@Req() req: AuthReq) {
-    return this.notificationsService.deleteAll(req.user.id);
+    return this.notificationsService.deleteAll(authUserId(req));
   }
 
   @ApiOperation({ summary: 'Register FCM device token for push notifications' })
@@ -168,7 +172,7 @@ export class NotificationsController {
     @Body() dto: RegisterFcmTokenDto,
   ) {
     await this.fcmService.registerToken(
-      req.user.id,
+      authUserId(req),
       dto.token,
       dto.platform || 'web',
     );
@@ -179,7 +183,7 @@ export class NotificationsController {
   @ApiResponse({ status: 200, description: 'Token removed' })
   @Post('fcm-token/remove')
   async removeFcmToken(@Req() req: AuthReq, @Body() dto: RemoveFcmTokenDto) {
-    await this.fcmService.removeToken(req.user.id, dto.token);
+    await this.fcmService.removeToken(authUserId(req), dto.token);
     return { success: true };
   }
 }

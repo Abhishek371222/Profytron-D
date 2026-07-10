@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
@@ -39,6 +39,8 @@ function LoginPageContent() {
 
   const authError = searchParams.get('error');
   const expired = searchParams.get('expired');
+  const accountDeleted = searchParams.get('accountDeleted');
+  const idle = searchParams.get('idle');
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
   React.useEffect(() => {
@@ -47,7 +49,11 @@ function LoginPageContent() {
   }, [searchParams]);
 
   const urlErrorMessage =
-    authError === 'auth_failed'
+    accountDeleted === '1' || accountDeleted === 'true'
+      ? 'This account was deleted. No account exists with that email — create a new account to continue.'
+      : idle === 'true'
+        ? 'You were logged out after 1 hour of inactivity. Please sign in again.'
+        : authError === 'auth_failed'
       ? 'Sign-in failed. Please try again.'
       : authError === 'database_unavailable'
         ? 'We\'re experiencing a temporary issue. Please try again in a moment.'
@@ -84,15 +90,18 @@ function LoginPageContent() {
       router.replace(resolvePostLoginRedirect(user, redirectTo));
     } catch (error: unknown) {
       console.error('Login failed:', error);
-      const fallback = 'Login failed. Check your credentials and verify your email.';
-      const message =
+      const payload =
         typeof error === 'object' &&
         error !== null &&
-        'response' in error &&
-        typeof (error as { response?: { data?: { error?: string } } }).response?.data
-          ?.error === 'string'
-          ? (error as { response: { data: { error: string } } }).response.data.error
-          : fallback;
+        'response' in error
+          ? (error as { response?: { data?: { error?: string | string[]; code?: string; message?: string | string[] } } })
+              .response?.data
+          : undefined;
+      const raw =
+        payload?.error ??
+        payload?.message ??
+        'Login failed. Check your credentials and verify your email.';
+      const message = Array.isArray(raw) ? raw.join(', ') : String(raw);
       setErrorMessage(message);
     }
   };
