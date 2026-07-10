@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import { useForm, type Resolver } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Bot, FileImage, FileText, Database, Loader2, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -39,8 +39,8 @@ const addBotSchema = z.object({
   strategyStyle: z.string().min(2, 'Enter the strategy style or name it follows'),
   category: z.enum(['TREND', 'SCALPING', 'RANGE', 'VOLATILITY', 'ARBITRAGE']),
   riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EXPERT']),
-  expectedProfitPct: z.coerce.number().min(0, 'Must be 0 or more').max(1000),
-  monthlyPrice: z.coerce.number().min(0, 'Price cannot be negative'),
+  expectedProfitPct: z.number().min(0, 'Must be 0 or more').max(1000),
+  monthlyPrice: z.number().min(0, 'Price cannot be negative'),
   markets: z.array(z.string()).min(1, 'Select at least one market'),
   timeframe: z.string().min(1, 'Enter a timeframe'),
   description: z.string().min(20, 'Describe the bot in at least 20 characters').max(2000),
@@ -118,7 +118,7 @@ export default function AddBotPage() {
     setValue,
     formState: { errors, isValid },
   } = useForm<AddBotFormValues>({
-    resolver: zodResolver(addBotSchema) as Resolver<AddBotFormValues>,
+    resolver: zodResolver(addBotSchema),
     mode: 'onChange',
     defaultValues: {
       name: '',
@@ -328,7 +328,7 @@ export default function AddBotPage() {
             <input
               type="number"
               step="0.1"
-              {...register('expectedProfitPct')}
+              {...register('expectedProfitPct', { valueAsNumber: true })}
               className={fieldClass}
               placeholder="e.g. 12"
             />
@@ -342,7 +342,7 @@ export default function AddBotPage() {
             <input
               type="number"
               step="1"
-              {...register('monthlyPrice')}
+              {...register('monthlyPrice', { valueAsNumber: true })}
               className={fieldClass}
               placeholder="e.g. 2499"
             />
