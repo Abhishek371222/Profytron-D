@@ -79,12 +79,15 @@ const nextConfig: NextConfig = {
       return [];
     }
 
-    // Do NOT rewrite /api/broker/* — those App Router routes provision MetaApi
-    // on Vercel (Render auto-deploy is stuck on an old build).
+    // Keep broker + live trading reads on Vercel (Render API deploy is stuck).
     return [
       {
         source: "/api/broker/:path*",
         destination: "/api/broker/:path*",
+      },
+      {
+        source: "/api/trading/trades/:path*",
+        destination: "/api/trading/trades/:path*",
       },
       {
         source: "/api/:path*",
