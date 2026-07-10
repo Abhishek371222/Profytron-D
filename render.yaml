@@ -122,17 +122,16 @@ services:
         sync: false
 
       # --- Broker integration ---
-      # Paid seats: MetaApi G2 cloud account per live user (~$2.34/mo budget).
-      # CopyFactory SUBSCRIBER role for master→follower copy.
-      # Override in dashboard only if you intentionally switch back to master_only.
+      # MetaApi G2 seat per live user (~$2.34/mo). NO CopyFactory roles —
+      # CF requires a separate wallet top-up. MasterSync + MetaApi RPC copies.
       - key: EXECUTION_MODE
-        value: copyfactory
+        value: master_only
       - key: COPYFACTORY_ENABLED
-        value: "true"
+        value: "false"
       - key: METAAPI_MASTER_ONLY
         value: "false"
       - key: ALLOW_METAAPI_SUBSCRIBERS
-        value: "true"
+        value: "false"
       - key: METAAPI_TOKEN
         sync: false
       - key: ADMIN_MT5_LOGIN

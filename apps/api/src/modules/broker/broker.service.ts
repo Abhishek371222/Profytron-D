@@ -16,7 +16,6 @@ import {
 } from '../growth/activation.service';
 import { getTierLimits } from '../../common/constants/pricing.constants';
 import { CopyBridgeService } from '../copy-bridge/copy-bridge.service';
-import { isMasterOnlyExecution } from '../../common/utils/execution-mode.util';
 
 @Injectable()
 export class BrokerService {
@@ -122,48 +121,42 @@ export class BrokerService {
 
       if (brokerName === 'PAPER') {
         connectionResult = await this.paperAdapter.connect(login);
-      } else if (!providerConnect && isMasterOnlyExecution()) {
-        // Low-cost path: credentials in DB only; optional bridge EA for fills.
-        this.validateUserMt5Input(login, password, serverName);
-        this.logger.log(
-          `store-only MT connect for user ${userId} (no MetaApi seat)`,
-        );
-        connectionResult = {
-          connected: true,
-          balance: 0,
-          equity: 0,
-          metaApiAccountId: null,
-          pending: false,
-          masterOnly: true,
-          executionPath: 'store_only',
-        };
       } else if (!providerConnect) {
-        // Paid path (EXECUTION_MODE=copyfactory): ~$2–3/mo G2 seat + SUBSCRIBER.
+        // G2 cloud seat WITHOUT CopyFactory roles.
+        // CopyFactory SUBSCRIBER requires a separate MetaApi wallet top-up and
+        // fails with "please top up your account". MasterSync + MetaApi RPC
+        // places copies on the G2 seat (~$2.34/mo) instead.
         const mt = platform === 'mt4' ? 'mt4' : 'mt5';
         this.logger.log(
-          `MetaApi SUBSCRIBER connect for user ${userId} (paid seat)`,
+          `MetaApi G2 connect (no CopyFactory role) for user ${userId}`,
         );
         connectionResult = await this.mtAdapter.connect(
           login,
           password,
           serverName,
           mt,
-          { copyFactoryRoles: ['SUBSCRIBER'] },
         );
+        if (!connectionResult.connected) {
+          throw new BadRequestException(
+            connectionResult.error ||
+              'Connection failed. Check your credentials.',
+          );
+        }
         connectionResult = {
           ...connectionResult,
           masterOnly: false,
-          executionPath: 'copyfactory',
+          executionPath: 'metaapi_rpc',
         };
       } else {
-        // Operator master / PROVIDER — MetaApi allowed in any mode.
+        // Operator master / PROVIDER — MetaApi G2; CF PROVIDER only if allowed.
         const mt = platform === 'mt4' ? 'mt4' : 'mt5';
+        const allowCf = process.env.ALLOW_METAAPI_SUBSCRIBERS === 'true';
         connectionResult = await this.mtAdapter.connect(
           login,
           password,
           serverName,
           mt,
-          { copyFactoryRoles: ['PROVIDER'] },
+          allowCf ? { copyFactoryRoles: ['PROVIDER'] } : undefined,
         );
       }
 

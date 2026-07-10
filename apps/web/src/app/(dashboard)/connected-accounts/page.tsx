@@ -333,7 +333,7 @@ export default function ConnectedAccountsPage() {
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Connected Accounts</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Live MT5 via MetaApi — balance and copy fills on your broker
+              Live MT5 via MetaApi G2 — balance and MasterSync copy fills
             </p>
           </div>
         </div>

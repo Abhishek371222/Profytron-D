@@ -153,7 +153,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                   Connect MT5 Account
                 </h2>
                 <p className="text-[11px] text-chart-3 mt-0.5">
-                  Live MT5 via MetaApi · balance + copy trading
+                  Live MT5 via MetaApi G2 · balance + copy fills
                 </p>
               </div>
               <button
