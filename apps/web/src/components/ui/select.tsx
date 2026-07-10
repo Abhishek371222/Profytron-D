@@ -5,41 +5,57 @@ import { motion, AnimatePresence } from"framer-motion"
 import { ChevronDown, Check } from"lucide-react"
 import { cn } from"@/lib/utils"
 
-function Select({ defaultValue, onValueChange, children }: { 
- defaultValue?: string, 
- onValueChange?: (val: string) => void,
- children: React.ReactNode 
+function Select({
+  defaultValue,
+  value: controlledValue,
+  onValueChange,
+  children,
+}: {
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (val: string) => void;
+  children: React.ReactNode;
 }) {
- const [open, setOpen] = React.useState(false);
- const [value, setValue] = React.useState(defaultValue);
- const containerRef = React.useRef<HTMLDivElement>(null);
+  const [open, setOpen] = React.useState(false);
+  const [uncontrolledValue, setUncontrolledValue] = React.useState(defaultValue);
+  const isControlled = controlledValue !== undefined;
+  const value = isControlled ? controlledValue : uncontrolledValue;
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
- React.useEffect(() => {
- const handleClickOutside = (e: MouseEvent) => {
- if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
- setOpen(false);
- }
- };
- document.addEventListener("mousedown", handleClickOutside);
- return () => document.removeEventListener("mousedown", handleClickOutside);
- }, []);
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
- const handleSelect = (val: string) => {
- setValue(val);
- setOpen(false);
- onValueChange?.(val);
- };
+  const handleSelect = (val: string) => {
+    if (!isControlled) setUncontrolledValue(val);
+    setOpen(false);
+    onValueChange?.(val);
+  };
 
- return (
- <div ref={containerRef} className="relative inline-block w-full">
- {React.Children.map(children, child => {
- if (React.isValidElement(child)) {
- return React.cloneElement(child as any, { open, setOpen, value, handleSelect });
- }
- return child;
- })}
- </div>
- );
+  return (
+    <div ref={containerRef} className="relative inline-block w-full">
+      {React.Children.map(children, (child) => {
+        if (React.isValidElement(child)) {
+          return React.cloneElement(child as any, {
+            open,
+            setOpen,
+            value,
+            handleSelect,
+          });
+        }
+        return child;
+      })}
+    </div>
+  );
 }
 
 function SelectTrigger({ children, className, open, setOpen, value }: any) {

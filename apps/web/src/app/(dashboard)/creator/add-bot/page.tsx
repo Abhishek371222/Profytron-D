@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Bot, FileImage, FileText, Database, Loader2, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -118,7 +118,7 @@ export default function AddBotPage() {
     setValue,
     formState: { errors, isValid },
   } = useForm<AddBotFormValues>({
-    resolver: zodResolver(addBotSchema),
+    resolver: zodResolver(addBotSchema) as Resolver<AddBotFormValues>,
     mode: 'onChange',
     defaultValues: {
       name: '',
