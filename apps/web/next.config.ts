@@ -79,7 +79,7 @@ const nextConfig: NextConfig = {
       return [];
     }
 
-    // Keep broker + live trading reads on Vercel (Render API deploy is stuck).
+    // Keep broker + live trading/analytics reads on Vercel (Render API stuck).
     return [
       {
         source: "/api/broker/:path*",
@@ -88,6 +88,10 @@ const nextConfig: NextConfig = {
       {
         source: "/api/trading/trades/:path*",
         destination: "/api/trading/trades/:path*",
+      },
+      {
+        source: "/api/analytics/trades/:path*",
+        destination: "/api/analytics/trades/:path*",
       },
       {
         source: "/api/:path*",

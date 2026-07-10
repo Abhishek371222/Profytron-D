@@ -70,7 +70,7 @@ export default function HistoryPage() {
     return {
     id: row.id || String(index + 1),
     asset: row.symbol,
-    type: row.direction === 'BUY' ? 'Long' : 'Short',
+    type: row.direction === 'LONG' || row.direction === 'BUY' ? 'Long' : 'Short',
     amount: String(row.volume),
     entry: formatPrice(row.openPrice),
     exit: formatPrice(row.closePrice),
