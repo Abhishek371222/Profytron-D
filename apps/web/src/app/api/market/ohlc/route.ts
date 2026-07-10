@@ -12,29 +12,36 @@ export const maxDuration = 30;
 const SYMBOLS: MarketSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'];
 const TIMEFRAMES: MarketTimeframe[] = ['1m', '5m', '15m', '1h', '4h', '1d'];
 
+function noStore(data: unknown, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+      'CDN-Cache-Control': 'no-store',
+      'Vercel-CDN-Cache-Control': 'no-store',
+    },
+  });
+}
+
 export async function GET(req: NextRequest) {
-  const symbol = String(req.nextUrl.searchParams.get('symbol') || 'BTCUSDT').toUpperCase() as MarketSymbol;
+  const symbol = String(
+    req.nextUrl.searchParams.get('symbol') || 'BTCUSDT',
+  ).toUpperCase() as MarketSymbol;
   const timeframe = String(
     req.nextUrl.searchParams.get('timeframe') || '15m',
   ).toLowerCase() as MarketTimeframe;
   const limit = Number(req.nextUrl.searchParams.get('limit') || 72);
 
   if (!SYMBOLS.includes(symbol)) {
-    return NextResponse.json(
-      { success: false, error: 'Unsupported symbol' },
-      { status: 400 },
-    );
+    return noStore({ success: false, error: 'Unsupported symbol' }, 400);
   }
   if (!TIMEFRAMES.includes(timeframe)) {
-    return NextResponse.json(
-      { success: false, error: 'Unsupported timeframe' },
-      { status: 400 },
-    );
+    return noStore({ success: false, error: 'Unsupported timeframe' }, 400);
   }
 
   try {
     const { candles, source } = await fetchLiveOhlc(symbol, timeframe, limit);
-    return NextResponse.json({
+    return noStore({
       success: true,
       data: {
         symbol,
@@ -47,13 +54,13 @@ export async function GET(req: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (e: any) {
-    return NextResponse.json(
+    return noStore(
       {
         success: false,
         error: e?.message || 'Failed to load OHLC',
         message: e?.message || 'Failed to load OHLC',
       },
-      { status: 502 },
+      502,
     );
   }
 }

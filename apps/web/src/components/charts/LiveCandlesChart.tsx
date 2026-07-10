@@ -158,7 +158,7 @@ export function LiveCandlesChart({
 	}, [rangeLabel, decoupleRange]);
 
 	const marketQuery = useQuery({
-		queryKey: ['market-ohlc', symbol, timeframe],
+		queryKey: ['market-ohlc-v2', symbol, timeframe],
 		queryFn: () => fetchChartCandles(symbol, timeframe, MAX_VISIBLE_CANDLES),
 		staleTime: timeframe === '1m' || timeframe === '5m' ? 15_000 : 45_000,
 		refetchInterval: timeframe === '1m' ? 20_000 : timeframe === '5m' ? 30_000 : 60_000,

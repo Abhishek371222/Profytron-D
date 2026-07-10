@@ -6,7 +6,6 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import {
   acquireTradingSocket,
   isTradingSocketConnected,
-  onPriceUpdate,
 } from '@/lib/realtime/trading-socket';
 
 export type SupportedSymbol = 'BTCUSDT' | 'EURUSD' | 'XAUUSD';
@@ -21,20 +20,28 @@ export type LiveQuote = {
 
 type LiveQuoteMap = Partial<Record<SupportedSymbol, LiveQuote>>;
 
-const REST_CANDIDATE_PATHS = ['/market/quote'];
-
 const SUPPORTED_SYMBOLS: SupportedSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'];
 
-const toWsBaseUrl = (raw?: string): string => {
-  const fallback = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:4000';
-  const value = (raw || fallback).trim();
+/**
+ * Nest market.service synthetic bands (basePrice ± drift). Reject these so the
+ * stuck Render WS/REST cannot overwrite Vercel live Yahoo/CoinGecko prices.
+ */
+function isSyntheticNestPrice(symbol: string, price: number, source?: string): boolean {
+  if (!Number.isFinite(price) || price <= 0) return true;
+  const src = String(source || '').toLowerCase();
+  if (src.includes('profytron-market') || src.includes('synthetic')) return true;
 
-  if (value.startsWith('ws://')) return `http://${value.slice(5)}`;
-  if (value.startsWith('wss://')) return `https://${value.slice(6)}`;
-  return value;
-};
+  const s = symbol.toUpperCase();
+  if (s === 'BTCUSDT' || s === 'BTCUSD') return price >= 65000 && price <= 69000;
+  if (s === 'EURUSD') return price >= 1.08 && price <= 1.092;
+  if (s === 'XAUUSD' || s === 'XAU') return price >= 2300 && price <= 2450;
+  return false;
+}
 
-const normalizeQuote = (raw: unknown, fallbackSymbol?: SupportedSymbol): LiveQuote | null => {
+const normalizeQuote = (
+  raw: unknown,
+  fallbackSymbol?: SupportedSymbol,
+): LiveQuote | null => {
   if (!raw || typeof raw !== 'object') return null;
   const data = raw as Record<string, unknown>;
   const symbol = String(data.symbol ?? fallbackSymbol ?? '').toUpperCase();
@@ -42,7 +49,10 @@ const normalizeQuote = (raw: unknown, fallbackSymbol?: SupportedSymbol): LiveQuo
 
   const price = Number(data.price ?? data.last ?? data.close);
   const change24hPct = Number(data.change24hPct ?? data.changePct ?? data.change ?? 0);
-  if (!Number.isFinite(price)) return null;
+  if (!Number.isFinite(price) || price <= 0) return null;
+
+  const sourceHint = String(data.source ?? '');
+  if (isSyntheticNestPrice(symbol, price, sourceHint)) return null;
 
   return {
     symbol: symbol as SupportedSymbol,
@@ -57,7 +67,10 @@ const pullFirstQuote = (payload: unknown, symbol: SupportedSymbol): LiveQuote | 
   const unwrapped = unwrapApiResponse<unknown>(payload);
 
   if (Array.isArray(unwrapped)) {
-    const row = unwrapped.find((item) => String((item as Record<string, unknown>)?.symbol ?? '').toUpperCase() === symbol);
+    const row = unwrapped.find(
+      (item) =>
+        String((item as Record<string, unknown>)?.symbol ?? '').toUpperCase() === symbol,
+    );
     return normalizeQuote(row, symbol);
   }
 
@@ -70,24 +83,8 @@ const pullFirstQuote = (payload: unknown, symbol: SupportedSymbol): LiveQuote | 
   return null;
 };
 
-const fetchQuoteWithFallback = async (symbol: SupportedSymbol): Promise<LiveQuote | null> => {
-  for (const path of REST_CANDIDATE_PATHS) {
-    try {
-      const response = await apiClient.get(path, { params: { symbol } });
-      const quote = pullFirstQuote(response.data, symbol);
-      if (quote) return quote;
-    } catch {
-      // Try the next candidate path.
-    }
-  }
-
-  return null;
-};
-
 type LiveMarketFeedOptions = {
-  /** When false, skips REST polling and WebSocket connection. */
   enabled?: boolean;
-  /** When false, never seed synthetic quotes (user has a connected broker account). */
   allowFallback?: boolean;
 };
 
@@ -96,13 +93,12 @@ export function useLiveMarketFeed(
   options: LiveMarketFeedOptions = {},
 ) {
   const enabled = options.enabled ?? true;
-  const allowFallback = options.allowFallback ?? true;
   const accessToken = useAuthStore((s) => s.accessToken);
   const [quotes, setQuotes] = React.useState<LiveQuoteMap>(() => ({}));
-  const [priceHistory, setPriceHistory] = React.useState<Partial<Record<SupportedSymbol, number[]>>>({});
+  const [priceHistory, setPriceHistory] = React.useState<
+    Partial<Record<SupportedSymbol, number[]>>
+  >({});
   const [wsConnected, setWsConnected] = React.useState(false);
-  const [lastWsAt, setLastWsAt] = React.useState(0);
-  const [wsLive, setWsLive] = React.useState(false);
 
   const appendHistory = React.useCallback((updates: LiveQuoteMap) => {
     setPriceHistory((prev) => {
@@ -112,7 +108,6 @@ export function useLiveMarketFeed(
         const key = sym as SupportedSymbol;
         const hist = next[key] ?? [];
         const last = hist[hist.length - 1];
-        // Skip duplicate ticks; keeps sparklines from looking like flat steps.
         if (last !== undefined && Math.abs(last - q.price) < 1e-9) return;
         next[key] = [...hist, q.price].slice(-40);
       });
@@ -120,13 +115,15 @@ export function useLiveMarketFeed(
     });
   }, []);
 
-  // Stable key so the effect only re-runs when the symbol list actually changes.
   const symbolsKey = symbols.join(',');
   const stableSymbols = React.useMemo(() => symbols, [symbolsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pollOnce = React.useCallback(async () => {
     try {
-      const response = await apiClient.get('/market/quotes');
+      const response = await apiClient.get('/market/quotes', {
+        headers: { 'Cache-Control': 'no-cache' },
+        params: { _t: Date.now() },
+      });
       const rows = unwrapApiResponse<unknown>(response.data);
       if (Array.isArray(rows)) {
         const next: LiveQuoteMap = {};
@@ -143,17 +140,28 @@ export function useLiveMarketFeed(
         }
       }
     } catch {
-      // Fall back to per-symbol fetch below.
+      // per-symbol below
     }
 
-    const fetched = await Promise.all(stableSymbols.map((symbol) => fetchQuoteWithFallback(symbol)));
-    const next: LiveQuoteMap = {};
+    const fetched = await Promise.all(
+      stableSymbols.map(async (symbol) => {
+        try {
+          const response = await apiClient.get('/market/quote', {
+            params: { symbol, _t: Date.now() },
+            headers: { 'Cache-Control': 'no-cache' },
+          });
+          return pullFirstQuote(response.data, symbol);
+        } catch {
+          return null;
+        }
+      }),
+    );
 
+    const next: LiveQuoteMap = {};
     fetched.forEach((row) => {
       if (!row) return;
       next[row.symbol] = row;
     });
-
     if (Object.keys(next).length > 0) {
       setQuotes((prev) => ({ ...prev, ...next }));
       appendHistory(next);
@@ -163,76 +171,35 @@ export function useLiveMarketFeed(
   React.useEffect(() => {
     if (!enabled) return;
     pollOnce();
-    const pollMs = wsLive ? 45_000 : 20_000;
-    const timer = window.setInterval(pollOnce, pollMs);
+    const timer = window.setInterval(pollOnce, 15_000);
     return () => window.clearInterval(timer);
-  }, [pollOnce, enabled, wsLive]);
+  }, [pollOnce, enabled]);
 
+  // Keep trading socket for orders/fills, but DO NOT apply Nest price_update
+  // ticks — they are synthetic and overwrite live Yahoo quotes.
   React.useEffect(() => {
     if (!enabled) return;
-
     const token = accessToken ?? useAuthStore.getState().accessToken;
     if (!token) return;
 
     const release = acquireTradingSocket(token);
     setWsConnected(isTradingSocketConnected());
-
-    const unsubPrice = onPriceUpdate((payload: unknown) => {
-      const updates: LiveQuoteMap = {};
-
-      if (Array.isArray(payload)) {
-        payload.forEach((item) => {
-          const normalized = normalizeQuote(item);
-          if (normalized) {
-            updates[normalized.symbol] = { ...normalized, source: 'ws' };
-          }
-        });
-      } else if (payload && typeof payload === 'object') {
-        const data = payload as Record<string, unknown>;
-        const direct = normalizeQuote(payload);
-        if (direct) {
-          updates[direct.symbol] = { ...direct, source: 'ws' };
-        } else {
-          stableSymbols.forEach((symbol) => {
-            const normalized = normalizeQuote(data[symbol], symbol);
-            if (normalized) {
-              updates[normalized.symbol] = { ...normalized, source: 'ws' };
-            }
-          });
-        }
-      }
-
-      if (Object.keys(updates).length > 0) {
-        setLastWsAt(Date.now());
-        setWsConnected(true);
-        setQuotes((prev) => ({ ...prev, ...updates }));
-        appendHistory(updates);
-      }
-    });
+    const id = window.setInterval(() => {
+      setWsConnected(isTradingSocketConnected());
+    }, 5000);
 
     return () => {
-      unsubPrice();
+      window.clearInterval(id);
       release();
       setWsConnected(false);
-      setLastWsAt(0);
     };
-  }, [stableSymbols, enabled, appendHistory, accessToken]);
-
-  React.useEffect(() => {
-    if (!enabled) {
-      setWsLive(false);
-      return;
-    }
-    const tick = () => setWsLive(wsConnected && Date.now() - lastWsAt < 12_000);
-    tick();
-    const id = window.setInterval(tick, 3000);
-    return () => window.clearInterval(id);
-  }, [enabled, wsConnected, lastWsAt]);
+  }, [enabled, accessToken]);
 
   return {
     quotes,
     priceHistory,
-    wsConnected: wsLive,
+    // "Live" means REST market feed is populated (not Nest WS).
+    wsConnected: Object.keys(quotes).length > 0 || wsConnected,
     refresh: pollOnce,
   };
 }

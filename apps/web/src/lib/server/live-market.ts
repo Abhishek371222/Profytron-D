@@ -18,18 +18,15 @@ export type LiveQuote = {
   source: string;
 };
 
-const BINANCE_INTERVAL: Record<MarketTimeframe, string> = {
-  '1m': '1m',
-  '5m': '5m',
-  '15m': '15m',
-  '1h': '1h',
-  '4h': '4h',
-  '1d': '1d',
+/** Yahoo works from Vercel; Binance is often blocked on serverless IPs. */
+const YAHOO_SYMBOL: Record<MarketSymbol, string> = {
+  BTCUSDT: 'BTC-USD',
+  EURUSD: 'EURUSD=X',
+  XAUUSD: 'XAUUSD=X', // spot gold; falls back to GC=F
 };
 
-const YAHOO_SYMBOL: Record<Exclude<MarketSymbol, 'BTCUSDT'>, string> = {
-  EURUSD: 'EURUSD=X',
-  XAUUSD: 'GC=F', // COMEX gold — closest free liquid gold feed
+const YAHOO_FALLBACK: Partial<Record<MarketSymbol, string>> = {
+  XAUUSD: 'GC=F',
 };
 
 const YAHOO_INTERVAL: Record<MarketTimeframe, string> = {
@@ -52,42 +49,6 @@ const YAHOO_RANGE: Record<MarketTimeframe, string> = {
 
 function toIso(ms: number) {
   return new Date(ms).toISOString();
-}
-
-async function fetchBinanceKlines(
-  timeframe: MarketTimeframe,
-  limit: number,
-): Promise<OhlcCandle[]> {
-  const res = await fetch(
-    `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${BINANCE_INTERVAL[timeframe]}&limit=${limit}`,
-    { cache: 'no-store', next: { revalidate: 0 } },
-  );
-  if (!res.ok) throw new Error(`Binance klines ${res.status}`);
-  const rows = (await res.json()) as any[];
-  return rows.map((k) => ({
-    time: toIso(Number(k[0])),
-    open: Number(k[1]),
-    high: Number(k[2]),
-    low: Number(k[3]),
-    close: Number(k[4]),
-    volume: Number(k[5]),
-  }));
-}
-
-async function fetchBinanceQuote(): Promise<LiveQuote> {
-  const res = await fetch(
-    'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT',
-    { cache: 'no-store' },
-  );
-  if (!res.ok) throw new Error(`Binance ticker ${res.status}`);
-  const t = await res.json();
-  return {
-    symbol: 'BTCUSDT',
-    price: Number(t.lastPrice),
-    change24hPct: Number(t.priceChangePercent),
-    timestamp: new Date().toISOString(),
-    source: 'binance',
-  };
 }
 
 function aggregateTo4h(candles: OhlcCandle[]): OhlcCandle[] {
@@ -114,24 +75,22 @@ function aggregateTo4h(candles: OhlcCandle[]): OhlcCandle[] {
   );
 }
 
-async function fetchYahooOhlc(
-  symbol: Exclude<MarketSymbol, 'BTCUSDT'>,
-  timeframe: MarketTimeframe,
-  limit: number,
-): Promise<OhlcCandle[]> {
-  const yahoo = YAHOO_SYMBOL[symbol];
+async function fetchYahooChart(yahooSymbol: string, timeframe: MarketTimeframe) {
   const interval = YAHOO_INTERVAL[timeframe];
   const range = YAHOO_RANGE[timeframe];
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahoo)}?interval=${interval}&range=${range}`;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=${interval}&range=${range}`;
   const res = await fetch(url, {
     cache: 'no-store',
     headers: {
-      'User-Agent': 'Mozilla/5.0 ProfytronMarket/1.0',
+      'User-Agent': 'Mozilla/5.0 (compatible; ProfytronMarket/1.1)',
       Accept: 'application/json',
     },
   });
-  if (!res.ok) throw new Error(`Yahoo chart ${res.status}`);
-  const body = await res.json();
+  if (!res.ok) throw new Error(`Yahoo chart ${yahooSymbol} ${res.status}`);
+  return res.json();
+}
+
+function parseYahooCandles(body: any, timeframe: MarketTimeframe, limit: number): OhlcCandle[] {
   const result = body?.chart?.result?.[0];
   const ts: number[] = result?.timestamp ?? [];
   const q = result?.indicators?.quote?.[0] ?? {};
@@ -158,18 +117,33 @@ async function fetchYahooOhlc(
     });
   }
 
-  if (timeframe === '4h') {
-    candles = aggregateTo4h(candles);
-  }
-
+  if (timeframe === '4h') candles = aggregateTo4h(candles);
   return candles.slice(-limit);
 }
 
-async function fetchYahooQuote(
-  symbol: Exclude<MarketSymbol, 'BTCUSDT'>,
-): Promise<LiveQuote> {
+async function fetchYahooOhlc(
+  symbol: MarketSymbol,
+  timeframe: MarketTimeframe,
+  limit: number,
+): Promise<OhlcCandle[]> {
+  const primary = YAHOO_SYMBOL[symbol];
+  try {
+    const body = await fetchYahooChart(primary, timeframe);
+    const candles = parseYahooCandles(body, timeframe, limit);
+    if (candles.length) return candles;
+  } catch {
+    // try fallback ticker
+  }
+  const fallback = YAHOO_FALLBACK[symbol];
+  if (!fallback) throw new Error(`No Yahoo OHLC for ${symbol}`);
+  const body = await fetchYahooChart(fallback, timeframe);
+  const candles = parseYahooCandles(body, timeframe, limit);
+  if (!candles.length) throw new Error(`Empty Yahoo OHLC for ${symbol}`);
+  return candles;
+}
+
+async function fetchYahooQuote(symbol: MarketSymbol): Promise<LiveQuote> {
   const candles = await fetchYahooOhlc(symbol, '1d', 5);
-  if (candles.length < 1) throw new Error(`No Yahoo quote for ${symbol}`);
   const last = candles[candles.length - 1];
   const prev = candles[candles.length - 2] ?? last;
   const change24hPct =
@@ -183,30 +157,78 @@ async function fetchYahooQuote(
   };
 }
 
+/** CoinGecko as BTC backup when Yahoo is slow. */
+async function fetchCoinGeckoBtc(): Promise<LiveQuote> {
+  const res = await fetch(
+    'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true',
+    { cache: 'no-store', headers: { Accept: 'application/json' } },
+  );
+  if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
+  const body = await res.json();
+  const price = Number(body?.bitcoin?.usd);
+  const change = Number(body?.bitcoin?.usd_24h_change ?? 0);
+  if (!Number.isFinite(price) || price <= 0) throw new Error('CoinGecko empty');
+  return {
+    symbol: 'BTCUSDT',
+    price,
+    change24hPct: change,
+    timestamp: new Date().toISOString(),
+    source: 'coingecko',
+  };
+}
+
 export async function fetchLiveOhlc(
   symbol: MarketSymbol,
   timeframe: MarketTimeframe,
   limit = 72,
 ): Promise<{ candles: OhlcCandle[]; source: string }> {
   const safeLimit = Math.min(Math.max(limit, 10), 500);
-  if (symbol === 'BTCUSDT') {
-    const candles = await fetchBinanceKlines(timeframe, safeLimit);
-    return { candles, source: 'binance' };
-  }
   const candles = await fetchYahooOhlc(symbol, timeframe, safeLimit);
   return { candles, source: 'yahoo' };
 }
 
 export async function fetchLiveQuote(symbol: MarketSymbol): Promise<LiveQuote> {
-  if (symbol === 'BTCUSDT') return fetchBinanceQuote();
-  return fetchYahooQuote(symbol);
+  try {
+    return await fetchYahooQuote(symbol);
+  } catch (err) {
+    if (symbol === 'BTCUSDT') return fetchCoinGeckoBtc();
+    throw err;
+  }
 }
 
 export async function fetchLiveQuotes(
   symbols: MarketSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'],
 ): Promise<LiveQuote[]> {
   const results = await Promise.allSettled(symbols.map((s) => fetchLiveQuote(s)));
-  return results
+  const quotes = results
     .filter((r): r is PromiseFulfilledResult<LiveQuote> => r.status === 'fulfilled')
     .map((r) => r.value);
+
+  // Ensure BTC is present even if Yahoo failed mid-batch.
+  if (!quotes.some((q) => q.symbol === 'BTCUSDT') && symbols.includes('BTCUSDT')) {
+    try {
+      quotes.unshift(await fetchCoinGeckoBtc());
+    } catch {
+      /* ignore */
+    }
+  }
+
+  return quotes;
+}
+
+/** Reject Nest synthetic ticks so WS cannot overwrite live REST prices. */
+export function looksLikeSyntheticQuote(symbol: string, price: number): boolean {
+  if (!Number.isFinite(price) || price <= 0) return true;
+  const s = symbol.toUpperCase();
+  // Known Nest demo bands from market.service basePriceBySymbol ± drift
+  if (s === 'BTCUSDT' || s === 'BTCUSD') {
+    return price > 65000 && price < 69000;
+  }
+  if (s === 'EURUSD') {
+    return price > 1.08 && price < 1.09;
+  }
+  if (s === 'XAUUSD' || s === 'XAU') {
+    return price > 2300 && price < 2450;
+  }
+  return false;
 }
