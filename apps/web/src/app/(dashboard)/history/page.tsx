@@ -27,6 +27,8 @@ import {
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
+import { strategiesApi } from '@/lib/api/strategies';
+import { formatBotName } from '@/lib/bot-labels';
 import { toast } from 'sonner';
 
 
@@ -87,6 +89,17 @@ export default function HistoryPage() {
 
  const historyRows = liveHistory ?? [];
 
+ const { data: myBots = [] } = useQuery({
+  queryKey: ['history-my-bots'],
+  queryFn: async () => {
+   const rows = await strategiesApi.getMyStrategies();
+   return (Array.isArray(rows) ? rows : [])
+    .map((b: any) => formatBotName(String(b.name || b.strategy?.name || '')))
+    .filter(Boolean);
+  },
+  staleTime: 60_000,
+ });
+
  React.useEffect(() => {
   if (isError) {
    toast.error('Couldn’t load your trades', {
@@ -95,15 +108,40 @@ export default function HistoryPage() {
   }
  }, [isError]);
 
+ const purchasedBots = useMemo(() => {
+  const fromHistory = historyRows
+   .map((t) => formatBotName(t.strategy))
+   .filter((n) => n && n !== 'Manual trade');
+  return Array.from(new Set([...myBots, ...fromHistory]));
+ }, [myBots, historyRows]);
+
  const strategyOptions = useMemo(() => {
-  const unique = Array.from(new Set(historyRows.map((trade) => trade.strategy)));
-  return ['All bots', ...unique];
- }, [historyRows]);
+  return ['All bots', ...purchasedBots];
+ }, [purchasedBots]);
+
+ // Default filter to the bot they bought when they only have one.
+ React.useEffect(() => {
+  if (selectedStrategy !== 'All bots') return;
+  if (purchasedBots.length === 1) {
+   setSelectedStrategy(purchasedBots[0]);
+  }
+ }, [purchasedBots, selectedStrategy]);
+
+ const searchPlaceholder = useMemo(() => {
+  if (purchasedBots.length === 1) {
+   return `Search ${purchasedBots[0]} trades…`;
+  }
+  if (purchasedBots.length > 1) {
+   return `Search your bots (${purchasedBots.slice(0, 2).join(', ')})…`;
+  }
+  return 'Search your bot trades…';
+ }, [purchasedBots]);
 
  const filteredHistory = useMemo(() => {
   const normalizedQuery = searchQuery.trim().toLowerCase();
    return historyRows.filter((trade) => {
-   if (selectedStrategy !== 'All bots' && trade.strategy !== selectedStrategy) {
+   const botLabel = formatBotName(trade.strategy);
+   if (selectedStrategy !== 'All bots' && botLabel !== selectedStrategy) {
 	return false;
    }
 
@@ -115,7 +153,7 @@ export default function HistoryPage() {
 	return true;
    }
 
-   const haystack = `${trade.id} ${trade.asset} ${trade.type} ${trade.strategy} ${trade.time}`.toLowerCase();
+   const haystack = `${trade.id} ${trade.asset} ${trade.type} ${botLabel} ${trade.time}`.toLowerCase();
    return haystack.includes(normalizedQuery);
    });
  }, [historyRows, searchQuery, selectedRange, selectedStrategy]);
@@ -204,33 +242,30 @@ export default function HistoryPage() {
   </div>
  </div>
 
- {/* Filter bar — equal height, aligned icons, friendly copy */}
+ {/* Filter bar — icon sits beside text (no absolute overlap) */}
  <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
-  <div className="relative min-w-0 flex-1">
-   <Search
-    className="pointer-events-none absolute left-3.5 top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-muted-foreground"
-    aria-hidden
-   />
+  <label className="flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-xl border border-[var(--card-border)] bg-card px-3.5 shadow-none transition-[border-color,box-shadow] focus-within:border-[color-mix(in_srgb,var(--primary)_35%,var(--card-border))] focus-within:shadow-[0_0_0_3px_color-mix(in_srgb,var(--primary)_12%,transparent)]">
+   <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
    <input
     type="search"
-    placeholder="Search by pair or bot name…"
+    placeholder={searchPlaceholder}
     value={searchQuery}
     onChange={(e) => setSearchQuery(e.target.value)}
-    className="dash-input !h-11 w-full !pl-10 !pr-3.5"
-    aria-label="Search trades"
+    className="h-full w-full min-w-0 border-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+    aria-label="Search your bot trades"
    />
-  </div>
+  </label>
 
-  <div className="relative w-full sm:w-[11.5rem] shrink-0">
+  <div className="relative w-full shrink-0 sm:w-[13rem]">
    <select
     value={selectedStrategy}
     onChange={(e) => setSelectedStrategy(e.target.value)}
-    className="dash-input !h-11 w-full appearance-none cursor-pointer !pr-10"
-    aria-label="Filter by bot"
+    className="h-11 w-full appearance-none rounded-xl border border-[var(--card-border)] bg-card py-0 pl-3.5 pr-10 text-sm text-foreground outline-none transition-[border-color,box-shadow] focus:border-[color-mix(in_srgb,var(--primary)_35%,var(--card-border))] focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--primary)_12%,transparent)]"
+    aria-label="Your bots"
    >
     {strategyOptions.map((strategy) => (
      <option key={strategy} value={strategy}>
-      {strategy === 'All bots' ? 'All bots' : strategy}
+      {strategy}
      </option>
     ))}
    </select>
@@ -238,7 +273,7 @@ export default function HistoryPage() {
   </div>
 
   <HistoryDateRangePicker
-   className="w-full sm:w-[13.5rem] shrink-0"
+   className="w-full shrink-0 sm:w-[13.5rem]"
    value={selectedRange}
    onChange={(range) => {
     setSelectedRange(range);
@@ -296,7 +331,7 @@ export default function HistoryPage() {
  <td className="px-5 py-4">
  <div className="flex items-center gap-2">
  <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
- <span className="text-sm font-medium text-foreground/70 tracking-tight">{trade.strategy}</span>
+ <span className="text-sm font-medium text-foreground/70 tracking-tight">{formatBotName(trade.strategy)}</span>
  </div>
  </td>
  <td className="px-5 py-4">
