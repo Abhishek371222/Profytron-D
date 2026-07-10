@@ -325,7 +325,7 @@ export async function POST(req: NextRequest) {
         UPDATE "BrokerAccount"
         SET "credentialsEncrypted" = ${credentialsEncrypted},
             "initialEquity" = ${equity || balance || null},
-            "lastConnectedAt" = ${now}::timestamptz
+            "lastConnectedAt" = ${now}::timestamp
         WHERE id = ${existing[0].id}
         RETURNING id, "brokerName", "accountNumberLast4", "serverName",
                   "isPaperTrading", "isDefault", "isActive", "connectedAt",
@@ -346,10 +346,10 @@ export async function POST(req: NextRequest) {
           "isDefault", "isActive", "connectedAt", "createdAt",
           "lastConnectedAt", "initialEquity"
         ) VALUES (
-          ${id}, ${userId}, ${resolvedBrokerName}, ${last4},
+          ${id}, ${userId}, ${resolvedBrokerName}::"BrokerName", ${last4},
           ${credentialsEncrypted}, ${serverName}, false,
-          ${isDefault}, true, ${now}::timestamptz, ${now}::timestamptz,
-          ${now}::timestamptz, ${equity || balance || null}
+          ${isDefault}, true, ${now}::timestamp, ${now}::timestamp,
+          ${now}::timestamp, ${equity || balance || null}
         )
         RETURNING id, "brokerName", "accountNumberLast4", "serverName",
                   "isPaperTrading", "isDefault", "isActive", "connectedAt",
@@ -373,13 +373,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (e: any) {
     const msg = e?.message || 'Broker connection failed';
-    // Column missing fallback without bridgeTokenHash
-    if (/bridgeTokenHash|column/i.test(msg)) {
-      return error(
-        'Database schema needs update. Contact support or retry shortly.',
-        503,
-      );
-    }
+    console.error('[broker/connect]', msg);
     return error(msg, 400);
   }
 }
