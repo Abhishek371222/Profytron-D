@@ -38,14 +38,16 @@ export class AppController {
     const executionMode = (
       process.env.EXECUTION_MODE || 'master_only'
     ).toLowerCase();
+    const isCopyFactory = executionMode === 'copyfactory';
     return {
       status: 'ok',
-      version: '1.0.1',
+      version: '1.0.2',
       prefix: 'v1',
-      executionMode:
-        executionMode === 'copyfactory' ? 'copyfactory' : 'master_only',
+      executionMode: isCopyFactory ? 'copyfactory' : 'master_only',
       copyFactoryEnabled: process.env.COPYFACTORY_ENABLED === 'true',
-      storeOnlyUserConnect: true,
+      allowMetaApiSubscribers:
+        process.env.ALLOW_METAAPI_SUBSCRIBERS === 'true',
+      storeOnlyUserConnect: !isCopyFactory,
       gitSha: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? null,
     };
   }

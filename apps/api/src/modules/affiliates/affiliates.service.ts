@@ -87,24 +87,34 @@ export class AffiliatesService {
   }
 
   async getAffiliateStats(userId: string) {
-    const affiliate = await this.prisma.affiliate.findUnique({
-      where: { userId },
-      include: {
-        user: { select: { referralCode: true } },
-      },
-    });
-
-    const record =
-      affiliate ??
-      (await this.prisma.affiliate.create({
-        data: { userId },
-        include: { user: { select: { referralCode: true } } },
+    try {
+      return await this.prisma.affiliate.upsert({
+        where: { userId },
+        create: { userId },
+        update: {},
+        include: {
+          user: { select: { referralCode: true } },
+        },
+      }).then((record) => ({
+        ...record,
+        referralCode: record.user.referralCode,
       }));
-
-    return {
-      ...record,
-      referralCode: record.user.referralCode,
-    };
+    } catch (error: any) {
+      // Concurrent first-load race: another request created the row first.
+      if (error?.code === 'P2002') {
+        const existing = await this.prisma.affiliate.findUnique({
+          where: { userId },
+          include: { user: { select: { referralCode: true } } },
+        });
+        if (existing) {
+          return {
+            ...existing,
+            referralCode: existing.user.referralCode,
+          };
+        }
+      }
+      throw error;
+    }
   }
 
   async getAffiliateDashboard(userId: string) {

@@ -122,16 +122,17 @@ services:
         sync: false
 
       # --- Broker integration ---
-      # Architecture 2: MetaApi for OPERATOR MASTER only. End users = DB + bridge EA.
-      # Never bill CopyFactory subscriber seats per user.
+      # Paid seats: MetaApi G2 cloud account per live user (~$2.34/mo budget).
+      # CopyFactory SUBSCRIBER role for master→follower copy.
+      # Override in dashboard only if you intentionally switch back to master_only.
       - key: EXECUTION_MODE
-        value: master_only
+        value: copyfactory
       - key: COPYFACTORY_ENABLED
-        value: "false"
-      - key: METAAPI_MASTER_ONLY
         value: "true"
-      - key: ALLOW_METAAPI_SUBSCRIBERS
+      - key: METAAPI_MASTER_ONLY
         value: "false"
+      - key: ALLOW_METAAPI_SUBSCRIBERS
+        value: "true"
       - key: METAAPI_TOKEN
         sync: false
       - key: ADMIN_MT5_LOGIN

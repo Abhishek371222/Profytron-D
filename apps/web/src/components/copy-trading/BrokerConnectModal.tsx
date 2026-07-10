@@ -153,7 +153,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                   Connect MT5 Account
                 </h2>
                 <p className="text-[11px] text-chart-3 mt-0.5">
-                  Saved in Profytron DB · no MetaApi fee per user
+                  Live MT5 via MetaApi · balance + copy trading
                 </p>
               </div>
               <button
@@ -357,9 +357,11 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                   <p className="text-sm text-text-secondary text-center">
                     {mode === 'paper'
                       ? 'Creating your paper account…'
-                      : `Saving connection to ${resolvedServer}…`}
+                      : `Connecting ${resolvedServer} via MetaApi…`}
                     <br />
-                    No MetaApi subscriber seat is created.
+                    {mode === 'live'
+                      ? 'This can take up to a minute on first connect.'
+                      : null}
                   </p>
                 </div>
               )}
@@ -378,7 +380,9 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                     <p className="text-sm text-text-secondary mt-1">
                       {mode === 'paper'
                         ? 'Subscribe to a bot to receive simulated copies on this account.'
-                        : 'Account saved in Profytron. Master trades copy here — no MetaApi seat on your account.'}
+                        : pending
+                          ? 'Account provisioned — live balance appears once MetaApi finishes deploying.'
+                          : 'Live balance and copy fills run through your MetaApi-linked MT5.'}
                     </p>
                   </div>
                   {mode === 'live' && bridgeToken && (

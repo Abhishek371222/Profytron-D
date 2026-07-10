@@ -16,6 +16,7 @@ import {
 } from '../growth/activation.service';
 import { getTierLimits } from '../../common/constants/pricing.constants';
 import { CopyBridgeService } from '../copy-bridge/copy-bridge.service';
+import { isMasterOnlyExecution } from '../../common/utils/execution-mode.util';
 
 @Injectable()
 export class BrokerService {
@@ -121,11 +122,8 @@ export class BrokerService {
 
       if (brokerName === 'PAPER') {
         connectionResult = await this.paperAdapter.connect(login);
-      } else if (!providerConnect) {
-        // Architecture 2 (low-cost): NEVER provision MetaApi for end users.
-        // Ignore EXECUTION_MODE / COPYFACTORY_ENABLED — those must not bill seats.
-        // Credentials are validated locally, encrypted, and stored for MasterSync
-        // fan-out + optional bridge EA live fills.
+      } else if (!providerConnect && isMasterOnlyExecution()) {
+        // Low-cost path: credentials in DB only; optional bridge EA for fills.
         this.validateUserMt5Input(login, password, serverName);
         this.logger.log(
           `store-only MT connect for user ${userId} (no MetaApi seat)`,
@@ -139,8 +137,26 @@ export class BrokerService {
           masterOnly: true,
           executionPath: 'store_only',
         };
+      } else if (!providerConnect) {
+        // Paid path (EXECUTION_MODE=copyfactory): ~$2–3/mo G2 seat + SUBSCRIBER.
+        const mt = platform === 'mt4' ? 'mt4' : 'mt5';
+        this.logger.log(
+          `MetaApi SUBSCRIBER connect for user ${userId} (paid seat)`,
+        );
+        connectionResult = await this.mtAdapter.connect(
+          login,
+          password,
+          serverName,
+          mt,
+          { copyFactoryRoles: ['SUBSCRIBER'] },
+        );
+        connectionResult = {
+          ...connectionResult,
+          masterOnly: false,
+          executionPath: 'copyfactory',
+        };
       } else {
-        // Operator master / PROVIDER only — MetaApi allowed.
+        // Operator master / PROVIDER — MetaApi allowed in any mode.
         const mt = platform === 'mt4' ? 'mt4' : 'mt5';
         connectionResult = await this.mtAdapter.connect(
           login,
@@ -264,7 +280,8 @@ export class BrokerService {
         },
       });
 
-      // Never auto-link CopyFactory on end-user connect (no per-user MetaApi seats).
+      // CopyFactory strategy link runs via copyfactory_sync when the user
+      // subscribes to a bot (subscription-cleanup / CopyFactorySyncService).
 
       await this.activationService.track(
         userId,

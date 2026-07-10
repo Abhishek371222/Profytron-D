@@ -140,18 +140,20 @@ export class MetaTraderAdapter {
       return this.mockResult(login, server, platform);
     }
 
-    // Cost guard: NEVER request CopyFactory SUBSCRIBER seats.
-    // End-user accounts are store-only + bridge EA. Only PROVIDER is allowed.
-    let roles = options?.copyFactoryRoles?.filter((r) => r === 'PROVIDER');
-    if (!roles?.length) roles = undefined;
+    // Cost guard: SUBSCRIBER seats only when explicitly allowed (copyfactory).
+    let roles = options?.copyFactoryRoles
+      ? [...options.copyFactoryRoles]
+      : undefined;
     if (
-      options?.copyFactoryRoles?.includes('SUBSCRIBER') &&
+      roles?.includes('SUBSCRIBER') &&
       process.env.ALLOW_METAAPI_SUBSCRIBERS !== 'true'
     ) {
       this.logger.warn(
-        'Refusing CopyFactory SUBSCRIBER role — use store-only + bridge EA (no per-user MetaApi seats)',
+        'Refusing CopyFactory SUBSCRIBER role — set ALLOW_METAAPI_SUBSCRIBERS=true for paid seats',
       );
+      roles = roles.filter((r) => r === 'PROVIDER');
     }
+    if (!roles?.length) roles = undefined;
 
     try {
       let accountId: string;

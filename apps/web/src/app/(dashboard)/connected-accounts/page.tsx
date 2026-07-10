@@ -283,7 +283,7 @@ export default function ConnectedAccountsPage() {
       account.balance != null
         ? `Balance ${formatInr(account.balance, account.currency)}`
         : account.storeOnly
-          ? 'Balance: not synced yet (bridge EA reports live equity)'
+          ? 'Balance: not synced yet — disconnect and reconnect to provision MetaApi'
           : 'No live balance cached yet',
       account.fillMode ? `Mode: ${account.fillMode}` : null,
       account.balanceNote ?? null,
@@ -333,7 +333,7 @@ export default function ConnectedAccountsPage() {
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Connected Accounts</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Connect your own MT5 — stored in Profytron, no MetaApi seat per user
+              Live MT5 via MetaApi — balance and copy fills on your broker
             </p>
           </div>
         </div>
@@ -462,7 +462,7 @@ export default function ConnectedAccountsPage() {
                     {account.balance != null
                       ? formatInr(account.balance, account.currency)
                       : account.storeOnly
-                        ? 'Via bridge EA'
+                        ? 'Reconnect for live balance'
                         : '—'}
                   </p>
                 </div>
@@ -491,11 +491,19 @@ export default function ConnectedAccountsPage() {
                   </div>
                 )}
               </div>
-              {account.storeOnly && (
+              {account.storeOnly ? (
                 <p className="text-[11px] text-muted-foreground leading-snug">
-                  Account linked in Profytron DB. Live equity syncs when ProfytronCopyBridge EA is running on MT5.
+                  Legacy store-only link. Click{' '}
+                  <span className="font-semibold text-foreground">
+                    Upgrade to MetaApi
+                  </span>{' '}
+                  and reconnect the same MT5 login for live balance.
                 </p>
-              )}
+              ) : account.balanceNote ? (
+                <p className="text-[11px] text-muted-foreground leading-snug">
+                  {account.balanceNote}
+                </p>
+              ) : null}
 
                 <div className="flex flex-col gap-2 pt-1">
                 <button
@@ -516,10 +524,7 @@ export default function ConnectedAccountsPage() {
                   <button
                     type="button"
                     onClick={() => handleReconnect(account)}
-                    disabled={
-                      account.status === 'CONNECTED' ||
-                      disconnectingId === account.id
-                    }
+                    disabled={disconnectingId === account.id}
                     className="flex-1 h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-40 disabled:cursor-default flex items-center justify-center gap-1"
                   >
                     {account.status === 'SYNCING' ? (
@@ -527,7 +532,7 @@ export default function ConnectedAccountsPage() {
                     ) : (
                       <RefreshCcw className="h-3 w-3" />
                     )}
-                    Reconnect
+                    {account.storeOnly ? 'Upgrade to MetaApi' : 'Reconnect'}
                   </button>
                   <button
                     type="button"
@@ -539,7 +544,7 @@ export default function ConnectedAccountsPage() {
                     Details
                   </button>
                 </div>
-                {!account.isPaperTrading && (
+                {!account.isPaperTrading && account.storeOnly && (
                   <button
                     type="button"
                     onClick={() => handleRotateBridgeToken(account)}

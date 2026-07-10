@@ -1,20 +1,18 @@
 /**
  * Execution modes for copy trading.
  *
- * master_only — MetaApi is used ONLY for the operator master account.
- *               User MT5 accounts are never provisioned on MetaApi (cost control).
- *               MasterSync detects master fills → risk → trade_execution.
- *               Paper accounts get simulated fills; live accounts get ledger
- *               mirrors until a local/VPS bridge EA is added.
+ * copyfactory — MetaApi cloud seat per live user (~$2–3/mo G2) + CopyFactory
+ *               SUBSCRIBER role. Balance, deploy, and master→follower copy
+ *               run through MetaApi. Opt-in via EXECUTION_MODE=copyfactory.
  *
- * copyfactory — MetaApi CopyFactory mirrors master→subscriber (per-seat cost).
+ * master_only — MetaApi only for the operator master. User MT5 credentials
+ *               stay in Profytron DB; optional bridge EA for live fills.
+ *               Default when EXECUTION_MODE is unset (no accidental seats).
  */
 export type ExecutionMode = 'master_only' | 'copyfactory';
 
 export function getExecutionMode(): ExecutionMode {
   const raw = (process.env.EXECUTION_MODE || '').trim().toLowerCase();
-  // Explicit opt-in only — default is master_only so we never bill MetaApi
-  // subscriber seats by accident on a misconfigured deploy.
   if (raw === 'copyfactory') return 'copyfactory';
   return 'master_only';
 }

@@ -3,7 +3,6 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { AppThrottlerGuard } from './common/guards/throttler.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -101,18 +100,11 @@ const parseRedisConfig = () => {
           : ['.env.local', '.env'],
     }),
     // Base limit = anonymous (100 req/min). Authenticated callers are bumped to
-    // 1000 req/min in AppThrottlerGuard. Storage is Redis-backed in production
-    // so limits are shared across horizontally-scaled instances; in dev (in-
-    // memory Redis mock) we fall back to per-instance memory storage to avoid
-    // depending on a real Redis server.
+    // 1000 req/min in AppThrottlerGuard.
+    // Use in-process memory storage — Redis throttler storage burns Upstash
+    // command quota on every request (free tier 500k/mo). Auth/Bull still use Redis.
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60_000, limit: 100 }],
-      ...(() => {
-        if (isInMemoryRedis()) return {};
-        const redisUrl = getRedisConnectionUrl();
-        if (!redisUrl) return {};
-        return { storage: new ThrottlerStorageRedisService(redisUrl) };
-      })(),
     }),
     BullModule.forRoot({ redis: parseRedisConfig() }),
     // Registered here so the health controller can probe queue connectivity.

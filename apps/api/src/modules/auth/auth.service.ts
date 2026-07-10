@@ -899,7 +899,7 @@ export class AuthService {
   async supabaseLogin(dto: SupabaseLoginDto) {
     this.logger.log(`Initiating Supabase sync for: ${dto.email}`);
 
-    if (!this.supabase) {
+    if (!this.supabase?.auth) {
       this.logger.error(
         'Supabase client not configured — set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on the API',
       );
@@ -928,7 +928,7 @@ export class AuthService {
       );
     }
 
-    if (error || !data.user) {
+    if (error || !data?.user) {
       this.logger.error(
         `Supabase verification failed for ${dto.email}: ${error?.message}`,
       );
