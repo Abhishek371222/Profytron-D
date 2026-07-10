@@ -74,10 +74,12 @@ export function HistoryDateRangePicker({
 }) {
   const [open, setOpen] = React.useState(false);
   const [mode, setMode] = React.useState<'menu' | 'custom'>(value.type === 'custom' ? 'custom' : 'menu');
-  const [draftStart, setDraftStart] = React.useState(
-    value.type === 'custom' ? value.start : formatInputDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
+  const [draftStart, setDraftStart] = React.useState(() =>
+    value.type === 'custom'
+      ? value.start
+      : formatInputDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
   );
-  const [draftEnd, setDraftEnd] = React.useState(
+  const [draftEnd, setDraftEnd] = React.useState(() =>
     value.type === 'custom' ? value.end : formatInputDate(new Date()),
   );
   const containerRef = React.useRef<HTMLDivElement>(null);
