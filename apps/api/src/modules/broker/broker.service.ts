@@ -328,6 +328,42 @@ export class BrokerService {
             equity: safe.initialEquity ?? null,
             currency: 'USD',
             connectionStatus: 'CONNECTED',
+            fillMode: 'paper',
+          };
+        }
+
+        let creds: Record<string, any> = {};
+        try {
+          creds = JSON.parse(
+            this.cryptoService.decrypt(credentialsEncrypted),
+          );
+        } catch {
+          creds = {};
+        }
+
+        const metaApiId: string | undefined = creds.metaApiAccountId;
+        const storeOnly =
+          !metaApiId ||
+          metaApiId.startsWith('mock-') ||
+          creds.executionMode === 'master_only' ||
+          Boolean(account.bridgeTokenHash);
+
+        // Store-only / bridge accounts: never wait on MetaApi — they are linked.
+        if (storeOnly) {
+          return {
+            ...safe,
+            balance: safe.initialEquity ?? null,
+            equity: safe.initialEquity ?? null,
+            currency: 'USD',
+            leverage: null,
+            connectionStatus: 'CONNECTED',
+            fillMode: 'bridge',
+            storeOnly: true,
+            login: creds.login ?? null,
+            platform: creds.platform ?? 'mt5',
+            serverName: safe.serverName ?? creds.serverName ?? null,
+            balanceNote:
+              'Live broker balance appears after ProfytronCopyBridge EA reports it (no MetaApi seat).',
           };
         }
 
@@ -336,20 +372,14 @@ export class BrokerService {
 
         if (this.mtAdapter.isLive) {
           try {
-            const creds = JSON.parse(
-              this.cryptoService.decrypt(credentialsEncrypted),
+            const info = await this.withTimeout(
+              this.mtAdapter.testExisting(metaApiId!, creds.metaApiRegion),
+              8_000,
+              { connected: false } as any,
             );
-            const metaApiId: string | undefined = creds.metaApiAccountId;
-            if (metaApiId && !metaApiId.startsWith('mock-')) {
-              const info = await this.withTimeout(
-                this.mtAdapter.testExisting(metaApiId, creds.metaApiRegion),
-                8_000,
-                { connected: false } as any,
-              );
-              if (info?.connected) {
-                live = info;
-                connectionStatus = 'CONNECTED';
-              }
+            if (info?.connected) {
+              live = info;
+              connectionStatus = 'CONNECTED';
             }
           } catch {
             /* keep CONNECTING + stored baseline */
@@ -365,6 +395,8 @@ export class BrokerService {
           currency: live?.currency ?? 'USD',
           leverage: live?.leverage ?? null,
           connectionStatus,
+          fillMode: 'metaapi',
+          storeOnly: false,
         };
       }),
     );

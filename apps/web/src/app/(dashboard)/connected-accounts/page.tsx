@@ -42,6 +42,11 @@ interface BrokerAccount {
   lastSyncedAt?: string;
   activeBotCount?: number;
   isPaperTrading?: boolean;
+  serverName?: string;
+  storeOnly?: boolean;
+  balanceNote?: string;
+  login?: string;
+  fillMode?: string;
 }
 
 interface LinkedBot {
@@ -147,6 +152,12 @@ export default function ConnectedAccountsPage() {
           currency: a.currency ?? 'USD',
           lastSyncedAt: a.lastConnectedAt ?? a.connectedAt,
           isPaperTrading: Boolean(a.isPaperTrading),
+          serverName: a.serverName ?? undefined,
+          storeOnly: Boolean(a.storeOnly),
+          balanceNote:
+            typeof a.balanceNote === 'string' ? a.balanceNote : undefined,
+          login: a.login ? String(a.login) : undefined,
+          fillMode: a.fillMode ?? undefined,
         };
       });
     },
@@ -265,15 +276,23 @@ export default function ConnectedAccountsPage() {
   };
 
   const handleViewDetails = (account: BrokerAccount) => {
-    toast.info(
-      `${account.brokerName} ${maskAccount(account.accountNumber)} · ${account.accountType}`,
-      {
-        description:
-          account.balance != null
-            ? `Balance ${formatInr(account.balance, account.currency)}`
-            : 'No live balance cached yet',
-      },
-    );
+    const lines = [
+      `${account.brokerName} ···${account.accountNumber} · ${account.accountType}`,
+      account.serverName ? `Server: ${account.serverName}` : null,
+      account.login ? `Login: ${account.login}` : null,
+      account.balance != null
+        ? `Balance ${formatInr(account.balance, account.currency)}`
+        : account.storeOnly
+          ? 'Balance: not synced yet (bridge EA reports live equity)'
+          : 'No live balance cached yet',
+      account.fillMode ? `Mode: ${account.fillMode}` : null,
+      account.balanceNote ?? null,
+    ].filter(Boolean);
+
+    toast.info(lines[0] as string, {
+      description: lines.slice(1).join('\n'),
+      duration: 8_000,
+    });
   };
 
   const refresh = () => {
@@ -437,10 +456,26 @@ export default function ConnectedAccountsPage() {
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Type</p>
                   <p className="text-xs font-bold text-foreground">{account.accountType}</p>
                 </div>
-                {account.balance != null && (
+                <div className="rounded-lg bg-muted/20 border border-[var(--card-border)] p-2.5">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Balance</p>
+                  <p className="text-xs font-bold text-foreground tabular-nums">
+                    {account.balance != null
+                      ? formatInr(account.balance, account.currency)
+                      : account.storeOnly
+                        ? 'Via bridge EA'
+                        : '—'}
+                  </p>
+                </div>
+                {account.serverName && (
+                  <div className="rounded-lg bg-muted/20 border border-[var(--card-border)] p-2.5 col-span-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Server</p>
+                    <p className="text-xs font-bold text-foreground break-all">{account.serverName}</p>
+                  </div>
+                )}
+                {account.login && (
                   <div className="rounded-lg bg-muted/20 border border-[var(--card-border)] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Balance</p>
-                    <p className="text-xs font-bold text-foreground tabular-nums">{formatInr(account.balance, account.currency)}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Login</p>
+                    <p className="text-xs font-bold text-foreground font-mono">{account.login}</p>
                   </div>
                 )}
                 {account.activeBotCount != null && (
@@ -451,11 +486,16 @@ export default function ConnectedAccountsPage() {
                 )}
                 {account.lastSyncedAt && (
                   <div className="rounded-lg bg-muted/20 border border-[var(--card-border)] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Last Synced</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Linked</p>
                     <p className="text-xs font-bold text-foreground">{timeAgo(account.lastSyncedAt)}</p>
                   </div>
                 )}
               </div>
+              {account.storeOnly && (
+                <p className="text-[11px] text-muted-foreground leading-snug">
+                  Account linked in Profytron DB. Live equity syncs when ProfytronCopyBridge EA is running on MT5.
+                </p>
+              )}
 
                 <div className="flex flex-col gap-2 pt-1">
                 <button
