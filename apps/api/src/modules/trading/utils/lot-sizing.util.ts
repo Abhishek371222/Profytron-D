@@ -27,6 +27,11 @@ export interface SizingInput {
   minLot?: number;
   maxLot?: number;
   lotStep?: number;
+  /**
+   * When true, return null instead of forcing minLot when the scaled size
+   * rounds below the broker minimum (safe for ~$100 accounts).
+   */
+  skipIfBelowMin?: boolean;
 }
 
 const DEFAULT_MIN_LOT = 0.01;
@@ -48,10 +53,12 @@ function roundToStep(value: number, step: number): number {
 /**
  * Computes the follower lot size for a copied trade. Returns a value already
  * clamped and rounded to the broker lot step. Falls back gracefully to the
- * multiplier method (then a 0.1 default) when inputs for a richer mode are
- * missing, so a misconfigured subscription never blocks execution.
+ * multiplier method (then minLot) when inputs for a richer mode are missing.
+ *
+ * When `skipIfBelowMin` is set and the scaled size is below minLot, returns
+ * null so the caller can skip the trade instead of oversizing a $100 account.
  */
-export function computeFollowerVolume(input: SizingInput): number {
+export function computeFollowerVolume(input: SizingInput): number | null {
   const minLot = isPositive(input.minLot) ? input.minLot : DEFAULT_MIN_LOT;
   const maxLot = isPositive(input.maxLot) ? input.maxLot : DEFAULT_MAX_LOT;
   const lotStep = isPositive(input.lotStep) ? input.lotStep : DEFAULT_LOT_STEP;
@@ -78,7 +85,7 @@ export function computeFollowerVolume(input: SizingInput): number {
         // Missing equity data — degrade to plain multiplier.
         raw = input.masterVolume * multiplier;
       } else {
-        raw = isPositive(input.fixedLot) ? input.fixedLot : 0.1;
+        raw = isPositive(input.fixedLot) ? input.fixedLot : minLot;
       }
       break;
 
@@ -89,13 +96,15 @@ export function computeFollowerVolume(input: SizingInput): number {
       } else if (isPositive(input.fixedLot)) {
         raw = input.fixedLot;
       } else {
-        raw = 0.1;
+        raw = minLot;
       }
       break;
   }
 
-  const clamped = Math.min(Math.max(raw, minLot), maxLot);
-  const stepped = roundToStep(clamped, lotStep);
-  // Guard against rounding to 0 (e.g. tiny equity ratio).
-  return stepped < minLot ? minLot : stepped;
+  const stepped = roundToStep(raw, lotStep);
+  if (stepped < minLot) {
+    if (input.skipIfBelowMin) return null;
+    return minLot;
+  }
+  return Math.min(stepped, maxLot);
 }

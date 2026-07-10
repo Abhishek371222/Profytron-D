@@ -369,7 +369,8 @@ export class MasterSyncService implements OnModuleDestroy {
           {
             tradeId: trade.id,
             userId: trade.userId,
-            ...(isFullClose ? {} : { partial: true, closeVolume }),
+            // TradeProcessor reads `volume` for partial closes (not closeVolume).
+            ...(isFullClose ? {} : { volume: closeVolume }),
           },
           {
             jobId: `copy-vol:${after.id}:${trade.id}:${after.volume}`,

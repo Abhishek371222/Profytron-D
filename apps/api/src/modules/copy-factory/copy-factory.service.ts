@@ -77,7 +77,11 @@ export class CopyFactoryService {
       name: input.name,
       description: input.description,
       accountId: input.providerMetaApiAccountId,
-      maxTradeRisk: Number(process.env.COPYFACTORY_MAX_TRADE_RISK || 0.1),
+      // 1:1 lots — required for ~$100 accounts when master trades 0.01.
+      // Balance scaling rounds 0.01*(120/300) below min lot and skips the copy.
+      tradeSizeScaling: { mode: 'none' },
+      copyStopLoss: true,
+      copyTakeProfit: true,
       skipPendingOrders: false,
     });
 

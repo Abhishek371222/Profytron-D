@@ -107,6 +107,28 @@ export const tradingApi = {
     return unwrap(res.data);
   },
 
+  /** Live lot calculator (equity-ratio safe for ~$100 accounts). */
+  async calculateLotSize(payload: {
+    masterVolume: number;
+    masterEquity?: number;
+    followerEquity?: number;
+    multiplier?: number;
+    mode?: 'FIXED' | 'MULTIPLIER' | 'EQUITY_RATIO' | 'BALANCE';
+    fixedLot?: number;
+    skipIfBelowMin?: boolean;
+  }) {
+    const res = await apiClient.post('/trading/lot-size', payload);
+    return unwrap<{
+      volume: number | null;
+      rawVolume: number;
+      skipped: boolean;
+      reason: string | null;
+      followerEquity: number | null;
+      masterEquity: number | null;
+      mode: string;
+    }>(res.data);
+  },
+
   async getMySubscriptions() {
     const res = await apiClient.get('/trading/subscriptions');
     return unwrap<any[]>(res.data);

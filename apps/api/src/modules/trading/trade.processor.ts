@@ -220,13 +220,16 @@ export class TradeProcessor {
       // Volume: manual orders carry an explicit volume; copy/signal trades are
       // sized by the follower's configured method (fixed / multiplier /
       // equity-ratio) via the deterministic lot-sizing engine.
+      // Default EQUITY_RATIO + skip-below-min keeps ~$100 accounts safe.
       let volume: number;
       if (explicitVolume != null && masterVolume == null) {
         volume = Math.max(0.01, parseFloat(Number(explicitVolume).toFixed(2)));
       } else {
+        const sizingMode =
+          subscriptionSizing?.mode ?? ('EQUITY_RATIO' as const);
         let masterEquity: number | null = null;
         let followerEquity: number | null = null;
-        if (subscriptionSizing?.mode === 'EQUITY_RATIO') {
+        if (sizingMode === 'EQUITY_RATIO') {
           followerEquity = await this.resolveEquity(brokerAccount);
           const masterBrokerAccountId = job.data.masterBrokerAccountId as
             | string
@@ -243,14 +246,33 @@ export class TradeProcessor {
             masterEquity = master ? await this.resolveEquity(master) : null;
           }
         }
-        volume = computeFollowerVolume({
-          mode: subscriptionSizing?.mode ?? 'MULTIPLIER',
+        const sized = computeFollowerVolume({
+          mode: sizingMode,
           masterVolume: masterVolume ?? null,
           multiplier: subscriptionSizing?.multiplier ?? lotMultiplier ?? 1.0,
           fixedLot: subscriptionSizing?.fixedLot ?? null,
           masterEquity,
           followerEquity,
+          skipIfBelowMin: true,
         });
+        if (sized == null) {
+          this.logger.warn(
+            `Skipping copy for user ${userId}: scaled lot below min (master=${masterVolume}, mode=${sizingMode})`,
+          );
+          await this.ledger.recordExecution({
+            followerUserId: userId,
+            subscriptionId: subscriptionId ?? null,
+            masterPositionId: masterPositionId ?? null,
+            symbol: pair,
+            side: type,
+            requestedVolume: 0,
+            requestedPrice: requestedPrice ?? price,
+            status: ExecutionStatus.FAILED,
+            errorReason: 'TRADE_BLOCKED_INSUFFICIENT_LOT',
+          });
+          return;
+        }
+        volume = sized;
       }
 
       let brokerOrderId: string | null = null;

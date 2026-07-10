@@ -21,8 +21,8 @@ interface Props {
 }
 
 const SIZING_MODES: { id: SizingMode; label: string; hint: string }[] = [
+  { id: 'EQUITY_RATIO', label: 'Equity ratio', hint: 'Size relative to your equity vs the master’s — best for ~$100 accounts.' },
   { id: 'MULTIPLIER', label: 'Multiplier', hint: 'Scale the master’s lot by a fixed factor.' },
-  { id: 'EQUITY_RATIO', label: 'Equity ratio', hint: 'Size relative to your equity vs the master’s.' },
   { id: 'FIXED', label: 'Fixed lot', hint: 'Trade the same lot on every copied signal.' },
 ];
 
@@ -41,9 +41,9 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
   const maxLot = PLAN_MAX_LOT[subscription.strategy?.name ?? ''] ?? 2.0;
   const [lotMultiplier, setLotMultiplier] = React.useState(subscription.lotMultiplier ?? 1.0);
   const [sizingMode, setSizingMode] = React.useState<SizingMode>(
-    subscription.sizingMode ?? 'MULTIPLIER',
+    subscription.sizingMode ?? 'EQUITY_RATIO',
   );
-  const [fixedLot, setFixedLot] = React.useState(subscription.fixedLot ?? 0.1);
+  const [fixedLot, setFixedLot] = React.useState(subscription.fixedLot ?? 0.01);
   const [isPaused, setIsPaused] = React.useState(subscription.status === 'PAUSED');
   const [saving, setSaving] = React.useState(false);
 
@@ -165,7 +165,7 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
                 </div>
                 <p className="text-xs text-text-secondary mt-2">
                   {sizingMode === 'EQUITY_RATIO'
-                    ? `Lots scale with your equity vs the master’s, then ×${lotMultiplier.toFixed(2)}.`
+                    ? `Lots scale with your equity vs the master’s, then ×${lotMultiplier.toFixed(2)}. Example: master 0.01 on $300 → you get ~${(0.01 * (120 / 300) * lotMultiplier).toFixed(2)} on ~$120 (min 0.01 or skip).`
                     : `When the operator bot opens 1.0 lot, your bot trades ${lotMultiplier.toFixed(2)} lot.`}
                 </p>
               </div>
