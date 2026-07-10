@@ -121,11 +121,19 @@ services:
       - key: OPENROUTER_API_KEY
         sync: false
 
-      # --- Broker integration (optional — blank = mock mode) ---
+      # --- Broker integration ---
+      # Architecture 2: MetaApi for OPERATOR MASTER only. End users = DB + bridge EA.
+      # Never bill CopyFactory subscriber seats per user.
+      - key: EXECUTION_MODE
+        value: master_only
+      - key: COPYFACTORY_ENABLED
+        value: "false"
+      - key: METAAPI_MASTER_ONLY
+        value: "true"
+      - key: ALLOW_METAAPI_SUBSCRIBERS
+        value: "false"
       - key: METAAPI_TOKEN
         sync: false
-      - key: COPYFACTORY_ENABLED
-        value: "true"
       - key: ADMIN_MT5_LOGIN
         sync: false
       - key: ADMIN_MT5_PASSWORD

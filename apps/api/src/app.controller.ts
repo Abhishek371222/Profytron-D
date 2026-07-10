@@ -35,7 +35,19 @@ export class AppController {
   @Public()
   @Get()
   getStatus() {
-    return { status: 'ok', version: '1.0.0', prefix: 'v1' };
+    const executionMode = (
+      process.env.EXECUTION_MODE || 'master_only'
+    ).toLowerCase();
+    return {
+      status: 'ok',
+      version: '1.0.1',
+      prefix: 'v1',
+      executionMode:
+        executionMode === 'copyfactory' ? 'copyfactory' : 'master_only',
+      copyFactoryEnabled: process.env.COPYFACTORY_ENABLED === 'true',
+      storeOnlyUserConnect: true,
+      gitSha: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? null,
+    };
   }
 
   @Public()
