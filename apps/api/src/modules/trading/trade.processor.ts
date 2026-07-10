@@ -252,8 +252,11 @@ export class TradeProcessor {
       }
 
       let brokerOrderId: string | null = null;
+      let liveFillMode: 'metaapi' | 'ledger_mirror' | 'paper' =
+        brokerAccount.isPaperTrading ? 'paper' : 'ledger_mirror';
 
-      // Real execution via MetaAPI for non-paper accounts
+      // Real execution via MetaAPI only when a seat exists (CopyFactory mode).
+      // master_only: no per-user MetaApi — ledger mirror for live accounts.
       if (!brokerAccount.isPaperTrading && this.mtAdapter.isLive) {
         try {
           const creds = JSON.parse(
@@ -280,6 +283,11 @@ export class TradeProcessor {
               creds.metaApiRegion,
             );
             brokerOrderId = result.orderId;
+            liveFillMode = 'metaapi';
+          } else {
+            this.logger.log(
+              `master_only ledger mirror for user ${userId} ${pair} (no MetaApi seat)`,
+            );
           }
         } catch (err) {
           this.logger.error(
@@ -338,6 +346,7 @@ export class TradeProcessor {
             subscriptionId: subscriptionId ?? null,
             masterPositionId: masterPositionId ?? null,
             executionLatencyMs,
+            liveFillMode,
           },
         },
       });

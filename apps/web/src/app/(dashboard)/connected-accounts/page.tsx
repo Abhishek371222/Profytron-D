@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
+import { brokerApi } from '@/lib/api/broker';
 import { BrokerConnectModal } from '@/components/copy-trading/BrokerConnectModal';
 import {
   AlertTriangle,
@@ -186,17 +187,57 @@ export default function ConnectedAccountsPage() {
       ? 'yellow'
       : 'green';
 
+  const [disconnectingId, setDisconnectingId] = React.useState<string | null>(null);
+
   const handleReconnect = (_account: BrokerAccount) => {
     setShowModal(true);
   };
 
-  const handleDisconnect = (account: BrokerAccount) => {
-    toast.error(`Disconnected ${account.brokerName} account`, { description: 'Your bots on this account have been paused.' });
-    queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
+  const handleDisconnect = async (account: BrokerAccount) => {
+    const ok = window.confirm(
+      `Disconnect ${account.brokerName} ···${account.accountNumber}?\n\nThis frees your account slot so you can connect another broker.`,
+    );
+    if (!ok) return;
+    setDisconnectingId(account.id);
+
+    // Optimistic remove so the card disappears immediately
+    const previous = queryClient.getQueryData<BrokerAccount[]>(['broker-accounts']);
+    queryClient.setQueryData<BrokerAccount[]>(['broker-accounts'], (old) =>
+      (old ?? []).filter((a) => a.id !== account.id),
+    );
+
+    try {
+      await brokerApi.disconnectBroker(account.id);
+      toast.success(`${account.brokerName} disconnected`, {
+        description: 'Account removed. You can connect a new one now.',
+      });
+      await queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
+      await queryClient.invalidateQueries({ queryKey: ['connected-bots'] });
+    } catch (err: any) {
+      if (previous) queryClient.setQueryData(['broker-accounts'], previous);
+      const data = err?.response?.data;
+      const msg =
+        data?.message ??
+        data?.error ??
+        data?.data?.message ??
+        err?.message ??
+        'Disconnect failed';
+      toast.error(typeof msg === 'string' ? msg : 'Disconnect failed');
+    } finally {
+      setDisconnectingId(null);
+    }
   };
 
   const handleViewDetails = (account: BrokerAccount) => {
-    toast.info(`Viewing details for ${account.brokerName} ${maskAccount(account.accountNumber)}`);
+    toast.info(
+      `${account.brokerName} ${maskAccount(account.accountNumber)} · ${account.accountType}`,
+      {
+        description:
+          account.balance != null
+            ? `Balance ${formatInr(account.balance, account.currency)}`
+            : 'No live balance cached yet',
+      },
+    );
   };
 
   const refresh = () => {
@@ -379,35 +420,47 @@ export default function ConnectedAccountsPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => handleReconnect(account)}
-                  disabled={account.status === 'CONNECTED'}
-                  className="flex-1 h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-40 disabled:cursor-default flex items-center justify-center gap-1"
-                >
-                  {account.status === 'SYNCING' ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : (
-                    <RefreshCcw className="h-3 w-3" />
-                  )}
-                  Reconnect
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleViewDetails(account)}
-                  className="flex-1 h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center gap-1"
-                >
-                  <Globe className="h-3 w-3" />
-                  Details
-                </button>
+              <div className="flex flex-col gap-2 pt-1">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleReconnect(account)}
+                    disabled={
+                      account.status === 'CONNECTED' ||
+                      disconnectingId === account.id
+                    }
+                    className="flex-1 h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-40 disabled:cursor-default flex items-center justify-center gap-1"
+                  >
+                    {account.status === 'SYNCING' ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <RefreshCcw className="h-3 w-3" />
+                    )}
+                    Reconnect
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleViewDetails(account)}
+                    disabled={disconnectingId === account.id}
+                    className="flex-1 h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center gap-1 disabled:opacity-40"
+                  >
+                    <Globe className="h-3 w-3" />
+                    Details
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={() => handleDisconnect(account)}
-                  className="h-8 w-8 rounded-lg border border-[var(--card-border)] bg-card text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-colors flex items-center justify-center shrink-0"
+                  disabled={disconnectingId === account.id}
+                  className="w-full h-9 rounded-lg border border-destructive/30 bg-destructive/10 text-destructive text-[11px] font-bold uppercase tracking-wide hover:bg-destructive/20 transition-colors flex items-center justify-center gap-2 disabled:opacity-40"
                   aria-label="Disconnect account"
                 >
-                  <Link2Off className="h-3.5 w-3.5" />
+                  {disconnectingId === account.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Link2Off className="h-3.5 w-3.5" />
+                  )}
+                  Disconnect account
                 </button>
               </div>
             </motion.div>

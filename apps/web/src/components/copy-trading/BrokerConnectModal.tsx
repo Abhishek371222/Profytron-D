@@ -1,11 +1,16 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { brokerApi } from '@/lib/api/broker';
-import { toast } from 'sonner';
+import {
+  getLiveBrokers,
+  getMt5ServerOptions,
+} from '@/lib/broker/broker-directory';
+import { cn } from '@/lib/utils';
 
 interface Props {
   open: boolean;
@@ -14,31 +19,80 @@ interface Props {
 }
 
 type Step = 'form' | 'testing' | 'success' | 'error';
+type ConnectMode = 'paper' | 'live';
+
+const CUSTOM_SERVER = '__custom__';
+const ALL_BROKERS = '__all__';
+
+const liveBrokers = getLiveBrokers();
+const allServerOptions = getMt5ServerOptions();
+
+function extractErrorMessage(err: any): string {
+  const data = err?.response?.data;
+  const raw =
+    data?.message ?? data?.error ?? data?.data?.message ?? err?.message;
+  if (Array.isArray(raw)) return raw.map(String).join(', ');
+  if (typeof raw === 'string' && raw.trim()) return raw;
+  return 'Connection failed';
+}
 
 export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
   const [step, setStep] = React.useState<Step>('form');
+  const [mode, setMode] = React.useState<ConnectMode>('live');
   const [error, setError] = React.useState('');
   const [pending, setPending] = React.useState(false);
-  const [form, setForm] = React.useState({ login: '', password: '', server: '' });
+  const [brokerFilter, setBrokerFilter] = React.useState(ALL_BROKERS);
+  const [serverChoice, setServerChoice] = React.useState('');
+  const [customServer, setCustomServer] = React.useState('');
+  const [form, setForm] = React.useState({ login: '', password: '' });
+
+  const serverOptions = React.useMemo(() => {
+    if (brokerFilter === ALL_BROKERS) return allServerOptions;
+    return allServerOptions.filter((s) => s.brokerId === brokerFilter);
+  }, [brokerFilter]);
+
+  const resolvedServer =
+    serverChoice === CUSTOM_SERVER ? customServer.trim() : serverChoice;
+
+  const handleBrokerFilterChange = (value: string) => {
+    setBrokerFilter(value);
+    setServerChoice('');
+    setCustomServer('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.login || !form.password || !form.server) return;
     setStep('testing');
     setError('');
     try {
-      const result = await brokerApi.connectBroker({
-        login: form.login,
-        password: form.password,
-        serverName: form.server,
-        brokerName: 'MT5',
-        platform: 'mt5',
-      });
+      let result: any;
+      if (mode === 'paper') {
+        result = await brokerApi.connectBroker({
+          brokerName: 'PAPER',
+          login: 'PAPER',
+          password: 'paper',
+          serverName: 'PAPER',
+          platform: 'mt5',
+        });
+      } else {
+        if (!form.login || !form.password || !resolvedServer) {
+          setError('Login, password, and server are required.');
+          setStep('error');
+          return;
+        }
+        result = await brokerApi.connectBroker({
+          login: form.login.trim(),
+          password: form.password,
+          serverName: resolvedServer,
+          brokerName: 'MT5',
+          platform: 'mt5',
+        });
+      }
       setPending(Boolean(result?.pending));
       setStep('success');
       onConnected?.();
     } catch (err: any) {
-      setError(err?.response?.data?.error ?? err.message ?? 'Connection failed');
+      setError(extractErrorMessage(err));
       setStep('error');
     }
   };
@@ -47,13 +101,19 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
     setStep('form');
     setError('');
     setPending(false);
-    setForm({ login: '', password: '', server: '' });
+    setMode('live');
+    setBrokerFilter(ALL_BROKERS);
+    setServerChoice('');
+    setCustomServer('');
+    setForm({ login: '', password: '' });
   };
 
   const handleClose = () => {
     reset();
     onClose();
   };
+
+  const isQuotaError = /allows \d+ connected account/i.test(error);
 
   return (
     <AnimatePresence>
@@ -71,97 +131,238 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             className="w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl border border-border-default bg-bg-elevated glass shadow-2xl"
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
-              <h2 className="text-base font-semibold text-text-primary">Connect MT5 Account</h2>
-              <button onClick={handleClose} className="p-1 rounded-lg hover:bg-foreground/5 text-text-secondary">
+              <div>
+                <h2 className="text-base font-semibold text-text-primary">
+                  Connect trading account
+                </h2>
+                <p className="text-[11px] text-chart-3 mt-0.5">
+                  Free for users · no MetaApi seat charged
+                </p>
+              </div>
+              <button
+                onClick={handleClose}
+                className="p-1 rounded-lg hover:bg-foreground/5 text-text-secondary"
+                type="button"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="p-6">
-              {/* Form */}
               {(step === 'form' || step === 'error') && (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                   {step === 'error' && (
                     <div className="flex items-start gap-3 p-3 rounded-xl bg-destructive/10 border border-destructive/20">
                       <AlertCircle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
-                      <p className="text-sm text-destructive">{error}</p>
+                      <div className="text-sm text-destructive space-y-1">
+                        <p>{error}</p>
+                        {isQuotaError && (
+                          <p className="text-destructive/90">
+                            Disconnect an unused account under{' '}
+                            <Link
+                              href="/connected-accounts"
+                              className="underline font-medium"
+                              onClick={handleClose}
+                            >
+                              Connected Accounts
+                            </Link>
+                            .
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-text-secondary">MT5 Login (account number)</label>
-                    <input
-                      type="text"
-                      value={form.login}
-                      onChange={(e) => setForm({ ...form, login: e.target.value })}
-                      placeholder="e.g. 12345678"
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
-                      required
-                    />
+                  <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-muted/30 border border-border-default">
+                    <button
+                      type="button"
+                      onClick={() => setMode('paper')}
+                      className={cn(
+                        'h-9 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors',
+                        mode === 'paper'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}
+                    >
+                      Paper (demo)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMode('live')}
+                      className={cn(
+                        'h-9 rounded-lg text-xs font-bold uppercase tracking-wide transition-colors',
+                        mode === 'live'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}
+                    >
+                      Live MT5
+                    </button>
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-text-secondary">MT5 Password</label>
-                    <input
-                      type="password"
-                      value={form.password}
-                      onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      placeholder="Trading password"
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
-                      required
-                    />
-                  </div>
+                  {mode === 'paper' ? (
+                    <p className="text-sm text-text-secondary">
+                      Instant virtual account with $100k demo balance. Best for
+                      testing bots with zero broker cost.
+                    </p>
+                  ) : (
+                    <>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-text-secondary">
+                          Broker
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={brokerFilter}
+                            onChange={(e) =>
+                              handleBrokerFilterChange(e.target.value)
+                            }
+                            className="w-full appearance-none px-3 py-2.5 pr-10 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-chart-2/50 cursor-pointer"
+                          >
+                            <option value={ALL_BROKERS}>All brokers</option>
+                            {liveBrokers.map((b) => (
+                              <option key={b.id} value={b.id}>
+                                {b.displayName}
+                              </option>
+                            ))}
+                          </select>
+                          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted text-xs">
+                            ▼
+                          </span>
+                        </div>
+                      </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-text-secondary">MT5 Server</label>
-                    <input
-                      type="text"
-                      value={form.server}
-                      onChange={(e) => setForm({ ...form, server: e.target.value })}
-                      placeholder="e.g. Exness-Real"
-                      className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
-                      required
-                    />
-                    <p className="text-xs text-text-muted">Find this in your MT5 terminal under File → Open an Account</p>
-                  </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-text-secondary">
+                          MT5 Server
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={serverChoice}
+                            onChange={(e) => setServerChoice(e.target.value)}
+                            className="w-full appearance-none px-3 py-2.5 pr-10 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-chart-2/50 cursor-pointer"
+                            required={serverChoice !== CUSTOM_SERVER}
+                          >
+                            <option value="" disabled>
+                              Select server…
+                            </option>
+                            {serverOptions.map((opt) => (
+                              <option
+                                key={`${opt.brokerId}:${opt.server}`}
+                                value={opt.server}
+                              >
+                                {brokerFilter === ALL_BROKERS
+                                  ? opt.label
+                                  : opt.server}
+                              </option>
+                            ))}
+                            <option value={CUSTOM_SERVER}>
+                              Other / type manually…
+                            </option>
+                          </select>
+                          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted text-xs">
+                            ▼
+                          </span>
+                        </div>
+                        {serverChoice === CUSTOM_SERVER && (
+                          <input
+                            type="text"
+                            value={customServer}
+                            onChange={(e) => setCustomServer(e.target.value)}
+                            placeholder="Exact server name from MT5"
+                            className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
+                            required
+                          />
+                        )}
+                        <p className="text-xs text-text-muted">
+                          Pick broker, then server. Example: Bitrage Markets →
+                          BitrageCapitalMarkets-Server
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-text-secondary">
+                          MT5 Login (account number)
+                        </label>
+                        <input
+                          type="text"
+                          value={form.login}
+                          onChange={(e) =>
+                            setForm({ ...form, login: e.target.value })
+                          }
+                          placeholder="e.g. 961338"
+                          className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
+                          required={mode === 'live'}
+                        />
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-medium text-text-secondary">
+                          MT5 Password
+                        </label>
+                        <input
+                          type="password"
+                          value={form.password}
+                          onChange={(e) =>
+                            setForm({ ...form, password: e.target.value })
+                          }
+                          placeholder="Master (trading) password"
+                          className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
+                          required={mode === 'live'}
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div className="flex gap-3 mt-2">
-                    <Button type="button" variant="ghost" className="flex-1" onClick={handleClose}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="flex-1"
+                      onClick={handleClose}
+                    >
                       Cancel
                     </Button>
-                    <Button type="submit" className="flex-1">
-                      Connect MT5
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      disabled={mode === 'live' && !resolvedServer}
+                    >
+                      {mode === 'paper' ? 'Connect paper' : 'Connect MT5'}
                     </Button>
                   </div>
                 </form>
               )}
 
-              {/* Testing */}
               {step === 'testing' && (
                 <div className="flex flex-col items-center gap-4 py-6">
                   <Loader2 className="w-10 h-10 text-chart-2 animate-spin" />
                   <p className="text-sm text-text-secondary text-center">
-                    Connecting to <span className="text-text-primary font-medium">{form.server}</span>…
+                    {mode === 'paper'
+                      ? 'Creating your paper account…'
+                      : `Saving connection to ${resolvedServer}…`}
                     <br />
-                    Provisioning a secure bridge to your broker — this can take up to 90 seconds.
+                    No MetaApi subscriber seat is created.
                   </p>
                 </div>
               )}
 
-              {/* Success */}
               {step === 'success' && (
                 <div className="flex flex-col items-center gap-4 py-6">
                   <CheckCircle2 className="w-12 h-12 text-chart-3" />
                   <div className="text-center">
                     <p className="font-semibold text-text-primary">
-                      {pending ? 'Broker Linked — Connecting…' : 'Broker Connected!'}
+                      {mode === 'paper'
+                        ? 'Paper account ready'
+                        : pending
+                          ? 'Broker linked'
+                          : 'Broker connected'}
                     </p>
                     <p className="text-sm text-text-secondary mt-1">
-                      {pending
-                        ? 'Your account is provisioned. The broker terminal is still connecting — your live balance will appear in a minute.'
-                        : 'Your MT5 account is ready — bot execution can start after purchase.'}
+                      {mode === 'paper'
+                        ? 'Subscribe to a bot to receive simulated copies on this account.'
+                        : 'Account saved. Subscribe to a bot to receive copies on your dashboard.'}
                     </p>
                   </div>
                   <Button className="w-full" onClick={handleClose}>

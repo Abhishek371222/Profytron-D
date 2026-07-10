@@ -10,6 +10,7 @@ import {
   ACTIVATION_EVENTS,
 } from '../growth/activation.service';
 import { getTierLimits } from '../../common/constants/pricing.constants';
+import { isMasterOnlyExecution } from '../../common/utils/execution-mode.util';
 
 @Injectable()
 export class BrokerService {
@@ -25,6 +26,13 @@ export class BrokerService {
     private readonly copyFactoryQueue: Queue,
   ) {}
 
+  /** True when this connect is for the operator master (MetaApi allowed). */
+  private isProviderConnect(dto: {
+    copyFactoryRole?: string;
+  }): boolean {
+    return dto.copyFactoryRole === 'PROVIDER';
+  }
+
   async connectBroker(userId: string, dto: any) {
     const {
       brokerName,
@@ -34,6 +42,9 @@ export class BrokerService {
       platform,
       copyFactoryRole,
     } = dto;
+
+    const masterOnly = isMasterOnlyExecution();
+    const providerConnect = this.isProviderConnect(dto);
 
     try {
       // Enforce the plan's broker-account quota BEFORE provisioning anything at
@@ -74,14 +85,30 @@ export class BrokerService {
 
       if (brokerName === 'PAPER') {
         connectionResult = await this.paperAdapter.connect(login);
+      } else if (masterOnly && !providerConnect) {
+        // Option 1: never provision MetaApi seats for end users.
+        // Credentials are stored for future bridge EA / ledger mirroring.
+        this.logger.log(
+          `master_only: storing MT credentials for user ${userId} without MetaApi provision`,
+        );
+        connectionResult = {
+          connected: true,
+          balance: 0,
+          equity: 0,
+          metaApiAccountId: null,
+          pending: false,
+          masterOnly: true,
+        };
       } else {
-        // All real MT4/MT5 brokers go through MetaTraderAdapter
+        // Provider/master (or full CopyFactory mode): MetaApi provision allowed
         const mt = platform === 'mt4' ? 'mt4' : 'mt5';
         const roles =
           copyFactoryRole === 'PROVIDER'
             ? (['PROVIDER'] as const)
             : copyFactoryRole === 'SUBSCRIBER' || copyFactoryRole === undefined
-              ? (['SUBSCRIBER'] as const)
+              ? masterOnly
+                ? undefined
+                : (['SUBSCRIBER'] as const)
               : undefined;
         connectionResult = await this.mtAdapter.connect(
           login,
@@ -101,7 +128,15 @@ export class BrokerService {
 
       // Encrypt credentials (login + password)
       const encrypted = this.cryptoService.encrypt(
-        JSON.stringify({ login, password }),
+        JSON.stringify({
+          login,
+          password,
+          platform: platform === 'mt4' ? 'mt4' : 'mt5',
+          serverName,
+          ...(connectionResult.masterOnly
+            ? { executionMode: 'master_only', metaApiAccountId: null }
+            : {}),
+        }),
       );
 
       const last4 = login ? login.slice(-4).padStart(4, '0') : '0000';
@@ -182,7 +217,7 @@ export class BrokerService {
         },
       });
 
-      if (brokerName !== 'PAPER') {
+      if (brokerName !== 'PAPER' && !isMasterOnlyExecution()) {
         await this.copyFactoryQueue.add(
           'sync_copyfactory',
           { action: 'link', userId },
@@ -214,6 +249,7 @@ export class BrokerService {
         // broker terminal hasn't streamed live balance yet (demo servers can be
         // slow). The account is saved; balance appears on the next test/refresh.
         pending: connectionResult.pending ?? false,
+        masterOnly: Boolean(connectionResult.masterOnly),
         accountInfo: {
           balance: connectionResult.balance,
           equity: connectionResult.equity,
@@ -308,6 +344,23 @@ export class BrokerService {
     });
     if (!account) throw new BadRequestException('Account not found');
 
+    // Unlink CopyFactory while MetaAPI credentials still exist, then deprovision.
+    const linkedSubs = await this.prisma.userStrategySubscription.findMany({
+      where: { brokerAccountId: accountId },
+      select: { id: true },
+    });
+    for (const sub of linkedSubs) {
+      await this.copyFactoryQueue.add(
+        'sync_copyfactory',
+        { action: 'unlink', subscriptionId: sub.id },
+        {
+          removeOnComplete: true,
+          attempts: 4,
+          backoff: { type: 'exponential', delay: 5000 },
+        },
+      );
+    }
+
     // Deprovision from MetaAPI if applicable
     if (!account.isPaperTrading && this.mtAdapter.isLive) {
       try {
@@ -322,10 +375,16 @@ export class BrokerService {
       }
     }
 
-    await this.prisma.brokerAccount.update({
-      where: { id: accountId },
-      data: { isActive: false },
-    });
+    await this.prisma.$transaction([
+      this.prisma.brokerAccount.update({
+        where: { id: accountId },
+        data: { isActive: false },
+      }),
+      this.prisma.userStrategySubscription.updateMany({
+        where: { brokerAccountId: accountId },
+        data: { brokerAccountId: null },
+      }),
+    ]);
 
     return { success: true };
   }

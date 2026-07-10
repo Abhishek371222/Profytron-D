@@ -50,6 +50,7 @@ export class AiRiskService {
     private prisma: PrismaService,
     private readonly redis: RedisService,
     @InjectQueue('trade_execution') private readonly tradeQueue: Queue,
+    @InjectQueue('copyfactory_sync') private readonly copyFactoryQueue: Queue,
   ) {}
 
   async createRiskPolicy(userId: string, policy: any) {
@@ -255,6 +256,11 @@ export class AiRiskService {
    * close for every open position. Idempotent — safe to call repeatedly.
    */
   async enforceRiskStop(userId: string, evaluation: RiskEvaluation) {
+    const activeSubs = await this.prisma.userStrategySubscription.findMany({
+      where: { userId, status: SubscriptionStatus.ACTIVE },
+      select: { id: true },
+    });
+
     const [openTrades, pausedResult] = await Promise.all([
       this.prisma.trade.findMany({
         where: { userId, status: 'OPEN' },
@@ -265,6 +271,18 @@ export class AiRiskService {
         data: { status: SubscriptionStatus.PAUSED },
       }),
     ]);
+
+    for (const sub of activeSubs) {
+      await this.copyFactoryQueue.add(
+        'sync_copyfactory',
+        { action: 'unlink', subscriptionId: sub.id },
+        {
+          removeOnComplete: true,
+          attempts: 4,
+          backoff: { type: 'exponential', delay: 5000 },
+        },
+      );
+    }
 
     for (const trade of openTrades) {
       await this.tradeQueue.add(
@@ -283,6 +301,7 @@ export class AiRiskService {
           reason: evaluation.reason ?? null,
           closedTrades: openTrades.length,
           pausedSubscriptions: pausedResult.count,
+          copyFactoryUnlinked: activeSubs.length,
         },
         triggeredBy: 'SYSTEM',
       },
@@ -303,7 +322,7 @@ export class AiRiskService {
       .catch(() => undefined);
 
     this.logger.warn(
-      `Risk stop enforced for ${userId}: ${evaluation.reason} — closed ${openTrades.length} trade(s), paused ${pausedResult.count} subscription(s)`,
+      `Risk stop enforced for ${userId}: ${evaluation.reason} — closed ${openTrades.length} trade(s), paused ${pausedResult.count} subscription(s), CF unlink queued for ${activeSubs.length}`,
     );
 
     return {

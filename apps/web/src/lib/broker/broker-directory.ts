@@ -39,6 +39,7 @@ export const BROKER_BRAND: Record<string, { mark: string; text: string; ring: st
   ADMIRALS:     { mark: 'AD',  text: 'text-yellow-100',  ring: 'ring-yellow-300/30',  badgeBg: 'bg-yellow-500/20'  },
   OANDA:        { mark: 'OA',  text: 'text-lime-100',    ring: 'ring-lime-300/30',    badgeBg: 'bg-lime-500/20'    },
   VANTAGE:      { mark: 'VFX', text: 'text-sky-100',     ring: 'ring-sky-300/30',     badgeBg: 'bg-sky-500/20'     },
+  BITRAGE:      { mark: 'BM',  text: 'text-cyan-100',    ring: 'ring-cyan-300/30',    badgeBg: 'bg-cyan-500/20'    },
   EIGHTCAP:     { mark: '8C',  text: 'text-teal-100',    ring: 'ring-teal-300/30',    badgeBg: 'bg-chart-3/20'    },
   FOREX_COM:    { mark: 'FX',  text: 'text-sky-100',     ring: 'ring-sky-300/30',     badgeBg: 'bg-sky-500/20'     },
   IG:           { mark: 'IG',  text: 'text-emerald-100', ring: 'ring-chart-3/30', badgeBg: 'bg-chart-3/20' },
@@ -387,4 +388,58 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['SWFX Trader', 'Swissquote Bank', 'Swissquote-Demo'],
   },
+  // ── Bitrage Markets ───────────────────────────────────────────────────────
+  {
+    id: 'BITRAGE',
+    name: 'Bitrage Markets',
+    displayName: 'Bitrage Markets',
+    region: 'Global',
+    platform: 'MT5',
+    execution: 'Market',
+    minDeposit: 'Varies',
+    spread: 'Variable',
+    highlight: 'Profytron operator broker',
+    description:
+      'Bitrage Capital Markets MT5 live accounts used for Profytron master and client trading.',
+    tags: ['MT5', 'Live'],
+    categories: ['MT5'],
+    accent: 'from-chart-2/20 via-cyan-400/10 to-transparent',
+    integration: 'MT5',
+    servers: [
+      'BitrageCapitalMarkets-Server',
+      'Bitrage Capital Markets',
+      'BitrageCapitalMarkets-Demo',
+    ],
+  },
 ];
+
+/** Flat list of MT5 servers for connect dropdowns: "Broker — Server". */
+export function getMt5ServerOptions(): Array<{
+  brokerId: string;
+  brokerName: string;
+  server: string;
+  label: string;
+}> {
+  const rows: Array<{
+    brokerId: string;
+    brokerName: string;
+    server: string;
+    label: string;
+  }> = [];
+  for (const broker of BROKER_DIRECTORY) {
+    if (broker.integration === 'PAPER') continue;
+    for (const server of broker.servers ?? []) {
+      rows.push({
+        brokerId: broker.id,
+        brokerName: broker.displayName,
+        server,
+        label: `${broker.displayName} — ${server}`,
+      });
+    }
+  }
+  return rows.sort((a, b) => a.label.localeCompare(b.label));
+}
+
+export function getLiveBrokers(): BrokerEntry[] {
+  return BROKER_DIRECTORY.filter((b) => b.integration !== 'PAPER');
+}

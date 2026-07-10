@@ -1,4 +1,12 @@
-import { Body, Controller, Headers, HttpCode, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Headers,
+  HttpCode,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import { Public } from '../auth/guards/auth.guard';
@@ -19,6 +27,9 @@ export class PaymentsController {
     @Req() req: Request,
     @Headers('stripe-signature') signature: string,
   ) {
+    if (!signature?.trim()) {
+      throw new ForbiddenException('Missing stripe-signature header');
+    }
     const rawBody = req.body as Buffer;
     const event = this.paymentsService.verifyAndBuildStripeEvent(
       rawBody,
@@ -37,6 +48,10 @@ export class PaymentsController {
     @Headers('x-razorpay-signature') signature: string,
     @Body() body: any,
   ) {
+    if (!signature?.trim()) {
+      throw new ForbiddenException('Missing x-razorpay-signature header');
+    }
+
     const rawBody = Buffer.isBuffer(req.body)
       ? req.body
       : Buffer.from(JSON.stringify(body || {}));

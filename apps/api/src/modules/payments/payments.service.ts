@@ -435,9 +435,20 @@ export class PaymentsService {
   }
 
   verifyAndBuildStripeEvent(rawBody: Buffer, signature: string): any {
+    if (!signature?.trim()) {
+      throw new ForbiddenException('Missing Stripe webhook signature');
+    }
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-    if (!webhookSecret) {
+    if (!webhookSecret?.trim()) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new ForbiddenException(
+          'STRIPE_WEBHOOK_SECRET is required in production',
+        );
+      }
       throw new BadRequestException('Missing STRIPE_WEBHOOK_SECRET');
+    }
+    if (!this.stripe) {
+      throw new BadRequestException('Stripe is not configured.');
     }
     try {
       return this.stripe.webhooks.constructEvent(
@@ -496,6 +507,11 @@ export class PaymentsService {
               ? invoice.subscription
               : null;
           if (stripeSubId) {
+            const failedSubs =
+              await this.prisma.userStrategySubscription.findMany({
+                where: { stripeSubId },
+                select: { id: true },
+              });
             await this.prisma.userStrategySubscription.updateMany({
               where: { stripeSubId },
               data: {
@@ -503,11 +519,19 @@ export class PaymentsService {
                 expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
               },
             });
+            for (const sub of failedSubs) {
+              await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+            }
           }
           break;
         }
         case 'customer.subscription.deleted': {
           const stripeSub = event.data.object;
+          const cancelledSubs =
+            await this.prisma.userStrategySubscription.findMany({
+              where: { stripeSubId: stripeSub.id },
+              select: { id: true },
+            });
           await this.prisma.userStrategySubscription.updateMany({
             where: { stripeSubId: stripeSub.id },
             data: {
@@ -515,6 +539,9 @@ export class PaymentsService {
               cancelledAt: new Date(),
             },
           });
+          for (const sub of cancelledSubs) {
+            await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+          }
           break;
         }
         default:
@@ -531,8 +558,17 @@ export class PaymentsService {
   }
 
   verifyRazorpaySignature(rawBody: Buffer, signature: string): void {
+    if (!signature?.trim()) {
+      throw new ForbiddenException('Missing Razorpay webhook signature');
+    }
+
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
-    if (!secret) {
+    if (!secret?.trim()) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new ForbiddenException(
+          'RAZORPAY_WEBHOOK_SECRET is required in production',
+        );
+      }
       throw new BadRequestException('Missing RAZORPAY_WEBHOOK_SECRET');
     }
 
@@ -645,12 +681,20 @@ export class PaymentsService {
         `Razorpay payment failed for user ${userId}, payment ${paymentEntity.id}`,
       );
 
-      // If tied to a strategy subscription, mark it inactive
+      // If tied to a strategy subscription, mark it inactive and unlink CF
       if (strategyId) {
+        const failedSubs =
+          await this.prisma.userStrategySubscription.findMany({
+            where: { userId, strategyId, status: 'ACTIVE' },
+            select: { id: true },
+          });
         await this.prisma.userStrategySubscription.updateMany({
           where: { userId, strategyId, status: 'ACTIVE' },
           data: { status: 'INACTIVE' },
         });
+        for (const sub of failedSubs) {
+          await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+        }
       }
 
       await this.notifications.create(
@@ -691,10 +735,18 @@ export class PaymentsService {
       const userId = subscriptionEntity.notes.userId;
       const strategyId = subscriptionEntity.notes.strategyId;
       if (strategyId) {
+        const cancelledSubs =
+          await this.prisma.userStrategySubscription.findMany({
+            where: { userId, strategyId },
+            select: { id: true },
+          });
         await this.prisma.userStrategySubscription.updateMany({
           where: { userId, strategyId },
           data: { status: 'CANCELLED', cancelledAt: new Date() },
         });
+        for (const sub of cancelledSubs) {
+          await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+        }
       }
       void this.agentEvents.emit({
         type: AGENT_EVENTS.SUBSCRIPTION_CANCELLED,

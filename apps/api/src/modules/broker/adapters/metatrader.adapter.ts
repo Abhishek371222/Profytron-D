@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
+import { isMasterOnlyExecution } from '../../../common/utils/execution-mode.util';
 
 export interface MTConnectionResult {
   connected: boolean;
@@ -140,6 +141,13 @@ export class MetaTraderAdapter {
       return this.mockResult(login, server, platform);
     }
 
+    // Cost guard: never request CopyFactory SUBSCRIBER seats in master_only mode.
+    let roles = options?.copyFactoryRoles;
+    if (isMasterOnlyExecution()) {
+      roles = roles?.filter((r) => r === 'PROVIDER');
+      if (!roles?.length) roles = undefined;
+    }
+
     try {
       let accountId: string;
       let region: string;
@@ -161,11 +169,9 @@ export class MetaTraderAdapter {
         if (existing.state !== 'DEPLOYED') {
           await this.deploy(accountId);
         }
-        if (options?.copyFactoryRoles?.length) {
+        if (roles?.length) {
           try {
-            await this.ensureCopyFactoryRoles(accountId, [
-              ...options.copyFactoryRoles,
-            ]);
+            await this.ensureCopyFactoryRoles(accountId, [...roles]);
           } catch {
             /* role assignment is best-effort */
           }
@@ -182,10 +188,10 @@ export class MetaTraderAdapter {
             type: 'cloud-g2',
             name: `${login}@${server}`,
             magic: 0,
-            ...(options?.copyFactoryRoles?.length
+            ...(roles?.length
               ? {
                   application: 'CopyFactory',
-                  copyFactoryRoles: options.copyFactoryRoles,
+                  copyFactoryRoles: roles,
                 }
               : {}),
             ...(process.env.METAAPI_REGION

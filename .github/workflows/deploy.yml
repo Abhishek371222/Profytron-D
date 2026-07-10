@@ -76,9 +76,15 @@ jobs:
             api=${{ env.IMAGE }}:${{ needs.build-push.outputs.image_tag }}
           kubectl -n profytron rollout status deployment/profytron-api --timeout=180s
 
-      - name: Verify health
-        run: kubectl -n profytron exec deploy/profytron-api -- \
-          node -e "require('http').get('http://127.0.0.1:4000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+      # Entrypoint runs `prisma migrate deploy` fail-closed on each pod start.
+      # This job also runs migrate against the new image before health verify so
+      # a bad migration fails the deploy instead of leaving a half-rolled fleet.
+      - name: Verify migrate + health
+        run: |
+          kubectl -n profytron exec deploy/profytron-api -- \
+            node ./node_modules/prisma/build/index.js migrate deploy
+          kubectl -n profytron exec deploy/profytron-api -- \
+            node -e "require('http').get('http://127.0.0.1:4000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
 
   deploy-production:
     name: Deploy to production
@@ -107,8 +113,15 @@ jobs:
             api=${{ env.IMAGE }}:${{ needs.build-push.outputs.image_tag }}
           kubectl -n profytron rollout status deployment/profytron-api --timeout=180s
 
-      - name: Verify health (auto-rollback on failure)
+      - name: Verify migrate + health (auto-rollback on failure)
         run: |
+          if ! kubectl -n profytron exec deploy/profytron-api -- \
+            node ./node_modules/prisma/build/index.js migrate deploy; then
+            echo "Migrate failed — rolling back"
+            kubectl -n profytron rollout undo deployment/profytron-api
+            kubectl -n profytron rollout status deployment/profytron-api --timeout=120s
+            exit 1
+          fi
           if ! kubectl -n profytron exec deploy/profytron-api -- \
             node -e "require('http').get('http://127.0.0.1:4000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"; then
             echo "Health check failed — rolling back"

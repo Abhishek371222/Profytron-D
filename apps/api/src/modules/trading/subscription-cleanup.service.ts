@@ -174,6 +174,8 @@ export class SubscriptionCleanupService {
           status: {
             in: [
               SubscriptionStatus.ACTIVE,
+              SubscriptionStatus.PAUSED,
+              SubscriptionStatus.FAILED,
               SubscriptionStatus.EXPIRED,
               SubscriptionStatus.CANCELLED,
               SubscriptionStatus.INACTIVE,

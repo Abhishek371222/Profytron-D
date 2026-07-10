@@ -17,7 +17,7 @@ export const PLATFORM_PLANS = [
     ],
     maxStrategies: 1,
     maxCopyTrades: 1,
-    maxBrokerAccounts: 1,
+    maxBrokerAccounts: 2,
     prioritySupport: false,
     recommended: false,
     cta: 'Start Free',

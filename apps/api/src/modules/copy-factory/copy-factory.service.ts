@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import CopyFactory from 'metaapi.cloud-copyfactory-sdk';
 import { MetaTraderAdapter } from '../broker/adapters/metatrader.adapter';
+import { isMasterOnlyExecution } from '../../common/utils/execution-mode.util';
 
 export type CopyFactoryRole = 'PROVIDER' | 'SUBSCRIBER';
 
@@ -15,6 +16,7 @@ export class CopyFactoryService {
   }
 
   isEnabled(): boolean {
+    if (isMasterOnlyExecution()) return false;
     return (
       !!this.client &&
       this.mtAdapter.isLive &&

@@ -10,6 +10,7 @@ import { getTierLimits } from '../../common/constants/pricing.constants';
 import { RedisService } from '../auth/redis.service';
 import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
 import { BacktestService } from '../backtest/backtest.service';
+import { AiRiskService } from '../ai-risk/ai-risk.service';
 import {
   CreateStrategyDto,
   UpdateStrategyDto,
@@ -37,6 +38,7 @@ export class StrategiesService {
     private redis: RedisService,
     private copyFactorySync: CopyFactorySyncService,
     private backtestSvc: BacktestService,
+    private aiRisk: AiRiskService,
   ) {}
 
   async findAll(query: StrategiesQueryDto, userId?: string) {
@@ -437,10 +439,12 @@ export class StrategiesService {
   }
 
   async deactivate(strategyId: string, userId: string) {
-    await this.prisma.userStrategySubscription.update({
+    const sub = await this.prisma.userStrategySubscription.update({
       where: { userId_strategyId: { userId, strategyId } },
       data: { status: SubscriptionStatus.CANCELLED, cancelledAt: new Date() },
     });
+
+    await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
 
     this.logger.log(
       `STRATEGY_DEACTIVATED: User ${userId} -> Strategy ${strategyId}`,
@@ -449,10 +453,12 @@ export class StrategiesService {
   }
 
   async pause(strategyId: string, userId: string) {
-    await this.prisma.userStrategySubscription.update({
+    const sub = await this.prisma.userStrategySubscription.update({
       where: { userId_strategyId: { userId, strategyId } },
       data: { status: SubscriptionStatus.PAUSED },
     });
+
+    await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
 
     this.logger.log(
       `STRATEGY_PAUSED: User ${userId} -> Strategy ${strategyId}`,
@@ -461,10 +467,25 @@ export class StrategiesService {
   }
 
   async resume(strategyId: string, userId: string) {
-    await this.prisma.userStrategySubscription.update({
+    const evaluation = await this.aiRisk.evaluatePreTrade(userId);
+    if (evaluation.hardStop) {
+      throw new ForbiddenException(
+        evaluation.reason ??
+          'Risk limits are still breached. Resolve the breach before resuming.',
+      );
+    }
+
+    const sub = await this.prisma.userStrategySubscription.update({
       where: { userId_strategyId: { userId, strategyId } },
       data: { status: SubscriptionStatus.ACTIVE },
+      include: {
+        strategy: { select: { masterBrokerAccountId: true } },
+      },
     });
+
+    if (sub.strategy.masterBrokerAccountId) {
+      await this.copyFactorySync.enqueueLinkSubscription(sub.id);
+    }
 
     this.logger.log(
       `STRATEGY_RESUMED: User ${userId} -> Strategy ${strategyId}`,

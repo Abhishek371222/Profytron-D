@@ -19,6 +19,7 @@ import type { BulkCloseScope, ManualOrderDto } from './dto/trade-actions.dto';
 import { randomUUID } from 'crypto';
 import { SubscriptionStatus } from '@prisma/client';
 import { isPaidCopySubscription } from '../../common/utils/copy-subscription.util';
+import { isMasterOnlyExecution } from '../../common/utils/execution-mode.util';
 
 @Injectable()
 export class TradingService {
@@ -33,16 +34,54 @@ export class TradingService {
     private copyFactoryPositionSync: CopyFactoryPositionSyncService,
     @InjectQueue('trade_execution') private tradeQueue: any,
   ) {
-    const useCopyFactory =
-      process.env.METAAPI_TOKEN && process.env.COPYFACTORY_ENABLED !== 'false';
-    if (!useCopyFactory) {
-      this.masterSync.startPolling(3000);
-    } else {
+    const hasMetaApiToken = Boolean(process.env.METAAPI_TOKEN?.trim());
+    const masterOnly = isMasterOnlyExecution();
+
+    // Option 1: MetaApi master bridge only — detect master fills via MasterSync.
+    // Never start CopyFactory subscriber sync; never require CF in production.
+    if (masterOnly) {
+      if (!hasMetaApiToken) {
+        this.logger.error(
+          'FATAL: EXECUTION_MODE=master_only requires METAAPI_TOKEN for the operator master account.',
+        );
+        throw new Error(
+          'Boot refused: master_only mode needs METAAPI_TOKEN (master bridge).',
+        );
+      }
       this.logger.log(
-        'CopyFactory enabled — legacy master position polling disabled',
+        'EXECUTION_MODE=master_only — MasterSync on; CopyFactory subscriber path off (no per-user MetaApi seats)',
       );
-      this.copyFactoryPositionSync.startPolling(5000);
+      this.masterSync.startPolling(
+        Number(process.env.MASTER_SYNC_INTERVAL_MS) || 3000,
+      );
+    } else {
+      const isProduction = process.env.NODE_ENV === 'production';
+      const copyFactoryRequested = process.env.COPYFACTORY_ENABLED !== 'false';
+      const useCopyFactory = hasMetaApiToken && copyFactoryRequested;
+
+      if (isProduction) {
+        if (!useCopyFactory) {
+          this.logger.error(
+            'FATAL: Production CopyFactory mode requires METAAPI_TOKEN with COPYFACTORY_ENABLED≠false.',
+          );
+          throw new Error(
+            'Production boot refused: CopyFactory is required in copyfactory mode.',
+          );
+        }
+        this.logger.log(
+          'CopyFactory enabled — legacy MasterSync disabled (production)',
+        );
+        this.copyFactoryPositionSync.startPolling(5000);
+      } else if (useCopyFactory) {
+        this.logger.log(
+          'CopyFactory enabled — legacy master position polling disabled',
+        );
+        this.copyFactoryPositionSync.startPolling(5000);
+      } else {
+        this.masterSync.startPolling(3000);
+      }
     }
+
     if (process.env.TRAILING_STOP_ENABLED !== 'false') {
       this.trailingStop.startPolling(
         Number(process.env.TRAILING_STOP_INTERVAL_MS) || 5000,
