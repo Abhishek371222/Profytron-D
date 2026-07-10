@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CryptoService } from '../../common/crypto.service';
 import { MetaTraderAdapter } from './adapters/metatrader.adapter';
@@ -10,7 +15,7 @@ import {
   ACTIVATION_EVENTS,
 } from '../growth/activation.service';
 import { getTierLimits } from '../../common/constants/pricing.constants';
-import { isMasterOnlyExecution } from '../../common/utils/execution-mode.util';
+import { CopyBridgeService } from '../copy-bridge/copy-bridge.service';
 
 @Injectable()
 export class BrokerService {
@@ -33,6 +38,39 @@ export class BrokerService {
     return dto.copyFactoryRole === 'PROVIDER';
   }
 
+  /** Local validation only — never calls MetaApi (no per-user seat cost). */
+  private validateUserMt5Input(
+    login: string,
+    password: string,
+    serverName: string,
+  ) {
+    const loginTrim = String(login ?? '').trim();
+    const passwordTrim = String(password ?? '');
+    const serverTrim = String(serverName ?? '').trim();
+
+    if (!loginTrim) {
+      throw new BadRequestException('MT5 login (account number) is required.');
+    }
+    if (!/^\d{3,12}$/.test(loginTrim)) {
+      throw new BadRequestException(
+        'MT5 login must be your numeric account number (3–12 digits).',
+      );
+    }
+    if (!passwordTrim || passwordTrim.length < 4) {
+      throw new BadRequestException('MT5 trading password is required.');
+    }
+    if (!serverTrim || serverTrim.length < 3) {
+      throw new BadRequestException(
+        'MT5 server name is required (from File → Open an Account).',
+      );
+    }
+    if (/bitage/i.test(serverTrim) && !/bitrage/i.test(serverTrim)) {
+      throw new BadRequestException(
+        'Server looks mistyped. Did you mean BitrageCapitalMarkets-Server?',
+      );
+    }
+  }
+
   async connectBroker(userId: string, dto: any) {
     const {
       brokerName,
@@ -40,10 +78,8 @@ export class BrokerService {
       password,
       serverName,
       platform,
-      copyFactoryRole,
     } = dto;
 
-    const masterOnly = isMasterOnlyExecution();
     const providerConnect = this.isProviderConnect(dto);
 
     try {
@@ -85,11 +121,14 @@ export class BrokerService {
 
       if (brokerName === 'PAPER') {
         connectionResult = await this.paperAdapter.connect(login);
-      } else if (masterOnly && !providerConnect) {
-        // Option 1: never provision MetaApi seats for end users.
-        // Credentials are stored for future bridge EA / ledger mirroring.
+      } else if (!providerConnect) {
+        // Architecture 2 (low-cost): NEVER provision MetaApi for end users.
+        // Ignore EXECUTION_MODE / COPYFACTORY_ENABLED — those must not bill seats.
+        // Credentials are validated locally, encrypted, and stored for MasterSync
+        // fan-out + optional bridge EA live fills.
+        this.validateUserMt5Input(login, password, serverName);
         this.logger.log(
-          `master_only: storing MT credentials for user ${userId} without MetaApi provision`,
+          `store-only MT connect for user ${userId} (no MetaApi seat)`,
         );
         connectionResult = {
           connected: true,
@@ -100,22 +139,14 @@ export class BrokerService {
           masterOnly: true,
         };
       } else {
-        // Provider/master (or full CopyFactory mode): MetaApi provision allowed
+        // Operator master / PROVIDER only — MetaApi allowed.
         const mt = platform === 'mt4' ? 'mt4' : 'mt5';
-        const roles =
-          copyFactoryRole === 'PROVIDER'
-            ? (['PROVIDER'] as const)
-            : copyFactoryRole === 'SUBSCRIBER' || copyFactoryRole === undefined
-              ? masterOnly
-                ? undefined
-                : (['SUBSCRIBER'] as const)
-              : undefined;
         connectionResult = await this.mtAdapter.connect(
           login,
           password,
           serverName,
           mt,
-          roles ? { copyFactoryRoles: [...roles] } : undefined,
+          { copyFactoryRoles: ['PROVIDER'] },
         );
       }
 
@@ -126,6 +157,15 @@ export class BrokerService {
         );
       }
 
+      // Mint bridge EA token for master_only live accounts (no MetaApi seat).
+      const bridgeToken =
+        connectionResult.masterOnly && brokerName !== 'PAPER'
+          ? CopyBridgeService.mintToken()
+          : null;
+      const bridgeTokenHash = bridgeToken
+        ? CopyBridgeService.hashToken(bridgeToken)
+        : null;
+
       // Encrypt credentials (login + password)
       const encrypted = this.cryptoService.encrypt(
         JSON.stringify({
@@ -134,7 +174,11 @@ export class BrokerService {
           platform: platform === 'mt4' ? 'mt4' : 'mt5',
           serverName,
           ...(connectionResult.masterOnly
-            ? { executionMode: 'master_only', metaApiAccountId: null }
+            ? {
+                executionMode: 'master_only',
+                metaApiAccountId: null,
+                ...(bridgeToken ? { bridgeToken } : {}),
+              }
             : {}),
         }),
       );
@@ -165,6 +209,7 @@ export class BrokerService {
             where: { id: existingAccount.id },
             data: {
               credentialsEncrypted: encrypted,
+              ...(bridgeTokenHash ? { bridgeTokenHash } : {}),
               initialEquity:
                 Number(
                   connectionResult.equity ?? connectionResult.balance ?? 0,
@@ -177,6 +222,7 @@ export class BrokerService {
               brokerName: resolvedBrokerName,
               accountNumberLast4: last4,
               credentialsEncrypted: encrypted,
+              ...(bridgeTokenHash ? { bridgeTokenHash } : {}),
               serverName,
               isPaperTrading: brokerName === 'PAPER',
               isDefault,
@@ -217,17 +263,7 @@ export class BrokerService {
         },
       });
 
-      if (brokerName !== 'PAPER' && !isMasterOnlyExecution()) {
-        await this.copyFactoryQueue.add(
-          'sync_copyfactory',
-          { action: 'link', userId },
-          {
-            removeOnComplete: true,
-            attempts: 4,
-            backoff: { type: 'exponential', delay: 5000 },
-          },
-        );
-      }
+      // Never auto-link CopyFactory on end-user connect (no per-user MetaApi seats).
 
       await this.activationService.track(
         userId,
@@ -250,6 +286,8 @@ export class BrokerService {
         // slow). The account is saved; balance appears on the next test/refresh.
         pending: connectionResult.pending ?? false,
         masterOnly: Boolean(connectionResult.masterOnly),
+        // Shown once — paste into ProfytronCopyBridge EA. Rotate via bridge-token endpoint.
+        ...(bridgeToken ? { bridgeToken } : {}),
         accountInfo: {
           balance: connectionResult.balance,
           equity: connectionResult.equity,
@@ -412,6 +450,17 @@ export class BrokerService {
       // be reconnected instead.
       const metaApiId: string | undefined = creds.metaApiAccountId;
       if (!metaApiId || metaApiId.startsWith('mock-')) {
+        if (creds.executionMode === 'master_only' || account.bridgeTokenHash) {
+          return {
+            connected: true,
+            accountInfo: {
+              mode: 'master_only',
+              bridgeReady: Boolean(account.bridgeTokenHash),
+              message:
+                'Credentials stored. Live fills use the ProfytronCopyBridge EA (no MetaApi seat).',
+            },
+          };
+        }
         return {
           connected: false,
           error: 'Account not linked to MetaAPI. Please reconnect this broker.',
@@ -434,5 +483,46 @@ export class BrokerService {
     if (!test.connected)
       throw new BadRequestException('Cannot fetch account info; disconnected');
     return test.accountInfo;
+  }
+
+  /** Rotate the bridge EA token. Plaintext is returned once. */
+  async rotateBridgeToken(userId: string, accountId: string) {
+    const account = await this.prisma.brokerAccount.findFirst({
+      where: { id: accountId, userId, isActive: true },
+    });
+    if (!account) throw new NotFoundException('Account not found');
+    if (account.isPaperTrading) {
+      throw new BadRequestException('Paper accounts do not use a bridge token');
+    }
+
+    const bridgeToken = CopyBridgeService.mintToken();
+    const bridgeTokenHash = CopyBridgeService.hashToken(bridgeToken);
+
+    let creds: Record<string, unknown> = {};
+    try {
+      creds = JSON.parse(
+        this.cryptoService.decrypt(account.credentialsEncrypted),
+      );
+    } catch {
+      creds = {};
+    }
+    creds.bridgeToken = bridgeToken;
+    creds.executionMode = creds.executionMode ?? 'master_only';
+    creds.metaApiAccountId = creds.metaApiAccountId ?? null;
+
+    await this.prisma.brokerAccount.update({
+      where: { id: account.id },
+      data: {
+        bridgeTokenHash,
+        credentialsEncrypted: this.cryptoService.encrypt(JSON.stringify(creds)),
+      },
+    });
+
+    return {
+      accountId: account.id,
+      bridgeToken,
+      message:
+        'Paste this token into ProfytronCopyBridge. Previous token is revoked.',
+    };
   }
 }

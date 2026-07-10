@@ -16,6 +16,15 @@ export class CopyFactoryService {
   }
 
   isEnabled(): boolean {
+    // Architecture 2 default: CopyFactory subscriber linking is off unless
+    // explicitly forced (expensive). Master detection uses MasterSync instead.
+    if (process.env.ALLOW_METAAPI_SUBSCRIBERS === 'true') {
+      return (
+        !!this.client &&
+        this.mtAdapter.isLive &&
+        process.env.COPYFACTORY_ENABLED !== 'false'
+      );
+    }
     if (isMasterOnlyExecution()) return false;
     return (
       !!this.client &&

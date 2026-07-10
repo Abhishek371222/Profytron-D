@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
-import { isMasterOnlyExecution } from '../../../common/utils/execution-mode.util';
 
 export interface MTConnectionResult {
   connected: boolean;
@@ -141,11 +140,17 @@ export class MetaTraderAdapter {
       return this.mockResult(login, server, platform);
     }
 
-    // Cost guard: never request CopyFactory SUBSCRIBER seats in master_only mode.
-    let roles = options?.copyFactoryRoles;
-    if (isMasterOnlyExecution()) {
-      roles = roles?.filter((r) => r === 'PROVIDER');
-      if (!roles?.length) roles = undefined;
+    // Cost guard: NEVER request CopyFactory SUBSCRIBER seats.
+    // End-user accounts are store-only + bridge EA. Only PROVIDER is allowed.
+    let roles = options?.copyFactoryRoles?.filter((r) => r === 'PROVIDER');
+    if (!roles?.length) roles = undefined;
+    if (
+      options?.copyFactoryRoles?.includes('SUBSCRIBER') &&
+      process.env.ALLOW_METAAPI_SUBSCRIBERS !== 'true'
+    ) {
+      this.logger.warn(
+        'Refusing CopyFactory SUBSCRIBER role — use store-only + bridge EA (no per-user MetaApi seats)',
+      );
     }
 
     try {

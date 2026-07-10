@@ -41,6 +41,7 @@ interface BrokerAccount {
   currency?: string;
   lastSyncedAt?: string;
   activeBotCount?: number;
+  isPaperTrading?: boolean;
 }
 
 interface LinkedBot {
@@ -145,6 +146,7 @@ export default function ConnectedAccountsPage() {
           balance: live ?? undefined,
           currency: a.currency ?? 'USD',
           lastSyncedAt: a.lastConnectedAt ?? a.connectedAt,
+          isPaperTrading: Boolean(a.isPaperTrading),
         };
       });
     },
@@ -188,9 +190,43 @@ export default function ConnectedAccountsPage() {
       : 'green';
 
   const [disconnectingId, setDisconnectingId] = React.useState<string | null>(null);
+  const [bridgeBusyId, setBridgeBusyId] = React.useState<string | null>(null);
 
   const handleReconnect = (_account: BrokerAccount) => {
     setShowModal(true);
+  };
+
+  const handleRotateBridgeToken = async (account: BrokerAccount) => {
+    if (account.isPaperTrading) return;
+    const ok = window.confirm(
+      `Generate a new bridge token for ${account.brokerName} ···${account.accountNumber}?\n\nThe old token stops working. Paste the new one into ProfytronCopyBridge on MT5.`,
+    );
+    if (!ok) return;
+    setBridgeBusyId(account.id);
+    try {
+      const result = await brokerApi.rotateBridgeToken(account.id);
+      const token = result?.bridgeToken as string | undefined;
+      if (token) {
+        try {
+          await navigator.clipboard.writeText(token);
+        } catch {
+          /* ignore */
+        }
+        toast.success('Bridge token rotated (copied)', {
+          description: token.slice(0, 12) + '… — paste into ProfytronCopyBridge EA',
+          duration: 12_000,
+        });
+      } else {
+        toast.success('Bridge token rotated');
+      }
+    } catch (err: any) {
+      const data = err?.response?.data;
+      const msg =
+        data?.message ?? data?.error ?? err?.message ?? 'Failed to rotate token';
+      toast.error(typeof msg === 'string' ? msg : 'Failed to rotate token');
+    } finally {
+      setBridgeBusyId(null);
+    }
   };
 
   const handleDisconnect = async (account: BrokerAccount) => {
@@ -277,7 +313,9 @@ export default function ConnectedAccountsPage() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Connected Accounts</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Manage your broker connections for bot trading</p>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Connect your own MT5 — stored in Profytron, no MetaApi seat per user
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -419,8 +457,7 @@ export default function ConnectedAccountsPage() {
                 )}
               </div>
 
-              {/* Actions */}
-              <div className="flex flex-col gap-2 pt-1">
+                <div className="flex flex-col gap-2 pt-1">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -448,6 +485,22 @@ export default function ConnectedAccountsPage() {
                     Details
                   </button>
                 </div>
+                {!account.isPaperTrading && (
+                  <button
+                    type="button"
+                    onClick={() => handleRotateBridgeToken(account)}
+                    disabled={
+                      disconnectingId === account.id ||
+                      bridgeBusyId === account.id
+                    }
+                    className="w-full h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center gap-2 disabled:opacity-40"
+                  >
+                    {bridgeBusyId === account.id ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : null}
+                    Bridge EA token
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => handleDisconnect(account)}

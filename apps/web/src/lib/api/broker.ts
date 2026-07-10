@@ -23,5 +23,12 @@ export const brokerApi = {
   async testConnection(accountId: string) {
     const res = await apiClient.post(`/broker/accounts/${accountId}/test`);
     return unwrapApiResponse<any>(res.data);
-  }
+  },
+
+  async rotateBridgeToken(accountId: string) {
+    const res = await apiClient.post(
+      `/broker/accounts/${accountId}/bridge-token`,
+    );
+    return unwrapApiResponse<any>(res.data);
+  },
 };

@@ -63,4 +63,18 @@ export class BrokerController {
   async testConnection(@Req() req: AuthReq, @Param('id') accountId: string) {
     return this.brokerService.testConnection(req.user.userId, accountId);
   }
+
+  @Post(':id/bridge-token')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({
+    summary:
+      'Rotate the MT5 bridge EA token (returned once; paste into ProfytronCopyBridge)',
+  })
+  async rotateBridgeToken(
+    @Req() req: AuthReq,
+    @Param('id') accountId: string,
+  ) {
+    return this.brokerService.rotateBridgeToken(req.user.userId, accountId);
+  }
 }

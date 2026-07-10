@@ -28,6 +28,7 @@ import {
 import { AiRiskService } from '../ai-risk/ai-risk.service';
 import { EmailService } from '../email/email.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { CopyBridgeService } from '../copy-bridge/copy-bridge.service';
 
 /**
  * How many trade jobs a single worker processes in parallel. Bull defaults to
@@ -55,6 +56,7 @@ export class TradeProcessor {
     private ledger: CopyLedgerService,
     private email: EmailService,
     private notificationsService: NotificationsService,
+    private copyBridge: CopyBridgeService,
     @InjectQueue('trade_execution_dlq') private dlq: Queue,
   ) {}
 
@@ -252,11 +254,12 @@ export class TradeProcessor {
       }
 
       let brokerOrderId: string | null = null;
-      let liveFillMode: 'metaapi' | 'ledger_mirror' | 'paper' =
+      let liveFillMode: 'metaapi' | 'ledger_mirror' | 'bridge' | 'paper' =
         brokerAccount.isPaperTrading ? 'paper' : 'ledger_mirror';
+      let queueBridgeOpen = false;
 
       // Real execution via MetaAPI only when a seat exists (CopyFactory mode).
-      // master_only: no per-user MetaApi — ledger mirror for live accounts.
+      // master_only: queue bridge EA order for live accounts (no MetaApi seat).
       if (!brokerAccount.isPaperTrading && this.mtAdapter.isLive) {
         try {
           const creds = JSON.parse(
@@ -285,8 +288,10 @@ export class TradeProcessor {
             brokerOrderId = result.orderId;
             liveFillMode = 'metaapi';
           } else {
+            queueBridgeOpen = true;
+            liveFillMode = 'bridge';
             this.logger.log(
-              `master_only ledger mirror for user ${userId} ${pair} (no MetaApi seat)`,
+              `master_only bridge queue for user ${userId} ${pair} (no MetaApi seat)`,
             );
           }
         } catch (err) {
@@ -316,6 +321,9 @@ export class TradeProcessor {
           // Rethrow so Bull retries and ultimately dead-letters the job.
           throw err;
         }
+      } else if (!brokerAccount.isPaperTrading) {
+        queueBridgeOpen = true;
+        liveFillMode = 'bridge';
       }
 
       const trade = await this.prisma.trade.create({
@@ -379,6 +387,23 @@ export class TradeProcessor {
         volume,
         price: adjustedFillPrice,
       });
+
+      if (queueBridgeOpen) {
+        await this.copyBridge.enqueue({
+          userId,
+          brokerAccountId: brokerAccount.id,
+          subscriptionId: subscriptionId ?? null,
+          followerTradeId: trade.id,
+          masterPositionId: masterPositionId ?? null,
+          action: 'OPEN',
+          symbol: pair,
+          side: type,
+          volume,
+          price: adjustedFillPrice,
+          stopLoss: requestedStopLoss ?? null,
+          takeProfit: requestedTakeProfit ?? null,
+        });
+      }
 
       if (brokerAccount.isPaperTrading) {
         await this.activationService.track(
@@ -519,20 +544,50 @@ export class TradeProcessor {
         throw new Error(`No broker account ${brokerAccountId} for close_copy`);
       }
 
+      const creds = !brokerAccount.isPaperTrading
+        ? (() => {
+            try {
+              return JSON.parse(
+                this.crypto.decrypt(brokerAccount.credentialsEncrypted),
+              );
+            } catch {
+              return {};
+            }
+          })()
+        : {};
+
       if (
         !brokerAccount.isPaperTrading &&
         this.mtAdapter.isLive &&
-        trade.brokerTicket
+        trade.brokerTicket &&
+        creds.metaApiAccountId
       ) {
-        const creds = JSON.parse(
-          this.crypto.decrypt(brokerAccount.credentialsEncrypted),
+        await this.mtAdapter.closePosition(
+          creds.metaApiAccountId,
+          trade.brokerTicket,
+          creds.metaApiRegion,
         );
-        if (creds.metaApiAccountId) {
-          await this.mtAdapter.closePosition(
-            creds.metaApiAccountId,
-            trade.brokerTicket,
-            creds.metaApiRegion,
-          );
+      } else if (!brokerAccount.isPaperTrading && !creds.metaApiAccountId) {
+        const openTrade = await this.prisma.trade.findUnique({
+          where: { id: tradeId },
+          select: {
+            symbol: true,
+            volume: true,
+            direction: true,
+            brokerTicket: true,
+          },
+        });
+        if (openTrade) {
+          await this.copyBridge.enqueue({
+            userId,
+            brokerAccountId,
+            followerTradeId: tradeId,
+            action: 'CLOSE',
+            symbol: openTrade.symbol,
+            side: openTrade.direction === TradeDirection.LONG ? 'BUY' : 'SELL',
+            volume: openTrade.volume,
+            brokerTicket: openTrade.brokerTicket ?? trade.brokerTicket ?? null,
+          });
         }
       }
 

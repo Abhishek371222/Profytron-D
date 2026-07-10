@@ -16,6 +16,7 @@ import { AiRiskModule } from '../ai-risk/ai-risk.module';
 import { CopyLedgerService } from './copy-ledger.service';
 import { TradeDlqProcessor } from './trade-dlq.processor';
 import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
+import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.ser
     GrowthModule,
     MarketModule,
     AiRiskModule,
+    CopyBridgeModule,
     BullModule.registerQueue(
       {
         name: 'trade_execution',

@@ -303,6 +303,8 @@ model BrokerAccount {
   brokerName           BrokerName
   accountNumberLast4   String
   credentialsEncrypted String
+  /// SHA-256 of the one-time bridge EA token (plaintext returned only on connect/rotate).
+  bridgeTokenHash      String?    @unique
   serverName           String?
   isPaperTrading       Boolean    @default(false)
   isDefault            Boolean    @default(false)
@@ -317,6 +319,7 @@ model BrokerAccount {
   trades              Trade[]
   masterForStrategies Strategy[]                 @relation("StrategyMasterAccount")
   masterProfile       MasterProfile?
+  bridgeOrders        CopyBridgeOrder[]
 
   @@index([userId])
   @@index([isMasterSource])
@@ -1340,6 +1343,37 @@ model TradeExecution {
   @@index([masterPositionId])
   @@index([followerUserId, createdAt])
   @@index([status])
+}
+
+/// Live copy signals for user MT5 terminals (bridge EA) — no MetaApi seat required.
+model CopyBridgeOrder {
+  id               String    @id @default(uuid())
+  userId           String
+  brokerAccountId  String
+  brokerAccount    BrokerAccount @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
+  subscriptionId   String?
+  followerTradeId  String?
+  masterPositionId String?
+  action           String    // OPEN | CLOSE | MODIFY
+  symbol           String
+  side             String?   // BUY | SELL
+  volume           Float
+  price            Float?
+  stopLoss         Float?
+  takeProfit       Float?
+  status           String    @default("PENDING") // PENDING | CLAIMED | FILLED | FAILED | CANCELLED
+  brokerTicket     String?
+  errorReason      String?   @db.Text
+  claimedAt        DateTime?
+  filledAt         DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([brokerAccountId, status])
+  @@index([userId, status])
+  @@index([masterPositionId])
+  @@index([followerTradeId])
+  @@index([status, createdAt])
 }
 
 model StrategyDocument {

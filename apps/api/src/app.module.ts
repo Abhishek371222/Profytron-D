@@ -42,6 +42,7 @@ import { BrokerIntegrationModule } from './modules/broker/broker-integration.mod
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
 import { ApiKeysModule } from './modules/api-keys/api-keys.module';
 import { CopyModule } from './modules/copy/copy.module';
+import { CopyBridgeModule } from './modules/copy-bridge/copy-bridge.module';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { JwtAuthGuard } from './modules/auth/guards/auth.guard';
 
@@ -150,6 +151,7 @@ const parseRedisConfig = () => {
     FeatureFlagsModule,
     ApiKeysModule,
     CopyModule,
+    CopyBridgeModule,
   ],
   controllers: [AppController],
   providers: [

@@ -41,6 +41,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
   const [mode, setMode] = React.useState<ConnectMode>('live');
   const [error, setError] = React.useState('');
   const [pending, setPending] = React.useState(false);
+  const [bridgeToken, setBridgeToken] = React.useState('');
   const [brokerFilter, setBrokerFilter] = React.useState(ALL_BROKERS);
   const [serverChoice, setServerChoice] = React.useState('');
   const [customServer, setCustomServer] = React.useState('');
@@ -89,6 +90,9 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
         });
       }
       setPending(Boolean(result?.pending));
+      setBridgeToken(
+        typeof result?.bridgeToken === 'string' ? result.bridgeToken : '',
+      );
       setStep('success');
       onConnected?.();
     } catch (err: any) {
@@ -101,6 +105,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
     setStep('form');
     setError('');
     setPending(false);
+    setBridgeToken('');
     setMode('live');
     setBrokerFilter(ALL_BROKERS);
     setServerChoice('');
@@ -134,10 +139,10 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
             <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
               <div>
                 <h2 className="text-base font-semibold text-text-primary">
-                  Connect trading account
+                  Connect MT5 Account
                 </h2>
                 <p className="text-[11px] text-chart-3 mt-0.5">
-                  Free for users · no MetaApi seat charged
+                  Saved in Profytron DB · no MetaApi fee per user
                 </p>
               </div>
               <button
@@ -362,9 +367,32 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                     <p className="text-sm text-text-secondary mt-1">
                       {mode === 'paper'
                         ? 'Subscribe to a bot to receive simulated copies on this account.'
-                        : 'Account saved. Subscribe to a bot to receive copies on your dashboard.'}
+                        : 'Account saved in Profytron. Master trades copy here — no MetaApi seat on your account.'}
                     </p>
                   </div>
+                  {mode === 'live' && bridgeToken && (
+                    <div className="w-full space-y-2 rounded-xl border border-border-default bg-bg-card p-3 text-left">
+                      <p className="text-xs font-medium text-text-primary">
+                        Bridge token (copy once)
+                      </p>
+                      <p className="text-[11px] text-text-muted">
+                        Paste into ProfytronCopyBridge EA on your MT5 so live
+                        orders place on your broker. Keep MT5 + EA running.
+                      </p>
+                      <code className="block break-all rounded-lg bg-muted/40 px-2 py-2 text-[11px] text-text-primary">
+                        {bridgeToken}
+                      </code>
+                      <button
+                        type="button"
+                        className="text-xs text-chart-2 underline"
+                        onClick={() =>
+                          void navigator.clipboard.writeText(bridgeToken)
+                        }
+                      >
+                        Copy token
+                      </button>
+                    </div>
+                  )}
                   <Button className="w-full" onClick={handleClose}>
                     Done
                   </Button>
