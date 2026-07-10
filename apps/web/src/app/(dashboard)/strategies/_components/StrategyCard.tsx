@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -88,7 +88,7 @@ export function StrategyCard({
           <div><span className="text-muted-foreground block">Return</span><span className="text-chart-3 font-bold">+{winRate.toFixed(1)}%</span></div>
           <div><span className="text-muted-foreground block">Sharpe</span><span className="font-bold">{sharpeRatio.toFixed(2)}</span></div>
           <div><span className="text-muted-foreground block">Subs</span><span className="font-bold">{subscribers.toLocaleString()}</span></div>
-          <div><span className="text-muted-foreground block">Price</span><span className="font-bold">{monthlyPrice > 0 ? `$${monthlyPrice}/mo` : 'Free'}</span></div>
+          <div><span className="text-muted-foreground block">Price</span><span className="font-bold">{monthlyPrice > 0 ? `₹${monthlyPrice.toLocaleString('en-IN')}/mo` : 'Free'}</span></div>
         </div>
         <DashButton onClick={(e) => { e.stopPropagation(); onActivate(); }} className="shrink-0 gap-1">
           Activate <ArrowRight className="h-3.5 w-3.5" />
@@ -153,7 +153,7 @@ export function StrategyCard({
         <div>
           <span className="text-xs text-muted-foreground">Price</span>
           <p className="text-sm font-bold text-foreground">
-            {monthlyPrice > 0 ? `$${monthlyPrice.toLocaleString()}/mo` : 'Free'}
+            {monthlyPrice > 0 ? `₹${monthlyPrice.toLocaleString('en-IN')}/mo` : 'Free'}
           </p>
         </div>
         <DashButton

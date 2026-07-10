@@ -264,18 +264,11 @@ export class AdminController {
 
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiOperation({ summary: 'Upload a PDF document for a bot strategy' })
+  @ApiOperation({ summary: 'Upload an image, PDF, or data file for a bot strategy' })
   @Post('strategies/:strategyId/documents')
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { fileSize: 20 * 1024 * 1024 },
-      fileFilter: (_req, file, cb) => {
-        if (file.mimetype !== 'application/pdf') {
-          cb(new BadRequestException('Only PDF files are supported'), false);
-        } else {
-          cb(null, true);
-        }
-      },
     }),
   )
   async uploadStrategyDocument(
@@ -285,18 +278,18 @@ export class AdminController {
     @Body('title') title?: string,
     @Body('description') description?: string,
     @Body('sortOrder') sortOrder?: string,
+    @Body('kind') kind?: string,
   ) {
     if (!file) {
       throw new BadRequestException('Uploaded file is required');
     }
-    return this.strategyDocuments.uploadDocument(
-      strategyId,
-      req.user.id,
-      file,
+    return this.strategyDocuments.uploadDocument(strategyId, req.user.id, file, {
       title,
       description,
-      sortOrder !== undefined ? Number(sortOrder) : undefined,
-    );
+      sortOrder: sortOrder !== undefined ? Number(sortOrder) : undefined,
+      kind: kind || 'PDF',
+      isPublished: true,
+    });
   }
 
   @ApiResponse({ status: 200, description: 'OK' })

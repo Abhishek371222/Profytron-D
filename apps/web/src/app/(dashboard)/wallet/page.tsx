@@ -33,6 +33,12 @@ import {
 type TxFilterType = 'ALL' | 'DEPOSIT' | 'WITHDRAWAL' | 'SUBSCRIPTION_PAYMENT';
 type TxFilterStatus = 'ALL' | 'PENDING' | 'CONFIRMED' | 'FAILED';
 
+function formatWalletInputDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+const WALLET_DATE_MAX = formatWalletInputDate(new Date());
+
 function formatCurrency(amount: number, currency: string) {
   const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : `${currency} `;
   return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -141,6 +147,41 @@ export default function WalletPage() {
   const [statusFilter, setStatusFilter] = React.useState<TxFilterStatus>('ALL');
   const [dateFrom, setDateFrom] = React.useState('');
   const [dateTo, setDateTo] = React.useState('');
+  const [dateRangeError, setDateRangeError] = React.useState<string | null>(null);
+
+  const handleDateFromChange = (value: string) => {
+    setDateFrom(value);
+    if (!value) {
+      setDateRangeError(null);
+      return;
+    }
+    if (dateTo && value > dateTo) {
+      setDateTo(value);
+      setDateRangeError('End date was adjusted to match the start date.');
+      return;
+    }
+    setDateRangeError(null);
+  };
+
+  const handleDateToChange = (value: string) => {
+    setDateTo(value);
+    if (!value) {
+      setDateRangeError(null);
+      return;
+    }
+    if (dateFrom && value < dateFrom) {
+      setDateFrom(value);
+      setDateRangeError('Start date was adjusted to match the end date.');
+      return;
+    }
+    setDateRangeError(null);
+  };
+
+  React.useEffect(() => {
+    if (!dateRangeError) return;
+    const timer = window.setTimeout(() => setDateRangeError(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [dateRangeError]);
   const [statementYear, setStatementYear] = React.useState(new Date().getFullYear());
   const [statementMonth, setStatementMonth] = React.useState(new Date().getMonth() + 1);
   const [summaryMonth, setSummaryMonth] = React.useState(new Date().getMonth() + 1);
@@ -217,6 +258,31 @@ export default function WalletPage() {
     staleTime: 60_000,
   });
 
+  const statementRange = React.useMemo(() => {
+    const start = new Date(statementYear, statementMonth - 1, 1);
+    const end = new Date(statementYear, statementMonth, 0);
+    return {
+      dateFrom: start.toISOString().slice(0, 10),
+      dateTo: end.toISOString().slice(0, 10),
+    };
+  }, [statementMonth, statementYear]);
+
+  const statementAvailabilityQuery = useQuery({
+    queryKey: ['wallet-statement-availability', statementRange.dateFrom, statementRange.dateTo],
+    queryFn: () =>
+      walletApi.getTransactions({
+        ...statementRange,
+        status: 'CONFIRMED',
+        limit: 1,
+      }),
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+
+  const statementTransactionCount = statementAvailabilityQuery.data?.total ?? 0;
+  const canDownloadStatement =
+    !statementAvailabilityQuery.isLoading && statementTransactionCount > 0;
+
   const transactions = React.useMemo(
     () => transactionsQuery.data?.pages.flatMap((p) => p.transactions) ?? [],
     [transactionsQuery.data],
@@ -248,8 +314,21 @@ export default function WalletPage() {
   };
 
   const downloadStatement = async () => {
+    if (!canDownloadStatement) {
+      toast.message('No transactions this month', {
+        description: 'There are no confirmed transactions for the selected month, so the PDF statement cannot be downloaded.',
+      });
+      return;
+    }
+
     try {
       const blob = await walletApi.getStatement(statementYear, statementMonth);
+      if (!blob || blob.size === 0) {
+        toast.error('Statement unavailable', {
+          description: 'The PDF for this month could not be generated.',
+        });
+        return;
+      }
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -257,8 +336,24 @@ export default function WalletPage() {
       a.click();
       URL.revokeObjectURL(url);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err?.response?.data?.message || 'Failed to download statement');
+      const err = error as { response?: { data?: Blob | { message?: string } } };
+      const data = err?.response?.data;
+      if (data instanceof Blob) {
+        try {
+          const text = await data.text();
+          const parsed = JSON.parse(text) as { message?: string };
+          toast.error(parsed.message || 'Failed to download statement');
+          return;
+        } catch {
+          toast.error('Failed to download statement');
+          return;
+        }
+      }
+      toast.error(
+        (typeof data === 'object' && data && 'message' in data && typeof data.message === 'string'
+          ? data.message
+          : null) || 'Failed to download statement',
+      );
     }
   };
 
@@ -398,27 +493,36 @@ export default function WalletPage() {
 
           <div className="hidden sm:block h-4 w-px bg-[var(--card-border)]" />
 
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
-                placeholder="Start date"
-                className="h-8 rounded-lg border border-[var(--card-border)] bg-card pl-8 pr-2 text-xs text-foreground outline-none focus:border-primary/40 transition-colors"
-              />
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <input
+                  type="date"
+                  value={dateFrom}
+                  max={dateTo || WALLET_DATE_MAX}
+                  onChange={(e) => handleDateFromChange(e.target.value)}
+                  aria-label="Start date"
+                  className="h-8 rounded-lg border border-[var(--card-border)] bg-card pl-8 pr-2 text-xs text-foreground outline-none focus:border-primary/40 transition-colors"
+                />
+              </div>
+              <span className="text-muted-foreground text-xs">→</span>
+              <div className="relative">
+                <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <input
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  max={WALLET_DATE_MAX}
+                  onChange={(e) => handleDateToChange(e.target.value)}
+                  aria-label="End date"
+                  className="h-8 rounded-lg border border-[var(--card-border)] bg-card pl-8 pr-2 text-xs text-foreground outline-none focus:border-primary/40 transition-colors"
+                />
+              </div>
             </div>
-            <span className="text-muted-foreground text-xs">→</span>
-            <div className="relative">
-              <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-              <input
-                type="date"
-                value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
-                className="h-8 rounded-lg border border-[var(--card-border)] bg-card pl-8 pr-2 text-xs text-foreground outline-none focus:border-primary/40 transition-colors"
-              />
-            </div>
+            {dateRangeError && (
+              <p className="text-[11px] text-destructive">{dateRangeError}</p>
+            )}
           </div>
         </div>
 
@@ -561,12 +665,23 @@ export default function WalletPage() {
               type="button"
               variant="outline"
               onClick={downloadStatement}
-              className="h-9 px-4 rounded-xl border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30"
+              disabled={statementAvailabilityQuery.isLoading || !canDownloadStatement}
+              title={
+                !statementAvailabilityQuery.isLoading && !canDownloadStatement
+                  ? 'No confirmed transactions for this month'
+                  : undefined
+              }
+              className="h-9 px-4 rounded-xl border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Download className="h-4 w-4" />
               Download PDF
             </Button>
           </div>
+          {!statementAvailabilityQuery.isLoading && !canDownloadStatement && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              No confirmed transactions this month, so the PDF statement is unavailable.
+            </p>
+          )}
         </div>
 
         <div className="dashboard-card p-5">

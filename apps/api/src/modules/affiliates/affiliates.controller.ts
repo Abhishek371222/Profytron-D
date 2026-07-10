@@ -4,6 +4,7 @@ import {
   Post,
   Param,
   Body,
+  Query,
   UseGuards,
   Req,
 } from '@nestjs/common';
@@ -49,6 +50,24 @@ export class AffiliatesController {
   @Get('dashboard')
   async getMyDashboard(@Req() req: any) {
     return this.affiliatesService.getAffiliateDashboard(req.user.id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'List users referred by the current affiliate' })
+  @Get('referrals')
+  async getMyReferrals(@Req() req: any) {
+    return this.affiliatesService.getReferrals(req.user.id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Get referral funnel activity chart data' })
+  @Get('activity')
+  async getMyActivity(@Req() req: any, @Query('range') range?: string) {
+    return this.affiliatesService.getActivityChart(req.user.id, range);
   }
 
   @Public()

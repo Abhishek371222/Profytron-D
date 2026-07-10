@@ -358,6 +358,12 @@ export class WalletService {
       orderBy: { createdAt: 'asc' },
     });
 
+    if (transactions.length === 0) {
+      throw new BadRequestException(
+        'No confirmed transactions found for this month. Statement PDF cannot be generated.',
+      );
+    }
+
     const previous = await this.prisma.walletTransaction.findFirst({
       where: {
         userId,

@@ -112,26 +112,17 @@ export class StrategiesService {
     let total = 0;
 
     if (performanceSortFields.has(requestedSortBy)) {
-      // DB-side sort via StrategyPerformance — avoids loading all strategies into JS memory.
-      // Step 1: Get sorted strategy IDs from the performance table (latest record per strategy).
+      // Include ALL published strategies — bots with no performance yet must still
+      // appear (sorted as 0). Counting only StrategyPerformance rows hid new bots.
       const perfField = requestedSortBy as
         | 'winRate'
         | 'sharpeRatio'
         | 'maxDrawdown'
         | 'netPnl';
-      const perfRows = await this.prisma.strategyPerformance.findMany({
-        where: { strategy: where },
-        orderBy: { [perfField]: requestedOrder },
-        select: { strategyId: true, [perfField]: true },
-        distinct: ['strategyId'],
-        skip,
-        take: limit,
-      });
 
-      const orderedIds = perfRows.map((r) => r.strategyId);
-      const [pagedStrategies, count] = await Promise.all([
+      const [allStrategies, count] = await Promise.all([
         this.prisma.strategy.findMany({
-          where: { ...where, id: { in: orderedIds } },
+          where,
           include: {
             creator: { select: { id: true, fullName: true, avatarUrl: true } },
             performance: { take: 1, orderBy: { date: 'desc' } },
@@ -143,18 +134,22 @@ export class StrategiesService {
               : false,
           },
         }),
-        this.prisma.strategyPerformance
-          .groupBy({
-            by: ['strategyId'],
-            where: { strategy: where },
-            _count: { strategyId: true },
-          })
-          .then((r) => r.length),
+        this.prisma.strategy.count({ where }),
       ]);
 
-      // Restore the DB-sorted order (findMany with `in` doesn't guarantee order).
-      const byId = new Map(pagedStrategies.map((s) => [s.id, s]));
-      strategies = orderedIds.map((id) => byId.get(id)!).filter(Boolean);
+      const metric = (s: (typeof allStrategies)[number]) => {
+        const value = Number(s.performance?.[0]?.[perfField] ?? 0);
+        return Number.isFinite(value) ? value : 0;
+      };
+
+      allStrategies.sort((a, b) => {
+        const diff =
+          requestedOrder === 'asc' ? metric(a) - metric(b) : metric(b) - metric(a);
+        if (diff !== 0) return diff;
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      });
+
+      strategies = allStrategies.slice(skip, skip + limit);
       total = count;
     } else {
       const sortField = scalarSortFields.has(requestedSortBy)
@@ -267,12 +262,6 @@ export class StrategiesService {
     });
     if (!user) throw new NotFoundException('User identity not found');
 
-    if (user.role === UserRole.USER && user.subscriptionTier === 'FREE') {
-      throw new ForbiddenException(
-        'Upgrade to PRO for Strategy Deployment Handshake',
-      );
-    }
-
     // Enforce the plan's strategy quota server-side (admins are exempt).
     if (user.role === UserRole.USER) {
       const { maxStrategies } = getTierLimits(user.subscriptionTier);
@@ -288,11 +277,60 @@ export class StrategiesService {
 
     return this.prisma.strategy.create({
       data: {
-        ...dto,
+        name: dto.name,
+        category: dto.category,
+        riskLevel: dto.riskLevel,
+        description: dto.description,
         creatorId,
         configJson: dto.configJson || {},
+        monthlyPrice: dto.monthlyPrice ?? null,
+        annualPrice: dto.annualPrice ?? null,
       },
     });
+  }
+
+  async getCreatedStrategies(creatorId: string) {
+    const strategies = await this.prisma.strategy.findMany({
+      where: { creatorId, deletedAt: null },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        creator: { select: { id: true, fullName: true, avatarUrl: true, bio: true } },
+        listing: true,
+        performance: { take: 1, orderBy: { date: 'desc' } },
+        _count: { select: { subscriptions: true, reviews: true } },
+      },
+    });
+
+    const items = strategies.map((s) => {
+      const { _count, performance, listing, ...rest } = s;
+      return {
+        ...rest,
+        monthlyPrice: s.monthlyPrice != null ? Number(s.monthlyPrice) : 0,
+        annualPrice: s.annualPrice != null ? Number(s.annualPrice) : 0,
+        lifetimePrice: s.lifetimePrice != null ? Number(s.lifetimePrice) : 0,
+        copiesCount: _count.subscriptions,
+        reviewCount: _count.reviews,
+        latestPerformance: performance[0]
+          ? {
+              ...performance[0],
+              netPnl: Number(performance[0].netPnl ?? 0),
+              winRate: Number(performance[0].winRate ?? 0),
+              sharpeRatio: Number(performance[0].sharpeRatio ?? 0),
+              maxDrawdown: Number(performance[0].maxDrawdown ?? 0),
+            }
+          : null,
+        listing: listing
+          ? {
+              ...listing,
+              monthlyPrice: Number(listing.monthlyPrice ?? 0),
+              annualPrice: Number(listing.annualPrice ?? 0),
+              lifetimePrice: Number(listing.lifetimePrice ?? 0),
+            }
+          : null,
+      };
+    });
+
+    return { items, total: items.length };
   }
 
   async update(id: string, userId: string, dto: UpdateStrategyDto) {
@@ -819,16 +857,139 @@ export class StrategiesService {
     return payload;
   }
 
+  /**
+   * Submit bot for Profytron 1-week real-market review.
+   * Stays private (isPublished=false) until verified + creator publishes live.
+   */
   async publish(id: string, userId: string) {
     const strategy = await this.prisma.strategy.findUnique({ where: { id } });
     if (!strategy || strategy.creatorId !== userId)
       throw new ForbiddenException();
 
+    if (strategy.verificationStatus === VerificationStatus.VERIFIED && strategy.isVerified) {
+      throw new BadRequestException(
+        'Bot is already approved. Use Publish to marketplace instead.',
+      );
+    }
+
+    const reviewStartedAt = new Date();
+    const reviewEndsAt = new Date(reviewStartedAt.getTime() + 7 * 24 * 60 * 60 * 1000);
+
     return this.prisma.strategy.update({
       where: { id },
       data: {
-        isPublished: true,
+        isPublished: false,
+        isVerified: false,
         verificationStatus: VerificationStatus.PENDING,
+        reviewStartedAt,
+        reviewEndsAt,
+        reviewNotes: 'Submitted for 1-week real-market review by Profytron team.',
+      },
+    });
+  }
+
+  /**
+   * After team approval, creator publishes the bot to the public marketplace.
+   * Also activates it for the creator under My Bots / Active bots.
+   */
+  async publishLive(id: string, userId: string) {
+    const strategy = await this.prisma.strategy.findUnique({ where: { id } });
+    if (!strategy || strategy.creatorId !== userId)
+      throw new ForbiddenException();
+
+    if (!strategy.isVerified || strategy.verificationStatus !== VerificationStatus.VERIFIED) {
+      throw new BadRequestException(
+        'Bot must be approved by Profytron before it can go live on the marketplace.',
+      );
+    }
+
+    const monthlyPrice = strategy.monthlyPrice ?? 0;
+    const annualPrice = strategy.annualPrice ?? Math.round(Number(monthlyPrice) * 10);
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.marketplaceListing.upsert({
+        where: { strategyId: id },
+        create: {
+          strategyId: id,
+          monthlyPrice,
+          annualPrice,
+          lifetimePrice: strategy.lifetimePrice ?? 0,
+          trialDays: 7,
+          maxCopies: strategy.maxCopies,
+          isFeatured: false,
+        },
+        update: {
+          monthlyPrice,
+          annualPrice,
+        },
+      });
+
+      await tx.strategy.update({
+        where: { id },
+        data: {
+          isPublished: true,
+          monthlyPrice,
+          annualPrice,
+        },
+      });
+
+      // Make uploaded assets visible on the public bot page
+      await tx.strategyDocument.updateMany({
+        where: { strategyId: id },
+        data: { isPublished: true },
+      });
+
+      // Baseline performance so the bot appears in win-rate / sharpe sorts
+      await tx.strategyPerformance.upsert({
+        where: { strategyId_date: { strategyId: id, date: today } },
+        create: {
+          strategyId: id,
+          date: today,
+          winRate: 0,
+          drawdown: 0,
+          maxDrawdown: 0,
+          sharpeRatio: 0,
+          sortinoRatio: 0,
+          totalTrades: 0,
+          winningTrades: 0,
+          netPnl: 0,
+          equityCurve: [],
+        },
+        update: {},
+      });
+
+      // Creator gets an active subscription so it shows under My Bots / Active bots
+      await tx.userStrategySubscription.upsert({
+        where: { userId_strategyId: { userId, strategyId: id } },
+        create: {
+          userId,
+          strategyId: id,
+          status: SubscriptionStatus.ACTIVE,
+          planType: 'MONTHLY',
+          expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        },
+        update: {
+          status: SubscriptionStatus.ACTIVE,
+          cancelledAt: null,
+          expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        },
+      });
+    });
+
+    // Bust listing / strategy caches so the new bot shows immediately
+    await Promise.all([
+      this.redis.del('cache:mkt:featured'),
+      this.redis.delPrefix('cache:mkt:listings:'),
+      this.redis.delPrefix('cache:strategies:'),
+    ]);
+
+    return this.prisma.strategy.findUnique({
+      where: { id },
+      include: {
+        listing: true,
+        creator: { select: { id: true, fullName: true, avatarUrl: true } },
       },
     });
   }

@@ -7,7 +7,11 @@ import { ShieldCheck, Star, Activity, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Button } from "@/components/ui/button";
-import { useCurrency } from "@/lib/hooks/useCurrency";
+
+function formatInr(amount: number) {
+  if (!amount || amount <= 0) return "FREE";
+  return `₹${Number(amount).toLocaleString("en-IN")}`;
+}
 
 interface MarketplaceCardProps {
   strategy: {
@@ -30,7 +34,6 @@ interface MarketplaceCardProps {
 
 export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps) {
   const { returns, sharpe, subscribers, price, rating = 0, reviewCount = 0, drawdown = 0 } = strategy;
-  const { currency, formatPrice } = useCurrency();
   const roundedRating = Math.round(rating);
   const aiScore = rating > 0 ? rating : Math.min(99, 60 + sharpe * 12);
 
@@ -66,9 +69,9 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
 
         <div className="flex items-center justify-between border-t border-[var(--card-border)] pt-3">
           <div>
-            <p className="text-lg font-bold text-foreground">{formatPrice(price)}</p>
+            <p className="text-lg font-bold text-foreground">{formatInr(price)}</p>
             {price > 0 && (
-              <p className="text-[10px] uppercase text-muted-foreground">/ month · {currency.code}</p>
+              <p className="text-[10px] uppercase text-muted-foreground">/ month · INR</p>
             )}
           </div>
           <p className="text-xs text-muted-foreground">

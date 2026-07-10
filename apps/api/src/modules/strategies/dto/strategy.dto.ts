@@ -82,6 +82,18 @@ export class CreateStrategyDto {
   @ApiProperty({ example: {} })
   @IsOptional()
   configJson?: any;
+
+  @ApiProperty({ example: 2499, required: false })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  monthlyPrice?: number;
+
+  @ApiProperty({ example: 24990, required: false })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  annualPrice?: number;
 }
 
 export class UpdateStrategyDto {

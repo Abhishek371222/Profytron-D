@@ -11,13 +11,18 @@ import { openRazorpayCheckout } from '@/lib/razorpay/load-checkout';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { formatApiErrorMessage, formatBotName } from '@/lib/bot-labels';
-import { useCurrency } from '@/lib/hooks/useCurrency';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 
 interface SubscribeModalProps {
   strategy: any;
   isOpen: boolean;
   onClose: () => void;
+}
+
+/** Marketplace prices are stored in INR — display as rupees, no USD conversion. */
+function formatInr(amount: number) {
+  if (!amount || amount <= 0) return 'FREE';
+  return `₹${Number(amount).toLocaleString('en-IN')}`;
 }
 
 const PLAN_CONFIG: Record<PlanType, { label: string; subtitle: string; icon: any; accent: string; badge?: string }> = {
@@ -33,7 +38,6 @@ const ACCENT_STYLES: Record<string, { border: string; bg: string; ring: string; 
 };
 
 export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProps) {
-  const { currency, formatPrice } = useCurrency();
   const user = useAuthStore((s) => s.user);
   const [step, setStep] = React.useState<1 | 2>(1);
   const [planType, setPlanType] = React.useState<PlanType>('ANNUAL');
@@ -341,10 +345,10 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
 
                                 <div className="text-right shrink-0">
                                   <p className="text-lg font-bold text-foreground font-mono tabular-nums leading-none">
-                                    {formatPrice(price)}
+                                    {formatInr(price)}
                                   </p>
                                   <p className="text-micro text-foreground/30 uppercase tracking-widest mt-1 font-bold">
-                                    {key === 'MONTHLY' ? '/ mo' : key === 'ANNUAL' ? '/ yr' : 'once'} · {currency.code}
+                                    {key === 'MONTHLY' ? '/ mo' : key === 'ANNUAL' ? '/ yr' : 'once'} · INR
                                   </p>
                                 </div>
 
@@ -408,10 +412,10 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                           <span className="text-caption text-foreground/35 font-bold uppercase tracking-[0.18em]">Total</span>
                           <div className="text-right">
                             <span className="text-2xl font-bold text-foreground font-mono tabular-nums">
-                              {formatPrice(Number(planPrice || 0))}
+                              {formatInr(Number(planPrice || 0))}
                             </span>
                             <p className="text-micro text-foreground/30 uppercase tracking-widest mt-0.5 font-bold">
-                              {currency.code}
+                              INR
                             </p>
                           </div>
                         </div>

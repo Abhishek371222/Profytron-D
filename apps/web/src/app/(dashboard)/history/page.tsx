@@ -10,28 +10,31 @@ import {
  Filter, 
  ArrowUpRight, 
  ArrowDownRight, 
- Calendar,
  Box,
  Brain,
  X
 } from '@/components/ui/icons';
 import {
+ HistoryDateRangePicker,
+ isTradeWithinHistoryRange,
+ type HistoryDateRange,
+} from '@/components/history/HistoryDateRangePicker';
+import {
   DashboardPage,
   DashboardBreadcrumbs,
   DashboardPageHeader,
   DashButton,
-  DashFilterPill,
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { toast } from 'sonner';
 
 
-const mapRangeToAnalytics = (range: 'ALL' | '7D' | '30D' | '90D'): AnalyticsRange => {
- if (range === '7D') return '1w';
- if (range === '30D') return '1m';
- if (range === '90D') return '3m';
- return 'all';
+const mapRangeToAnalytics = (range: HistoryDateRange): AnalyticsRange => {
+ if (range.type === 'custom') return 'all';
+ if (range.preset === '30D') return '1m';
+ if (range.preset === '60D') return '3m';
+ return '3m';
 };
 
 const formatPrice = (value: number | null) => {
@@ -49,7 +52,7 @@ export default function HistoryPage() {
  const [selectedStrategy, setSelectedStrategy] = useState('All Strategies');
  const [currentPage, setCurrentPage] = useState(1);
  const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
- const [selectedRange, setSelectedRange] = useState<'ALL' | '7D' | '30D' | '90D'>('ALL');
+ const [selectedRange, setSelectedRange] = useState<HistoryDateRange>({ type: 'preset', preset: '30D' });
 
  const pageSize = 5;
 
@@ -62,7 +65,9 @@ export default function HistoryPage() {
   queryKey: ['history-export', selectedRange],
   queryFn: async () => {
    const payload = await analyticsApi.getTradeExport(mapRangeToAnalytics(selectedRange));
-   return payload.rows.map((row, index) => ({
+   return payload.rows.map((row, index) => {
+    const occurredAt = row.closedAt ?? row.openedAt;
+    return {
     id: row.id || String(index + 1),
     asset: row.symbol,
     type: row.direction === 'BUY' ? 'Long' : 'Short',
@@ -71,9 +76,11 @@ export default function HistoryPage() {
     exit: formatPrice(row.closePrice),
     pnl: row.profit ?? 0,
     status: row.status === 'CLOSED' ? 'Closed' : row.status === 'OPEN' ? 'Open' : 'Canceled',
-    time: new Date(row.closedAt ?? row.openedAt).toISOString().slice(0, 16).replace('T', ' '),
+    occurredAt,
+    time: new Date(occurredAt).toISOString().slice(0, 16).replace('T', ' '),
     strategy: row.strategyName ?? 'Manual Trades',
-   }));
+   };
+   });
   },
  });
 
@@ -94,21 +101,13 @@ export default function HistoryPage() {
 
  const filteredHistory = useMemo(() => {
   const normalizedQuery = searchQuery.trim().toLowerCase();
-  const now = new Date();
-
    return historyRows.filter((trade) => {
    if (selectedStrategy !== 'All Strategies' && trade.strategy !== selectedStrategy) {
 	return false;
    }
 
-   if (selectedRange !== 'ALL') {
-	const tradeDate = new Date(trade.time.replace(' ', 'T'));
-	const diffMs = now.getTime() - tradeDate.getTime();
-	const diffDays = diffMs / (1000 * 60 * 60 * 24);
-	const limit = selectedRange === '7D' ? 7 : selectedRange === '30D' ? 30 : 90;
-	if (diffDays > limit) {
-	 return false;
-	}
+   if (!isTradeWithinHistoryRange(trade.occurredAt, selectedRange)) {
+    return false;
    }
 
    if (!normalizedQuery) {
@@ -138,18 +137,6 @@ export default function HistoryPage() {
   [filteredHistory]
  );
 
- const rangeButtonLabel = useMemo(() => {
-  if (selectedRange === 'ALL') return 'Select Custom Range';
-  return `Range: Last ${selectedRange}`;
- }, [selectedRange]);
-
- const cycleRange = () => {
-  const order: Array<'ALL' | '7D' | '30D' | '90D'> = ['ALL', '7D', '30D', '90D'];
-  const index = order.indexOf(selectedRange);
-  setSelectedRange(order[(index + 1) % order.length]);
-  setCurrentPage(1);
- };
-
  const handleExport = () => {
   const header = ['Execution ID', 'Asset', 'Strategy', 'Type', 'Volume', 'PnL', 'Status', 'Timestamp'];
   const rows = filteredHistory.map((trade) => [
@@ -168,7 +155,10 @@ export default function HistoryPage() {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `execution-vault-${selectedRange.toLowerCase()}-${Date.now()}.csv`;
+  const rangeSlug = selectedRange.type === 'preset'
+   ? selectedRange.preset.toLowerCase()
+   : `${selectedRange.start}_to_${selectedRange.end}`;
+  anchor.download = `execution-vault-${rangeSlug}-${Date.now()}.csv`;
   anchor.click();
   URL.revokeObjectURL(url);
  };
@@ -237,10 +227,13 @@ export default function HistoryPage() {
  </select>
  <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
  </div>
- <DashButton onClick={cycleRange} variant="outline" className="gap-2 h-11">
- <Calendar className="w-4 h-4" />
- {rangeButtonLabel}
- </DashButton>
+ <HistoryDateRangePicker
+  value={selectedRange}
+  onChange={(range) => {
+   setSelectedRange(range);
+   setCurrentPage(1);
+  }}
+ />
  </div>
 
  {/* Main Table */}

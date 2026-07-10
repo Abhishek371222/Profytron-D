@@ -16,17 +16,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { RazorpayCheckoutButton } from '@/components/payments/RazorpayCheckoutButton';
 import { refreshAfterPayment } from '@/lib/payments/refresh';
+import { ArrowLeft } from 'lucide-react';
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
 );
 
 function DepositCheckout({
-  clientSecret,
   onClose,
+  onBack,
 }: {
-  clientSecret: string;
   onClose: () => void;
+  onBack: () => void;
 }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -60,6 +61,15 @@ function DepositCheckout({
 
   return (
     <div className="space-y-4">
+      <button
+        type="button"
+        onClick={onBack}
+        disabled={isSubmitting}
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden />
+        Back to amount
+      </button>
       <PaymentElement />
       <Button onClick={confirmPayment} disabled={!stripe || isSubmitting} className="w-full">
         {isSubmitting ? 'Processing...' : 'Confirm Deposit'}
@@ -106,6 +116,11 @@ export function DepositModal({
     setClientSecret(null);
     setStep('amount');
     onOpenChange(false);
+  };
+
+  const backToAmount = () => {
+    setClientSecret(null);
+    setStep('amount');
   };
 
   return (
@@ -156,7 +171,7 @@ export function DepositModal({
         {step === 'payment' && clientSecret && (
           <Elements stripe={stripePromise} options={{ clientSecret }}>
             <DepositCheckout
-              clientSecret={clientSecret}
+              onBack={backToAmount}
               onClose={() => {
                 setStep('success');
               }}

@@ -94,6 +94,7 @@ export class RedisService {
   async del(key: string): Promise<void> {
     try {
       await this.redis.del(key);
+      this.clearMemoryKey(key);
       return;
     } catch (error) {
       if (isSecurityCriticalKey(key)) {
@@ -106,6 +107,24 @@ export class RedisService {
         `Redis unavailable for del(${key}), removing in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,
       );
       this.clearMemoryKey(key);
+    }
+  }
+
+  /** Delete all keys that start with prefix (Redis + in-memory fallback). */
+  async delPrefix(prefix: string): Promise<void> {
+    try {
+      const keys = await this.redis.keys(`${prefix}*`);
+      if (keys.length > 0) {
+        await this.redis.del(...keys);
+      }
+    } catch (error) {
+      this.logger.warn(
+        `Redis unavailable for delPrefix(${prefix}): ${error instanceof Error ? error.message : 'unknown error'}`,
+      );
+    }
+
+    for (const key of [...this.memoryStore.keys()]) {
+      if (key.startsWith(prefix)) this.clearMemoryKey(key);
     }
   }
 

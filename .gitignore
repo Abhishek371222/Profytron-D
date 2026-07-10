@@ -99,3 +99,5 @@ temp/
 .turbo/cache/*.tar.zst
 .vercel
 .env.vercel.check
+
+apps/api/uploads/

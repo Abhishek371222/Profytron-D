@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Sparkles, Lock, Mail, User, Shield, Check } from 'lucide-react';
+import { Sparkles, Lock, Mail, User, Shield, Check, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -23,12 +23,40 @@ import { trackEvent, ACTIVATION_EVENTS } from '@/lib/analytics/track';
 import { useMounted } from '@/lib/hooks/useMounted';
 import { cn } from '@/lib/utils';
 
+function readReferralFromCookie(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const raw = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('referral_code='))
+    ?.split('=')
+    .slice(1)
+    .join('=');
+  if (!raw) return undefined;
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
+function readReferralFromUrl(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  const params = new URLSearchParams(window.location.search);
+  return params.get('ref') || params.get('referral') || undefined;
+}
+
+function persistReferralCookie(code: string) {
+  if (typeof document === 'undefined') return;
+  document.cookie = `referral_code=${encodeURIComponent(code)}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
+}
+
 const registerSchema = z
   .object({
     fullName: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Please enter a valid email'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
+    referralCode: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -57,16 +85,30 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isValid },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     mode: 'onChange',
-    defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' },
+    defaultValues: {
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      referralCode: '',
+    },
   });
 
   const password = watch('password', '');
   const confirmPassword = watch('confirmPassword', '');
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
+
+  React.useEffect(() => {
+    const referralCode = readReferralFromUrl() || readReferralFromCookie();
+    if (!referralCode) return;
+    setValue('referralCode', referralCode, { shouldDirty: false });
+    persistReferralCookie(referralCode);
+  }, [setValue]);
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
@@ -74,15 +116,15 @@ export default function RegisterPage() {
     setSuccessMessage(null);
     try {
       const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+      const manualReferral = data.referralCode?.trim();
       const referralCode =
-        typeof document !== 'undefined'
-          ? document.cookie
-              .split('; ')
-              .find((row) => row.startsWith('referral_code='))
-              ?.split('=')[1]
-          : undefined;
+        manualReferral || readReferralFromUrl() || readReferralFromCookie();
+      if (referralCode) {
+        persistReferralCookie(referralCode);
+      }
+      const { referralCode: _referralField, ...registerPayload } = data;
       const response = await authApi.register({
-        ...data,
+        ...registerPayload,
         referralCode: referralCode || undefined,
         plan: params.get('plan') || undefined,
       });
@@ -213,6 +255,21 @@ export default function RegisterPage() {
                       passwordsMatch && '[&_svg]:!text-success',
                     )}
                   />
+                </div>
+
+                <div className="space-y-1">
+                  <FloatingLabelInput
+                    label="Referral code (optional)"
+                    icon={Tag}
+                    autoComplete="off"
+                    spellCheck={false}
+                    {...register('referralCode')}
+                    error={errors.referralCode?.message}
+                    className="!h-12 !rounded-input !border-input-border !bg-input !text-foreground focus:!bg-input"
+                  />
+                  <p className="px-1 text-xs text-muted-foreground">
+                    Optional. Use a friend&apos;s code or open their referral link — both work the same way.
+                  </p>
                 </div>
 
                 <Button

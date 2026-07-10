@@ -92,7 +92,7 @@ function FilterContent({
           <div className="flex items-center justify-between">
             <h4 className="text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">Pricing</h4>
             <span className="font-mono text-caption font-semibold text-foreground">
-              {price === 0 ? "All prices" : `$0 – $${price.toLocaleString()}`}
+              {price === 0 ? "All prices" : `₹0 – ₹${price.toLocaleString('en-IN')}`}
             </span>
           </div>
           <input

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -57,10 +57,10 @@ export function MarketplaceHero({
   const strategiesDisplay = totalStrategies > 0 ? totalStrategies : 12845;
   const capitalDisplay =
     assetsManaged >= 1_000_000
-      ? `$${(assetsManaged / 1_000_000).toFixed(0)}M`
+      ? `₹${(assetsManaged / 1_000_000).toFixed(0)}M`
       : assetsManaged > 0
-        ? `$${(assetsManaged / 1_000).toFixed(0)}K`
-        : "$184M";
+        ? `₹${(assetsManaged / 1_000).toFixed(0)}K`
+        : "₹184M";
 
   const metrics: HeroMetric[] = [
     {
@@ -172,7 +172,7 @@ export function MarketplaceHero({
                 variant="outline"
                 size="lg"
                 className="btn-premium-ghost w-full min-w-0 sm:min-w-[11rem] sm:w-auto"
-                onClick={() => router.push("/affiliate")}
+                onClick={() => router.push("/creator")}
               >
                 Become Creator
               </Button>

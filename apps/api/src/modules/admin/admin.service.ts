@@ -482,13 +482,30 @@ export class AdminService {
       ? VerificationStatus.VERIFIED
       : VerificationStatus.UNVERIFIED;
 
-    return this.prisma.strategy.update({
+    const updated = await this.prisma.strategy.update({
       where: { id: strategyId },
       data: {
         verificationStatus: status,
         isVerified: approve,
+        // Stay off public marketplace until creator explicitly publishes after approval
+        isPublished: approve ? false : false,
+        reviewNotes:
+          notes?.trim() ||
+          (approve
+            ? 'Approved after 1-week review. Creator can now publish to marketplace.'
+            : 'Rejected after review. Update the bot and resubmit.'),
+        reviewEndsAt: approve ? new Date() : undefined,
       },
     });
+
+    if (approve) {
+      await this.prisma.strategyDocument.updateMany({
+        where: { strategyId },
+        data: { isPublished: true },
+      });
+    }
+
+    return updated;
   }
 
   async getStrategies(limit = 200, skip = 0) {

@@ -107,34 +107,38 @@ export class MarketplaceService {
       ];
     }
 
-    const listings = await this.prisma.marketplaceListing.findMany({
-      where,
-      include: {
-        strategy: {
-          include: {
-            creator: {
-              select: {
-                id: true,
-                fullName: true,
-                avatarUrl: true,
-                country: true,
+    const take = query.limit ?? 12;
+    const [listings, total] = await Promise.all([
+      this.prisma.marketplaceListing.findMany({
+        where,
+        include: {
+          strategy: {
+            include: {
+              creator: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  avatarUrl: true,
+                  country: true,
+                },
               },
+              performance: { take: 1, orderBy: { date: 'desc' } },
+              // Load only ratings for visible reviews — no text/author fields needed for list view.
+              reviews: { where: { isVisible: true }, select: { rating: true } },
             },
-            performance: { take: 1, orderBy: { date: 'desc' } },
-            // Load only ratings for visible reviews — no text/author fields needed for list view.
-            reviews: { where: { isVisible: true }, select: { rating: true } },
           },
         },
-      },
-      ...(query.cursor
-        ? {
-            cursor: { id: query.cursor },
-            skip: 1,
-          }
-        : {}),
-      take: query.limit,
-      orderBy: [{ isFeatured: 'desc' }, { updatedAt: 'desc' }],
-    });
+        ...(query.cursor
+          ? {
+              cursor: { id: query.cursor },
+              skip: 1,
+            }
+          : {}),
+        take,
+        orderBy: [{ isFeatured: 'desc' }, { updatedAt: 'desc' }],
+      }),
+      this.prisma.marketplaceListing.count({ where }),
+    ]);
 
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const subCounts = await this.prisma.userStrategySubscription.groupBy({
@@ -232,16 +236,17 @@ export class MarketplaceService {
     return {
       items,
       nextCursor:
-        items.length === query.limit
+        items.length === take
           ? (items[items.length - 1]?.id ?? null)
           : null,
       count: items.length,
+      total,
     };
   }
 
   async findById(id: string, userId?: string, query?: MarketplaceQueryDto) {
     const strategy = await this.prisma.strategy.findFirst({
-      where: { id, deletedAt: null, isPublished: true },
+      where: { id, deletedAt: null },
       include: {
         creator: {
           select: { id: true, fullName: true, avatarUrl: true, country: true },
@@ -251,7 +256,15 @@ export class MarketplaceService {
       },
     });
 
-    if (!strategy || !strategy.listing) {
+    if (!strategy) {
+      throw new NotFoundException('Marketplace strategy not found');
+    }
+
+    const isOwner = Boolean(userId && strategy.creatorId === userId);
+    if (!strategy.isPublished && !isOwner) {
+      throw new NotFoundException('Marketplace strategy not found');
+    }
+    if (!strategy.listing && !isOwner) {
       throw new NotFoundException('Marketplace strategy not found');
     }
 
@@ -301,11 +314,50 @@ export class MarketplaceService {
         })
       : null;
 
-    const documents = await this.strategyDocuments.listPublishedDocuments(id);
+    const documents =
+      isOwner && !strategy.isPublished
+        ? await this.strategyDocuments.listDocuments(id)
+        : await this.strategyDocuments.listPublishedDocuments(id);
+
+    const monthlyPrice = Number(
+      strategy.listing?.monthlyPrice ?? strategy.monthlyPrice ?? 0,
+    );
+    const annualPrice = Number(
+      strategy.listing?.annualPrice ?? strategy.annualPrice ?? 0,
+    );
 
     return {
-      strategy,
-      listing: strategy.listing,
+      strategy: {
+        ...strategy,
+        monthlyPrice,
+        annualPrice,
+        lifetimePrice: Number(strategy.lifetimePrice ?? 0),
+        copiesCount: strategy.copiesCount ?? 0,
+        listing: strategy.listing
+          ? {
+              ...strategy.listing,
+              monthlyPrice,
+              annualPrice,
+              lifetimePrice: Number(strategy.listing.lifetimePrice ?? 0),
+            }
+          : null,
+      },
+      listing: strategy.listing
+        ? {
+            ...strategy.listing,
+            monthlyPrice,
+            annualPrice,
+            lifetimePrice: Number(strategy.listing.lifetimePrice ?? 0),
+          }
+        : {
+            // Owner preview for pending bots without a public listing yet
+            strategyId: strategy.id,
+            monthlyPrice,
+            annualPrice,
+            lifetimePrice: Number(strategy.lifetimePrice ?? 0),
+            trialDays: 7,
+            isFeatured: false,
+          },
       documents,
       reviews: {
         items: reviews,
@@ -315,6 +367,7 @@ export class MarketplaceService {
       },
       countryStats,
       userSubscription,
+      preview: isOwner && !strategy.isPublished,
     };
   }
 

@@ -160,6 +160,16 @@ export default function MarketplaceStrategyDetailPage() {
 
   const displayName = formatBotName(strategy.name);
   const displayDescription = formatBotDescription(strategy.description);
+  const config = (strategy.configJson || {}) as Record<string, unknown>;
+  const strategyStyle =
+    typeof config.strategyStyle === 'string' ? config.strategyStyle : null;
+  const markets = Array.isArray(config.markets)
+    ? (config.markets as string[]).join(', ')
+    : null;
+  const timeframe = typeof config.timeframe === 'string' ? config.timeframe : null;
+  const monthlyPrice = Number(
+    detail?.listing?.monthlyPrice ?? strategy.monthlyPrice ?? 0,
+  );
 
   return (
     <DashboardPage>
@@ -183,40 +193,156 @@ export default function MarketplaceStrategyDetailPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <DashMetricTile label="Category" value={strategy.category} />
         <DashMetricTile label="Risk" value={strategy.riskLevel} />
-        <DashMetricTile label="Monthly" value={`$${Number(detail?.listing?.monthlyPrice || 0).toFixed(2)}`} />
+        <DashMetricTile
+          label="Monthly"
+          value={monthlyPrice > 0 ? `₹${monthlyPrice.toLocaleString('en-IN')}` : 'FREE'}
+        />
         <DashMetricTile label="Subscribers" value={strategy.copiesCount} />
       </div>
+
+      {(strategyStyle || markets || timeframe) && (
+        <DashboardCard className="p-6">
+          <DashSectionTitle className="mb-4">Strategy details</DashSectionTitle>
+          <div className="grid gap-3 sm:grid-cols-3 text-sm">
+            {strategyStyle && (
+              <div>
+                <p className="text-xs text-muted-foreground">Strategy</p>
+                <p className="mt-1 font-medium text-foreground">{strategyStyle}</p>
+              </div>
+            )}
+            {timeframe && (
+              <div>
+                <p className="text-xs text-muted-foreground">Timeframe</p>
+                <p className="mt-1 font-medium text-foreground">{timeframe}</p>
+              </div>
+            )}
+            {markets && (
+              <div>
+                <p className="text-xs text-muted-foreground">Markets</p>
+                <p className="mt-1 font-medium text-foreground">{markets}</p>
+              </div>
+            )}
+          </div>
+        </DashboardCard>
+      )}
 
       <StrategyAnalyticsDashboard strategyId={strategyId} />
 
       {(detail?.documents?.length ?? 0) > 0 && (
         <DashboardCard className="p-6">
-          <DashSectionTitle className="mb-4">Reports & Documents</DashSectionTitle>
-          <div className="grid gap-3 md:grid-cols-2">
-            {detail.documents.map((doc: {
+          <DashSectionTitle className="mb-4">Strategy assets</DashSectionTitle>
+          {(() => {
+            const docs = detail.documents as Array<{
               id: string;
               title: string;
               description?: string | null;
               downloadUrl: string;
               fileSizeBytes: number;
-            }) => (
-              <a
-                key={doc.id}
-                href={doc.downloadUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="dashboard-card flex flex-col gap-1 p-4 transition-colors hover:border-primary/30"
-              >
-                <span className="text-sm font-semibold text-foreground">{doc.title}</span>
-                {doc.description && (
-                  <span className="text-caption text-muted-foreground line-clamp-2">{doc.description}</span>
+              kind?: string;
+              mimeType?: string;
+            }>;
+            const images = docs.filter((d) => d.kind === 'IMAGE' || d.mimeType?.startsWith('image/'));
+            const pdfs = docs.filter((d) => d.kind === 'PDF' || d.mimeType === 'application/pdf');
+            const dataFiles = docs.filter(
+              (d) => d.kind === 'DATA' || (!images.includes(d) && !pdfs.includes(d)),
+            );
+            const sizeLabel = (bytes: number) =>
+              bytes >= 1024 * 1024
+                ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
+                : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+
+            return (
+              <div className="space-y-6">
+                {images.length > 0 && (
+                  <div>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Images
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {images.map((doc) => (
+                        <a
+                          key={doc.id}
+                          href={doc.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="overflow-hidden rounded-xl border border-[var(--card-border)] bg-muted/20 transition-colors hover:border-primary/30"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={doc.downloadUrl}
+                            alt={doc.title}
+                            className="h-40 w-full object-cover"
+                          />
+                          <div className="p-3">
+                            <p className="text-sm font-semibold text-foreground line-clamp-1">{doc.title}</p>
+                            <p className="text-micro text-muted-foreground mt-0.5">{sizeLabel(doc.fileSizeBytes)}</p>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
                 )}
-                <span className="text-micro text-primary mt-1">
-                  Download PDF · {(doc.fileSizeBytes / 1024 / 1024).toFixed(1)} MB
-                </span>
-              </a>
-            ))}
-          </div>
+
+                {pdfs.length > 0 && (
+                  <div>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      PDF documents
+                    </p>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {pdfs.map((doc) => (
+                        <a
+                          key={doc.id}
+                          href={doc.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="dashboard-card flex flex-col gap-1 p-4 transition-colors hover:border-primary/30"
+                        >
+                          <span className="text-sm font-semibold text-foreground">{doc.title}</span>
+                          {doc.description && (
+                            <span className="text-caption text-muted-foreground line-clamp-2">
+                              {doc.description}
+                            </span>
+                          )}
+                          <span className="text-micro text-primary mt-1">
+                            View PDF · {sizeLabel(doc.fileSizeBytes)}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {dataFiles.length > 0 && (
+                  <div>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Data files
+                    </p>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {dataFiles.map((doc) => (
+                        <a
+                          key={doc.id}
+                          href={doc.downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="dashboard-card flex flex-col gap-1 p-4 transition-colors hover:border-primary/30"
+                        >
+                          <span className="text-sm font-semibold text-foreground">{doc.title}</span>
+                          {doc.description && (
+                            <span className="text-caption text-muted-foreground line-clamp-2">
+                              {doc.description}
+                            </span>
+                          )}
+                          <span className="text-micro text-primary mt-1">
+                            Download data · {sizeLabel(doc.fileSizeBytes)}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </DashboardCard>
       )}
 

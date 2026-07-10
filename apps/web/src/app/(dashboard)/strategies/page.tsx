@@ -41,7 +41,7 @@ export default function StrategiesPage() {
   const [selectedCategory, setSelectedCategory] = React.useState('ALL');
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
   const [verifiedOnly, setVerifiedOnly] = React.useState(false);
-  const [sortBy, setSortBy] = React.useState('winRate');
+  const [sortBy, setSortBy] = React.useState('createdAt');
   const [isActivationOpen, setIsActivationOpen] = React.useState(false);
   const [selectedStrategy, setSelectedStrategy] = React.useState<Strategy | null>(null);
 
@@ -151,15 +151,15 @@ export default function StrategiesPage() {
                 Verified only
               </span>
             </div>
-            <Select defaultValue={sortBy} onValueChange={setSortBy}>
+            <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-[160px] h-10 rounded-xl border-[var(--card-border)] bg-card text-xs font-medium">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent className="bg-card border-[var(--card-border)]">
+                <SelectItem value="createdAt">Newest</SelectItem>
                 <SelectItem value="winRate">Performance</SelectItem>
                 <SelectItem value="sharpeRatio">Sharpe ratio</SelectItem>
                 <SelectItem value="copiesCount">Subscribers</SelectItem>
-                <SelectItem value="createdAt">Newest</SelectItem>
                 <SelectItem value="price">Price</SelectItem>
               </SelectContent>
             </Select>

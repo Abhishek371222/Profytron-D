@@ -68,7 +68,6 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: '/documentation', destination: '/docs', permanent: true },
-      { source: '/signup', destination: '/register', permanent: true },
       { source: '/press', destination: '/', permanent: true },
       { source: '/copy-trading', destination: '/my-bots', permanent: false },
     ];

@@ -2,6 +2,18 @@ import { apiClient } from './client';
 
 export type AffiliateTier = 'STARTER' | 'PRO' | 'ELITE';
 
+export type AffiliateFunnelPulse = {
+  clicks: number;
+  signups: number;
+  conversions: number;
+  totalEarned: number;
+  totalPaid: number;
+  pendingPayout: number;
+  signupRate: number;
+  conversionRate: number;
+  payoutRate: number;
+};
+
 export type AffiliateDashboardResponse = {
   referralCode: string;
   tier: AffiliateTier;
@@ -14,6 +26,7 @@ export type AffiliateDashboardResponse = {
     totalEarned: number;
     totalPaid: number;
     pendingPayout: number;
+    funnelPulse?: AffiliateFunnelPulse;
   };
 };
 
@@ -28,6 +41,32 @@ export type AffiliateRecordResponse = {
   conversionCount: number;
   totalEarned: number;
   totalPaid: number;
+};
+
+export type AffiliateReferralItem = {
+  userId: string;
+  fullName: string;
+  emailMasked: string;
+  joinedAt: string;
+  plan: string;
+  converted: boolean;
+};
+
+export type AffiliateReferralsResponse = {
+  total: number;
+  referrals: AffiliateReferralItem[];
+};
+
+export type AffiliateActivityPoint = {
+  label: string;
+  clicks: number;
+  signups: number;
+  conversions: number;
+};
+
+export type AffiliateActivityResponse = {
+  range: string;
+  points: AffiliateActivityPoint[];
 };
 
 const unwrap = <T>(payload: any): T => {
@@ -46,6 +85,16 @@ export const affiliatesApi = {
   async getDashboard() {
     const res = await apiClient.get('/affiliates/dashboard');
     return unwrap<AffiliateDashboardResponse>(res.data);
+  },
+
+  async getReferrals() {
+    const res = await apiClient.get('/affiliates/referrals');
+    return unwrap<AffiliateReferralsResponse>(res.data);
+  },
+
+  async getActivity(range: string) {
+    const res = await apiClient.get('/affiliates/activity', { params: { range } });
+    return unwrap<AffiliateActivityResponse>(res.data);
   },
 
   async trackClick(code: string) {

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
@@ -206,7 +206,7 @@ function LoginPageContent() {
               </div>
             </div>
 
-            <div className="p-7 sm:p-10 lg:p-12">
+            <div className="p-7 sm:p-10 lg:p-12 [color-scheme:light]">
               <motion.div variants={itemVariants} className="mb-8">
                 <BrandLogo size="xl" className="mb-6" />
                 <h1 className="brand-display-heading text-3xl sm:text-4xl">

@@ -11,6 +11,7 @@ const protectedRoutes = [
   '/alpha-coach',
   '/wallet',
   '/affiliate',
+  '/creator',
   '/settings',
   '/admin',
   '/journal',
@@ -30,11 +31,10 @@ export function proxy(request: NextRequest) {
 
 async function handleProxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
-
   const referralCode = searchParams.get('ref') || searchParams.get('referral');
-  if (referralCode) {
-    const response = NextResponse.next();
-    response.cookies.set('referral_code', referralCode, {
+
+  const applyReferral = (response: NextResponse, code: string) => {
+    response.cookies.set('referral_code', code, {
       path: '/',
       maxAge: 60 * 60 * 24 * 30,
       sameSite: 'lax',
@@ -45,14 +45,28 @@ async function handleProxy(request: NextRequest) {
       process.env.NEXT_PUBLIC_BACKEND_URL ||
       'http://localhost:4000';
     void fetch(
-      `${backend}/v1/affiliates/capture/${encodeURIComponent(referralCode)}`,
+      `${backend}/v1/affiliates/capture/${encodeURIComponent(code)}`,
       { method: 'POST' },
     ).catch(() => {});
+    return response;
+  };
+
+  // Canonical register URL — preserve ?ref= and referral cookie (next.config redirect dropped both).
+  if (pathname === '/signup') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/register';
+    const response = NextResponse.redirect(url);
+    if (referralCode) {
+      return updateSession(request, applyReferral(response, referralCode));
+    }
     return updateSession(request, response);
   }
 
-  // Some auth providers can land on "/" with token/code params.
-  // Normalize those callbacks to the dedicated callback route.
+  if (referralCode) {
+    const response = NextResponse.next();
+    return updateSession(request, applyReferral(response, referralCode));
+  }
+
   if (pathname === '/' && searchParams.has('error')) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';

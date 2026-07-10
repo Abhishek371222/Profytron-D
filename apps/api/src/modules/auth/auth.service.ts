@@ -152,8 +152,18 @@ export class AuthService {
       idempotencyKey: `registered:${user.id}`,
     });
 
-    if (dto.referralCode) {
-      await this.affiliatesService.processReferral(user.id, dto.referralCode);
+    if (dto.referralCode?.trim()) {
+      try {
+        await this.affiliatesService.processReferral(
+          user.id,
+          dto.referralCode.trim(),
+        );
+      } catch (error) {
+        this.logger.warn(
+          `Referral processing failed for user ${user.id}. Registration continues.`,
+        );
+        this.logger.debug(String(error));
+      }
     }
 
     if (dto.plan) {

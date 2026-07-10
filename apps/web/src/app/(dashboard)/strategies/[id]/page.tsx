@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { UserAvatar } from '@/components/ui/UserAvatar';
@@ -271,7 +271,7 @@ export default function StrategyDetailPage() {
                   <div className="space-y-3">
                     <h4 className="text-[11px] font-semibold text-primary uppercase tracking-wider">Stability Metrics</h4>
                     <div className="p-4 rounded-xl border border-[var(--card-border)] bg-muted/20 space-y-3">
-                      <MetricRow label="Access Tier" value={strategy.monthlyPrice > 0 ? `$${strategy.monthlyPrice}/mo` : 'Open'} />
+                      <MetricRow label="Access Tier" value={strategy.monthlyPrice > 0 ? `₹${Number(strategy.monthlyPrice).toLocaleString('en-IN')}/mo` : 'Open'} />
                       <MetricRow label="Risk Level" value={strategy.riskLevel} />
                       <MetricRow label="Subscribers" value={String(strategy.copiesCount ?? 0)} />
                       <MetricRow label="Verified" value={strategy.isVerified ? 'Yes' : 'No'} />

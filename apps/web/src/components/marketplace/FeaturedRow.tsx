@@ -180,7 +180,7 @@ export function FeaturedRow({ strategies = [], onSubscribe }: FeaturedRowProps) 
                   <div>
                     <p className="text-xs text-muted-foreground">Monthly</p>
                     <p className="text-xl font-bold text-foreground">
-                      {price > 0 ? `$${price.toLocaleString()}` : "FREE"}
+                      {price > 0 ? `₹${price.toLocaleString('en-IN')}` : "FREE"}
                     </p>
                   </div>
                   <Button

@@ -78,7 +78,7 @@ export function MarketplaceStrategyTable({
                   </div>
                 </div>
                 <span className="shrink-0 text-sm font-bold text-foreground">
-                  {s.price > 0 ? `$${s.price.toLocaleString()}` : "FREE"}
+                  {s.price > 0 ? `₹${s.price.toLocaleString('en-IN')}` : "FREE"}
                 </span>
               </div>
 
@@ -270,7 +270,7 @@ export function MarketplaceStrategyTable({
                     </div>
                   </td>
                   <td className="px-4 py-4 text-right text-sm font-bold text-foreground">
-                    {s.price > 0 ? `$${s.price.toLocaleString()}` : "FREE"}
+                    {s.price > 0 ? `₹${s.price.toLocaleString('en-IN')}` : "FREE"}
                   </td>
                   <td className="px-4 py-4 text-right">
                     <Button

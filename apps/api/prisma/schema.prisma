@@ -120,6 +120,13 @@ enum AffiliateTier {
   ELITE
 }
 
+enum AffiliateFunnelEventType {
+  CLICK
+  SIGNUP
+  CONVERSION
+  PAYOUT
+}
+
 enum AchievementTier {
   BRONZE
   SILVER
@@ -224,6 +231,8 @@ model User {
   notificationPreference    NotificationPreference?
   affiliateRecord           Affiliate?             @relation("UserAffiliate")
   referrals          Affiliate[]                @relation("ReferrerAffiliate")
+  affiliateFunnelEventsAsReferrer AffiliateFunnelEvent[] @relation("AffiliateFunnelReferrer")
+  affiliateFunnelEventsAsReferee  AffiliateFunnelEvent[] @relation("AffiliateFunnelReferee")
   reviews            StrategyReview[]
   auditLogs          AuditLog[]
   kycDocuments       KycDocument[]
@@ -336,6 +345,9 @@ model Strategy {
   masterBrokerAccountId String?
   masterBrokerAccount   BrokerAccount?     @relation("StrategyMasterAccount", fields: [masterBrokerAccountId], references: [id], onDelete: SetNull)
   copyFactoryStrategyId String?
+  reviewStartedAt       DateTime?
+  reviewEndsAt          DateTime?
+  reviewNotes           String?            @db.Text
   deletedAt             DateTime?
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
@@ -516,6 +528,21 @@ model Affiliate {
   updatedAt       DateTime      @updatedAt
 
   @@index([referrerId])
+}
+
+model AffiliateFunnelEvent {
+  id         String                   @id @default(uuid())
+  referrerId String
+  referrer   User                     @relation("AffiliateFunnelReferrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  refereeId  String?
+  referee    User?                    @relation("AffiliateFunnelReferee", fields: [refereeId], references: [id], onDelete: SetNull)
+  eventType  AffiliateFunnelEventType
+  amount     Float                    @default(0)
+  sourceRef  String?                  @unique
+  createdAt  DateTime                 @default(now())
+
+  @@index([referrerId, createdAt])
+  @@index([referrerId, eventType])
 }
 
 model UserAchievement {
@@ -1321,6 +1348,7 @@ model StrategyDocument {
   strategy      Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
   title         String
   description   String?  @db.Text
+  kind          String   @default("PDF") // IMAGE | PDF | DATA
   storageKey    String
   mimeType      String   @default("application/pdf")
   fileSizeBytes Int
@@ -1331,6 +1359,7 @@ model StrategyDocument {
   updatedAt     DateTime @updatedAt
 
   @@index([strategyId, isPublished, sortOrder])
+  @@index([strategyId, kind])
 }
 
 model ProvisioningJob {
