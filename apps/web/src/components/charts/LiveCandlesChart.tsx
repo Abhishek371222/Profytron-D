@@ -102,139 +102,15 @@ function nicePriceTicks(min: number, max: number, target = 5): number[] {
 const MAX_VISIBLE_CANDLES = 72;
 const CHART_H = 360;
 
-const TIMEFRAME_SECONDS: Record<MarketTimeframe, number> = {
-	'1m': 60,
-	'5m': 300,
-	'15m': 900,
-	'1h': 3600,
-	'4h': 14400,
-	'1d': 86400,
-};
-
-const BASE_PRICE: Record<MarketSymbol, number> = {
-	BTCUSDT: 94_250,
-	EURUSD: 1.0842,
-	XAUUSD: 2_654.3,
-};
-
-function hashString(input: string): number {
-	let hash = 0;
-	for (let i = 0; i < input.length; i += 1) {
-		hash = (hash * 31 + input.charCodeAt(i)) >>> 0;
-	}
-	return hash;
-}
-
-function seededNoise(seed: number): number {
-	const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43_758.5453;
-	return x - Math.floor(x);
-}
-
-function bodySpreadFor(symbol: MarketSymbol, price: number): number {
-	if (symbol === 'BTCUSDT') return Math.max(55, price * 0.0028);
-	if (symbol === 'XAUUSD') return Math.max(3.8, price * 0.0019);
-	return Math.max(0.00035, price * 0.0012);
-}
-
-/** Seeded random-walk OHLC — stable, realistic (no sine waves). */
-function generateDemoCandles(
-	symbol: MarketSymbol,
-	timeframe: MarketTimeframe,
-	count = MAX_VISIBLE_CANDLES,
-): CandlePoint[] {
-	const intervalSec = TIMEFRAME_SECONDS[timeframe];
-	const now = Math.floor(Date.now() / 1000);
-	const currentBucket = Math.floor(now / intervalSec) * intervalSec;
-	const firstBucket = currentBucket - (count - 1) * intervalSec;
-	let previousClose = BASE_PRICE[symbol];
-	const decimals = symbol === 'EURUSD' ? 6 : 2;
-
-	return Array.from({ length: count }, (_, index) => {
-		const bucket = firstBucket + index * intervalSec;
-		const spread = bodySpreadFor(symbol, previousClose);
-		const noiseA = seededNoise(hashString(`${symbol}-${timeframe}-${bucket}`));
-		const noiseB = seededNoise(hashString(`${timeframe}-${symbol}-${bucket}-body`));
-		const wickSpread = spread * 1.65;
-
-		const open = previousClose + (noiseA - 0.5) * spread;
-		const close = open + (noiseB - 0.5) * spread;
-		const high = Math.max(open, close) + seededNoise(index + bucket) * wickSpread;
-		const low = Math.min(open, close) - seededNoise(index + bucket + 67) * wickSpread;
-		const volume =
-			symbol === 'BTCUSDT'
-				? Math.round(120 + seededNoise(index + bucket) * 950)
-				: symbol === 'XAUUSD'
-					? Math.round(80 + seededNoise(index + bucket) * 540)
-					: Math.round(50 + seededNoise(index + bucket) * 320);
-
-		previousClose = close;
-		return {
-			time: bucket,
-			open: Number(open.toFixed(decimals)),
-			high: Number(high.toFixed(decimals)),
-			low: Number(low.toFixed(decimals)),
-			close: Number(close.toFixed(decimals)),
-			volume,
-		};
-	});
-}
-
-const BINANCE_INTERVAL: Record<MarketTimeframe, string> = {
-	'1m': '1m',
-	'5m': '5m',
-	'15m': '15m',
-	'1h': '1h',
-	'4h': '4h',
-	'1d': '1d',
-};
-
-async function fetchBinanceKlines(
-	symbol: MarketSymbol,
-	timeframe: MarketTimeframe,
-	limit: number,
-): Promise<CandlePoint[] | null> {
-	if (symbol !== 'BTCUSDT') return null;
-	try {
-		const res = await fetch(
-			`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${BINANCE_INTERVAL[timeframe]}&limit=${limit}`,
-			{ cache: 'no-store' },
-		);
-		if (!res.ok) return null;
-		const rows = (await res.json()) as unknown[];
-		if (!Array.isArray(rows) || rows.length === 0) return null;
-		return rows.map((row) => {
-			const k = row as [number, string, string, string, string, string];
-			return {
-				time: Math.floor(k[0] / 1000),
-				open: Number.parseFloat(k[1]),
-				high: Number.parseFloat(k[2]),
-				low: Number.parseFloat(k[3]),
-				close: Number.parseFloat(k[4]),
-				volume: Number.parseFloat(k[5]),
-			};
-		});
-	} catch {
-		return null;
-	}
-}
-
 async function fetchChartCandles(
 	symbol: MarketSymbol,
 	timeframe: MarketTimeframe,
 	limit: number,
 ): Promise<CandlePoint[]> {
-	try {
-		const response = await marketApi.getOHLC({ symbol, timeframe, limit });
-		const fromApi = response?.candles ? toCandleDataFromApi(response.candles) : [];
-		if (fromApi.length > 0) return fromApi.slice(-limit);
-	} catch {
-		// Fall through to public / demo sources.
-	}
-
-	const fromBinance = await fetchBinanceKlines(symbol, timeframe, limit);
-	if (fromBinance?.length) return fromBinance.slice(-limit);
-
-	return generateDemoCandles(symbol, timeframe, limit);
+	const response = await marketApi.getOHLC({ symbol, timeframe, limit });
+	const fromApi = response?.candles ? toCandleDataFromApi(response.candles) : [];
+	if (fromApi.length > 0) return fromApi.slice(-limit);
+	throw new Error(`Live OHLC unavailable for ${symbol}`);
 }
 
 export function LiveCandlesChart({
@@ -284,21 +160,25 @@ export function LiveCandlesChart({
 	const marketQuery = useQuery({
 		queryKey: ['market-ohlc', symbol, timeframe],
 		queryFn: () => fetchChartCandles(symbol, timeframe, MAX_VISIBLE_CANDLES),
-		staleTime: 120_000,
-		refetchOnWindowFocus: false,
+		staleTime: timeframe === '1m' || timeframe === '5m' ? 15_000 : 45_000,
+		refetchInterval: timeframe === '1m' ? 20_000 : timeframe === '5m' ? 30_000 : 60_000,
+		refetchOnWindowFocus: true,
 		enabled: mounted,
 	});
 
 	const candles = React.useMemo(() => {
 		if (marketQuery.data?.length) return marketQuery.data.slice(-MAX_VISIBLE_CANDLES);
-		if (mounted && !marketQuery.isLoading) {
-			return generateDemoCandles(symbol, timeframe, MAX_VISIBLE_CANDLES);
-		}
 		return [];
-	}, [marketQuery.data, marketQuery.isLoading, mounted, symbol, timeframe]);
+	}, [marketQuery.data]);
 
 	const precision = symbolToPricePrecision(symbol);
 	const lastClose = candles[candles.length - 1]?.close;
+	const firstClose = candles[0]?.close;
+	const sessionChangePct =
+		lastClose != null && firstClose
+			? ((lastClose - firstClose) / firstClose) * 100
+			: null;
+	const isLiveData = Boolean(marketQuery.data?.length && !marketQuery.isError);
 
 	const layout = React.useMemo(() => {
 		const margin = { top: 12, right: 76, bottom: 28, left: 8 };
@@ -409,22 +289,48 @@ export function LiveCandlesChart({
 		>
 			{/* Toolbar — sits above chart, never overlays candles */}
 			<div className="flex flex-wrap items-center justify-between gap-2 shrink-0 mb-3 px-1">
-				<div className="flex items-center gap-1 rounded-xl border border-[var(--card-border)] bg-muted/40 p-1">
-					{symbolOptions.map((option) => (
-						<button
-							key={option}
-							type="button"
-							onClick={() => setSymbol(option)}
-							className={cn(
-								'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
-								symbol === option
-									? 'bg-primary/10 text-primary border border-primary/25 shadow-sm'
-									: 'text-muted-foreground hover:text-foreground hover:bg-card border border-transparent',
+				<div className="flex items-center gap-2 flex-wrap">
+					<div className="flex items-center gap-1 rounded-xl border border-[var(--card-border)] bg-muted/40 p-1">
+						{symbolOptions.map((option) => (
+							<button
+								key={option}
+								type="button"
+								onClick={() => setSymbol(option)}
+								className={cn(
+									'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all',
+									symbol === option
+										? 'bg-primary/10 text-primary border border-primary/25 shadow-sm'
+										: 'text-muted-foreground hover:text-foreground hover:bg-card border border-transparent',
+								)}
+							>
+								{option}
+							</button>
+						))}
+					</div>
+					{lastClose != null && (
+						<div className="flex items-center gap-2 text-xs tabular-nums">
+							<span className="font-bold text-foreground">
+								{formatPrice(lastClose, precision)}
+							</span>
+							{sessionChangePct != null && (
+								<span
+									className={cn(
+										'font-semibold',
+										sessionChangePct >= 0 ? 'text-primary' : 'text-destructive',
+									)}
+								>
+									{sessionChangePct >= 0 ? '+' : ''}
+									{sessionChangePct.toFixed(2)}%
+								</span>
 							)}
-						>
-							{option}
-						</button>
-					))}
+							{isLiveData && (
+								<span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+									<span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+									Live
+								</span>
+							)}
+						</div>
+					)}
 				</div>
 
 				<div className="flex items-center gap-2">
@@ -591,7 +497,11 @@ export function LiveCandlesChart({
 				) : (
 					<div className="grid h-full min-h-[280px] place-items-center px-6 text-center">
 						<p className="text-sm text-muted-foreground">
-							{marketQuery.isLoading ? 'Loading chart…' : 'Chart will appear shortly.'}
+							{marketQuery.isLoading
+								? 'Loading live chart…'
+								: marketQuery.isError
+									? 'Could not load live candles. Retrying…'
+									: 'Waiting for live market data…'}
 						</p>
 					</div>
 				)}

@@ -25,13 +25,6 @@ const REST_CANDIDATE_PATHS = ['/market/quote'];
 
 const SUPPORTED_SYMBOLS: SupportedSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'];
 
-/** Demo quotes so dashboard cards never stay on skeleton when API is offline */
-const FALLBACK_QUOTES: LiveQuoteMap = {
-  BTCUSDT: { symbol: 'BTCUSDT', price: 94_250, change24hPct: 1.24, timestamp: new Date().toISOString(), source: 'rest' },
-  EURUSD: { symbol: 'EURUSD', price: 1.0842, change24hPct: -0.18, timestamp: new Date().toISOString(), source: 'rest' },
-  XAUUSD: { symbol: 'XAUUSD', price: 2654.3, change24hPct: 0.42, timestamp: new Date().toISOString(), source: 'rest' },
-};
-
 const toWsBaseUrl = (raw?: string): string => {
   const fallback = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:4000';
   const value = (raw || fallback).trim();
@@ -105,9 +98,7 @@ export function useLiveMarketFeed(
   const enabled = options.enabled ?? true;
   const allowFallback = options.allowFallback ?? true;
   const accessToken = useAuthStore((s) => s.accessToken);
-  const [quotes, setQuotes] = React.useState<LiveQuoteMap>(() =>
-    enabled && allowFallback ? { ...FALLBACK_QUOTES } : {},
-  );
+  const [quotes, setQuotes] = React.useState<LiveQuoteMap>(() => ({}));
   const [priceHistory, setPriceHistory] = React.useState<Partial<Record<SupportedSymbol, number[]>>>({});
   const [wsConnected, setWsConnected] = React.useState(false);
   const [lastWsAt, setLastWsAt] = React.useState(0);
@@ -166,16 +157,13 @@ export function useLiveMarketFeed(
     if (Object.keys(next).length > 0) {
       setQuotes((prev) => ({ ...prev, ...next }));
       appendHistory(next);
-    } else if (allowFallback) {
-      setQuotes((prev) => (Object.keys(prev).length ? prev : FALLBACK_QUOTES));
-      appendHistory(FALLBACK_QUOTES);
     }
-  }, [stableSymbols, appendHistory, allowFallback]);
+  }, [stableSymbols, appendHistory]);
 
   React.useEffect(() => {
     if (!enabled) return;
     pollOnce();
-    const pollMs = wsLive ? 120_000 : 60_000;
+    const pollMs = wsLive ? 45_000 : 20_000;
     const timer = window.setInterval(pollOnce, pollMs);
     return () => window.clearInterval(timer);
   }, [pollOnce, enabled, wsLive]);

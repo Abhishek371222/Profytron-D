@@ -190,12 +190,13 @@ export function DashboardMarketCards({
         const spark = q
           ? buildSparklinePoints(q.sparkline, q.price, q.change24hPct)
           : [];
-        const formattedPrice = q
-          ? q.price.toLocaleString("en-US", {
-              minimumFractionDigits: precision,
-              maximumFractionDigits: precision,
-            })
-          : "—";
+        const formattedPrice =
+          q && Number.isFinite(q.price) && q.price > 0
+            ? q.price.toLocaleString("en-US", {
+                minimumFractionDigits: precision,
+                maximumFractionDigits: precision,
+              })
+            : "—";
 
         return (
           <motion.div

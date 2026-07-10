@@ -42,14 +42,15 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
 
   const { quotes, priceHistory, wsConnected, refresh: refreshQuotes } = useLiveMarketFeed(
     ['BTCUSDT', 'EURUSD', 'XAUUSD'],
-    { enabled: isAuthenticated, allowFallback: !hasBrokerAccount },
+    { enabled: isAuthenticated, allowFallback: true },
   );
 
   const portfolioQuery = useQuery({
     queryKey: ['portfolio', apiRange],
     queryFn: () => analyticsApi.getPortfolio(apiRange),
-    staleTime: 60_000,
-    refetchOnWindowFocus: false,
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
     enabled: isAuthenticated,
     placeholderData: (prev) => prev,
   });

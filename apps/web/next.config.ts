@@ -79,7 +79,7 @@ const nextConfig: NextConfig = {
       return [];
     }
 
-    // Keep broker + live trading/analytics + copy-link on Vercel (Render stuck).
+    // Keep broker + live trading/analytics/market + copy-link on Vercel (Render stuck).
     return [
       {
         source: "/api/broker/:path*",
@@ -98,8 +98,16 @@ const nextConfig: NextConfig = {
         destination: "/api/copy/:path*",
       },
       {
+        source: "/api/market/:path*",
+        destination: "/api/market/:path*",
+      },
+      {
         source: "/api/analytics/trades/:path*",
         destination: "/api/analytics/trades/:path*",
+      },
+      {
+        source: "/api/analytics/portfolio",
+        destination: "/api/analytics/portfolio",
       },
       {
         source: "/api/:path*",
