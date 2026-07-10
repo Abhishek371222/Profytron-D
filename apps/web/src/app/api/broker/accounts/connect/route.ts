@@ -358,11 +358,33 @@ export async function POST(req: NextRequest) {
       accountRow = created[0];
     }
 
+    // Checklist + auto-link any pending copy subscriptions for this user.
+    let copyLink: unknown = null;
+    try {
+      const { trackActivation, linkUserCopySubscriptions } = await import(
+        '@/lib/server/copy-link'
+      );
+      await trackActivation(sql as any, userId, 'BROKER_CONNECTED', {
+        brokerAccountId: accountRow.id,
+        metaApiAccountId: accountId,
+      });
+      copyLink = await linkUserCopySubscriptions({
+        sql: sql as any,
+        userId,
+        metaToken,
+        aesKey,
+        // link all pending/active copy bots now that MT5 is live
+      });
+    } catch (linkErr: any) {
+      console.warn('[broker/connect] copy link:', linkErr?.message || linkErr);
+    }
+
     return json({
       ...accountRow,
       pending,
       masterOnly: false,
       executionPath: 'metaapi_rpc',
+      copyLink,
       accountInfo: {
         balance,
         equity,

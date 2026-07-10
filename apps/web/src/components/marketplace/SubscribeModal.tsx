@@ -80,6 +80,7 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
       setIsProvisioning(true);
       setShowSuccess(true);
       toast.success('Payment confirmed — your bot is being set up');
+      void wireLiveCopy();
       return;
     }
 
@@ -99,6 +100,7 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
         setIsProvisioning(true);
         setShowSuccess(true);
         toast.success('Payment confirmed — your bot is being set up');
+        void wireLiveCopy();
       },
       onDismiss: () => {
         toast.info('Payment cancelled');
@@ -107,6 +109,29 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
         toast.error(description || 'Payment failed');
       },
     });
+  };
+
+  /** MetaApi SUBSCRIBER + CopyFactory strategy link (Vercel — Render stuck). */
+  const wireLiveCopy = async () => {
+    try {
+      // Nest may still be writing the subscription row — brief retry.
+      for (let i = 0; i < 4; i++) {
+        if (i > 0) await new Promise((r) => setTimeout(r, 1500));
+        const link = await marketplaceApi.ensureCopyLink({
+          strategyId: strategy.id,
+        });
+        if (link?.linked > 0 || link?.ready) {
+          toast.success('Live copy trading is ready');
+          return;
+        }
+        if (link?.results?.some((r: any) => r.status === 'error')) {
+          const msg = link.results.find((r: any) => r.status === 'error')?.message;
+          if (msg && i === 3) toast.error('Copy link pending', { description: msg });
+        }
+      }
+    } catch (e: any) {
+      console.warn('[copy/link]', e?.message || e);
+    }
   };
 
   const submit = async () => {
@@ -119,11 +144,12 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
         setShowSuccess(true);
         toast.success(
           response.provisioning
-            ? 'Subscription processing — your bot will activate shortly'
+            ? 'Subscription processing — wiring live copy now'
             : response.trial
               ? 'Trial activated successfully'
               : 'Subscription activated',
         );
+        void wireLiveCopy();
         return;
       }
 

@@ -79,8 +79,7 @@ const nextConfig: NextConfig = {
       return [];
     }
 
-    // Keep broker + live trading/analytics on Vercel (Render API stuck on 1.0.0).
-    // Includes execute/close/modify/order/lot-size — not just GET reads.
+    // Keep broker + live trading/analytics + copy-link on Vercel (Render stuck).
     return [
       {
         source: "/api/broker/:path*",
@@ -93,6 +92,10 @@ const nextConfig: NextConfig = {
       {
         source: "/api/trading/lot-size",
         destination: "/api/trading/lot-size",
+      },
+      {
+        source: "/api/copy/:path*",
+        destination: "/api/copy/:path*",
       },
       {
         source: "/api/analytics/trades/:path*",

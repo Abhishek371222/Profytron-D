@@ -250,8 +250,11 @@ export class BrokerService {
           JSON.stringify({
             login,
             password,
+            platform,
+            serverName,
             metaApiAccountId: connectionResult.metaApiAccountId,
             metaApiRegion: connectionResult.metaApiRegion,
+            executionMode: 'metaapi_rpc',
           }),
         );
         await this.prisma.brokerAccount.update({

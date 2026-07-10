@@ -610,12 +610,22 @@ export class MarketplaceService {
           subscribedAt: new Date(),
           riskOverrideEnabled: false,
           executionPriority: 0,
+          lotMultiplier: 1,
+          executionProfileJson: {
+            sizingMode: 'MULTIPLIER',
+            copyFactoryPending: true,
+          },
         },
         update: {
           brokerAccountId: broker.id,
           status: SubscriptionStatus.PROVISIONING,
           planType,
           subscribedAt: new Date(),
+          lotMultiplier: 1,
+          executionProfileJson: {
+            sizingMode: 'MULTIPLIER',
+            copyFactoryPending: true,
+          },
         },
       });
       await this.activationService.track(
@@ -659,6 +669,11 @@ export class MarketplaceService {
           subscribedAt: new Date(),
           riskOverrideEnabled: false,
           executionPriority: 0,
+          lotMultiplier: 1,
+          executionProfileJson: {
+            sizingMode: 'MULTIPLIER',
+            copyFactoryPending: true,
+          },
         },
         update: {
           brokerAccountId: broker.id,
@@ -666,6 +681,11 @@ export class MarketplaceService {
           planType,
           trialEndsAt,
           subscribedAt: new Date(),
+          lotMultiplier: 1,
+          executionProfileJson: {
+            sizingMode: 'MULTIPLIER',
+            copyFactoryPending: true,
+          },
         },
       });
       await this.activationService.track(

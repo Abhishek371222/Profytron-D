@@ -826,6 +826,11 @@ export class PaymentsService {
           subscribedAt: new Date(),
           expiresAt,
           trialEndsAt: null,
+          lotMultiplier: 1,
+          executionProfileJson: {
+            sizingMode: 'MULTIPLIER',
+            copyFactoryPending: true,
+          },
         },
         update: {
           status: SubscriptionStatus.PROVISIONING,
@@ -835,6 +840,11 @@ export class PaymentsService {
           subscribedAt: new Date(),
           expiresAt,
           trialEndsAt: null,
+          lotMultiplier: 1,
+          executionProfileJson: {
+            sizingMode: 'MULTIPLIER',
+            copyFactoryPending: true,
+          },
         },
       });
 

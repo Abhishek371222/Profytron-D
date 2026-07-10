@@ -87,6 +87,26 @@ export default function MyBotsPage() {
     staleTime: 30_000,
   });
 
+  // Self-heal: PROVISIONING copy bots get MetaApi CF wiring (Render queue is stuck).
+  React.useEffect(() => {
+    const needsWire = bots.some((b) => b.status === 'PROVISIONING');
+    if (!needsWire) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const link = await marketplaceApi.ensureCopyLink();
+        if (!cancelled && (link?.linked > 0 || link?.ready)) {
+          qc.invalidateQueries({ queryKey: ['my-bots'] });
+        }
+      } catch {
+        /* best-effort */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [bots, qc]);
+
   const recommendedQuery = useQuery({
     queryKey: ['marketplace-recommended'],
     queryFn: () => marketplaceApi.getMarketplace({ limit: 9, sort: 'trending' }),

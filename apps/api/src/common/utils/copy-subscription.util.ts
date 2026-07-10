@@ -19,15 +19,20 @@ const PAID_PLAN_TYPES = new Set([
 ]);
 
 /**
- * True when subscription is active, not expired, and payment was completed
- * (no unpaid trial). `stripeSubId` holds a Stripe subscription id OR a
- * Razorpay/order payment reference after activateSubscription.
+ * True when subscription can receive CopyFactory linking / live copy.
+ * Includes PROVISIONING so activate→link works before status flips to ACTIVE.
+ * Excludes unpaid trials (trialEndsAt set, no payment ref).
  */
 export function isPaidCopySubscription(
   sub: CopySubFields,
   now = new Date(),
 ): boolean {
-  if (sub.status !== SubscriptionStatus.ACTIVE) return false;
+  if (
+    sub.status !== SubscriptionStatus.ACTIVE &&
+    sub.status !== SubscriptionStatus.PROVISIONING
+  ) {
+    return false;
+  }
   if (sub.expiresAt && sub.expiresAt <= now) return false;
 
   const hasPaymentRef = Boolean(sub.stripeSubId);
@@ -37,9 +42,12 @@ export function isPaidCopySubscription(
 
   if (hasPaymentRef) return true;
 
-  // Paid one-shot / non-Stripe activation that set a known paid plan type
-  // (Razorpay paths that store planType without leaving an open unpaid trial).
+  // Paid one-shot / free marketplace activation with a known plan type
+  // (Razorpay paths and free master-copy bots).
   if (sub.planType && PAID_PLAN_TYPES.has(sub.planType)) return true;
+
+  // Free copy bots often leave planType null — still link while provisioning.
+  if (sub.status === SubscriptionStatus.PROVISIONING) return true;
 
   return false;
 }
