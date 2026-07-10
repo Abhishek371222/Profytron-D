@@ -27,6 +27,9 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   compress: true, // Enable gzip compression
   allowedDevOrigins: ["192.168.1.7"],
+  turbopack: {
+    root: process.cwd(),
+  },
 
   // Tree-shake large packages — only import used icons/components
   experimental: {
@@ -62,6 +65,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com", port: "", pathname: "/**" },
       { protocol: "https", hostname: "avatars.githubusercontent.com", port: "", pathname: "/**" },
       { protocol: "https", hostname: "*.supabase.co", port: "", pathname: "/storage/**" },
+      { protocol: "https", hostname: "images.unsplash.com", port: "", pathname: "/**" },
     ],
   },
 

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 480" fill="none" aria-hidden="true">
+  <defs>
+    <radialGradient id="lightSphere" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="45%" stop-color="#F4F9FB"/>
+      <stop offset="100%" stop-color="#E8F4F8"/>
+    </radialGradient>
+    <radialGradient id="lightAtmo" cx="50%" cy="50%" r="52%">
+      <stop offset="75%" stop-color="transparent"/>
+      <stop offset="92%" stop-color="#9FE1F3" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#348398" stop-opacity="0.15"/>
+    </radialGradient>
+    <radialGradient id="lightGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ADFFFC" stop-opacity="0.35"/>
+      <stop offset="70%" stop-color="#348398" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="transparent"/>
+    </radialGradient>
+    <pattern id="dotMatrix" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.1" fill="#348398" opacity="0.22"/>
+    </pattern>
+  </defs>
+  <circle cx="240" cy="240" r="210" fill="url(#lightGlow)"/>
+  <g style="transform-origin:240px 240px">
+    <circle cx="240" cy="240" r="148" fill="url(#lightSphere)" stroke="#C4E8E7" stroke-width="1"/>
+    <circle cx="240" cy="240" r="148" fill="url(#lightAtmo)"/>
+    <ellipse cx="240" cy="240" rx="148" ry="48" stroke="#348398" stroke-width="1" opacity="0.45"/>
+    <ellipse cx="240" cy="240" rx="148" ry="88" stroke="#348398" stroke-width="0.75" opacity="0.35"/>
+    <ellipse cx="240" cy="240" rx="148" ry="128" stroke="#348398" stroke-width="0.6" opacity="0.28"/>
+    <ellipse cx="240" cy="240" rx="48" ry="148" stroke="#348398" stroke-width="0.75" opacity="0.32"/>
+    <ellipse cx="240" cy="240" rx="88" ry="148" stroke="#348398" stroke-width="0.6" opacity="0.26"/>
+    <path d="M125 205 Q175 168 235 182 T345 195 Q315 235 255 248 T135 262 Z" fill="url(#dotMatrix)" opacity="0.85"/>
+    <path d="M155 295 Q215 275 285 290 T365 305 Q325 335 245 340 T145 315 Z" fill="#FFFFFF" stroke="#BFECEB" stroke-width="0.8" opacity="0.9"/>
+    <path d="M190 198 Q235 165 305 225" stroke="#348398" stroke-width="0.9" opacity="0.4" stroke-dasharray="4 6"/>
+    <path d="M175 252 Q245 205 268 180" stroke="#9FE1F3" stroke-width="0.8" opacity="0.5" stroke-dasharray="3 5"/>
+    <circle cx="188" cy="198" r="2.5" fill="#348398" opacity="0.55"/>
+    <circle cx="268" cy="178" r="2" fill="#348398" opacity="0.45"/>
+    <circle cx="312" cy="232" r="2.5" fill="#348398" opacity="0.5"/>
+    <circle cx="224" cy="288" r="2" fill="#348398" opacity="0.4"/>
+    <ellipse cx="200" cy="175" rx="28" ry="12" fill="#FFFFFF" opacity="0.55" transform="rotate(-18 200 175)"/>
+  </g>
+</svg>

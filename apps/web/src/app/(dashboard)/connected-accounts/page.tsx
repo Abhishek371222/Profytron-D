@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { brokerApi } from '@/lib/api/broker';
 import { BrokerConnectModal } from '@/components/copy-trading/BrokerConnectModal';
+import { AccountDetailsModal } from '@/components/broker/AccountDetailsModal';
 import {
   AlertTriangle,
   Bot,
@@ -47,6 +48,9 @@ interface BrokerAccount {
   balanceNote?: string;
   login?: string;
   fillMode?: string;
+  initialEquity?: number;
+  isDefault?: boolean;
+  isMasterSource?: boolean;
 }
 
 interface LinkedBot {
@@ -125,6 +129,7 @@ function timeAgo(dateStr: string) {
 export default function ConnectedAccountsPage() {
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = React.useState(false);
+  const [detailsAccount, setDetailsAccount] = React.useState<BrokerAccount | null>(null);
 
   // Fetch broker accounts (real endpoint). Refetch periodically so live
   // balances and a still-connecting account update without a manual refresh.
@@ -158,6 +163,9 @@ export default function ConnectedAccountsPage() {
             typeof a.balanceNote === 'string' ? a.balanceNote : undefined,
           login: a.login ? String(a.login) : undefined,
           fillMode: a.fillMode ?? undefined,
+          initialEquity: a.initialEquity ?? undefined,
+          isDefault: !!a.isDefault,
+          isMasterSource: !!a.isMasterSource,
         };
       });
     },
@@ -276,23 +284,7 @@ export default function ConnectedAccountsPage() {
   };
 
   const handleViewDetails = (account: BrokerAccount) => {
-    const lines = [
-      `${account.brokerName} ···${account.accountNumber} · ${account.accountType}`,
-      account.serverName ? `Server: ${account.serverName}` : null,
-      account.login ? `Login: ${account.login}` : null,
-      account.balance != null
-        ? `Balance ${formatInr(account.balance, account.currency)}`
-        : account.storeOnly
-          ? 'Balance: not synced yet — disconnect and reconnect to provision MetaApi'
-          : 'No live balance cached yet',
-      account.fillMode ? `Mode: ${account.fillMode}` : null,
-      account.balanceNote ?? null,
-    ].filter(Boolean);
-
-    toast.info(lines[0] as string, {
-      description: lines.slice(1).join('\n'),
-      duration: 8_000,
-    });
+    setDetailsAccount(account);
   };
 
   const refresh = () => {
@@ -310,6 +302,18 @@ export default function ConnectedAccountsPage() {
           queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
           queryClient.invalidateQueries({ queryKey: ['connected-bots'] });
         }}
+      />
+
+      <AccountDetailsModal
+        account={detailsAccount}
+        onClose={() => setDetailsAccount(null)}
+        onReconnect={(account) => {
+          setDetailsAccount(null);
+          handleReconnect(account);
+        }}
+        maskAccount={maskAccount}
+        formatAmount={formatInr}
+        timeAgo={timeAgo}
       />
 
       {/* Breadcrumb */}
