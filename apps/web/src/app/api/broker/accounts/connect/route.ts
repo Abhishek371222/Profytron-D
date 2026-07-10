@@ -325,7 +325,7 @@ export async function POST(req: NextRequest) {
         UPDATE "BrokerAccount"
         SET "credentialsEncrypted" = ${credentialsEncrypted},
             "initialEquity" = ${equity || balance || null},
-            "updatedAt" = ${now}::timestamptz
+            "lastConnectedAt" = ${now}::timestamptz
         WHERE id = ${existing[0].id}
         RETURNING id, "brokerName", "accountNumberLast4", "serverName",
                   "isPaperTrading", "isDefault", "isActive", "connectedAt",
@@ -343,12 +343,13 @@ export async function POST(req: NextRequest) {
         INSERT INTO "BrokerAccount" (
           id, "userId", "brokerName", "accountNumberLast4",
           "credentialsEncrypted", "serverName", "isPaperTrading",
-          "isDefault", "isActive", "connectedAt", "updatedAt", "initialEquity"
+          "isDefault", "isActive", "connectedAt", "createdAt",
+          "lastConnectedAt", "initialEquity"
         ) VALUES (
           ${id}, ${userId}, ${resolvedBrokerName}, ${last4},
           ${credentialsEncrypted}, ${serverName}, false,
           ${isDefault}, true, ${now}::timestamptz, ${now}::timestamptz,
-          ${equity || balance || null}
+          ${now}::timestamptz, ${equity || balance || null}
         )
         RETURNING id, "brokerName", "accountNumberLast4", "serverName",
                   "isPaperTrading", "isDefault", "isActive", "connectedAt",
