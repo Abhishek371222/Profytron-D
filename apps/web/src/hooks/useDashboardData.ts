@@ -8,7 +8,7 @@ import { walletApi } from '@/lib/api/wallet';
 import { strategiesApi } from '@/lib/api/strategies';
 import { brokerApi } from '@/lib/api/broker';
 import { riskApi } from '@/lib/api/risk';
-import { useLiveMarketFeed } from '@/hooks/useLiveMarketFeed';
+import { useLiveMarketFeed, isFakeNestQuote } from '@/hooks/useLiveMarketFeed';
 import { useDashboardRealtime } from '@/hooks/useDashboardRealtime';
 import { useAccountContext } from '@/hooks/useAccountContext';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
@@ -163,14 +163,27 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     },
   ];
 
+  const liveQuotes = React.useMemo(() => {
+    const next: typeof quotes = {};
+    for (const [key, q] of Object.entries(quotes)) {
+      if (!q) continue;
+      if (isFakeNestQuote(key, q.price, (q as { source?: string }).source)) continue;
+      next[key as keyof typeof quotes] = q;
+    }
+    return next;
+  }, [quotes]);
+
   const marketQuotesWithSpark = React.useMemo(() => {
     return Object.fromEntries(
-      Object.entries(quotes).map(([key, q]) => {
+      Object.entries(liveQuotes).map(([key, q]) => {
         const hist = priceHistory[key as keyof typeof priceHistory];
-        return [key, q ? { ...q, sparkline: hist && hist.length > 0 ? hist : undefined } : undefined];
+        return [
+          key,
+          q ? { ...q, sparkline: hist && hist.length > 0 ? hist : undefined } : undefined,
+        ];
       }),
     );
-  }, [quotes, priceHistory]);
+  }, [liveQuotes, priceHistory]);
 
   const refreshAll = () => {
     invalidateAccountQueries(queryClient);
@@ -178,7 +191,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   };
 
   return {
-    quotes,
+    quotes: liveQuotes,
     wsConnected,
     marketQuotesWithSpark,
     portfolioQuery,

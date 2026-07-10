@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { isFakeNestQuote } from "@/hooks/useLiveMarketFeed";
 
 const BULL = "#348398";
 const BEAR = "#973336";
@@ -185,7 +186,11 @@ export function DashboardMarketCards({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-[var(--dashboard-gap)]">
       {ASSETS.map(({ key, label, precision, icon, iconBg }, index) => {
-        const q = quotes[key];
+        const raw = quotes[key];
+        const q =
+          raw && !isFakeNestQuote(key, raw.price, (raw as any).source)
+            ? raw
+            : undefined;
         const isUp = (q?.change24hPct ?? 0) >= 0;
         const spark = q
           ? buildSparklinePoints(q.sparkline, q.price, q.change24hPct)
