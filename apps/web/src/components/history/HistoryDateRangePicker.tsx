@@ -141,7 +141,7 @@ export function HistoryDateRangePicker({
       <DashButton
         type="button"
         variant="outline"
-        className="gap-2 h-11 w-full justify-start"
+        className="!h-11 w-full justify-start gap-2 !px-3.5 !text-sm !font-medium !normal-case !tracking-normal"
         onClick={() => {
           setOpen((current) => {
             const next = !current;
@@ -151,9 +151,10 @@ export function HistoryDateRangePicker({
         }}
         aria-expanded={open}
         aria-haspopup="dialog"
+        aria-label="Choose date range"
       >
-        <Calendar className="w-4 h-4 shrink-0" />
-        <span className="truncate">{getHistoryRangeButtonLabel(value)}</span>
+        <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <span className="truncate text-left">{getHistoryRangeButtonLabel(value)}</span>
       </DashButton>
 
       {open && (
@@ -196,8 +197,8 @@ export function HistoryDateRangePicker({
           ) : (
             <div className="space-y-3 p-1">
               <div className="space-y-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Custom range</p>
-                <p className="text-xs text-muted-foreground">Choose a start and end date to filter trade history.</p>
+                <p className="text-xs font-semibold text-muted-foreground">Pick dates</p>
+                <p className="text-xs text-muted-foreground">Show trades between these two days.</p>
               </div>
 
               <div className="space-y-3">

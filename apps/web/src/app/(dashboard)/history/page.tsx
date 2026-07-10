@@ -49,7 +49,7 @@ const formatPrice = (value: number | null) => {
 
 export default function HistoryPage() {
  const [searchQuery, setSearchQuery] = useState('');
- const [selectedStrategy, setSelectedStrategy] = useState('All Strategies');
+ const [selectedStrategy, setSelectedStrategy] = useState('All bots');
  const [currentPage, setCurrentPage] = useState(1);
  const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
  const [selectedRange, setSelectedRange] = useState<HistoryDateRange>({ type: 'preset', preset: '30D' });
@@ -79,7 +79,7 @@ export default function HistoryPage() {
     status: row.status === 'CLOSED' ? 'Closed' : row.status === 'OPEN' ? 'Open' : 'Canceled',
     occurredAt,
     time: new Date(occurredAt).toISOString().slice(0, 16).replace('T', ' '),
-    strategy: row.strategyName ?? 'Manual Trades',
+    strategy: row.strategyName ?? 'Manual trade',
    };
    });
   },
@@ -89,21 +89,21 @@ export default function HistoryPage() {
 
  React.useEffect(() => {
   if (isError) {
-   toast.error('Live history unavailable', {
-    description: 'Could not fetch trade history from the server.',
+   toast.error('Couldn’t load your trades', {
+    description: 'Please refresh the page and try again.',
    });
   }
  }, [isError]);
 
  const strategyOptions = useMemo(() => {
   const unique = Array.from(new Set(historyRows.map((trade) => trade.strategy)));
-  return ['All Strategies', ...unique];
+  return ['All bots', ...unique];
  }, [historyRows]);
 
  const filteredHistory = useMemo(() => {
   const normalizedQuery = searchQuery.trim().toLowerCase();
    return historyRows.filter((trade) => {
-   if (selectedStrategy !== 'All Strategies' && trade.strategy !== selectedStrategy) {
+   if (selectedStrategy !== 'All bots' && trade.strategy !== selectedStrategy) {
 	return false;
    }
 
@@ -117,7 +117,7 @@ export default function HistoryPage() {
 
    const haystack = `${trade.id} ${trade.asset} ${trade.type} ${trade.strategy} ${trade.time}`.toLowerCase();
    return haystack.includes(normalizedQuery);
-  });
+   });
  }, [historyRows, searchQuery, selectedRange, selectedStrategy]);
 
  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / pageSize));
@@ -139,13 +139,13 @@ export default function HistoryPage() {
  );
 
  const handleExport = () => {
-  const header = ['Execution ID', 'Asset', 'Strategy', 'Type', 'Volume', 'PnL', 'Status', 'Timestamp'];
+  const header = ['Trade', 'Pair', 'Bot', 'Side', 'Size', 'Profit', 'Status', 'Closed'];
   const rows = filteredHistory.map((trade) => [
-   `TR_${trade.id}X77_${trade.id.slice(-3).toUpperCase()}`,
+   trade.id.slice(0, 12),
    trade.asset,
    trade.strategy,
    trade.type,
-   `${trade.amount} Lots`,
+   trade.amount,
    trade.pnl.toFixed(2),
    trade.status,
    trade.time,
@@ -159,7 +159,7 @@ export default function HistoryPage() {
   const rangeSlug = selectedRange.type === 'preset'
    ? selectedRange.preset.toLowerCase()
    : `${selectedRange.start}_to_${selectedRange.end}`;
-  anchor.download = `execution-vault-${rangeSlug}-${Date.now()}.csv`;
+  anchor.download = `trade-history-${rangeSlug}-${Date.now()}.csv`;
   anchor.click();
   URL.revokeObjectURL(url);
  };
@@ -180,19 +180,19 @@ export default function HistoryPage() {
 
  <DashboardPageHeader
   title="Trade History"
-  description="Immutable ledger of all executions, exports, and performance."
+  description="Every closed trade from your account — search, filter, and download anytime."
   icon={History}
   actions={
    <DashButton variant="primary" onClick={handleExport} className="gap-2">
     <Download className="w-3.5 h-3.5" />
-    Export CSV
+    Download CSV
    </DashButton>
   }
  />
 
  <div className="dashboard-card flex flex-wrap items-center gap-4 p-4">
   <div className="flex items-center gap-2">
-   <span className="dash-eyebrow">Aggregate P&amp;L</span>
+   <span className="dash-eyebrow">Total profit</span>
    <span className={cn('text-lg font-bold tabular-nums', aggregatePnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
     {aggregatePnl >= 0 ? '+' : '-'}${Math.abs(aggregatePnl).toLocaleString(undefined, { maximumFractionDigits: 2 })}
    </span>
@@ -200,41 +200,51 @@ export default function HistoryPage() {
   <div className="h-4 w-px bg-[var(--card-border)]" />
   <div className="flex items-center gap-2">
    <div className={cn('w-2 h-2 rounded-full', isFetching ? 'bg-chart-4' : 'bg-chart-3')} />
-   <span className="dash-eyebrow">{isFetching ? 'Syncing' : 'Synced'}</span>
+   <span className="dash-eyebrow">{isFetching ? 'Updating…' : 'Up to date'}</span>
   </div>
  </div>
 
- {/* Filter Bar */}
- <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
- <div className="lg:col-span-2 relative">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
- <input 
- type="text" 
- placeholder="Filter by asset or ID…"
- value={searchQuery}
- onChange={(e) => setSearchQuery(e.target.value)}
- className="dash-input h-11 pl-11"
- />
- </div>
- <div className="relative">
- <select 
- value={selectedStrategy}
- onChange={(e) => setSelectedStrategy(e.target.value)}
- className="dash-input h-11 appearance-none cursor-pointer pr-10"
- >
- {strategyOptions.map((strategy) => (
-  <option key={strategy} value={strategy}>{strategy}</option>
- ))}
- </select>
- <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
- </div>
- <HistoryDateRangePicker
-  value={selectedRange}
-  onChange={(range) => {
-   setSelectedRange(range);
-   setCurrentPage(1);
-  }}
- />
+ {/* Filter bar — equal height, aligned icons, friendly copy */}
+ <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+  <div className="relative min-w-0 flex-1">
+   <Search
+    className="pointer-events-none absolute left-3.5 top-1/2 z-[1] h-4 w-4 -translate-y-1/2 text-muted-foreground"
+    aria-hidden
+   />
+   <input
+    type="search"
+    placeholder="Search by pair or bot name…"
+    value={searchQuery}
+    onChange={(e) => setSearchQuery(e.target.value)}
+    className="dash-input !h-11 w-full !pl-10 !pr-3.5"
+    aria-label="Search trades"
+   />
+  </div>
+
+  <div className="relative w-full sm:w-[11.5rem] shrink-0">
+   <select
+    value={selectedStrategy}
+    onChange={(e) => setSelectedStrategy(e.target.value)}
+    className="dash-input !h-11 w-full appearance-none cursor-pointer !pr-10"
+    aria-label="Filter by bot"
+   >
+    {strategyOptions.map((strategy) => (
+     <option key={strategy} value={strategy}>
+      {strategy === 'All bots' ? 'All bots' : strategy}
+     </option>
+    ))}
+   </select>
+   <Filter className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+  </div>
+
+  <HistoryDateRangePicker
+   className="w-full sm:w-[13.5rem] shrink-0"
+   value={selectedRange}
+   onChange={(range) => {
+    setSelectedRange(range);
+    setCurrentPage(1);
+   }}
+  />
  </div>
 
  {/* Main Table */}
@@ -243,7 +253,7 @@ export default function HistoryPage() {
  <table className="w-full border-collapse">
  <thead>
  <tr className="border-b border-[var(--card-border)] bg-muted/50">
- {['Execution ID', 'Asset', 'Strategy', 'Type', 'Volume', 'Performance', 'Timestamp', 'Status'].map((head) => (
+ {['Trade', 'Pair', 'Bot', 'Side', 'Size', 'Profit', 'Closed', 'Status'].map((head) => (
  <th key={head} className="px-5 py-3.5 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">
  {head}
  </th>
@@ -271,7 +281,9 @@ export default function HistoryPage() {
  onClick={() => setSelectedTradeId(trade.id)}
  >
  <td className="px-5 py-4">
- <span className="text-sm font-mono text-muted-foreground group-hover:text-primary transition-colors">TR_{trade.id}</span>
+ <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors">
+  #{String(trade.id).replace(/^meta:/, '').slice(0, 8)}
+ </span>
  </td>
  <td className="px-5 py-4">
  <div className="flex items-center gap-3">
@@ -284,31 +296,31 @@ export default function HistoryPage() {
  <td className="px-5 py-4">
  <div className="flex items-center gap-2">
  <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
- <span className="text-sm font-bold text-foreground/60 tracking-tight">{trade.strategy}</span>
+ <span className="text-sm font-medium text-foreground/70 tracking-tight">{trade.strategy}</span>
  </div>
  </td>
  <td className="px-5 py-4">
  <span className={cn(
-"text-xs font-semibold px-3 py-1 rounded-full border tracking-widest uppercase",
+"text-xs font-semibold px-3 py-1 rounded-full border tracking-wide",
  trade.type === 'Long' ?"bg-chart-3/10 text-chart-3 border-chart-3/20" :"bg-destructive/10 text-destructive border-destructive/20"
  )}>
- {trade.type}
+ {trade.type === 'Long' ? 'Buy' : 'Sell'}
  </span>
  </td>
- <td className="px-5 py-4 font-mono text-xs text-foreground/60">
- {trade.amount} Lots
+ <td className="px-5 py-4 text-sm tabular-nums text-foreground/70">
+ {trade.amount} lots
  </td>
  <td className="px-5 py-4">
  <div className="flex flex-col">
  <span className={cn(
-"text-sm font-semibold font-mono tracking-tight",
+"text-sm font-semibold tabular-nums tracking-tight",
  trade.pnl > 0 ?"text-chart-3" :"text-destructive"
  )}>
  {trade.pnl > 0 ? '+' : ''}${Math.abs(trade.pnl).toLocaleString()}
  </span>
  <div className="flex items-center gap-1 mt-1">
  {trade.pnl > 0 ? <ArrowUpRight className="w-3 h-3 text-chart-3/40" /> : <ArrowDownRight className="w-3 h-3 text-destructive/40" />}
- <span className="text-xs text-muted-foreground">Settled</span>
+ <span className="text-xs text-muted-foreground">Closed</span>
  </div>
  </div>
  </td>
@@ -327,13 +339,15 @@ export default function HistoryPage() {
  </table>
  </div>
 
- {/* Empty State */}
  {!isLoading && filteredHistory.length === 0 && (
- <div className="py-32 flex flex-col items-center justify-center space-y-6">
- <div className="w-20 h-20 rounded-3xl bg-foreground/5 border border-border flex items-center justify-center animate-pulse">
- <Brain className="w-10 h-10 text-foreground/10" />
+ <div className="py-24 flex flex-col items-center justify-center space-y-4">
+ <div className="w-16 h-16 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center">
+ <Brain className="w-8 h-8 text-foreground/15" />
  </div>
- <p className="text-sm font-medium text-muted-foreground">Vault memory: empty</p>
+ <div className="text-center space-y-1">
+  <p className="text-sm font-medium text-foreground">No trades in this range</p>
+  <p className="text-xs text-muted-foreground">Try another date range or clear your search.</p>
+ </div>
  </div>
  )}
  </div>
@@ -341,26 +355,26 @@ export default function HistoryPage() {
  {selectedTrade && (
   <div className="dashboard-card p-6 space-y-4">
    <div className="flex items-center justify-between">
-	<h3 className="text-base font-semibold text-foreground">Execution Detail</h3>
-	<button onClick={() => setSelectedTradeId(null)} className="w-8 h-8 rounded-lg bg-foreground/5 border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors">
+	<h3 className="text-base font-semibold text-foreground">Trade details</h3>
+	<button onClick={() => setSelectedTradeId(null)} className="w-8 h-8 rounded-lg bg-foreground/5 border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors" aria-label="Close">
 	 <X className="w-4 h-4" />
 	</button>
    </div>
    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 	<div className="rounded-xl border border-border bg-foreground/5 p-3">
-	 <p className="text-xs font-medium text-muted-foreground">Execution ID</p>
-	 <p className="text-sm font-mono text-foreground">TR_{selectedTrade.id}</p>
+	 <p className="text-xs font-medium text-muted-foreground">Trade</p>
+	 <p className="text-sm font-medium text-foreground">#{String(selectedTrade.id).replace(/^meta:/, '').slice(0, 10)}</p>
 	</div>
 	<div className="rounded-xl border border-border bg-foreground/5 p-3">
-	 <p className="text-xs font-medium text-muted-foreground">Entry / Exit</p>
-   <p className="text-xs font-semibold text-foreground">{selectedTrade.entry}{' -> '}{selectedTrade.exit}</p>
+	 <p className="text-xs font-medium text-muted-foreground">Open → Close</p>
+   <p className="text-xs font-semibold text-foreground">{selectedTrade.entry} → {selectedTrade.exit}</p>
 	</div>
 	<div className="rounded-xl border border-border bg-foreground/5 p-3">
-	 <p className="text-xs font-medium text-muted-foreground">Type / Volume</p>
-	 <p className="text-xs font-semibold text-foreground">{selectedTrade.type} / {selectedTrade.amount} Lots</p>
+	 <p className="text-xs font-medium text-muted-foreground">Side / Size</p>
+	 <p className="text-xs font-semibold text-foreground">{selectedTrade.type === 'Long' ? 'Buy' : 'Sell'} · {selectedTrade.amount} lots</p>
 	</div>
 	<div className="rounded-xl border border-border bg-foreground/5 p-3">
-	 <p className="text-xs font-medium text-muted-foreground">Settlement</p>
+	 <p className="text-xs font-medium text-muted-foreground">Profit</p>
 	 <p className={cn('text-xs font-semibold', selectedTrade.pnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
 	  {selectedTrade.pnl >= 0 ? '+' : '-'}${Math.abs(selectedTrade.pnl).toLocaleString()}
 	 </p>
@@ -369,7 +383,6 @@ export default function HistoryPage() {
   </div>
  )}
 
- {/* Pagination / Status */}
  <div className="flex justify-between items-center text-sm text-muted-foreground">
  <span>
   Showing {filteredHistory.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
@@ -381,7 +394,7 @@ export default function HistoryPage() {
   disabled={currentPage === 1}
   className="hover:text-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
  >
-  Prev
+  Previous
  </button>
  <div className="flex gap-2">
  {Array.from({ length: Math.min(3, totalPages) }).map((_, index) => {
