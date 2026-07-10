@@ -107,6 +107,20 @@ describeIfApiInfra('Integration flows', () => {
       },
     });
 
+    // Checkout activation requires an active live MT5 broker (428 otherwise).
+    await prisma.brokerAccount.create({
+      data: {
+        userId: buyer.id,
+        brokerName: 'MT5',
+        accountNumberLast4: '1234',
+        credentialsEncrypted: 'test-encrypted-creds',
+        serverName: 'Demo-Server',
+        isPaperTrading: false,
+        isActive: true,
+        isDefault: true,
+      },
+    });
+
     const checkoutEventId = `evt_checkout_${randomUUID()}`;
     await paymentsService.handleStripeEvent({
       id: checkoutEventId,
@@ -141,7 +155,8 @@ describeIfApiInfra('Integration flows', () => {
       },
     });
 
-    expect(subscription?.status).toBe('ACTIVE');
+    // Activation lands in PROVISIONING until CopyFactory/MetaApi finish linking.
+    expect(subscription?.status).toBe('PROVISIONING');
     expect(subscription?.stripeSubId).toBe('sub_checkout_123');
     expect(creatorCredit?.amount).toBeCloseTo(20.3, 5);
   });

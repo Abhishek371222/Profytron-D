@@ -8,7 +8,12 @@ import { ProvisioningModule } from '../provisioning/provisioning.module';
 import { CopyFactoryModule } from '../copy-factory/copy-factory.module';
 
 @Module({
-  imports: [GrowthModule, PaymentsModule, ProvisioningModule, CopyFactoryModule],
+  imports: [
+    GrowthModule,
+    PaymentsModule,
+    ProvisioningModule,
+    CopyFactoryModule,
+  ],
   controllers: [MarketplaceController],
   providers: [MarketplaceService, StrategyDocumentsService],
   exports: [MarketplaceService, StrategyDocumentsService],

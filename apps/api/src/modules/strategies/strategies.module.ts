@@ -7,12 +7,7 @@ import { MarketplaceModule } from '../marketplace/marketplace.module';
 import { AiRiskModule } from '../ai-risk/ai-risk.module';
 
 @Module({
-  imports: [
-    CopyFactoryModule,
-    BacktestModule,
-    MarketplaceModule,
-    AiRiskModule,
-  ],
+  imports: [CopyFactoryModule, BacktestModule, MarketplaceModule, AiRiskModule],
   controllers: [StrategiesController],
   providers: [StrategiesService],
   exports: [StrategiesService],

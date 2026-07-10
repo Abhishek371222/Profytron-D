@@ -23,7 +23,7 @@ describe('AppController (e2e)', () => {
       .expect((res) => {
         expect(res.body).toMatchObject({
           status: 'ok',
-          version: '1.0.0',
+          version: '1.0.4',
           prefix: 'v1',
         });
       });

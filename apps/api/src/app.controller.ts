@@ -45,8 +45,7 @@ export class AppController {
       prefix: 'v1',
       executionMode: isCopyFactory ? 'copyfactory' : 'master_only',
       copyFactoryEnabled: process.env.COPYFACTORY_ENABLED === 'true',
-      allowMetaApiSubscribers:
-        process.env.ALLOW_METAAPI_SUBSCRIBERS === 'true',
+      allowMetaApiSubscribers: process.env.ALLOW_METAAPI_SUBSCRIBERS === 'true',
       metaApiUserSeats: true,
       storeOnlyUserConnect: false,
       gitSha: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? null,

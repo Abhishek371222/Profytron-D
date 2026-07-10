@@ -912,9 +912,7 @@ export class AuthService {
 
     // 1. Verify token with Supabase
     let data: Awaited<ReturnType<SupabaseClient['auth']['getUser']>>['data'];
-    let error: Awaited<
-      ReturnType<SupabaseClient['auth']['getUser']>
-    >['error'];
+    let error: Awaited<ReturnType<SupabaseClient['auth']['getUser']>>['error'];
     try {
       ({ data, error } = await this.supabase.auth.getUser(dto.token));
     } catch (verifyError) {

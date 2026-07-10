@@ -31,9 +31,9 @@ describe('isPaidCopySubscription', () => {
   });
 
   it('accepts paid planType without open unpaid trial (Razorpay one-shot)', () => {
-    expect(
-      isPaidCopySubscription({ ...base, planType: 'MONTHLY' }, now),
-    ).toBe(true);
+    expect(isPaidCopySubscription({ ...base, planType: 'MONTHLY' }, now)).toBe(
+      true,
+    );
   });
 
   it('rejects unpaid trial without payment reference', () => {

@@ -100,7 +100,13 @@ function validateEnv() {
   if (directUrl && !/^postgres(ql)?:\/\//i.test(directUrl)) {
     invalid.push('DIRECT_URL must be a postgres:// or postgresql:// URL');
   }
-  if (isStrict && dbUrl && directUrl && dbUrl.includes('-pooler') && directUrl.includes('-pooler')) {
+  if (
+    isStrict &&
+    dbUrl &&
+    directUrl &&
+    dbUrl.includes('-pooler') &&
+    directUrl.includes('-pooler')
+  ) {
     logger.warn(
       'DIRECT_URL uses a Neon pooler host (-pooler). Point DIRECT_URL at the Neon *direct* endpoint (no -pooler) so prisma migrate deploy works reliably.',
     );

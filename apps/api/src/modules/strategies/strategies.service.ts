@@ -146,7 +146,9 @@ export class StrategiesService {
 
       allStrategies.sort((a, b) => {
         const diff =
-          requestedOrder === 'asc' ? metric(a) - metric(b) : metric(b) - metric(a);
+          requestedOrder === 'asc'
+            ? metric(a) - metric(b)
+            : metric(b) - metric(a);
         if (diff !== 0) return diff;
         return b.createdAt.getTime() - a.createdAt.getTime();
       });
@@ -296,7 +298,9 @@ export class StrategiesService {
       where: { creatorId, deletedAt: null },
       orderBy: { createdAt: 'desc' },
       include: {
-        creator: { select: { id: true, fullName: true, avatarUrl: true, bio: true } },
+        creator: {
+          select: { id: true, fullName: true, avatarUrl: true, bio: true },
+        },
         listing: true,
         performance: { take: 1, orderBy: { date: 'desc' } },
         _count: { select: { subscriptions: true, reviews: true } },
@@ -887,14 +891,19 @@ export class StrategiesService {
     if (!strategy || strategy.creatorId !== userId)
       throw new ForbiddenException();
 
-    if (strategy.verificationStatus === VerificationStatus.VERIFIED && strategy.isVerified) {
+    if (
+      strategy.verificationStatus === VerificationStatus.VERIFIED &&
+      strategy.isVerified
+    ) {
       throw new BadRequestException(
         'Bot is already approved. Use Publish to marketplace instead.',
       );
     }
 
     const reviewStartedAt = new Date();
-    const reviewEndsAt = new Date(reviewStartedAt.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const reviewEndsAt = new Date(
+      reviewStartedAt.getTime() + 7 * 24 * 60 * 60 * 1000,
+    );
 
     return this.prisma.strategy.update({
       where: { id },
@@ -904,7 +913,8 @@ export class StrategiesService {
         verificationStatus: VerificationStatus.PENDING,
         reviewStartedAt,
         reviewEndsAt,
-        reviewNotes: 'Submitted for 1-week real-market review by Profytron team.',
+        reviewNotes:
+          'Submitted for 1-week real-market review by Profytron team.',
       },
     });
   }
@@ -918,14 +928,18 @@ export class StrategiesService {
     if (!strategy || strategy.creatorId !== userId)
       throw new ForbiddenException();
 
-    if (!strategy.isVerified || strategy.verificationStatus !== VerificationStatus.VERIFIED) {
+    if (
+      !strategy.isVerified ||
+      strategy.verificationStatus !== VerificationStatus.VERIFIED
+    ) {
       throw new BadRequestException(
         'Bot must be approved by Profytron before it can go live on the marketplace.',
       );
     }
 
     const monthlyPrice = strategy.monthlyPrice ?? 0;
-    const annualPrice = strategy.annualPrice ?? Math.round(Number(monthlyPrice) * 10);
+    const annualPrice =
+      strategy.annualPrice ?? Math.round(Number(monthlyPrice) * 10);
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
 

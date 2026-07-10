@@ -23,7 +23,9 @@ export class CopyFactoryProcessor {
   @Process('sync_copyfactory')
   async handle(job: Job<CopyFactorySyncJob>) {
     if (!this.copyFactory.isEnabled()) {
-      this.logger.debug('CopyFactory disabled — completing provisioning without link');
+      this.logger.debug(
+        'CopyFactory disabled — completing provisioning without link',
+      );
       if (job.data.subscriptionId) {
         await this.completeWithoutCopyFactory(job.data.subscriptionId);
       }
@@ -245,7 +247,9 @@ export class CopyFactoryProcessor {
     const subs = await this.prisma.userStrategySubscription.findMany({
       where: {
         userId,
-        status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PROVISIONING] },
+        status: {
+          in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PROVISIONING],
+        },
         strategy: { masterBrokerAccountId: { not: null } },
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
       },

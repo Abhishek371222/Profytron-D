@@ -236,9 +236,7 @@ export class MarketplaceService {
     return {
       items,
       nextCursor:
-        items.length === take
-          ? (items[items.length - 1]?.id ?? null)
-          : null,
+        items.length === take ? (items[items.length - 1]?.id ?? null) : null,
       count: items.length,
       total,
     };
@@ -565,7 +563,9 @@ export class MarketplaceService {
     const activeCopies = await this.prisma.userStrategySubscription.count({
       where: {
         userId,
-        status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PROVISIONING] },
+        status: {
+          in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PROVISIONING],
+        },
         strategyId: { not: strategyId },
       },
     });

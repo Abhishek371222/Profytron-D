@@ -264,7 +264,9 @@ export class AdminController {
 
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiOperation({ summary: 'Upload an image, PDF, or data file for a bot strategy' })
+  @ApiOperation({
+    summary: 'Upload an image, PDF, or data file for a bot strategy',
+  })
   @Post('strategies/:strategyId/documents')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -283,13 +285,18 @@ export class AdminController {
     if (!file) {
       throw new BadRequestException('Uploaded file is required');
     }
-    return this.strategyDocuments.uploadDocument(strategyId, req.user.id, file, {
-      title,
-      description,
-      sortOrder: sortOrder !== undefined ? Number(sortOrder) : undefined,
-      kind: kind || 'PDF',
-      isPublished: true,
-    });
+    return this.strategyDocuments.uploadDocument(
+      strategyId,
+      req.user.id,
+      file,
+      {
+        title,
+        description,
+        sortOrder: sortOrder !== undefined ? Number(sortOrder) : undefined,
+        kind: kind || 'PDF',
+        isPublished: true,
+      },
+    );
   }
 
   @ApiResponse({ status: 200, description: 'OK' })

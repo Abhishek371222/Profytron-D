@@ -123,12 +123,16 @@ export class StrategyDocumentsService {
             upsert: false,
           });
         if (error) {
-          this.logger.warn(`Supabase upload failed, using local storage: ${error.message}`);
+          this.logger.warn(
+            `Supabase upload failed, using local storage: ${error.message}`,
+          );
         } else {
           uploadedToSupabase = true;
         }
       } catch (error) {
-        this.logger.warn(`Supabase upload error, using local storage: ${String(error)}`);
+        this.logger.warn(
+          `Supabase upload error, using local storage: ${String(error)}`,
+        );
       }
     }
 
@@ -176,7 +180,9 @@ export class StrategyDocumentsService {
     return Promise.all(docs.map((doc) => this.toDto(doc)));
   }
 
-  async listPublishedDocuments(strategyId: string): Promise<StrategyDocumentDto[]> {
+  async listPublishedDocuments(
+    strategyId: string,
+  ): Promise<StrategyDocumentDto[]> {
     return this.listDocuments(strategyId, { publishedOnly: true });
   }
 

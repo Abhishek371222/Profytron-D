@@ -71,10 +71,7 @@ export class BrokerController {
     summary:
       'Rotate the MT5 bridge EA token (returned once; paste into ProfytronCopyBridge)',
   })
-  async rotateBridgeToken(
-    @Req() req: AuthReq,
-    @Param('id') accountId: string,
-  ) {
+  async rotateBridgeToken(@Req() req: AuthReq, @Param('id') accountId: string) {
     return this.brokerService.rotateBridgeToken(req.user.userId, accountId);
   }
 }

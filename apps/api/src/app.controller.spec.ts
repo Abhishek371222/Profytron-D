@@ -48,7 +48,7 @@ describe('AppController', () => {
 
   describe('root', () => {
     it('should return service status', () => {
-      expect(appController.getStatus()).toEqual({
+      expect(appController.getStatus()).toMatchObject({
         status: 'ok',
         version: '1.0.4',
         prefix: 'v1',

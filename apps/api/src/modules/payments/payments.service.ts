@@ -225,10 +225,15 @@ export class PaymentsService {
         amountRupees,
       );
     } else if (notes.type === 'marketplace_subscription' && notes.strategyId) {
-      await this.activateSubscription(userId, notes.strategyId, notes.planType ?? 'MONTHLY', {
-        id: paymentId,
-        amount_total: stored.amount,
-      });
+      await this.activateSubscription(
+        userId,
+        notes.strategyId,
+        notes.planType ?? 'MONTHLY',
+        {
+          id: paymentId,
+          amount_total: stored.amount,
+        },
+      );
     } else {
       await this.activationService.track(
         userId,
@@ -385,9 +390,7 @@ export class PaymentsService {
 
     await this.notifications.create({
       userId: creditUserId,
-      title: isMarketplacePayment
-        ? 'Payment Received'
-        : 'Deposit Successful',
+      title: isMarketplacePayment ? 'Payment Received' : 'Deposit Successful',
       message: isMarketplacePayment
         ? `Your bot subscription payment of ₹${amountRupees.toFixed(2)} was confirmed. Setup is in progress.`
         : `₹${amountRupees.toFixed(2)} has been added to your wallet.`,
@@ -683,11 +686,10 @@ export class PaymentsService {
 
       // If tied to a strategy subscription, mark it inactive and unlink CF
       if (strategyId) {
-        const failedSubs =
-          await this.prisma.userStrategySubscription.findMany({
-            where: { userId, strategyId, status: 'ACTIVE' },
-            select: { id: true },
-          });
+        const failedSubs = await this.prisma.userStrategySubscription.findMany({
+          where: { userId, strategyId, status: 'ACTIVE' },
+          select: { id: true },
+        });
         await this.prisma.userStrategySubscription.updateMany({
           where: { userId, strategyId, status: 'ACTIVE' },
           data: { status: 'INACTIVE' },

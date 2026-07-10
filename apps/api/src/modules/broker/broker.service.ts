@@ -32,9 +32,7 @@ export class BrokerService {
   ) {}
 
   /** True when this connect is for the operator master (MetaApi allowed). */
-  private isProviderConnect(dto: {
-    copyFactoryRole?: string;
-  }): boolean {
+  private isProviderConnect(dto: { copyFactoryRole?: string }): boolean {
     return dto.copyFactoryRole === 'PROVIDER';
   }
 
@@ -72,13 +70,7 @@ export class BrokerService {
   }
 
   async connectBroker(userId: string, dto: any) {
-    const {
-      brokerName,
-      login,
-      password,
-      serverName,
-      platform,
-    } = dto;
+    const { brokerName, login, password, serverName, platform } = dto;
 
     const providerConnect = this.isProviderConnect(dto);
 
@@ -347,9 +339,7 @@ export class BrokerService {
 
         let creds: Record<string, any> = {};
         try {
-          creds = JSON.parse(
-            this.cryptoService.decrypt(credentialsEncrypted),
-          );
+          creds = JSON.parse(this.cryptoService.decrypt(credentialsEncrypted));
         } catch {
           creds = {};
         }
@@ -386,7 +376,7 @@ export class BrokerService {
         if (this.mtAdapter.isLive) {
           try {
             const info = await this.withTimeout(
-              this.mtAdapter.testExisting(metaApiId!, creds.metaApiRegion),
+              this.mtAdapter.testExisting(metaApiId, creds.metaApiRegion),
               8_000,
               { connected: false } as any,
             );

@@ -88,17 +88,19 @@ export class AffiliatesService {
 
   async getAffiliateStats(userId: string) {
     try {
-      return await this.prisma.affiliate.upsert({
-        where: { userId },
-        create: { userId },
-        update: {},
-        include: {
-          user: { select: { referralCode: true } },
-        },
-      }).then((record) => ({
-        ...record,
-        referralCode: record.user.referralCode,
-      }));
+      return await this.prisma.affiliate
+        .upsert({
+          where: { userId },
+          create: { userId },
+          update: {},
+          include: {
+            user: { select: { referralCode: true } },
+          },
+        })
+        .then((record) => ({
+          ...record,
+          referralCode: record.user.referralCode,
+        }));
     } catch (error: any) {
       // Concurrent first-load race: another request created the row first.
       if (error?.code === 'P2002') {
@@ -317,8 +319,7 @@ export class AffiliatesService {
     });
     const commissionRate = referrerAffiliate?.commissionRate ?? 0.3;
 
-    const commission =
-      Math.round(amount * commissionRate * 100) / 100;
+    const commission = Math.round(amount * commissionRate * 100) / 100;
     if (commission <= 0) return;
 
     const referrerId = affiliate.referrerId;
@@ -497,7 +498,11 @@ export class AffiliatesService {
       const weekCount = Math.ceil(daysInMonth / 7);
       for (let index = 0; index < weekCount; index++) {
         const bucketStart = new Date(year, month, index * 7 + 1);
-        const bucketEnd = new Date(year, month, Math.min((index + 1) * 7 + 1, daysInMonth + 1));
+        const bucketEnd = new Date(
+          year,
+          month,
+          Math.min((index + 1) * 7 + 1, daysInMonth + 1),
+        );
         buckets.push({
           label: `Week ${index + 1}`,
           start: bucketStart,
@@ -525,7 +530,10 @@ export class AffiliatesService {
       const start = new Date(now.getFullYear(), now.getMonth() - index, 1);
       const end = new Date(now.getFullYear(), now.getMonth() - index + 1, 1);
       buckets.push({
-        label: start.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+        label: start.toLocaleDateString('en-US', {
+          month: 'short',
+          year: '2-digit',
+        }),
         start,
         end,
       });
@@ -533,10 +541,7 @@ export class AffiliatesService {
     return buckets;
   }
 
-  async getActivityChart(
-    referrerUserId: string,
-    rangeInput?: string,
-  ) {
+  async getActivityChart(referrerUserId: string, rangeInput?: string) {
     const range = (
       ['today', 'week', 'month', 'year', 'total'].includes(rangeInput ?? '')
         ? rangeInput
@@ -565,12 +570,14 @@ export class AffiliatesService {
 
     for (const event of events) {
       const bucketIndex = buckets.findIndex(
-        (bucket) => event.createdAt >= bucket.start && event.createdAt < bucket.end,
+        (bucket) =>
+          event.createdAt >= bucket.start && event.createdAt < bucket.end,
       );
       if (bucketIndex < 0) continue;
       if (event.eventType === 'CLICK') points[bucketIndex].clicks += 1;
       if (event.eventType === 'SIGNUP') points[bucketIndex].signups += 1;
-      if (event.eventType === 'CONVERSION') points[bucketIndex].conversions += 1;
+      if (event.eventType === 'CONVERSION')
+        points[bucketIndex].conversions += 1;
     }
 
     return { range, points };

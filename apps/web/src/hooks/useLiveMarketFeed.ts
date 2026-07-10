@@ -129,23 +129,27 @@ export function useLiveMarketFeed(
   });
 
   const quotes = (query.data ?? {}) as LiveQuoteMap;
-  const historyRef = React.useRef<Partial<Record<SupportedSymbol, number[]>>>({});
+  const [priceHistory, setPriceHistory] = React.useState<
+    Partial<Record<SupportedSymbol, number[]>>
+  >({});
 
   React.useEffect(() => {
     if (!query.data) return;
-    const next = { ...historyRef.current };
-    for (const sym of SUPPORTED) {
-      const q = query.data[sym];
-      if (!q?.price) continue;
-      const hist = next[sym] ?? [];
-      const last = hist[hist.length - 1];
-      if (last !== undefined && Math.abs(last - q.price) < 1e-9) continue;
-      next[sym] = [...hist, q.price].slice(-40);
-    }
-    historyRef.current = next;
+    setPriceHistory((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const sym of SUPPORTED) {
+        const q = query.data[sym];
+        if (!q?.price) continue;
+        const hist = next[sym] ?? [];
+        const last = hist[hist.length - 1];
+        if (last !== undefined && Math.abs(last - q.price) < 1e-9) continue;
+        next[sym] = [...hist, q.price].slice(-40);
+        changed = true;
+      }
+      return changed ? next : prev;
+    });
   }, [query.data, query.dataUpdatedAt]);
-
-  const priceHistory = historyRef.current;
 
   // Trading socket for orders only — never for market prices.
   React.useEffect(() => {
