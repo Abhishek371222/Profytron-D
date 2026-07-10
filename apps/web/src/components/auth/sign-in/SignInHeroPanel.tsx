@@ -51,12 +51,7 @@ export function SignInHeroPanel() {
         animate="visible"
         variants={fadeUp}
       >
-        <BrandLogo
-          size="lg"
-          showTagline={false}
-          variant="auth"
-          className="sign-in-logo"
-        />
+        <BrandLogo size="lg" className="sign-in-logo" />
         <p className="sign-in-tagline">Algo Trading · Intelligently Automated</p>
       </motion.div>
 

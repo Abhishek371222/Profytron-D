@@ -37,7 +37,7 @@ export function AuthBrandPanel({ variant }: AuthBrandPanelProps) {
     <aside className="auth-hero-column" aria-label="Platform overview">
       <div className="auth-hero-inner">
         <header className="auth-hero-head">
-          <BrandLogo size="lg" showTagline taglineVariant="algo" variant="auth" />
+          <BrandLogo size="lg" />
         </header>
 
         <main className="auth-hero-main">

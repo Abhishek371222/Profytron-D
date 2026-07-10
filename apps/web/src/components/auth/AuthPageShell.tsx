@@ -31,7 +31,7 @@ export function AuthPageShell({ variant, children }: AuthPageShellProps) {
         <section className="auth-form-column">
           <div className="auth-form-inner">
             <div className="auth-mobile-brand">
-              <BrandLogo size="md" showTagline taglineVariant="algo" variant="auth" />
+              <BrandLogo size="md" />
             </div>
             <div className="auth-card">{children}</div>
           </div>
