@@ -110,6 +110,22 @@ export async function GET(req: NextRequest) {
     }
 
     const sql = neon(dbUrl);
+
+    // Resolve the bot name the user actually subscribed to (never show "CopyFactory").
+    const botRows = await sql`
+      SELECT st.name
+      FROM "UserStrategySubscription" s
+      JOIN "Strategy" st ON st.id = s."strategyId"
+      WHERE s."userId" = ${userId}
+        AND s.status IN ('ACTIVE', 'PROVISIONING', 'PAUSED')
+      ORDER BY
+        CASE WHEN st."masterBrokerAccountId" IS NOT NULL THEN 0 ELSE 1 END,
+        s."subscribedAt" DESC NULLS LAST
+      LIMIT 1
+    `;
+    const subscribedBotName =
+      String(botRows[0]?.name || '').trim() || 'Your bot';
+
     const rows = await sql`
       SELECT id, "credentialsEncrypted"
       FROM "BrokerAccount"
@@ -206,12 +222,12 @@ export async function GET(req: NextRequest) {
         fillPrice: Number(entry?.price || 0),
         slippageBps: 0,
         executionLatencyMs: null,
-        executionMode: 'COPYFACTORY',
+        executionMode: 'LIVE',
         profit,
         commission,
         swap,
         status: 'CLOSED',
-        strategyName: 'CopyFactory',
+        strategyName: String(subscribedBotName),
         openedAt: entry?.time || null,
         closedAt: exit?.time || null,
       });

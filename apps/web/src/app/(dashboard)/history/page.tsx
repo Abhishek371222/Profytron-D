@@ -81,7 +81,13 @@ export default function HistoryPage() {
     status: row.status === 'CLOSED' ? 'Closed' : row.status === 'OPEN' ? 'Open' : 'Canceled',
     occurredAt,
     time: new Date(occurredAt).toISOString().slice(0, 16).replace('T', ' '),
-    strategy: row.strategyName ?? 'Manual trade',
+    strategy: (() => {
+      const raw = String(row.strategyName || '').trim();
+      if (!raw || /^copyfactory$/i.test(raw) || /^copy factory$/i.test(raw)) {
+        return 'Your bot';
+      }
+      return formatBotName(raw);
+    })(),
    };
    });
   },
@@ -100,6 +106,23 @@ export default function HistoryPage() {
   staleTime: 60_000,
  });
 
+ // Prefer real purchased bot name over generic "Your bot" / CopyFactory leftovers.
+ const preferredBotName = useMemo(() => {
+  const fromSubs = myBots.find((n) => n && !/^your bot$/i.test(n));
+  return fromSubs || myBots[0] || null;
+ }, [myBots]);
+
+ const displayRows = useMemo(() => {
+  if (!preferredBotName) return historyRows;
+  return historyRows.map((row) => {
+   const name = formatBotName(row.strategy);
+   if (!name || /^your bot$/i.test(name) || /^copyfactory$/i.test(name) || /^copy factory$/i.test(name)) {
+    return { ...row, strategy: preferredBotName };
+   }
+   return { ...row, strategy: name };
+  });
+ }, [historyRows, preferredBotName]);
+
  React.useEffect(() => {
   if (isError) {
    toast.error('Couldn’t load your trades', {
@@ -109,11 +132,18 @@ export default function HistoryPage() {
  }, [isError]);
 
  const purchasedBots = useMemo(() => {
-  const fromHistory = historyRows
-   .map((t) => formatBotName(t.strategy))
-   .filter((n) => n && n !== 'Manual trade');
-  return Array.from(new Set([...myBots, ...fromHistory]));
- }, [myBots, historyRows]);
+  const clean = (n: string) => {
+   const label = formatBotName(n);
+   if (!label) return null;
+   if (/^manual trade$/i.test(label)) return null;
+   if (/^your bot$/i.test(label)) return null;
+   if (/^copyfactory$/i.test(label) || /^copy factory$/i.test(label)) return null;
+   return label;
+  };
+  const fromHistory = displayRows.map((t) => clean(t.strategy)).filter(Boolean) as string[];
+  const fromSubs = myBots.map((n) => clean(n)).filter(Boolean) as string[];
+  return Array.from(new Set([...fromSubs, ...fromHistory]));
+ }, [myBots, displayRows]);
 
  const strategyOptions = useMemo(() => {
   return ['All bots', ...purchasedBots];
@@ -139,7 +169,7 @@ export default function HistoryPage() {
 
  const filteredHistory = useMemo(() => {
   const normalizedQuery = searchQuery.trim().toLowerCase();
-   return historyRows.filter((trade) => {
+   return displayRows.filter((trade) => {
    const botLabel = formatBotName(trade.strategy);
    if (selectedStrategy !== 'All bots' && botLabel !== selectedStrategy) {
 	return false;
@@ -156,7 +186,7 @@ export default function HistoryPage() {
    const haystack = `${trade.id} ${trade.asset} ${trade.type} ${botLabel} ${trade.time}`.toLowerCase();
    return haystack.includes(normalizedQuery);
    });
- }, [historyRows, searchQuery, selectedRange, selectedStrategy]);
+ }, [displayRows, searchQuery, selectedRange, selectedStrategy]);
 
  const totalPages = Math.max(1, Math.ceil(filteredHistory.length / pageSize));
 
