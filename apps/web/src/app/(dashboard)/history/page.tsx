@@ -67,10 +67,11 @@ export default function HistoryPage() {
    const payload = await analyticsApi.getTradeExport(mapRangeToAnalytics(selectedRange));
    return payload.rows.map((row, index) => {
     const occurredAt = row.closedAt ?? row.openedAt;
+    const direction = String(row.direction || '').toUpperCase();
     return {
     id: row.id || String(index + 1),
     asset: row.symbol,
-    type: row.direction === 'LONG' || row.direction === 'BUY' ? 'Long' : 'Short',
+    type: direction === 'LONG' || direction === 'BUY' ? 'Long' : 'Short',
     amount: String(row.volume),
     entry: formatPrice(row.openPrice),
     exit: formatPrice(row.closePrice),

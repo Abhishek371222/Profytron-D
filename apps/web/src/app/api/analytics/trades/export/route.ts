@@ -88,10 +88,10 @@ function rangeDays(range: string | null): number {
   }
 }
 
-function mapDirection(type: string): 'LONG' | 'SHORT' {
+function mapDirection(type: string): 'BUY' | 'SELL' {
   const t = String(type || '').toUpperCase();
-  if (t.includes('SELL') || t.includes('SHORT')) return 'SHORT';
-  return 'LONG';
+  if (t.includes('SELL') || t.includes('SHORT')) return 'SELL';
+  return 'BUY';
 }
 
 export async function GET(req: NextRequest) {

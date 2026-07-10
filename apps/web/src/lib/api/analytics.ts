@@ -81,7 +81,7 @@ export interface TradeExportResponse {
   rows: Array<{
     id: string;
     symbol: string;
-    direction: 'BUY' | 'SELL';
+    direction: 'BUY' | 'SELL' | 'LONG' | 'SHORT';
     volume: number;
     openPrice: number;
     closePrice: number | null;
