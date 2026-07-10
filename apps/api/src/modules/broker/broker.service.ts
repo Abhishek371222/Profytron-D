@@ -137,6 +137,7 @@ export class BrokerService {
           metaApiAccountId: null,
           pending: false,
           masterOnly: true,
+          executionPath: 'store_only',
         };
       } else {
         // Operator master / PROVIDER only — MetaApi allowed.
@@ -286,6 +287,7 @@ export class BrokerService {
         // slow). The account is saved; balance appears on the next test/refresh.
         pending: connectionResult.pending ?? false,
         masterOnly: Boolean(connectionResult.masterOnly),
+        executionPath: connectionResult.executionPath ?? null,
         // Shown once — paste into ProfytronCopyBridge EA. Rotate via bridge-token endpoint.
         ...(bridgeToken ? { bridgeToken } : {}),
         accountInfo: {

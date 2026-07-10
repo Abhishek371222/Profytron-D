@@ -42,14 +42,25 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
   const [error, setError] = React.useState('');
   const [pending, setPending] = React.useState(false);
   const [bridgeToken, setBridgeToken] = React.useState('');
-  const [brokerFilter, setBrokerFilter] = React.useState(ALL_BROKERS);
-  const [serverChoice, setServerChoice] = React.useState('');
+  const [brokerFilter, setBrokerFilter] = React.useState('BITRAGE');
+  const [serverChoice, setServerChoice] = React.useState(
+    'BitrageCapitalMarkets-Server',
+  );
   const [customServer, setCustomServer] = React.useState('');
   const [form, setForm] = React.useState({ login: '', password: '' });
 
   const serverOptions = React.useMemo(() => {
-    if (brokerFilter === ALL_BROKERS) return allServerOptions;
-    return allServerOptions.filter((s) => s.brokerId === brokerFilter);
+    const list =
+      brokerFilter === ALL_BROKERS
+        ? allServerOptions
+        : allServerOptions.filter((s) => s.brokerId === brokerFilter);
+    // Keep Bitrage servers at the top for Profytron users.
+    return [...list].sort((a, b) => {
+      const aBit = a.brokerId === 'BITRAGE' ? 0 : 1;
+      const bBit = b.brokerId === 'BITRAGE' ? 0 : 1;
+      if (aBit !== bBit) return aBit - bBit;
+      return a.label.localeCompare(b.label);
+    });
   }, [brokerFilter]);
 
   const resolvedServer =
@@ -107,8 +118,8 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
     setPending(false);
     setBridgeToken('');
     setMode('live');
-    setBrokerFilter(ALL_BROKERS);
-    setServerChoice('');
+    setBrokerFilter('BITRAGE');
+    setServerChoice('BitrageCapitalMarkets-Server');
     setCustomServer('');
     setForm({ login: '', password: '' });
   };
