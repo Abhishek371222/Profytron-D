@@ -50,7 +50,7 @@ describe('AppController', () => {
     it('should return service status', () => {
       expect(appController.getStatus()).toEqual({
         status: 'ok',
-        version: '1.0.0',
+        version: '1.0.4',
         prefix: 'v1',
       });
     });

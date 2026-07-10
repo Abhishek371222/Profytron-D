@@ -41,7 +41,7 @@ export class AppController {
     const isCopyFactory = executionMode === 'copyfactory';
     return {
       status: 'ok',
-      version: '1.0.3',
+      version: '1.0.4',
       prefix: 'v1',
       executionMode: isCopyFactory ? 'copyfactory' : 'master_only',
       copyFactoryEnabled: process.env.COPYFACTORY_ENABLED === 'true',

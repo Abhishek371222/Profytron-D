@@ -295,7 +295,7 @@ async function bootstrap() {
   // so that GET / returns a proper JSON status response instead of a 404.
   const httpAdapter = app.getHttpAdapter();
   httpAdapter.get('/', (_req: Request, res: Response) => {
-    res.json({ status: 'ok', version: '1.0.0' });
+    res.json({ status: 'ok', version: '1.0.4' });
   });
 
   await app.listen(port, host);
