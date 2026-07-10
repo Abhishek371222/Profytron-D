@@ -59,18 +59,46 @@ function encryptAesGcm(plaintext: string, keyHex: string): string {
 
 async function userIdFromRequest(req: NextRequest): Promise<string | null> {
   const auth = req.headers.get('authorization') || '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
-  if (!token) return null;
+  const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
+
+  // Prefer validating against the live API so we don't depend on JWT secret
+  // sync between Vercel and Render (that mismatch caused "Unauthorized").
+  const backend = (
+    process.env.BACKEND_API_ORIGIN ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    'https://profytron-api.onrender.com'
+  ).replace(/\/$/, '');
+
+  if (bearer) {
+    try {
+      const meRes = await fetch(`${backend}/v1/users/me`, {
+        headers: {
+          Authorization: `Bearer ${bearer}`,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        cache: 'no-store',
+      });
+      if (meRes.ok) {
+        const body = (await meRes.json()) as any;
+        const data = body?.data ?? body;
+        const id = data?.id ?? data?.userId;
+        if (typeof id === 'string' && id.length > 0) return id;
+      }
+    } catch {
+      /* fall through to local JWT verify */
+    }
+  }
+
+  if (!bearer) return null;
   const secret = process.env.JWT_ACCESS_SECRET;
   if (!secret) return null;
   try {
     const { payload } = await jwtVerify(
-      token,
+      bearer,
       new TextEncoder().encode(secret),
       { algorithms: ['HS256'] },
     );
-    const sub = payload.sub;
-    return typeof sub === 'string' ? sub : null;
+    return typeof payload.sub === 'string' ? payload.sub : null;
   } catch {
     return null;
   }
@@ -103,7 +131,9 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = await userIdFromRequest(req);
-  if (!userId) return error('Unauthorized', 401);
+  if (!userId) {
+    return error('Session expired. Please refresh the page and log in again.', 401);
+  }
 
   let body: ConnectBody;
   try {
