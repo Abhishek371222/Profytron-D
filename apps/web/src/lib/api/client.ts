@@ -234,6 +234,18 @@ function forceLoginRedirect(reason: 'expired' | 'superseded' = 'expired') {
   }, 5000);
 }
 
+/** Quiet reject so Next.js doesn't flash a Runtime AxiosError overlay on logout. */
+function silentAuthReject(error: AxiosError) {
+  const quiet = new Error(
+    (error.response?.data as { message?: string })?.message ||
+      'Session ended',
+  ) as Error & { isAxiosError?: boolean; silentAuth?: boolean };
+  quiet.name = 'SessionEndedError';
+  quiet.silentAuth = true;
+  quiet.isAxiosError = false;
+  return Promise.reject(quiet);
+}
+
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
@@ -241,8 +253,6 @@ apiClient.interceptors.response.use(
     const requestUrl = originalRequest?.url as string | undefined;
 
     if (error.response?.status === 401 && isSessionSupersededError(error)) {
-      // Non-refresh 401 with SESSION_SUPERSEDED is rare; try to recover via
-      // single-flight refresh before hard logout.
       if (!originalRequest?._retry && !isAuthBootstrapEndpoint(requestUrl)) {
         originalRequest._retry = true;
         try {
@@ -254,11 +264,11 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         } catch {
           forceLoginRedirect('superseded');
-          return Promise.reject(error);
+          return silentAuthReject(error);
         }
       }
       forceLoginRedirect('superseded');
-      return Promise.reject(error);
+      return silentAuthReject(error);
     }
 
     if (
@@ -282,7 +292,7 @@ apiClient.interceptors.response.use(
           return Promise.reject(refreshError);
         }
         forceLoginRedirect();
-        return Promise.reject(refreshError);
+        return silentAuthReject(error);
       }
     }
 

@@ -233,9 +233,8 @@ export class UsersService {
       data: { passwordHash: newHash },
     });
 
-    // Revoke the user's refresh token so the session cannot be continued with
-    // the old password. The access token will expire naturally within its TTL.
-    await this.redisService.del(`auth:refresh:${userId}:default`);
+    // Revoke every device session after a password change.
+    await this.redisService.delPrefix(`auth:refresh:${userId}:`);
     await this.prisma.userSession.deleteMany({ where: { userId } });
 
     return { success: true };
