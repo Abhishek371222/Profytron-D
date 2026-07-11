@@ -2,6 +2,7 @@ import { PrismaClient, UserRole, KycStatus, SubscriptionTier, RiskLevel, Strateg
 import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'node:crypto';
 import { PLATFORM_PLANS } from '../src/common/constants/pricing.constants';
+import { buildWalletPaymentFields } from '../src/modules/wallet/wallet-payment.util';
 
 // Single source of truth for pricing lives in pricing.constants.ts — seed
 // from it directly so this table can never drift out of sync again.
@@ -374,6 +375,13 @@ async function main() {
         description: t.description,
         createdAt: new Date(Date.now() - t.daysAgo * 86400000),
         idempotencyKey: `tx-${i}-${randomUUID()}`,
+        ...buildWalletPaymentFields({
+          type: t.type,
+          direction: t.direction,
+          userId: u1.id,
+          externalTxnId: `seed-tx-${i}`,
+          metadata: { source: 'seed' },
+        }),
       }
     });
   }

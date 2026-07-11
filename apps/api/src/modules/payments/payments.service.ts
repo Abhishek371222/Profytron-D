@@ -26,6 +26,7 @@ import { AGENT_EVENTS } from '../agents/agent.types';
 import { EmailService } from '../email/email.service';
 import { SubscriptionProvisioningService } from '../provisioning/subscription-provisioning.service';
 import { requireActiveMt5Broker } from '../../common/utils/broker-requirement.util';
+import { buildWalletPaymentFields } from '../wallet/wallet-payment.util';
 
 @Injectable()
 export class PaymentsService {
@@ -142,7 +143,9 @@ export class PaymentsService {
       );
       if (status === 401 || status === 403) {
         throw new ForbiddenException(
-          'Razorpay authentication failed. Set valid RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in apps/api/.env (or use DEMO_KEY for local simulation).',
+          `Razorpay rejected key "${process.env.RAZORPAY_KEY_ID || '(missing)'}" (401 Authentication failed). ` +
+            `Key ID and Key Secret do not match — regenerate both in Razorpay Dashboard → Account & Settings → API Keys (Test mode), ` +
+            `then update RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in apps/api/.env and restart the API.`,
         );
       }
       throw new BadRequestException(
@@ -962,7 +965,13 @@ export class PaymentsService {
         status: 'CONFIRMED',
         reference,
         idempotencyKey,
-        metadataJson: metadata as any,
+        ...buildWalletPaymentFields({
+          type: 'SUBSCRIPTION_PAYMENT',
+          direction: 'OUT',
+          userId,
+          externalTxnId: reference,
+          metadata,
+        }),
       },
     });
   }
@@ -1115,7 +1124,18 @@ export class PaymentsService {
             balanceAfter,
             status: 'CONFIRMED',
             idempotencyKey,
-            metadataJson: metadata as any,
+            ...buildWalletPaymentFields({
+              type,
+              direction,
+              userId,
+              externalTxnId:
+                typeof metadata?.paymentId === 'string'
+                  ? metadata.paymentId
+                  : typeof metadata?.orderId === 'string'
+                    ? metadata.orderId
+                    : idempotencyKey,
+              metadata: metadata as Record<string, unknown>,
+            }),
           },
         });
       });

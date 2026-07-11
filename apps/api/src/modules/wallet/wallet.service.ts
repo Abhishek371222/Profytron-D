@@ -27,6 +27,7 @@ import {
 } from './dto/wallet.dto';
 import { REDIS_CLIENT } from '../auth/redis.service';
 import { EmailService } from '../email/email.service';
+import { buildWalletPaymentFields } from './wallet-payment.util';
 
 @Injectable()
 export class WalletService {
@@ -166,20 +167,47 @@ export class WalletService {
       : null;
 
     return {
-      transactions: transactions.map((entry) => ({
-        id: entry.id,
-        type: entry.type,
-        status: entry.status,
-        direction: entry.direction,
-        amount: entry.amount,
-        balanceAfter: entry.balanceAfter,
-        description: entry.description,
-        reference: entry.reference,
-        metadata: entry.metadataJson,
-        createdAt: entry.createdAt,
-      })),
+      transactions: transactions.map((entry) => this.mapTransaction(entry)),
       nextCursor,
       total,
+    };
+  }
+
+  private mapTransaction(entry: {
+    id: string;
+    type: TransactionType;
+    status: TransactionStatus;
+    direction: TransactionDirection;
+    amount: number;
+    balanceAfter: number;
+    billingId: string;
+    paymentCategory: string | null;
+    senderAddress: string | null;
+    receiverAddress: string | null;
+    externalTxnId: string | null;
+    description: string | null;
+    reference: string | null;
+    metadataJson: Prisma.JsonValue;
+    createdAt: Date;
+    updatedAt?: Date;
+  }) {
+    return {
+      id: entry.id,
+      type: entry.type,
+      status: entry.status,
+      direction: entry.direction,
+      amount: entry.amount,
+      balanceAfter: entry.balanceAfter,
+      billingId: entry.billingId,
+      paymentCategory: entry.paymentCategory,
+      senderAddress: entry.senderAddress,
+      receiverAddress: entry.receiverAddress,
+      externalTxnId: entry.externalTxnId,
+      description: entry.description,
+      reference: entry.reference,
+      metadata: entry.metadataJson,
+      createdAt: entry.createdAt,
+      updatedAt: entry.updatedAt,
     };
   }
 
@@ -198,6 +226,17 @@ export class WalletService {
     });
 
     const current = await this.getBalance(userId);
+    const paymentFields = buildWalletPaymentFields({
+      type: 'DEPOSIT',
+      direction: 'IN',
+      userId,
+      externalTxnId: intent.id,
+      metadata: {
+        paymentIntentId: intent.id,
+        stripeMetadataKey: metadataIdempotencyKey,
+        gateway: 'stripe',
+      },
+    });
     const tx = await this.prisma.walletTransaction.create({
       data: {
         userId,
@@ -209,11 +248,8 @@ export class WalletService {
         idempotencyKey: intent.id,
         reference: intent.id,
         description: 'Wallet deposit initiated',
-        metadataJson: {
-          paymentIntentId: intent.id,
-          stripeMetadataKey: metadataIdempotencyKey,
-        },
         stripePaymentId: intent.id,
+        ...paymentFields,
       },
     });
 
@@ -221,6 +257,7 @@ export class WalletService {
       clientSecret: intent.client_secret,
       paymentIntentId: intent.id,
       transactionId: tx.id,
+      billingId: tx.billingId,
     };
   }
 
@@ -304,6 +341,19 @@ export class WalletService {
         throw new BadRequestException('Insufficient balance');
       }
 
+      const paymentFields = buildWalletPaymentFields({
+        type: 'WITHDRAWAL',
+        direction: 'OUT',
+        userId,
+        userAccountAddress: dto.bankAccount,
+        externalTxnId: null,
+        metadata: {
+          bankAccount: dto.bankAccount,
+          otpVerified: true,
+          gateway: 'bank_transfer',
+        },
+      });
+
       return tx.walletTransaction.create({
         data: {
           userId,
@@ -315,10 +365,7 @@ export class WalletService {
           idempotencyKey: `wd_${randomUUID()}`,
           reference: dto.bankAccount || 'Bank account',
           description: 'Withdrawal initiated',
-          metadataJson: {
-            bankAccount: dto.bankAccount,
-            otpVerified: true,
-          },
+          ...paymentFields,
         },
       });
     });
@@ -330,7 +377,7 @@ export class WalletService {
     );
 
     return {
-      transaction,
+      transaction: this.mapTransaction(transaction),
       estimatedArrival: '1-2 business days',
     };
   }
@@ -371,6 +418,22 @@ export class WalletService {
         );
       }
 
+      const paymentFields = buildWalletPaymentFields({
+        type: 'WITHDRAWAL',
+        direction: 'OUT',
+        userId: targetUserId,
+        userAccountAddress: dto.bankAccount,
+        paymentCategory: 'Wallet Withdrawal',
+        metadata: {
+          adminForced: true,
+          adminId,
+          bankAccount: dto.bankAccount || null,
+          note: dto.note || null,
+          targetEmail: user.email,
+          gateway: 'admin_force',
+        },
+      });
+
       return tx.walletTransaction.create({
         data: {
           userId: targetUserId,
@@ -382,13 +445,7 @@ export class WalletService {
           idempotencyKey: `admin_wd_${randomUUID()}`,
           reference: dto.bankAccount || 'Admin forced withdrawal',
           description: dto.note?.trim() || 'Admin withdrawal',
-          metadataJson: {
-            adminForced: true,
-            adminId,
-            bankAccount: dto.bankAccount || null,
-            note: dto.note || null,
-            targetEmail: user.email,
-          },
+          ...paymentFields,
         },
       });
     });
@@ -421,7 +478,38 @@ export class WalletService {
     if (!tx) {
       throw new NotFoundException('Transaction not found');
     }
-    return tx;
+    return this.mapTransaction(tx);
+  }
+
+  /**
+   * Resolve a payment by canonical billing ID (PRF-WLT-…).
+   * Users may only look up their own; pass `asAdmin` for support tooling.
+   */
+  async getTransactionByBillingId(
+    billingId: string,
+    opts: { userId?: string; asAdmin?: boolean },
+  ) {
+    const normalized = billingId.trim().toUpperCase();
+    const tx = await this.prisma.walletTransaction.findUnique({
+      where: { billingId: normalized },
+      include: {
+        user: {
+          select: { id: true, email: true, fullName: true },
+        },
+      },
+    });
+    if (!tx) {
+      throw new NotFoundException('No payment found for this Billing ID');
+    }
+    if (!opts.asAdmin && opts.userId && tx.userId !== opts.userId) {
+      throw new ForbiddenException('Billing ID does not belong to this account');
+    }
+    return {
+      ...this.mapTransaction(tx),
+      user: opts.asAdmin
+        ? { id: tx.user.id, email: tx.user.email, fullName: tx.user.fullName }
+        : undefined,
+    };
   }
 
   async generateStatement(userId: string, year: number, month: number) {
@@ -517,6 +605,14 @@ export class WalletService {
           ? currentBalance + dto.amount
           : currentBalance - dto.amount;
 
+      const paymentFields = buildWalletPaymentFields({
+        type: dto.type,
+        direction: dto.direction,
+        userId,
+        externalTxnId: dto.reference,
+        metadata: (dto.metadataJson as Record<string, unknown> | undefined) ?? {},
+      });
+
       return tx.walletTransaction.create({
         data: {
           userId,
@@ -526,9 +622,13 @@ export class WalletService {
           status: dto.status ?? 'CONFIRMED',
           idempotencyKey: dto.idempotencyKey,
           balanceAfter,
-          metadataJson: dto.metadataJson as Prisma.JsonObject | undefined,
           description: dto.description,
           reference: dto.reference,
+          ...paymentFields,
+          metadataJson: {
+            ...paymentFields.metadataJson,
+            ...((dto.metadataJson as Record<string, unknown> | undefined) ?? {}),
+          } as Prisma.JsonObject,
         },
       });
     });
@@ -609,6 +709,18 @@ export class WalletService {
           grouped.find((entry) => entry.direction === 'OUT')?._sum.amount ?? 0;
         const currentBalance = confirmedIn - confirmedOut;
 
+        const paymentFields = buildWalletPaymentFields({
+          type: 'SUBSCRIPTION_PAYMENT',
+          direction: 'OUT',
+          userId,
+          externalTxnId: session.id,
+          metadata: {
+            strategyId,
+            gateway: 'stripe_checkout',
+            sessionId: session.id,
+          },
+        });
+
         await tx.walletTransaction.create({
           data: {
             userId,
@@ -620,6 +732,7 @@ export class WalletService {
             stripePaymentId: session.id,
             description: `Subscription for strategy ${strategyId}`,
             idempotencyKey: `sub_${session.id}`,
+            ...paymentFields,
           },
         });
 

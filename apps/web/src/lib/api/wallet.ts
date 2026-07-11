@@ -15,10 +15,17 @@ export interface WalletTransaction {
   direction: 'IN' | 'OUT';
   amount: number;
   balanceAfter: number;
+  /** Canonical unique support ID: PRF-WLT-YYYYMMDD-XXXXXXXX */
+  billingId: string;
+  paymentCategory?: string | null;
+  senderAddress?: string | null;
+  receiverAddress?: string | null;
+  externalTxnId?: string | null;
   description?: string | null;
   reference?: string | null;
   metadata?: Record<string, unknown> | null;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface WalletTransactionsResponse {
@@ -81,6 +88,13 @@ export const walletApi = {
 
   async getTransaction(id: string) {
     const res = await apiClient.get<WalletTransaction>(`/wallet/transaction/${id}`);
+    return unwrapApiResponse<WalletTransaction>(res.data);
+  },
+
+  async getByBillingId(billingId: string) {
+    const res = await apiClient.get<WalletTransaction>(
+      `/wallet/billing/${encodeURIComponent(billingId)}`,
+    );
     return unwrapApiResponse<WalletTransaction>(res.data);
   },
 };

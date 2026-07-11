@@ -84,6 +84,7 @@ export type OverviewAccountMetrics = {
   sparkline: number[];
   isPaper: boolean;
   loading?: boolean;
+  refreshing?: boolean;
 };
 
 export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetrics }) {
@@ -99,6 +100,7 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
     sparkline,
     isPaper,
     loading,
+    refreshing,
   } = metrics;
 
   const marginUsedPct = equity > 0 ? (margin / equity) * 100 : 0;
@@ -119,7 +121,13 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <div
+      className={cn(
+        'grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 transition-opacity duration-300',
+        refreshing && 'opacity-80',
+      )}
+      aria-busy={refreshing || undefined}
+    >
       <Card>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

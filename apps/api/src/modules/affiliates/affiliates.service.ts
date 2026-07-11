@@ -11,6 +11,7 @@ import {
   REFERRAL_DEPOSIT_BONUS_INR,
   REFERRAL_MIN_DEPOSIT_INR,
 } from '../../common/constants/pricing.constants';
+import { buildWalletPaymentFields } from '../wallet/wallet-payment.util';
 
 type FunnelEventInput = {
   referrerId: string;
@@ -247,6 +248,14 @@ export class AffiliatesService {
           idempotencyKey,
           description,
           reference,
+          ...buildWalletPaymentFields({
+            type: 'COMMISSION',
+            direction: 'IN',
+            userId: targetUserId,
+            paymentCategory: 'Commission',
+            externalTxnId: reference,
+            metadata: { source: 'referral_bonus' },
+          }),
         },
       });
     };
@@ -399,6 +408,14 @@ export class AffiliatesService {
             idempotencyKey,
             description: `Affiliate commission from referral`,
             reference: userId,
+            ...buildWalletPaymentFields({
+              type: 'COMMISSION',
+              direction: 'IN',
+              userId: referrerId,
+              paymentCategory: 'Commission',
+              externalTxnId: userId,
+              metadata: { source: 'affiliate_commission', refereeId: userId },
+            }),
           },
         });
 
@@ -665,6 +682,13 @@ export class AffiliatesService {
           balanceAfter: currentBalance - amount,
           idempotencyKey,
           description: 'Affiliate payout withdrawal request',
+          ...buildWalletPaymentFields({
+            type: 'WITHDRAWAL',
+            direction: 'OUT',
+            userId,
+            paymentCategory: 'Affiliate Payout',
+            metadata: { source: 'affiliate_payout' },
+          }),
         },
       });
 

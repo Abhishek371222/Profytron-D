@@ -365,7 +365,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           </div>
           <div className="space-y-2">
             {(charts?.symbolDistribution ?? []).map((item: any) => (
-              <div key={item.symbol} className="flex items-center justify-between rounded-xl border border-[var(--card-border)] bg-muted/20px-4 py-2.5">
+              <div key={item.symbol} className="flex items-center justify-between rounded-xl border border-[var(--card-border)] bg-muted/20 px-4 py-2.5">
                 <div className="flex items-center gap-3">
                   <span className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
                   <span className="text-sm font-semibold text-foreground">{item.symbol}</span>

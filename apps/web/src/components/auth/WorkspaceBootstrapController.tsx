@@ -39,9 +39,15 @@ function mapOpenTrades(rows: Awaited<ReturnType<typeof tradingApi.getOpenTrades>
 
 function accountsLiveReady(accounts: any[] | null | undefined): boolean {
   if (!accounts || accounts.length === 0) return true; // no broker — dashboard can open
-  return accounts.some(
-    (a) => a?.liveSynced === true || a?.isPaperTrading === true || a?.isPaperTrading === 1,
-  );
+  return accounts.some((a) => {
+    if (a?.isPaperTrading === true || a?.isPaperTrading === 1) return true;
+    if (a?.liveSynced === true) return true;
+    if (a?.storeOnly === true) return true;
+    const equity = Number(a?.equity ?? a?.balance ?? a?.initialEquity ?? 0);
+    if (Number.isFinite(equity) && equity > 0) return true;
+    const status = String(a?.connectionStatus || '').toUpperCase();
+    return status === 'CONNECTED';
+  });
 }
 
 /**

@@ -21,6 +21,7 @@ describe('UsersService password reset', () => {
     set: jest.Mock;
     get: jest.Mock;
     del: jest.Mock;
+    delPrefix: jest.Mock;
   };
   let email: {
     sendPasswordResetOtpEmail: jest.Mock;
@@ -57,6 +58,7 @@ describe('UsersService password reset', () => {
       set: jest.fn().mockResolvedValue(undefined),
       get: jest.fn().mockResolvedValue(null),
       del: jest.fn().mockResolvedValue(undefined),
+      delPrefix: jest.fn().mockResolvedValue(undefined),
     };
 
     email = {
@@ -184,7 +186,7 @@ describe('UsersService password reset', () => {
     });
     expect(redis.del).toHaveBeenCalledWith(`auth:reset:verified:${userId}`);
     expect(redis.del).toHaveBeenCalledWith(`auth:reset:otp:${userId}`);
-    expect(redis.del).toHaveBeenCalledWith(`auth:refresh:${userId}:default`);
+    expect(redis.delPrefix).toHaveBeenCalledWith(`auth:refresh:${userId}:`);
     expect(prisma.userSession.deleteMany).toHaveBeenCalledWith({
       where: { userId },
     });
