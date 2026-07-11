@@ -11,7 +11,7 @@ function toIsoDate(date: Date) {
   return `${y}-${m}-${d}`;
 }
 
-function parseIsoDate(value: string) {
+function parseIsoDate(value?: string | null) {
   if (!value) return null;
   const [y, m, d] = value.split('-').map(Number);
   if (!y || !m || !d) return null;
@@ -56,7 +56,7 @@ export function WalletDatePicker({
 
   React.useEffect(() => {
     if (!open) return;
-    const anchor = parseIsoDate(value) ?? parseIsoDate(min) ?? parseIsoDate(effectiveMax) ?? new Date();
+    const anchor = parseIsoDate(value) ?? parseIsoDate(min || '') ?? parseIsoDate(effectiveMax) ?? new Date();
     setViewYear(anchor.getFullYear());
     setViewMonth(anchor.getMonth());
   }, [open, value, min, effectiveMax]);
