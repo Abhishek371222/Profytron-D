@@ -337,17 +337,46 @@ export default function SecuritySettingsPage() {
   };
 
   const setupInProgress = Boolean(setupQr) || is2faSetupLoading;
+  // Option C: password reset is only for email/password accounts.
+  // Prefer explicit hasPassword from API; fall back to googleId when unknown.
+  const canResetPassword =
+    user?.hasPassword === true ||
+    (user?.hasPassword !== false && !user?.googleId);
 
   return (
     <div className="space-y-8">
       <SettingsSection
         title="Access credentials"
-        description="Reset your login password using a one-time code sent to your registered email."
+        description={
+          canResetPassword
+            ? 'Reset your login password using a one-time code sent to your registered email.'
+            : 'This account signs in with Google. Password reset is only available for email and password accounts.'
+        }
       >
-        <DashButton onClick={openPasswordReset} className="gap-2" data-testid="reset-password-button">
-          <Lock className="h-4 w-4" />
-          Reset Password
-        </DashButton>
+        {canResetPassword ? (
+          <DashButton
+            onClick={openPasswordReset}
+            className="gap-2"
+            data-testid="reset-password-button"
+          >
+            <Lock className="h-4 w-4" />
+            Reset Password
+          </DashButton>
+        ) : (
+          <div
+            className="rounded-xl border border-[var(--card-border)] bg-muted/20 p-4 space-y-2 max-w-xl"
+            data-testid="google-only-password-message"
+          >
+            <p className="text-sm font-medium text-foreground">
+              Signed in with Google
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Password reset is not available for Google-only accounts. Continue
+              signing in with Google. To use email and password instead, register
+              a separate email/password account.
+            </p>
+          </div>
+        )}
       </SettingsSection>
 
       <SettingsSection

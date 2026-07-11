@@ -4,6 +4,9 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 
 const LEADERBOARD_TTL = 300; // 5 minutes
+/** Canonical strategy base equity — same as marketplace analytics. */
+export const STRATEGY_BASE_EQUITY = 100_000;
+const STRATEGIES_CACHE_PREFIX = 'cache:leaderboard:strategies:v2:';
 
 @Injectable()
 export class LeaderboardService {
@@ -14,106 +17,41 @@ export class LeaderboardService {
     private redis: RedisService,
   ) {}
 
+  /** Clamp requested limits to a safe 1–100 range. */
+  clampLimit(limit: number, fallback: number): number {
+    const n = Number.isFinite(limit) ? Math.trunc(limit) : fallback;
+    if (!Number.isFinite(n) || n < 1) return fallback;
+    return Math.min(100, n);
+  }
+
   async getMonthly(limit = 50): Promise<{ period: string; entries: any[] }> {
-    const cacheKey = `cache:leaderboard:monthly:${limit}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-
+    const safeLimit = this.clampLimit(limit, 50);
     const period = this.currentMonthPeriod();
-    const entries = await this.prisma.leaderboardEntry.findMany({
-      where: { period },
-      orderBy: { rank: 'asc' },
-      take: limit,
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-            username: true,
-            avatarUrl: true,
-            country: true,
-          },
-        },
-      },
-    });
-
-    if (!entries.length) {
-      await this.recalculate();
-      return this.getMonthly(limit);
-    }
-
-    const result = { period, entries };
-    await this.redis.set(cacheKey, JSON.stringify(result), LEADERBOARD_TTL);
-    return result;
-  }
-
-  async getAllTime(limit = 50): Promise<{ period: string; entries: any[] }> {
-    const cacheKey = `cache:leaderboard:all:${limit}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-
-    const entries = await this.prisma.leaderboardEntry.findMany({
-      where: { period: 'all' },
-      orderBy: { rank: 'asc' },
-      take: limit,
-      include: {
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-            username: true,
-            avatarUrl: true,
-            country: true,
-          },
-        },
-      },
-    });
-
-    if (!entries.length) {
-      await this.recalculate();
-      return this.getAllTime(limit);
-    }
-
-    const result = { period: 'all', entries };
-    await this.redis.set(cacheKey, JSON.stringify(result), LEADERBOARD_TTL);
-    return result;
-  }
-
-  async getTopStrategies(limit = 20) {
-    return this.redis.cached(
-      `cache:leaderboard:strategies:${limit}`,
-      LEADERBOARD_TTL,
-      () => this.computeTopStrategies(limit),
+    return this.getPeriodLeaderboard(
+      period,
+      this.monthStart(),
+      safeLimit,
+      `cache:leaderboard:monthly:${safeLimit}`,
     );
   }
 
-  private async computeTopStrategies(limit = 20) {
-    const strategies = await this.prisma.strategy.findMany({
-      where: { isPublished: true, isVerified: true, deletedAt: null },
-      include: {
-        creator: {
-          select: { id: true, fullName: true, username: true, avatarUrl: true },
-        },
-        performance: {
-          orderBy: { date: 'desc' },
-          take: 1,
-        },
-        _count: { select: { subscriptions: true } },
-      },
-      orderBy: { totalRevenue: 'desc' },
-      take: limit,
-    });
+  async getAllTime(limit = 50): Promise<{ period: string; entries: any[] }> {
+    const safeLimit = this.clampLimit(limit, 50);
+    return this.getPeriodLeaderboard(
+      'all',
+      undefined,
+      safeLimit,
+      `cache:leaderboard:all:${safeLimit}`,
+    );
+  }
 
-    return strategies.map((s) => ({
-      id: s.id,
-      name: s.name,
-      category: s.category,
-      riskLevel: s.riskLevel,
-      creator: s.creator,
-      subscribers: s._count.subscriptions,
-      latestPerformance: s.performance[0] ?? null,
-      monthlyPrice: s.monthlyPrice,
-    }));
+  async getTopStrategies(limit = 20) {
+    const safeLimit = this.clampLimit(limit, 20);
+    return this.redis.cached(
+      `${STRATEGIES_CACHE_PREFIX}${safeLimit}`,
+      LEADERBOARD_TTL,
+      () => this.computeTopStrategies(safeLimit),
+    );
   }
 
   async getUserRank(userId: string) {
@@ -138,8 +76,9 @@ export class LeaderboardService {
       );
       await this.recalculatePeriod('all', undefined);
       await Promise.all([
-        this.redis.del('cache:leaderboard:monthly:50'),
-        this.redis.del('cache:leaderboard:all:50'),
+        this.redis.delPrefix('cache:leaderboard:monthly:'),
+        this.redis.delPrefix('cache:leaderboard:all:'),
+        this.redis.delPrefix(STRATEGIES_CACHE_PREFIX),
       ]);
       this.logger.log('Leaderboard rankings updated');
     } catch (error) {
@@ -149,7 +88,154 @@ export class LeaderboardService {
     }
   }
 
-  private async recalculatePeriod(period: string, since: Date | undefined) {
+  private async getPeriodLeaderboard(
+    period: string,
+    since: Date | undefined,
+    limit: number,
+    cacheKey: string,
+  ): Promise<{ period: string; entries: any[] }> {
+    const cached = await this.redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+
+    let entries = await this.findEntries(period, limit);
+
+    if (!entries.length) {
+      try {
+        await this.recalculatePeriod(period, since);
+        // Drop stale limit-specific caches for this period after a rebuild.
+        await this.redis.delPrefix(
+          period === 'all'
+            ? 'cache:leaderboard:all:'
+            : 'cache:leaderboard:monthly:',
+        );
+      } catch (error) {
+        this.logger.warn(
+          `Leaderboard recalculation failed for period=${period}: ${(error as Error).message}`,
+        );
+      }
+      entries = await this.findEntries(period, limit);
+    }
+
+    const result = { period, entries };
+    await this.redis.set(cacheKey, JSON.stringify(result), LEADERBOARD_TTL);
+    return result;
+  }
+
+  private async findEntries(period: string, limit: number) {
+    return this.prisma.leaderboardEntry.findMany({
+      where: { period },
+      orderBy: { rank: 'asc' },
+      take: limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            username: true,
+            avatarUrl: true,
+            country: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Profit Rate = cumulative net P&L / STRATEGY_BASE_EQUITY * 100.
+   * Matches marketplace strategy-analytics totalReturnPct convention.
+   */
+  profitRateFromNetPnl(netPnl: number): number {
+    const rate = (netPnl / STRATEGY_BASE_EQUITY) * 100;
+    if (!Number.isFinite(rate)) return 0;
+    return Number(rate.toFixed(2));
+  }
+
+  private async computeTopStrategies(limit: number) {
+    const strategies = await this.prisma.strategy.findMany({
+      where: { isPublished: true, isVerified: true, deletedAt: null },
+      include: {
+        creator: {
+          select: { id: true, fullName: true, username: true, avatarUrl: true },
+        },
+        performance: {
+          orderBy: { date: 'desc' },
+          take: 1,
+        },
+        _count: { select: { subscriptions: true } },
+      },
+    });
+
+    const withoutPerfIds = strategies
+      .filter((s) => !s.performance[0])
+      .map((s) => s.id);
+
+    /** Cumulative net P&L from closed trades when no StrategyPerformance row exists. */
+    const tradeNetByStrategy = new Map<string, number>();
+    if (withoutPerfIds.length) {
+      // profit already reflects closed P&L in trading accounting; do not
+      // subtract commission/swap again (same convention as marketplace analytics).
+      const trades = await this.prisma.trade.groupBy({
+        by: ['strategyId'],
+        where: {
+          strategyId: { in: withoutPerfIds },
+          status: 'CLOSED',
+        },
+        _sum: { profit: true },
+        _count: { id: true },
+      });
+      for (const row of trades) {
+        if (!row.strategyId || row._count.id === 0) continue;
+        tradeNetByStrategy.set(row.strategyId, row._sum.profit ?? 0);
+      }
+    }
+
+    const ranked = strategies.map((s) => {
+      const latest = s.performance[0] ?? null;
+      let netPnl: number | null = null;
+      if (latest) {
+        netPnl = latest.netPnl;
+      } else if (tradeNetByStrategy.has(s.id)) {
+        netPnl = tradeNetByStrategy.get(s.id)!;
+      }
+
+      const profitRate =
+        netPnl != null ? this.profitRateFromNetPnl(netPnl) : 0;
+
+      return {
+        id: s.id,
+        name: s.name,
+        category: s.category,
+        riskLevel: s.riskLevel,
+        creator: s.creator,
+        subscribers: s._count.subscriptions,
+        latestPerformance: latest
+          ? {
+              winRate: latest.winRate,
+              netPnl: latest.netPnl,
+              sharpeRatio: latest.sharpeRatio,
+              totalTrades: latest.totalTrades,
+              winningTrades: latest.winningTrades,
+            }
+          : null,
+        monthlyPrice: s.monthlyPrice,
+        profitRate,
+        _sortNetPnl: netPnl ?? 0,
+      };
+    });
+
+    ranked.sort((a, b) => {
+      if (b.profitRate !== a.profitRate) return b.profitRate - a.profitRate;
+      if (b._sortNetPnl !== a._sortNetPnl) return b._sortNetPnl - a._sortNetPnl;
+      if (b.subscribers !== a.subscribers) return b.subscribers - a.subscribers;
+      const nameCmp = a.name.localeCompare(b.name);
+      if (nameCmp !== 0) return nameCmp;
+      return a.id.localeCompare(b.id);
+    });
+
+    return ranked.slice(0, limit).map(({ _sortNetPnl: _, ...rest }) => rest);
+  }
+
+  async recalculatePeriod(period: string, since: Date | undefined) {
     const where: any = { status: 'CLOSED' };
     if (since) where.closedAt = { gte: since };
 
@@ -161,16 +247,17 @@ export class LeaderboardService {
       _avg: { profit: true },
     });
 
-    // Compute win rate per user
     const userIds = raw.map((r) => r.userId);
-    const wins = await this.prisma.trade.groupBy({
-      by: ['userId'],
-      where: { ...where, userId: { in: userIds }, profit: { gt: 0 } },
-      _count: { id: true },
-    });
+    const wins =
+      userIds.length === 0
+        ? []
+        : await this.prisma.trade.groupBy({
+            by: ['userId'],
+            where: { ...where, userId: { in: userIds }, profit: { gt: 0 } },
+            _count: { id: true },
+          });
     const winsMap = new Map(wins.map((w) => [w.userId, w._count.id]));
 
-    // Score and rank
     const scored = raw
       .map((r) => {
         const total = r._count.id;
@@ -189,7 +276,6 @@ export class LeaderboardService {
       .sort((a, b) => b.score - a.score);
 
     const now = new Date();
-    // Replace N individual upserts with 2 queries (delete + createMany) inside one transaction.
     await this.prisma.$transaction([
       this.prisma.leaderboardEntry.deleteMany({ where: { period } }),
       this.prisma.leaderboardEntry.createMany({
@@ -206,7 +292,7 @@ export class LeaderboardService {
     ]);
   }
 
-  private currentMonthPeriod(): string {
+  currentMonthPeriod(): string {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   }

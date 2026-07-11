@@ -9,13 +9,24 @@ import {
   DashboardBreadcrumbs,
   DashboardPageHeader,
   DashboardTabs,
+  DashErrorState,
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/ui/UserAvatar';
-import { Trophy, TrendingUp, Users, Star, Crown, Medal, Award, BarChart3, Loader2, Zap } from 'lucide-react';
+import { Trophy, Users, Star, Crown, Medal, Award, BarChart3 } from 'lucide-react';
 
 const TABS = ['Monthly', 'All Time', 'Top Strategies'] as const;
 type Tab = (typeof TABS)[number];
+
+function formatProfitRate(value: number): string {
+  if (!Number.isFinite(value)) return '0.00%';
+  return `${value > 0 ? '+' : ''}${value.toFixed(2)}%`;
+}
+
+function profitRateClassName(value: number): string {
+  if (!Number.isFinite(value) || value === 0) return 'text-muted-foreground';
+  return value > 0 ? 'text-chart-3' : 'text-destructive';
+}
 
 /* ── Podium config for rank 1-3 ── */
 const PODIUM = [
@@ -239,6 +250,8 @@ function TraderRow({
 }
 
 function StrategyRow({ strategy, idx }: { strategy: TopStrategy; idx: number }) {
+  const profitRate = strategy.profitRate;
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -12 }}
@@ -262,18 +275,16 @@ function StrategyRow({ strategy, idx }: { strategy: TopStrategy; idx: number }) 
               {strategy.subscribers}
             </p>
           </div>
-          {strategy.latestPerformance && (
-            <div>
-              <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Win Rate</p>
-              <p className="text-sm font-bold text-chart-3">
-                {strategy.latestPerformance.winRate?.toFixed(1) ?? '—'}%
-              </p>
-            </div>
-          )}
+          <div>
+            <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Profit Rate</p>
+            <p className={cn('text-sm font-bold', profitRateClassName(profitRate))}>
+              {formatProfitRate(profitRate)}
+            </p>
+          </div>
           {strategy.monthlyPrice !== null && (
             <div>
               <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Price</p>
-              <p className="text-sm font-bold text-foreground">${strategy.monthlyPrice}/mo</p>
+              <p className="text-sm font-bold text-foreground">₹{strategy.monthlyPrice}/mo</p>
             </div>
           )}
         </div>
@@ -284,15 +295,15 @@ function StrategyRow({ strategy, idx }: { strategy: TopStrategy; idx: number }) 
           <p className="mt-0.5 text-sm font-bold text-foreground">{strategy.subscribers.toLocaleString()}</p>
         </div>
         <div className="rounded-lg bg-muted/30 px-2.5 py-2">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Win Rate</p>
-          <p className="mt-0.5 text-sm font-bold text-chart-3">
-            {strategy.latestPerformance?.winRate?.toFixed(1) ?? '—'}%
+          <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Profit Rate</p>
+          <p className={cn('mt-0.5 text-sm font-bold', profitRateClassName(profitRate))}>
+            {formatProfitRate(profitRate)}
           </p>
         </div>
         {strategy.monthlyPrice !== null && (
           <div className="col-span-2 rounded-lg bg-muted/30 px-2.5 py-2">
             <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Price</p>
-            <p className="mt-0.5 text-sm font-bold text-foreground">${strategy.monthlyPrice}/mo</p>
+            <p className="mt-0.5 text-sm font-bold text-foreground">₹{strategy.monthlyPrice}/mo</p>
           </div>
         )}
       </div>
@@ -326,12 +337,26 @@ export default function LeaderboardPage() {
     queryFn: () => leaderboardApi.myRank(),
   });
 
-  const activeData = tab === 'Monthly' ? monthlyQ : tab === 'All Time' ? allTimeQ : null;
-  const isLoading = activeData?.isLoading ?? strategiesQ.isLoading;
-  const entries: LeaderboardEntry[] = activeData?.data?.entries ?? [];
-  const strategies: TopStrategy[] = strategiesQ.data ?? [];
+  const activeTraderQuery = tab === 'Monthly' ? monthlyQ : tab === 'All Time' ? allTimeQ : null;
+  const activeQuery =
+    tab === 'Top Strategies' ? strategiesQ : activeTraderQuery ?? monthlyQ;
+
+  const isLoading = activeQuery.isLoading || activeQuery.isPending;
+  const isError = activeQuery.isError;
+  const entries: LeaderboardEntry[] =
+    activeTraderQuery?.isSuccess ? (activeTraderQuery.data?.entries ?? []) : [];
+  const strategies: TopStrategy[] = strategiesQ.isSuccess
+    ? (strategiesQ.data ?? [])
+    : [];
   const myRank = myRankQ.data;
   const myUserId = myRank?.monthly?.userId ?? myRank?.allTime?.userId ?? null;
+
+  const errorMessage =
+    tab === 'Monthly'
+      ? 'Could not load the monthly leaderboard.'
+      : tab === 'All Time'
+        ? 'Could not load the all-time leaderboard.'
+        : 'Could not load top strategies.';
 
   const top3 = entries.slice(0, 3);
   const rest = entries.slice(3);
@@ -409,6 +434,8 @@ export default function LeaderboardPage() {
             ))}
           </div>
         </div>
+      ) : isError ? (
+        <DashErrorState message={errorMessage} onRetry={() => activeQuery.refetch()} />
       ) : tab === 'Top Strategies' ? (
         <AnimatePresence mode="wait">
           <div className="space-y-3">

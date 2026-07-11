@@ -205,6 +205,7 @@ export const useAuthStore = create<AuthState>()(
               role: state.user.role,
               onboardingCompleted: state.user.onboardingCompleted,
               twoFactorEnabled: state.user.twoFactorEnabled,
+              hasPassword: state.user.hasPassword,
             }
           : null,
       }),

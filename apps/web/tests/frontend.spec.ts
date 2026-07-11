@@ -202,6 +202,52 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
       await expect(page.getByText('Update Password')).toHaveCount(0);
     });
 
+    test('hides Reset Password for Google-only accounts', async ({ page }) => {
+      await page.route('**/users/me', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: {
+              id: 'u1',
+              email: 'abhishekaj371@gmail.com',
+              fullName: 'Trader',
+              role: 'USER',
+              onboardingCompleted: true,
+              twoFactorEnabled: false,
+              hasPassword: false,
+              googleId: 'google-123',
+            },
+          }),
+        });
+      });
+      await page.addInitScript(() => {
+        localStorage.setItem(
+          'profytron-auth',
+          JSON.stringify({
+            state: {
+              user: {
+                id: 'u1',
+                email: 'abhishekaj371@gmail.com',
+                fullName: 'Trader',
+                role: 'USER',
+                onboardingCompleted: true,
+                twoFactorEnabled: false,
+                hasPassword: false,
+                googleId: 'google-123',
+              },
+            },
+            version: 0,
+          }),
+        );
+        sessionStorage.setItem('profytron_access', 'test_token');
+      });
+
+      await page.goto('/settings/security');
+      await expect(page.getByTestId('reset-password-button')).toHaveCount(0);
+      await expect(page.getByTestId('google-only-password-message')).toBeVisible();
+    });
+
     test('password reset dialog advances email → OTP → password steps', async ({ page }) => {
       await page.route('**/users/me/password-reset/request-otp', async (route) => {
         await route.fulfill({

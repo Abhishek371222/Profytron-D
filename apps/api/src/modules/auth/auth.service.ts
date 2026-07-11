@@ -1348,6 +1348,9 @@ export class AuthService {
 
   public sanitizeUser(user: any) {
     const { passwordHash, ...safeUser } = user;
-    return safeUser;
+    return {
+      ...safeUser,
+      hasPassword: Boolean(passwordHash),
+    };
   }
 }

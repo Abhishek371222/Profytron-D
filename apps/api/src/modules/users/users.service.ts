@@ -138,7 +138,9 @@ export class UsersService {
   async findById(id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (user) {
+      const hasPassword = Boolean(user.passwordHash);
       delete (user as any).passwordHash;
+      return { ...user, hasPassword };
     }
     return user;
   }
