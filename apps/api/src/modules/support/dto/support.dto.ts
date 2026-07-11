@@ -4,8 +4,10 @@ import {
   MaxLength,
   IsIn,
   IsOptional,
+  Matches,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { BILLING_ID_REGEX } from '../../wallet/wallet-payment.util';
 
 const SUPPORT_CATEGORIES = [
   'general',
@@ -35,6 +37,18 @@ export class CreateTicketDto {
     message: `category must be one of: ${SUPPORT_CATEGORIES.join(', ')}`,
   })
   category: string;
+
+  /** Canonical wallet Billing ID (PRF-WLT-YYYYMMDD-XXXXXXXX) for payment complaints */
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim().toUpperCase() : value,
+  )
+  @IsString()
+  @Matches(BILLING_ID_REGEX, {
+    message:
+      'billingId must match PRF-WLT-YYYYMMDD-XXXXXXXX (e.g. PRF-WLT-20260712-A1B2C3D4)',
+  })
+  billingId?: string;
 }
 
 export class AddResponseDto {

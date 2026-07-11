@@ -11,7 +11,7 @@ function readApiError(err: unknown, fallback: string): string {
       return 'Payment API not found. Ensure the API is running on port 4000 and NEXT_PUBLIC_BACKEND_URL is set.';
     }
     if (response?.status === 403) {
-      return 'Razorpay keys are invalid. Add test keys to apps/api/.env or keep RAZORPAY_KEY_ID=DEMO_KEY for local simulation.';
+      return 'Razorpay rejected these API keys (401). Regenerate Key ID + Secret in Razorpay Dashboard → API Keys (Test), update apps/api/.env, restart API.';
     }
   }
   if (err instanceof Error && err.message) {
