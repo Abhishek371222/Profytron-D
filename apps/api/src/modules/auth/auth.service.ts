@@ -704,11 +704,17 @@ export class AuthService {
 
   /** See session-activity.constants.ts for the enforcement/TTL rationale. */
   async activateSession(userId: string, jti: string) {
-    await this.redisService.set(
-      `${ACTIVE_SESSION_KEY_PREFIX}${userId}`,
-      jti,
-      ACTIVE_SESSION_TTL_SECONDS,
-    );
+    try {
+      await this.redisService.set(
+        `${ACTIVE_SESSION_KEY_PREFIX}${userId}`,
+        jti,
+        ACTIVE_SESSION_TTL_SECONDS,
+      );
+    } catch {
+      // Non-fatal: single-session enforcement is a UX feature, not a login
+      // precondition. A missed claim just means the guard has nothing to
+      // compare against yet (falls through to "no active session claimed").
+    }
   }
 
   async logout(userId: string, jti: string) {
@@ -1171,6 +1177,13 @@ export class AuthService {
         secret: process.env.JWT_REFRESH_SECRET,
       },
     );
+
+    // Claim this token as the active session immediately at mint time (not
+    // left to a later frontend call) — every login/refresh is by definition
+    // the newest, most-intentional session, and a fresh token pair must never
+    // start out already "superseded" by a stale claim from an earlier tab.
+    await this.activateSession(userId, jti);
+
     return { accessToken, refreshToken };
   }
 
