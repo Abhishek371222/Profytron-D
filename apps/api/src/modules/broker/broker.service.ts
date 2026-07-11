@@ -372,6 +372,7 @@ export class BrokerService {
 
         let live: any = null;
         let connectionStatus = 'CONNECTING';
+        let liveSynced = false;
 
         if (this.mtAdapter.isLive) {
           try {
@@ -383,21 +384,44 @@ export class BrokerService {
             if (info?.connected) {
               live = info;
               connectionStatus = 'CONNECTED';
+              liveSynced = Number(info.equity ?? info.balance ?? 0) > 0;
+              if (liveSynced) {
+                void this.prisma.brokerAccount
+                  .update({
+                    where: { id: account.id },
+                    data: {
+                      initialEquity: Number(info.equity ?? info.balance),
+                      lastConnectedAt: new Date(),
+                    },
+                  })
+                  .catch(() => undefined);
+              }
             }
           } catch {
             /* keep CONNECTING + stored baseline */
           }
         } else {
           connectionStatus = 'CONNECTED';
+          liveSynced = true;
         }
+
+        const balance =
+          live?.balance ?? safe.initialEquity ?? null;
+        const equity =
+          live?.equity ?? live?.balance ?? safe.initialEquity ?? null;
 
         return {
           ...safe,
-          balance: live?.balance ?? safe.initialEquity ?? null,
-          equity: live?.equity ?? safe.initialEquity ?? null,
+          balance,
+          equity,
+          margin: live?.margin ?? 0,
+          freeMargin:
+            live?.freeMargin ??
+            (equity != null ? Math.max(0, Number(equity) - Number(live?.margin ?? 0)) : null),
           currency: live?.currency ?? 'USD',
           leverage: live?.leverage ?? null,
           connectionStatus,
+          liveSynced: liveSynced || Boolean(safe.initialEquity),
           fillMode: 'metaapi',
           storeOnly: false,
         };

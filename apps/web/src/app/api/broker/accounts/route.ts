@@ -4,7 +4,7 @@ import { neon } from '@neondatabase/serverless';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 20;
+export const maxDuration = 30;
 
 function json(data: unknown, status = 200) {
   return NextResponse.json(
@@ -130,7 +130,8 @@ export async function GET(req: NextRequest) {
     ORDER BY "connectedAt" DESC
   `;
 
-  // Parallel MetaAPI balance fetches — never expose initialEquity as live balance.
+  // Parallel MetaAPI balance fetches. Always return a usable number when we have
+  // a stored baseline so Overview never flashes ₹0 after login.
   const accounts = await Promise.all(
     rows.map(async (row) => {
       let creds: Record<string, any> = {};
@@ -149,6 +150,9 @@ export async function GET(req: NextRequest) {
         creds.executionMode === 'master_only' ||
         String(metaId).startsWith('mock-');
 
+      const baseline = Number(row.initialEquity ?? 0);
+      const hasBaseline = Number.isFinite(baseline) && baseline > 0;
+
       let balance: number | null = null;
       let equity: number | null = null;
       let margin = 0;
@@ -158,15 +162,14 @@ export async function GET(req: NextRequest) {
       let connectionStatus = storeOnly ? 'CONNECTED' : 'SYNCING';
 
       if (row.isPaperTrading) {
-        const seed = Number(row.initialEquity ?? 0);
-        balance = seed;
-        equity = seed;
-        freeMargin = seed;
-        liveSynced = seed > 0;
+        balance = hasBaseline ? baseline : 100_000;
+        equity = balance;
+        freeMargin = balance;
+        liveSynced = true;
         connectionStatus = 'CONNECTED';
       } else if (!storeOnly && metaToken && metaId) {
         const live = await fetchBalance(metaId, region, metaToken);
-        if (live) {
+        if (live && live.equity > 0) {
           balance = live.balance;
           equity = live.equity;
           margin = live.margin;
@@ -174,9 +177,31 @@ export async function GET(req: NextRequest) {
           currency = live.currency;
           liveSynced = true;
           connectionStatus = 'CONNECTED';
+          // Persist last-known equity so the next cold login shows numbers immediately.
+          void sql`
+            UPDATE "BrokerAccount"
+            SET "initialEquity" = ${live.equity},
+                "lastConnectedAt" = NOW()
+            WHERE id = ${row.id}
+          `.catch(() => undefined);
+        } else if (hasBaseline) {
+          balance = baseline;
+          equity = baseline;
+          freeMargin = baseline;
+          liveSynced = false;
+          connectionStatus = 'SYNCING';
         } else {
           connectionStatus = 'SYNCING';
         }
+      } else if (storeOnly) {
+        // Bridge / store-only: show stored baseline until EA reports live.
+        if (hasBaseline) {
+          balance = baseline;
+          equity = baseline;
+          freeMargin = baseline;
+        }
+        liveSynced = hasBaseline;
+        connectionStatus = 'CONNECTED';
       }
 
       const { credentialsEncrypted: _, ...safe } = row as any;
@@ -184,7 +209,6 @@ export async function GET(req: NextRequest) {
         ...safe,
         accountNumber: row.accountNumberLast4,
         login: creds.login || null,
-        // Keep initialEquity for deposit-base fallback only — not as displayed balance.
         balance,
         equity,
         margin,
@@ -199,10 +223,12 @@ export async function GET(req: NextRequest) {
             ? 'paper'
             : 'metaapi',
         balanceNote: storeOnly
-          ? undefined
+          ? 'Linked via bridge — live fills update after EA heartbeat'
           : liveSynced
-            ? 'Live balance via MetaApi G2'
-            : 'Waiting for live MetaAPI sync',
+            ? 'Live balance via MetaApi'
+            : hasBaseline
+              ? 'Showing last known balance while MetaAPI syncs'
+              : 'Waiting for live MetaAPI sync',
       };
     }),
   );

@@ -1,18 +1,41 @@
+import { CURRENCY_MAP, type CurrencyInfo } from '@/lib/currency';
+
+function localeForCurrency(currency: string): string {
+  const hit = Object.values(CURRENCY_MAP).find((c) => c.code === currency);
+  return hit?.locale ?? (currency === 'INR' ? 'en-IN' : 'en-US');
+}
+
+/** Convert an amount from one ISO currency into another using USD-relative rates. */
+export function convertMoney(
+  amount: number,
+  fromCode: string,
+  to: CurrencyInfo,
+): number {
+  if (!Number.isFinite(amount)) return 0;
+  if (fromCode === to.code) return amount;
+  const from = Object.values(CURRENCY_MAP).find((c) => c.code === fromCode);
+  const fromRate = from?.rate ?? 1;
+  const usd = fromRate > 0 ? amount / fromRate : amount;
+  return usd * to.rate;
+}
+
 export function formatMoney(
   value: number,
   currency = 'USD',
   decimals = 2,
 ): string {
   const abs = Math.abs(value);
+  const locale = localeForCurrency(currency);
   try {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency,
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     }).format(value);
   } catch {
-    return `${value < 0 ? '-' : ''}$${abs.toLocaleString('en-US', {
+    const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : `${currency} `;
+    return `${value < 0 ? '-' : ''}${symbol}${abs.toLocaleString(locale, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     })}`;
