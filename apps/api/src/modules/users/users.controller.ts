@@ -27,9 +27,11 @@ import { EmailService } from '../email/email.service';
 import {
   UpdateProfileDto,
   UpdateRiskProfileDto,
-  ChangePasswordDto,
   DeleteAccountDto,
   VerifyDeleteAccountOtpDto,
+  RequestPasswordResetOtpDto,
+  VerifyPasswordResetOtpDto,
+  ConfirmPasswordResetDto,
 } from './dto/users.dto';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import type { Request, Response, Express } from 'express';
@@ -53,6 +55,20 @@ export class UsersController {
     private readonly emailService: EmailService,
   ) {}
 
+  private clearSessionCookies(res: Response) {
+    const isSecure =
+      process.env.NODE_ENV === 'production' ||
+      process.env.COOKIE_SECURE === 'true';
+    const cookieOpts = {
+      httpOnly: true,
+      secure: isSecure,
+      sameSite: 'lax' as const,
+      path: '/',
+    };
+    res.clearCookie('refresh_token', cookieOpts);
+    res.clearCookie('user_role', { ...cookieOpts, httpOnly: false });
+    res.clearCookie('onboarding_completed', { ...cookieOpts, httpOnly: false });
+  }
   @Get('me')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get current user profile' })
@@ -145,15 +161,59 @@ export class UsersController {
     );
   }
 
-  @Post('me/change-password')
-  @ApiResponse({ status: 200, description: 'OK' })
+  @Post('me/password-reset/request-otp')
+  @ApiResponse({ status: 200, description: 'OTP sent' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiOperation({ summary: 'Change password and revoke refresh tokens' })
-  async changePassword(
+  @ApiOperation({
+    summary: 'Send OTP to registered email to begin in-app password reset',
+  })
+  async requestPasswordResetOtp(
     @Req() req: AuthenticatedRequest,
-    @Body() dto: ChangePasswordDto,
+    @Body() dto: RequestPasswordResetOtpDto,
   ) {
-    return this.usersService.changePassword(req.user.userId, dto);
+    return this.usersService.requestPasswordResetOtp(
+      req.user.userId,
+      dto.email,
+    );
+  }
+
+  @Post('me/password-reset/verify-otp')
+  @ApiResponse({ status: 200, description: 'OTP verified' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({
+    summary: 'Verify password-reset OTP before setting a new password',
+  })
+  async verifyPasswordResetOtp(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: VerifyPasswordResetOtpDto,
+  ) {
+    return this.usersService.verifyPasswordResetOtp(
+      req.user.userId,
+      dto.email,
+      dto.otp,
+    );
+  }
+
+  @Post('me/password-reset/confirm')
+  @ApiResponse({ status: 200, description: 'Password reset' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({
+    summary:
+      'Confirm new password after OTP verification and revoke existing sessions',
+  })
+  async confirmPasswordReset(
+    @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
+    @Body() dto: ConfirmPasswordResetDto,
+  ) {
+    const result = await this.usersService.confirmPasswordReset(
+      req.user.userId,
+      dto.email,
+      dto.newPassword,
+      dto.confirmPassword,
+    );
+    this.clearSessionCookies(res);
+    return result;
   }
 
   @Post('me/delete/request-otp')
@@ -196,18 +256,7 @@ export class UsersController {
       dto.finalConfirm,
     );
 
-    const isSecure =
-      process.env.NODE_ENV === 'production' ||
-      process.env.COOKIE_SECURE === 'true';
-    const cookieOpts = {
-      httpOnly: true,
-      secure: isSecure,
-      sameSite: 'lax' as const,
-      path: '/',
-    };
-    res.clearCookie('refresh_token', cookieOpts);
-    res.clearCookie('user_role', { ...cookieOpts, httpOnly: false });
-    res.clearCookie('onboarding_completed', { ...cookieOpts, httpOnly: false });
+    this.clearSessionCookies(res);
 
     return result;
   }

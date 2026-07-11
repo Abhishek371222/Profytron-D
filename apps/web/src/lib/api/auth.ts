@@ -32,12 +32,19 @@ export const authApi = {
 
   async setupTwoFactor() {
     const res = await apiClient.post('/auth/2fa/setup');
-    return unwrapApiResponse<{ secret: string; qrCode: string }>(res.data);
+    return unwrapApiResponse<{ secret: string; qrCode: string; otpUri?: string }>(
+      res.data,
+    );
+  },
+
+  async cancelTwoFactorSetup() {
+    const res = await apiClient.post('/auth/2fa/cancel-setup');
+    return unwrapApiResponse<{ cancelled: boolean }>(res.data);
   },
 
   async verifyTwoFactorSetup(token: string) {
     const res = await apiClient.post('/auth/2fa/verify-setup', { token });
-    return unwrapApiResponse<{ backupCodes: string[] }>(res.data);
+    return unwrapApiResponse<{ success: boolean; backupCodes: string[] }>(res.data);
   },
 
   async disableTwoFactor(token: string) {

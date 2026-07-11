@@ -61,7 +61,7 @@ export function BrokerConnectBanner({
             </div>
           </div>
 
-          <div className="flex w-full flex-col gap-3 md:w-auto md:min-w-[min(100%,18rem)] md:flex-row md:items-center md:justify-end">
+          <div className="flex w-full flex-col gap-3 pr-10 md:w-auto md:min-w-[min(100%,18rem)] md:flex-row md:items-center md:justify-end md:pr-12">
             <Button
               type="button"
               variant="primary"

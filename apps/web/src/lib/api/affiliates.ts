@@ -97,11 +97,6 @@ export const affiliatesApi = {
     return unwrap<AffiliateActivityResponse>(res.data);
   },
 
-  async trackClick(code: string) {
-    const res = await apiClient.post(`/affiliates/click/${code}`);
-    return unwrap<any>(res.data);
-  },
-
   async capture(code: string) {
     const res = await apiClient.post(`/affiliates/capture/${code}`);
     return unwrap<any>(res.data);

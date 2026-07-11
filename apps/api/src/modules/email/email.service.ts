@@ -77,6 +77,32 @@ export class EmailService {
     });
   }
 
+  async sendPasswordResetOtpEmail(email: string, otp: string, userId?: string) {
+    const html = `${BASE}
+      <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Reset your Profytron password</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">Use this one-time code to reset the password for your Profytron account:</p>
+      <div style="font-size:36px;font-weight:800;letter-spacing:8px;color:#6366f1;padding:20px 28px;background:#0f172a;display:inline-block;border-radius:12px;border:1px solid #1e293b;">${otp}</div>
+      <p style="color:#64748b;font-size:13px;margin-top:20px;">This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+      <p style="color:#475569;font-size:12px;margin-top:12px;">If you did not request a password reset, contact support immediately and ignore this email.</p>
+    ${FOOTER}`;
+    return this.send(email, 'Your Profytron Password Reset Code', html, {
+      type: 'PASSWORD_RESET',
+      userId,
+    });
+  }
+
+  async sendPasswordChangedEmail(email: string, userId?: string) {
+    const html = `${BASE}
+      <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Your password was changed</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">The password for your Profytron account was reset successfully. You will need to sign in again with the new password.</p>
+      <p style="color:#64748b;font-size:13px;">If this wasn't you, <a href="${process.env.FRONTEND_URL}/settings/security" style="color:#6366f1;">secure your account immediately</a> and contact support.</p>
+    ${FOOTER}`;
+    return this.send(email, 'Your Profytron password was changed', html, {
+      type: 'PASSWORD_RESET',
+      userId,
+    });
+  }
+
   async sendWelcomeEmail(email: string, name: string, userId?: string) {
     const base = process.env.FRONTEND_URL || 'https://profytron.com';
     const html = `${BASE}

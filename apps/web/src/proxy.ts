@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { updateSession } from '@/utils/supabase/middleware';
 
+const AFFILIATE_VISITOR_COOKIE = 'affiliate_visitor_id';
+const AFFILIATE_VISITOR_MAX_AGE = 60 * 60 * 24 * 365; // ~1 year
+
 const protectedRoutes = [
   '/copy-trading',
   '/dashboard',
@@ -34,21 +37,50 @@ async function handleProxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   const referralCode = searchParams.get('ref') || searchParams.get('referral');
 
-  const applyReferral = (response: NextResponse, code: string) => {
+  const applyReferral = async (response: NextResponse, code: string) => {
     response.cookies.set('referral_code', code, {
       path: '/',
       maxAge: 60 * 60 * 24 * 30,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
     });
+
+    let visitorId = request.cookies.get(AFFILIATE_VISITOR_COOKIE)?.value;
+    if (!visitorId) {
+      visitorId = crypto.randomUUID();
+    }
+    response.cookies.set(AFFILIATE_VISITOR_COOKIE, visitorId, {
+      path: '/',
+      maxAge: AFFILIATE_VISITOR_MAX_AGE,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+    });
+
     const backend =
       process.env.BACKEND_API_ORIGIN ||
       process.env.NEXT_PUBLIC_BACKEND_URL ||
       'http://localhost:4000';
-    void fetch(
-      `${backend}/v1/affiliates/capture/${encodeURIComponent(code)}`,
-      { method: 'POST' },
-    ).catch(() => {});
+
+    const headers: Record<string, string> = {
+      'x-affiliate-visitor-id': visitorId,
+    };
+    const cookieHeader = request.headers.get('cookie');
+    if (cookieHeader) {
+      headers.cookie = cookieHeader;
+    }
+
+    // Await so the capture is not abandoned when the proxy response finishes.
+    // Fail-open: navigation and referral cookie must still succeed.
+    try {
+      await fetch(
+        `${backend}/v1/affiliates/capture/${encodeURIComponent(code)}`,
+        { method: 'POST', headers },
+      );
+    } catch {
+      /* capture failures must not break registration flow */
+    }
+
     return response;
   };
 
@@ -58,14 +90,14 @@ async function handleProxy(request: NextRequest) {
     url.pathname = '/register';
     const response = NextResponse.redirect(url);
     if (referralCode) {
-      return updateSession(request, applyReferral(response, referralCode));
+      return updateSession(request, await applyReferral(response, referralCode));
     }
     return updateSession(request, response);
   }
 
   if (referralCode) {
     const response = NextResponse.next();
-    return updateSession(request, applyReferral(response, referralCode));
+    return updateSession(request, await applyReferral(response, referralCode));
   }
 
   if (pathname === '/' && searchParams.has('error')) {

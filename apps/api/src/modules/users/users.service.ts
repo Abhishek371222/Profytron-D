@@ -1,7 +1,6 @@
 import {
   Injectable,
   BadRequestException,
-  UnauthorizedException,
   NotFoundException,
   Logger,
 } from '@nestjs/common';
@@ -12,7 +11,6 @@ import { EmailService } from '../email/email.service';
 import {
   UpdateProfileDto,
   UpdateRiskProfileDto,
-  ChangePasswordDto,
 } from './dto/users.dto';
 import { createClient } from '@supabase/supabase-js';
 import * as bcrypt from 'bcrypt';
@@ -24,12 +22,19 @@ import {
 } from '../growth/activation.service';
 import { closeUserAccount } from '../auth/account-lifecycle';
 
+const PASSWORD_RESET_OTP_TTL = 600;
+const PASSWORD_RESET_VERIFIED_TTL = 300;
+
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
   private supabase: any;
   /** Process-local OTP mirror so verify still works if Redis read is flaky. */
   private readonly deleteAccountOtps = new Map<
+    string,
+    { otp: string; expiresAt: number }
+  >();
+  private readonly passwordResetOtps = new Map<
     string,
     { otp: string; expiresAt: number }
   >();
@@ -52,6 +57,12 @@ export class UsersService {
     return '';
   }
 
+  private normalizeEmail(value: unknown): string {
+    return String(value ?? '')
+      .trim()
+      .toLowerCase();
+  }
+
   private rememberDeleteOtp(userId: string, otp: string, ttlSeconds: number) {
     this.deleteAccountOtps.set(userId, {
       otp,
@@ -71,6 +82,53 @@ export class UsersService {
 
   private clearRememberedDeleteOtp(userId: string) {
     this.deleteAccountOtps.delete(userId);
+  }
+
+  private rememberPasswordResetOtp(
+    userId: string,
+    otp: string,
+    ttlSeconds: number,
+  ) {
+    this.passwordResetOtps.set(userId, {
+      otp,
+      expiresAt: Date.now() + ttlSeconds * 1000,
+    });
+  }
+
+  private readRememberedPasswordResetOtp(userId: string): string | null {
+    const entry = this.passwordResetOtps.get(userId);
+    if (!entry) return null;
+    if (Date.now() > entry.expiresAt) {
+      this.passwordResetOtps.delete(userId);
+      return null;
+    }
+    return entry.otp;
+  }
+
+  private clearRememberedPasswordResetOtp(userId: string) {
+    this.passwordResetOtps.delete(userId);
+  }
+
+  private async assertAccountEmail(userId: string, email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        passwordHash: true,
+        deletedAt: true,
+        isActive: true,
+      },
+    });
+    if (!user || user.deletedAt || !user.isActive) {
+      throw new NotFoundException('User not found');
+    }
+    if (this.normalizeEmail(user.email) !== this.normalizeEmail(email)) {
+      throw new BadRequestException(
+        'Email does not match your registered account email',
+      );
+    }
+    return user;
   }
 
   async findByEmail(email: string) {
@@ -211,34 +269,122 @@ export class UsersService {
     return { success: true };
   }
 
-  async changePassword(userId: string, dto: ChangePasswordDto) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user || !user.passwordHash) {
-      throw new UnauthorizedException(
-        'Invalid operation for this account type',
+  async requestPasswordResetOtp(userId: string, email: string) {
+    const user = await this.assertAccountEmail(userId, email);
+    if (!user.passwordHash) {
+      throw new BadRequestException(
+        'Password reset is not available for this account type',
       );
     }
 
-    const isValid = await bcrypt.compare(
-      dto.currentPassword,
-      user.passwordHash,
+    const otpKey = `auth:reset:otp:${userId}`;
+    const existingRedis = this.normalizeOtp(
+      await this.redisService.get(otpKey),
     );
-    if (!isValid)
-      throw new UnauthorizedException('Current password is incorrect');
+    const existingMemory = this.normalizeOtp(
+      this.readRememberedPasswordResetOtp(userId),
+    );
+    const otp =
+      (existingRedis.length === 6 ? existingRedis : '') ||
+      (existingMemory.length === 6 ? existingMemory : '') ||
+      crypto.randomInt(100000, 1000000).toString();
 
-    const newHash = await bcrypt.hash(dto.newPassword, 12);
+    this.rememberPasswordResetOtp(userId, otp, PASSWORD_RESET_OTP_TTL);
+    await this.redisService.set(otpKey, otp, PASSWORD_RESET_OTP_TTL);
+    await this.redisService.del(`auth:reset:verified:${userId}`);
 
+    await this.emailService.sendPasswordResetOtpEmail(user.email, otp, userId);
+    this.logger.log(`Password-reset OTP sent to user ${userId}`);
+
+    return { sent: true };
+  }
+
+  async verifyPasswordResetOtp(userId: string, email: string, otp: string) {
+    await this.assertAccountEmail(userId, email);
+
+    const provided = this.normalizeOtp(otp);
+    const otpKey = `auth:reset:otp:${userId}`;
+    const fromRedis = this.normalizeOtp(await this.redisService.get(otpKey));
+    const fromMemory = this.normalizeOtp(
+      this.readRememberedPasswordResetOtp(userId),
+    );
+    const storedOtp = fromRedis || fromMemory;
+
+    if (!storedOtp) {
+      throw new BadRequestException(
+        'OTP expired or not requested. Please request a new code.',
+      );
+    }
+    if (storedOtp !== provided) {
+      this.logger.warn(
+        `Password-reset OTP mismatch for user ${userId} (provided length=${provided.length}, stored length=${storedOtp.length})`,
+      );
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    await this.redisService.del(otpKey);
+    this.clearRememberedPasswordResetOtp(userId);
+    await this.redisService.set(
+      `auth:reset:verified:${userId}`,
+      '1',
+      PASSWORD_RESET_VERIFIED_TTL,
+    );
+
+    return { verified: true };
+  }
+
+  async confirmPasswordReset(
+    userId: string,
+    email: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) {
+    const user = await this.assertAccountEmail(userId, email);
+    if (!user.passwordHash) {
+      throw new BadRequestException(
+        'Password reset is not available for this account type',
+      );
+    }
+    if (newPassword !== confirmPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+
+    const verified = await this.redisService.get(
+      `auth:reset:verified:${userId}`,
+    );
+    if (!verified) {
+      throw new BadRequestException(
+        'OTP verification required before resetting your password',
+      );
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 12);
     await this.prisma.user.update({
       where: { id: userId },
       data: { passwordHash: newHash },
     });
 
-    // Revoke the user's refresh token so the session cannot be continued with
-    // the old password. The access token will expire naturally within its TTL.
+    await this.redisService.del(`auth:reset:verified:${userId}`);
+    await this.redisService.del(`auth:reset:otp:${userId}`);
+    this.clearRememberedPasswordResetOtp(userId);
+
+    // Force re-login with the new password.
     await this.redisService.del(`auth:refresh:${userId}:default`);
     await this.prisma.userSession.deleteMany({ where: { userId } });
 
-    return { success: true };
+    await this.prisma.auditLog.create({
+      data: {
+        eventType: 'PASSWORD_RESET',
+        userId,
+        detailsJson: { email: user.email, source: 'settings' },
+        triggeredBy: userId,
+      },
+    });
+
+    await this.emailService.sendPasswordChangedEmail(user.email, userId);
+    this.logger.log(`Password reset completed for user ${userId}`);
+
+    return { success: true, requireReauth: true };
   }
 
   async getKycStatus(userId: string) {

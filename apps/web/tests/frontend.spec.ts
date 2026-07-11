@@ -148,4 +148,202 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
       await expect(notFound).toBeVisible();
     });
   });
+
+  test.describe('7. SECURITY SETTINGS (PASSWORD RESET + 2FA UI)', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.route('**/users/me', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: {
+              id: 'u1',
+              email: 'trader@example.com',
+              fullName: 'Trader',
+              role: 'USER',
+              onboardingCompleted: true,
+              twoFactorEnabled: false,
+            },
+          }),
+        });
+      });
+      await page.route('**/users/me/sessions', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: [] }),
+        });
+      });
+      await page.addInitScript(() => {
+        localStorage.setItem(
+          'profytron-auth',
+          JSON.stringify({
+            state: {
+              user: {
+                id: 'u1',
+                email: 'trader@example.com',
+                fullName: 'Trader',
+                role: 'USER',
+                onboardingCompleted: true,
+                twoFactorEnabled: false,
+              },
+            },
+            version: 0,
+          }),
+        );
+        sessionStorage.setItem('profytron_access', 'test_token');
+      });
+    });
+
+    test('shows Reset Password and hides old current-password form', async ({ page }) => {
+      await page.goto('/settings/security');
+      await expect(page.getByTestId('reset-password-button')).toBeVisible();
+      await expect(page.getByText('Current password')).toHaveCount(0);
+      await expect(page.getByText('Update Password')).toHaveCount(0);
+    });
+
+    test('password reset dialog advances email → OTP → password steps', async ({ page }) => {
+      await page.route('**/users/me/password-reset/request-otp', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { sent: true } }),
+        });
+      });
+      await page.route('**/users/me/password-reset/verify-otp', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { verified: true } }),
+        });
+      });
+
+      await page.goto('/settings/security');
+      await page.getByTestId('reset-password-button').click();
+      await expect(page.getByText('Reset your password')).toBeVisible();
+      await page.getByLabel('Registered email for password reset').fill('trader@example.com');
+      await page.getByRole('button', { name: 'Send OTP' }).click();
+      await expect(page.getByText('Enter verification code')).toBeVisible();
+      await page.getByLabel('Password reset OTP').fill('123456');
+      await page.getByRole('button', { name: 'Verify OTP' }).click();
+      await expect(page.getByText('Choose a new password')).toBeVisible();
+    });
+
+    test('rejects mismatched passwords on confirm step', async ({ page }) => {
+      await page.route('**/users/me/password-reset/request-otp', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { sent: true } }),
+        });
+      });
+      await page.route('**/users/me/password-reset/verify-otp', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { verified: true } }),
+        });
+      });
+
+      await page.goto('/settings/security');
+      await page.getByTestId('reset-password-button').click();
+      await page.getByRole('button', { name: 'Send OTP' }).click();
+      await page.getByLabel('Password reset OTP').fill('123456');
+      await page.getByRole('button', { name: 'Verify OTP' }).click();
+      await page.getByLabel('New password').fill('NewStr0ng!');
+      await page.getByLabel('Confirm new password').fill('Different1!');
+      await page.getByRole('button', { name: 'Reset password' }).click();
+      await expect(page.getByText('Choose a new password')).toBeVisible();
+    });
+
+    test('2FA setup shows QR and surfaces backend errors', async ({ page }) => {
+      await page.route('**/auth/2fa/setup', async (route) => {
+        await route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({ message: 'Crypto plugin is required.' }),
+        });
+      });
+
+      await page.goto('/settings/security');
+      await page.getByTestId('2fa-setup-button').click();
+      await expect(page.getByText(/Crypto plugin is required/i)).toBeVisible({
+        timeout: 5000,
+      });
+    });
+
+    test('successful 2FA setup shows QR then backup codes after verify', async ({ page }) => {
+      await page.route('**/auth/2fa/setup', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: {
+              secret: 'JBSWY3DPEHPK3PXP',
+              qrCode: 'data:image/png;base64,iVBORw0KGgo=',
+              otpUri: 'otpauth://totp/Profytron:trader@example.com?secret=JBSWY3DPEHPK3PXP',
+            },
+          }),
+        });
+      });
+      await page.route('**/auth/2fa/verify-setup', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: { success: true, backupCodes: ['AAAA1111', 'BBBB2222'] },
+          }),
+        });
+      });
+      await page.route('**/auth/2fa/cancel-setup', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { cancelled: true } }),
+        });
+      });
+
+      await page.goto('/settings/security');
+      await expect(page.getByTestId('2fa-status-badge')).toHaveText(/Off/i);
+      await page.getByTestId('2fa-setup-button').click();
+      await expect(page.getByAltText('2FA QR code')).toBeVisible();
+      await expect(page.getByTestId('2fa-status-badge')).toHaveText(/Setup in progress/i);
+      await page.getByLabel('2FA verification code').fill('123456');
+      await page.getByTestId('2fa-confirm-setup').click();
+      await expect(page.getByText(/Save these backup codes/i)).toBeVisible();
+      await expect(page.getByText('AAAA1111')).toBeVisible();
+      await expect(page.getByTestId('2fa-status-badge')).toHaveText(/Enabled/i);
+    });
+
+    test('cancelling setup leaves 2FA disabled', async ({ page }) => {
+      await page.route('**/auth/2fa/setup', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            data: {
+              secret: 'JBSWY3DPEHPK3PXP',
+              qrCode: 'data:image/png;base64,iVBORw0KGgo=',
+            },
+          }),
+        });
+      });
+      await page.route('**/auth/2fa/cancel-setup', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ data: { cancelled: true } }),
+        });
+      });
+
+      await page.goto('/settings/security');
+      await page.getByTestId('2fa-setup-button').click();
+      await expect(page.getByAltText('2FA QR code')).toBeVisible();
+      await page.getByTestId('2fa-cancel-setup').click();
+      await expect(page.getByAltText('2FA QR code')).toHaveCount(0);
+      await expect(page.getByTestId('2fa-status-badge')).toHaveText(/Off/i);
+      await expect(page.getByTestId('2fa-setup-button')).toBeVisible();
+      await expect(page.getByTestId('2fa-disable-button')).toHaveCount(0);
+    });
+  });
 });
