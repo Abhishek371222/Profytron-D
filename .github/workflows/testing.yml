@@ -153,6 +153,19 @@ jobs:
       # exits non-zero if any test fails).
       run: pnpm --dir apps/api test --passWithNoTests --runInBand --forceExit
 
+  api-docker:
+    name: API — Docker image build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build API Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: apps/api/Dockerfile
+        push: false
+        tags: profytron-api:ci
+
   dependency-audit:
     name: Dependency vulnerability audit
     runs-on: ubuntu-latest
