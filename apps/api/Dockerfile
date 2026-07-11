@@ -51,10 +51,11 @@ COPY --from=builder /app/apps/api/package.json ./package.json
 COPY apps/api/docker-entrypoint.sh ./docker-entrypoint.sh
 
 # Run as the unprivileged `node` user (uid 1000, ships with the base image)
-# instead of root. Only the writable logs directory is chowned; the rest of the
-# app stays root-owned and read-only, which is the desired least-privilege setup.
+# instead of root. Writable dirs (logs + local upload fallback) must be
+# node-owned — otherwise boot crashes with EACCES on mkdir.
 RUN chmod +x ./docker-entrypoint.sh && \
-    mkdir -p /app/apps/api/logs && chown -R node:node /app/apps/api/logs
+    mkdir -p /app/apps/api/logs /app/apps/api/uploads/strategy-documents && \
+    chown -R node:node /app/apps/api/logs /app/apps/api/uploads
 USER node
 
 EXPOSE 4000

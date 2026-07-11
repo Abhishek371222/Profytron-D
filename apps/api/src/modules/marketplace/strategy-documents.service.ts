@@ -50,7 +50,15 @@ export class StrategyDocumentsService {
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
     this.supabase = url && key ? createClient(url, key) : null;
     this.localRoot = path.join(process.cwd(), 'uploads', 'strategy-documents');
-    fs.mkdirSync(this.localRoot, { recursive: true });
+    try {
+      fs.mkdirSync(this.localRoot, { recursive: true });
+    } catch (err: any) {
+      // Prefer Supabase in production; local disk is a fallback. Never crash boot
+      // if the container filesystem is read-only for this path (e.g. Render).
+      this.logger.warn(
+        `Local upload dir unavailable (${err?.code || err?.message}); using Supabase-only storage when configured`,
+      );
+    }
   }
 
   private normalizeKind(kind?: string): StrategyDocumentKind {
@@ -138,10 +146,16 @@ export class StrategyDocumentsService {
 
     if (!uploadedToSupabase) {
       const dir = path.join(this.localRoot, strategyId);
-      fs.mkdirSync(dir, { recursive: true });
-      const localPath = path.join(dir, `${docId}.${ext}`);
-      fs.writeFileSync(localPath, file.buffer);
-      storageKey = `local:${strategyId}/${docId}.${ext}`;
+      try {
+        fs.mkdirSync(dir, { recursive: true });
+        const localPath = path.join(dir, `${docId}.${ext}`);
+        fs.writeFileSync(localPath, file.buffer);
+        storageKey = `local:${strategyId}/${docId}.${ext}`;
+      } catch (err: any) {
+        throw new BadRequestException(
+          `File storage unavailable (${err?.code || 'EACCES'}). Configure SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.`,
+        );
+      }
     }
 
     const doc = await this.prisma.strategyDocument.create({
