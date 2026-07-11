@@ -55,12 +55,6 @@ export const authApi = {
     return unwrapApiResponse<any>(res.data);
   },
 
-  /** Claims this tab/device as the single active session, superseding any other open tab. */
-  async activateSession() {
-    const res = await apiClient.post('/auth/session/activate');
-    return unwrapApiResponse<{ success: boolean }>(res.data);
-  },
-
   async forgotPassword(email: string) {
     const res = await apiClient.post('/auth/forgot-password', { email });
     return unwrapApiResponse<any>(res.data);

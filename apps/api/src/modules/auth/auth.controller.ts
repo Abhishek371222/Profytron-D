@@ -252,6 +252,11 @@ export class AuthController {
     return { accessToken: result.accessToken, user: result.user };
   }
 
+  // Public: a refresh call is by definition made without a valid access
+  // token (that's the whole point of it), so it must not be blocked by the
+  // global JwtAuthGuard's Bearer-token requirement. JwtRefreshGuard below
+  // independently validates the refresh-token cookie regardless.
+  @Public()
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
@@ -309,29 +314,6 @@ export class AuthController {
     res.clearCookie('refresh_token', cookieOpts);
     res.clearCookie('user_role', { ...cookieOpts, httpOnly: false });
     res.clearCookie('onboarding_completed', { ...cookieOpts, httpOnly: false });
-    return { success: true };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('session/activate')
-  @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { ttl: 60000, limit: 20 } })
-  @ApiResponse({
-    status: 200,
-    description: 'This tab/device claimed as the active session',
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiOperation({
-    summary:
-      'Claim this token as the single active session for the user, superseding any other open tab/device',
-  })
-  async activateSession(@Req() req: AuthenticatedRequest) {
-    const userId = req.user?.userId;
-    const jti = req.user?.jti;
-    if (!userId || !jti) {
-      throw new UnauthorizedException('Invalid session');
-    }
-    await this.authService.activateSession(userId, jti);
     return { success: true };
   }
 

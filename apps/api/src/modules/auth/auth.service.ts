@@ -2,10 +2,6 @@ import { Injectable, HttpStatus, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from './redis.service';
-import {
-  ACTIVE_SESSION_KEY_PREFIX,
-  ACTIVE_SESSION_TTL_SECONDS,
-} from './session-activity.constants';
 import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -652,7 +648,16 @@ export class AuthService {
     //   - record missing   -> reject only when backed by a real persistent Redis
     // Production (REDIS_INMEMORY unset) keeps the original strict behaviour.
     const usingEphemeralRedis = process.env.REDIS_INMEMORY === 'true';
-    if (stored ? stored !== refreshToken : !usingEphemeralRedis)
+    if (stored && stored !== refreshToken) {
+      // A different login/refresh already rotated past this token — this tab
+      // is the one being superseded, not a corrupted/expired session.
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'This account was signed in from another device or tab',
+        ErrorCode.SESSION_SUPERSEDED,
+      );
+    }
+    if (!stored && !usingEphemeralRedis)
       appError(
         HttpStatus.UNAUTHORIZED,
         'Invalid refresh session',
@@ -700,21 +705,6 @@ export class AuthService {
         onboardingCompleted: user.onboardingCompleted,
       },
     };
-  }
-
-  /** See session-activity.constants.ts for the enforcement/TTL rationale. */
-  async activateSession(userId: string, jti: string) {
-    try {
-      await this.redisService.set(
-        `${ACTIVE_SESSION_KEY_PREFIX}${userId}`,
-        jti,
-        ACTIVE_SESSION_TTL_SECONDS,
-      );
-    } catch {
-      // Non-fatal: single-session enforcement is a UX feature, not a login
-      // precondition. A missed claim just means the guard has nothing to
-      // compare against yet (falls through to "no active session claimed").
-    }
   }
 
   async logout(userId: string, jti: string) {
@@ -1177,13 +1167,6 @@ export class AuthService {
         secret: process.env.JWT_REFRESH_SECRET,
       },
     );
-
-    // Claim this token as the active session immediately at mint time (not
-    // left to a later frontend call) — every login/refresh is by definition
-    // the newest, most-intentional session, and a fresh token pair must never
-    // start out already "superseded" by a stale claim from an earlier tab.
-    await this.activateSession(userId, jti);
-
     return { accessToken, refreshToken };
   }
 
