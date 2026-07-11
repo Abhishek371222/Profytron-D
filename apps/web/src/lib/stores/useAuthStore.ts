@@ -1,11 +1,12 @@
 ﻿import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { apiClient, unwrapApiResponse } from '../api/client';
+import { apiClient, unwrapApiResponse, refreshSession } from '../api/client';
 import { authApi } from '../api/auth';
 import { isAdminUser } from '../utils';
 
 const isMockApiEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_API === 'true';
 const SESSION_TOKEN_KEY = 'profytron_access';
+const FORCE_LOGIN_KEY = 'profytron_force_login';
 
 type User = any;
 
@@ -50,11 +51,18 @@ export const useAuthStore = create<AuthState>()(
           document.cookie = 'onboarding_completed=; path=/; max-age=0; samesite=lax';
           document.cookie = 'user_role=; path=/; max-age=0; samesite=lax';
         }
-        set({ user: null, accessToken: null, isAuthenticated: false, isLoading: false, isHydrating: false });
+        set({
+          user: null,
+          accessToken: null,
+          isAuthenticated: false,
+          isLoading: false,
+          isHydrating: false,
+        });
       },
       login: (accessToken, user) => {
         if (typeof window !== 'undefined') {
           sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
+          sessionStorage.removeItem(FORCE_LOGIN_KEY);
           if (accessToken.startsWith('mock_token_')) {
             document.cookie = 'demo_access=1; path=/; max-age=86400; samesite=lax';
           }
@@ -67,7 +75,15 @@ export const useAuthStore = create<AuthState>()(
       },
       logout: async () => {
         set({ isLoading: true });
-        try { await authApi.logout(); } catch (e) { console.error('Logout API failed, continuing client purge.'); }
+        try {
+          await authApi.logout();
+        } catch {
+          // Non-fatal: e.g. the access token expired in the moment between
+          // page load and clicking logout. Client state is purged either way,
+          // so this doesn't warrant an error-level log (which trips Next.js's
+          // dev overlay as if something crashed).
+          console.warn('Logout API call did not complete; purging client session anyway.');
+        }
         get().clearAuth();
       },
       hydrate: async () => {
@@ -75,50 +91,119 @@ export const useAuthStore = create<AuthState>()(
           set((state) => ({ isAuthenticated: Boolean(state.user), isHydrating: false }));
           return;
         }
-        set({ isHydrating: true });
+
+        // Explicit expiry/idle landing — do not resurrect from a leftover
+        // refresh cookie or persisted profile; that causes login reload loops.
+        if (typeof window !== 'undefined') {
+          const params = new URLSearchParams(window.location.search);
+          const forcedLogin = sessionStorage.getItem(FORCE_LOGIN_KEY) === '1';
+          if (
+            forcedLogin ||
+            params.get('expired') === 'true' ||
+            params.get('expired') === '1' ||
+            params.get('idle') === 'true'
+          ) {
+            sessionStorage.removeItem(FORCE_LOGIN_KEY);
+            sessionStorage.removeItem(SESSION_TOKEN_KEY);
+            set({
+              user: null,
+              accessToken: null,
+              isAuthenticated: false,
+              isHydrating: false,
+            });
+            return;
+          }
+        }
+
+        set({ isHydrating: true, isAuthenticated: false });
         const tryMe = async (token: string) => {
-          const meRes = await apiClient.get('/users/me', { headers: { Authorization: `Bearer ${token}` } });
+          const meRes = await apiClient.get('/users/me', {
+            headers: { Authorization: `Bearer ${token}` },
+            // Avoid interceptor refresh loops during bootstrap.
+            _retry: true,
+          } as any);
           return unwrapApiResponse<User>(meRes.data);
         };
         const memoryToken = get().accessToken;
-        const sessionToken = typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_TOKEN_KEY) : null;
+        const sessionToken =
+          typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_TOKEN_KEY) : null;
         const bootstrapToken = memoryToken || sessionToken;
         if (bootstrapToken) {
           try {
             const user = await tryMe(bootstrapToken);
             syncUserCookies(user);
-            if (typeof window !== 'undefined') sessionStorage.setItem(SESSION_TOKEN_KEY, bootstrapToken);
-            set({ accessToken: bootstrapToken, user, isAuthenticated: true, isHydrating: false });
+            if (typeof window !== 'undefined') {
+              sessionStorage.setItem(SESSION_TOKEN_KEY, bootstrapToken);
+            }
+            set({
+              accessToken: bootstrapToken,
+              user,
+              isAuthenticated: true,
+              isHydrating: false,
+            });
             return;
           } catch {
             if (typeof window !== 'undefined') sessionStorage.removeItem(SESSION_TOKEN_KEY);
           }
         }
         try {
-          const response = await apiClient.post('/auth/refresh', {}, { timeout: 10000 });
-          const data = unwrapApiResponse<{ accessToken: string }>(response.data);
+          // Shared single-flight refresh — never race the axios 401 interceptor.
+          const accessToken = await refreshSession();
           let user = get().user;
-          try { user = await tryMe(data.accessToken); syncUserCookies(user); } catch {}
-          if (typeof window !== 'undefined') sessionStorage.setItem(SESSION_TOKEN_KEY, data.accessToken);
-          set({ accessToken: data.accessToken, user, isAuthenticated: true, isHydrating: false });
+          try {
+            user = await tryMe(accessToken);
+            syncUserCookies(user);
+          } catch {
+            /* keep whatever user we have */
+          }
+          if (typeof window !== 'undefined') {
+            sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
+          }
+          set({
+            accessToken,
+            user,
+            isAuthenticated: Boolean(user?.id || accessToken),
+            isHydrating: false,
+          });
         } catch {
-          const persistedUser = get().user;
-          if (persistedUser?.id) { set({ isAuthenticated: true, isHydrating: false }); return; }
-          set({ user: null, accessToken: null, isAuthenticated: false, isHydrating: false });
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem(SESSION_TOKEN_KEY);
+          }
+          set({
+            user: null,
+            accessToken: null,
+            isAuthenticated: false,
+            isHydrating: false,
+          });
         }
       },
     }),
     {
       name: 'profytron-auth',
       partialize: (state) => ({
-        user: state.user ? {
-          id: state.user.id, googleId: state.user.googleId, email: state.user.email,
-          fullName: state.user.fullName, username: state.user.username, avatarUrl: state.user.avatarUrl,
-          role: state.user.role, onboardingCompleted: state.user.onboardingCompleted,
-        } : null,
-        isAuthenticated: Boolean(state.user?.id),
+        // Profile only — never persist isAuthenticated. Hydrate must prove a live session
+        // before any authenticated API calls (notifications, analytics, etc.) fire.
+        user: state.user
+          ? {
+              id: state.user.id,
+              googleId: state.user.googleId,
+              email: state.user.email,
+              fullName: state.user.fullName,
+              username: state.user.username,
+              avatarUrl: state.user.avatarUrl,
+              role: state.user.role,
+              onboardingCompleted: state.user.onboardingCompleted,
+            }
+          : null,
       }),
-      onRehydrateStorage: () => (state) => { if (state?.user?.id) state.isAuthenticated = true; },
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        // Ghost sessions: localStorage had a user → UI thought we were logged in
+        // with no access token → 401 flood → refresh race → forced logout.
+        state.isAuthenticated = false;
+        state.accessToken = null;
+        state.isHydrating = true;
+      },
     },
   ),
 );

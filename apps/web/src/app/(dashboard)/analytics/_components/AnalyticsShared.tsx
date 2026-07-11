@@ -118,11 +118,11 @@ export function ChartCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35, ease: 'easeOut' }}
       whileHover={{ y: -3 }}
-      className={cn('dashboard-card p-5 relative overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]', className)}
+      className={cn('dashboard-card p-3.5 relative overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]', className)}
     >
-      <div className="mb-4">
+      <div className="mb-3">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{eyebrow}</p>
-        <p className="text-base font-bold text-foreground mt-0.5">{title}</p>
+        <p className="text-sm font-bold text-foreground mt-0.5">{title}</p>
         {subtitle ? <p className="text-xs text-muted-foreground mt-1">{subtitle}</p> : null}
       </div>
       {children}
@@ -187,14 +187,14 @@ export function StatCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="dashboard-card p-5 flex flex-col gap-3"
+      className="dashboard-card p-3.5 flex flex-col gap-2"
     >
-      <div className={cn('flex h-9 w-9 items-center justify-center rounded-xl', iconBg)}>
-        <Icon className="h-4 w-4" />
+      <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg', iconBg)}>
+        <Icon className="h-3.5 w-3.5" />
       </div>
       <div>
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <p className={cn('text-2xl font-bold tabular-nums mt-0.5', valueClass ?? 'text-foreground')}>{value}</p>
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className={cn('text-xl font-bold tabular-nums mt-0.5', valueClass ?? 'text-foreground')}>{value}</p>
       </div>
     </motion.div>
   );
@@ -210,7 +210,7 @@ export function MetricRow({
   valueClass?: string;
 }) {
   return (
-    <div className="flex items-center justify-between p-3 rounded-xl border border-[var(--card-border)] bg-muted0 hover:border-primary/15 transition-colors">
+    <div className="flex items-center justify-between p-3 rounded-xl border border-[var(--card-border)] bg-muted/20 hover:border-primary/15 transition-colors">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <span className={cn('text-sm font-bold tabular-nums', valueClass ?? 'text-foreground')}>{value}</span>
     </div>

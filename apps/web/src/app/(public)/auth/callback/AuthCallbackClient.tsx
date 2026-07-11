@@ -7,6 +7,7 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
 import { resolvePostLoginRedirect } from '@/lib/utils';
+import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
 import type { AxiosError } from 'axios';
 
 const SYNC_MAX_ATTEMPTS = 4;
@@ -92,7 +93,9 @@ export default function AuthCallbackClient() {
           const user = unwrapApiResponse<any>(meRes.data);
           login(accessToken, user);
           const redirectTo = searchParams.get('redirect') || '/dashboard';
-          router.replace(resolvePostLoginRedirect(user, redirectTo));
+          const dest = resolvePostLoginRedirect(user, redirectTo);
+          useWorkspaceBootstrapStore.getState().startBootstrap(dest);
+          router.replace(dest);
         } catch (e) {
           console.error('OAuth code exchange failed:', e);
           router.push('/login?error=oauth_failed');
@@ -204,7 +207,9 @@ export default function AuthCallbackClient() {
         };
         login(accessToken, user);
         const redirectTo = searchParams.get('redirect') || '/dashboard';
-        router.replace(resolvePostLoginRedirect(user, redirectTo));
+        const dest = resolvePostLoginRedirect(user, redirectTo);
+        useWorkspaceBootstrapStore.getState().startBootstrap(dest);
+        router.replace(dest);
       } catch (e) {
         console.error('Backend synchronization failed:', e);
         router.push(`/login?error=${mapSyncError(e)}`);
@@ -215,11 +220,11 @@ export default function AuthCallbackClient() {
   }, [login, router, searchParams]);
 
   return (
-    <div className="min-h-screen w-full bg-bg-base flex flex-col items-center justify-center noise">
-      <div className="flex flex-col items-center gap-6">
-        <Loader2 className="w-12 h-12 text-primary animate-spin" />
-        <p className="text-foreground/60 font-bold tracking-widest uppercase text-xs">
-          Synchronizing Identity...
+    <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" aria-label="Signing in" />
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Signing you in…
         </p>
       </div>
     </div>

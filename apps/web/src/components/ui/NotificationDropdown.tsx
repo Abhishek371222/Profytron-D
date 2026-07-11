@@ -63,12 +63,16 @@ function timeAgo(iso: string) {
 
 export function NotificationDropdown() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isHydrating = useAuthStore((s) => s.isHydrating);
+  const accessToken = useAuthStore((s) => s.accessToken);
   const [items, setItems] = React.useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
 
+  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+
   const load = React.useCallback(async () => {
-    if (!isAuthenticated) return;
+    if (!sessionReady) return;
     try {
       const [list, unread] = await Promise.all([
         notificationsApi.list({ page: 1, limit: 10 }),
@@ -77,14 +81,22 @@ export function NotificationDropdown() {
       setItems(list.items || []);
       setUnreadCount(unread.count || 0);
     } catch {
+      // Swallow 401/network — never surface as an unhandled runtime overlay.
       setItems([]);
       setUnreadCount(0);
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [sessionReady]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    if (!sessionReady) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    void load();
+  }, [load, sessionReady]);
 
   React.useEffect(() => {
     const off = onTradingEvent('new_notification', (payload: any) => {

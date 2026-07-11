@@ -165,9 +165,9 @@ export function DashboardRightRail({
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/80 border border-[var(--card-border)] mb-3">
               <Bot className="h-6 w-6 text-muted-foreground" />
             </div>
-            <p className="text-sm font-medium text-foreground">No active strategies</p>
+            <p className="text-sm font-medium text-foreground">No active bots</p>
             <p className="text-caption text-muted-foreground mt-1 px-4 leading-relaxed">
-              Build or subscribe to a strategy to start automated trading
+              Build or subscribe to a bot to start automated trading
             </p>
             <Link href="/my-bots" className="mt-4 w-full">
               <Button variant="outline" size="sm" className="w-full border-primary/30 text-primary hover:bg-primary/5">

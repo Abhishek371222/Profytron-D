@@ -135,25 +135,31 @@ export default function ConnectedAccountsPage() {
   // balances and a still-connecting account update without a manual refresh.
   const accountsQuery = useQuery({
     queryKey: ['broker-accounts'],
-    refetchInterval: 20_000,
+    refetchInterval: 12_000,
     queryFn: async () => {
       const res = await apiClient.get('/broker/accounts');
       const raw = unwrapApiResponse<any[]>(res.data) ?? [];
       return raw.map((a): BrokerAccount => {
-        const live = a.equity ?? a.balance ?? a.initialEquity;
+        const liveSynced = Boolean(a.liveSynced) || a.isPaperTrading;
+        const live =
+          liveSynced && (a.equity != null || a.balance != null)
+            ? Number(a.equity ?? a.balance)
+            : null;
         const status: AccountStatus =
           a.isActive === false
             ? 'DISCONNECTED'
-            : a.connectionStatus === 'CONNECTING'
+            : a.connectionStatus === 'CONNECTING' || a.connectionStatus === 'SYNCING'
             ? 'SYNCING'
-            : 'CONNECTED';
+            : liveSynced
+            ? 'CONNECTED'
+            : 'SYNCING';
         return {
           id: a.id,
           brokerName: a.brokerName,
           accountNumber: a.accountNumberLast4 ?? '',
           accountType: a.isPaperTrading ? 'Paper' : 'Live',
           status,
-          balance: live ?? undefined,
+          balance: live != null && Number.isFinite(live) ? live : undefined,
           currency: a.currency ?? 'USD',
           lastSyncedAt: a.lastConnectedAt ?? a.connectedAt,
           isPaperTrading: Boolean(a.isPaperTrading),
@@ -414,7 +420,7 @@ export default function ConnectedAccountsPage() {
           <div className="space-y-1">
             <p className="text-base font-bold text-foreground">No broker accounts connected yet</p>
             <p className="text-sm text-muted-foreground max-w-xs">
-              Connect a broker account to start running bots and copy-trading signals.
+              Connect a broker account to start running bots.
             </p>
           </div>
           <button

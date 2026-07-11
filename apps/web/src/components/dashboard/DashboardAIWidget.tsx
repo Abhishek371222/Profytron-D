@@ -23,7 +23,7 @@ export function DashboardAIWidget({ sharpeRatio = 0 }: Props) {
     setMessages([
       {
         role: "assistant",
-        text: `Hi ${firstName}! I'm your AI trading assistant. Ask about markets, strategies, or your portfolio — I'm synced to your live account data.`,
+        text: `Hi ${firstName}! I'm your AI trading assistant. Ask about markets, bots, or your portfolio — I'm synced to your live account data.`,
       },
     ]);
   }, [firstName]);

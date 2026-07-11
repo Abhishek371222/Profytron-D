@@ -12,6 +12,7 @@ const unwrap = <T>(payload: any): T => {
 export interface PortfolioAnalytics {
   range: AnalyticsRange;
   totalProfit: number;
+  totalReturnPct?: number;
   winRate: number;
   totalTrades: number;
   sharpeRatio: number;
@@ -23,7 +24,17 @@ export interface PortfolioAnalytics {
   allTimeHigh: number;
   bestMonth: number;
   equityBase?: number;
+  depositBase?: number;
+  netDeposits?: number;
   equityCurve: Array<{ date: string; equity: number; drawdownPct: number }>;
+  syncError?: string;
+  message?: string;
+  source?: string;
+  liveBalance?: number;
+  liveEquity?: number;
+  liveMargin?: number;
+  liveFreeMargin?: number;
+  liveCurrency?: string;
 }
 
 export interface MonthlyReturns {
@@ -39,6 +50,7 @@ export interface MonthlyReturns {
     year: number;
     months: Array<{ name: string; val: number; pnl: number }>;
   }>;
+  source?: string;
 }
 
 export interface StrategyComparison {
@@ -54,6 +66,7 @@ export interface StrategyComparison {
     maxDrawdown: number;
   }>;
   correlation: number[][];
+  source?: string;
 }
 
 export interface RiskAnalytics {
@@ -64,8 +77,10 @@ export interface RiskAnalytics {
   bestSingleWin: number;
   avgRiskReward: number;
   calmarRatio: number;
+  maxDrawdown?: number;
   drawdownCurve: Array<{ time: number; val: number }>;
   heatmap: Array<{ day: number; hour: number; value: number }>;
+  source?: string;
 }
 
 export interface TradeAnalytics {
@@ -74,6 +89,7 @@ export interface TradeAnalytics {
   duration: Array<{ range: string; count: number }>;
   symbolPerformance: Array<{ symbol: string; pnl: number; trades: number }>;
   winLoss: Array<{ name: string; value: number }>;
+  source?: string;
 }
 
 export interface TradeExportResponse {
@@ -111,6 +127,7 @@ export interface GlobalIntelligence {
     totalPnl: number;
     totalTrades: number;
   }>;
+  source?: string;
 }
 
 export interface LeaderboardResponse {

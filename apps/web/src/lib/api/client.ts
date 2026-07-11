@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
 import { isAdminUser } from '../utils';
 
@@ -17,9 +17,17 @@ export const unwrapApiResponse = <T>(payload: any): T => {
   return payload as T;
 };
 
+// Endpoints that must NOT carry a Bearer token (they're called before the user
+// has a session, or explicitly use the httpOnly refresh cookie instead).
+// `logout` is deliberately excluded — the backend's JwtAuthGuard requires the
+// current access token to identify which session/refresh-token to revoke.
+// Sending it Authorization-less always returned 401 and skipped server-side
+// session revocation entirely.
 const isAuthBootstrapEndpoint = (url?: string): boolean => {
   if (!url) return false;
-  return /\/auth\/(login|register|supabase|verify-email|forgot-password|reset-password|refresh|logout|oauth-token-exchange)/.test(url);
+  return /\/auth\/(login|register|supabase|verify-email|forgot-password|reset-password|refresh|oauth-token-exchange)/.test(
+    url,
+  );
 };
 
 const isNetworkUnavailableError = (error: unknown): boolean => {
@@ -37,8 +45,6 @@ const isNetworkUnavailableError = (error: unknown): boolean => {
 export const apiClient = axios.create({
   // Use same-origin /api so Next.js rewrites to backend /v1 in dev.
   baseURL: apiBaseURL,
-  // 30 s is generous enough for trading order endpoints while still catching
-  // genuinely hung connections (e.g. broker relay timeouts).
   timeout: 30000,
   withCredentials: true,
   headers: {
@@ -47,29 +53,42 @@ export const apiClient = axios.create({
   },
 });
 
-// Add access token to requests
+// Add access token to requests — never on auth bootstrap (refresh must use cookie only).
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    const url = String(config.url || '');
+    if (isAuthBootstrapEndpoint(url)) {
+      if (config.headers) {
+        delete (config.headers as any).Authorization;
+        delete (config.headers as any).authorization;
+      }
+      return config;
+    }
     const token = useAuthStore.getState().accessToken;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error: AxiosError) => Promise.reject(error)
+  (error: AxiosError) => Promise.reject(error),
 );
 
-// Single-flight refresh. On a hard page reload the dashboard fires many
-// requests at once; each gets a 401 from the expired access token. Because the
-// backend ROTATES the refresh token on every /auth/refresh (and blacklists the
-// previous one), letting each 401 trigger its own refresh causes a race: the
-// first call rotates the token and the rest send the now-invalid one, getting a
-// genuine 401 and logging the user out. We dedupe all concurrent refreshes into
-// one shared promise so the token is rotated exactly once.
+// Single-flight refresh + grace window.
+// Backend rotates refresh cookies; a second concurrent refresh with the old
+// cookie returns 401 and would otherwise wipe a healthy session.
 let refreshPromise: Promise<string> | null = null;
+let lastRefreshAt = 0;
+let logoutInFlight = false;
+const REFRESH_GRACE_MS = 12_000;
 
-function refreshSession(): Promise<string> {
+export function refreshSession(): Promise<string> {
   if (refreshPromise) return refreshPromise;
+
+  // Recent successful refresh — reuse token instead of rotating again.
+  const existing = useAuthStore.getState().accessToken;
+  if (existing && Date.now() - lastRefreshAt < REFRESH_GRACE_MS) {
+    return Promise.resolve(existing);
+  }
 
   refreshPromise = (async () => {
     const response = await apiClient.post(
@@ -81,6 +100,7 @@ function refreshSession(): Promise<string> {
     const accessToken = data.accessToken;
 
     useAuthStore.getState().setToken(accessToken);
+    lastRefreshAt = Date.now();
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('profytron_access', accessToken);
     }
@@ -97,7 +117,6 @@ function refreshSession(): Promise<string> {
     try {
       const meRes = await apiClient.get('/users/me', {
         headers: { Authorization: `Bearer ${accessToken}` },
-        // Prevent this profile sync from re-entering the refresh flow.
         _retry: true,
       } as any);
       const user = unwrapApiResponse<any>(meRes.data);
@@ -108,7 +127,7 @@ function refreshSession(): Promise<string> {
         if (user.role) {
           document.cookie = `user_role=${user.role}; path=/; max-age=7776000; samesite=lax`;
         }
-        useAuthStore.setState({ user });
+        useAuthStore.setState({ user, isAuthenticated: true });
       }
     } catch {
       /* optional profile sync */
@@ -117,12 +136,33 @@ function refreshSession(): Promise<string> {
     return accessToken;
   })();
 
-  // Allow a fresh refresh once this one fully settles.
   void refreshPromise.finally(() => {
     refreshPromise = null;
   });
 
   return refreshPromise;
+}
+
+function forceLoginRedirect() {
+  if (logoutInFlight) return;
+  logoutInFlight = true;
+  useAuthStore.getState().clearAuth();
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.setItem('profytron_force_login', '1');
+  } catch {
+    /* ignore */
+  }
+  const currentPath = window.location.pathname;
+  if (!currentPath.startsWith('/login') && !currentPath.startsWith('/register')) {
+    const redirect = encodeURIComponent(
+      `${currentPath}${window.location.search || ''}`,
+    );
+    window.location.replace(`/login?expired=true&redirect=${redirect}`);
+  }
+  window.setTimeout(() => {
+    logoutInFlight = false;
+  }, 5000);
 }
 
 // Handle 401 Unauthorized for Token Refresh
@@ -132,9 +172,6 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config as any;
     const requestUrl = originalRequest?.url as string | undefined;
 
-    // Check if the error is 401 and we haven't already retried.
-    // We can still attempt session refresh when the client has no token in memory,
-    // because a valid HttpOnly refresh cookie may still exist for the user.
     if (
       error.response?.status === 401 &&
       !originalRequest?._retry &&
@@ -144,36 +181,22 @@ apiClient.interceptors.response.use(
 
       try {
         const accessToken = await refreshSession();
-
         originalRequest.headers = {
           ...originalRequest.headers,
           Authorization: `Bearer ${accessToken}`,
         };
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Only a genuine auth rejection from the refresh endpoint means the
-        // session is actually invalid/expired. Transient failures — network
-        // errors, timeouts, or 5xx (e.g. the API cold-starting on a free host
-        // after idle) — must NOT log the user out, or a valid session gets
-        // killed just because the backend was briefly unreachable. Keep the
-        // session and let the caller retry once the backend is back.
         const refreshStatus = (refreshError as AxiosError)?.response?.status;
         const isAuthRejection = refreshStatus === 401 || refreshStatus === 403;
         if (!isAuthRejection || isNetworkUnavailableError(refreshError)) {
           return Promise.reject(refreshError);
         }
-
-        useAuthStore.getState().clearAuth();
-        if (typeof window !== 'undefined') {
-          const currentPath = window.location.pathname;
-          if (!currentPath.startsWith('/login')) {
-            window.location.href = '/login?expired=true';
-          }
-        }
+        forceLoginRedirect();
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  }
+  },
 );

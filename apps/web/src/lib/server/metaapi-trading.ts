@@ -187,6 +187,37 @@ export async function metaGetAccountInfo(live: LiveBroker): Promise<any> {
   return res.json();
 }
 
+export function isMetaApiUnauthorized(message?: string | null): boolean {
+  const m = String(message || '').toLowerCase();
+  return (
+    m.includes('unauthorized') ||
+    m.includes('invalid auth-token') ||
+    m.includes('failed to authorize')
+  );
+}
+
+/** Try stored region first, then common MetaAPI regions. */
+export async function withResolvedRegion<T>(
+  live: LiveBroker,
+  fn: (live: LiveBroker) => Promise<T>,
+): Promise<T> {
+  const regions = Array.from(
+    new Set(
+      [live.region, 'london', 'new-york', 'vint-hill', 'singapore'].filter(Boolean),
+    ),
+  );
+  let lastError: Error | null = null;
+  for (const region of regions) {
+    try {
+      return await fn({ ...live, region });
+    } catch (e: any) {
+      lastError = e instanceof Error ? e : new Error(String(e?.message || e));
+      if (isMetaApiUnauthorized(lastError.message)) throw lastError;
+    }
+  }
+  throw lastError || new Error('MetaApi request failed');
+}
+
 /** Deterministic lot calculator for ~$100 accounts (equity-ratio safe). */
 export function computeLotSize(input: {
   mode?: 'FIXED' | 'MULTIPLIER' | 'EQUITY_RATIO' | 'BALANCE';

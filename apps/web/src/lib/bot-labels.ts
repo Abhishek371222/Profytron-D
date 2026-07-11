@@ -1,4 +1,4 @@
-/** User-facing labels: never show "copy trading" in the product UI. */
+/** User-facing labels: never show "copy trading" or "strategy" in the product UI. */
 
 export function formatBotName(name: string): string {
   if (!name) return name;
@@ -6,6 +6,8 @@ export function formatBotName(name: string): string {
     .replace(/\bcopy trading\b/gi, 'Automated Bot')
     .replace(/\bcopy-trading\b/gi, 'automated-bot')
     .replace(/\bmaster copy\b/gi, 'Master Bot')
+    .replace(/\bstrategies\b/gi, 'Bots')
+    .replace(/\bstrategy\b/gi, 'Bot')
     .replace(/\bcopy\b/gi, 'Bot')
     .replace(/\s+/g, ' ')
     .trim();
@@ -20,6 +22,8 @@ export function formatBotDescription(text: string): string {
     .replace(/\bcopied\b/gi, 'automated')
     .replace(/\bmirror(?:ed|ing)?\b/gi, 'automated')
     .replace(/\bmaster (?:MT5 |MT4 )?account\b/gi, 'operator bot account')
+    .replace(/\bstrategies\b/gi, 'bots')
+    .replace(/\bstrategy\b/gi, 'bot')
     .replace(/\bcopy\b/gi, 'bot');
 }
 

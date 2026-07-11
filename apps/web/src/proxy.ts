@@ -7,6 +7,7 @@ const protectedRoutes = [
   '/dashboard',
   '/strategies',
   '/marketplace',
+  '/markets',
   '/analytics',
   '/alpha-coach',
   '/wallet',

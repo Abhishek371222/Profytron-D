@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, Sparkles, Lock, Mail, Shield } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
@@ -19,6 +19,7 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { authApi } from '@/lib/api/auth';
 import { startSocialOAuth } from '@/lib/auth/social-oauth';
 import { resolvePostLoginRedirect } from '@/lib/utils';
+import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
@@ -29,44 +30,81 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-function LoginPageContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const { login } = useAuthStore();
-  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-  const [twoFaChallenge, setTwoFaChallenge] = React.useState<string | null>(null);
-  const [twoFaCode, setTwoFaCode] = React.useState('');
-  const [is2faSubmitting, setIs2faSubmitting] = React.useState(false);
-
+function resolveUrlErrorMessage(searchParams: URLSearchParams): string | null {
   const authError = searchParams.get('error');
   const expired = searchParams.get('expired');
   const accountDeleted = searchParams.get('accountDeleted');
   const idle = searchParams.get('idle');
+
+  if (accountDeleted === '1' || accountDeleted === 'true') {
+    return 'This account was deleted. No account exists with that email — create a new account to continue.';
+  }
+  if (idle === 'true') {
+    return 'You were logged out after 24 hours of inactivity. Please sign in again.';
+  }
+  if (authError === 'auth_failed') return 'Sign-in failed. Please try again.';
+  if (authError === 'database_unavailable') {
+    return "We're experiencing a temporary issue. Please try again in a moment.";
+  }
+  if (authError === 'sync_failed') {
+    return 'Sign-in succeeded but we hit a snag. Please try again.';
+  }
+  if (authError === 'rate_limited') {
+    return 'Too many sign-in attempts. Please wait a minute and try again.';
+  }
+  if (authError === 'backend_unavailable') {
+    return 'Service is temporarily unavailable. Please wait a moment and try again.';
+  }
+  if (expired === 'true' || expired === '1') {
+    return 'Your session expired. Please sign in again.';
+  }
+  return null;
+}
+
+function LoginPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { login, clearAuth } = useAuthStore();
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [urlErrorMessage, setUrlErrorMessage] = React.useState<string | null>(null);
+  const [twoFaChallenge, setTwoFaChallenge] = React.useState<string | null>(null);
+  const [twoFaCode, setTwoFaCode] = React.useState('');
+  const [is2faSubmitting, setIs2faSubmitting] = React.useState(false);
+
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
+  // Capture one-shot URL notices, clear stale client auth, then strip query
+  // params so a browser reload does not keep re-applying expired/idle state.
   React.useEffect(() => {
+    const notice = resolveUrlErrorMessage(searchParams);
     const challenge = searchParams.get('twoFaChallenge');
     if (challenge) setTwoFaChallenge(challenge);
-  }, [searchParams]);
+    if (notice) {
+      setUrlErrorMessage(notice);
+      try {
+        sessionStorage.setItem('profytron_force_login', '1');
+      } catch {
+        /* ignore */
+      }
+      clearAuth();
+    }
 
-  const urlErrorMessage =
-    accountDeleted === '1' || accountDeleted === 'true'
-      ? 'This account was deleted. No account exists with that email — create a new account to continue.'
-      : idle === 'true'
-        ? 'You were logged out after 1 hour of inactivity. Please sign in again.'
-        : authError === 'auth_failed'
-      ? 'Sign-in failed. Please try again.'
-      : authError === 'database_unavailable'
-        ? 'We\'re experiencing a temporary issue. Please try again in a moment.'
-        : authError === 'sync_failed'
-          ? 'Sign-in succeeded but we hit a snag syncing your account. Please try again.'
-          : authError === 'rate_limited'
-            ? 'Too many sign-in attempts. Please wait a minute and try again.'
-            : authError === 'backend_unavailable'
-              ? 'Service is temporarily unavailable. Please wait a moment and try again.'
-              : expired
-              ? 'Your session expired. Please sign in again.'
-              : null;
+    const keysToStrip = [
+      'expired',
+      'idle',
+      'error',
+      'accountDeleted',
+      'twoFaChallenge',
+    ] as const;
+    const hasStripKey = keysToStrip.some((key) => searchParams.has(key));
+    if (!hasStripKey) return;
+
+    const next = new URLSearchParams(searchParams.toString());
+    for (const key of keysToStrip) next.delete(key);
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }, [searchParams, clearAuth, router, pathname]);
 
   const {
     register,
@@ -80,6 +118,7 @@ function LoginPageContent() {
 
   const onSubmit = async (data: LoginFormValues) => {
     setErrorMessage(null);
+    setUrlErrorMessage(null);
     try {
       const response = await authApi.login(data);
       if ('requiresTwoFa' in response && response.requiresTwoFa) {
@@ -87,16 +126,24 @@ function LoginPageContent() {
         return;
       }
       const { accessToken, user } = response as { accessToken: string; user: any };
+      const dest = resolvePostLoginRedirect(user, redirectTo);
+      useWorkspaceBootstrapStore.getState().startBootstrap(dest);
       login(accessToken, user);
-      router.replace(resolvePostLoginRedirect(user, redirectTo));
+      router.replace(dest);
     } catch (error: unknown) {
-      console.error('Login failed:', error);
       const payload =
         typeof error === 'object' &&
         error !== null &&
         'response' in error
-          ? (error as { response?: { data?: { error?: string | string[]; code?: string; message?: string | string[] } } })
-              .response?.data
+          ? (error as {
+              response?: {
+                data?: {
+                  error?: string | string[];
+                  code?: string;
+                  message?: string | string[];
+                };
+              };
+            }).response?.data
           : undefined;
       const raw =
         payload?.error ??
@@ -127,7 +174,8 @@ function LoginPageContent() {
       });
     } catch (error: unknown) {
       const err = error as { response?: { data?: { error?: string } }; message?: string };
-      const message = err?.response?.data?.error || err?.message || 'Could not send recovery email.';
+      const message =
+        err?.response?.data?.error || err?.message || 'Could not send recovery email.';
       toast.error('Recovery request failed', { description: message });
     }
   };
@@ -138,6 +186,7 @@ function LoginPageContent() {
       return;
     }
     setErrorMessage(null);
+    setUrlErrorMessage(null);
     setIs2faSubmitting(true);
     try {
       const response = await authApi.completeTwoFactorLogin({
@@ -145,7 +194,9 @@ function LoginPageContent() {
         code: twoFaCode.trim(),
       });
       login(response.accessToken, response.user);
-      router.replace(resolvePostLoginRedirect(response.user, redirectTo));
+      const dest = resolvePostLoginRedirect(response.user, redirectTo);
+      useWorkspaceBootstrapStore.getState().startBootstrap(dest);
+      router.replace(dest);
     } catch (error: unknown) {
       const message =
         typeof error === 'object' &&
@@ -182,6 +233,9 @@ function LoginPageContent() {
     },
   };
 
+  const alertClassName =
+    'flex w-full items-start gap-2 rounded-xl border px-3.5 py-2.5 text-sm leading-snug';
+
   return (
     <main className="min-h-[100dvh] w-full min-w-0 overflow-x-hidden bg-background p-4 pb-safe pt-safe sm:p-6">
       <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_20%_20%,color-mix(in_srgb,var(--primary)_25%,transparent),transparent_45%),radial-gradient(circle_at_80%_80%,color-mix(in_srgb,var(--primary)_20%,transparent),transparent_40%)]" />
@@ -210,11 +264,10 @@ function LoginPageContent() {
                   badgeIcon={Shield}
                   headline={
                     <>
-                      Welcome{" "}
-                      <BrandGradientText>back.</BrandGradientText>
+                      Welcome <BrandGradientText>back.</BrandGradientText>
                     </>
                   }
-                  description="Sign in to your Profytron account and continue monitoring live trading intelligence, strategies, and portfolio performance."
+                  description="Sign in to your Profytron account and continue monitoring live trading intelligence, bots, and portfolio performance."
                 />
               </div>
             </div>
@@ -244,12 +297,18 @@ function LoginPageContent() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {urlErrorMessage && (
-                  <div role="alert" className="rounded-input border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning">
+                  <div
+                    role="alert"
+                    className={`${alertClassName} border-destructive/35 bg-destructive/[0.08] text-destructive`}
+                  >
                     {urlErrorMessage}
                   </div>
                 )}
                 {errorMessage && (
-                  <div role="alert" className="rounded-input border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  <div
+                    role="alert"
+                    className={`${alertClassName} border-destructive/35 bg-destructive/[0.08] text-destructive`}
+                  >
                     {errorMessage}
                   </div>
                 )}
@@ -332,9 +391,16 @@ function LoginPageContent() {
                 </motion.div>
               </form>
 
-              <motion.div variants={itemVariants} className="mt-7 text-center text-sm text-muted-foreground">
+              <motion.div
+                variants={itemVariants}
+                className="mt-7 text-center text-sm text-muted-foreground"
+              >
                 New to Profytron?{' '}
-                <Link href="/register" prefetch={false} className="font-semibold text-primary hover:brightness-110">
+                <Link
+                  href="/register"
+                  prefetch={false}
+                  className="font-semibold text-primary hover:brightness-110"
+                >
                   Create an account
                 </Link>
               </motion.div>

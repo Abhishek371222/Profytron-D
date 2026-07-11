@@ -4,9 +4,11 @@ export const ACCOUNT_QUERY_KEYS = [
   'portfolio',
   'wallet-balance',
   'open-trades',
+  'trade-history',
   'dashboard-risk',
   'broker-accounts',
   'broker-equity',
+  'broker-account-info',
   'my-strategies',
   'activation-progress',
 ] as const;

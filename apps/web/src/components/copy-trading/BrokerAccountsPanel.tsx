@@ -21,9 +21,14 @@ interface BrokerAccount {
   serverName?: string;
   isDefault?: boolean;
   isPaperTrading?: boolean;
+  balance?: number | null;
+  equity?: number | null;
+  currency?: string | null;
+  liveSynced?: boolean;
+  connectionStatus?: string | null;
 }
 
-function formatMoney(value: number | undefined, currency = 'USD') {
+function formatMoney(value: number | undefined | null, currency = 'USD') {
   if (value == null || Number.isNaN(value)) return '—';
   try {
     return new Intl.NumberFormat('en-US', {
@@ -32,7 +37,7 @@ function formatMoney(value: number | undefined, currency = 'USD') {
       maximumFractionDigits: 2,
     }).format(value);
   } catch {
-    return `${value.toFixed(2)} ${currency}`;
+    return `${Number(value).toFixed(2)} ${currency}`;
   }
 }
 
@@ -44,16 +49,28 @@ function BrokerRow({
   onDisconnected?: () => void;
 }) {
   const [disconnecting, setDisconnecting] = React.useState(false);
+  // Manual refresh only — do not poll testConnection on mount (that made connections feel very slow).
   const query = useQuery({
     queryKey: ['broker-info', account.id],
     queryFn: () => brokerApi.testConnection(account.id),
+    enabled: false,
     staleTime: 120_000,
     refetchOnWindowFocus: false,
   });
 
-  const connected = query.data?.connected;
-  const info = query.data?.accountInfo;
-  const loading = query.isLoading || query.isFetching;
+  const liveBalance =
+    query.data?.accountInfo?.balance ??
+    (account.liveSynced ? account.balance : null);
+  const liveEquity =
+    query.data?.accountInfo?.equity ??
+    (account.liveSynced ? account.equity : null);
+  const currency =
+    query.data?.accountInfo?.currency ?? account.currency ?? 'USD';
+  const connected =
+    query.data?.connected ??
+    account.liveSynced ??
+    account.connectionStatus === 'CONNECTED';
+  const loading = query.isFetching;
 
   const handleDisconnect = async () => {
     const ok = window.confirm(
@@ -77,7 +94,7 @@ function BrokerRow({
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-muted/2 p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-3">
-        {query.isLoading ? (
+        {account.connectionStatus === 'SYNCING' && !connected ? (
           <Loader2 className="h-4 w-4 shrink-0 animate-spin text-foreground/40" />
         ) : connected ? (
           <CheckCircle2 className="h-4 w-4 shrink-0 text-chart-3" />
@@ -96,11 +113,7 @@ function BrokerRow({
           <p className="text-xs text-foreground/40">
             {account.serverName || 'Unknown server'}
             {' · '}
-            {query.isLoading
-              ? 'Checking…'
-              : connected
-                ? 'Connected'
-                : 'Not connected'}
+            {connected ? 'Connected' : account.connectionStatus === 'SYNCING' ? 'Syncing…' : 'Not connected'}
           </p>
         </div>
       </div>
@@ -111,7 +124,7 @@ function BrokerRow({
             Balance
           </p>
           <p className="text-sm font-bold text-foreground">
-            {connected ? formatMoney(info?.balance, info?.currency) : '—'}
+            {liveBalance != null ? formatMoney(liveBalance, currency) : '—'}
           </p>
         </div>
         <div className="text-right">
@@ -119,7 +132,7 @@ function BrokerRow({
             Equity
           </p>
           <p className="text-sm font-bold text-foreground">
-            {connected ? formatMoney(info?.equity, info?.currency) : '—'}
+            {liveEquity != null ? formatMoney(liveEquity, currency) : '—'}
           </p>
         </div>
         <button

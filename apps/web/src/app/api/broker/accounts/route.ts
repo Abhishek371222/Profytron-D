@@ -4,6 +4,7 @@ import { neon } from '@neondatabase/serverless';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 20;
 
 function json(data: unknown, status = 200) {
   return NextResponse.json(
@@ -47,12 +48,14 @@ async function userIdFromRequest(req: NextRequest): Promise<string | null> {
   ).replace(/\/$/, '');
   if (!bearer) return null;
   try {
+    const ctrl = AbortSignal.timeout(5000);
     const meRes = await fetch(`${backend}/v1/users/me`, {
       headers: {
         Authorization: `Bearer ${bearer}`,
         'X-Requested-With': 'XMLHttpRequest',
       },
       cache: 'no-store',
+      signal: ctrl,
     });
     if (!meRes.ok) return null;
     const body = await meRes.json();
@@ -67,7 +70,13 @@ async function fetchBalance(
   metaApiAccountId: string,
   region: string,
   token: string,
-): Promise<{ balance: number; equity: number; currency: string } | null> {
+): Promise<{
+  balance: number;
+  equity: number;
+  margin: number;
+  freeMargin: number;
+  currency: string;
+} | null> {
   try {
     const host = `https://mt-client-api-v1.${region}.agiliumtrade.ai`;
     const res = await fetch(
@@ -78,13 +87,23 @@ async function fetchBalance(
           Accept: 'application/json',
         },
         cache: 'no-store',
+        signal: AbortSignal.timeout(8000),
       },
     );
     if (!res.ok) return null;
     const d = await res.json();
+    const balance = Number(d.balance ?? 0);
+    const equity = Number(d.equity ?? d.balance ?? 0);
+    const margin = Number(d.margin ?? 0);
+    const freeMargin = Number(
+      d.freeMargin ?? d.free_margin ?? Math.max(0, equity - margin),
+    );
+    if (!Number.isFinite(balance) || !Number.isFinite(equity)) return null;
     return {
-      balance: Number(d.balance ?? 0),
-      equity: Number(d.equity ?? d.balance ?? 0),
+      balance,
+      equity,
+      margin,
+      freeMargin,
       currency: d.currency || 'USD',
     };
   } catch {
@@ -111,6 +130,7 @@ export async function GET(req: NextRequest) {
     ORDER BY "connectedAt" DESC
   `;
 
+  // Parallel MetaAPI balance fetches — never expose initialEquity as live balance.
   const accounts = await Promise.all(
     rows.map(async (row) => {
       let creds: Record<string, any> = {};
@@ -129,22 +149,33 @@ export async function GET(req: NextRequest) {
         creds.executionMode === 'master_only' ||
         String(metaId).startsWith('mock-');
 
-      let balance: number | null = row.initialEquity as number | null;
-      let equity: number | null = row.initialEquity as number | null;
+      let balance: number | null = null;
+      let equity: number | null = null;
+      let margin = 0;
+      let freeMargin: number | null = null;
       let currency = 'USD';
+      let liveSynced = false;
       let connectionStatus = storeOnly ? 'CONNECTED' : 'SYNCING';
 
       if (row.isPaperTrading) {
+        const seed = Number(row.initialEquity ?? 0);
+        balance = seed;
+        equity = seed;
+        freeMargin = seed;
+        liveSynced = seed > 0;
         connectionStatus = 'CONNECTED';
       } else if (!storeOnly && metaToken && metaId) {
         const live = await fetchBalance(metaId, region, metaToken);
         if (live) {
           balance = live.balance;
           equity = live.equity;
+          margin = live.margin;
+          freeMargin = live.freeMargin;
           currency = live.currency;
+          liveSynced = true;
           connectionStatus = 'CONNECTED';
         } else {
-          connectionStatus = 'CONNECTED';
+          connectionStatus = 'SYNCING';
         }
       }
 
@@ -153,9 +184,13 @@ export async function GET(req: NextRequest) {
         ...safe,
         accountNumber: row.accountNumberLast4,
         login: creds.login || null,
+        // Keep initialEquity for deposit-base fallback only — not as displayed balance.
         balance,
         equity,
+        margin,
+        freeMargin,
         currency,
+        liveSynced,
         connectionStatus,
         storeOnly,
         fillMode: storeOnly
@@ -165,7 +200,9 @@ export async function GET(req: NextRequest) {
             : 'metaapi',
         balanceNote: storeOnly
           ? undefined
-          : 'Live balance via MetaApi G2',
+          : liveSynced
+            ? 'Live balance via MetaApi G2'
+            : 'Waiting for live MetaAPI sync',
       };
     }),
   );

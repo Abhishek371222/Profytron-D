@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
 
 type SocialProvider = 'google' | 'github';
 type SocialAuthContext = 'login' | 'register';
@@ -58,26 +57,25 @@ export async function startSocialOAuth(
 ) {
   const action = context === 'login' ? 'sign in' : 'sign up';
 
-  // Dead / mismatched Supabase project → use NestJS Google OAuth so local login still works.
+  // Dead / mismatched Supabase project → NestJS Google OAuth (silent, no toast).
   if (provider === 'google' && isSupabaseSocialBroken()) {
-    toast.message('Using direct Google sign-in', {
-      description: 'Supabase project keys need updating. Falling back to Google OAuth.',
-    });
     window.location.href = '/api/auth/google';
     return;
   }
 
   if (!supabase) {
-    toast.error('Social login is not available right now', {
-      description: 'Please use your email and password instead.',
-    });
+    if (provider === 'google') {
+      window.location.href = '/api/auth/google';
+      return;
+    }
     return;
   }
 
   if (!window.location.origin) {
-    toast.error('Unable to start social sign-in', {
-      description: 'Could not determine redirect URL.',
-    });
+    if (provider === 'google') {
+      window.location.href = '/api/auth/google';
+      return;
+    }
     return;
   }
 
@@ -95,12 +93,9 @@ export async function startSocialOAuth(
 
   if (error) {
     if (provider === 'google') {
-      toast.message('Retrying with direct Google sign-in');
       window.location.href = '/api/auth/google';
       return;
     }
-    toast.error(`Unable to ${action} with ${provider}`, {
-      description: error.message,
-    });
+    console.error(`Unable to ${action} with ${provider}:`, error.message);
   }
 }

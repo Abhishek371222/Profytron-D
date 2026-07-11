@@ -98,7 +98,7 @@ const NAV_SECTIONS = [
   {
     href: '/analytics/performance',
     title: 'Performance Lab',
-    desc: 'Compare strategy quality and monthly edge',
+    desc: 'Compare bot quality and monthly edge',
     icon: BarChart2,
     iconBg: 'bg-chart-3/10 text-chart-3',
   },
@@ -158,14 +158,15 @@ function MiniSparkline({ data, positive }: { data: number[]; positive: boolean }
 export default function AnalyticsPage() {
   const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('1m');
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isHydrating, accessToken } = useAuthStore();
+  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
 
   const portfolioQuery = useQuery({
     queryKey: ['analytics', 'portfolio', range],
     queryFn: () => analyticsApi.getPortfolio(range),
     staleTime: 60_000,
     refetchOnWindowFocus: false,
-    enabled: isAuthenticated,
+    enabled: sessionReady,
     retry: 1,
   });
 
@@ -173,7 +174,7 @@ export default function AnalyticsPage() {
     queryKey: ['analytics', 'global'],
     queryFn: () => analyticsApi.getGlobal(),
     staleTime: 300_000,
-    enabled: isAuthenticated,
+    enabled: sessionReady,
   });
 
   const portfolio = portfolioQuery.data;
@@ -238,7 +239,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         {KPI_CONFIG.map((kpi, idx) => {
           const rawVal = portfolio
             ? {
@@ -249,11 +250,18 @@ export default function AnalyticsPage() {
               }[kpi.key]
             : 0;
           const display = portfolio != null ? kpi.format(rawVal ?? 0) : null;
-          const compareVal = rawVal ?? 0;
+          const compareVal =
+            kpi.key === 'totalProfit' && portfolio?.totalReturnPct != null
+              ? portfolio.totalReturnPct
+              : (rawVal ?? 0);
           const spark =
             sparkFromEquity.length >= 2
               ? sparkFromEquity
-              : buildSparklinePoints(undefined, Math.max(compareVal, 1), compareVal >= 0 ? 0.5 : -0.5);
+              : buildSparklinePoints(
+                  undefined,
+                  Math.max(Math.abs(compareVal), 1),
+                  compareVal >= 0 ? 0.5 : -0.5,
+                );
 
           return (
             <motion.div
@@ -261,29 +269,31 @@ export default function AnalyticsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05, duration: 0.35, ease: 'easeOut' }}
-              whileHover={{ y: -4 }}
-              className="group dashboard-card p-5 flex flex-col gap-3 dashboard-enter transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
+              whileHover={{ y: -2 }}
+              className="group dashboard-card p-3.5 flex flex-col gap-2 dashboard-enter transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
               style={{ animationDelay: `${idx * 0.05}s` }}
             >
               <div className="flex items-start justify-between gap-2">
-                <div className={cn('flex h-9 w-9 items-center justify-center rounded-xl', kpi.iconBg)}>
-                  <kpi.icon className="h-4 w-4" />
+                <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg', kpi.iconBg)}>
+                  <kpi.icon className="h-3.5 w-3.5" />
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">{kpi.label}</p>
+                <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
                 {isLoading ? (
-                  <div className="h-8 w-24 rounded-lg bg-muted animate-pulse mt-1" />
+                  <div className="h-7 w-20 rounded-lg bg-muted animate-pulse mt-1" />
                 ) : (
-                  <p className={cn('text-2xl font-bold tabular-nums mt-0.5', kpi.valueClass)}>
+                  <p className={cn('text-xl font-bold tabular-nums mt-0.5', kpi.valueClass)}>
                     {display ?? '$0.00'}
                   </p>
                 )}
-                <p className="text-xs text-muted-foreground mt-1 tabular-nums">
-                  {kpi.compareFormat(compareVal)} vs {RANGE_COMPARE[range]}
+                <p className="text-[11px] text-muted-foreground mt-1 tabular-nums">
+                  {kpi.key === 'totalProfit'
+                    ? `${compareVal >= 0 ? '+' : ''}${compareVal.toFixed(2)}% return · ${RANGE_COMPARE[range]}`
+                    : `${kpi.compareFormat(compareVal)} vs ${RANGE_COMPARE[range]}`}
                 </p>
               </div>
-              <div className="mt-auto pt-1">
+              <div className="mt-auto pt-0.5">
                 <MiniSparkline data={spark} positive={kpi.sparkPositive && compareVal >= 0} />
               </div>
             </motion.div>
@@ -303,9 +313,9 @@ export default function AnalyticsPage() {
       )}
 
       {/* Equity + sidebar */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5 items-start">
-        <div className="dashboard-card p-5 relative overflow-hidden min-h-[360px] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]">
-          <div className="flex items-start justify-between gap-3 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-3 items-start">
+        <div className="dashboard-card p-4 relative overflow-hidden min-h-[300px] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]">
+          <div className="flex items-start justify-between gap-3 mb-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Equity Curve</p>
               <p className="text-base font-bold text-foreground mt-0.5">Portfolio Performance</p>
@@ -313,7 +323,9 @@ export default function AnalyticsPage() {
             {portfolio && (
               <span className="inline-flex items-center gap-1 rounded-full bg-chart-3/10 border border-chart-3/20 px-2.5 py-1 text-[11px] font-bold text-chart-3">
                 <TrendingUp className="h-3 w-3" />
-                +{portfolio.bestMonth.toFixed(0)}% Best Month
+                {portfolio.totalReturnPct != null
+                  ? `${portfolio.totalReturnPct >= 0 ? '+' : ''}${portfolio.totalReturnPct.toFixed(1)}% Return`
+                  : `${portfolio.bestMonth >= 0 ? '+' : ''}${portfolio.bestMonth.toFixed(0)}% Best Month`}
               </span>
             )}
           </div>
@@ -347,7 +359,7 @@ export default function AnalyticsPage() {
             >
               <Link
                 href={s.href}
-                className="dashboard-card flex items-center gap-3 p-4 group hover:border-primary/20 transition-colors"
+                className="dashboard-card flex items-center gap-3 p-3 group hover:border-primary/20 transition-colors"
               >
                 <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-xl', s.iconBg)}>
                   <s.icon className="h-4 w-4" />

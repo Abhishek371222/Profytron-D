@@ -102,9 +102,15 @@ export const tradingApi = {
     return unwrap<any>(res.data);
   },
 
-  async getTradeHistory(params?: { limit?: number; cursor?: string; symbol?: string }): Promise<{ rows: TradeHistoryRow[]; nextCursor: string | null }> {
+  async getTradeHistory(params?: { limit?: number; cursor?: string; symbol?: string }): Promise<{ rows: TradeHistoryRow[]; nextCursor: string | null; syncError?: string; message?: string }> {
     const res = await apiClient.get('/trading/trades/history', { params });
-    return unwrap(res.data);
+    const body = res.data as any;
+    const data = unwrap<{ rows: TradeHistoryRow[]; nextCursor: string | null }>(body);
+    return {
+      ...data,
+      syncError: body?.syncError,
+      message: body?.message,
+    };
   },
 
   /** Live lot calculator (equity-ratio safe for ~$100 accounts). */

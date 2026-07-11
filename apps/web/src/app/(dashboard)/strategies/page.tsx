@@ -69,7 +69,7 @@ export default function StrategiesPage() {
 
   React.useEffect(() => {
     if (myStrategiesError) {
-      toast.error('Could not load your strategies');
+      toast.error('Could not load your bots');
     }
   }, [myStrategiesError]);
 
@@ -137,7 +137,7 @@ export default function StrategiesPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search strategies or creators…"
+              placeholder="Search bots or creators…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-10 rounded-xl border border-[var(--card-border)] bg-card pl-10 pr-3 text-sm outline-none focus:border-primary/40"
@@ -177,7 +177,7 @@ export default function StrategiesPage() {
         <div className="flex items-center justify-center gap-3 pt-1 border-t border-[var(--card-border)]">
           <Activity className="w-3.5 h-3.5 text-primary shrink-0" />
           <span className="text-xs text-muted-foreground font-medium">
-            {displayedStrategies.length} {displayedStrategies.length === 1 ? 'strategy' : 'strategies'} found
+            {displayedStrategies.length} {displayedStrategies.length === 1 ? 'bot' : 'bots'} found
           </span>
         </div>
       </div>
@@ -191,7 +191,7 @@ export default function StrategiesPage() {
       ) : displayedStrategies.length === 0 ? (
         <div className="dashboard-card py-16 flex flex-col items-center text-center gap-3">
           <Database className="h-12 w-12 text-muted-foreground/40" />
-          <h3 className="text-base font-semibold text-foreground">No strategies found</h3>
+          <h3 className="text-base font-semibold text-foreground">No bots found</h3>
           <p className="text-sm text-muted-foreground">Try adjusting your filters or search.</p>
           <button type="button" onClick={() => { setSearchQuery(''); setSelectedCategory('ALL'); setVerifiedOnly(false); }} className="text-sm text-primary hover:underline">
             Reset filters

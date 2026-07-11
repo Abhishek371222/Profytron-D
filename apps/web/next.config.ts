@@ -84,11 +84,17 @@ const nextConfig: NextConfig = {
       return [];
     }
 
-    // Keep broker + live trading/analytics/market + copy-link on Vercel (Render stuck).
+    // Keep live MetaAPI routes on Next (Vercel). Unmatched /api/* falls through to Nest.
+    // Only pin paths that have App Router handlers — do not blanket-rewrite /broker or
+    // /market or Nest endpoints (test connection, news, calendar) never reach the API.
     return [
       {
-        source: "/api/broker/:path*",
-        destination: "/api/broker/:path*",
+        source: "/api/broker/accounts",
+        destination: "/api/broker/accounts",
+      },
+      {
+        source: "/api/broker/accounts/connect",
+        destination: "/api/broker/accounts/connect",
       },
       {
         source: "/api/trading/trades/:path*",
@@ -103,8 +109,20 @@ const nextConfig: NextConfig = {
         destination: "/api/copy/:path*",
       },
       {
-        source: "/api/market/:path*",
-        destination: "/api/market/:path*",
+        source: "/api/market/quotes",
+        destination: "/api/market/quotes",
+      },
+      {
+        source: "/api/market/quote",
+        destination: "/api/market/quote",
+      },
+      {
+        source: "/api/market/ohlc",
+        destination: "/api/market/ohlc",
+      },
+      {
+        source: "/api/analytics/trades",
+        destination: "/api/analytics/trades",
       },
       {
         source: "/api/analytics/trades/:path*",
@@ -113,6 +131,22 @@ const nextConfig: NextConfig = {
       {
         source: "/api/analytics/portfolio",
         destination: "/api/analytics/portfolio",
+      },
+      {
+        source: "/api/analytics/monthly-returns",
+        destination: "/api/analytics/monthly-returns",
+      },
+      {
+        source: "/api/analytics/strategy-comparison",
+        destination: "/api/analytics/strategy-comparison",
+      },
+      {
+        source: "/api/analytics/risk",
+        destination: "/api/analytics/risk",
+      },
+      {
+        source: "/api/analytics/global",
+        destination: "/api/analytics/global",
       },
       {
         source: "/api/:path*",
@@ -154,15 +188,15 @@ const nextConfig: NextConfig = {
               // (checkout.razorpay.com) and Stripe.js (js.stripe.com). They must
               // be whitelisted in script-src or the browser blocks them.
               isProd
-                ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com"
-                : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com",
+                ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com"
+                : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
               // unsafe-inline required by Tailwind CSS and CSS-in-JS at runtime
-              "style-src 'self' 'unsafe-inline'",
+              "style-src 'self' 'unsafe-inline' https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
               "img-src 'self' data: https:",
-              "font-src 'self' data:",
-              `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io`,
-              // Razorpay/Stripe render their payment UI inside iframes.
-              "frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://js.stripe.com https://hooks.stripe.com",
+              "font-src 'self' data: https://*.tradingview.com https://*.tradingview-widget.com",
+              `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io https://*.tradingview.com https://s3.tradingview.com wss://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com wss://*.tradingview-widget.com`,
+              // Razorpay/Stripe payment UI + TradingView chart embeds (widget host is tradingview-widget.com).
+              "frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://js.stripe.com https://hooks.stripe.com https://*.tradingview.com https://s.tradingview.com https://www.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

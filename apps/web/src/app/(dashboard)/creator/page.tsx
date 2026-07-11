@@ -65,7 +65,7 @@ export default function CreatorStudioPage() {
     queryKey: ['strategies-created'],
     queryFn: () => strategiesApi.getCreatedStrategies(),
     staleTime: 0,
-    refetchOnMount: 'always',
+    refetchOnMount: true,
   });
 
   const marketplaceQuery = useQuery({

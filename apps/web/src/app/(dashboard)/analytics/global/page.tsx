@@ -23,6 +23,7 @@ import {
   StatCard,
 } from '../_components/AnalyticsShared';
 import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
 
 const IMPACT_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
   HIGH: { label: 'High', color: 'text-destructive', bg: 'bg-destructive/10', border: 'border-destructive/20' },
@@ -39,12 +40,18 @@ function RankBadge({ rank }: { rank: number }) {
 
 export default function GlobalAnalyticsPage() {
   const queryClient = useQueryClient();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isHydrating = useAuthStore((s) => s.isHydrating);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
 
   const globalQuery = useQuery({
     queryKey: ['analytics', 'global'],
     queryFn: () => analyticsApi.getGlobal(),
     staleTime: 300_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    enabled: sessionReady,
   });
 
   const leaderboardQuery = useQuery({
@@ -52,33 +59,47 @@ export default function GlobalAnalyticsPage() {
     queryFn: () => analyticsApi.getLeaderboard(10),
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    enabled: sessionReady,
   });
 
-  const global = globalQuery.data;
+  const global =
+    globalQuery.data?.source === 'metaapi' || globalQuery.data?.source === 'empty'
+      ? globalQuery.data
+      : undefined;
   const leaderboard = leaderboardQuery.data;
 
+  const regimeLabel =
+    global?.marketRegime?.label && global.marketRegime.label !== 'UNKNOWN'
+      ? global.marketRegime.label
+      : null;
+  const regimeConfidence =
+    regimeLabel != null ? (global?.marketRegime?.confidence ?? null) : null;
+  const macroEvents = global?.macroEvents ?? [];
+  const sectorRotation = global?.sectorRotation ?? [];
+  // Prefer MetaAPI-backed account leaderboard from global; Nest DB leaderboard is often empty.
+  const leaderRows =
+    (global?.leaderboard?.length ? global.leaderboard : null) ??
+    leaderboard?.rows ??
+    [];
+  const hasData = Boolean(
+    regimeLabel || macroEvents.length || sectorRotation.length || leaderRows.length,
+  );
+  const isLoading = globalQuery.isPending || (globalQuery.isFetching && !global);
+  const isError = globalQuery.isError;
+
   React.useEffect(() => {
-    if (globalQuery.isError || leaderboardQuery.isError) {
+    if (globalQuery.isError) {
       toast.error('Smart Analysis unavailable', {
-        description: 'Global analytics populate after market data is ingested.',
+        description: 'Global analytics need a connected account with closed trades.',
       });
     }
-  }, [globalQuery.isError, leaderboardQuery.isError]);
+  }, [globalQuery.isError]);
 
   const refreshData = () => {
     queryClient.invalidateQueries({ queryKey: ['analytics', 'global'] });
     queryClient.invalidateQueries({ queryKey: ['analytics', 'leaderboard'] });
     toast.success('Global feed refreshed');
   };
-
-  const regimeLabel = global?.marketRegime?.label ?? null;
-  const regimeConfidence = global?.marketRegime?.confidence ?? null;
-  const macroEvents = global?.macroEvents ?? [];
-  const sectorRotation = global?.sectorRotation ?? [];
-  const leaderRows = leaderboard?.rows ?? [];
-  const hasData = Boolean(regimeLabel || macroEvents.length || sectorRotation.length || leaderRows.length);
-  const isLoading = globalQuery.isLoading || leaderboardQuery.isLoading;
-  const isError = globalQuery.isError && leaderboardQuery.isError;
 
   if (isLoading) {
     return (
@@ -205,7 +226,7 @@ export default function GlobalAnalyticsPage() {
               })
             ) : (
               !globalQuery.isLoading && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[var(--card-border)] bg-muted0">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[var(--card-border)] bg-muted/20">
                   <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                   <p className="text-xs text-muted-foreground">No macro events yet</p>
                 </div>
@@ -214,22 +235,23 @@ export default function GlobalAnalyticsPage() {
           </div>
         </ChartCard>
 
-        <ChartCard eyebrow="Sectors" title="Rotation Snapshot" delay={0.15}>
+        <ChartCard eyebrow="Symbols" title="Symbol Rotation (Your Account)" delay={0.15}>
           <div className="space-y-2.5 max-h-[380px] overflow-y-auto no-scrollbar">
             {sectorRotation.length > 0 ? (
               sectorRotation.map((row) => {
                 const isPos = row.netPnl >= 0;
+                const maxAbs = Math.max(...sectorRotation.map((r) => Math.abs(r.netPnl)), 1);
                 return (
                   <div
                     key={row.strategyId}
                     className="rounded-xl border border-[var(--card-border)] bg-muted/20 p-3 hover:border-primary/15 transition-colors"
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-bold text-foreground font-mono">
-                        {row.strategyId.slice(0, 10)}…
+                      <span className="text-sm font-bold text-foreground tracking-wide">
+                        {row.strategyId}
                       </span>
                       <span className={cn('text-sm font-bold tabular-nums', isPos ? 'text-chart-3' : 'text-destructive')}>
-                        {isPos ? '+' : ''}${row.netPnl.toLocaleString()}
+                        {isPos ? '+' : ''}${row.netPnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -237,10 +259,10 @@ export default function GlobalAnalyticsPage() {
                       <span>DD {row.drawdown}%</span>
                       <span>WR {row.winRate}%</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-primary/10 overflow-hidden mt-2.5">
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden mt-2.5">
                       <div
-                        className={cn('h-full rounded-full', isPos ? 'bg-chart-3' : 'bg-destructive')}
-                        style={{ width: `${Math.min(100, Math.abs(row.winRate))}%` }}
+                        className={cn('h-full rounded-full transition-all', isPos ? 'bg-chart-3' : 'bg-destructive')}
+                        style={{ width: `${Math.min(100, (Math.abs(row.netPnl) / maxAbs) * 100)}%` }}
                       />
                     </div>
                   </div>
@@ -248,9 +270,9 @@ export default function GlobalAnalyticsPage() {
               })
             ) : (
               !globalQuery.isLoading && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[var(--card-border)] bg-muted0">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[var(--card-border)] bg-muted/20">
                   <AlertTriangle className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <p className="text-xs text-muted-foreground">No sector data yet</p>
+                  <p className="text-xs text-muted-foreground">No symbol rotation yet — needs closed trades</p>
                 </div>
               )
             )}
@@ -258,7 +280,7 @@ export default function GlobalAnalyticsPage() {
         </ChartCard>
       </div>
 
-      <ChartCard eyebrow="Rankings" title="Global Leaderboard" delay={0.2}>
+      <ChartCard eyebrow="Your Standing" title="Account Performance Rank" delay={0.2}>
         {leaderRows.length > 0 ? (
           <div className="space-y-2">
             {leaderRows.map((row, i) => {
@@ -286,7 +308,11 @@ export default function GlobalAnalyticsPage() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className={cn('text-sm font-bold tabular-nums', isPos ? 'text-chart-3' : 'text-destructive')}>
-                      {isPos ? '+' : ''}${row.totalPnl.toLocaleString()}
+                      {isPos ? '+' : ''}$
+                      {row.totalPnl.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
                     </p>
                     <div className="flex items-center justify-end gap-1 mt-0.5">
                       {isPos ? (
@@ -302,7 +328,7 @@ export default function GlobalAnalyticsPage() {
           </div>
         ) : (
           !leaderboardQuery.isLoading && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)] w-fit">
+            <div className="flex w-fit max-w-full items-center gap-2 px-3 py-2 rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)]">
               <AlertTriangle className="h-3.5 w-3.5 text-[var(--info)] shrink-0" />
               <p className="text-xs text-foreground/80">No leaderboard entries yet.</p>
             </div>

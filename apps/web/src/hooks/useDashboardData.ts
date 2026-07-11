@@ -1,19 +1,16 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { analyticsApi } from '@/lib/api/analytics';
 import { tradingApi } from '@/lib/api/trading';
-import { walletApi } from '@/lib/api/wallet';
 import { strategiesApi } from '@/lib/api/strategies';
-import { brokerApi } from '@/lib/api/broker';
 import { riskApi } from '@/lib/api/risk';
 import { useLiveMarketFeed, isFakeNestQuote } from '@/hooks/useLiveMarketFeed';
 import { useDashboardRealtime } from '@/hooks/useDashboardRealtime';
 import { useAccountContext } from '@/hooks/useAccountContext';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { invalidateAccountQueries } from '@/lib/queries/account-queries';
-import { useQueryClient } from '@tanstack/react-query';
 
 export type AnalyticsRange = '1d' | '1w' | '1m' | '3m' | '1y' | 'all';
 
@@ -29,39 +26,31 @@ const RANGE_MAP: Record<string, AnalyticsRange> = {
 export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   const queryClient = useQueryClient();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const { hasBrokerAccount, defaultAccount, isPaper, brokerAccountsQuery } = useAccountContext();
+  const isHydrating = useAuthStore((s) => s.isHydrating);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const { hasBrokerAccount, defaultAccount, isPaper, brokerAccountsQuery } =
+    useAccountContext();
   const apiRange = RANGE_MAP[chartRange] ?? '1m';
-  const [skeletonCapReached, setSkeletonCapReached] = React.useState(false);
 
-  React.useEffect(() => {
-    const timer = window.setTimeout(() => setSkeletonCapReached(true), 2000);
-    return () => window.clearTimeout(timer);
-  }, []);
+  useDashboardRealtime(sessionReady);
 
-  useDashboardRealtime(isAuthenticated);
+  const { quotes, priceHistory, wsConnected, refresh: refreshQuotes, isLoading: quotesLoading } =
+    useLiveMarketFeed(['BTCUSDT', 'EURUSD', 'XAUUSD'], {
+      enabled: sessionReady,
+      allowFallback: false,
+    });
 
-  const { quotes, priceHistory, wsConnected, refresh: refreshQuotes } = useLiveMarketFeed(
-    ['BTCUSDT', 'EURUSD', 'XAUUSD'],
-    { enabled: isAuthenticated, allowFallback: true },
-  );
-
+  // Analytics is secondary — balance comes from fast /broker/accounts.
   const portfolioQuery = useQuery({
     queryKey: ['portfolio', apiRange],
     queryFn: () => analyticsApi.getPortfolio(apiRange),
     staleTime: 30_000,
-    refetchInterval: 60_000,
-    refetchOnWindowFocus: true,
-    enabled: isAuthenticated,
-    placeholderData: (prev) => prev,
-  });
-
-  const walletQuery = useQuery({
-    queryKey: ['wallet-balance'],
-    queryFn: () => walletApi.getBalance(),
-    staleTime: 60_000,
+    refetchInterval: 45_000,
     refetchOnWindowFocus: false,
-    enabled: isAuthenticated,
-    placeholderData: (prev) => prev,
+    // Warm cache from bootstrap — don't flash empty then refill.
+    refetchOnMount: false,
+    enabled: sessionReady,
   });
 
   const openTradesQuery = useQuery({
@@ -80,54 +69,73 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
         isPaper: r.isPaper,
       }));
     },
-    staleTime: 30_000,
-    refetchOnWindowFocus: false,
-    enabled: isAuthenticated,
+    staleTime: 8_000,
+    refetchInterval: 12_000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: false,
+    enabled: sessionReady,
   });
 
   const strategiesQuery = useQuery({
     queryKey: ['my-strategies'],
     queryFn: () => strategiesApi.getMyStrategies(),
-    staleTime: 60_000,
+    staleTime: 120_000,
     refetchOnWindowFocus: false,
-    enabled: isAuthenticated,
+    refetchOnMount: false,
+    enabled: sessionReady,
   });
 
   const riskQuery = useQuery({
     queryKey: ['dashboard-risk'],
     queryFn: () => riskApi.getDashboard(),
-    staleTime: 30_000,
-    refetchOnWindowFocus: false,
-    enabled: isAuthenticated,
-  });
-
-  const brokerAccountsQueryLocal = brokerAccountsQuery;
-
-  const brokerEquityQuery = useQuery({
-    queryKey: ['broker-equity'],
-    queryFn: async () => {
-      const accounts = brokerAccountsQueryLocal.data ?? [];
-      const results = await Promise.all(
-        accounts.map((a: { id: string }) =>
-          brokerApi.testConnection(a.id).catch(() => null),
-        ),
-      );
-      return results.reduce(
-        (sum: number, r: { connected?: boolean; accountInfo?: { equity?: number } } | null) =>
-          sum + (r?.connected ? Number(r.accountInfo?.equity ?? 0) : 0),
-        0,
-      );
-    },
-    enabled: isAuthenticated && (brokerAccountsQueryLocal.data?.length ?? 0) > 0,
     staleTime: 60_000,
+    refetchInterval: 90_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: sessionReady,
   });
 
-  const portfolio = portfolioQuery.data;
-  const walletTotal = walletQuery.data?.total ?? 0;
-  const brokerEquity = brokerEquityQuery.data ?? 0;
+  const tradeHistoryQuery = useQuery({
+    queryKey: ['trade-history', 'overview'],
+    queryFn: () => tradingApi.getTradeHistory({ limit: 12 }),
+    staleTime: 20_000,
+    refetchInterval: 30_000,
+    refetchOnMount: false,
+    enabled: sessionReady,
+  });
+
+  // Only show live MetaAPI numbers — never DB initialEquity placeholders.
+  const accountInfo = React.useMemo(() => {
+    if (!defaultAccount) return null;
+    if (defaultAccount.liveSynced === false) return null;
+    const balance = Number(defaultAccount.balance ?? 0);
+    const equity = Number(defaultAccount.equity ?? defaultAccount.balance ?? 0);
+    if (!Number.isFinite(equity) || equity <= 0) return null;
+    if (!Number.isFinite(balance) || balance <= 0) return null;
+    const margin = Number(defaultAccount.margin ?? 0);
+    const freeMargin = Number(
+      defaultAccount.freeMargin ?? Math.max(0, equity - margin),
+    );
+    return {
+      balance,
+      equity,
+      margin: Number.isFinite(margin) ? margin : 0,
+      freeMargin: Number.isFinite(freeMargin) ? freeMargin : equity,
+      currency: String(defaultAccount.currency ?? 'USD'),
+      leverage: null as number | null,
+      connected: true as const,
+      liveSynced: true as const,
+    };
+  }, [defaultAccount]);
+
+  // Ignore non-MetaAPI portfolio payloads (stale Nest cache) until live data arrives.
+  const portfolio =
+    portfolioQuery.data?.source === 'metaapi' || portfolioQuery.data?.source === 'empty'
+      ? portfolioQuery.data
+      : undefined;
+
+  const portfolioValue = accountInfo?.equity ?? 0;
   const equityBase = Number(portfolio?.equityBase ?? defaultAccount?.initialEquity ?? 0);
-  const portfolioValue = walletTotal + brokerEquity;
   const winRate = portfolio?.winRate ?? 0;
   const bestMonth = portfolio?.bestMonth ?? 0;
 
@@ -190,6 +198,18 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     refreshQuotes();
   };
 
+  // Stub kept for callers that still read these keys — no extra MetaAPI round-trips.
+  const brokerAccountInfoQuery = {
+    isPending: brokerAccountsQuery.isPending,
+    data: accountInfo,
+  };
+  const brokerEquityQuery = { data: portfolioValue };
+
+  const waitingForLiveBalance =
+    hasBrokerAccount && !accountInfo && !brokerAccountsQuery.isError;
+  const waitingForPortfolio =
+    isAuthenticated && portfolioQuery.isPending && !portfolio;
+
   return {
     quotes: liveQuotes,
     wsConnected,
@@ -201,6 +221,10 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     winRate,
     bestMonth,
     openTrades: openTradesQuery.data ?? [],
+    tradeHistory: tradeHistoryQuery.data?.rows ?? [],
+    tradeHistoryQuery,
+    accountInfo,
+    brokerAccountInfoQuery,
     activeStrategies,
     performanceBars,
     risk: riskQuery.data,
@@ -208,15 +232,11 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     hasBrokerAccount,
     defaultBrokerAccount: defaultAccount,
     isPaper,
-    brokerAccountsQuery: brokerAccountsQueryLocal,
+    brokerAccountsQuery,
     brokerEquityQuery,
-    quotesLoading: hasBrokerAccount && Object.keys(quotes).length === 0,
-    isLoading:
-      !skeletonCapReached &&
-      (portfolioQuery.isPending || openTradesQuery.isPending || riskQuery.isPending) &&
-      !portfolioQuery.data &&
-      !openTradesQuery.data &&
-      !riskQuery.data,
+    quotesLoading:
+      quotesLoading || (hasBrokerAccount && Object.keys(liveQuotes).length === 0),
+    isLoading: waitingForLiveBalance || waitingForPortfolio,
     refreshAll,
   };
 }

@@ -68,7 +68,7 @@ export function TopBar() {
   };
 
   return (
-    <header suppressHydrationWarning className="relative h-full w-full flex items-center justify-between px-[var(--dashboard-p)] z-30 gap-[clamp(0.5rem,1vw,1rem)] topbar-float">
+    <header suppressHydrationWarning className="relative h-full w-full flex items-center justify-between px-[var(--dashboard-p)] z-30 gap-2 sm:gap-3 topbar-float">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
 
       {/* ─── Left: Mobile menu + Search ─── */}
@@ -104,7 +104,7 @@ export function TopBar() {
             "text-caption sm:text-body-sm truncate transition-colors duration-200 font-medium",
             searchFocused ? "text-foreground/50" : "text-foreground/20 group-hover:text-foreground/30",
           )}>
-            Search markets, strategies, or commands...
+            Search markets, bots, or commands...
           </span>
           <div className="ml-auto flex items-center gap-1 shrink-0 px-1.5 py-0.5 rounded-md border border-border bg-muted text-caption font-mono text-muted-foreground">
             <Command className="w-2.5 h-2.5" />
@@ -114,13 +114,13 @@ export function TopBar() {
       </div>
 
       {/* ─── Right: Quick actions + Notifications + User ─── */}
-      <div className="relative z-10 flex items-center gap-2 sm:gap-3 shrink-0">
+      <div className="relative z-10 flex items-center gap-1.5 sm:gap-2 shrink-0">
         {/* Connect Broker */}
         <button
-          onClick={() => router.push("/copy-trading")}
+          onClick={() => router.push("/connected-accounts")}
           title="Enable trading bot"
           aria-label="Enable trading bot"
-          className="hidden sm:flex relative h-10 w-10 sm:h-[42px] sm:w-[42px] rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all items-center justify-center outline-none"
+          className="hidden sm:flex relative h-10 w-10 rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all items-center justify-center outline-none shrink-0"
         >
           <Link2 className="w-[18px] h-[18px]" />
         </button>
@@ -130,7 +130,7 @@ export function TopBar() {
           onClick={openDeposit}
           title="Add funds"
           aria-label="Add funds"
-          className="relative h-10 w-10 sm:h-[42px] sm:w-[42px] rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all flex items-center justify-center outline-none"
+          className="relative h-10 w-10 rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all flex items-center justify-center outline-none shrink-0"
         >
           <Wallet className="w-[18px] h-[18px]" />
         </button>
@@ -141,7 +141,7 @@ export function TopBar() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="group flex items-center gap-2 sm:gap-2.5 h-10 sm:h-[42px] pl-1 pr-2 sm:pr-3 rounded-xl border border-border bg-card hover:bg-muted transition-all duration-200 outline-none">
+            <button className="group flex items-center gap-2 sm:gap-2.5 h-10 pl-1 pr-2 sm:pr-3 rounded-xl border border-border bg-card hover:bg-muted transition-all duration-200 outline-none shrink-0 min-w-0">
               {/* Avatar with ring */}
               <div className="relative">
                 <UserAvatar name={displayName} src={displayAvatar} size="md" className="border-2 border-transparent group-hover:border-primary/30 transition-colors" />

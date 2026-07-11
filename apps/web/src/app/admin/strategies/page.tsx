@@ -71,7 +71,97 @@ type FormState = {
   platformSharePct: string;
   payoutEnabled: boolean;
   configJson: string;
+} & VerificationFields;
+
+// These map directly to the keys strategy-analytics.builder.ts (apps/api) reads
+// out of Strategy.configJson to populate the marketplace detail page's
+// "Verification hub" and "Strategic recommendations" sections. Exposing them as
+// named fields (instead of requiring admins to hand-edit raw JSON) is what lets
+// admin actually fill these in.
+type VerificationFields = {
+  backtestReportUrl: string;
+  externalVerificationUrl: string;
+  modelingQuality: string;
+  backtestPeriod: string;
+  recommendedLeverage: string;
+  leverageWarning: string;
+  riskNote: string;
+  minRecommendedCapital: string;
 };
+
+const emptyVerificationFields: VerificationFields = {
+  backtestReportUrl: '',
+  externalVerificationUrl: '',
+  modelingQuality: '',
+  backtestPeriod: '',
+  recommendedLeverage: '',
+  leverageWarning: '',
+  riskNote: '',
+  minRecommendedCapital: '',
+};
+
+// Pulls the verification/recommendation keys out of a strategy's configJson so
+// they can be edited as named fields, leaving the remaining (technical) config
+// — model, universe, timeframe, risk, etc. — in the raw JSON textarea.
+function splitConfigJson(config: Record<string, unknown>): {
+  fields: VerificationFields;
+  rest: Record<string, unknown>;
+} {
+  const rest = { ...config };
+  const fields: VerificationFields = {
+    backtestReportUrl: String(rest.backtestReportUrl ?? rest.pdfReportUrl ?? ''),
+    externalVerificationUrl: String(rest.myfxbookUrl ?? rest.metaApiVerificationUrl ?? ''),
+    modelingQuality: String(rest.modelingQuality ?? ''),
+    backtestPeriod: String(rest.backtestPeriod ?? ''),
+    recommendedLeverage: String(rest.recommendedLeverage ?? ''),
+    leverageWarning: String(rest.leverageWarning ?? ''),
+    riskNote: String(rest.riskNote ?? ''),
+    minRecommendedCapital:
+      rest.minRecommendedCapital != null
+        ? String(rest.minRecommendedCapital)
+        : rest.minCapital != null
+          ? String(rest.minCapital)
+          : '',
+  };
+  for (const key of [
+    'backtestReportUrl',
+    'pdfReportUrl',
+    'myfxbookUrl',
+    'metaApiVerificationUrl',
+    'modelingQuality',
+    'backtestPeriod',
+    'recommendedLeverage',
+    'leverageWarning',
+    'riskNote',
+    'minRecommendedCapital',
+    'minCapital',
+  ]) {
+    delete rest[key];
+  }
+  return { fields, rest };
+}
+
+// Layers the named verification fields back onto the rest of configJson before
+// saving. Blank fields are omitted so they don't overwrite existing values with
+// empty strings.
+function mergeVerificationFields(
+  rest: Record<string, unknown>,
+  fields: VerificationFields,
+): Record<string, unknown> {
+  const merged = { ...rest };
+  if (fields.backtestReportUrl.trim()) merged.backtestReportUrl = fields.backtestReportUrl.trim();
+  if (fields.externalVerificationUrl.trim()) merged.myfxbookUrl = fields.externalVerificationUrl.trim();
+  if (fields.modelingQuality.trim()) merged.modelingQuality = fields.modelingQuality.trim();
+  if (fields.backtestPeriod.trim()) merged.backtestPeriod = fields.backtestPeriod.trim();
+  if (fields.recommendedLeverage.trim()) merged.recommendedLeverage = fields.recommendedLeverage.trim();
+  if (fields.leverageWarning.trim()) merged.leverageWarning = fields.leverageWarning.trim();
+  if (fields.riskNote.trim()) merged.riskNote = fields.riskNote.trim();
+  if (fields.minRecommendedCapital.trim()) {
+    const num = Number(fields.minRecommendedCapital.trim());
+    merged.minRecommendedCapital = Number.isFinite(num) ? num : fields.minRecommendedCapital.trim();
+  }
+  return merged;
+}
 
 type StrategyPdfPreview = {
   name?: string;
@@ -118,6 +208,7 @@ const defaultFormState: FormState = {
     null,
     2,
   ),
+  ...emptyVerificationFields,
 };
 
 const categories = ['TREND', 'SCALPING', 'RANGE', 'VOLATILITY', 'ARBITRAGE'];
@@ -133,10 +224,20 @@ const toNumberOrUndefined = (value: string) => {
 };
 
 const buildPayload = (form: FormState) => {
-  let parsedConfig: unknown = {};
+  let parsedConfig: Record<string, unknown> = {};
   if (form.configJson.trim()) {
-    parsedConfig = JSON.parse(form.configJson);
+    parsedConfig = JSON.parse(form.configJson) as Record<string, unknown>;
   }
+  const configJson = mergeVerificationFields(parsedConfig, {
+    backtestReportUrl: form.backtestReportUrl,
+    externalVerificationUrl: form.externalVerificationUrl,
+    modelingQuality: form.modelingQuality,
+    backtestPeriod: form.backtestPeriod,
+    recommendedLeverage: form.recommendedLeverage,
+    leverageWarning: form.leverageWarning,
+    riskNote: form.riskNote,
+    minRecommendedCapital: form.minRecommendedCapital,
+  });
 
   const monthlyPrice = toNumberOrUndefined(form.monthlyPrice) ?? 0;
   const annualPrice = toNumberOrUndefined(form.annualPrice) ?? 0;
@@ -160,7 +261,7 @@ const buildPayload = (form: FormState) => {
     creatorSharePct: toNumberOrUndefined(form.creatorSharePct) ?? 0.8,
     platformSharePct: toNumberOrUndefined(form.platformSharePct) ?? 0.2,
     payoutEnabled: form.payoutEnabled,
-    configJson: parsedConfig,
+    configJson,
   };
 };
 
@@ -226,6 +327,9 @@ export default function AdminStrategiesPage() {
     },
     onSuccess: (result: StrategyPdfPreview) => {
       setStrategyPdfPreview(result);
+      const { fields, rest } = result.configJson
+        ? splitConfigJson(result.configJson as Record<string, unknown>)
+        : { fields: null, rest: null };
       setForm((current) => ({
         ...current,
         name: result.name ?? current.name,
@@ -244,11 +348,10 @@ export default function AdminStrategiesPage() {
           result.trialDays !== undefined ? String(result.trialDays) : current.trialDays,
         isFeatured: result.isFeatured ?? current.isFeatured,
         isPublished: result.isPublished ?? current.isPublished,
+        ...(fields ?? {}),
         isVerified: result.isVerified ?? current.isVerified,
         payoutEnabled: result.payoutEnabled ?? current.payoutEnabled,
-        configJson: result.configJson
-          ? JSON.stringify(result.configJson, null, 2)
-          : current.configJson,
+        configJson: rest ? JSON.stringify(rest, null, 2) : current.configJson,
       }));
       toast.success('Parsed strategy PDF. Review imported values before saving.');
     },
@@ -309,6 +412,7 @@ export default function AdminStrategiesPage() {
   }, [strategiesQuery.data]);
 
   const hydrateEditForm = (row: StrategyRow) => {
+    const { fields, rest } = splitConfigJson((row.configJson ?? {}) as Record<string, unknown>);
     setEditingStrategyId(row.id);
     setForm({
       creatorId: row.creatorId,
@@ -327,7 +431,8 @@ export default function AdminStrategiesPage() {
       creatorSharePct: String(row.listing?.creatorSharePct ?? 0.8),
       platformSharePct: String(row.listing?.platformSharePct ?? 0.2),
       payoutEnabled: Boolean(row.listing?.payoutEnabled ?? true),
-      configJson: JSON.stringify(row.configJson ?? {}, null, 2),
+      configJson: JSON.stringify(rest, null, 2),
+      ...fields,
     });
   };
 
@@ -525,7 +630,91 @@ export default function AdminStrategiesPage() {
             </Field>
           </div>
 
-          <Field label="Strategy config JSON">
+          <div className="space-y-3 rounded-2xl border border-[var(--card-border)] bg-muted/20 p-4">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">Marketplace verification &amp; recommendations</h3>
+              <p className="text-xs text-muted-foreground">
+                Populates the strategy detail page&apos;s Verification hub and Strategic recommendations sections.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Backtest report URL">
+                <Input
+                  value={form.backtestReportUrl}
+                  onChange={(event) => setForm((current) => ({ ...current, backtestReportUrl: event.target.value }))}
+                  placeholder="https://…/backtest-report.pdf"
+                  className="border-[var(--card-border)] bg-muted/40 text-foreground"
+                />
+              </Field>
+              <Field label="External verification URL">
+                <Input
+                  value={form.externalVerificationUrl}
+                  onChange={(event) => setForm((current) => ({ ...current, externalVerificationUrl: event.target.value }))}
+                  placeholder="https://myfxbook.com/…"
+                  className="border-[var(--card-border)] bg-muted/40 text-foreground"
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Modeling quality">
+                <Input
+                  value={form.modelingQuality}
+                  onChange={(event) => setForm((current) => ({ ...current, modelingQuality: event.target.value }))}
+                  placeholder="99%"
+                  className="border-[var(--card-border)] bg-muted/40 text-foreground"
+                />
+              </Field>
+              <Field label="Backtest period">
+                <Input
+                  value={form.backtestPeriod}
+                  onChange={(event) => setForm((current) => ({ ...current, backtestPeriod: event.target.value }))}
+                  placeholder="Multi-year historical"
+                  className="border-[var(--card-border)] bg-muted/40 text-foreground"
+                />
+              </Field>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Recommended leverage">
+                <Input
+                  value={form.recommendedLeverage}
+                  onChange={(event) => setForm((current) => ({ ...current, recommendedLeverage: event.target.value }))}
+                  placeholder="1:100"
+                  className="border-[var(--card-border)] bg-muted/40 text-foreground"
+                />
+              </Field>
+              <Field label="Min recommended capital ($)">
+                <Input
+                  value={form.minRecommendedCapital}
+                  onChange={(event) => setForm((current) => ({ ...current, minRecommendedCapital: event.target.value }))}
+                  placeholder="500"
+                  className="border-[var(--card-border)] bg-muted/40 text-foreground"
+                />
+              </Field>
+            </div>
+
+            <Field label="Leverage warning">
+              <textarea
+                value={form.leverageWarning}
+                onChange={(event) => setForm((current) => ({ ...current, leverageWarning: event.target.value }))}
+                placeholder="Use at least 1:100 leverage to align with the operator bot risk model…"
+                className="h-16 w-full rounded-xl border border-[var(--card-border)] bg-muted/40 p-3 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </Field>
+
+            <Field label="Risk note">
+              <textarea
+                value={form.riskNote}
+                onChange={(event) => setForm((current) => ({ ...current, riskNote: event.target.value }))}
+                placeholder="Capital below the minimum may trigger lot-size rounding…"
+                className="h-16 w-full rounded-xl border border-[var(--card-border)] bg-muted/40 p-3 text-xs text-foreground outline-none focus:border-primary"
+              />
+            </Field>
+          </div>
+
+          <Field label="Strategy config JSON (advanced)">
             <textarea
               value={form.configJson}
               onChange={(event) => setForm((current) => ({ ...current, configJson: event.target.value }))}

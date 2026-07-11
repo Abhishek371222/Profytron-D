@@ -17,6 +17,7 @@ import {
   Shield,
   Settings,
   Target,
+  LineChart,
   User,
   LogOut,
 } from "lucide-react";
@@ -58,6 +59,7 @@ const navGroups: NavGroup[] = [
     label: "Trading",
     items: [
       { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
+      { name: "Markets", icon: LineChart, href: "/markets" },
       { name: "My Bots", icon: Server, href: "/my-bots" },
       { name: "Connected Accounts", icon: Unplug, href: "/connected-accounts" },
       { name: "Alpha Coach", icon: Target, href: "/alpha-coach" },
@@ -263,13 +265,13 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
           </div>
         </nav>
 
-        {/* Profile + collapse */}
-        <div className="shrink-0 p-[calc(var(--sidebar-pad)*0.75)] space-y-2">
+        {/* Profile + collapse — same inset as nav so edges align */}
+        <div className="shrink-0 px-[calc(var(--sidebar-pad)*0.65)] py-[calc(var(--sidebar-pad)*0.75)] flex flex-col gap-2">
           {user && expanded && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button type="button" className="sidebar-profile-card group w-full py-3">
-                  <UserAvatar name={displayName} size="md" className="ring-2 ring-primary/20" />
+                <button type="button" className="sidebar-profile-card group w-full text-left">
+                  <UserAvatar name={displayName} size="md" className="ring-2 ring-primary/20 shrink-0" />
                   <div className="min-w-0 flex-1 text-left">
                     <p className="text-[var(--nav-text)] font-semibold text-foreground truncate leading-tight">
                       {displayName}

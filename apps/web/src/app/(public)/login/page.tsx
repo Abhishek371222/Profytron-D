@@ -1,6 +1,5 @@
-'use client';
-
-import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
+import LoginPageClient from './LoginPageClient';
 
 function LoginPageShell() {
   return (
@@ -24,11 +23,10 @@ function LoginPageShell() {
   );
 }
 
-const LoginPageClient = dynamic(() => import('./LoginPageClient'), {
-  ssr: false,
-  loading: () => <LoginPageShell />,
-});
-
 export default function LoginPage() {
-  return <LoginPageClient />;
+  return (
+    <Suspense fallback={<LoginPageShell />}>
+      <LoginPageClient />
+    </Suspense>
+  );
 }

@@ -36,6 +36,51 @@ export interface MarketQuoteResponse {
   source: string;
 }
 
+export type MarketNewsCategory = 'general' | 'forex' | 'crypto' | 'merger';
+
+export interface MarketNewsItem {
+  id: number;
+  category: string;
+  datetime: string;
+  headline: string;
+  image: string | null;
+  related: string;
+  source: string;
+  summary: string;
+  url: string;
+}
+
+export interface MarketNewsResponse {
+  category: string;
+  count: number;
+  items: MarketNewsItem[];
+  source: string;
+  serverTime: string;
+}
+
+export interface EconomicCalendarEvent {
+  event: string;
+  country: string;
+  impact: string;
+  time: string;
+  actual: number | null;
+  estimate: number | null;
+  prev: number | null;
+  unit: string;
+  actualDisplay?: string | null;
+  estimateDisplay?: string | null;
+  prevDisplay?: string | null;
+}
+
+export interface EconomicCalendarResponse {
+  from: string;
+  to: string;
+  count: number;
+  events: EconomicCalendarEvent[];
+  source: string;
+  serverTime: string;
+}
+
 export const marketApi = {
   async getOHLC(params: {
     symbol: MarketSymbol;
@@ -62,5 +107,31 @@ export const marketApi = {
   async getQuotes() {
     const response = await apiClient.get('/market/quotes');
     return unwrap<MarketQuoteResponse[]>(response.data);
+  },
+
+  async getNews(params?: { category?: MarketNewsCategory; minId?: number }) {
+    const response = await apiClient.get('/market/news', {
+      params: {
+        category: params?.category ?? 'general',
+        minId: params?.minId ?? 0,
+      },
+    });
+    return unwrap<MarketNewsResponse>(response.data);
+  },
+
+  async getCompanyNews(params: { symbol: string; from?: string; to?: string }) {
+    const response = await apiClient.get('/market/company-news', {
+      params,
+    });
+    return unwrap<MarketNewsResponse & { symbol: string; from: string; to: string }>(
+      response.data,
+    );
+  },
+
+  async getEconomicCalendar(params?: { from?: string; to?: string }) {
+    const response = await apiClient.get('/market/economic-calendar', {
+      params,
+    });
+    return unwrap<EconomicCalendarResponse>(response.data);
   },
 };

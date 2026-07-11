@@ -54,6 +54,54 @@ export class MarketController {
     );
   }
 
+  @Public()
+  @Get('news')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Get live market news from Finnhub' })
+  @ApiQuery({ name: 'category', required: false, example: 'general' })
+  @ApiQuery({ name: 'minId', required: false, example: 0 })
+  getNews(
+    @Query('category') category?: string,
+    @Query('minId') minId?: string,
+  ) {
+    const parsedMinId = minId ? Number(minId) : 0;
+    return this.marketService.getMarketNews(
+      category,
+      Number.isFinite(parsedMinId) ? parsedMinId : 0,
+    );
+  }
+
+  @Public()
+  @Get('company-news')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Get company news for a symbol from Finnhub' })
+  @ApiQuery({ name: 'symbol', required: true, example: 'AAPL' })
+  @ApiQuery({ name: 'from', required: false, example: '2026-07-01' })
+  @ApiQuery({ name: 'to', required: false, example: '2026-07-11' })
+  getCompanyNews(
+    @Query('symbol') symbol?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    if (!symbol?.trim()) {
+      throw new BadRequestException('symbol is required');
+    }
+    return this.marketService.getCompanyNews(symbol, from, to);
+  }
+
+  @Public()
+  @Get('economic-calendar')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Get economic calendar events from Finnhub' })
+  @ApiQuery({ name: 'from', required: false, example: '2026-07-10' })
+  @ApiQuery({ name: 'to', required: false, example: '2026-07-17' })
+  getEconomicCalendar(
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.marketService.getEconomicCalendar(from, to);
+  }
+
   private normalizeSymbol(value?: string): MarketSymbol {
     const fallback: MarketSymbol = 'BTCUSDT';
     if (!value) return fallback;

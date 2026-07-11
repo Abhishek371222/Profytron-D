@@ -97,7 +97,14 @@ const parseRedisConfig = () => {
       envFilePath:
         process.env.NODE_ENV === 'test'
           ? ['.env.test']
-          : ['.env.local', '.env'],
+          : [
+              // Render Secret Files (filename must match upload)
+              '/etc/secrets/.env',
+              '/etc/secrets/render.env',
+              '.env.local',
+              '.env',
+              'render.env',
+            ],
     }),
     // Base limit = anonymous (100 req/min). Authenticated callers are bumped to
     // 1000 req/min in AppThrottlerGuard.

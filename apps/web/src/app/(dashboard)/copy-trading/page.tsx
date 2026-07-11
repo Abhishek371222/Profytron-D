@@ -129,7 +129,7 @@ export default function CopyTradingPage() {
 
   return (
     <DashboardPage className="max-w-6xl mx-auto">
-      <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Copy Trading' }]} />
+      <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'My Bots' }]} />
 
       <DashboardPageHeader
         title="Automated Trading Bots"
@@ -298,7 +298,7 @@ export default function CopyTradingPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-muted-foreground text-xs border-b border-border-default">
-                  <th className="text-left px-4 py-3 font-medium">Strategy</th>
+                  <th className="text-left px-4 py-3 font-medium">Bot</th>
                   <th className="text-left px-4 py-3 font-medium">Status</th>
                   <th className="text-left px-4 py-3 font-medium">Lot Multiplier</th>
                   <th className="text-left px-4 py-3 font-medium">Last Trade</th>

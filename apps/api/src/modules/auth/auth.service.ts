@@ -706,7 +706,7 @@ export class AuthService {
       // does not outlive the token (wasted memory) or expire before it (gap).
       const accessExpiry = this.parseExpirySeconds(
         process.env.JWT_ACCESS_EXPIRES,
-        3600,
+        24 * 3600,
       );
       await this.redisService.set(
         `auth:blacklist:${jti}`,
@@ -1131,9 +1131,13 @@ export class AuthService {
 
   private async generateTokenPair(userId: string, email: string, role: string) {
     const jti = randomUUID();
+    // Sessions must not force a logout before 24h of validity (product
+    // requirement) — the frontend's sessionStorage-cached token is re-checked
+    // on every page load, so a short-lived access token here caused users to
+    // appear "logged out on reload" once it expired mid-session.
     const accessExpiresIn = this.parseExpirySeconds(
       process.env.JWT_ACCESS_EXPIRES,
-      3600,
+      24 * 3600,
     );
     const refreshExpiresIn = this.parseExpirySeconds(
       process.env.JWT_REFRESH_EXPIRES,

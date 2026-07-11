@@ -26,7 +26,7 @@ const TYPE_CONFIG: Record<
   GlobalSearchItem["type"],
   { label: string; icon: LucideIcon; color: string; bg: string }
 > = {
-  strategy:    { label: "Strategy",    icon: TrendingUp,    color: "text-chart-3", bg: "bg-chart-3/[0.07] border-chart-3/20" },
+  strategy:    { label: "Bot",    icon: TrendingUp,    color: "text-chart-3", bg: "bg-chart-3/[0.07] border-chart-3/20" },
   marketplace: { label: "Marketplace", icon: ShoppingBag,   color: "text-primary",  bg: "bg-primary/[0.07] border-primary/20"  },
   creator:     { label: "Creator",     icon: User,          color: "text-chart-2",  bg: "bg-chart-2/[0.07] border-chart-2/20"  },
   page:        { label: "Page",        icon: LayoutDashboard, color: "text-chart-5", bg: "bg-chart-5/[0.07] border-chart-5/20"      },
@@ -34,6 +34,7 @@ const TYPE_CONFIG: Record<
 
 const QUICK_LINKS: { title: string; href: string; icon: LucideIcon; hint: string }[] = [
   { title: "Dashboard",   href: "/dashboard",   icon: LayoutDashboard, hint: "Home"   },
+  { title: "Markets",     href: "/markets",     icon: TrendingUp,      hint: "Charts" },
   { title: "Marketplace", href: "/marketplace", icon: ShoppingBag,     hint: "Browse" },
   { title: "Alpha Coach",  href: "/alpha-coach", icon: Sparkles,        hint: "Ask Alpha" },
   { title: "Analytics",   href: "/analytics",   icon: BarChart3,       hint: "Stats"  },
@@ -122,7 +123,7 @@ export function GlobalCommandPalette() {
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search strategies, marketplace, creators, pages..."
+            placeholder="Search bots, marketplace, creators, pages..."
             className="flex-1 bg-transparent text-body-sm font-medium text-foreground outline-none placeholder:text-foreground/20"
           />
           <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-border bg-muted/3">

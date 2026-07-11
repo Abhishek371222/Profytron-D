@@ -413,3 +413,81 @@ CREATE TABLE IF NOT EXISTS "ApiKey" (
 CREATE UNIQUE INDEX IF NOT EXISTS "ApiKey_keyHash_key" ON "ApiKey"("keyHash");
 CREATE INDEX IF NOT EXISTS "ApiKey_userId_idx" ON "ApiKey"("userId");
 CREATE INDEX IF NOT EXISTS "ApiKey_keyHash_idx" ON "ApiKey"("keyHash");
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- Payment, Invoice, SupportTicket: present in schema.prisma but never had a
+-- CREATE TABLE anywhere (migrations/ or this file). SupportTicketResponse
+-- already existed referencing a SupportTicket that didn't exist yet.
+-- ───────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS "Payment" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'INR',
+    "method" "PaymentMethod" NOT NULL,
+    "status" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
+    "razorpayOrderId" TEXT,
+    "razorpayPaymentId" TEXT,
+    "stripePaymentId" TEXT,
+    "description" TEXT,
+    "metadataJson" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "completedAt" TIMESTAMP(3),
+    CONSTRAINT "Payment_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "Payment_razorpayOrderId_key" ON "Payment"("razorpayOrderId");
+CREATE UNIQUE INDEX IF NOT EXISTS "Payment_razorpayPaymentId_key" ON "Payment"("razorpayPaymentId");
+CREATE UNIQUE INDEX IF NOT EXISTS "Payment_stripePaymentId_key" ON "Payment"("stripePaymentId");
+CREATE INDEX IF NOT EXISTS "Payment_userId_status_idx" ON "Payment"("userId", "status");
+CREATE INDEX IF NOT EXISTS "Payment_status_createdAt_idx" ON "Payment"("status", "createdAt");
+
+CREATE TABLE IF NOT EXISTS "Invoice" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "paymentId" TEXT NOT NULL,
+    "invoiceNumber" TEXT NOT NULL,
+    "amount" DOUBLE PRECISION NOT NULL,
+    "tax" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "total" DOUBLE PRECISION NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'INR',
+    "description" TEXT,
+    "items" JSONB NOT NULL,
+    "pdfUrl" TEXT,
+    "downloadedCount" INTEGER NOT NULL DEFAULT 0,
+    "issuedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dueAt" TIMESTAMP(3),
+    CONSTRAINT "Invoice_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_paymentId_key" ON "Invoice"("paymentId");
+CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_invoiceNumber_key" ON "Invoice"("invoiceNumber");
+CREATE INDEX IF NOT EXISTS "Invoice_userId_issuedAt_idx" ON "Invoice"("userId", "issuedAt");
+CREATE INDEX IF NOT EXISTS "Invoice_invoiceNumber_idx" ON "Invoice"("invoiceNumber");
+
+CREATE TABLE IF NOT EXISTS "SupportTicket" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "subject" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "status" "SupportTicketStatus" NOT NULL DEFAULT 'OPEN',
+    "priority" "SupportTicketPriority" NOT NULL DEFAULT 'MEDIUM',
+    "category" TEXT NOT NULL,
+    "assignedToId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "resolvedAt" TIMESTAMP(3),
+    CONSTRAINT "SupportTicket_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "SupportTicket_userId_status_idx" ON "SupportTicket"("userId", "status");
+CREATE INDEX IF NOT EXISTS "SupportTicket_status_createdAt_idx" ON "SupportTicket"("status", "createdAt");
+
+-- UserSubscription.paymentId (@unique in schema.prisma) never got its index.
+CREATE UNIQUE INDEX IF NOT EXISTS "UserSubscription_paymentId_key" ON "UserSubscription"("paymentId");
+
+-- SupportTicketResponse existed with zero foreign keys; wire it to the
+-- SupportTicket table now that the table exists. Wrapped so a second run
+-- (constraint already present) doesn't error.
+DO $$ BEGIN
+  ALTER TABLE "SupportTicketResponse" ADD CONSTRAINT "SupportTicketResponse_ticketId_fkey" FOREIGN KEY ("ticketId") REFERENCES "SupportTicket"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;

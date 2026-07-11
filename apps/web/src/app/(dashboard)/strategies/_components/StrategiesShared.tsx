@@ -35,13 +35,13 @@ export function StrategiesBreadcrumbs({ current }: { current?: string }) {
       {current ? (
         <>
           <Link href="/strategies" className="text-muted-foreground hover:text-primary hover:underline">
-            Strategies
+            Bots
           </Link>
           <ChevronRight className="h-3 w-3 text-muted-foreground" />
           <span className="text-foreground truncate max-w-[200px]">{current}</span>
         </>
       ) : (
-        <span className="text-foreground">Strategies</span>
+        <span className="text-foreground">Bots</span>
       )}
     </div>
   );
@@ -66,13 +66,13 @@ export function StrategiesPageHeader({
       <div className="flex items-start gap-5">
         <div className="space-y-2 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-primary">Strategies</span>
+            <span className="text-xs font-semibold text-primary">Bots</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
-            Strategy Library
+            Bot Library
           </h1>
           <p className="text-sm text-muted-foreground max-w-xl">
-            Discover, compare, and activate trading strategies from verified creators.
+            Discover, compare, and activate trading bots from verified creators.
           </p>
         </div>
         {/* Decorative illustration */}
@@ -112,7 +112,7 @@ export function StrategiesPageHeader({
                   : 'text-muted-foreground hover:text-foreground',
               )}
             >
-              {tab === 'library' ? 'Browse' : 'My strategies'}
+              {tab === 'library' ? 'Browse' : 'My bots'}
             </button>
           ))}
         </div>

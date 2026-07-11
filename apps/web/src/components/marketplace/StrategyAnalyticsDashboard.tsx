@@ -53,7 +53,7 @@ function MetricCard({ label, value, hint, tone = 'neutral' }: MetricCardProps) {
           : 'text-foreground';
 
   return (
-    <div className="rounded-[18px] border border-white/[0.07] bg-muted/25 p-4 hover:border-primary/20 transition-all">
+    <div className="rounded-[18px] border border-[var(--card-border)] bg-muted/25 p-4 hover:border-primary/20 transition-all">
       <p className="text-micro font-bold uppercase tracking-[0.28em] text-foreground/30">{label}</p>
       <p className={cn('mt-2 text-2xl font-bold tracking-tight', toneClass)}>{value}</p>
       <p className="mt-2 text-xs text-foreground/35 leading-relaxed">{hint}</p>
@@ -207,7 +207,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
       </section>
 
       {/* Advanced analytics */}
-      <section className="rounded-[22px] border border-white/[0.07] bg-muted/2 p-5">
+      <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/20p-5">
         <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30 mb-1">
           Advanced Trading Analytics
         </p>
@@ -222,7 +222,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           ].map((item) => (
             <div
               key={item.label}
-              className="rounded-[16px] border border-white/[0.06] bg-black/20 p-4 flex items-start gap-3"
+              className="rounded-[16px] border border-[var(--card-border)] bg-muted/40 p-4 flex items-start gap-3"
             >
               <item.icon className="w-4 h-4 text-primary mt-0.5 shrink-0" />
               <div>
@@ -233,15 +233,15 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           ))}
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-3 text-sm">
-          <div className="rounded-xl border border-white/[0.06] bg-muted/2 p-3">
+          <div className="rounded-xl border border-[var(--card-border)] bg-muted/20p-3">
             <span className="text-foreground/40">Avg Win</span>
             <span className="float-right font-semibold text-chart-3">${advanced.avgWin.toLocaleString()}</span>
           </div>
-          <div className="rounded-xl border border-white/[0.06] bg-muted/2 p-3">
+          <div className="rounded-xl border border-[var(--card-border)] bg-muted/20p-3">
             <span className="text-foreground/40">Avg Loss</span>
             <span className="float-right font-semibold text-destructive">${Math.abs(advanced.avgLoss).toLocaleString()}</span>
           </div>
-          <div className="rounded-xl border border-white/[0.06] bg-muted/2 p-3">
+          <div className="rounded-xl border border-[var(--card-border)] bg-muted/20p-3">
             <span className="text-foreground/40">Floating PnL</span>
             <span
               className={cn(
@@ -257,7 +257,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
 
       {/* Charts */}
       <div className="grid gap-4 xl:grid-cols-2">
-        <section className="rounded-[22px] border border-white/[0.07] bg-muted/25 p-5">
+        <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/25 p-5">
           <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30">Equity vs Balance</p>
           <p className="text-base font-bold text-foreground mt-1 mb-1">Equity Curve</p>
           <p className="text-xs text-foreground/30 mb-4">
@@ -266,23 +266,23 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           <div className="h-[300px]" role="img" aria-label="Balance versus equity chart">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
               <LineChart data={equityData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} />
                 <XAxis
                   dataKey="label"
-                  tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 10 }}
+                  tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tick={{ fill: 'rgba(255,255,255,0.25)', fontSize: 10 }}
+                  tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
                   width={42}
                 />
                 <Tooltip content={<ChartTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }} />
+                <Legend wrapperStyle={{ fontSize: 11, color: 'var(--muted-foreground)' }} />
                 <Line type="monotone" dataKey="balance" name="Balance" stroke="var(--primary)" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="equity" name="Equity" stroke="var(--chart-bull)" strokeWidth={2} dot={false} />
               </LineChart>
@@ -290,7 +290,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           </div>
         </section>
 
-        <section className="rounded-[22px] border border-white/[0.07] bg-muted/25 p-5">
+        <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/25 p-5">
           <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30">Monthly Performance</p>
           <p className="text-base font-bold text-foreground mt-1 mb-4">Return Calendar</p>
           <div className="space-y-4">
@@ -303,12 +303,12 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
                       key={`${yearRow.year}-${month.name}`}
                       title={`${month.name} ${yearRow.year}: ${month.val}%`}
                       className={cn(
-                        'aspect-square rounded-md border border-white/[0.06] flex items-center justify-center text-micro font-bold',
+                        'aspect-square rounded-md border border-[var(--card-border)] flex items-center justify-center text-micro font-bold',
                         month.val > 0
                           ? 'bg-chart-3/25 text-chart-3'
                           : month.val < 0
                             ? 'bg-destructive/25 text-destructive'
-                            : 'bg-muted/3 text-foreground/20',
+                            : 'bg-muted/30 text-foreground/20',
                       )}
                     >
                       {month.name.slice(0, 1)}
@@ -321,9 +321,9 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           <div className="mt-4 h-[140px]" role="img" aria-label="Monthly returns chart">
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
               <BarChart data={charts?.monthlyReturns ?? []} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="month" tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 9 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} width={32} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: 'var(--muted-foreground)', fontSize: 9 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--muted-foreground)', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} width={32} />
                 <Tooltip content={<ChartTooltip />} />
                 <Bar dataKey="returnPct" radius={[4, 4, 0, 0]}>
                   {(charts?.monthlyReturns ?? []).map((item: any, idx: number) => (
@@ -337,7 +337,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
       </div>
 
       {/* Asset distribution */}
-      <section className="rounded-[22px] border border-white/[0.07] bg-muted/25 p-5">
+      <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/25 p-5">
         <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30">Volume / Asset Mix</p>
         <p className="text-base font-bold text-foreground mt-1 mb-4">Symbol Concentration</p>
         <div className="grid gap-6 lg:grid-cols-2 items-center">
@@ -365,7 +365,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           </div>
           <div className="space-y-2">
             {(charts?.symbolDistribution ?? []).map((item: any) => (
-              <div key={item.symbol} className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-muted/2 px-4 py-2.5">
+              <div key={item.symbol} className="flex items-center justify-between rounded-xl border border-[var(--card-border)] bg-muted/20px-4 py-2.5">
                 <div className="flex items-center gap-3">
                   <span className="w-2.5 h-2.5 rounded-full" style={{ background: item.color }} />
                   <span className="text-sm font-semibold text-foreground">{item.symbol}</span>
@@ -392,17 +392,17 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-[16px] border border-white/[0.08] bg-black/20 p-4">
+          <div className="rounded-[16px] border border-[var(--card-border)] bg-muted/40 p-4">
             <p className="text-xs text-foreground/40 uppercase tracking-widest">Modeling Quality</p>
             <p className="mt-2 text-lg font-bold text-foreground">{verification.modelingQuality}</p>
             <p className="mt-1 text-xs text-foreground/35">{verification.backtestPeriod}</p>
           </div>
-          <div className="rounded-[16px] border border-white/[0.08] bg-black/20 p-4">
+          <div className="rounded-[16px] border border-[var(--card-border)] bg-muted/40 p-4">
             <p className="text-xs text-foreground/40 uppercase tracking-widest">Data Source</p>
             <p className="mt-2 text-lg font-bold text-foreground">{verification.dataSource}</p>
             <p className="mt-1 text-xs text-foreground/35">Since {verification.trackRecordSince}</p>
           </div>
-          <div className="rounded-[16px] border border-white/[0.08] bg-black/20 p-4">
+          <div className="rounded-[16px] border border-[var(--card-border)] bg-muted/40 p-4">
             <p className="text-xs text-foreground/40 uppercase tracking-widest">Status</p>
             <p className="mt-2 text-lg font-bold text-foreground">{verification.verificationStatus}</p>
             <p className="mt-1 text-xs text-foreground/35">{verification.badgeLabel}</p>
@@ -420,7 +420,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
               Download MT5 Backtest PDF
             </a>
           ) : (
-            <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/3 px-4 py-2.5 text-sm text-foreground/40">
+            <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-4 py-2.5 text-sm text-foreground/40">
               <Download className="w-4 h-4" />
               Backtest PDF available after strategy verification upload
             </div>
@@ -436,7 +436,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
               View Verified Track Record
             </a>
           ) : (
-            <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/3 px-4 py-2.5 text-sm text-foreground/40">
+            <div className="inline-flex items-center gap-2 rounded-xl border border-border bg-muted/30 px-4 py-2.5 text-sm text-foreground/40">
               <BadgeCheck className="w-4 h-4" />
               Live verification link connects via MetaAPI when master bot is linked
             </div>
@@ -454,14 +454,14 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-[16px] border border-white/[0.08] bg-black/20 p-4">
+          <div className="rounded-[16px] border border-[var(--card-border)] bg-muted/40 p-4">
             <p className="text-xs text-foreground/40 uppercase tracking-widest">Minimum Recommended Capital</p>
             <p className="mt-2 text-2xl font-bold text-foreground">
               ${recommendations.minRecommendedCapital.toLocaleString()}
             </p>
             <p className="mt-2 text-sm text-foreground/45 leading-relaxed">{recommendations.riskNote}</p>
           </div>
-          <div className="rounded-[16px] border border-white/[0.08] bg-black/20 p-4">
+          <div className="rounded-[16px] border border-[var(--card-border)] bg-muted/40 p-4">
             <p className="text-xs text-foreground/40 uppercase tracking-widest">Ideal Account Leverage</p>
             <p className="mt-2 text-2xl font-bold text-foreground">{recommendations.recommendedLeverage}</p>
             <p className="mt-2 text-sm text-foreground/45 leading-relaxed flex items-start gap-2">
@@ -473,12 +473,12 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
       </section>
 
       {/* Trade history */}
-      <section className="rounded-[22px] border border-white/[0.07] bg-muted/2 p-5">
+      <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/20p-5">
         <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30">Trading History</p>
         <p className="text-base font-bold text-foreground mt-1 mb-4">Closed Trades Log</p>
-        <div className="overflow-x-auto rounded-xl border border-white/[0.06]">
+        <div className="overflow-x-auto rounded-xl border border-[var(--card-border)]">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="bg-muted/3 text-micro uppercase tracking-[0.2em] text-foreground/35">
+            <thead className="bg-muted/30 text-micro uppercase tracking-[0.2em] text-foreground/35">
               <tr>
                 <th className="px-4 py-3">Asset</th>
                 <th className="px-4 py-3">Type</th>
@@ -491,7 +491,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
             </thead>
             <tbody>
               {(tradeHistory?.items ?? []).map((trade: any) => (
-                <tr key={trade.id} className="border-t border-white/[0.05] hover:bg-muted/2">
+                <tr key={trade.id} className="border-t border-[var(--card-border)] hover:bg-muted/20">
                   <td className="px-4 py-3 font-semibold text-foreground">{trade.asset}</td>
                   <td className="px-4 py-3">
                     <span

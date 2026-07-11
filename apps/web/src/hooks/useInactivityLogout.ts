@@ -4,8 +4,8 @@ import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 
-/** Logout after this much continuous inactivity. */
-export const INACTIVITY_LOGOUT_MS = 60 * 60 * 1000; // 1 hour
+/** Logout after this much continuous inactivity. Matches the 24h session policy. */
+export const INACTIVITY_LOGOUT_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 const LAST_ACTIVITY_KEY = 'profytron_last_activity_at';
 const ACTIVITY_THROTTLE_MS = 1000;
@@ -33,7 +33,7 @@ function writeLastActivity(at: number) {
 }
 
 /**
- * Logs the user out after 1 hour with no mouse/keyboard/touch/scroll activity.
+ * Logs the user out after 24 hours with no mouse/keyboard/touch/scroll activity.
  * Activity in any tab resets the timer (via localStorage).
  * Does not log out based on JWT access-token age while the user is active.
  */

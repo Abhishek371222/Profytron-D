@@ -101,3 +101,10 @@ temp/
 .env.vercel.check
 
 apps/api/uploads/
+
+render-api.env
+vercel-web.env
+
+
+render-add-these.env
+

@@ -11,16 +11,29 @@ export type BrokerAccountSummary = {
   isPaperTrading: boolean;
   isDefault: boolean;
   initialEquity?: number | null;
+  balance?: number | null;
+  equity?: number | null;
+  margin?: number | null;
+  freeMargin?: number | null;
+  currency?: string | null;
+  connectionStatus?: string | null;
+  liveSynced?: boolean;
 };
 
 export function useAccountContext() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isHydrating = useAuthStore((s) => s.isHydrating);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
 
   const brokerAccountsQuery = useQuery({
     queryKey: ['broker-accounts'],
     queryFn: () => brokerApi.getBrokerAccounts(),
-    staleTime: 60_000,
-    enabled: isAuthenticated,
+    staleTime: 8_000,
+    refetchInterval: 12_000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: false,
+    enabled: sessionReady,
   });
 
   const accounts = (brokerAccountsQuery.data ?? []) as BrokerAccountSummary[];

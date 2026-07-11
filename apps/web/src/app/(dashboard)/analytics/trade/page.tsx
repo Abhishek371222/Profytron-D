@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -31,6 +31,7 @@ import {
   StatCard,
 } from '../_components/AnalyticsShared';
 import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
 
 function PieTooltip({
   active,
@@ -51,19 +52,38 @@ function PieTooltip({
 export default function TradeAnalyticsPage() {
   const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('1m');
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isHydrating = useAuthStore((s) => s.isHydrating);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
 
   const tradeQuery = useQuery({
     queryKey: ['analytics', 'trades', range],
     queryFn: () => analyticsApi.getTrades(range),
     staleTime: 120_000,
     refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    enabled: sessionReady,
   });
 
-  const trade = tradeQuery.data;
-  const hasData = Boolean(trade?.distribution?.length || trade?.winLoss?.length || trade?.symbolPerformance?.length);
+  const trade =
+    tradeQuery.data?.source === 'metaapi' || tradeQuery.data?.source === 'empty'
+      ? tradeQuery.data
+      : undefined;
+  const hasData = Boolean(
+    (trade?.symbolPerformance?.length ?? 0) > 0 ||
+      (trade?.winLoss?.some((w) => w.value > 0) ?? false) ||
+      (trade?.distribution?.some((d) => d.count > 0) ?? false),
+  );
+  const maxSymbolPnl = Math.max(
+    ...(trade?.symbolPerformance ?? []).map((s) => Math.abs(s.pnl)),
+    1,
+  );
 
-  const wins = trade?.winLoss?.find((w) => w.name === 'Win')?.value ?? 0;
-  const losses = trade?.winLoss?.find((w) => w.name === 'Loss')?.value ?? 0;
+  const wins =
+    trade?.winLoss?.find((w) => /^(win|wins)$/i.test(w.name))?.value ?? 0;
+  const losses =
+    trade?.winLoss?.find((w) => /^(loss|losses)$/i.test(w.name))?.value ?? 0;
   const total = wins + losses;
   const winRate = total > 0 ? ((wins / total) * 100).toFixed(1) : null;
 
@@ -80,7 +100,7 @@ export default function TradeAnalyticsPage() {
     toast.success('Trade analytics refreshed');
   };
 
-  if (tradeQuery.isLoading) {
+  if (tradeQuery.isPending || (tradeQuery.isFetching && !trade)) {
     return (
       <div className="space-y-5 pb-8 animate-pulse">
         <div className="dashboard-card h-20" />
@@ -125,14 +145,14 @@ export default function TradeAnalyticsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           label="Wins"
-          value={wins > 0 ? wins : '—'}
+          value={hasData ? wins : '?'}
           icon={TrendingUp}
           iconBg="bg-chart-3/10 text-chart-3"
           valueClass="text-chart-3"
         />
         <StatCard
           label="Losses"
-          value={losses > 0 ? losses : '—'}
+          value={hasData ? losses : '?'}
           icon={TrendingDown}
           iconBg="bg-destructive/10 text-destructive"
           valueClass="text-destructive"
@@ -140,7 +160,7 @@ export default function TradeAnalyticsPage() {
         />
         <StatCard
           label="Win Rate"
-          value={winRate ? `${winRate}%` : '—'}
+          value={winRate ? `${winRate}%` : '?'}
           icon={Target}
           iconBg="bg-primary/10 text-primary"
           valueClass="text-primary"
@@ -148,7 +168,7 @@ export default function TradeAnalyticsPage() {
         />
         <StatCard
           label="Symbols Traded"
-          value={trade?.symbolPerformance?.length ?? '—'}
+          value={hasData ? (trade?.symbolPerformance?.length ?? 0) : '?'}
           icon={Activity}
           iconBg="bg-chart-5/10 text-chart-5"
           valueClass="text-chart-5"
@@ -157,21 +177,29 @@ export default function TradeAnalyticsPage() {
       </div>
 
       {!hasData && !tradeQuery.isLoading && (
-        <AnalyticsInfoBanner message="Trade analytics populate once closed trades exist in your account history. Connecting MT5 alone does not create these values." />
+        <AnalyticsInfoBanner message="Trade analytics populate once closed trades exist in your connected account history." />
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
+      <div className="grid gap-3 lg:grid-cols-[3fr_2fr]">
         <ChartCard eyebrow="Distribution" title="Earnings Distribution" delay={0.1}>
-          <div className="h-[280px] relative">
+          <div className="h-[240px] relative">
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-              <BarChart data={trade?.distribution ?? []} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <BarChart data={trade?.distribution ?? []} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
-                <XAxis dataKey="range" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
-                <YAxis tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={36} />
-                <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                  {(trade?.distribution ?? []).map((_, i) => (
-                    <Cell key={i} fill="var(--primary)" fillOpacity={0.85 - i * 0.05} />
+                <XAxis dataKey="range" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} interval={0} angle={-20} textAnchor="end" height={48} />
+                <YAxis allowDecimals={false} tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} width={36} />
+                <Tooltip content={<ChartTooltip formatter={(v) => `${v} trades`} />} />
+                <Bar dataKey="count" radius={[5, 5, 0, 0]} maxBarSize={48} isAnimationActive={false}>
+                  {(trade?.distribution ?? []).map((row, i) => (
+                    <Cell
+                      key={i}
+                      fill={
+                        String(row.range).startsWith('-') || String(row.range).startsWith('<')
+                          ? 'var(--chart-bear)'
+                          : 'var(--chart-bull)'
+                      }
+                      fillOpacity={0.85}
+                    />
                   ))}
                 </Bar>
               </BarChart>
@@ -186,8 +214,8 @@ export default function TradeAnalyticsPage() {
         </ChartCard>
 
         <ChartCard eyebrow="Win vs Loss" title="Trade Outcome Split" delay={0.15}>
-          <div className="h-[280px] relative flex items-center justify-center">
-            {(trade?.winLoss ?? []).length > 0 ? (
+          <div className="h-[240px] relative flex items-center justify-center">
+            {hasData && (trade?.winLoss ?? []).some((w) => w.value > 0) ? (
               <>
                 <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                   <PieChart>
@@ -196,17 +224,22 @@ export default function TradeAnalyticsPage() {
                       dataKey="value"
                       nameKey="name"
                       cx="50%"
-                      cy="50%"
-                      innerRadius={65}
-                      outerRadius={100}
-                      paddingAngle={3}
+                      cy="46%"
+                      innerRadius={58}
+                      outerRadius={88}
+                      paddingAngle={4}
                       strokeWidth={0}
+                      isAnimationActive={false}
                     >
                       {trade!.winLoss.map((entry, idx) => (
                         <Cell
                           key={`${entry.name}-${idx}`}
-                          fill={idx === 0 ? 'var(--chart-bull)' : 'var(--chart-bear)'}
-                          fillOpacity={0.85}
+                          fill={
+                            /win/i.test(entry.name)
+                              ? 'var(--chart-bull)'
+                              : 'var(--chart-bear)'
+                          }
+                          fillOpacity={0.9}
                         />
                       ))}
                     </Pie>
@@ -216,11 +249,15 @@ export default function TradeAnalyticsPage() {
                 <div className="absolute bottom-0 inset-x-0 flex items-center justify-center gap-5 pb-1">
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-chart-3" />
-                    <span className="text-xs text-muted-foreground font-medium">Win</span>
+                    <span className="text-xs text-muted-foreground font-medium">
+                      Win ({wins})
+                    </span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <div className="w-2 h-2 rounded-full bg-destructive" />
-                    <span className="text-xs text-muted-foreground font-medium">Loss</span>
+                    <span className="text-xs text-muted-foreground font-medium">
+                      Loss ({losses})
+                    </span>
                   </div>
                 </div>
               </>
@@ -260,13 +297,19 @@ export default function TradeAnalyticsPage() {
                     </span>
                   </div>
                   <p className={cn('text-lg font-bold tabular-nums', isPos ? 'text-chart-3' : 'text-destructive')}>
-                    {isPos ? '+' : ''}${item.pnl.toLocaleString()}
+                    {isPos ? '+' : ''}$
+                    {item.pnl.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">{item.trades} trades</p>
                   <div className="h-1.5 rounded-full bg-primary/10 overflow-hidden mt-3">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, Math.abs(item.pnl / 100))}%` }}
+                      animate={{
+                        width: `${Math.min(100, (Math.abs(item.pnl) / maxSymbolPnl) * 100)}%`,
+                      }}
                       transition={{ delay: 0.3, duration: 0.8, ease: 'easeOut' }}
                       className={cn('h-full rounded-full', isPos ? 'bg-chart-3' : 'bg-destructive')}
                     />
@@ -277,7 +320,7 @@ export default function TradeAnalyticsPage() {
           </div>
         ) : (
           !tradeQuery.isLoading && (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)] w-fit">
+            <div className="flex w-fit max-w-full items-center gap-2 px-3 py-2 rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)]">
               <AlertTriangle className="h-3.5 w-3.5 text-[var(--info)] shrink-0" />
               <p className="text-xs text-foreground/80">No symbol data yet. Values appear after closed trades are recorded.</p>
             </div>

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/components/AuthProvider";
 import { MSWProvider } from "@/components/providers/MSWProvider";
 import QueryProvider from "@/components/providers/QueryProvider";
+import { WorkspaceBootstrapController } from "@/components/auth/WorkspaceBootstrapController";
 import { Toaster } from "sonner";
 import React from "react";
 
@@ -33,6 +34,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <AuthProvider>
           <TooltipProvider>
             {children}
+            <WorkspaceBootstrapController />
             <ThemedToaster />
           </TooltipProvider>
         </AuthProvider>
