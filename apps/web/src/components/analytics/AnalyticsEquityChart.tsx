@@ -33,8 +33,14 @@ function ChartTooltip({
 }
 
 export function AnalyticsEquityChart({ data }: { data: EquityPoint[] }) {
+  const first = data[0];
+  const last = data[data.length - 1];
+  const ariaLabel =
+    first && last
+      ? `Equity curve chart from $${Math.round(first.equity).toLocaleString()} on ${first.date} to $${Math.round(last.equity).toLocaleString()} on ${last.date}.`
+      : 'Equity curve chart';
   return (
-    <div className="h-[280px] relative">
+    <div className="h-[280px] relative" role="img" aria-label={ariaLabel}>
       <ResponsiveContainer width="100%" height="100%" minWidth={0}>
         <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <defs>

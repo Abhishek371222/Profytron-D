@@ -65,8 +65,10 @@ function StarRating({ rating, onChange }: { rating: number | null; onChange?: (r
       {[1, 2, 3, 4, 5].map((s) => (
         <button
           key={s}
+          type="button"
           onClick={() => onChange?.(s)}
           disabled={!onChange}
+          aria-label={`Rate ${s} star${s > 1 ? 's' : ''}`}
           className={cn('transition-all duration-150', onChange ? 'cursor-pointer hover:scale-125' : 'cursor-default')}
         >
           <Star
@@ -186,13 +188,13 @@ function InsightsBar() {
         <div className="w-px h-8 bg-foreground/10" />
         <div className="text-center">
           <p className="text-lg font-bold text-yellow-400">
-            {data.averageRating > 0 ? data.averageRating.toFixed(1) : '�'}
+            {data.averageRating > 0 ? data.averageRating.toFixed(1) : '—'}
           </p>
           <p className="text-micro text-foreground/25 uppercase tracking-widest">Avg Rating</p>
         </div>
         <div className="w-px h-8 bg-foreground/10" />
         <div className="text-center">
-          <p className="text-sm font-bold text-foreground truncate max-w-[80px]">{topEmotion ? topEmotion[0] : '�'}</p>
+          <p className="text-sm font-bold text-foreground truncate max-w-[80px]">{topEmotion ? topEmotion[0] : '—'}</p>
           <p className="text-micro text-foreground/25 uppercase tracking-widest">Top Emotion</p>
         </div>
       </div>

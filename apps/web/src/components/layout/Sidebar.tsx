@@ -206,7 +206,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-[calc(var(--sidebar-pad)*0.65)] py-3">
+        <nav aria-label="Main navigation" className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-[calc(var(--sidebar-pad)*0.65)] py-3">
           <div className={cn("space-y-[clamp(1rem,1.2vw,1.25rem)]", !expanded && "space-y-2")}>
             {navGroups.map((group) => (
               <div key={group.id}>
@@ -224,6 +224,8 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
                         key={item.href}
                         href={item.href}
                         title={!expanded ? item.name : undefined}
+                        aria-label={!expanded ? item.name : undefined}
+                        aria-current={active ? "page" : undefined}
                         className={cn(
                           "sidebar-nav-link group/nav",
                           active && "sidebar-nav-link-active",
@@ -244,6 +246,8 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
             {showAdminLink && (
               <Link
                 href="/admin"
+                aria-label={!expanded ? "Admin" : undefined}
+                aria-current={pathname?.startsWith("/admin") ? "page" : undefined}
                 className={cn(
                   "sidebar-nav-link border border-destructive/20",
                   pathname?.startsWith("/admin")
@@ -252,7 +256,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
                   !expanded && "sidebar-nav-link-collapsed",
                 )}
               >
-                <Shield className="sidebar-nav-icon" />
+                <Shield className="sidebar-nav-icon" aria-hidden />
                 {expanded && <span className="sidebar-nav-label">Admin</span>}
               </Link>
             )}

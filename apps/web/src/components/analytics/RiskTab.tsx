@@ -191,7 +191,7 @@ export default function RiskTab() {
  </div>
 
  {/* Explicit height */}
- <div style={{ width: '100%', height: 300 }}>
+ <div style={{ width: '100%', height: 300 }} role="img" aria-label="Portfolio drawdown over time chart">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <AreaChart data={drawdownData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
  <defs>

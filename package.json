@@ -30,8 +30,5 @@
     "react-dom": "19.2.4",
     "turbo": "latest",
     "typescript": "^5"
-  },
-  "dependencies": {
-    "stripe": "^22.0.1"
   }
 }

@@ -11,7 +11,13 @@ export type PerformanceBarDatum = {
 };
 
 export default function DashboardPerformanceBarChart({ data }: { data: PerformanceBarDatum[] }) {
+  const summary = data.map((d) => `${d.label} ${d.display}`).join(', ');
   return (
+    <div
+      role="img"
+      aria-label={summary ? `Performance metrics bar chart. ${summary}.` : 'Performance metrics bar chart'}
+      className="h-full w-full"
+    >
     <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
       <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 0 }}>
         <CartesianGrid strokeDasharray="2 4" stroke="rgba(0,0,0,0.06)" horizontal={false} />
@@ -49,5 +55,6 @@ export default function DashboardPerformanceBarChart({ data }: { data: Performan
         </Bar>
       </BarChart>
     </ResponsiveContainer>
+    </div>
   );
 }

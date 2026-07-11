@@ -181,9 +181,9 @@ export default function VerifyEmailPage() {
  </div>
 
  <div className="space-y-3">
- <h2 className="brand-display-heading text-3xl sm:text-4xl">
+ <h1 className="brand-display-heading text-3xl sm:text-4xl">
  Check your <span className="brand-gradient-text">intelligence.</span>
- </h2>
+ </h1>
         <p className="text-muted-foreground font-sans text-lg">
           We've synchronized a verification code to <span className="text-foreground font-bold opacity-80">{email}</span>
         </p>

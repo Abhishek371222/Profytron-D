@@ -278,14 +278,15 @@ export default function AddBotPage() {
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2 space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Bot name</label>
-            <input {...register('name')} className={fieldClass} placeholder="e.g. MomentumPro AI" />
+            <label htmlFor="bot-name" className="text-xs font-semibold text-muted-foreground">Bot name</label>
+            <input id="bot-name" {...register('name')} className={fieldClass} placeholder="e.g. MomentumPro AI" />
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Strategy it follows</label>
+            <label htmlFor="bot-strategyStyle" className="text-xs font-semibold text-muted-foreground">Strategy it follows</label>
             <input
+              id="bot-strategyStyle"
               {...register('strategyStyle')}
               className={fieldClass}
               placeholder="e.g. EMA crossover + RSI filter"
@@ -296,14 +297,14 @@ export default function AddBotPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Timeframe</label>
-            <input {...register('timeframe')} className={fieldClass} placeholder="e.g. M15, H1, H4" />
+            <label htmlFor="bot-timeframe" className="text-xs font-semibold text-muted-foreground">Timeframe</label>
+            <input id="bot-timeframe" {...register('timeframe')} className={fieldClass} placeholder="e.g. M15, H1, H4" />
             {errors.timeframe && <p className="text-xs text-destructive">{errors.timeframe.message}</p>}
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Category</label>
-            <select {...register('category')} className={fieldClass}>
+            <label htmlFor="bot-category" className="text-xs font-semibold text-muted-foreground">Category</label>
+            <select id="bot-category" {...register('category')} className={fieldClass}>
               {CATEGORIES.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
@@ -313,8 +314,8 @@ export default function AddBotPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Risk level</label>
-            <select {...register('riskLevel')} className={fieldClass}>
+            <label htmlFor="bot-riskLevel" className="text-xs font-semibold text-muted-foreground">Risk level</label>
+            <select id="bot-riskLevel" {...register('riskLevel')} className={fieldClass}>
               {RISK_LEVELS.map((r) => (
                 <option key={r.value} value={r.value}>
                   {r.label}
@@ -324,8 +325,9 @@ export default function AddBotPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Expected profit %</label>
+            <label htmlFor="bot-expectedProfitPct" className="text-xs font-semibold text-muted-foreground">Expected profit %</label>
             <input
+              id="bot-expectedProfitPct"
               type="number"
               step="0.1"
               {...register('expectedProfitPct', { valueAsNumber: true })}
@@ -338,8 +340,9 @@ export default function AddBotPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-muted-foreground">Monthly price (₹)</label>
+            <label htmlFor="bot-monthlyPrice" className="text-xs font-semibold text-muted-foreground">Monthly price (₹)</label>
             <input
+              id="bot-monthlyPrice"
               type="number"
               step="1"
               {...register('monthlyPrice', { valueAsNumber: true })}
@@ -378,8 +381,9 @@ export default function AddBotPage() {
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-muted-foreground">Description</label>
+          <label htmlFor="bot-description" className="text-xs font-semibold text-muted-foreground">Description</label>
           <textarea
+            id="bot-description"
             {...register('description')}
             rows={5}
             className={cn(fieldClass, 'resize-y min-h-[120px]')}

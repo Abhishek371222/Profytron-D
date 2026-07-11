@@ -11,7 +11,7 @@ It includes a Next.js web app, a NestJS API, Python microservices for AI and bac
 - Services: Python AI and backtest workers.
 - Tooling: pnpm workspaces + turbo + ESLint + TypeScript.
 
-## Repository Layout
+## Repository layout
 
 ```text
 .
@@ -23,11 +23,25 @@ It includes a Next.js web app, a NestJS API, Python microservices for AI and bac
 |   `-- backtest/     # Python backtesting service
 |-- packages/
 |   `-- types/        # Shared TypeScript types
-|-- deploy/           # Deployment reverse-proxy configs
+|-- docs/             # Architecture, deployment, API, contributing
+|-- deploy/           # Reverse-proxy, Redis, K8s, Compose assets
 |-- supabase/         # Supabase local/deploy config
 |-- tools/            # Local diagnostics and supervisor scripts
+|-- scripts/          # Backup, restore, rollback helpers
 `-- docker-compose.yml
 ```
+
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System topology and package map |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deploy entry points |
+| [docs/RUNBOOK.md](docs/RUNBOOK.md) | Production operations |
+| [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API docs entry points |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Local workflow and PR checks |
+| [docs/COPY_TRADING_ARCHITECTURE.md](docs/COPY_TRADING_ARCHITECTURE.md) | Copy-trading runtime details |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Short contributor pointer |
 
 ## Prerequisites
 
@@ -38,9 +52,10 @@ It includes a Next.js web app, a NestJS API, Python microservices for AI and bac
 - Redis (local or container)
 
 Optional:
+
 - Docker / Docker Compose
 
-## Quick Start
+## Quick start
 
 ### 1) Install dependencies
 
@@ -49,8 +64,6 @@ pnpm install
 ```
 
 ### 2) Configure environments
-
-Create local env files from templates and fill credentials:
 
 ```bash
 cp apps/web/.env.example apps/web/.env.local
@@ -85,7 +98,7 @@ Full stack (web + API + AI + backtest):
 pnpm dev:full
 ```
 
-## Common Commands
+## Common commands
 
 | Command | Purpose |
 |---|---|
@@ -111,39 +124,29 @@ pnpm --filter api test:e2e
 
 Set `API_TEST_WITH_INFRA=true` to run the database-backed API suites against real PostgreSQL and Redis.
 
-Web tests (Playwright/config available in app):
+Web checks:
 
 ```bash
 pnpm --filter profytron lint
 pnpm --filter profytron build
 ```
 
-Additional testing docs exist at:
+Additional standalone suites:
 
-- `TESTING_README.md`
-- `DEMO_DATA_VERIFICATION.md`
-- `security-tests/`
-- `performance-tests/`
+- `security-tests/` — Playwright security scenarios
+- `performance-tests/` — k6 performance scripts
 
-## OAuth Notes
+## OAuth notes
 
 Google/Supabase OAuth is configured in the web app callback flow.
 If local API is unavailable, the callback includes a fallback continuity mode so social login can still continue locally.
-See:
 
-- `OAUTH_SETUP_GUIDE.md`
-- `GOOGLE_OAUTH_TROUBLESHOOTING.md`
-- `apps/web/src/app/(public)/auth/callback/page.tsx`
+See `apps/web/src/app/(public)/auth/callback/` and the web/API `.env.example` files.
 
 ## Troubleshooting
 
 ### API connection refused (`localhost:4000`)
 
-Symptoms:
-- frontend proxy errors
-- `ECONNREFUSED` in terminal
-
-Checklist:
 1. Start API: `pnpm dev:api`
 2. Confirm PostgreSQL is reachable.
 3. Confirm Redis is reachable.
@@ -151,29 +154,26 @@ Checklist:
 
 ### Lint/build passes but browser shows stale behavior
 
-Restart dev server cleanly:
+Restart the web dev server cleanly, then hard refresh the browser:
 
 ```bash
-# stop running node processes only if needed
 pnpm --filter profytron dev
 ```
 
-Then hard refresh browser.
-
 ## Deployment
 
-Deployment and infra references:
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) and [docs/RUNBOOK.md](docs/RUNBOOK.md).
 
-- `DEPLOYMENT_CHECKLIST.md`
-- `DOMAIN_DEPLOYMENT_GUIDE.md`
+Infra configs:
+
 - `deploy/nginx.conf`
 - `deploy/Caddyfile`
+- `docker-compose.prod.yml`
 
 ## Security
 
 - Keep secrets in local env files and secret managers only.
 - Do not commit private credentials.
-- `local-secrets/` is for local-only usage and should remain private.
 
 ## License
 

@@ -154,9 +154,9 @@ function ResetPasswordPageInner() {
  </div>
 
  <div className="space-y-3">
- <h2 className="brand-display-heading text-3xl sm:text-4xl">
+ <h1 className="brand-display-heading text-3xl sm:text-4xl">
  Secure <span className="brand-gradient-text">vault.</span>
- </h2>
+ </h1>
  <p className="text-muted-foreground font-sans text-lg">
  Establish a new high-security access key for your terminal.
  </p>

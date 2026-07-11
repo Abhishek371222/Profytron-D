@@ -176,12 +176,9 @@ export class AdminService {
       _sum: { amount: true },
     });
 
-    const sum = (
-      direction: 'IN' | 'OUT',
-      status: 'CONFIRMED' | 'PENDING',
-    ) =>
-      grouped.find((g) => g.direction === direction && g.status === status)?._sum
-        .amount ?? 0;
+    const sum = (direction: 'IN' | 'OUT', status: 'CONFIRMED' | 'PENDING') =>
+      grouped.find((g) => g.direction === direction && g.status === status)
+        ?._sum.amount ?? 0;
 
     const confirmedIn = sum('IN', 'CONFIRMED');
     const confirmedOut = sum('OUT', 'CONFIRMED');

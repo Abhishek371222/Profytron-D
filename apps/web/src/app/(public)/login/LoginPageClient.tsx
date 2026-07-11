@@ -32,10 +32,11 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 function LoginPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { login, isLoading } = useAuthStore();
+  const { login } = useAuthStore();
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [twoFaChallenge, setTwoFaChallenge] = React.useState<string | null>(null);
   const [twoFaCode, setTwoFaCode] = React.useState('');
+  const [is2faSubmitting, setIs2faSubmitting] = React.useState(false);
 
   const authError = searchParams.get('error');
   const expired = searchParams.get('expired');
@@ -71,7 +72,7 @@ function LoginPageContent() {
     register,
     handleSubmit,
     getValues,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
@@ -137,6 +138,7 @@ function LoginPageContent() {
       return;
     }
     setErrorMessage(null);
+    setIs2faSubmitting(true);
     try {
       const response = await authApi.completeTwoFactorLogin({
         challengeToken: twoFaChallenge,
@@ -154,6 +156,8 @@ function LoginPageContent() {
           ? (error as { response: { data: { error: string } } }).response.data.error
           : 'Invalid 2FA code';
       setErrorMessage(message);
+    } finally {
+      setIs2faSubmitting(false);
     }
   };
 
@@ -240,12 +244,12 @@ function LoginPageContent() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {urlErrorMessage && (
-                  <div className="rounded-input border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning">
+                  <div role="alert" className="rounded-input border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-warning">
                     {urlErrorMessage}
                   </div>
                 )}
                 {errorMessage && (
-                  <div className="rounded-input border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                  <div role="alert" className="rounded-input border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                     {errorMessage}
                   </div>
                 )}
@@ -303,11 +307,12 @@ function LoginPageContent() {
                   <Button
                     type={twoFaChallenge ? 'button' : 'submit'}
                     onClick={twoFaChallenge ? handleCompleteTwoFa : undefined}
-                    disabled={isLoading}
+                    disabled={isSubmitting || is2faSubmitting}
+                    aria-busy={isSubmitting || is2faSubmitting}
                     className="group relative h-12 w-full overflow-hidden rounded-button bg-gradient-hero text-body font-semibold text-primary-foreground transition-all hover:brightness-110"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                      {isLoading ? (
+                      {isSubmitting || is2faSubmitting ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
                           Signing in...

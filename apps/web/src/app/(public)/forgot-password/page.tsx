@@ -108,9 +108,9 @@ export default function ForgotPasswordPage() {
  </div>
 
  <div className="space-y-3">
- <h2 className="brand-display-heading text-3xl sm:text-4xl">
+ <h1 className="brand-display-heading text-3xl sm:text-4xl">
  Recover <span className="brand-gradient-text">access.</span>
- </h2>
+ </h1>
  <p className="text-muted-foreground font-sans text-lg">
  Enter your identity email to receive a recovery link.
  </p>

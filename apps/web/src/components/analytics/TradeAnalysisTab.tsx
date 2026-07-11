@@ -97,7 +97,7 @@ function TradeAnalysisTabView() {
  <p className="text-sm text-foreground/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Trade frequency mapped across institutional Earnings corridors.</p>
  </div>
  
- <div className="h-100 w-full relative z-10">
+ <div className="h-100 w-full relative z-10" role="img" aria-label="Trade frequency chart">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={pnlDist} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
  <CartesianGrid strokeDasharray="6 6" stroke="rgba(255,255,255,0.03)" vertical={false} />
@@ -162,7 +162,7 @@ function TradeAnalysisTabView() {
  <p className="text-sm text-foreground/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Real-time volume-weighted win/loss kernel telemetry.</p>
  </div>
  
- <div className="h-105 w-full relative mt-12 group/donut">
+ <div className="h-105 w-full relative mt-12 group/donut" role="img" aria-label="Trade outcome distribution donut chart">
  <div className="absolute inset-0 bg-linear-to-r from-chart-3/5 to-transparent rounded-full blur-[120px] opacity-0 group-hover/core:opacity-100 transition-opacity duration-1000" />
  
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
@@ -308,7 +308,7 @@ function TradeAnalysisTabView() {
  <p className="text-sm text-foreground/30 font-semibold uppercase tracking-[0.4em] leading-relaxed">Heuristic holding period density distribution by epoch.</p>
  </div>
 
- <div className="h-95 w-full relative z-10">
+ <div className="h-95 w-full relative z-10" role="img" aria-label="Holding period distribution chart">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
  <BarChart data={durationData} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
  <CartesianGrid strokeDasharray="5 5" stroke="rgba(255,255,255,0.03)" vertical={false} />

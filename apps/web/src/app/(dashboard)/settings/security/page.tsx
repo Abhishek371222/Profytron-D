@@ -22,19 +22,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
-
-const AUDIT_EVENTS = [
-  { id: '1', action: 'Login success', device: 'Chrome / Desktop', location: 'Mumbai, IN', time: '2 min ago', level: 'info' as const },
-  { id: '2', action: 'API key created', device: 'Chrome / Desktop', location: 'Mumbai, IN', time: '1 hour ago', level: 'warning' as const },
-  { id: '3', action: 'Password changed', device: 'Safari / iPhone', location: 'Delhi, IN', time: '2 days ago', level: 'critical' as const },
-];
-
-const LEVEL_BADGE = {
-  info: 'bg-primary/10 text-primary border-primary/20',
-  warning: 'bg-chart-4/10 text-chart-4 border-chart-4/20',
-  critical: 'bg-destructive/10 text-destructive border-destructive/20',
-};
 
 type DeleteStep = 'confirm' | 'otp' | 'final' | null;
 
@@ -298,35 +285,6 @@ export default function SecuritySettingsPage() {
             ))}
           </div>
         )}
-      </SettingsSection>
-
-      <SettingsSection title="Security audit log">
-        <div className="dash-table-wrap overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[var(--card-border)] bg-muted/40">
-                {['Event', 'Device', 'Location', 'Time', 'Level'].map((h) => (
-                  <th key={h} className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--card-border)]">
-              {AUDIT_EVENTS.map((evt) => (
-                <tr key={evt.id}>
-                  <td className="px-4 py-3 font-medium">{evt.action}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{evt.device}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{evt.location}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{evt.time}</td>
-                  <td className="px-4 py-3">
-                    <span className={cn('inline-flex px-2 py-0.5 rounded-md text-xs font-semibold border capitalize', LEVEL_BADGE[evt.level])}>
-                      {evt.level}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </SettingsSection>
 
       <SettingsSection title="Delete account">

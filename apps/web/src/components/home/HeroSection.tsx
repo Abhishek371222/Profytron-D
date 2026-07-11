@@ -55,6 +55,9 @@ export function HeroSection() {
               <StaggerItem>
                 <h1 className="hero-headline mb-5 text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.05] sm:mb-6">
                   <span className="block text-foreground">Stop Trading</span>
+                  {/* Stable, complete accessible name for AT/SEO; the rotating
+                      words below are decorative and marked aria-hidden. */}
+                  <span className="sr-only"> manually, emotionally, blindly, or slowly.</span>
                   <RotatingWords
                     block
                     words={["Manually.", "Emotionally.", "Blindly.", "Slowly."]}

@@ -129,8 +129,8 @@ export function FeaturedRow({ strategies = [], onSubscribe }: FeaturedRowProps) 
                   </div>
                 </div>
 
-                {/* Equity curve */}
-                <div className="mt-5 h-[5.5rem] -mx-1">
+                {/* Equity curve — decorative sparkline; the numeric return is shown alongside */}
+                <div className="mt-5 h-[5.5rem] -mx-1" aria-hidden="true">
                   <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                     <AreaChart data={strategy.chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
                       <defs>

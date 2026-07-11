@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BROKER_DIRECTORY } from '@/lib/broker/broker-directory';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 import { BrokerSetupClient } from './BrokerSetupClient';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -14,17 +15,18 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const broker = findBroker(slug);
-  if (!broker) return { title: 'Broker Setup | Profytron' };
-  return {
+  if (!broker) return { title: 'Broker Setup' };
+  return buildPageMetadata({
     title: `Connect ${broker.displayName} to Profytron MT5 Copy Trading`,
     description: `Step-by-step guide to connect ${broker.displayName} (${broker.platform}) with Profytron for automated copy trading. ${broker.description}`,
+    path: `/brokers/${slug}`,
     keywords: [
       `${broker.name} MT5 setup`,
       `${broker.name} copy trading`,
       'MT5 automated trading India',
       'Profytron broker connect',
     ],
-  };
+  });
 }
 
 function findBroker(slug: string) {

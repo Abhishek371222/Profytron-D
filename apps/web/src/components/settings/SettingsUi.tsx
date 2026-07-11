@@ -43,11 +43,37 @@ export function SettingsField({
   hint?: string;
   children: React.ReactNode;
 }) {
+  const fieldId = React.useId();
+  const hintId = hint ? `${fieldId}-hint` : undefined;
+
+  // Associate the label (and any hint) with the control so clicking the label
+  // focuses it and screen readers announce both.
+  let control = children;
+  let controlId: string | undefined;
+  if (React.isValidElement(children)) {
+    const childProps = children.props as {
+      id?: string;
+      'aria-describedby'?: string;
+    };
+    controlId = childProps.id ?? fieldId;
+    control = React.cloneElement(children as React.ReactElement<Record<string, unknown>>, {
+      id: controlId,
+      'aria-describedby':
+        [childProps['aria-describedby'], hintId].filter(Boolean).join(' ') || undefined,
+    });
+  }
+
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium text-foreground">{label}</label>
-      {children}
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      <label htmlFor={controlId} className="text-sm font-medium text-foreground">
+        {label}
+      </label>
+      {control}
+      {hint && (
+        <p id={hintId} className="text-xs text-muted-foreground">
+          {hint}
+        </p>
+      )}
     </div>
   );
 }

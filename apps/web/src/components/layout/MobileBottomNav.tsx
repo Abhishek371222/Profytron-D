@@ -28,7 +28,7 @@ export function MobileBottomNav() {
   if (isBuilder) return null;
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 lg:hidden">
+    <nav aria-label="Quick navigation" className="fixed bottom-0 inset-x-0 z-50 lg:hidden">
       <div className="pointer-events-none absolute -top-8 inset-x-0 h-8 bg-gradient-to-t from-[var(--sidebar)]/60 to-transparent" />
 
       <div className="relative">
@@ -45,6 +45,7 @@ export function MobileBottomNav() {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
                   "relative flex flex-col items-center justify-center flex-1 min-w-0 px-1 gap-1 transition-colors duration-200",
                   isActive ? "text-primary" : "text-foreground/25 hover:text-foreground/50",

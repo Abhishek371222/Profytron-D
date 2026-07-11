@@ -31,7 +31,11 @@ export class SupportService {
       select: { id: true, email: true, fullName: true },
     });
     if (!user) {
-      appError(HttpStatus.NOT_FOUND, 'User not found', ErrorCode.USER_NOT_FOUND);
+      appError(
+        HttpStatus.NOT_FOUND,
+        'User not found',
+        ErrorCode.USER_NOT_FOUND,
+      );
     }
 
     const ticket = await this.prisma.supportTicket.create({

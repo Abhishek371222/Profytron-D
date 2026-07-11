@@ -41,7 +41,7 @@ export function RotatingWords({
         className,
       )}
       style={{ minWidth: block ? undefined : `${Math.max(longest.length, 8)}ch` }}
-      aria-live="polite"
+      aria-hidden
     >
       <AnimatePresence mode="wait">
         <motion.span

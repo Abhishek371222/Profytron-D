@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
@@ -27,15 +28,16 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   compress: true, // Enable gzip compression
   allowedDevOrigins: ["192.168.1.7"],
+  // Monorepo: pin Turbopack to workspace root so pnpm-hoisted `next` resolves.
   turbopack: {
-    root: process.cwd(),
+    root: path.join(__dirname, "../.."),
   },
+  outputFileTracingRoot: path.join(__dirname, "../.."),
 
   // Tree-shake large packages — only import used icons/components
   experimental: {
     optimizePackageImports: [
       "lucide-react",
-      "@radix-ui/react-dialog",
       "recharts",
       "framer-motion",
       "@tanstack/react-query",
@@ -43,7 +45,6 @@ const nextConfig: NextConfig = {
       "reactflow",
       "gsap",
       "lenis",
-      "date-fns",
       "socket.io-client",
     ],
   },

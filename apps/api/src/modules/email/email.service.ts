@@ -348,9 +348,7 @@ export class EmailService {
     };
   }) {
     const supportInbox =
-      data.to ||
-      process.env.SUPPORT_EMAIL?.trim() ||
-      'support@profytron.com';
+      data.to || process.env.SUPPORT_EMAIL?.trim() || 'support@profytron.com';
     const senderName = data.user.fullName?.trim() || 'Profytron user';
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">New support ticket</p>

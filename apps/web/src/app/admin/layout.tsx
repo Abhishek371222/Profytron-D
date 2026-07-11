@@ -60,7 +60,7 @@ function AdminSidebar({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
         )}
       </div>
 
-      <nav className="flex-1 space-y-2 overflow-y-auto px-3 py-6">
+      <nav aria-label="Admin navigation" className="flex-1 space-y-2 overflow-y-auto px-3 py-6">
         {adminNavItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -68,6 +68,8 @@ function AdminSidebar({ mobile = false, onNavigate }: { mobile?: boolean; onNavi
               key={item.href}
               href={item.href}
               onClick={onNavigate}
+              aria-label={!expanded ? item.name : undefined}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
                 "relative flex h-11 min-h-[var(--touch-min)] items-center rounded-lg transition-all group",
                 isActive

@@ -29,19 +29,27 @@ const navItems = [
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
+  // Header/breadcrumb must reflect the active settings section, not a fixed label.
+  const activeItem = navItems.find(
+    (item) => pathname === item.href || pathname?.startsWith(item.href + '/'),
+  );
+  const sectionTitle = activeItem?.name ?? 'Settings';
+  const SectionIcon = activeItem?.icon ?? User;
+
   return (
     <DashboardPage>
       <DashboardBreadcrumbs
         items={[
           { label: 'Dashboard', href: '/dashboard' },
-          { label: 'Profile' },
+          { label: 'Settings', href: '/settings' },
+          { label: sectionTitle },
         ]}
       />
 
       <DashboardPageHeader
-        title="Profile"
+        title={sectionTitle}
         description="Manage your identity, security, notifications, and account preferences."
-        icon={User}
+        icon={SectionIcon}
       />
 
       <div className="dash-settings-layout">

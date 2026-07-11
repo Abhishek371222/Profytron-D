@@ -642,6 +642,7 @@ export default function WalletPage() {
               <select
                 value={statementYear}
                 onChange={(e) => setStatementYear(Number(e.target.value))}
+                aria-label="Statement year"
                 className="h-9 min-w-[100px] rounded-xl border border-[var(--card-border)] bg-card px-3 text-sm text-foreground outline-none focus:border-primary/40"
               >
                 {yearOptions.map((y) => (
@@ -654,6 +655,7 @@ export default function WalletPage() {
               <select
                 value={statementMonth}
                 onChange={(e) => setStatementMonth(Number(e.target.value))}
+                aria-label="Statement month"
                 className="h-9 min-w-[130px] rounded-xl border border-[var(--card-border)] bg-card px-3 text-sm text-foreground outline-none focus:border-primary/40"
               >
                 {MONTH_NAMES.map((name, i) => (
@@ -694,6 +696,7 @@ export default function WalletPage() {
                 setSummaryYear(y);
                 setSummaryMonth(m);
               }}
+              aria-label="Transaction summary period"
               className="h-8 rounded-lg border border-[var(--card-border)] bg-card px-2.5 text-xs text-foreground outline-none focus:border-primary/40"
             >
               {yearOptions.flatMap((y) =>

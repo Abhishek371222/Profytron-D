@@ -76,7 +76,7 @@ export default function StrategyDetailPage() {
     }));
   }, [chartRange, equityCurve]);
 
-  const mockTrades = React.useMemo(() => {
+  const recentTrades = React.useMemo(() => {
     const liveTrades = (tradeExport?.rows ?? [])
       .filter((t) => (t.strategyName ?? '') === strategy?.name)
       .slice(0, 8)
@@ -281,8 +281,8 @@ export default function StrategyDetailPage() {
               )}
               {activeTab === 'trades' && (
                 <div className="space-y-3 animate-in fade-in duration-300">
-                  {mockTrades.length > 0 ? (
-                    mockTrades.map((trade) => (
+                  {recentTrades.length > 0 ? (
+                    recentTrades.map((trade) => (
                       <div key={trade.id} className="flex items-center justify-between p-3 rounded-xl border border-[var(--card-border)] bg-muted/20">
                         <div>
                           <p className="text-xs text-muted-foreground">{trade.id}</p>

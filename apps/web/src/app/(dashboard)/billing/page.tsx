@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
@@ -178,9 +177,10 @@ export default function BillingPage() {
 
   const upcomingBots = bots.filter((b) => b.renewsAt ?? b.nextBillingDate);
 
-  const handleDownloadInvoice = (payment: Payment) => {
-    toast.success(`Invoice ${payment.invoiceNumber ?? payment.id.slice(0, 8)} downloaded`);
-  };
+  // No invoice-PDF endpoint exists on the backend yet (only a DB record is
+  // created — see payments.service.ts generateInvoice). Disable the control
+  // rather than fake a download; wire this up once a real PDF route exists.
+  const invoiceDownloadUnavailable = true;
 
   return (
     <div className="space-y-6 pb-10">
@@ -378,8 +378,9 @@ export default function BillingPage() {
                       <td className="px-5 py-4 text-right">
                         <button
                           type="button"
-                          onClick={() => handleDownloadInvoice(p)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                          disabled={invoiceDownloadUnavailable}
+                          title={invoiceDownloadUnavailable ? 'Invoice downloads are coming soon' : undefined}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-muted-foreground disabled:hover:border-[var(--card-border)]"
                         >
                           <Download className="h-3 w-3" />
                           Download

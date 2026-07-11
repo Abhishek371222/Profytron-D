@@ -200,12 +200,12 @@ export default function RegisterPage() {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {successMessage && (
-                  <div className="rounded-input border border-success/20 bg-success/[0.08] px-4 py-3 text-sm text-success">
+                  <div role="status" className="rounded-input border border-success/20 bg-success/[0.08] px-4 py-3 text-sm text-success">
                     {successMessage}
                   </div>
                 )}
                 {errorMessage && (
-                  <div className="rounded-input border border-destructive/20 bg-destructive/[0.08] px-4 py-3 text-sm text-destructive">
+                  <div role="alert" className="rounded-input border border-destructive/20 bg-destructive/[0.08] px-4 py-3 text-sm text-destructive">
                     {errorMessage}
                   </div>
                 )}

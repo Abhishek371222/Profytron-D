@@ -66,6 +66,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
       suppressHydrationWarning
     >
+      {/* Skip link — first focusable element so keyboard users can bypass the
+          sidebar nav on every dashboard page (WCAG 2.4.1 Bypass Blocks). */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        Skip to main content
+      </a>
+
       {mounted && !isBuilder && (
         <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--primary)_5%,transparent)_0%,transparent_58%)]" />
       )}
@@ -94,8 +103,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <main
+        id="main-content"
+        tabIndex={-1}
         className={cn(
-          "flex-1 min-w-0 relative z-20 w-full flex flex-col",
+          "flex-1 min-w-0 relative z-20 w-full flex flex-col focus:outline-none",
           isMobile ? "min-h-[100dvh]" : "min-h-0 h-[100dvh] overflow-hidden",
           !isMobile && "pr-[var(--sidebar-pad)]",
         )}

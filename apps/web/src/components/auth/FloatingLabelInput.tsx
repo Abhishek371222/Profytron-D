@@ -25,6 +25,7 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
   ({ label, icon: Icon, error, className, id, value, defaultValue, ...props }, ref) => {
     const generatedId = useId();
     const inputId = id ?? generatedId;
+    const errorId = `${inputId}-error`;
     const localRef = React.useRef<HTMLInputElement | null>(null);
     const [isFocused, setIsFocused] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -126,6 +127,8 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
             <input
               {...inputProps}
               ref={setRefs}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? errorId : props['aria-describedby']}
               className={cn(
                 'peer auth-field w-full h-12 bg-input backdrop-blur-md border border-input-border rounded-input px-5 pt-5 pb-1.5 outline-none transition-all duration-300 font-sans text-body text-foreground placeholder-transparent',
                 'hover:bg-input/80 hover:border-primary/25',
@@ -193,6 +196,8 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
         <AnimatePresence>
           {error && (
             <motion.p
+              id={errorId}
+              role="alert"
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}

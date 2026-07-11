@@ -117,10 +117,7 @@ export class SupportController {
     @Param('id') id: string,
     @Body() dto: AssignTicketDto,
   ) {
-    return this.supportService.assignTicket(
-      id,
-      dto.adminId || authUserId(req),
-    );
+    return this.supportService.assignTicket(id, dto.adminId || authUserId(req));
   }
 
   @ApiOperation({ summary: 'Get all pending tickets (admin only)' })
