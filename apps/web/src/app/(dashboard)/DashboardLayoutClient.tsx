@@ -15,6 +15,8 @@ import { brokerApi } from '@/lib/api/broker';
 import { useFcmToken } from '@/hooks/useFcmToken';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
+import { useAccountContext } from '@/hooks/useAccountContext';
+import { useQueryClient } from '@tanstack/react-query';
 
 const BrokerConnectModal = dynamic(
   () =>
@@ -29,6 +31,8 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
   const user = useAuthStore((s) => s.user);
   const isAdmin = isAdminUser(user);
   const bootstrapActive = useWorkspaceBootstrapStore((s) => s.active);
+  const { hasBrokerAccount } = useAccountContext();
+  const queryClient = useQueryClient();
 
   useFcmToken();
   useInactivityLogout(Boolean(user) && !bootstrapActive);
@@ -43,9 +47,14 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
 
   React.useEffect(() => {
     if (!mounted || isAdmin || bootstrapActive) return;
+    // Already connected — never nag with the MT5 connect strip.
+    if (hasBrokerAccount) {
+      setShowDemoBanner(false);
+      return;
+    }
     const dismissed = window.localStorage.getItem('profytron_mt5_banner_dismissed');
     setShowDemoBanner(dismissed !== 'true');
-  }, [mounted, isAdmin, bootstrapActive]);
+  }, [mounted, isAdmin, bootstrapActive, hasBrokerAccount]);
 
   const handleDismissBanner = () => {
     setShowDemoBanner(false);
@@ -59,6 +68,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
   const handleBrokerConnected = () => {
     setShowDemoBanner(false);
     if (mounted) window.localStorage.setItem('profytron_mt5_banner_dismissed', 'true');
+    void queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
   };
 
   const connectDemoAccount = async () => {

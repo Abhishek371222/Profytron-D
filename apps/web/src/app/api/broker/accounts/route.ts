@@ -112,6 +112,36 @@ async function fetchBalance(
 }
 
 export async function GET(req: NextRequest) {
+  const auth = req.headers.get('authorization') || '';
+  const backend = (
+    process.env.BACKEND_API_ORIGIN ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    'https://profytron-api.onrender.com'
+  ).replace(/\/$/, '');
+
+  // Prefer Nest (API .env always has DB + MetaAPI). Avoids Overview "No account"
+  // when the Next process is missing DATABASE_URL / AES / METAAPI_TOKEN.
+  if (auth.startsWith('Bearer ')) {
+    try {
+      const nestRes = await fetch(`${backend}/v1/broker/accounts`, {
+        headers: {
+          Authorization: auth,
+          'X-Requested-With': 'XMLHttpRequest',
+          Accept: 'application/json',
+        },
+        cache: 'no-store',
+        signal: AbortSignal.timeout(25_000),
+      });
+      if (nestRes.ok) {
+        const body = await nestRes.json();
+        // Nest already wraps as { success, data, timestamp }.
+        return NextResponse.json(body, { status: nestRes.status });
+      }
+    } catch {
+      /* fall through to direct Neon path */
+    }
+  }
+
   const userId = await userIdFromRequest(req);
   if (!userId) return error('Unauthorized', 401);
 

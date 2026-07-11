@@ -333,6 +333,7 @@ export class BrokerService {
             equity: safe.initialEquity ?? null,
             currency: 'USD',
             connectionStatus: 'CONNECTED',
+            liveSynced: Number(safe.initialEquity ?? 0) > 0,
             fillMode: 'paper',
           };
         }
@@ -360,6 +361,7 @@ export class BrokerService {
             currency: 'USD',
             leverage: null,
             connectionStatus: 'CONNECTED',
+            liveSynced: Number(safe.initialEquity ?? 0) > 0,
             fillMode: 'bridge',
             storeOnly: true,
             login: creds.login ?? null,

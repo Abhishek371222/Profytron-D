@@ -40,8 +40,14 @@ export function useAccountContext() {
     staleTime: 8_000,
     refetchInterval: 12_000,
     refetchOnWindowFocus: true,
-    // After login the cache may be empty — always refetch so Overview gets live MetaAPI values.
     refetchOnMount: true,
+    // Early 401s during token hydrate should not stick forever.
+    retry: (count, err: any) => {
+      const status = err?.response?.status;
+      if (status === 401 || status === 403) return count < 2;
+      return count < 1;
+    },
+    retryDelay: (attempt) => 600 * (attempt + 1),
     placeholderData: (previous) => previous,
     enabled: sessionReady,
   });
