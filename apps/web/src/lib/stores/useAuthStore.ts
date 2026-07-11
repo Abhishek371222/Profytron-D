@@ -101,7 +101,8 @@ export const useAuthStore = create<AuthState>()(
             forcedLogin ||
             params.get('expired') === 'true' ||
             params.get('expired') === '1' ||
-            params.get('idle') === 'true'
+            params.get('idle') === 'true' ||
+            params.get('superseded') === 'true'
           ) {
             sessionStorage.removeItem(FORCE_LOGIN_KEY);
             sessionStorage.removeItem(SESSION_TOKEN_KEY);

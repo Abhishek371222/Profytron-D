@@ -90,12 +90,25 @@ export function refreshSession(): Promise<string> {
     return Promise.resolve(existing);
   }
 
+  const postRefresh = () =>
+    apiClient.post('/auth/refresh', {}, { withCredentials: true });
+
   refreshPromise = (async () => {
-    const response = await apiClient.post(
-      '/auth/refresh',
-      {},
-      { withCredentials: true },
-    );
+    let response;
+    try {
+      response = await postRefresh();
+    } catch (err) {
+      const status = (err as AxiosError)?.response?.status;
+      // A cookie-rotation race (see comment above) can 401 a refresh that
+      // would have succeeded a moment later once the browser's cookie jar
+      // catches up with a rotation from another in-flight request. Retry
+      // once before treating the session as genuinely dead — forcing a
+      // logout on the first failure was punishing a transient race, not a
+      // real expiry.
+      if (status !== 401 && status !== 403) throw err;
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      response = await postRefresh();
+    }
     const data = unwrapApiResponse<{ accessToken: string }>(response.data);
     const accessToken = data.accessToken;
 
@@ -143,7 +156,12 @@ export function refreshSession(): Promise<string> {
   return refreshPromise;
 }
 
-function forceLoginRedirect() {
+function isSessionSupersededError(error: unknown): boolean {
+  const code = (error as AxiosError<{ code?: string }>)?.response?.data?.code;
+  return code === 'SESSION_SUPERSEDED';
+}
+
+function forceLoginRedirect(reason: 'expired' | 'superseded' = 'expired') {
   if (logoutInFlight) return;
   logoutInFlight = true;
   useAuthStore.getState().clearAuth();
@@ -158,7 +176,8 @@ function forceLoginRedirect() {
     const redirect = encodeURIComponent(
       `${currentPath}${window.location.search || ''}`,
     );
-    window.location.replace(`/login?expired=true&redirect=${redirect}`);
+    const reasonParam = reason === 'superseded' ? 'superseded=true' : 'expired=true';
+    window.location.replace(`/login?${reasonParam}&redirect=${redirect}`);
   }
   window.setTimeout(() => {
     logoutInFlight = false;
@@ -171,6 +190,14 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
     const requestUrl = originalRequest?.url as string | undefined;
+
+    if (error.response?.status === 401 && isSessionSupersededError(error)) {
+      // Refreshing here would just mint a fresh token that still isn't the
+      // active claim — go straight to a (clearly-labeled) forced logout
+      // instead of retrying.
+      forceLoginRedirect('superseded');
+      return Promise.reject(error);
+    }
 
     if (
       error.response?.status === 401 &&

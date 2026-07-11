@@ -1,8 +1,15 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { RedisService } from '../redis.service';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { ErrorCode } from '../../../common/errors/error-codes.enum';
+import { ACTIVE_SESSION_KEY_PREFIX } from '../session-activity.constants';
 
 /** How long a live user-state lookup is cached (seconds). Short enough that a
  * suspension/role change takes effect within seconds, long enough to avoid a DB
@@ -37,6 +44,25 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       );
       if (isBlacklisted)
         throw new UnauthorizedException('Token has been revoked');
+
+      // Single-active-session enforcement: once any tab/device has claimed
+      // the active slot (via POST /auth/session/activate), a token whose jti
+      // no longer matches that claim belongs to a superseded tab and is
+      // rejected — even though the token itself hasn't expired or been
+      // individually blacklisted. No claim yet (key missing/expired) means
+      // nobody has opted into enforcement for this session, so let it through.
+      const activeJti = await this.redisService.get(
+        `${ACTIVE_SESSION_KEY_PREFIX}${payload.sub}`,
+      );
+      if (activeJti && activeJti !== payload.jti) {
+        throw new HttpException(
+          {
+            message: 'This account is active in another tab or window',
+            code: ErrorCode.SESSION_SUPERSEDED,
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
     }
 
     // Re-validate live user state (role/suspension/deletion) rather than

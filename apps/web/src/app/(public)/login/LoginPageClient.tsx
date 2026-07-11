@@ -35,12 +35,16 @@ function resolveUrlErrorMessage(searchParams: URLSearchParams): string | null {
   const expired = searchParams.get('expired');
   const accountDeleted = searchParams.get('accountDeleted');
   const idle = searchParams.get('idle');
+  const superseded = searchParams.get('superseded');
 
   if (accountDeleted === '1' || accountDeleted === 'true') {
     return 'This account was deleted. No account exists with that email — create a new account to continue.';
   }
   if (idle === 'true') {
     return 'You were logged out after 24 hours of inactivity. Please sign in again.';
+  }
+  if (superseded === 'true') {
+    return 'You were logged out because this account is active in another tab or window.';
   }
   if (authError === 'auth_failed') return 'Sign-in failed. Please try again.';
   if (authError === 'database_unavailable') {
@@ -93,6 +97,7 @@ function LoginPageContent() {
     const keysToStrip = [
       'expired',
       'idle',
+      'superseded',
       'error',
       'accountDeleted',
       'twoFaChallenge',

@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { brokerApi } from '@/lib/api/broker';
 import { useFcmToken } from '@/hooks/useFcmToken';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
+import { useSessionActivity } from '@/hooks/useSessionActivity';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
 
 const BrokerConnectModal = dynamic(
@@ -32,6 +33,7 @@ export default function DashboardLayoutClient({ children }: { children: React.Re
 
   useFcmToken();
   useInactivityLogout(Boolean(user) && !bootstrapActive);
+  useSessionActivity(Boolean(user) && !bootstrapActive);
   const [showDemoBanner, setShowDemoBanner] = React.useState(false);
   const [showBrokerModal, setShowBrokerModal] = React.useState(false);
   const [connectingDemo, setConnectingDemo] = React.useState(false);

@@ -312,6 +312,29 @@ export class AuthController {
     return { success: true };
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post('session/activate')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
+  @ApiResponse({
+    status: 200,
+    description: 'This tab/device claimed as the active session',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiOperation({
+    summary:
+      'Claim this token as the single active session for the user, superseding any other open tab/device',
+  })
+  async activateSession(@Req() req: AuthenticatedRequest) {
+    const userId = req.user?.userId;
+    const jti = req.user?.jti;
+    if (!userId || !jti) {
+      throw new UnauthorizedException('Invalid session');
+    }
+    await this.authService.activateSession(userId, jti);
+    return { success: true };
+  }
+
   @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)

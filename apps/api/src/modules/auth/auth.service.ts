@@ -2,6 +2,10 @@ import { Injectable, HttpStatus, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from './redis.service';
+import {
+  ACTIVE_SESSION_KEY_PREFIX,
+  ACTIVE_SESSION_TTL_SECONDS,
+} from './session-activity.constants';
 import { EmailService } from '../email/email.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -696,6 +700,15 @@ export class AuthService {
         onboardingCompleted: user.onboardingCompleted,
       },
     };
+  }
+
+  /** See session-activity.constants.ts for the enforcement/TTL rationale. */
+  async activateSession(userId: string, jti: string) {
+    await this.redisService.set(
+      `${ACTIVE_SESSION_KEY_PREFIX}${userId}`,
+      jti,
+      ACTIVE_SESSION_TTL_SECONDS,
+    );
   }
 
   async logout(userId: string, jti: string) {
