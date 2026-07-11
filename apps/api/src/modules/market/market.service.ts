@@ -342,7 +342,9 @@ export class MarketService {
     });
     if (!response.ok) {
       this.logger.warn(`Finnhub news failed: ${response.status}`);
-      throw new ServiceUnavailableException('Unable to fetch market news right now.');
+      throw new ServiceUnavailableException(
+        'Unable to fetch market news right now.',
+      );
     }
 
     const payload = (await response.json()) as Array<{
@@ -414,7 +416,9 @@ export class MarketService {
       signal: AbortSignal.timeout(12000),
     });
     if (!response.ok) {
-      throw new ServiceUnavailableException('Unable to fetch company news right now.');
+      throw new ServiceUnavailableException(
+        'Unable to fetch company news right now.',
+      );
     }
 
     const payload = (await response.json()) as Array<{
@@ -639,7 +643,9 @@ export class MarketService {
 
   private parseCalendarValue(value?: string | null): number | null {
     if (value == null) return null;
-    const cleaned = String(value).replace(/[%KMB,\s]/gi, '').trim();
+    const cleaned = String(value)
+      .replace(/[%KMB,\s]/gi, '')
+      .trim();
     if (!cleaned) return null;
     const n = Number(cleaned);
     return Number.isFinite(n) ? n : null;

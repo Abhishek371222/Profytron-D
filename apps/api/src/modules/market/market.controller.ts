@@ -95,10 +95,7 @@ export class MarketController {
   @ApiOperation({ summary: 'Get economic calendar events from Finnhub' })
   @ApiQuery({ name: 'from', required: false, example: '2026-07-10' })
   @ApiQuery({ name: 'to', required: false, example: '2026-07-17' })
-  getEconomicCalendar(
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-  ) {
+  getEconomicCalendar(@Query('from') from?: string, @Query('to') to?: string) {
     return this.marketService.getEconomicCalendar(from, to);
   }
 

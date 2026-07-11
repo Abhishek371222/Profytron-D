@@ -104,29 +104,78 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     enabled: sessionReady,
   });
 
-  // Only show live MetaAPI numbers — never DB initialEquity placeholders.
+  type LiveAccountInfo = {
+    balance: number;
+    equity: number;
+    margin: number;
+    freeMargin: number;
+    currency: string;
+    leverage: number | null;
+    connected: true;
+    liveSynced: true;
+  };
+
+  // Keep last MetaAPI-good snapshot across transient liveSynced:false / 0-balance
+  // polls so Overview widgets don't unmount into skeletons every 12s.
+  const lastGoodAccountRef = React.useRef<LiveAccountInfo | null>(null);
+
   const accountInfo = React.useMemo(() => {
-    if (!defaultAccount) return null;
-    if (defaultAccount.liveSynced === false) return null;
+    if (brokerAccountsQuery.isError) {
+      lastGoodAccountRef.current = null;
+      return null;
+    }
+
+    // Accounts finished loading and none remain → real disconnect.
+    if (!defaultAccount) {
+      if (brokerAccountsQuery.isFetched && !brokerAccountsQuery.isPending) {
+        lastGoodAccountRef.current = null;
+      }
+      return lastGoodAccountRef.current;
+    }
+
+    const status = String(defaultAccount.connectionStatus || '').toUpperCase();
+    if (status === 'DISCONNECTED' || status === 'ERROR' || status === 'FAILED') {
+      lastGoodAccountRef.current = null;
+      return null;
+    }
+
     const balance = Number(defaultAccount.balance ?? 0);
     const equity = Number(defaultAccount.equity ?? defaultAccount.balance ?? 0);
-    if (!Number.isFinite(equity) || equity <= 0) return null;
-    if (!Number.isFinite(balance) || balance <= 0) return null;
+    const liveSynced = defaultAccount.liveSynced !== false;
+    const looksLive =
+      liveSynced &&
+      Number.isFinite(equity) &&
+      equity > 0 &&
+      Number.isFinite(balance) &&
+      balance > 0;
+
+    if (!looksLive) {
+      // Transient resync / zero flash — keep last known good numbers.
+      return lastGoodAccountRef.current;
+    }
+
     const margin = Number(defaultAccount.margin ?? 0);
     const freeMargin = Number(
       defaultAccount.freeMargin ?? Math.max(0, equity - margin),
     );
-    return {
+    const next: LiveAccountInfo = {
       balance,
       equity,
       margin: Number.isFinite(margin) ? margin : 0,
       freeMargin: Number.isFinite(freeMargin) ? freeMargin : equity,
       currency: String(defaultAccount.currency ?? 'USD'),
-      leverage: null as number | null,
-      connected: true as const,
-      liveSynced: true as const,
+      leverage: null,
+      connected: true,
+      liveSynced: true,
     };
-  }, [defaultAccount]);
+    lastGoodAccountRef.current = next;
+    return next;
+  }, [
+    defaultAccount,
+    brokerAccountsQuery.isError,
+    brokerAccountsQuery.isFetched,
+    brokerAccountsQuery.isPending,
+  ]);
 
   // Ignore non-MetaAPI portfolio payloads (stale Nest cache) until live data arrives.
   const portfolio =
@@ -181,9 +230,16 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     return next;
   }, [quotes]);
 
+  const lastGoodQuotesRef = React.useRef(liveQuotes);
+  if (Object.keys(liveQuotes).length > 0) {
+    lastGoodQuotesRef.current = liveQuotes;
+  }
+  const stableQuotes =
+    Object.keys(liveQuotes).length > 0 ? liveQuotes : lastGoodQuotesRef.current;
+
   const marketQuotesWithSpark = React.useMemo(() => {
     return Object.fromEntries(
-      Object.entries(liveQuotes).map(([key, q]) => {
+      Object.entries(stableQuotes).map(([key, q]) => {
         const hist = priceHistory[key as keyof typeof priceHistory];
         return [
           key,
@@ -191,7 +247,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
         ];
       }),
     );
-  }, [liveQuotes, priceHistory]);
+  }, [stableQuotes, priceHistory]);
 
   const refreshAll = () => {
     invalidateAccountQueries(queryClient);
@@ -205,13 +261,23 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   };
   const brokerEquityQuery = { data: portfolioValue };
 
-  const waitingForLiveBalance =
-    hasBrokerAccount && !accountInfo && !brokerAccountsQuery.isError;
-  const waitingForPortfolio =
-    isAuthenticated && portfolioQuery.isPending && !portfolio;
+  // Initial load only — never treat a background poll as "no data".
+  const accountsInitialLoading =
+    hasBrokerAccount &&
+    !accountInfo &&
+    !brokerAccountsQuery.isError &&
+    (brokerAccountsQuery.isPending || brokerAccountsQuery.isLoading);
+  const portfolioInitialLoading =
+    sessionReady && portfolioQuery.isPending && !portfolio;
+  const openTradesInitialLoading =
+    openTradesQuery.isPending && openTradesQuery.data === undefined;
+  const tradeHistoryInitialLoading =
+    tradeHistoryQuery.isPending && tradeHistoryQuery.data === undefined;
+  const quotesInitialLoading =
+    quotesLoading && Object.keys(stableQuotes).length === 0;
 
   return {
-    quotes: liveQuotes,
+    quotes: stableQuotes,
     wsConnected,
     marketQuotesWithSpark,
     portfolioQuery,
@@ -234,9 +300,13 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     isPaper,
     brokerAccountsQuery,
     brokerEquityQuery,
-    quotesLoading:
-      quotesLoading || (hasBrokerAccount && Object.keys(liveQuotes).length === 0),
-    isLoading: waitingForLiveBalance || waitingForPortfolio,
+    quotesLoading: quotesInitialLoading,
+    accountsInitialLoading,
+    portfolioInitialLoading,
+    openTradesInitialLoading,
+    tradeHistoryInitialLoading,
+    quotesInitialLoading,
+    isLoading: accountsInitialLoading || portfolioInitialLoading,
     refreshAll,
   };
 }

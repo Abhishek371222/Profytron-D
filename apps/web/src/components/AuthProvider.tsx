@@ -1,46 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { resolvePostLoginRedirect } from '@/lib/utils';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
 
-const PUBLIC_PREFIXES = [
-  '/login',
-  '/register',
-  '/signup',
-  '/auth',
-  '/onboarding',
-  '/docs',
-  '/documentation',
-  '/api-reference',
-  '/pricing',
-  '/about',
-  '/contact',
-  '/privacy',
-  '/terms',
-];
-
-function isPublicRoute(pathname: string): boolean {
-  if (pathname === '/') return true;
-  return PUBLIC_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
-  );
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
   const router = useRouter();
   const { hydrate, login, isHydrating, isAuthenticated } = useAuthStore();
   const bootstrapActive = useWorkspaceBootstrapStore((s) => s.active);
-  const startBootstrap = useWorkspaceBootstrapStore((s) => s.startBootstrap);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-
     if (window.location.pathname.startsWith('/auth/callback')) {
       return;
     }
@@ -80,16 +52,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [hydrate, login, router]);
 
-  // Cold restore into a private route — same premium workspace prep, not a blank screen.
-  useEffect(() => {
-    if (!mounted) return;
-    if (isPublicRoute(pathname)) return;
-    if (bootstrapActive) return;
-    if (!isHydrating) return;
-    startBootstrap(pathname);
-  }, [mounted, pathname, isHydrating, bootstrapActive, startBootstrap]);
+  // Prep screen is login/OAuth only — never on F5 / cold restore.
+  // Refreshing /dashboard must reopen the dashboard once hydrate finishes.
 
-  // If hydrate finished unauthenticated, drop the overlay so login can appear.
+  // If hydrate finished unauthenticated, drop any leftover overlay so login can appear.
   useEffect(() => {
     if (!bootstrapActive) return;
     if (isHydrating) return;

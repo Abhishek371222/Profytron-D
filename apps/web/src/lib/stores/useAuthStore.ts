@@ -1,6 +1,11 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { apiClient, unwrapApiResponse, refreshSession } from '../api/client';
+import {
+  apiClient,
+  unwrapApiResponse,
+  refreshSession,
+  isAccessTokenStale,
+} from '../api/client';
 import { authApi } from '../api/auth';
 import { isAdminUser } from '../utils';
 
@@ -78,10 +83,6 @@ export const useAuthStore = create<AuthState>()(
         try {
           await authApi.logout();
         } catch {
-          // Non-fatal: e.g. the access token expired in the moment between
-          // page load and clicking logout. Client state is purged either way,
-          // so this doesn't warrant an error-level log (which trips Next.js's
-          // dev overlay as if something crashed).
           console.warn('Logout API call did not complete; purging client session anyway.');
         }
         get().clearAuth();
@@ -92,8 +93,6 @@ export const useAuthStore = create<AuthState>()(
           return;
         }
 
-        // Explicit expiry/idle landing — do not resurrect from a leftover
-        // refresh cookie or persisted profile; that causes login reload loops.
         if (typeof window !== 'undefined') {
           const params = new URLSearchParams(window.location.search);
           const forcedLogin = sessionStorage.getItem(FORCE_LOGIN_KEY) === '1';
@@ -117,21 +116,25 @@ export const useAuthStore = create<AuthState>()(
         }
 
         set({ isHydrating: true, isAuthenticated: false });
-        const tryMe = async (token: string) => {
+
+        const tryMe = async (token: string, opts?: { allowRefresh?: boolean }) => {
           const meRes = await apiClient.get('/users/me', {
             headers: { Authorization: `Bearer ${token}` },
-            // Avoid interceptor refresh loops during bootstrap.
-            _retry: true,
+            // After a successful cookie refresh, don't rotate again on /me failure.
+            _retry: !opts?.allowRefresh,
           } as any);
           return unwrapApiResponse<User>(meRes.data);
         };
+
         const memoryToken = get().accessToken;
         const sessionToken =
           typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_TOKEN_KEY) : null;
         const bootstrapToken = memoryToken || sessionToken;
-        if (bootstrapToken) {
+
+        // Fresh access token → validate profile without rotating cookies.
+        if (bootstrapToken && !isAccessTokenStale(bootstrapToken)) {
           try {
-            const user = await tryMe(bootstrapToken);
+            const user = await tryMe(bootstrapToken, { allowRefresh: true });
             syncUserCookies(user);
             if (typeof window !== 'undefined') {
               sessionStorage.setItem(SESSION_TOKEN_KEY, bootstrapToken);
@@ -147,8 +150,9 @@ export const useAuthStore = create<AuthState>()(
             if (typeof window !== 'undefined') sessionStorage.removeItem(SESSION_TOKEN_KEY);
           }
         }
+
+        // Stale/missing access token — single-flight cookie refresh (no expired-JWT 401 flash).
         try {
-          // Shared single-flight refresh — never race the axios 401 interceptor.
           const accessToken = await refreshSession();
           let user = get().user;
           try {
@@ -182,8 +186,6 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'profytron-auth',
       partialize: (state) => ({
-        // Profile only — never persist isAuthenticated. Hydrate must prove a live session
-        // before any authenticated API calls (notifications, analytics, etc.) fire.
         user: state.user
           ? {
               id: state.user.id,
@@ -199,8 +201,6 @@ export const useAuthStore = create<AuthState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (!state) return;
-        // Ghost sessions: localStorage had a user → UI thought we were logged in
-        // with no access token → 401 flood → refresh race → forced logout.
         state.isAuthenticated = false;
         state.accessToken = null;
         state.isHydrating = true;

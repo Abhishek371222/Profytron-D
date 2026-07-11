@@ -21,8 +21,6 @@ export const unwrapApiResponse = <T>(payload: any): T => {
 // has a session, or explicitly use the httpOnly refresh cookie instead).
 // `logout` is deliberately excluded — the backend's JwtAuthGuard requires the
 // current access token to identify which session/refresh-token to revoke.
-// Sending it Authorization-less always returned 401 and skipped server-side
-// session revocation entirely.
 const isAuthBootstrapEndpoint = (url?: string): boolean => {
   if (!url) return false;
   return /\/auth\/(login|register|supabase|verify-email|forgot-password|reset-password|refresh|oauth-token-exchange)/.test(
@@ -42,8 +40,28 @@ const isNetworkUnavailableError = (error: unknown): boolean => {
   );
 };
 
+function readJwtExpMs(token: string | null | undefined): number | null {
+  if (!token) return null;
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+    const json = JSON.parse(
+      atob(payload.replace(/-/g, '+').replace(/_/g, '/')),
+    ) as { exp?: number };
+    return typeof json.exp === 'number' ? json.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+/** True when access JWT is missing or expires within the next 60s. */
+export function isAccessTokenStale(token: string | null | undefined): boolean {
+  const exp = readJwtExpMs(token);
+  if (exp == null) return true;
+  return exp <= Date.now() + 60_000;
+}
+
 export const apiClient = axios.create({
-  // Use same-origin /api so Next.js rewrites to backend /v1 in dev.
   baseURL: apiBaseURL,
   timeout: 30000,
   withCredentials: true,
@@ -53,7 +71,6 @@ export const apiClient = axios.create({
   },
 });
 
-// Add access token to requests — never on auth bootstrap (refresh must use cookie only).
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const url = String(config.url || '');
@@ -75,78 +92,107 @@ apiClient.interceptors.request.use(
 
 // Single-flight refresh + grace window.
 // Backend rotates refresh cookies; a second concurrent refresh with the old
-// cookie returns 401 and would otherwise wipe a healthy session.
+// cookie returns 401/SESSION_SUPERSEDED and would wipe a healthy session.
 let refreshPromise: Promise<string> | null = null;
 let lastRefreshAt = 0;
 let logoutInFlight = false;
-const REFRESH_GRACE_MS = 12_000;
+const REFRESH_GRACE_MS = 15_000;
 
-export function refreshSession(): Promise<string> {
-  if (refreshPromise) return refreshPromise;
+async function postRefreshOnce() {
+  return apiClient.post('/auth/refresh', {}, { withCredentials: true });
+}
 
-  // Recent successful refresh — reuse token instead of rotating again.
-  const existing = useAuthStore.getState().accessToken;
-  if (existing && Date.now() - lastRefreshAt < REFRESH_GRACE_MS) {
-    return Promise.resolve(existing);
+async function applyRefreshedAccessToken(accessToken: string): Promise<string> {
+  useAuthStore.getState().setToken(accessToken);
+  lastRefreshAt = Date.now();
+  if (typeof window !== 'undefined') {
+    sessionStorage.setItem('profytron_access', accessToken);
   }
 
-  const postRefresh = () =>
-    apiClient.post('/auth/refresh', {}, { withCredentials: true });
+  try {
+    const { reconnectTradingSocket } = await import(
+      '@/lib/realtime/trading-socket'
+    );
+    reconnectTradingSocket(accessToken);
+  } catch {
+    /* socket optional */
+  }
+
+  // Optional profile sync — never fail the refresh because /me is slow/down.
+  try {
+    const meRes = await apiClient.get('/users/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      _retry: true,
+    } as any);
+    const user = unwrapApiResponse<any>(meRes.data);
+    if (typeof window !== 'undefined' && user) {
+      const onboardingFlag =
+        isAdminUser(user) || user.onboardingCompleted ? '1' : '0';
+      document.cookie = `onboarding_completed=${onboardingFlag}; path=/; max-age=7776000; samesite=lax`;
+      if (user.role) {
+        document.cookie = `user_role=${user.role}; path=/; max-age=7776000; samesite=lax`;
+      }
+      useAuthStore.setState({ user, isAuthenticated: true });
+    }
+  } catch {
+    /* optional */
+  }
+
+  return accessToken;
+}
+
+export function refreshSession(): Promise<string> {
+  // Assign immediately so parallel 401 handlers share one flight.
+  if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
+    const existing = useAuthStore.getState().accessToken;
+    if (
+      existing &&
+      !isAccessTokenStale(existing) &&
+      Date.now() - lastRefreshAt < REFRESH_GRACE_MS
+    ) {
+      return existing;
+    }
+    // After a winning refresh, even a slightly-stale grace token is better than
+    // rotating again and risking SESSION_SUPERSEDED.
+    if (existing && Date.now() - lastRefreshAt < REFRESH_GRACE_MS) {
+      return existing;
+    }
+
     let response;
     try {
-      response = await postRefresh();
+      response = await postRefreshOnce();
     } catch (err) {
       const status = (err as AxiosError)?.response?.status;
-      // A cookie-rotation race (see comment above) can 401 a refresh that
-      // would have succeeded a moment later once the browser's cookie jar
-      // catches up with a rotation from another in-flight request. Retry
-      // once before treating the session as genuinely dead — forcing a
-      // logout on the first failure was punishing a transient race, not a
-      // real expiry.
-      if (status !== 401 && status !== 403) throw err;
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      response = await postRefresh();
-    }
-    const data = unwrapApiResponse<{ accessToken: string }>(response.data);
-    const accessToken = data.accessToken;
+      const code = (err as AxiosError<{ code?: string }>)?.response?.data?.code;
 
-    useAuthStore.getState().setToken(accessToken);
-    lastRefreshAt = Date.now();
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('profytron_access', accessToken);
-    }
-
-    try {
-      const { reconnectTradingSocket } = await import(
-        '@/lib/realtime/trading-socket'
-      );
-      reconnectTradingSocket(accessToken);
-    } catch {
-      /* socket optional */
-    }
-
-    try {
-      const meRes = await apiClient.get('/users/me', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        _retry: true,
-      } as any);
-      const user = unwrapApiResponse<any>(meRes.data);
-      if (typeof window !== 'undefined' && user) {
-        const onboardingFlag =
-          isAdminUser(user) || user.onboardingCompleted ? '1' : '0';
-        document.cookie = `onboarding_completed=${onboardingFlag}; path=/; max-age=7776000; samesite=lax`;
-        if (user.role) {
-          document.cookie = `user_role=${user.role}; path=/; max-age=7776000; samesite=lax`;
+      // Another request won the cookie rotation — reuse its token if present.
+      if (
+        status === 401 &&
+        (code === 'SESSION_SUPERSEDED' || code === 'INVALID_REFRESH_SESSION')
+      ) {
+        await new Promise((r) => setTimeout(r, 500));
+        const winner = useAuthStore.getState().accessToken;
+        if (winner && Date.now() - lastRefreshAt < REFRESH_GRACE_MS) {
+          return winner;
         }
-        useAuthStore.setState({ user, isAuthenticated: true });
+        // Cookie jar may have the new refresh now — one more try.
+        try {
+          response = await postRefreshOnce();
+        } catch (retryErr) {
+          throw retryErr;
+        }
+      } else if (status === 401 || status === 403) {
+        await new Promise((r) => setTimeout(r, 600));
+        response = await postRefreshOnce();
+      } else {
+        throw err;
       }
-    } catch {
-      /* optional profile sync */
     }
 
-    return accessToken;
+    const data = unwrapApiResponse<{ accessToken: string }>(response.data);
+    return applyRefreshedAccessToken(data.accessToken);
   })();
 
   void refreshPromise.finally(() => {
@@ -162,6 +208,10 @@ function isSessionSupersededError(error: unknown): boolean {
 }
 
 function forceLoginRedirect(reason: 'expired' | 'superseded' = 'expired') {
+  // Never bounce during hydrate — AuthProvider finishes the overlay and
+  // routes to login without a hard redirect race.
+  if (useAuthStore.getState().isHydrating) return;
+
   if (logoutInFlight) return;
   logoutInFlight = true;
   useAuthStore.getState().clearAuth();
@@ -184,7 +234,6 @@ function forceLoginRedirect(reason: 'expired' | 'superseded' = 'expired') {
   }, 5000);
 }
 
-// Handle 401 Unauthorized for Token Refresh
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
@@ -192,9 +241,22 @@ apiClient.interceptors.response.use(
     const requestUrl = originalRequest?.url as string | undefined;
 
     if (error.response?.status === 401 && isSessionSupersededError(error)) {
-      // Refreshing here would just mint a fresh token that still isn't the
-      // active claim — go straight to a (clearly-labeled) forced logout
-      // instead of retrying.
+      // Non-refresh 401 with SESSION_SUPERSEDED is rare; try to recover via
+      // single-flight refresh before hard logout.
+      if (!originalRequest?._retry && !isAuthBootstrapEndpoint(requestUrl)) {
+        originalRequest._retry = true;
+        try {
+          const accessToken = await refreshSession();
+          originalRequest.headers = {
+            ...originalRequest.headers,
+            Authorization: `Bearer ${accessToken}`,
+          };
+          return apiClient(originalRequest);
+        } catch {
+          forceLoginRedirect('superseded');
+          return Promise.reject(error);
+        }
+      }
       forceLoginRedirect('superseded');
       return Promise.reject(error);
     }

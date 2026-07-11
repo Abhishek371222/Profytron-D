@@ -77,12 +77,13 @@ export function WorkspaceBootstrapController() {
 
     const run = async () => {
       const started = Date.now();
+      const hardCapMs = 12_000;
       completeStep('session');
-      await hold(900);
+      await hold(350);
       if (!still()) return;
 
       completeStep('profile');
-      await hold(700);
+      await hold(250);
       if (!still()) return;
 
       completeStep('preferences');
@@ -149,10 +150,10 @@ export function WorkspaceBootstrapController() {
       const accounts = await settle(accountsP);
       if (!still()) return;
       completeStep('accounts');
-      await hold(600);
+      await hold(200);
 
-      // Poll until live MetaAPI balances are present (or no account / deadline).
-      const liveDeadline = Date.now() + 18_000;
+      // Brief live sync wait — never block login forever.
+      const liveDeadline = Math.min(Date.now() + 6_000, started + hardCapMs);
       let liveAccounts = accounts;
       while (still() && Date.now() < liveDeadline && !accountsLiveReady(liveAccounts as any[])) {
         liveAccounts = await settle(
@@ -162,13 +163,12 @@ export function WorkspaceBootstrapController() {
             staleTime: 0,
           }),
         );
-        await sleep(650);
+        await sleep(500);
       }
 
       if (!still()) return;
       completeStep('workspace');
 
-      // Wait until the rest of the dashboard payload settles.
       await Promise.all([
         settle(portfolioP),
         settle(openTradesP),
@@ -180,8 +180,8 @@ export function WorkspaceBootstrapController() {
 
       if (!still()) return;
 
-      // Keep polling until live balances + portfolio are warm (or hard ceiling).
-      const hardDeadline = started + 40_000;
+      // Open as soon as we have something useful, or hit the hard cap.
+      const hardDeadline = started + hardCapMs;
       while (still() && Date.now() < hardDeadline) {
         const cachedAccounts = queryClient.getQueryData<any[]>(['broker-accounts']);
         const portfolio = queryClient.getQueryData<any>(['portfolio', '1m']);
@@ -217,17 +217,13 @@ export function WorkspaceBootstrapController() {
             staleTime: 0,
           }),
         );
-        await sleep(800);
+        await sleep(500);
       }
 
       if (!still()) return;
 
-      // Keep "Finalizing…" readable even if APIs were fast.
-      const elapsed = Date.now() - started;
-      if (elapsed < 5500) await hold(5500 - elapsed);
-
       completeStep('ready');
-      await hold(1100);
+      await hold(450);
       if (!still()) return;
       beginExit();
     };

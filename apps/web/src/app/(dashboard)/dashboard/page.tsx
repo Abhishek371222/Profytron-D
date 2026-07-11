@@ -41,10 +41,13 @@ export default function DashboardPage() {
     hasBrokerAccount,
     defaultBrokerAccount,
     isPaper,
-    isLoading,
     refreshAll,
-    portfolioQuery,
     risk,
+    accountsInitialLoading,
+    portfolioInitialLoading,
+    openTradesInitialLoading,
+    tradeHistoryInitialLoading,
+    quotesInitialLoading,
   } = useDashboardData('1M');
 
   const newsQuery = useQuery({
@@ -166,7 +169,8 @@ export default function DashboardPage() {
     portfolio?.syncError || tradeHistoryQuery.data?.syncError;
   const metaApiBroken = syncError === 'METAAPI_UNAUTHORIZED';
 
-  const metricsLoading = hasBrokerAccount && !liveReady;
+  // Skeleton only on true first load — never on background MetaAPI polls.
+  const metricsLoading = hasBrokerAccount && accountsInitialLoading && !liveReady;
 
   const drawdownPct = Number(portfolio?.maxDrawdown ?? risk?.drawdownPct ?? 0);
   const profitFactor = Number(portfolio?.profitFactor ?? 0);
@@ -290,7 +294,7 @@ export default function DashboardPage() {
             positions={openTrades}
             quotes={quoteMap}
             currency={currency}
-            loading={isLoading && openTrades.length === 0}
+            loading={openTradesInitialLoading}
             onNewOrder={() => setManualOrderOpen(true)}
           />
         </div>
@@ -300,9 +304,7 @@ export default function DashboardPage() {
             totalReturnPct={totalReturnPct}
             winRate={portfolio?.winRate ?? 0}
             totalTrades={portfolio?.totalTrades ?? 0}
-            loading={
-              (portfolioQuery.isPending || portfolioQuery.isFetching) && !portfolio
-            }
+            loading={portfolioInitialLoading}
           />
         </div>
         <div className="xl:col-span-3">
@@ -310,7 +312,7 @@ export default function DashboardPage() {
             quotes={quoteMap}
             activeTab={watchTab}
             onTabChange={setWatchTab}
-            loading={Object.keys(quoteMap).length === 0}
+            loading={quotesInitialLoading}
           />
         </div>
       </div>
@@ -320,18 +322,18 @@ export default function DashboardPage() {
         <OverviewRecentTrades
           trades={tradeHistory}
           currency={currency}
-          loading={tradeHistoryQuery.isPending && tradeHistory.length === 0}
+          loading={tradeHistoryInitialLoading}
         />
         <OverviewEconomicCalendar
           events={calendarQuery.data?.events ?? []}
-          loading={calendarQuery.isPending}
+          loading={calendarQuery.isPending && !calendarQuery.data}
           error={calendarQuery.isError}
         />
         <OverviewMarketNews
           news={newsQuery.data?.items ?? []}
           category={newsCategory}
           onCategoryChange={setNewsCategory}
-          loading={newsQuery.isPending}
+          loading={newsQuery.isPending && !newsQuery.data}
         />
       </div>
 
