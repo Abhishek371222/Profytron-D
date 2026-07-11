@@ -108,8 +108,9 @@ export default function DashboardPage() {
     accountInfo?.freeMargin ?? Math.max(0, equity - margin);
 
   const unrealizedPnl = openTrades.reduce((s, t) => s + Number(t.pnl || 0), 0);
+  const [nowMs] = React.useState(() => Date.now());
   const realizedPnl24h = React.useMemo(() => {
-    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    const cutoff = nowMs - 24 * 60 * 60 * 1000;
     const fromHistory = tradeHistory
       .filter((t) => {
         const closed = t.closedAt ? new Date(t.closedAt).getTime() : 0;
@@ -118,7 +119,7 @@ export default function DashboardPage() {
       .reduce((s, t) => s + Number(t.profit ?? 0), 0);
     if (tradeHistory.length > 0) return fromHistory;
     return Number(portfolio?.totalProfit ?? 0);
-  }, [tradeHistory, portfolio?.totalProfit]);
+  }, [tradeHistory, portfolio?.totalProfit, nowMs]);
 
   const equityCurve = portfolio?.equityCurve ?? [];
   // Sparkline from real curve — drop pathological end spikes for display.
