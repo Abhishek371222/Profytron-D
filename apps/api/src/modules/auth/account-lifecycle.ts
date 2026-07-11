@@ -33,7 +33,7 @@ export async function closeUserAccount(
     },
   });
   await redis.del(`auth:userstate:${user.id}`);
-  await redis.del(`auth:refresh:${user.id}:default`);
+  await redis.delPrefix(`auth:refresh:${user.id}:`);
   await prisma.userSession.deleteMany({ where: { userId: user.id } });
 }
 

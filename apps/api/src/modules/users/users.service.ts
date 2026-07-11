@@ -368,8 +368,8 @@ export class UsersService {
     await this.redisService.del(`auth:reset:otp:${userId}`);
     this.clearRememberedPasswordResetOtp(userId);
 
-    // Force re-login with the new password.
-    await this.redisService.del(`auth:refresh:${userId}:default`);
+    // Revoke every device session after a password change.
+    await this.redisService.delPrefix(`auth:refresh:${userId}:`);
     await this.prisma.userSession.deleteMany({ where: { userId } });
 
     await this.prisma.auditLog.create({

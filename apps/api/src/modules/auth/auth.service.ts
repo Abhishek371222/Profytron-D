@@ -85,13 +85,20 @@ export class AuthService {
     return amount * (multipliers[unit] ?? 1);
   }
 
+  private refreshSessionKey(userId: string, jti: string) {
+    return `auth:refresh:${userId}:${jti}`;
+  }
+
   private async persistRefreshTokenSafely(
     userId: string,
     refreshToken: string,
+    jti: string,
   ): Promise<void> {
     try {
+      // Per-session key so phone/laptop/tabs can stay logged in together.
+      // The old single-slot `…:default` key kicked every other device on login.
       await this.redisService.set(
-        `auth:refresh:${userId}:default`,
+        this.refreshSessionKey(userId, jti),
         refreshToken,
         7 * 24 * 3600,
       );
@@ -101,6 +108,18 @@ export class AuthService {
       );
       this.logger.debug(String(error));
     }
+  }
+
+  private async revokeRefreshSession(userId: string, jti?: string | null) {
+    if (jti) {
+      await this.redisService.del(this.refreshSessionKey(userId, jti));
+    }
+    // Clean legacy single-slot key from older builds.
+    await this.redisService.del(`auth:refresh:${userId}:default`);
+  }
+
+  private async revokeAllRefreshSessions(userId: string) {
+    await this.redisService.delPrefix(`auth:refresh:${userId}:`);
   }
 
   async register(dto: RegisterDto) {
@@ -289,7 +308,11 @@ export class AuthService {
       updatedUser.email,
       updatedUser.role,
     );
-    await this.persistRefreshTokenSafely(updatedUser.id, tokens.refreshToken);
+    await this.persistRefreshTokenSafely(
+      updatedUser.id,
+      tokens.refreshToken,
+      tokens.jti,
+    );
 
     try {
       await this.prisma.auditLog.create({
@@ -495,7 +518,11 @@ export class AuthService {
       activeUser.email,
       activeUser.role,
     );
-    await this.persistRefreshTokenSafely(activeUser.id, tokens.refreshToken);
+    await this.persistRefreshTokenSafely(
+      activeUser.id,
+      tokens.refreshToken,
+      tokens.jti,
+    );
 
     try {
       await this.prisma.user.update({
@@ -599,7 +626,7 @@ export class AuthService {
     const ip = req.ip || '0.0.0.0';
     const userAgent = req.headers['user-agent'] || 'Unknown';
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken, tokens.jti);
 
     try {
       await this.prisma.user.update({
@@ -636,24 +663,26 @@ export class AuthService {
   }
 
   async refresh(userId: string, refreshToken: string, jti: string) {
-    const stored = await this.redisService.get(
-      `auth:refresh:${userId}:default`,
-    );
-    // The refresh JWT has already been verified (signature + expiry + blacklist)
-    // by JwtRefreshGuard before reaching here; the Redis record is an extra
-    // rotation/revocation guard. In dev we run an in-process Redis that is wiped
-    // on every API restart, so without this carve-out each restart would force
-    // every user to log in again ("session expired"). Behaviour:
-    //   - record present  -> must match the presented token (rotation guard)
-    //   - record missing   -> reject only when backed by a real persistent Redis
-    // Production (REDIS_INMEMORY unset) keeps the original strict behaviour.
+    const sessionKey = this.refreshSessionKey(userId, jti);
+    let stored = await this.redisService.get(sessionKey);
+
+    // Migrate legacy single-slot sessions from older builds.
+    if (!stored) {
+      const legacyKey = `auth:refresh:${userId}:default`;
+      const legacy = await this.redisService.get(legacyKey);
+      if (legacy && legacy === refreshToken) {
+        stored = legacy;
+        await this.redisService.del(legacyKey);
+      }
+    }
+
+    // JWT already verified by JwtRefreshGuard. Redis tracks each browser/device
+    // by jti so logging in elsewhere does not kill this session.
     const usingEphemeralRedis = process.env.REDIS_INMEMORY === 'true';
     if (stored && stored !== refreshToken) {
-      // A different login/refresh already rotated past this token — this tab
-      // is the one being superseded, not a corrupted/expired session.
       appError(
         HttpStatus.UNAUTHORIZED,
-        'This account was signed in from another device or tab',
+        'This session was replaced. Please sign in again.',
         ErrorCode.SESSION_SUPERSEDED,
       );
     }
@@ -673,7 +702,6 @@ export class AuthService {
       );
     }
 
-    // Do not rotate/issue tokens for a suspended account (parity with login).
     if (user.isSuspended)
       appError(
         HttpStatus.FORBIDDEN,
@@ -681,7 +709,6 @@ export class AuthService {
         ErrorCode.ACCOUNT_SUSPENDED,
       );
 
-    // Blacklist the consumed refresh token so it cannot be reused
     if (jti) {
       const refreshExpiry = this.parseExpirySeconds(
         process.env.JWT_REFRESH_EXPIRES,
@@ -692,10 +719,15 @@ export class AuthService {
         'true',
         refreshExpiry,
       );
+      await this.redisService.del(sessionKey);
     }
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    await this.persistRefreshTokenSafely(
+      user.id,
+      tokens.refreshToken,
+      tokens.jti,
+    );
 
     return {
       accessToken: tokens.accessToken,
@@ -708,11 +740,8 @@ export class AuthService {
   }
 
   async logout(userId: string, jti: string) {
-    await this.redisService.del(`auth:refresh:${userId}:default`);
+    await this.revokeRefreshSession(userId, jti);
     if (jti) {
-      // Blacklist the access token JTI for its remaining lifetime so it cannot
-      // be used after logout. Use the configured expiry so the blacklist entry
-      // does not outlive the token (wasted memory) or expire before it (gap).
       const accessExpiry = this.parseExpirySeconds(
         process.env.JWT_ACCESS_EXPIRES,
         24 * 3600,
@@ -780,7 +809,7 @@ export class AuthService {
     });
 
     // Invalidate refresh tokens broadly for the user
-    await this.redisService.del(`auth:refresh:${user.id}:default`);
+    await this.revokeAllRefreshSessions(user.id);
 
     await this.prisma.auditLog.create({
       data: {
@@ -1115,7 +1144,7 @@ export class AuthService {
       return { requiresTwoFa: true as const, challengeToken };
     }
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken);
+    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken, tokens.jti);
     return { requiresTwoFa: false as const, tokens };
   }
 
@@ -1167,7 +1196,7 @@ export class AuthService {
         secret: process.env.JWT_REFRESH_SECRET,
       },
     );
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, jti };
   }
 
   async sendMagicLink(email: string) {
