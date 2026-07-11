@@ -115,27 +115,17 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     liveSynced: true;
   };
 
-  // Keep last MetaAPI-good snapshot across transient liveSynced:false / 0-balance
-  // polls so Overview widgets don't unmount into skeletons every 12s.
-  const lastGoodAccountRef = React.useRef<LiveAccountInfo | null>(null);
+  // Sticky last-good snapshot in state (not refs) so react-hooks/refs lint passes
+  // and Overview widgets keep numbers across transient MetaAPI resync polls.
+  const [stickyAccount, setStickyAccount] = React.useState<LiveAccountInfo | null>(
+    null,
+  );
 
-  const accountInfo = React.useMemo(() => {
-    if (brokerAccountsQuery.isError) {
-      lastGoodAccountRef.current = null;
-      return null;
-    }
-
-    // Accounts finished loading and none remain → real disconnect.
-    if (!defaultAccount) {
-      if (brokerAccountsQuery.isFetched && !brokerAccountsQuery.isPending) {
-        lastGoodAccountRef.current = null;
-      }
-      return lastGoodAccountRef.current;
-    }
+  const liveAccountSnapshot = React.useMemo((): LiveAccountInfo | null => {
+    if (brokerAccountsQuery.isError || !defaultAccount) return null;
 
     const status = String(defaultAccount.connectionStatus || '').toUpperCase();
     if (status === 'DISCONNECTED' || status === 'ERROR' || status === 'FAILED') {
-      lastGoodAccountRef.current = null;
       return null;
     }
 
@@ -148,17 +138,13 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
       equity > 0 &&
       Number.isFinite(balance) &&
       balance > 0;
-
-    if (!looksLive) {
-      // Transient resync / zero flash — keep last known good numbers.
-      return lastGoodAccountRef.current;
-    }
+    if (!looksLive) return null;
 
     const margin = Number(defaultAccount.margin ?? 0);
     const freeMargin = Number(
       defaultAccount.freeMargin ?? Math.max(0, equity - margin),
     );
-    const next: LiveAccountInfo = {
+    return {
       balance,
       equity,
       margin: Number.isFinite(margin) ? margin : 0,
@@ -168,14 +154,29 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
       connected: true,
       liveSynced: true,
     };
-    lastGoodAccountRef.current = next;
-    return next;
-  }, [
-    defaultAccount,
-    brokerAccountsQuery.isError,
-    brokerAccountsQuery.isFetched,
-    brokerAccountsQuery.isPending,
-  ]);
+  }, [defaultAccount, brokerAccountsQuery.isError]);
+
+  const accountDisconnected =
+    brokerAccountsQuery.isError ||
+    (!defaultAccount &&
+      brokerAccountsQuery.isFetched &&
+      !brokerAccountsQuery.isPending) ||
+    (() => {
+      const status = String(defaultAccount?.connectionStatus || '').toUpperCase();
+      return status === 'DISCONNECTED' || status === 'ERROR' || status === 'FAILED';
+    })();
+
+  React.useEffect(() => {
+    if (liveAccountSnapshot) {
+      setStickyAccount(liveAccountSnapshot);
+      return;
+    }
+    if (accountDisconnected) {
+      setStickyAccount(null);
+    }
+  }, [liveAccountSnapshot, accountDisconnected]);
+
+  const accountInfo = liveAccountSnapshot ?? stickyAccount;
 
   // Ignore non-MetaAPI portfolio payloads (stale Nest cache) until live data arrives.
   const portfolio =
@@ -230,12 +231,15 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     return next;
   }, [quotes]);
 
-  const lastGoodQuotesRef = React.useRef(liveQuotes);
-  if (Object.keys(liveQuotes).length > 0) {
-    lastGoodQuotesRef.current = liveQuotes;
-  }
+  const [stickyQuotes, setStickyQuotes] = React.useState<typeof quotes>({});
+  React.useEffect(() => {
+    if (Object.keys(liveQuotes).length > 0) {
+      setStickyQuotes(liveQuotes);
+    }
+  }, [liveQuotes]);
+
   const stableQuotes =
-    Object.keys(liveQuotes).length > 0 ? liveQuotes : lastGoodQuotesRef.current;
+    Object.keys(liveQuotes).length > 0 ? liveQuotes : stickyQuotes;
 
   const marketQuotesWithSpark = React.useMemo(() => {
     return Object.fromEntries(
