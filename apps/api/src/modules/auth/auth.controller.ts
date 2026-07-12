@@ -299,11 +299,15 @@ export class AuthController {
   ) {
     const userId = req.user?.userId;
     const jti = req.user?.jti;
+    const refreshToken =
+      typeof req.cookies?.refresh_token === 'string'
+        ? req.cookies.refresh_token
+        : undefined;
     if (!userId || !jti) {
       throw new UnauthorizedException('Invalid session');
     }
 
-    await this.authService.logout(userId, jti);
+    await this.authService.logout(userId, jti, refreshToken);
     const isSecure = process.env.NODE_ENV === 'production';
     const cookieOpts = {
       path: '/',

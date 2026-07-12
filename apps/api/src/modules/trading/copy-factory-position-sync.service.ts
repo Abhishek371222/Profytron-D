@@ -212,7 +212,18 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
     const brokerIds = new Set(brokerPositions.map((p) => p.id));
 
     for (const pos of brokerPositions) {
-      if (dbByTicket.has(pos.id)) continue;
+      const existing = dbByTicket.get(pos.id);
+      if (existing) {
+        const nextProfit =
+          typeof pos.profit === 'number' ? pos.profit : Number(existing.profit ?? 0);
+        if (nextProfit !== Number(existing.profit ?? 0)) {
+          await this.prisma.trade.update({
+            where: { id: existing.id },
+            data: { profit: nextProfit },
+          });
+        }
+        continue;
+      }
       const direction =
         pos.type?.toUpperCase() === 'POSITION_TYPE_SELL' ||
         pos.type?.toUpperCase() === 'SELL'
@@ -264,7 +275,11 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
 
       const closed = await this.prisma.trade.update({
         where: { id: trade.id },
-        data: { status: TradeStatus.CLOSED, closedAt: new Date() },
+        data: {
+          status: TradeStatus.CLOSED,
+          closedAt: new Date(),
+          profit: trade.profit ?? 0,
+        },
       });
       this.gateway.sendToUser(sub.userId, 'trade_closed', closed);
     }

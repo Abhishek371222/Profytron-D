@@ -50,12 +50,24 @@ function isSupabaseSocialBroken(): boolean {
  * Google Client ID/Secret are configured in Supabase Dashboard → Authentication →
  * Providers → Google (not in web env). The API uses GOOGLE_CLIENT_ID/SECRET only
  * for the legacy NestJS /v1/auth/google route (used as local fallback).
+ *
+ * On localhost we always use NestJS Google OAuth so the post-login redirect stays
+ * on http://localhost:3000 (Supabase Site URL is usually the production domain).
  */
 export async function startSocialOAuth(
   provider: SocialProvider,
   context: SocialAuthContext = 'login',
 ) {
   const action = context === 'login' ? 'sign in' : 'sign up';
+  const isLocalhost =
+    typeof window !== 'undefined' &&
+    /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
+
+  // Local dev: Nest Google OAuth → FRONTEND_URL=localhost (never production).
+  if (provider === 'google' && isLocalhost) {
+    window.location.href = '/api/auth/google';
+    return;
+  }
 
   // Dead / mismatched Supabase project → NestJS Google OAuth (silent, no toast).
   if (provider === 'google' && isSupabaseSocialBroken()) {

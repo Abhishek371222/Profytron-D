@@ -2,10 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Newspaper } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EconomicCalendarEvent } from '@/lib/api/market';
 import type { MarketNewsItem } from '@/lib/api/market';
+import {
+  isUsableNewsImageUrl,
+  newsImageSrc,
+  newsWithImages,
+} from '@/lib/market/news-image';
 import { relativeTime } from './overview-utils';
 
 type Props = {
@@ -123,47 +127,55 @@ export function OverviewMarketIntel({
             Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="h-14 animate-pulse rounded-xl bg-muted/40" />
             ))
-          ) : news.length === 0 ? (
+          ) : newsWithImages(news).length === 0 ? (
             <p className="px-3 py-8 text-center text-xs text-muted-foreground">
-              No headlines right now.
+              No photo headlines right now.
             </p>
           ) : (
-            news.slice(0, 5).map((item) => (
-              <a
-                key={item.id}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex gap-2.5 rounded-xl px-2 py-2 transition-colors hover:bg-muted/40"
-              >
-                {item.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.image}
-                    alt=""
-                    className="h-11 w-14 shrink-0 rounded-lg object-cover bg-muted"
-                  />
-                ) : (
-                  <div className="flex h-11 w-14 shrink-0 items-center justify-center rounded-lg bg-muted/50">
-                    <Newspaper className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="mb-0.5 flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                    <span className="font-semibold uppercase tracking-wide text-primary/80">
-                      {item.category || 'Market'}
-                    </span>
-                    <span>·</span>
-                    <span>{item.source}</span>
-                    <span>·</span>
-                    <span>{relativeTime(item.datetime)}</span>
-                  </div>
-                  <p className="line-clamp-2 text-xs font-medium leading-snug text-foreground">
-                    {item.headline}
-                  </p>
-                </div>
-              </a>
-            ))
+            newsWithImages(news)
+              .slice(0, 6)
+              .map((item) => {
+                const imageUrl = isUsableNewsImageUrl(item.image)
+                  ? item.image!
+                  : null;
+                if (!imageUrl) return null;
+                return (
+                  <a
+                    key={item.id}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex gap-2.5 rounded-xl px-2 py-2 transition-colors hover:bg-muted/40"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={newsImageSrc(imageUrl)}
+                      alt=""
+                      loading="lazy"
+                      className="h-11 w-14 shrink-0 rounded-lg object-cover bg-muted"
+                      onError={(e) => {
+                        (
+                          e.currentTarget.closest('a') as HTMLElement | null
+                        )?.remove();
+                      }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-0.5 flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                        <span className="font-semibold uppercase tracking-wide text-primary/80">
+                          {item.category || 'Market'}
+                        </span>
+                        <span>·</span>
+                        <span>{item.source}</span>
+                        <span>·</span>
+                        <span>{relativeTime(item.datetime)}</span>
+                      </div>
+                      <p className="line-clamp-2 text-xs font-medium leading-snug text-foreground">
+                        {item.headline}
+                      </p>
+                    </div>
+                  </a>
+                );
+              })
           )}
         </div>
       </div>

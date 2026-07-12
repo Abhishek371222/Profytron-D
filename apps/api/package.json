@@ -22,7 +22,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "setup:master-copy": "ts-node -r tsconfig-paths/register scripts/setup-master-copy.ts"
+    "setup:master-copy": "ts-node -r tsconfig-paths/register scripts/setup-master-copy.ts",
+    "seed:coach-faq": "ts-node -r tsconfig-paths/register prisma/seed-coach-faq.ts"
   },
   "prisma": {
     "seed": "ts-node --esm prisma/seed.ts"
@@ -109,6 +110,7 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/pdf-parse": "^1.1.4",
     "@types/qrcode": "^1.5.6",
+    "@types/sharp": "^0.32.0",
     "@types/supertest": "^7.0.0",
     "babel-jest": "^30.3.0",
     "eslint": "^9.18.0",

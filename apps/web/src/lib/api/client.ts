@@ -99,7 +99,23 @@ let logoutInFlight = false;
 const REFRESH_GRACE_MS = 15_000;
 
 async function postRefreshOnce() {
-  return apiClient.post('/auth/refresh', {}, { withCredentials: true });
+  return apiClient.post(
+    '/auth/refresh',
+    {},
+    { withCredentials: true, timeout: 20_000 },
+  );
+}
+
+function isTransientRefreshFailure(error: unknown): boolean {
+  const axiosErr = error as AxiosError;
+  const status = axiosErr?.response?.status;
+  const code = axiosErr?.code;
+  if (isNetworkUnavailableError(error)) return true;
+  if (code === 'ECONNABORTED' || code === 'ETIMEDOUT') return true;
+  if (status === 500 || status === 502 || status === 503 || status === 504) {
+    return true;
+  }
+  return false;
 }
 
 async function applyRefreshedAccessToken(accessToken: string): Promise<string> {
@@ -145,21 +161,22 @@ export function refreshSession(): Promise<string> {
   // Assign immediately so parallel 401 handlers share one flight.
   if (refreshPromise) return refreshPromise;
 
-  refreshPromise = (async () => {
-    const existing = useAuthStore.getState().accessToken;
-    if (
-      existing &&
-      !isAccessTokenStale(existing) &&
-      Date.now() - lastRefreshAt < REFRESH_GRACE_MS
-    ) {
-      return existing;
-    }
-    // After a winning refresh, even a slightly-stale grace token is better than
-    // rotating again and risking SESSION_SUPERSEDED.
-    if (existing && Date.now() - lastRefreshAt < REFRESH_GRACE_MS) {
-      return existing;
-    }
+  // Fast paths stay outside the async IIFE. Referencing `pending` inside a
+  // synchronously-completing async function hits TDZ ("Cannot access 'pending'
+  // before initialization") and breaks Alpha Coach + auth refresh.
+  const existing = useAuthStore.getState().accessToken;
+  if (
+    existing &&
+    !isAccessTokenStale(existing) &&
+    Date.now() - lastRefreshAt < REFRESH_GRACE_MS
+  ) {
+    return Promise.resolve(existing);
+  }
+  if (existing && Date.now() - lastRefreshAt < REFRESH_GRACE_MS) {
+    return Promise.resolve(existing);
+  }
 
+  const pending = (async () => {
     let response;
     try {
       response = await postRefreshOnce();
@@ -178,13 +195,13 @@ export function refreshSession(): Promise<string> {
           return winner;
         }
         // Cookie jar may have the new refresh now — one more try.
-        try {
-          response = await postRefreshOnce();
-        } catch (retryErr) {
-          throw retryErr;
-        }
+        response = await postRefreshOnce();
       } else if (status === 401 || status === 403) {
         await new Promise((r) => setTimeout(r, 600));
+        response = await postRefreshOnce();
+      } else if (isTransientRefreshFailure(err)) {
+        // API restart / Redis blip — retry once before cascading 401s.
+        await new Promise((r) => setTimeout(r, 800));
         response = await postRefreshOnce();
       } else {
         throw err;
@@ -195,11 +212,13 @@ export function refreshSession(): Promise<string> {
     return applyRefreshedAccessToken(data.accessToken);
   })();
 
-  void refreshPromise.finally(() => {
-    refreshPromise = null;
+  refreshPromise = pending;
+  void pending.finally(() => {
+    if (refreshPromise === pending) {
+      refreshPromise = null;
+    }
   });
-
-  return refreshPromise;
+  return pending;
 }
 
 function isSessionSupersededError(error: unknown): boolean {

@@ -17,6 +17,7 @@ import { AffiliatesModule } from './modules/affiliates/affiliates.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { MarketplaceModule } from './modules/marketplace/marketplace.module';
 import { AIModule } from './modules/ai/ai.module';
+import { CoachModule } from './modules/coach/coach.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { WebsocketModule } from './modules/websocket/websocket.module';
 import { SearchModule } from './modules/search/search.module';
@@ -140,6 +141,7 @@ const parseRedisConfig = () => {
     PaymentsModule,
     TradingModule,
     AIModule,
+    CoachModule,
     SearchModule,
     MarketModule,
     LeaderboardModule,

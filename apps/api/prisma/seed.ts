@@ -525,6 +525,10 @@ async function main() {
     });
   }
 
+  const { seedCoachFaq } = require('./seed-coach-faq') as typeof import('./seed-coach-faq');
+  const faq = await seedCoachFaq(prisma);
+  console.log(`Coach FAQ: ${faq.answers} answers, ${faq.questions} questions`);
+
   console.log('Seeding complete ✅');
 }
 

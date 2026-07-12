@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
@@ -43,15 +43,18 @@ function resolveUrlErrorMessage(searchParams: URLSearchParams): string | null {
   if (idle === 'true') {
     return 'You were logged out after 24 hours of inactivity. Please sign in again.';
   }
-  if (superseded === 'true') {
-    return 'You were logged out because this account is active in another tab or window.';
+  if (superseded === 'true' || authError === 'session_limit') {
+    return 'This account is already signed in on 2 devices. Sign out somewhere else, or continue here (the oldest session will be signed out).';
   }
   if (authError === 'auth_failed') return 'Sign-in failed. Please try again.';
+  if (authError === 'oauth_failed') {
+    return 'Google/GitHub sign-in could not finish. Please try again.';
+  }
   if (authError === 'database_unavailable') {
     return "We're experiencing a temporary issue. Please try again in a moment.";
   }
   if (authError === 'sync_failed') {
-    return 'Sign-in succeeded but we hit a snag. Please try again.';
+    return 'Sign-in almost completed, but session setup failed. Please try signing in again.';
   }
   if (authError === 'rate_limited') {
     return 'Too many sign-in attempts. Please wait a minute and try again.';

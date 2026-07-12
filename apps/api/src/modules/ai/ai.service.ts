@@ -40,17 +40,102 @@ export class AIService {
     );
   }
 
-  private async callOpenAI(
+  /** Lighter sanitize for Alpha Coach — strip compliance dumps Gemini sometimes adds. */
+  private sanitizeCoachResponse(text: string): string {
+    return text
+      .replace(/\bI (predict|forecast)\b/gi, 'setups often resolve when')
+      .replace(/\b(guaranteed?|certain) profit\b/gi, 'favorable outcome')
+      .replace(/\b100% (sure|certain|confident)\b/gi, 'high-conviction')
+      .replace(
+        /\n*\s*⚠️?\s*Educational analysis only[^\n]*/gi,
+        '',
+      )
+      .replace(
+        /\n*\s*Educational (coaching|analysis) only[^\n]*/gi,
+        '',
+      )
+      .replace(
+        /\n*\s*Trading involves significant risk of loss\.?/gi,
+        '',
+      )
+      .replace(/\n*\s*This is not financial advice\.?/gi, '')
+      .trim();
+  }
+
+  private sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private preferredProvider(): 'gemini' | 'openrouter' | 'openai' {
+    const explicit = (process.env.AI_PROVIDER || '').toLowerCase();
+    if (explicit === 'gemini' || explicit === 'openrouter' || explicit === 'openai') {
+      return explicit;
+    }
+    if (process.env.GEMINI_API_KEY) return 'gemini';
+    if (process.env.OPENROUTER_API_KEY) return 'openrouter';
+    if (this.openaiApiKey) return 'openai';
+    return 'gemini';
+  }
+
+  private async callGemini(
     systemPrompt: string,
     userPrompt: string,
     maxTokens = 600,
   ): Promise<string> {
-    const apiKey = process.env.OPENROUTER_API_KEY || this.openaiApiKey;
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
+
+    const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+    const start = Date.now();
+    const response = await axios.post(
+      url,
+      {
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        generationConfig: {
+          maxOutputTokens: maxTokens,
+          temperature: 0.7,
+        },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
+        timeout: 45000,
+      },
+    );
+
+    const parts = response.data?.candidates?.[0]?.content?.parts;
+    const text = Array.isArray(parts)
+      ? parts.map((p: { text?: string }) => p.text || '').join('')
+      : '';
+
+    this.logger.log(
+      `AI request (gemini/${model}) completed in ${Date.now() - start}ms`,
+    );
+    if (!text.trim()) throw new Error('Empty Gemini response');
+    return text;
+  }
+
+  private async callOpenAICompatible(
+    systemPrompt: string,
+    userPrompt: string,
+    maxTokens = 600,
+    provider: 'openrouter' | 'openai' = 'openrouter',
+  ): Promise<string> {
+    const apiKey =
+      provider === 'openrouter'
+        ? process.env.OPENROUTER_API_KEY || this.openaiApiKey
+        : this.openaiApiKey || process.env.OPENROUTER_API_KEY;
     if (!apiKey) {
-      throw new Error('No AI API key configured');
+      throw new Error(`No ${provider} API key configured`);
     }
 
-    const isOpenRouter = apiKey.startsWith('sk-or-');
+    const isOpenRouter =
+      provider === 'openrouter' || apiKey.startsWith('sk-or-');
     const baseUrl = isOpenRouter
       ? 'https://openrouter.ai/api/v1/chat/completions'
       : 'https://api.openai.com/v1/chat/completions';
@@ -80,7 +165,7 @@ export class AIService {
             'X-Title': 'Profytron AI Coach',
           }),
         },
-        timeout: 25000,
+        timeout: 45000,
       },
     );
     this.logger.log(
@@ -88,6 +173,183 @@ export class AIService {
     );
 
     return response.data.choices[0]?.message?.content || '';
+  }
+
+  /**
+   * Single LLM entry-point for the platform.
+   * Prefer Gemini → OpenRouter → OpenAI, with retries and graceful fallback.
+   */
+  private async callLLM(
+    systemPrompt: string,
+    userPrompt: string,
+    maxTokens = 600,
+  ): Promise<string> {
+    const order: Array<'gemini' | 'openrouter' | 'openai'> = [];
+    const preferred = this.preferredProvider();
+    order.push(preferred);
+    for (const p of ['gemini', 'openrouter', 'openai'] as const) {
+      if (!order.includes(p)) order.push(p);
+    }
+
+    let lastError: Error | null = null;
+    for (const provider of order) {
+      const attempts = provider === 'gemini' ? 3 : 2;
+      for (let attempt = 1; attempt <= attempts; attempt++) {
+        try {
+          if (provider === 'gemini') {
+            if (!process.env.GEMINI_API_KEY) break;
+            return await this.callGemini(systemPrompt, userPrompt, maxTokens);
+          }
+          if (provider === 'openrouter') {
+            if (!process.env.OPENROUTER_API_KEY && !this.openaiApiKey?.startsWith('sk-or-')) {
+              break;
+            }
+            return await this.callOpenAICompatible(
+              systemPrompt,
+              userPrompt,
+              maxTokens,
+              'openrouter',
+            );
+          }
+          if (!this.openaiApiKey && !process.env.OPENAI_API_KEY) break;
+          return await this.callOpenAICompatible(
+            systemPrompt,
+            userPrompt,
+            maxTokens,
+            'openai',
+          );
+        } catch (err: any) {
+          lastError = err instanceof Error ? err : new Error(String(err));
+          this.logger.warn(
+            `AI ${provider} attempt ${attempt}/${attempts} failed: ${lastError.message}`,
+          );
+          if (attempt < attempts) await this.sleep(400 * attempt);
+        }
+      }
+    }
+
+    throw lastError || new Error('No AI API key configured');
+  }
+
+  /** @deprecated use callLLM — kept as alias for internal call sites */
+  private async callOpenAI(
+    systemPrompt: string,
+    userPrompt: string,
+    maxTokens = 600,
+  ): Promise<string> {
+    return this.callLLM(systemPrompt, userPrompt, maxTokens);
+  }
+
+  /** Public wrapper for Alpha Coach (Gemini-first via callLLM). */
+  async generateCoachReply(
+    systemPrompt: string,
+    userPrompt: string,
+    maxTokens = 600,
+  ): Promise<string> {
+    const reply = await this.callLLM(systemPrompt, userPrompt, maxTokens);
+    return this.sanitizeCoachResponse(reply);
+  }
+
+  /**
+   * Stream Gemini tokens for Alpha Coach. Falls back to one-shot callLLM
+   * when Gemini streaming is unavailable.
+   */
+  async *streamCoachReply(
+    systemPrompt: string,
+    userPrompt: string,
+    maxTokens = 700,
+  ): AsyncGenerator<{ type: 'token' | 'done' | 'error'; text?: string }> {
+    const apiKey = process.env.GEMINI_API_KEY;
+    const model = process.env.GEMINI_MODEL || 'gemini-flash-latest';
+
+    if (!apiKey || this.preferredProvider() !== 'gemini') {
+      try {
+        const full = await this.generateCoachReply(
+          systemPrompt,
+          userPrompt,
+          maxTokens,
+        );
+        yield { type: 'token', text: full };
+        yield { type: 'done', text: full };
+      } catch (err: any) {
+        yield { type: 'error', text: err?.message || 'AI unavailable' };
+      }
+      return;
+    }
+
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
+      const response = await axios.post(
+        url,
+        {
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          generationConfig: {
+            maxOutputTokens: maxTokens,
+            temperature: 0.7,
+          },
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+            Accept: 'text/event-stream',
+          },
+          responseType: 'stream',
+          timeout: 60000,
+        },
+      );
+
+      let assembled = '';
+      const stream = response.data as NodeJS.ReadableStream;
+      let buffer = '';
+
+      for await (const chunk of stream) {
+        buffer += chunk.toString();
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const payload = trimmed.slice(5).trim();
+          if (!payload || payload === '[DONE]') continue;
+          try {
+            const json = JSON.parse(payload);
+            const parts = json?.candidates?.[0]?.content?.parts;
+            const piece = Array.isArray(parts)
+              ? parts.map((p: { text?: string }) => p.text || '').join('')
+              : '';
+            if (piece) {
+              assembled += piece;
+              yield { type: 'token', text: piece };
+            }
+          } catch {
+            /* ignore partial SSE */
+          }
+        }
+      }
+
+      const finalText = this.sanitizeCoachResponse(assembled || '…');
+      yield { type: 'done', text: finalText };
+    } catch (err: any) {
+      this.logger.warn(
+        `Gemini stream failed (${err.message}) — falling back to one-shot`,
+      );
+      try {
+        const full = await this.generateCoachReply(
+          systemPrompt,
+          userPrompt,
+          maxTokens,
+        );
+        yield { type: 'token', text: full };
+        yield { type: 'done', text: full };
+      } catch (fallbackErr: any) {
+        yield {
+          type: 'error',
+          text: fallbackErr?.message || 'AI unavailable',
+        };
+      }
+    }
   }
 
   async explainTrade(tradeData: any) {
@@ -345,10 +607,16 @@ Recent context about the user's trades is provided below.`;
 
   async getCoachingReport(userId: string) {
     const cacheKey = `ai:coaching-report:${userId}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) {
-      this.logger.log(`Cache hit: coaching report for user ${userId}`);
-      return JSON.parse(cached);
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) {
+        this.logger.log(`Cache hit: coaching report for user ${userId}`);
+        return JSON.parse(cached);
+      }
+    } catch (error) {
+      this.logger.warn(
+        `Coaching report cache read failed for ${userId}: ${(error as Error).message}`,
+      );
     }
 
     const trades = await this.prisma.trade.findMany({
@@ -400,7 +668,13 @@ Recent context about the user's trades is provided below.`;
       ],
     };
 
-    await this.redis.set(cacheKey, JSON.stringify(report), TTL_COACHING_REPORT);
+    try {
+      await this.redis.set(cacheKey, JSON.stringify(report), TTL_COACHING_REPORT);
+    } catch (error) {
+      this.logger.warn(
+        `Coaching report cache write failed for ${userId}: ${(error as Error).message}`,
+      );
+    }
     return report;
   }
 

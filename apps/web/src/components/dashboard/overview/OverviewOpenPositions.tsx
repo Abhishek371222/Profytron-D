@@ -35,10 +35,11 @@ type Props = {
 export function OverviewOpenPositions({
   positions,
   quotes,
-  currency = 'USD',
+  currency: _currency = 'USD',
   onNewOrder,
   loading,
 }: Props) {
+  const currency = 'USD';
   const rows = positions.map((p) => {
     const key = normalizeQuoteKey(p.asset);
     const live = quotes[key]?.price ?? quotes[p.asset]?.price;

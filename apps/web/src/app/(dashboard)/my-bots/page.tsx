@@ -16,6 +16,11 @@ import { useCurrency } from '@/lib/hooks/useCurrency';
 import { marketplaceApi } from '@/lib/api/marketplace';
 import { formatBotName } from '@/lib/bot-labels';
 import { DashButton } from '@/components/dashboard/DashboardPrimitives';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
+import {
+  hydrateDashboardCache,
+  persistDashboardQuery,
+} from '@/lib/queries/dashboard-cache';
 
 type BotStatus = 'ACTIVE' | 'PROVISIONING' | 'FAILED' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE';
 
@@ -73,19 +78,76 @@ const TABS: Array<{ key: BotStatus | 'ALL'; label: string }> = [
 async function fetchMyBots(): Promise<UserBot[]> {
   const res = await apiClient.get('/strategies/my');
   const raw = res.data?.data ?? res.data ?? [];
-  return Array.isArray(raw) ? raw : [];
+  if (!Array.isArray(raw)) {
+    throw new Error('Unexpected bots response');
+  }
+  persistDashboardQuery(['my-bots'], raw);
+  return raw;
 }
 
 export default function MyBotsPage() {
   const qc = useQueryClient();
   const { formatPrice } = useCurrency();
   const [tab, setTab] = React.useState<BotStatus | 'ALL'>('ALL');
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isHydrating = useAuthStore((s) => s.isHydrating);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
 
-  const { data: bots = [], isLoading, isError } = useQuery<UserBot[]>({
+  React.useEffect(() => {
+    if (!sessionReady) return;
+    hydrateDashboardCache(qc);
+  }, [sessionReady, qc]);
+
+  const {
+    data: bots = [],
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+    error,
+  } = useQuery<UserBot[]>({
     queryKey: ['my-bots'],
     queryFn: fetchMyBots,
-    staleTime: 30_000,
+    enabled: sessionReady,
+    staleTime: 15_000,
+    retry: 2,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 4000),
+    refetchOnWindowFocus: true,
+    placeholderData: (previous) => previous,
   });
+
+  // Never flash hard error while auth is warming or a retry is in flight.
+  const showHardError =
+    sessionReady && isError && !isFetching && bots.length === 0;
+
+  // Self-heal: pull MetaAPI positions → attribute to bots → refresh PnL in DB.
+  React.useEffect(() => {
+    if (!sessionReady) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        await apiClient.post('/trading/sync-bots');
+        if (!cancelled) {
+          qc.invalidateQueries({ queryKey: ['my-bots'] });
+          qc.invalidateQueries({ queryKey: ['open-trades'] });
+          qc.invalidateQueries({ queryKey: ['broker-accounts'] });
+        }
+      } catch {
+        /* sync is best-effort; list still loads from DB */
+      }
+    })();
+    const id = window.setInterval(() => {
+      void apiClient.post('/trading/sync-bots').then(() => {
+        qc.invalidateQueries({ queryKey: ['my-bots'] });
+        qc.invalidateQueries({ queryKey: ['open-trades'] });
+      }).catch(() => undefined);
+    }, 20_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [sessionReady, qc]);
 
   // Self-heal: PROVISIONING copy bots get MetaApi CF wiring (Render queue is stuck).
   React.useEffect(() => {
@@ -127,10 +189,13 @@ export default function MyBotsPage() {
   const counts: Record<string, number> = { ALL: bots.length };
   for (const b of bots) counts[b.status] = (counts[b.status] ?? 0) + 1;
 
+  const formatPnlMoney = (n: number) =>
+    `${n >= 0 ? '+' : '-'}$${Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
   const stats = [
     { label: 'Active Bots',  value: String(activeBots.length), Icon: Zap, positive: true },
     { label: 'Monthly Cost', value: monthlyCost > 0 ? formatPrice(monthlyCost) : '—', Icon: DollarSign, positive: true },
-    { label: 'Total P&L',    value: `${totalPnl >= 0 ? '+' : ''}${totalPnl.toFixed(2)}%`, Icon: totalPnl >= 0 ? TrendingUp : TrendingDown, positive: totalPnl >= 0 },
+    { label: 'Total P&L',    value: formatPnlMoney(totalPnl), Icon: totalPnl >= 0 ? TrendingUp : TrendingDown, positive: totalPnl >= 0 },
     { label: 'Next Renewal', value: nextRenewal?.expiresAt ? new Date(nextRenewal.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—', Icon: CalendarClock, positive: true },
   ];
 
@@ -245,19 +310,30 @@ export default function MyBotsPage() {
       </motion.div>
 
       {/* Cards */}
-      {isLoading ? (
+      {!sessionReady || isLoading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="marketplace-skeleton h-52 rounded-[var(--radius-card)]" />
           ))}
         </div>
-      ) : isError ? (
+      ) : showHardError ? (
         <div className="rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-10 text-center shadow-[var(--shadow-card)]">
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[color-mix(in_srgb,var(--destructive)_10%,transparent)] text-destructive">
             <AlertCircle className="h-7 w-7" />
           </div>
           <p className="font-semibold text-foreground">Failed to load bots</p>
-          <p className="mt-1 text-sm text-muted-foreground">Check your connection and try again</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {(error as Error)?.message || 'Check your connection and try again'}
+          </p>
+          <DashButton
+            variant="ghost"
+            onClick={() => void refetch()}
+            disabled={isFetching}
+            className="mt-4 border border-[var(--card-border)]"
+          >
+            <RefreshCw className={cn('h-3.5 w-3.5', isFetching && 'animate-spin')} />
+            Retry
+          </DashButton>
         </div>
       ) : filtered.length === 0 ? (
         <motion.div
@@ -314,7 +390,7 @@ export default function MyBotsPage() {
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">P&L</p>
                     <p className={cn('text-sm font-bold tabular-nums', pnl >= 0 ? 'text-primary' : 'text-destructive')}>
-                      {pnl >= 0 ? '+' : ''}{pnl.toFixed(2)}%
+                      {formatPnlMoney(pnl)}
                     </p>
                   </div>
                   <div>
@@ -332,7 +408,12 @@ export default function MyBotsPage() {
                 {/* Broker */}
                 <div className="flex items-center gap-2 border-t border-[var(--card-border)] pt-3 text-xs text-muted-foreground">
                   <BarChart2 className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{bot.brokerAccount?.broker ?? bot.brokerAccount?.accountName ?? 'No broker linked'}</span>
+                  <span className="truncate">
+                    {bot.brokerAccount?.accountName ??
+                      (bot.brokerAccount?.broker
+                        ? bot.brokerAccount.broker
+                        : 'No broker linked')}
+                  </span>
                 </div>
 
                 {/* Actions */}

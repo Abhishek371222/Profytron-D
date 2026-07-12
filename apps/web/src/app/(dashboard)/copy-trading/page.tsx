@@ -83,6 +83,8 @@ export default function CopyTradingPage() {
   const { data: brokers = [] } = useQuery({
     queryKey: ['broker-accounts'],
     queryFn: () => brokerApi.getBrokerAccounts(),
+    staleTime: 8_000,
+    refetchOnMount: false,
   });
 
   const { data: subscriptions = [], isLoading: subLoading } = useQuery({

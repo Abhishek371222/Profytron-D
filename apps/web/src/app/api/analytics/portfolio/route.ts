@@ -412,7 +412,7 @@ export async function GET(req: NextRequest) {
         ? 'METAAPI_UNAUTHORIZED'
         : 'METAAPI_UNAVAILABLE',
       message: isMetaApiUnauthorized(message)
-        ? 'MetaAPI token is invalid or revoked. Update METAAPI_TOKEN and restart.'
+        ? 'Broker sync authorization failed. Reconnect your account or refresh broker access.'
         : message,
     });
   }

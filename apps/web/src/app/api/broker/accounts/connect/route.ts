@@ -181,10 +181,10 @@ export async function POST(req: NextRequest) {
   const aesKey = process.env.AES_MASTER_KEY?.trim();
 
   if (!metaToken) {
-    return error('METAAPI_TOKEN is not configured on the web service', 503);
+    return error('Broker connection service is unavailable. Please try again later.', 503);
   }
   if (!dbUrl || !aesKey) {
-    return error('Database encryption is not configured', 503);
+    return error('Account security setup is incomplete. Please try again later.', 503);
   }
 
   let body: ConnectBody;
@@ -356,6 +356,22 @@ export async function POST(req: NextRequest) {
                   "initialEquity"
       `;
       accountRow = created[0];
+    }
+
+    // Link ALL orphan bot subscriptions (not only copy bots) to this MT5 account.
+    try {
+      await sql`
+        UPDATE "UserStrategySubscription"
+        SET "brokerAccountId" = ${accountRow.id as string}
+        WHERE "userId" = ${userId}
+          AND "brokerAccountId" IS NULL
+          AND status IN ('ACTIVE', 'PROVISIONING', 'PAUSED')
+      `;
+    } catch (orphanErr: any) {
+      console.warn(
+        '[broker/connect] orphan bot link:',
+        orphanErr?.message || orphanErr,
+      );
     }
 
     // Checklist + auto-link any pending copy subscriptions for this user.

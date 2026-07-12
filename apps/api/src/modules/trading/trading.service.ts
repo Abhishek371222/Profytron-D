@@ -10,6 +10,7 @@ import { TradingGateway } from './trading.gateway';
 import { MasterSyncService } from './master-sync.service';
 import { TrailingStopService } from './trailing-stop.service';
 import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
+import { BotTradeSyncService } from './bot-trade-sync.service';
 import { MarketService, type MarketSymbol } from '../market/market.service';
 import {
   mapTradeSymbolToMarket as mapSymbol,
@@ -32,10 +33,18 @@ export class TradingService {
     private marketService: MarketService,
     private trailingStop: TrailingStopService,
     private copyFactoryPositionSync: CopyFactoryPositionSyncService,
+    private botTradeSync: BotTradeSyncService,
     @InjectQueue('trade_execution') private tradeQueue: any,
   ) {
     const hasMetaApiToken = Boolean(process.env.METAAPI_TOKEN?.trim());
     const masterOnly = isMasterOnlyExecution();
+
+    // Always sync follower bot trades → DB PnL when MetaAPI is configured.
+    if (hasMetaApiToken) {
+      this.botTradeSync.startPolling(
+        Number(process.env.BOT_TRADE_SYNC_TICK_MS) || 8_000,
+      );
+    }
 
     // Option 1: MetaApi master bridge only — detect master fills via MasterSync.
     // Never start CopyFactory subscriber sync; never require CF in production.
@@ -98,6 +107,10 @@ export class TradingService {
         Number(process.env.TRAILING_STOP_INTERVAL_MS) || 5000,
       );
     }
+  }
+
+  async syncBotTrades(userId: string) {
+    return this.botTradeSync.syncUser(userId);
   }
 
   async processSignal(

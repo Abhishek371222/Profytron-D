@@ -17,7 +17,8 @@ type Props = {
   loading?: boolean;
 };
 
-export function OverviewRecentTrades({ trades, currency = 'USD', loading }: Props) {
+export function OverviewRecentTrades({ trades, currency: _currency = 'USD', loading }: Props) {
+  const currency = 'USD';
   return (
     <div className="flex h-full min-h-[280px] flex-col overflow-hidden rounded-xl border border-[var(--card-border)] bg-card">
       <div className="flex items-center justify-between gap-3 border-b border-[var(--card-border)] px-4 py-3.5 sm:px-5">

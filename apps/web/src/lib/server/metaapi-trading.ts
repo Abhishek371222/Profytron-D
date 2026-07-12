@@ -130,6 +130,8 @@ export function parsePositionId(id: string): string {
   return raw;
 }
 
+const META_FETCH_MS = 4_000;
+
 export async function metaTrade(
   live: LiveBroker,
   body: Record<string, unknown>,
@@ -141,6 +143,7 @@ export async function metaTrade(
       headers: metaHeaders(live.metaToken),
       body: JSON.stringify(body),
       cache: 'no-store',
+      signal: AbortSignal.timeout(META_FETCH_MS),
     },
   );
   const text = await res.text();
@@ -165,7 +168,11 @@ export async function metaTrade(
 export async function metaGetPositions(live: LiveBroker): Promise<any[]> {
   const res = await fetch(
     `${clientHost(live.region)}/users/current/accounts/${live.metaApiAccountId}/positions`,
-    { headers: metaHeaders(live.metaToken), cache: 'no-store' },
+    {
+      headers: metaHeaders(live.metaToken),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(META_FETCH_MS),
+    },
   );
   if (!res.ok) {
     const body = await res.text();
@@ -178,7 +185,11 @@ export async function metaGetPositions(live: LiveBroker): Promise<any[]> {
 export async function metaGetAccountInfo(live: LiveBroker): Promise<any> {
   const res = await fetch(
     `${clientHost(live.region)}/users/current/accounts/${live.metaApiAccountId}/account-information`,
-    { headers: metaHeaders(live.metaToken), cache: 'no-store' },
+    {
+      headers: metaHeaders(live.metaToken),
+      cache: 'no-store',
+      signal: AbortSignal.timeout(META_FETCH_MS),
+    },
   );
   if (!res.ok) {
     const body = await res.text();

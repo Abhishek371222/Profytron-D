@@ -38,6 +38,7 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
     mutationFn: (data: any) => strategiesApi.activateStrategy(strategy.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-strategies'] });
+      queryClient.invalidateQueries({ queryKey: ['my-bots'] });
       setStep(4);
       confetti({
         particleCount: 200,

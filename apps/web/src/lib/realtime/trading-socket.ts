@@ -62,12 +62,23 @@ function connectSocket(token: string) {
   socket = io(`${wsBase}/trading`, {
     transports: ['websocket', 'polling'],
     auth: { token },
+    reconnection: true,
+    reconnectionAttempts: 12,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 8000,
+    timeout: 12_000,
+    // Avoid spamming the console when the API is briefly restarting.
+    autoConnect: true,
   });
   activeToken = token;
   bindSocketEvents(socket);
 
   socket.on('connect', () => {
     socket?.emit('subscribe_prices');
+  });
+
+  socket.on('connect_error', () => {
+    // Intentionally quiet — Overview still works over HTTP polling.
   });
 
   return socket;

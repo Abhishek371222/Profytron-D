@@ -101,6 +101,14 @@ export function configureApp(app: INestApplication) {
     exclude: [{ path: 'health', method: RequestMethod.ALL }],
   });
 
+  // Next rewrite maps /api/health → /v1/health; bare /health stays for Render probes.
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    if (req.method === 'GET' && (req.url === '/v1/health' || req.url?.startsWith('/v1/health?'))) {
+      req.url = req.url.replace('/v1/health', '/health');
+    }
+    next();
+  });
+
   // ─── Security headers via Helmet ──────────────────────────────────────────
   // 'unsafe-inline' for scriptSrc has been removed. If the Next.js frontend
   // serves inline scripts it must inject a nonce at SSR time and pass it here

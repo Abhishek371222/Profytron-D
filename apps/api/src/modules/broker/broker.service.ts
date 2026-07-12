@@ -16,6 +16,7 @@ import {
 } from '../growth/activation.service';
 import { getTierLimits } from '../../common/constants/pricing.constants';
 import { CopyBridgeService } from '../copy-bridge/copy-bridge.service';
+import { linkOrphanStrategySubscriptions } from '../../common/utils/broker-requirement.util';
 
 @Injectable()
 export class BrokerService {
@@ -282,6 +283,20 @@ export class BrokerService {
           ACTIVATION_EVENTS.FIRST_PAPER_TRADE,
           { mode: 'paper_account_connected' },
         );
+      }
+
+      // Link any bots that were activated before a broker existed (or after disconnect).
+      if (brokerName !== 'PAPER') {
+        const linked = await linkOrphanStrategySubscriptions(
+          this.prisma,
+          userId,
+          account.id,
+        );
+        if (linked > 0) {
+          this.logger.log(
+            `Linked ${linked} orphan bot subscription(s) to broker ${account.id} for user ${userId}`,
+          );
+        }
       }
 
       const { credentialsEncrypted: _, ...safe } = account as any;

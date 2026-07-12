@@ -93,7 +93,6 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
     equity,
     margin,
     freeMargin,
-    currency,
     unrealizedPnl,
     realizedPnl24h,
     change24hPct,
@@ -102,6 +101,9 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
     loading,
     refreshing,
   } = metrics;
+
+  // Always USD on Overview — matches MT5 / Connected Accounts, no locale FX.
+  const currency = 'USD';
 
   const marginUsedPct = equity > 0 ? (margin / equity) * 100 : 0;
   const marginLevel = margin > 0 ? (equity / margin) * 100 : 0;

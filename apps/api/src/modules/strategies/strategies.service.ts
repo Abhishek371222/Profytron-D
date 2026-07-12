@@ -25,9 +25,15 @@ import {
   UserRole,
   SubscriptionStatus,
   VerificationStatus,
+  TradeStatus,
 } from '@prisma/client';
 import axios from 'axios';
 import * as crypto from 'crypto';
+import {
+  findActiveLiveBroker,
+  findAnyActiveBroker,
+  linkOrphanStrategySubscriptions,
+} from '../../common/utils/broker-requirement.util';
 
 @Injectable()
 export class StrategiesService {
@@ -394,6 +400,17 @@ export class StrategiesService {
       where: { userId_strategyId: { userId, strategyId } },
     });
 
+    // Prefer explicit broker; otherwise attach the user's default live MT5/MT4.
+    let brokerAccountId = dto.brokerAccountId ?? null;
+    if (!brokerAccountId && !dto.isPaperTrading) {
+      const live = await findActiveLiveBroker(this.prisma, userId);
+      brokerAccountId = live?.id ?? null;
+    }
+    if (!brokerAccountId && dto.isPaperTrading) {
+      const any = await findAnyActiveBroker(this.prisma, userId);
+      brokerAccountId = any?.id ?? null;
+    }
+
     if (strategy.masterBrokerAccountId) {
       if (
         !existing ||
@@ -406,7 +423,7 @@ export class StrategiesService {
       }
       const updated = await this.prisma.userStrategySubscription.update({
         where: { id: existing.id },
-        data: { brokerAccountId: dto.brokerAccountId },
+        data: { brokerAccountId: brokerAccountId ?? existing.brokerAccountId },
       });
       await this.copyFactorySync.enqueueLinkSubscription(updated.id);
       return updated;
@@ -416,7 +433,7 @@ export class StrategiesService {
       return this.prisma.userStrategySubscription.update({
         where: { id: existing.id },
         data: {
-          brokerAccountId: dto.brokerAccountId,
+          brokerAccountId: brokerAccountId ?? existing.brokerAccountId,
         },
       });
     }
@@ -426,12 +443,12 @@ export class StrategiesService {
       create: {
         userId,
         strategyId,
-        brokerAccountId: dto.brokerAccountId,
+        brokerAccountId,
         status: SubscriptionStatus.ACTIVE,
       },
       update: {
         status: SubscriptionStatus.ACTIVE,
-        brokerAccountId: dto.brokerAccountId,
+        brokerAccountId: brokerAccountId ?? undefined,
         subscribedAt: new Date(),
       },
     });
@@ -525,25 +542,73 @@ export class StrategiesService {
   }
 
   async getMyStrategies(userId: string) {
+    // Heal existing users: if they have MT5 but bots still show "No broker linked".
+    const defaultBroker = await findAnyActiveBroker(this.prisma, userId);
+    if (defaultBroker) {
+      await linkOrphanStrategySubscriptions(
+        this.prisma,
+        userId,
+        defaultBroker.id,
+      );
+    }
+
     const subs = await this.prisma.userStrategySubscription.findMany({
       where: { userId, status: { not: SubscriptionStatus.INACTIVE } },
       orderBy: { subscribedAt: 'desc' },
       include: {
         brokerAccount: {
-          select: { brokerName: true, accountNumberLast4: true },
+          select: {
+            id: true,
+            brokerName: true,
+            accountNumberLast4: true,
+            initialEquity: true,
+            isPaperTrading: true,
+          },
         },
         strategy: {
           include: {
             creator: { select: { fullName: true, username: true } },
-            performance: { take: 1, orderBy: { date: 'desc' } },
           },
         },
       },
     });
 
-    // Nominal account base used to express a strategy's cumulative net P&L as a
-    // percentage return for the My Bots cards (which render P&L as a percentage).
-    const NOMINAL_BASE = 10_000;
+    const strategyIds = subs.map((s) => s.strategyId);
+    const trades =
+      strategyIds.length === 0
+        ? []
+        : await this.prisma.trade.findMany({
+            where: {
+              userId,
+              strategyId: { in: strategyIds },
+              status: { in: [TradeStatus.OPEN, TradeStatus.CLOSED] },
+            },
+            select: {
+              strategyId: true,
+              profit: true,
+              status: true,
+            },
+          });
+
+    const pnlByStrategy = new Map<
+      string,
+      { net: number; wins: number; closed: number }
+    >();
+    for (const t of trades) {
+      if (!t.strategyId) continue;
+      const row = pnlByStrategy.get(t.strategyId) ?? {
+        net: 0,
+        wins: 0,
+        closed: 0,
+      };
+      const profit = Number(t.profit ?? 0);
+      if (Number.isFinite(profit)) row.net += profit;
+      if (t.status === TradeStatus.CLOSED) {
+        row.closed += 1;
+        if (profit > 0) row.wins += 1;
+      }
+      pnlByStrategy.set(t.strategyId, row);
+    }
 
     // autoRenew lives in Redis, not Postgres — see setAutoRenew(). Missing
     // key means nobody has ever toggled it, which defaults to true.
@@ -553,10 +618,22 @@ export class StrategiesService {
 
     return subs.map((s, idx) => {
       const autoRenew = autoRenewFlags[idx] !== '0';
-      const perf = s.strategy.performance[0];
-      const netPnl = perf?.netPnl ?? 0;
-      const winRate = perf?.winRate ?? 0;
-      const currentPnl = Number(((netPnl / NOMINAL_BASE) * 100).toFixed(2));
+      const stats = pnlByStrategy.get(s.strategyId) ?? {
+        net: 0,
+        wins: 0,
+        closed: 0,
+      };
+      // Real follower PnL in account currency — never catalog/seed marketing %.
+      const currentPnlUsd = Number(stats.net.toFixed(2));
+      const equityBase = Number(s.brokerAccount?.initialEquity ?? 0);
+      const currentPnlPct =
+        equityBase > 0
+          ? Number(((currentPnlUsd / equityBase) * 100).toFixed(2))
+          : 0;
+      const winRate =
+        stats.closed > 0
+          ? Number(((stats.wins / stats.closed) * 100).toFixed(1))
+          : 0;
       const planType = s.planType ?? 'MONTHLY';
       const renewalDate = s.expiresAt ?? undefined;
       const brokerLabel = s.brokerAccount
@@ -572,13 +649,19 @@ export class StrategiesService {
         planType,
         subscribedAt: s.subscribedAt,
         expiresAt: renewalDate,
-        currentPnl,
+        // Card P&L: USD from this user's trades on this bot (0 if none yet).
+        currentPnl: currentPnlUsd,
+        currentPnlPct,
+        pnlUnit: 'usd' as const,
+        latestPnl: currentPnlUsd,
         // Canonical broker object (My Bots)
         brokerAccount: s.brokerAccount
           ? {
+              id: s.brokerAccount.id,
               broker: s.brokerAccount.brokerName,
               accountName: brokerLabel,
               last4: s.brokerAccount.accountNumberLast4,
+              isPaper: s.brokerAccount.isPaperTrading,
             }
           : null,
         // Billing "Upcoming Renewals" aliases
@@ -587,8 +670,9 @@ export class StrategiesService {
         nextBillingDate: renewalDate,
         autoRenew,
         latestPerformance: {
-          winRate: Number(winRate.toFixed(1)),
-          totalReturn: currentPnl,
+          winRate,
+          totalReturn: currentPnlPct,
+          netPnl: currentPnlUsd,
         },
         // Subscriptions page nested shape
         subscription: {
@@ -604,7 +688,7 @@ export class StrategiesService {
         botName: s.strategy.name,
         brokerName: s.brokerAccount?.brokerName ?? null,
         accountNumber: s.brokerAccount?.accountNumberLast4 ?? null,
-        pnl: currentPnl,
+        pnl: currentPnlUsd,
         performance: undefined,
       };
     });
@@ -1030,6 +1114,17 @@ export class StrategiesService {
       });
 
       // Creator gets an active subscription so it shows under My Bots / Active bots
+      const creatorBroker = await tx.brokerAccount.findFirst({
+        where: {
+          userId,
+          isActive: true,
+          isPaperTrading: false,
+          brokerName: { in: ['MT4', 'MT5'] },
+        },
+        orderBy: [{ isDefault: 'desc' }, { connectedAt: 'desc' }],
+        select: { id: true },
+      });
+
       await tx.userStrategySubscription.upsert({
         where: { userId_strategyId: { userId, strategyId: id } },
         create: {
@@ -1037,11 +1132,13 @@ export class StrategiesService {
           strategyId: id,
           status: SubscriptionStatus.ACTIVE,
           planType: 'MONTHLY',
+          brokerAccountId: creatorBroker?.id ?? null,
           expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         },
         update: {
           status: SubscriptionStatus.ACTIVE,
           cancelledAt: null,
+          ...(creatorBroker ? { brokerAccountId: creatorBroker.id } : {}),
           expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         },
       });

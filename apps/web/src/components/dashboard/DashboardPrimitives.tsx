@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 
 /** Standard dashboard page wrapper — same spacing on every tab */
 export function DashboardPage({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('dash-page', className)}>{children}</div>;
+  return <div className={cn('dash-page relative', className)}>{children}</div>;
 }
 
 export function DashboardBreadcrumbs({

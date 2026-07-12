@@ -71,15 +71,20 @@ export class RedisService {
       }
       return;
     } catch (error) {
+      // Prefer process-local mirror over hard 500s — Upstash blips were
+      // failing /auth/refresh (blacklist + session keys) and cascading into
+      // app-wide 401 storms. Multi-instance revocation is best-effort until Redis recovers.
       if (isSecurityCriticalKey(key)) {
         this.logger.error(
-          `Redis unavailable for security-critical set(${key}). Failing hard to protect auth state.`,
+          `Redis unavailable for security-critical set(${key}); using in-process mirror. ${
+            error instanceof Error ? error.message : 'unknown error'
+          }`,
         );
-        throw error;
+      } else {
+        this.logger.warn(
+          `Redis unavailable for set(${key}), using in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,
+        );
       }
-      this.logger.warn(
-        `Redis unavailable for set(${key}), using in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,
-      );
       this.memoryStore.set(key, value);
       if (ttlSeconds) {
         this.setMemoryTtl(key, ttlSeconds);
@@ -94,23 +99,25 @@ export class RedisService {
       // Redis miss → fall back to process memory mirror (same TTL).
       return this.memoryStore.get(key) ?? null;
     } catch (error) {
-      if (isSecurityCriticalKey(key)) {
-        const mirrored = this.memoryStore.get(key);
-        if (mirrored != null) {
-          this.logger.warn(
-            `Redis unavailable for security-critical get(${key}); using in-process mirror.`,
-          );
-          return mirrored;
-        }
-        this.logger.error(
-          `Redis unavailable for security-critical get(${key}). Failing hard to protect auth state.`,
+      const mirrored = this.memoryStore.get(key);
+      if (mirrored != null) {
+        this.logger.warn(
+          `Redis unavailable for get(${key}); using in-process mirror.`,
         );
-        throw error;
+        return mirrored;
+      }
+      if (isSecurityCriticalKey(key)) {
+        this.logger.error(
+          `Redis unavailable for security-critical get(${key}); treating as miss. ${
+            error instanceof Error ? error.message : 'unknown error'
+          }`,
+        );
+        return null;
       }
       this.logger.warn(
         `Redis unavailable for get(${key}), reading in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,
       );
-      return this.memoryStore.get(key) ?? null;
+      return null;
     }
   }
 
@@ -122,13 +129,15 @@ export class RedisService {
     } catch (error) {
       if (isSecurityCriticalKey(key)) {
         this.logger.error(
-          `Redis unavailable for security-critical del(${key}). Failing hard to protect auth state.`,
+          `Redis unavailable for security-critical del(${key}); clearing in-process mirror. ${
+            error instanceof Error ? error.message : 'unknown error'
+          }`,
         );
-        throw error;
+      } else {
+        this.logger.warn(
+          `Redis unavailable for del(${key}), removing in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,
+        );
       }
-      this.logger.warn(
-        `Redis unavailable for del(${key}), removing in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,
-      );
       this.clearMemoryKey(key);
     }
   }

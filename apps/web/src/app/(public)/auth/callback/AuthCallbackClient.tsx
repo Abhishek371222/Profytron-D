@@ -31,9 +31,21 @@ function resolveOAuthEmail(
 }
 
 function mapSyncError(error: unknown): string {
-  const status = (error as AxiosError)?.response?.status;
+  const axiosErr = error as AxiosError<{ code?: string }>;
+  const status = axiosErr?.response?.status;
+  const code = axiosErr?.response?.data?.code;
   if (status === 429) return 'rate_limited';
   if (status === 503) return 'backend_unavailable';
+  if (
+    !axiosErr?.response &&
+    (axiosErr?.code === 'ECONNABORTED' ||
+      axiosErr?.code === 'ETIMEDOUT' ||
+      axiosErr?.code === 'ERR_NETWORK' ||
+      axiosErr?.message?.includes('timeout'))
+  ) {
+    return 'backend_unavailable';
+  }
+  if (code === 'SESSION_SUPERSEDED') return 'session_limit';
   if (status === 401) return 'sync_failed';
   return 'sync_failed';
 }
@@ -51,11 +63,25 @@ async function syncSupabaseSession(payload: {
       await sleep(SYNC_RETRY_DELAYS_MS[attempt]);
     }
     try {
-      return await apiClient.post('/auth/supabase', payload);
+      return await apiClient.post('/auth/supabase', payload, { timeout: 45_000 });
     } catch (error) {
       lastError = error;
-      const status = (error as AxiosError)?.response?.status;
-      if (status !== 429 && status !== 502 && status !== 503 && status !== 504) {
+      const axiosErr = error as AxiosError;
+      const status = axiosErr?.response?.status;
+      const timedOut =
+        axiosErr?.code === 'ECONNABORTED' ||
+        axiosErr?.code === 'ETIMEDOUT' ||
+        axiosErr?.message?.includes('timeout');
+      const retryable =
+        timedOut ||
+        status === 429 ||
+        status === 502 ||
+        status === 503 ||
+        status === 504 ||
+        (!axiosErr?.response &&
+          (axiosErr?.code === 'ERR_NETWORK' ||
+            axiosErr?.code === 'ECONNREFUSED'));
+      if (!retryable) {
         throw error;
       }
     }

@@ -21,15 +21,16 @@ export function convertMoney(
 
 export function formatMoney(
   value: number,
-  currency = 'USD',
+  _currency = 'USD',
   decimals = 2,
 ): string {
+  // Overview money is always USD (MetaAPI account currency for this product).
   const abs = Math.abs(value);
   const locale = localeForCurrency(currency);
   try {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency,
+      currency: 'USD',
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,
     }).format(value);

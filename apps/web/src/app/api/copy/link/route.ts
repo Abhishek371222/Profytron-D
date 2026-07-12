@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
   const metaToken = process.env.METAAPI_TOKEN?.trim();
   const aesKey = process.env.AES_MASTER_KEY?.trim();
   if (!metaToken || !aesKey) {
-    return error('Copy trading is not configured on the web service', 503);
+    return error('Copy trading is temporarily unavailable. Please try again later.', 503);
   }
 
   let body: { subscriptionId?: string; strategyId?: string } = {};

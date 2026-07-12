@@ -20,6 +20,7 @@ import {
   LineChart,
   User,
   LogOut,
+  Copy,
 } from "lucide-react";
 import { cn, isAdminUser } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/useUIStore";
@@ -61,6 +62,7 @@ const navGroups: NavGroup[] = [
       { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
       { name: "Markets", icon: LineChart, href: "/markets" },
       { name: "My Bots", icon: Server, href: "/my-bots" },
+      { name: "Copy Trading", icon: Copy, href: "/copy-trading" },
       { name: "Connected Accounts", icon: Unplug, href: "/connected-accounts" },
       { name: "Alpha Coach", icon: Target, href: "/alpha-coach" },
     ],

@@ -359,9 +359,20 @@ export class MarketService {
       url?: string;
     }>;
 
-    const items = (Array.isArray(payload) ? payload : [])
+    const isArticleImage = (image?: string | null) => {
+      if (!image) return false;
+      const lower = image.toLowerCase();
+      if (lower.includes('/finnhub/logo') || lower.includes('finnhub.io/logo')) {
+        return false;
+      }
+      if (/[/_-]logo\.(jpe?g|png|gif|webp|svg)(\?|$)/i.test(lower)) {
+        return false;
+      }
+      return true;
+    };
+
+    const mapped = (Array.isArray(payload) ? payload : [])
       .filter((item) => item?.headline && item?.url)
-      .slice(0, 40)
       .map((item) => ({
         id: item.id ?? 0,
         category: item.category || safeCategory,
@@ -375,6 +386,11 @@ export class MarketService {
         summary: item.summary || '',
         url: item.url || '',
       }));
+
+    // Prefer real article photos so UIs can show image-only feeds.
+    const withImages = mapped.filter((item) => isArticleImage(item.image));
+    const withoutImages = mapped.filter((item) => !isArticleImage(item.image));
+    const items = [...withImages, ...withoutImages].slice(0, 60);
 
     const result = {
       category: safeCategory,

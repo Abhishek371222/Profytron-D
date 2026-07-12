@@ -261,6 +261,10 @@ model User {
   activationEvents      UserActivationEvent[]
   masterProfile         MasterProfile?
   followerRelationships CopyRelationship[]      @relation("FollowerRelationships")
+  coachConversations    CoachConversation[]
+  coachMessagesSent     CoachMessage[]          @relation("CoachMessageSender")
+  coachEscalations      CoachEscalation[]       @relation("CoachEscalationUser")
+  coachEscalationsClaimed CoachEscalation[]     @relation("CoachEscalationClaimedBy")
 
   @@index([email])
   @@index([referralCode])
@@ -1452,4 +1456,113 @@ model EmailLog {
   @@index([userId, createdAt])
   @@index([to, createdAt])
   @@index([type, createdAt])
+}
+
+// ===== ALPHA COACH =====
+enum CoachConversationStatus {
+  ACTIVE
+  ESCALATED
+  CLOSED
+}
+
+enum CoachMessageRole {
+  USER
+  ASSISTANT
+  EXECUTIVE
+  SYSTEM
+}
+
+enum CoachMessageSource {
+  FAQ
+  AI
+  HUMAN
+  SYSTEM
+}
+
+enum CoachEscalationStatus {
+  OPEN
+  CLAIMED
+  RESOLVED
+}
+
+model CoachConversation {
+  id        String                   @id @default(uuid())
+  userId    String
+  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String                   @default("New coaching session")
+  status    CoachConversationStatus  @default(ACTIVE)
+  createdAt DateTime                 @default(now())
+  updatedAt DateTime                 @updatedAt
+
+  messages    CoachMessage[]
+  escalations CoachEscalation[]
+
+  @@index([userId, updatedAt])
+  @@index([status])
+}
+
+model CoachMessage {
+  id             String             @id @default(uuid())
+  conversationId String
+  conversation   CoachConversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           CoachMessageRole
+  content        String             @db.Text
+  source         CoachMessageSource @default(SYSTEM)
+  faqAnswerId    String?
+  faqAnswer      CoachFaqAnswer?    @relation(fields: [faqAnswerId], references: [id], onDelete: SetNull)
+  senderId       String?
+  sender         User?              @relation("CoachMessageSender", fields: [senderId], references: [id], onDelete: SetNull)
+  createdAt      DateTime           @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+model CoachFaqAnswer {
+  id        String   @id @default(uuid())
+  category  String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questions CoachFaqQuestion[]
+  messages  CoachMessage[]
+
+  @@index([category])
+}
+
+model CoachFaqQuestion {
+  id         String         @id @default(uuid())
+  answerId   String
+  answer     CoachFaqAnswer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  question   String
+  normalized String
+  keywords   String[]
+  createdAt  DateTime       @default(now())
+
+  @@index([answerId])
+  @@index([normalized])
+}
+
+model CoachEscalation {
+  id             String                @id @default(uuid())
+  conversationId String
+  conversation   CoachConversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User                  @relation("CoachEscalationUser", fields: [userId], references: [id], onDelete: Cascade)
+  status         CoachEscalationStatus @default(OPEN)
+  claimedById    String?
+  claimedBy      User?                 @relation("CoachEscalationClaimedBy", fields: [claimedById], references: [id], onDelete: SetNull)
+  priority       Int                   @default(0)
+  /// When an executive is expected to reply (default: createdAt + 15 minutes).
+  slaDeadline    DateTime?
+  claimedAt      DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  resolvedAt     DateTime?
+
+  @@index([status, createdAt])
+  @@index([userId])
+  @@index([conversationId])
+  @@index([claimedById])
 }

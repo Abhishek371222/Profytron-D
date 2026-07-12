@@ -35,6 +35,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (isMobile) setSidebarOpen(false);
   }, [pathname, isMobile, setSidebarOpen]);
 
+  const isBuilder = React.useMemo(
+    () => pathname?.includes("/strategies/builder"),
+    [pathname],
+  );
+  const isCoach = React.useMemo(
+    () => pathname?.includes("/alpha-coach"),
+    [pathname],
+  );
+  const lockScroll = isBuilder || isCoach;
+
   React.useEffect(() => {
     if (!isMobile || !sidebarOpen) return;
     const prev = document.body.style.overflow;
@@ -43,6 +53,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       document.body.style.overflow = prev;
     };
   }, [isMobile, sidebarOpen]);
+
+  // Alpha Coach: lock document scroll so chat + main nav never fight on phones.
+  React.useEffect(() => {
+    if (!isCoach) return;
+    const prevHtml = document.documentElement.style.overflow;
+    const prevBody = document.body.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = prevHtml;
+      document.body.style.overflow = prevBody;
+    };
+  }, [isCoach]);
 
   React.useEffect(() => {
     if (!isMobile || !sidebarOpen) return;
@@ -53,16 +76,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [isMobile, sidebarOpen, setSidebarOpen]);
 
-  const isBuilder = React.useMemo(
-    () => pathname?.includes("/strategies/builder"),
-    [pathname],
-  );
-
   return (
     <div
       className={cn(
-        "flex bg-[var(--bg-secondary)] overflow-x-hidden relative min-w-0",
-        isMobile ? "min-h-[100dvh]" : "h-[100dvh] max-h-[100dvh] overflow-hidden",
+        "flex overflow-x-hidden relative min-w-0 brand-surface-bg",
+        isCoach || !isMobile
+          ? "h-[100dvh] max-h-[100dvh] overflow-hidden"
+          : "min-h-[100dvh]",
       )}
       suppressHydrationWarning
     >
@@ -76,7 +96,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
 
       {mounted && !isBuilder && (
-        <div className="fixed inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--primary)_5%,transparent)_0%,transparent_58%)]" />
+        <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--primary)_8%,transparent)_0%,transparent_55%)]" />
       )}
 
       {isMobile && sidebarOpen && (
@@ -107,7 +127,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         tabIndex={-1}
         className={cn(
           "flex-1 min-w-0 relative z-20 w-full flex flex-col focus:outline-none",
-          isMobile ? "min-h-[100dvh]" : "min-h-0 h-[100dvh] overflow-hidden",
+          isCoach || !isMobile
+            ? "min-h-0 h-[100dvh] max-h-[100dvh] overflow-hidden"
+            : "min-h-[100dvh]",
           !isMobile && "pr-[var(--sidebar-pad)]",
         )}
       >
@@ -118,7 +140,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div
           className={cn(
             "flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar",
-            isBuilder && "overflow-hidden",
+            lockScroll && "overflow-hidden",
           )}
         >
           <div
@@ -126,7 +148,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className={cn(
               isBuilder
                 ? "p-0 max-w-none w-full h-full min-h-0"
-                : "p-[var(--dashboard-p)] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-[clamp(3rem,4vw,4rem)] max-w-[1920px] mx-auto w-full min-w-0",
+                : isCoach
+                  ? "flex h-full min-h-0 w-full min-w-0 max-w-none mx-auto flex-col overflow-hidden p-1.5 sm:p-2"
+                  : "p-[var(--dashboard-p)] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-[clamp(3rem,4vw,4rem)] max-w-[1920px] mx-auto w-full min-w-0",
             )}
           >
             {children}

@@ -252,7 +252,7 @@ function MarketplacePageInner() {
   const sortLabel = sortBy.replace('-', ' ');
 
   return (
-    <div className="marketplace-page flex min-h-0 min-w-0 w-full flex-1 flex-col bg-background">
+    <div className="marketplace-page brand-surface-bg flex min-h-0 min-w-0 w-full flex-1 flex-col">
       <MarketplaceHero {...heroStats} />
 
       <div className="marketplace-body min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden pb-10">

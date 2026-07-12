@@ -668,21 +668,31 @@ export class AuthService {
 
   async refresh(userId: string, refreshToken: string, jti: string) {
     const sessionKey = this.refreshSessionKey(userId, jti);
-    let stored = await this.redisService.get(sessionKey);
+    let stored: string | null = null;
+    let redisSessionsUnavailable = false;
+    try {
+      stored = await this.redisService.get(sessionKey);
 
-    // Migrate legacy single-slot sessions from older builds.
-    if (!stored) {
-      const legacyKey = `auth:refresh:${userId}:default`;
-      const legacy = await this.redisService.get(legacyKey);
-      if (legacy && legacy === refreshToken) {
-        stored = legacy;
-        await this.redisService.del(legacyKey);
+      // Migrate legacy single-slot sessions from older builds.
+      if (!stored) {
+        const legacyKey = `auth:refresh:${userId}:default`;
+        const legacy = await this.redisService.get(legacyKey);
+        if (legacy && legacy === refreshToken) {
+          stored = legacy;
+          await this.redisService.del(legacyKey);
+        }
       }
+    } catch (error) {
+      redisSessionsUnavailable = true;
+      this.logger.warn(
+        `Refresh session lookup failed for ${userId}; trusting verified JWT. ${String(error)}`,
+      );
     }
 
     // JWT already verified by JwtRefreshGuard. Redis tracks each browser/device
     // by jti so logging in elsewhere does not kill this session.
-    const usingEphemeralRedis = process.env.REDIS_INMEMORY === 'true';
+    const usingEphemeralRedis =
+      process.env.REDIS_INMEMORY === 'true' || redisSessionsUnavailable;
     if (stored && stored !== refreshToken) {
       appError(
         HttpStatus.UNAUTHORIZED,
@@ -718,12 +728,18 @@ export class AuthService {
         process.env.JWT_REFRESH_EXPIRES,
         7 * 24 * 3600,
       );
-      await this.redisService.set(
-        `auth:blacklist:${jti}`,
-        'true',
-        refreshExpiry,
-      );
-      await this.redisService.del(sessionKey);
+      try {
+        await this.redisService.set(
+          `auth:blacklist:${jti}`,
+          'true',
+          refreshExpiry,
+        );
+        await this.redisService.del(sessionKey);
+      } catch (error) {
+        this.logger.warn(
+          `Refresh blacklist/rotation cleanup failed for ${userId}; continuing. ${String(error)}`,
+        );
+      }
     }
 
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
@@ -743,7 +759,7 @@ export class AuthService {
     };
   }
 
-  async logout(userId: string, jti: string) {
+  async logout(userId: string, jti: string, _refreshToken?: string) {
     await this.revokeRefreshSession(userId, jti);
     if (jti) {
       const accessExpiry = this.parseExpirySeconds(

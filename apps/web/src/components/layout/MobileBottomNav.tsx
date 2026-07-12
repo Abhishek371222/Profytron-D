@@ -24,8 +24,10 @@ const bottomNavItems = [
 export function MobileBottomNav() {
   const pathname = usePathname();
   const isBuilder = pathname?.includes("/strategies/builder");
+  const isCoach = pathname?.includes("/alpha-coach");
 
-  if (isBuilder) return null;
+  // Chat occupies the full phone viewport — hide bottom nav so it doesn't collide.
+  if (isBuilder || isCoach) return null;
 
   return (
     <nav aria-label="Quick navigation" className="fixed bottom-0 inset-x-0 z-50 lg:hidden">

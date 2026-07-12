@@ -101,15 +101,23 @@ export function MarketplaceStrategyTable({
                 </div>
               </div>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-3 w-full min-h-[var(--touch-min)]"
-                onClick={() => onSubscribe(s)}
-              >
-                View Strategy
-                <ArrowRight className="ml-1 h-3.5 w-3.5" />
-              </Button>
+              <div className="mt-3 flex gap-2">
+                <Link
+                  href={`/marketplace/${s.id}`}
+                  className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-[10px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-xs font-bold text-primary transition-colors hover:bg-[color-mix(in_srgb,var(--primary)_14%,transparent)]"
+                >
+                  View Strategy
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="min-h-[var(--touch-min)]"
+                  onClick={() => onSubscribe(s)}
+                >
+                  Subscribe
+                </Button>
+              </div>
             </motion.div>
           );
         })}
@@ -273,15 +281,23 @@ export function MarketplaceStrategyTable({
                     {s.price > 0 ? `₹${s.price.toLocaleString('en-IN')}` : "FREE"}
                   </td>
                   <td className="px-4 py-4 text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="btn-premium-ghost rounded-[12px] border border-[var(--card-border)] text-[11px] font-bold uppercase tracking-wide"
-                      onClick={() => onSubscribe(s)}
-                    >
-                      View
-                      <ArrowRight className="ml-1 h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-                    </Button>
+                    <div className="inline-flex items-center gap-2">
+                      <Link
+                        href={`/marketplace/${s.id}`}
+                        className="btn-premium-ghost inline-flex h-8 items-center rounded-[12px] border border-[var(--card-border)] px-3 text-[11px] font-bold uppercase tracking-wide text-foreground transition-colors hover:text-primary"
+                      >
+                        View Strategy
+                        <ArrowRight className="ml-1 h-3 w-3" />
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-[12px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] text-[11px] font-bold uppercase tracking-wide text-primary"
+                        onClick={() => onSubscribe(s)}
+                      >
+                        Subscribe
+                      </Button>
+                    </div>
                   </td>
                 </motion.tr>
               );

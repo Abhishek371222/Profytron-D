@@ -134,4 +134,33 @@ export const marketApi = {
     });
     return unwrap<EconomicCalendarResponse>(response.data);
   },
+
+  async getBias(params: {
+    symbol: MarketSymbol;
+    frames: Array<{
+      timeframe: string;
+      open: number;
+      high: number;
+      low: number;
+      close: number;
+      changePct: number;
+      closes?: number[];
+    }>;
+  }) {
+    const response = await apiClient.post('/market/bias', params);
+    return unwrap<{
+      symbol: string;
+      biases: Record<
+        string,
+        {
+          direction: 'bullish' | 'bearish' | 'neutral';
+          confidence: number;
+          note: string;
+          trend: string;
+          trade: string;
+          source: string;
+        }
+      >;
+    }>(response.data);
+  },
 };

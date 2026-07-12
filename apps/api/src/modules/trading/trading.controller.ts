@@ -153,6 +153,17 @@ export class TradingController {
     return this.tradingService.getOpenTrades(req.user.id);
   }
 
+  @Post('sync-bots')
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({
+    summary:
+      'Pull MetaAPI positions into DB, attribute them to bots, refresh per-bot PnL',
+  })
+  async syncBots(@Req() req: RequestWithUser) {
+    return this.tradingService.syncBotTrades(req.user.id);
+  }
+
   @Get('trades/history')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({

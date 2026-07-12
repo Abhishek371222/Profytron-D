@@ -19,6 +19,7 @@ import {
 import { formatBotDescription, formatBotName } from '@/lib/bot-labels';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { SubscribeModal } from '@/components/marketplace/SubscribeModal';
 
 function ReviewStarRating({
   value,
@@ -90,6 +91,7 @@ export default function MarketplaceStrategyDetailPage() {
 
   const [rating, setRating] = React.useState(5);
   const [reviewText, setReviewText] = React.useState('');
+  const [subscribeOpen, setSubscribeOpen] = React.useState(false);
 
   const strategyQuery = useQuery({
     queryKey: ['marketplace-strategy', strategyId],
@@ -234,11 +236,36 @@ export default function MarketplaceStrategyDetailPage() {
         title={displayName}
         description={displayDescription}
         actions={
-          <DashButton variant="outline" onClick={refreshDetail}>
-            Refresh
-          </DashButton>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/copy-trading">
+              <DashButton variant="outline">Copy Trading</DashButton>
+            </Link>
+            <Link href="/my-bots">
+              <DashButton variant="outline">My Bots</DashButton>
+            </Link>
+            <DashButton variant="outline" onClick={refreshDetail}>
+              Refresh
+            </DashButton>
+          </div>
         }
       />
+
+      <DashboardCard className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Ready to copy this strategy?</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Subscribe to activate it on your MT5, then manage copy settings under Copy Trading.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <DashButton variant="primary" onClick={() => setSubscribeOpen(true)}>
+            Subscribe / Activate
+          </DashButton>
+          <Link href="/copy-trading">
+            <DashButton variant="outline">Open Copy Trading</DashButton>
+          </Link>
+        </div>
+      </DashboardCard>
 
       <div className="grid gap-4 md:grid-cols-4">
         <DashMetricTile label="Category" value={strategy.category} />
@@ -470,6 +497,19 @@ export default function MarketplaceStrategyDetailPage() {
           )}
         </div>
       </DashboardCard>
+
+      <SubscribeModal
+        strategy={{
+          id: strategy.id,
+          name: displayName,
+          monthlyPrice,
+          annualPrice: Number(detail?.listing?.annualPrice ?? strategy.annualPrice ?? 0),
+          lifetimePrice: Number(detail?.listing?.lifetimePrice ?? strategy.lifetimePrice ?? 0),
+          category: strategy.category,
+        }}
+        isOpen={subscribeOpen}
+        onClose={() => setSubscribeOpen(false)}
+      />
     </DashboardPage>
   );
 }

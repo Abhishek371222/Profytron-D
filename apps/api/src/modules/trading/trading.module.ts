@@ -16,6 +16,7 @@ import { AiRiskModule } from '../ai-risk/ai-risk.module';
 import { CopyLedgerService } from './copy-ledger.service';
 import { TradeDlqProcessor } from './trade-dlq.processor';
 import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
+import { BotTradeSyncService } from './bot-trade-sync.service';
 import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
 
 @Module({
@@ -51,6 +52,7 @@ import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
     MarketPriceBroadcastService,
     CopyLedgerService,
     CopyFactoryPositionSyncService,
+    BotTradeSyncService,
   ],
   exports: [
     TradingService,
@@ -59,6 +61,7 @@ import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
     SubscriptionCleanupService,
     MasterSyncService,
     TrailingStopService,
+    BotTradeSyncService,
   ],
 })
 export class TradingModule {}

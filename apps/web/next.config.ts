@@ -74,7 +74,7 @@ const nextConfig: NextConfig = {
     return [
       { source: '/documentation', destination: '/docs', permanent: true },
       { source: '/press', destination: '/', permanent: true },
-      { source: '/copy-trading', destination: '/my-bots', permanent: false },
+      // Keep /copy-trading as its own page (do not send users to My Bots).
     ];
   },
 
@@ -95,6 +95,10 @@ const nextConfig: NextConfig = {
       {
         source: "/api/broker/accounts/connect",
         destination: "/api/broker/accounts/connect",
+      },
+      {
+        source: "/api/strategies/my",
+        destination: "/api/strategies/my",
       },
       {
         source: "/api/trading/trades/:path*",
@@ -119,6 +123,14 @@ const nextConfig: NextConfig = {
       {
         source: "/api/market/ohlc",
         destination: "/api/market/ohlc",
+      },
+      {
+        source: "/api/market/bias",
+        destination: "/api/market/bias",
+      },
+      {
+        source: "/api/market/news-image",
+        destination: "/api/market/news-image",
       },
       {
         source: "/api/analytics/trades",

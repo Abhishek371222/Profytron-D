@@ -9,6 +9,8 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { brokerApi } from '@/lib/api/broker';
+import { BROKER_ACCOUNTS_KEY, type BrokerAccountRow } from '@/lib/queries/account-queries';
+import { useAccountContext } from '@/hooks/useAccountContext';
 import { BrokerConnectModal } from '@/components/copy-trading/BrokerConnectModal';
 import { AccountDetailsModal } from '@/components/broker/AccountDetailsModal';
 import {
@@ -129,57 +131,51 @@ function timeAgo(dateStr: string) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+function mapBrokerAccountRow(a: BrokerAccountRow): BrokerAccount {
+  const liveSynced = Boolean(a.liveSynced) || Boolean(a.isPaperTrading);
+  const live =
+    a.equity != null || a.balance != null || a.initialEquity != null
+      ? Number(a.equity ?? a.balance ?? a.initialEquity)
+      : null;
+  const status: AccountStatus =
+    a.isActive === false
+      ? 'DISCONNECTED'
+      : a.connectionStatus === 'CONNECTING' || a.connectionStatus === 'SYNCING'
+        ? 'SYNCING'
+        : liveSynced
+          ? 'CONNECTED'
+          : 'SYNCING';
+  return {
+    id: a.id,
+    brokerName: a.brokerName,
+    accountNumber: a.accountNumberLast4 ?? a.accountNumber ?? '',
+    accountType: a.isPaperTrading ? 'Paper' : 'Live',
+    status,
+    balance: live != null && Number.isFinite(live) ? live : undefined,
+    currency: a.currency ?? 'USD',
+    lastSyncedAt: a.lastConnectedAt ?? a.connectedAt ?? undefined,
+    isPaperTrading: Boolean(a.isPaperTrading),
+    serverName: a.serverName ?? undefined,
+    storeOnly: Boolean(a.storeOnly),
+    balanceNote:
+      typeof a.balanceNote === 'string' ? a.balanceNote : undefined,
+    login: a.login ? String(a.login) : undefined,
+    fillMode: a.fillMode ?? undefined,
+    initialEquity: a.initialEquity ?? undefined,
+    isDefault: !!a.isDefault,
+    isMasterSource: !!a.isMasterSource,
+  };
+}
+
 export default function ConnectedAccountsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = React.useState(false);
   const [detailsAccount, setDetailsAccount] = React.useState<BrokerAccount | null>(null);
 
-  // Fetch broker accounts (real endpoint). Refetch periodically so live
-  // balances and a still-connecting account update without a manual refresh.
-  const accountsQuery = useQuery({
-    queryKey: ['broker-accounts'],
-    refetchInterval: 12_000,
-    queryFn: async () => {
-      const res = await apiClient.get('/broker/accounts');
-      const raw = unwrapApiResponse<any[]>(res.data) ?? [];
-      return raw.map((a): BrokerAccount => {
-        const liveSynced = Boolean(a.liveSynced) || a.isPaperTrading;
-        const live =
-          liveSynced && (a.equity != null || a.balance != null)
-            ? Number(a.equity ?? a.balance)
-            : null;
-        const status: AccountStatus =
-          a.isActive === false
-            ? 'DISCONNECTED'
-            : a.connectionStatus === 'CONNECTING' || a.connectionStatus === 'SYNCING'
-            ? 'SYNCING'
-            : liveSynced
-            ? 'CONNECTED'
-            : 'SYNCING';
-        return {
-          id: a.id,
-          brokerName: a.brokerName,
-          accountNumber: a.accountNumberLast4 ?? '',
-          accountType: a.isPaperTrading ? 'Paper' : 'Live',
-          status,
-          balance: live != null && Number.isFinite(live) ? live : undefined,
-          currency: a.currency ?? 'USD',
-          lastSyncedAt: a.lastConnectedAt ?? a.connectedAt,
-          isPaperTrading: Boolean(a.isPaperTrading),
-          serverName: a.serverName ?? undefined,
-          storeOnly: Boolean(a.storeOnly),
-          balanceNote:
-            typeof a.balanceNote === 'string' ? a.balanceNote : undefined,
-          login: a.login ? String(a.login) : undefined,
-          fillMode: a.fillMode ?? undefined,
-          initialEquity: a.initialEquity ?? undefined,
-          isDefault: !!a.isDefault,
-          isMasterSource: !!a.isMasterSource,
-        };
-      });
-    },
-  });
+  // Shared broker-accounts cache (raw rows) — never remapped in queryFn.
+  const { accounts: rawAccounts, brokerAccountsQuery: accountsQuery } =
+    useAccountContext();
 
   // Fetch linked bots (same source as My Bots — strategy id is marketplace detail id)
   const botsQuery = useQuery({
@@ -211,17 +207,19 @@ export default function ConnectedAccountsPage() {
 
   const bots = botsQuery.data ?? [];
   const accounts = React.useMemo<BrokerAccount[]>(() => {
-    const raw = accountsQuery.data ?? [];
-    return raw.map((a) => ({
-      ...a,
-      status: normalizeStatus(a?.status),
-      activeBotCount: bots.filter(
-        (b) =>
-          b.status === 'ACTIVE' &&
-          (b.accountNumber ? b.accountNumber === a.accountNumber : true),
-      ).length,
-    }));
-  }, [accountsQuery.data, bots]);
+    return (rawAccounts as BrokerAccountRow[]).map((row) => {
+      const mapped = mapBrokerAccountRow(row);
+      return {
+        ...mapped,
+        status: normalizeStatus(mapped.status),
+        activeBotCount: bots.filter(
+          (b) =>
+            b.status === 'ACTIVE' &&
+            (b.accountNumber ? b.accountNumber === mapped.accountNumber : true),
+        ).length,
+      };
+    });
+  }, [rawAccounts, bots]);
 
   const invalidateBots = React.useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: ['connected-bots'] });
@@ -316,8 +314,8 @@ export default function ConnectedAccountsPage() {
     setDisconnectingId(account.id);
 
     // Optimistic remove so the card disappears immediately
-    const previous = queryClient.getQueryData<BrokerAccount[]>(['broker-accounts']);
-    queryClient.setQueryData<BrokerAccount[]>(['broker-accounts'], (old) =>
+    const previous = queryClient.getQueryData<BrokerAccountRow[]>(BROKER_ACCOUNTS_KEY);
+    queryClient.setQueryData<BrokerAccountRow[]>(BROKER_ACCOUNTS_KEY, (old) =>
       (old ?? []).filter((a) => a.id !== account.id),
     );
 
@@ -326,10 +324,10 @@ export default function ConnectedAccountsPage() {
       toast.success(`${account.brokerName} disconnected`, {
         description: 'Account removed. You can connect a new one now.',
       });
-      await queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
+      await queryClient.invalidateQueries({ queryKey: BROKER_ACCOUNTS_KEY });
       await queryClient.invalidateQueries({ queryKey: ['connected-bots'] });
     } catch (err: any) {
-      if (previous) queryClient.setQueryData(['broker-accounts'], previous);
+      if (previous) queryClient.setQueryData(BROKER_ACCOUNTS_KEY, previous);
       const data = err?.response?.data;
       const msg =
         data?.message ??
@@ -348,7 +346,7 @@ export default function ConnectedAccountsPage() {
   };
 
   const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
+    queryClient.invalidateQueries({ queryKey: BROKER_ACCOUNTS_KEY });
     queryClient.invalidateQueries({ queryKey: ['connected-bots'] });
     toast.success('Accounts refreshed');
   };
@@ -359,7 +357,7 @@ export default function ConnectedAccountsPage() {
         open={showModal}
         onClose={() => setShowModal(false)}
         onConnected={() => {
-          queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
+          queryClient.invalidateQueries({ queryKey: BROKER_ACCOUNTS_KEY });
           queryClient.invalidateQueries({ queryKey: ['connected-bots'] });
         }}
       />
