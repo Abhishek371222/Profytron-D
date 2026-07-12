@@ -14,15 +14,8 @@ import {
   Calendar,
   TrendingUp,
   IndianRupee,
-  Pause,
-  Play,
-  X,
-  ChevronDown,
   RefreshCw,
-  AlertCircle,
   ArrowUpRight,
-  ToggleLeft,
-  ToggleRight,
 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -163,149 +156,6 @@ function SummaryCard({
   );
 }
 
-// Row-level action dropdown
-function ActionMenu({
-  bot,
-  onPause,
-  onResume,
-  onCancel,
-  isPending,
-}: {
-  bot: SubscribedBot;
-  onPause: (id: string) => void;
-  onResume: (id: string) => void;
-  onCancel: (id: string, name: string) => void;
-  isPending: boolean;
-}) {
-  const [open, setOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-  const status = getStatusFromBot(bot);
-
-  React.useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
-
-  const canPause = status === 'ACTIVE';
-  const canResume = status === 'PAUSED' || status === 'INACTIVE';
-  const canCancel = status === 'ACTIVE' || status === 'PAUSED';
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-40"
-      >
-        Actions
-        <ChevronDown className="h-3 w-3" />
-      </button>
-      {open && (
-        <div className="absolute right-0 top-9 z-20 w-36 rounded-xl border border-[var(--card-border)] bg-card shadow-xl overflow-hidden">
-          {canPause && (
-            <button
-              type="button"
-              onClick={() => { onPause(bot.id); setOpen(false); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-muted-foreground hover:bg-muted/40 transition-colors"
-            >
-              <Pause className="h-3.5 w-3.5" />
-              Pause
-            </button>
-          )}
-          {canResume && (
-            <button
-              type="button"
-              onClick={() => { onResume(bot.id); setOpen(false); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
-            >
-              <Play className="h-3.5 w-3.5" />
-              Resume
-            </button>
-          )}
-          {canCancel && (
-            <button
-              type="button"
-              onClick={() => { onCancel(bot.id, bot.name); setOpen(false); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-destructive hover:bg-destructive/10 transition-colors"
-            >
-              <X className="h-3.5 w-3.5" />
-              Cancel
-            </button>
-          )}
-          <Link
-            href={`/marketplace/${bot.id}`}
-            className="flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors border-t border-[var(--card-border)]"
-          >
-            <ArrowUpRight className="h-3.5 w-3.5" />
-            Upgrade
-          </Link>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Cancel Confirm Dialog ─────────────────────────────────────────────────────
-
-function CancelDialog({
-  botName,
-  onConfirm,
-  onClose,
-  isPending,
-}: {
-  botName: string;
-  onConfirm: () => void;
-  onClose: () => void;
-  isPending: boolean;
-}) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative dashboard-card p-6 max-w-sm w-full space-y-4 z-10"
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
-            <AlertCircle className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-foreground">Cancel Subscription?</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">This action cannot be undone</p>
-          </div>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Are you sure you want to cancel your subscription to{' '}
-          <span className="font-semibold text-foreground">{botName}</span>? You will lose access at the end of your current billing period.
-        </p>
-        <div className="flex items-center gap-2 pt-1">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 h-9 rounded-xl border border-[var(--card-border)] bg-card text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Keep Subscription
-          </button>
-          <button
-            type="button"
-            onClick={onConfirm}
-            disabled={isPending}
-            className="flex-1 h-9 rounded-xl bg-destructive text-destructive-foreground text-xs font-bold hover:bg-[var(--brand-crimson-dark)] transition-colors disabled:opacity-50"
-          >
-            {isPending ? 'Cancelling…' : 'Yes, Cancel'}
-          </button>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
 // ─── Table skeleton ────────────────────────────────────────────────────────────
 
 function TableSkeleton() {
@@ -329,7 +179,6 @@ function TableSkeleton() {
 export default function SubscriptionsPage() {
   const queryClient = useQueryClient();
   const [activeFilter, setActiveFilter] = React.useState<SubscriptionStatus | 'ALL'>('ALL');
-  const [cancelTarget, setCancelTarget] = React.useState<{ id: string; name: string } | null>(null);
 
   const { data: rawBots = [], isLoading } = useQuery<SubscribedBot[]>({
     queryKey: ['subscriptions'],
@@ -343,35 +192,28 @@ export default function SubscriptionsPage() {
     refetchOnWindowFocus: false,
   });
 
-  const pauseMutation = useMutation({
-    mutationFn: (id: string) => apiClient.post(`/strategies/${id}/pause`),
-    onSuccess: () => {
-      toast.success('Bot paused successfully');
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+  const autoRenewMutation = useMutation({
+    mutationFn: ({ id, autoRenew }: { id: string; autoRenew: boolean }) =>
+      apiClient.patch(`/strategies/${id}/auto-renew`, { autoRenew }),
+    // Optimistic — a slider should flip instantly, not wait on a round trip.
+    onMutate: async ({ id, autoRenew }) => {
+      await queryClient.cancelQueries({ queryKey: ['subscriptions'] });
+      const previous = queryClient.getQueryData<SubscribedBot[]>(['subscriptions']);
+      queryClient.setQueryData<SubscribedBot[]>(['subscriptions'], (prev) =>
+        prev?.map((b) =>
+          b.id === id
+            ? { ...b, subscription: b.subscription ? { ...b.subscription, autoRenew } : b.subscription }
+            : b,
+        ),
+      );
+      return { previous };
     },
-    onError: () => toast.error('Failed to pause bot'),
-  });
-
-  const resumeMutation = useMutation({
-    mutationFn: (id: string) => apiClient.post(`/strategies/${id}/resume`),
-    onSuccess: () => {
-      toast.success('Bot resumed successfully');
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['subscriptions'], context.previous);
+      toast.error('Failed to update auto-renewal');
     },
-    onError: () => toast.error('Failed to resume bot'),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['subscriptions'] }),
   });
-
-  const cancelMutation = useMutation({
-    mutationFn: (id: string) => apiClient.post(`/strategies/${id}/deactivate`),
-    onSuccess: () => {
-      toast.success('Subscription cancelled');
-      setCancelTarget(null);
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-    },
-    onError: () => toast.error('Failed to cancel subscription'),
-  });
-
-  const isPending = pauseMutation.isPending || resumeMutation.isPending || cancelMutation.isPending;
 
   // Computed stats
   const activeBots = React.useMemo(
@@ -407,7 +249,7 @@ export default function SubscriptionsPage() {
     'Next Billing',
     'Broker',
     'Auto-Renewal',
-    'Actions',
+    'Upgrade',
   ];
 
   return (
@@ -608,28 +450,36 @@ export default function SubscriptionsPage() {
 
                       {/* Auto-Renewal */}
                       <td className="px-4 py-3.5">
-                        {autoRenew ? (
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary">
-                            <ToggleRight className="h-4 w-4" />
-                            On
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
-                            <ToggleLeft className="h-4 w-4" />
-                            Off
-                          </span>
-                        )}
+                        <button
+                          type="button"
+                          role="switch"
+                          aria-checked={autoRenew}
+                          aria-label={autoRenew ? 'Turn off auto-renewal' : 'Turn on auto-renewal'}
+                          disabled={autoRenewMutation.isPending}
+                          onClick={() => autoRenewMutation.mutate({ id: bot.id, autoRenew: !autoRenew })}
+                          className={cn(
+                            'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 disabled:opacity-50',
+                            autoRenew ? 'bg-primary' : 'bg-[color-mix(in_srgb,var(--muted)_80%,transparent)]',
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              'inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200',
+                              autoRenew ? 'translate-x-4' : 'translate-x-0.5',
+                            )}
+                          />
+                        </button>
                       </td>
 
-                      {/* Actions */}
+                      {/* Upgrade */}
                       <td className="px-4 py-3.5 text-right">
-                        <ActionMenu
-                          bot={bot}
-                          isPending={isPending}
-                          onPause={(id) => pauseMutation.mutate(id)}
-                          onResume={(id) => resumeMutation.mutate(id)}
-                          onCancel={(id, name) => setCancelTarget({ id, name })}
-                        />
+                        <Link
+                          href={`/marketplace/${bot.id}`}
+                          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[color-mix(in_srgb,var(--primary)_28%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-[11px] font-semibold text-primary hover:bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] transition-colors"
+                        >
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                          Upgrade
+                        </Link>
                       </td>
                     </motion.tr>
                   );
@@ -666,16 +516,6 @@ export default function SubscriptionsPage() {
           </div>
         )}
       </motion.div>
-
-      {/* Cancel dialog */}
-      {cancelTarget && (
-        <CancelDialog
-          botName={cancelTarget.name}
-          isPending={cancelMutation.isPending}
-          onConfirm={() => cancelMutation.mutate(cancelTarget.id)}
-          onClose={() => setCancelTarget(null)}
-        />
-      )}
     </div>
   );
 }

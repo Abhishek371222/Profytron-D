@@ -370,9 +370,9 @@ export default function MyBotsPage() {
                       variant="ghost"
                       onClick={() => { if (confirm('Cancel this bot subscription?')) cancelMut.mutate(bot.id); }}
                       disabled={cancelMut.isPending}
-                      className="border border-[color-mix(in_srgb,var(--destructive)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--destructive)_10%,transparent)] text-destructive hover:bg-[color-mix(in_srgb,var(--destructive)_16%,transparent)] hover:text-destructive"
+                      className="flex-1 border border-[color-mix(in_srgb,var(--destructive)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--destructive)_10%,transparent)] text-destructive hover:bg-[color-mix(in_srgb,var(--destructive)_16%,transparent)] hover:text-destructive"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3 w-3" /> Cancel
                     </DashButton>
                   )}
                   <Link

@@ -626,7 +626,11 @@ export class AuthService {
     const ip = req.ip || '0.0.0.0';
     const userAgent = req.headers['user-agent'] || 'Unknown';
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken, tokens.jti);
+    await this.persistRefreshTokenSafely(
+      user.id,
+      tokens.refreshToken,
+      tokens.jti,
+    );
 
     try {
       await this.prisma.user.update({
@@ -1144,7 +1148,11 @@ export class AuthService {
       return { requiresTwoFa: true as const, challengeToken };
     }
     const tokens = await this.generateTokenPair(user.id, user.email, user.role);
-    await this.persistRefreshTokenSafely(user.id, tokens.refreshToken, tokens.jti);
+    await this.persistRefreshTokenSafely(
+      user.id,
+      tokens.refreshToken,
+      tokens.jti,
+    );
     return { requiresTwoFa: false as const, tokens };
   }
 

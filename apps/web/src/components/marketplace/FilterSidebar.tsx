@@ -4,7 +4,6 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Filter, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 interface FilterSidebarProps {
   isOpen: boolean;
@@ -23,7 +22,6 @@ interface FilterSidebarProps {
     selectedTimeframes: string[];
     verifiedOnly: boolean;
   }) => void;
-  onApply: () => void;
   onSavePreset: () => void;
 }
 
@@ -40,7 +38,6 @@ const TIMEFRAMES = ["M1", "M5", "M15", "H1", "H4", "D1"];
 function FilterContent({
   value,
   onChange,
-  onApply,
   onSavePreset,
   onClose,
 }: Omit<FilterSidebarProps, "isOpen">) {
@@ -231,9 +228,6 @@ function FilterContent({
       </div>
 
       <div className="shrink-0 space-y-2 border-t border-[var(--card-border)] p-5">
-        <Button variant="primary" onClick={onApply} className="w-full">
-          Apply Filters
-        </Button>
         <button
           type="button"
           onClick={onSavePreset}
@@ -262,7 +256,7 @@ function FilterContent({
   );
 }
 
-export function FilterSidebar({ isOpen, onClose, value, onChange, onApply, onSavePreset }: FilterSidebarProps) {
+export function FilterSidebar({ isOpen, onClose, value, onChange, onSavePreset }: FilterSidebarProps) {
   return (
     <>
       <aside
@@ -282,7 +276,6 @@ export function FilterSidebar({ isOpen, onClose, value, onChange, onApply, onSav
           <FilterContent
             value={value}
             onChange={onChange}
-            onApply={onApply}
             onSavePreset={onSavePreset}
             onClose={onClose}
           />
@@ -316,10 +309,6 @@ export function FilterSidebar({ isOpen, onClose, value, onChange, onApply, onSav
               <FilterContent
                 value={value}
                 onChange={onChange}
-                onApply={() => {
-                  onApply();
-                  onClose();
-                }}
                 onSavePreset={onSavePreset}
                 onClose={onClose}
               />

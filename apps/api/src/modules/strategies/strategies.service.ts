@@ -497,6 +497,33 @@ export class StrategiesService {
     return { success: true };
   }
 
+  private autoRenewKey(userId: string, strategyId: string) {
+    return `subscription:autorenew:${userId}:${strategyId}`;
+  }
+
+  /**
+   * Auto-renew is stored in Redis rather than Postgres — see the comment on
+   * getMyStrategies() for why. No TTL: this is a durable user preference,
+   * not a cache entry, so it should not silently expire back to the default.
+   */
+  async setAutoRenew(strategyId: string, userId: string, autoRenew: boolean) {
+    const sub = await this.prisma.userStrategySubscription.findUnique({
+      where: { userId_strategyId: { userId, strategyId } },
+      select: { id: true },
+    });
+    if (!sub) {
+      throw new NotFoundException('Subscription not found');
+    }
+    await this.redis.set(
+      this.autoRenewKey(userId, strategyId),
+      autoRenew ? '1' : '0',
+    );
+    this.logger.log(
+      `AUTO_RENEW_${autoRenew ? 'ENABLED' : 'DISABLED'}: User ${userId} -> Strategy ${strategyId}`,
+    );
+    return { success: true, autoRenew };
+  }
+
   async getMyStrategies(userId: string) {
     const subs = await this.prisma.userStrategySubscription.findMany({
       where: { userId, status: { not: SubscriptionStatus.INACTIVE } },
@@ -518,7 +545,14 @@ export class StrategiesService {
     // percentage return for the My Bots cards (which render P&L as a percentage).
     const NOMINAL_BASE = 10_000;
 
-    return subs.map((s) => {
+    // autoRenew lives in Redis, not Postgres — see setAutoRenew(). Missing
+    // key means nobody has ever toggled it, which defaults to true.
+    const autoRenewFlags = await Promise.all(
+      subs.map((s) => this.redis.get(this.autoRenewKey(userId, s.strategyId))),
+    );
+
+    return subs.map((s, idx) => {
+      const autoRenew = autoRenewFlags[idx] !== '0';
       const perf = s.strategy.performance[0];
       const netPnl = perf?.netPnl ?? 0;
       const winRate = perf?.winRate ?? 0;
@@ -551,7 +585,7 @@ export class StrategiesService {
         monthlyFee: s.strategy.monthlyPrice ?? 0,
         renewsAt: renewalDate,
         nextBillingDate: renewalDate,
-        autoRenew: true,
+        autoRenew,
         latestPerformance: {
           winRate: Number(winRate.toFixed(1)),
           totalReturn: currentPnl,
@@ -563,7 +597,7 @@ export class StrategiesService {
           planType,
           renewalDate,
           startedAt: s.subscribedAt,
-          autoRenew: true,
+          autoRenew,
           brokerAccount: brokerLabel,
         },
         // Connected-accounts "linked bots" aliases

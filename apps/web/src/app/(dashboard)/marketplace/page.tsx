@@ -255,20 +255,19 @@ function MarketplacePageInner() {
     <div className="marketplace-page flex min-h-0 min-w-0 w-full flex-1 flex-col bg-background">
       <MarketplaceHero {...heroStats} />
 
-      <div className="marketplace-body flex min-h-0 min-w-0 w-full flex-1">
-        <FilterSidebar
-          isOpen={isFilterOpen}
-          onClose={() => setIsFilterOpen(false)}
-          value={filters}
-          onChange={setFilters}
-          onApply={() => marketplaceQuery.refetch()}
-          onSavePreset={savePreset}
-        />
+      <div className="marketplace-body min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden pb-10">
+        <FeaturedRow strategies={featuredStrategies} onSubscribe={openSubscribe} />
 
-        <div className="min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden pb-10">
-          <FeaturedRow strategies={featuredStrategies} onSubscribe={openSubscribe} />
+        <div className="mt-6 flex min-h-0 min-w-0 w-full flex-1">
+          <FilterSidebar
+            isOpen={isFilterOpen}
+            onClose={() => setIsFilterOpen(false)}
+            value={filters}
+            onChange={setFilters}
+            onSavePreset={savePreset}
+          />
 
-          <div id="marketplace-all-bots" className="mt-6 space-y-4 px-[var(--dashboard-p)] scroll-mt-24">
+          <div id="marketplace-all-bots" className="min-w-0 w-full flex-1 space-y-4 px-[var(--dashboard-p)] scroll-mt-24">
             <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
               <div>
                 <div className="flex items-center gap-2.5">

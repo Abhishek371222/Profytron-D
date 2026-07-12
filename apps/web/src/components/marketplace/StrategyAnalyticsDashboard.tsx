@@ -75,6 +75,26 @@ function ChartTooltip({ active, payload, label }: any) {
   );
 }
 
+/** Renders a bar that grows slightly (scaled from its own center) when hovered, with no background cursor highlight. */
+function GrowBar({ x, y, width, height, fill, index, hoveredIndex }: any) {
+  const scale = index === hoveredIndex ? 1.12 : 1;
+  const w = width * scale;
+  const h = height * scale;
+  return (
+    <rect
+      x={x - (w - width) / 2}
+      y={y - (h - height) / 2}
+      width={w}
+      height={h}
+      fill={fill}
+      fillOpacity={0.85}
+      rx={4}
+      ry={4}
+      style={{ transition: 'all 150ms ease-out' }}
+    />
+  );
+}
+
 function metricTone(value: number, goodAbove?: number, badBelow?: number): MetricCardProps['tone'] {
   if (goodAbove != null && value >= goodAbove) return 'positive';
   if (badBelow != null && value <= badBelow) return 'negative';
@@ -83,6 +103,7 @@ function metricTone(value: number, goodAbove?: number, badBelow?: number): Metri
 
 export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string }) {
   const [tradesPage, setTradesPage] = React.useState(1);
+  const [hoveredMonthIdx, setHoveredMonthIdx] = React.useState<number | null>(null);
   const tradesLimit = 15;
 
   const analyticsQuery = useQuery({
@@ -324,8 +345,14 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} />
                 <XAxis dataKey="month" tick={{ fill: 'var(--muted-foreground)', fontSize: 9 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: 'var(--muted-foreground)', fontSize: 9 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} width={32} />
-                <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="returnPct" radius={[4, 4, 0, 0]}>
+                <Tooltip content={<ChartTooltip />} cursor={false} />
+                <Bar
+                  dataKey="returnPct"
+                  radius={[4, 4, 0, 0]}
+                  shape={(props: any) => <GrowBar {...props} hoveredIndex={hoveredMonthIdx} />}
+                  onMouseEnter={(_, idx) => setHoveredMonthIdx(idx)}
+                  onMouseLeave={() => setHoveredMonthIdx(null)}
+                >
                   {(charts?.monthlyReturns ?? []).map((item: any, idx: number) => (
                     <Cell key={idx} fill={item.returnPct >= 0 ? 'var(--chart-bull)' : 'var(--chart-bear)'} fillOpacity={0.85} />
                   ))}
@@ -473,27 +500,27 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
       </section>
 
       {/* Trade history */}
-      <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/20p-5">
+      <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/20 p-5 sm:p-6">
         <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30">Trading History</p>
         <p className="text-base font-bold text-foreground mt-1 mb-4">Closed Trades Log</p>
-        <div className="overflow-x-auto rounded-xl border border-[var(--card-border)]">
+        <div className="overflow-x-auto rounded-xl border border-[var(--card-border)] bg-card/40">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead className="bg-muted/30 text-micro uppercase tracking-[0.2em] text-foreground/35">
               <tr>
-                <th className="px-4 py-3">Asset</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Open</th>
-                <th className="px-4 py-3">Close</th>
-                <th className="px-4 py-3">Opened</th>
-                <th className="px-4 py-3">Closed</th>
-                <th className="px-4 py-3 text-right">PnL</th>
+                <th className="px-5 py-3.5 first:pl-6 last:pr-6">Asset</th>
+                <th className="px-5 py-3.5">Type</th>
+                <th className="px-5 py-3.5">Open</th>
+                <th className="px-5 py-3.5">Close</th>
+                <th className="px-5 py-3.5">Opened</th>
+                <th className="px-5 py-3.5">Closed</th>
+                <th className="px-5 py-3.5 text-right last:pr-6">PnL</th>
               </tr>
             </thead>
             <tbody>
               {(tradeHistory?.items ?? []).map((trade: any) => (
                 <tr key={trade.id} className="border-t border-[var(--card-border)] hover:bg-muted/20">
-                  <td className="px-4 py-3 font-semibold text-foreground">{trade.asset}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-3.5 pl-6 font-semibold text-foreground">{trade.asset}</td>
+                  <td className="px-5 py-3.5">
                     <span
                       className={cn(
                         'rounded-full px-2 py-0.5 text-micro font-bold uppercase',
@@ -505,17 +532,17 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
                       {trade.type}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-foreground/70">{trade.openPrice}</td>
-                  <td className="px-4 py-3 text-foreground/70">{trade.closePrice ?? '—'}</td>
-                  <td className="px-4 py-3 text-foreground/50 text-xs">
+                  <td className="px-5 py-3.5 text-foreground/70">{trade.openPrice}</td>
+                  <td className="px-5 py-3.5 text-foreground/70">{trade.closePrice ?? '—'}</td>
+                  <td className="px-5 py-3.5 text-foreground/50 text-xs">
                     {trade.openedAt ? new Date(trade.openedAt).toLocaleString() : '—'}
                   </td>
-                  <td className="px-4 py-3 text-foreground/50 text-xs">
+                  <td className="px-5 py-3.5 text-foreground/50 text-xs">
                     {trade.closedAt ? new Date(trade.closedAt).toLocaleString() : '—'}
                   </td>
                   <td
                     className={cn(
-                      'px-4 py-3 text-right font-semibold',
+                      'px-5 py-3.5 pr-6 text-right font-semibold',
                       trade.pnl >= 0 ? 'text-chart-3' : 'text-destructive',
                     )}
                   >
@@ -527,12 +554,12 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           </table>
         </div>
         {(tradeHistory?.items ?? []).length === 0 && (
-          <p className="mt-4 text-sm text-foreground/40">
+          <p className="mt-4 px-1 text-sm text-foreground/40">
             No closed trades logged yet. Metrics above are derived from verified performance records.
           </p>
         )}
         {totalTradePages > 1 && (
-          <div className="mt-4 flex items-center justify-between">
+          <div className="mt-4 flex items-center justify-between gap-3 px-1">
             <p className="text-xs text-foreground/40">
               Page {tradesPage} of {totalTradePages} · {tradeHistory?.total} trades
             </p>

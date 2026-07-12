@@ -10,6 +10,7 @@ import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import type { Express } from 'express';
+import sharp from 'sharp';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export type StrategyDocumentKind = 'IMAGE' | 'PDF' | 'DATA';
@@ -38,6 +39,15 @@ const KIND_MIME: Record<StrategyDocumentKind, string[]> = {
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   ],
 };
+
+/** No legitimate strategy asset needs more than this; larger is a mistake or abuse. */
+const KIND_MAX_BYTES: Record<StrategyDocumentKind, number> = {
+  IMAGE: 5 * 1024 * 1024,
+  PDF: 10 * 1024 * 1024,
+  DATA: 10 * 1024 * 1024,
+};
+
+const CSV_MAX_ROWS = 50_000;
 
 @Injectable()
 export class StrategyDocumentsService {
@@ -80,6 +90,93 @@ export class StrategyDocumentsService {
     return 'bin';
   }
 
+  /**
+   * Verifies the file's actual bytes match its claimed kind — not just the
+   * client-supplied mimetype, which is trivially spoofable (a renamed .php
+   * file can still declare Content-Type: image/jpeg). For images, also
+   * returns a re-encoded buffer with EXIF/metadata stripped so location
+   * data doesn't leak through marketplace thumbnails. Throws
+   * BadRequestException on anything that fails validation.
+   */
+  private async validateAndSanitize(
+    file: Express.Multer.File,
+    kind: StrategyDocumentKind,
+  ): Promise<Buffer> {
+    const maxBytes = KIND_MAX_BYTES[kind];
+    if (file.size > maxBytes) {
+      throw new BadRequestException(
+        `${kind} file exceeds the ${Math.round(maxBytes / (1024 * 1024))}MB limit`,
+      );
+    }
+
+    if (kind === 'IMAGE') {
+      let metadata: sharp.Metadata;
+      try {
+        metadata = await sharp(file.buffer).metadata();
+      } catch {
+        throw new BadRequestException(
+          'File is not a valid image — its content does not match a supported image format',
+        );
+      }
+      const format = metadata.format;
+      if (!format || !['jpeg', 'png', 'webp', 'gif'].includes(format)) {
+        throw new BadRequestException('Unsupported image format');
+      }
+      try {
+        // Re-encoding (no .withMetadata()) strips EXIF/ICC/GPS metadata by
+        // default and doubles as content validation — sharp already threw
+        // above if the bytes weren't a genuine image of that format.
+        return await sharp(file.buffer).rotate().toFormat(format).toBuffer();
+      } catch {
+        throw new BadRequestException('Could not process image file');
+      }
+    }
+
+    if (kind === 'PDF') {
+      if (file.buffer.subarray(0, 5).toString('latin1') !== '%PDF-') {
+        throw new BadRequestException(
+          'File is not a valid PDF — missing the PDF header',
+        );
+      }
+      return file.buffer;
+    }
+
+    // DATA
+    if (file.mimetype === 'application/json') {
+      try {
+        JSON.parse(file.buffer.toString('utf8'));
+      } catch {
+        throw new BadRequestException('File is not valid JSON');
+      }
+    } else if (file.mimetype === 'text/csv' || file.mimetype === 'text/plain') {
+      const text = file.buffer.toString('utf8');
+      if (text.includes('\u0000')) {
+        throw new BadRequestException(
+          'File does not look like a text/CSV file',
+        );
+      }
+      const rowCount = text.split('\n').length;
+      if (rowCount > CSV_MAX_ROWS) {
+        throw new BadRequestException(
+          `CSV has ${rowCount.toLocaleString()} rows — the limit is ${CSV_MAX_ROWS.toLocaleString()}`,
+        );
+      }
+    } else {
+      // xlsx is a zip container ('PK'), legacy xls is an OLE container —
+      // check the real container magic bytes rather than trusting the
+      // extension/declared mimetype.
+      const header = file.buffer.subarray(0, 4);
+      const isZip = header[0] === 0x50 && header[1] === 0x4b;
+      const isOle = header[0] === 0xd0 && header[1] === 0xcf;
+      if (!isZip && !isOle) {
+        throw new BadRequestException(
+          'File does not look like a valid spreadsheet',
+        );
+      }
+    }
+    return file.buffer;
+  }
+
   async uploadDocument(
     strategyId: string,
     uploaderId: string,
@@ -116,6 +213,11 @@ export class StrategyDocumentsService {
       );
     }
 
+    // Real content check (size cap, magic bytes / actual parse — not just the
+    // declared mimetype) — returns the buffer to actually store, which for
+    // images is a re-encoded copy with EXIF/metadata stripped.
+    const sanitizedBuffer = await this.validateAndSanitize(file, kind);
+
     const docId = randomUUID();
     const ext = this.extensionFor(file.mimetype, kind);
     const relativeKey = `${strategyId}/${docId}.${ext}`;
@@ -126,7 +228,7 @@ export class StrategyDocumentsService {
       try {
         const { error } = await this.supabase.storage
           .from('strategy-documents')
-          .upload(relativeKey, file.buffer, {
+          .upload(relativeKey, sanitizedBuffer, {
             contentType: file.mimetype,
             upsert: false,
           });
@@ -149,7 +251,7 @@ export class StrategyDocumentsService {
       try {
         fs.mkdirSync(dir, { recursive: true });
         const localPath = path.join(dir, `${docId}.${ext}`);
-        fs.writeFileSync(localPath, file.buffer);
+        fs.writeFileSync(localPath, sanitizedBuffer);
         storageKey = `local:${strategyId}/${docId}.${ext}`;
       } catch (err: any) {
         throw new BadRequestException(
@@ -170,7 +272,7 @@ export class StrategyDocumentsService {
         kind,
         storageKey,
         mimeType: file.mimetype,
-        fileSizeBytes: file.size,
+        fileSizeBytes: sanitizedBuffer.length,
         sortOrder: options?.sortOrder ?? 0,
         isPublished: options?.isPublished ?? false,
         uploadedBy: uploaderId,
