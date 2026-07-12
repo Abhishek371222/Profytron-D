@@ -14,7 +14,10 @@ export class LeaderboardService {
     private redis: RedisService,
   ) {}
 
-  async getMonthly(limit = 50): Promise<{ period: string; entries: any[] }> {
+  async getMonthly(
+    limit = 50,
+    retried = false,
+  ): Promise<{ period: string; entries: any[] }> {
     const cacheKey = `cache:leaderboard:monthly:${limit}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
@@ -37,9 +40,12 @@ export class LeaderboardService {
       },
     });
 
-    if (!entries.length) {
+    // Recalculate is a one-shot retry: if there is genuinely no trade activity
+    // yet for this period, recalculate() will keep producing zero rows and a
+    // second attempt would recurse forever instead of returning an empty list.
+    if (!entries.length && !retried) {
       await this.recalculate();
-      return this.getMonthly(limit);
+      return this.getMonthly(limit, true);
     }
 
     const result = { period, entries };
@@ -47,7 +53,10 @@ export class LeaderboardService {
     return result;
   }
 
-  async getAllTime(limit = 50): Promise<{ period: string; entries: any[] }> {
+  async getAllTime(
+    limit = 50,
+    retried = false,
+  ): Promise<{ period: string; entries: any[] }> {
     const cacheKey = `cache:leaderboard:all:${limit}`;
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
@@ -69,9 +78,9 @@ export class LeaderboardService {
       },
     });
 
-    if (!entries.length) {
+    if (!entries.length && !retried) {
       await this.recalculate();
-      return this.getAllTime(limit);
+      return this.getAllTime(limit, true);
     }
 
     const result = { period: 'all', entries };

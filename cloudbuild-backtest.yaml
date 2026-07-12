@@ -1,0 +1,27 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "-f"
+      - "services/backtest/Dockerfile"
+      - "-t"
+      - "asia-south1-docker.pkg.dev/gen-lang-client-0497144011/profytron/backtest:latest"
+      - "."
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "backtest"
+      - "--image=asia-south1-docker.pkg.dev/gen-lang-client-0497144011/profytron/backtest:latest"
+      - "--region=asia-south1"
+      - "--platform=managed"
+      - "--memory=512Mi"
+      - "--min-instances=0"
+      - "--max-instances=5"
+      - "--project=gen-lang-client-0497144011"
+images:
+  - "asia-south1-docker.pkg.dev/gen-lang-client-0497144011/profytron/backtest:latest"
+options:
+  machineType: "E2_HIGHCPU_8"
+timeout: "1200s"

@@ -53,7 +53,10 @@ COPY apps/api/docker-entrypoint.sh ./docker-entrypoint.sh
 # Run as the unprivileged `node` user (uid 1000, ships with the base image)
 # instead of root. Writable dirs (logs + local upload fallback) must be
 # node-owned — otherwise boot crashes with EACCES on mkdir.
-RUN chmod +x ./docker-entrypoint.sh && \
+# sed strips CRLF in case the file was checked out with Windows line endings,
+# which breaks the shebang under Alpine's /bin/sh.
+RUN sed -i 's/\r$//' ./docker-entrypoint.sh && \
+    chmod +x ./docker-entrypoint.sh && \
     mkdir -p /app/apps/api/logs /app/apps/api/uploads/strategy-documents && \
     chown -R node:node /app/apps/api/logs /app/apps/api/uploads
 USER node

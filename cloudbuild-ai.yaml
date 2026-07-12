@@ -1,0 +1,28 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "build"
+      - "-f"
+      - "services/ai/Dockerfile"
+      - "-t"
+      - "asia-south1-docker.pkg.dev/gen-lang-client-0497144011/profytron/ai:latest"
+      - "."
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "ai"
+      - "--image=asia-south1-docker.pkg.dev/gen-lang-client-0497144011/profytron/ai:latest"
+      - "--region=asia-south1"
+      - "--platform=managed"
+      - "--memory=512Mi"
+      - "--min-instances=0"
+      - "--max-instances=5"
+      - "--set-secrets=HUGGING_FACE_API_KEY=HUGGING_FACE_API_KEY:latest"
+      - "--project=gen-lang-client-0497144011"
+images:
+  - "asia-south1-docker.pkg.dev/gen-lang-client-0497144011/profytron/ai:latest"
+options:
+  machineType: "E2_HIGHCPU_8"
+timeout: "1200s"
