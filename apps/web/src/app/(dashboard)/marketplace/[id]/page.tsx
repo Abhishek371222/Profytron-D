@@ -5,6 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
+import { Star } from 'lucide-react';
 import { marketplaceApi } from '@/lib/api/marketplace';
 import {
   DashboardPage,
@@ -16,7 +17,56 @@ import {
   DashButton,
 } from '@/components/dashboard/DashboardPrimitives';
 import { formatBotDescription, formatBotName } from '@/lib/bot-labels';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+
+function ReviewStarRating({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (rating: number) => void;
+}) {
+  const [hovered, setHovered] = React.useState<number | null>(null);
+  const preview = hovered ?? value;
+
+  return (
+    <div
+      className="flex items-center gap-1.5"
+      onMouseLeave={() => setHovered(null)}
+      role="radiogroup"
+      aria-label="Rating"
+    >
+      {[1, 2, 3, 4, 5].map((star) => {
+        const active = preview >= star;
+        return (
+          <button
+            key={star}
+            type="button"
+            role="radio"
+            aria-checked={value === star}
+            aria-label={`${star} star${star > 1 ? 's' : ''}`}
+            onMouseEnter={() => setHovered(star)}
+            onFocus={() => setHovered(star)}
+            onClick={() => onChange(star)}
+            className="rounded-md p-0.5 transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            <Star
+              className={cn(
+                'h-7 w-7 transition-colors duration-150',
+                active
+                  ? hovered !== null && hovered !== value
+                    ? 'fill-primary/55 text-primary/70'
+                    : 'fill-primary text-primary'
+                  : 'fill-transparent text-foreground/25',
+              )}
+            />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 // Heavy recharts-based analytics panel — defer it so the strategy detail route
 // doesn't ship the charting bundle until this section actually renders.
@@ -363,16 +413,11 @@ export default function MarketplaceStrategyDetailPage() {
       <DashboardCard className="p-6">
         <DashSectionTitle className="mb-6">Reviews</DashSectionTitle>
 
-        <div className="space-y-3">
-          <label className="text-sm text-muted-foreground">Rating (1-5)</label>
-          <input
-            type="number"
-            min={1}
-            max={5}
-            value={rating}
-            onChange={(e) => setRating(Number(e.target.value))}
-            className="dash-input w-24"
-          />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Rating</p>
+            <ReviewStarRating value={rating} onChange={setRating} />
+          </div>
           <textarea
             placeholder="Share your strategy review"
             value={reviewText}
@@ -391,9 +436,22 @@ export default function MarketplaceStrategyDetailPage() {
         <div className="mt-8 space-y-4">
           {reviews.map((review: { id: string; user?: { fullName?: string }; rating: number; reviewText: string; creatorReply?: string }) => (
             <div key={review.id} className="dashboard-card p-4">
-              <p className="text-sm font-semibold">
-                {review.user?.fullName || 'User'} • {review.rating}/5
-              </p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold">{review.user?.fullName || 'User'}</p>
+                <div className="flex items-center gap-0.5" aria-label={`${review.rating} out of 5 stars`}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={cn(
+                        'h-3.5 w-3.5',
+                        review.rating >= star
+                          ? 'fill-primary text-primary'
+                          : 'fill-transparent text-foreground/20',
+                      )}
+                    />
+                  ))}
+                </div>
+              </div>
               <p className="mt-2 text-sm text-muted-foreground">{review.reviewText}</p>
               {review.creatorReply && (
                 <p className="mt-3 text-sm text-primary">Creator reply: {review.creatorReply}</p>

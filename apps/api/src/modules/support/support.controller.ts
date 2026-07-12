@@ -52,6 +52,7 @@ export class SupportController {
       dto.subject,
       dto.description,
       dto.category,
+      dto.billingId,
     );
   }
 
@@ -118,6 +119,17 @@ export class SupportController {
     @Body() dto: AssignTicketDto,
   ) {
     return this.supportService.assignTicket(id, dto.adminId || authUserId(req));
+  }
+
+  @ApiOperation({ summary: 'Look up payment by Billing ID (admin only)' })
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 403, description: 'Forbidden — admin only' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN', 'SUPER_ADMIN')
+  @Get('admin/billing/:billingId')
+  getByBillingId(@Param('billingId') billingId: string) {
+    return this.supportService.getPaymentByBillingId(billingId);
   }
 
   @ApiOperation({ summary: 'Get all pending tickets (admin only)' })

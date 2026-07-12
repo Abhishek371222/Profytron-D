@@ -470,26 +470,39 @@ model Trade {
 }
 
 model WalletTransaction {
-  id              String               @id @default(uuid())
-  userId          String
-  user            User                 @relation(fields: [userId], references: [id])
-  type            TransactionType
-  direction       TransactionDirection
-  amount          Float
-  balanceAfter    Float
-  status          TransactionStatus    @default(PENDING)
-  reference       String?
-  idempotencyKey  String               @unique
-  description     String?
-  metadataJson    Json?
-  stripePaymentId String?
-  razorpayOrderId String?
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
+  id               String               @id @default(uuid())
+  userId           String
+  user             User                 @relation(fields: [userId], references: [id])
+  type             TransactionType
+  direction        TransactionDirection
+  amount           Float
+  balanceAfter     Float
+  status           TransactionStatus    @default(PENDING)
+  /// Canonical support ID: PRF-WLT-YYYYMMDD-XXXXXXXX — unique, immutable after create
+  billingId        String               @unique
+  /// Human-readable payment category captured at transaction time
+  paymentCategory  String?
+  /// Payer / sending account address (user or company)
+  senderAddress    String?
+  /// Payee / receiving account address (user or company)
+  receiverAddress  String?
+  /// Gateway / bank transaction reference when available
+  externalTxnId    String?
+  reference        String?
+  idempotencyKey   String               @unique
+  description      String?
+  metadataJson     Json?
+  stripePaymentId  String?
+  razorpayOrderId  String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  supportTickets   SupportTicket[]
 
   @@index([userId, createdAt])
   @@index([status])
   @@index([idempotencyKey])
+  @@index([billingId])
+  @@index([externalTxnId])
 }
 
 model MarketplaceListing {
@@ -869,6 +882,9 @@ model SupportTicket {
   status       SupportTicketStatus     @default(OPEN)
   priority     SupportTicketPriority   @default(MEDIUM)
   category     String
+  /// Optional link to WalletTransaction.billingId for payment complaints
+  billingId    String?
+  walletTxn    WalletTransaction?      @relation(fields: [billingId], references: [billingId], onDelete: SetNull, onUpdate: Cascade)
   assignedToId String?
   responses    SupportTicketResponse[]
   createdAt    DateTime                @default(now())
@@ -877,6 +893,7 @@ model SupportTicket {
 
   @@index([userId, status])
   @@index([status, createdAt])
+  @@index([billingId])
 }
 
 model SupportTicketResponse {

@@ -150,6 +150,22 @@ export class StrategiesController {
     return this.strategiesService.resume(id, req.user.userId);
   }
 
+  @Patch(':id/auto-renew')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({ summary: 'Toggle auto-renewal for a strategy subscription' })
+  async setAutoRenew(
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body('autoRenew') autoRenew: boolean,
+  ) {
+    return this.strategiesService.setAutoRenew(
+      id,
+      req.user.userId,
+      Boolean(autoRenew),
+    );
+  }
+
   @Post(':id/backtest')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 400, description: 'Bad request' })
@@ -268,7 +284,10 @@ export class StrategiesController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),
-      limits: { fileSize: 20 * 1024 * 1024 },
+      // Ceiling across all kinds — StrategyDocumentsService.uploadDocument
+      // enforces the tighter per-kind limit (image 5MB, PDF/data 10MB) once
+      // it knows which `kind` this upload actually is.
+      limits: { fileSize: 10 * 1024 * 1024 },
     }),
   )
   async uploadDocument(

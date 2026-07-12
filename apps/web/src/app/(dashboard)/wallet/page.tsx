@@ -10,6 +10,9 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { useUIStore } from '@/lib/stores/useUIStore';
 import { DepositModal } from '@/components/wallet/DepositModal';
 import { WithdrawSheet } from '@/components/wallet/WithdrawSheet';
+import { WalletDatePicker } from '@/components/wallet/WalletDatePicker';
+import { TransactionDetailModal } from '@/components/wallet/TransactionDetailModal';
+import type { WalletTransaction } from '@/lib/api/wallet';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -17,7 +20,6 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   ArrowLeftRight,
-  Calendar,
   ChevronRight,
   Clock,
   Download,
@@ -34,7 +36,10 @@ type TxFilterType = 'ALL' | 'DEPOSIT' | 'WITHDRAWAL' | 'SUBSCRIPTION_PAYMENT';
 type TxFilterStatus = 'ALL' | 'PENDING' | 'CONFIRMED' | 'FAILED';
 
 function formatWalletInputDate(date: Date) {
-  return date.toISOString().slice(0, 10);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 const WALLET_DATE_MAX = formatWalletInputDate(new Date());
@@ -188,6 +193,7 @@ export default function WalletPage() {
   const [summaryYear, setSummaryYear] = React.useState(new Date().getFullYear());
   const [isDepositOpen, setIsDepositOpen] = React.useState(false);
   const [isWithdrawOpen, setIsWithdrawOpen] = React.useState(false);
+  const [selectedTx, setSelectedTx] = React.useState<WalletTransaction | null>(null);
 
   const depositIntent = useUIStore((s) => s.depositIntent);
   const setDepositIntent = useUIStore((s) => s.setDepositIntent);
@@ -495,30 +501,22 @@ export default function WalletPage() {
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                <input
-                  type="date"
-                  value={dateFrom}
-                  max={dateTo || WALLET_DATE_MAX}
-                  onChange={(e) => handleDateFromChange(e.target.value)}
-                  aria-label="Start date"
-                  className="h-8 rounded-lg border border-[var(--card-border)] bg-card pl-8 pr-2 text-xs text-foreground outline-none focus:border-primary/40 transition-colors"
-                />
-              </div>
+              <WalletDatePicker
+                value={dateFrom}
+                max={dateTo || WALLET_DATE_MAX}
+                onChange={handleDateFromChange}
+                ariaLabel="Start date"
+                placeholder="Start date"
+              />
               <span className="text-muted-foreground text-xs">→</span>
-              <div className="relative">
-                <Calendar className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-                <input
-                  type="date"
-                  value={dateTo}
-                  min={dateFrom || undefined}
-                  max={WALLET_DATE_MAX}
-                  onChange={(e) => handleDateToChange(e.target.value)}
-                  aria-label="End date"
-                  className="h-8 rounded-lg border border-[var(--card-border)] bg-card pl-8 pr-2 text-xs text-foreground outline-none focus:border-primary/40 transition-colors"
-                />
-              </div>
+              <WalletDatePicker
+                value={dateTo}
+                min={dateFrom || undefined}
+                max={WALLET_DATE_MAX}
+                onChange={handleDateToChange}
+                ariaLabel="End date"
+                placeholder="End date"
+              />
             </div>
             {dateRangeError && (
               <p className="text-[11px] text-destructive">{dateRangeError}</p>
@@ -565,7 +563,17 @@ export default function WalletPage() {
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.03 }}
-                        className="group hover:bg-[color-mix(in_srgb,var(--primary)_4%,var(--muted))] transition-colors duration-200"
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`View payment details for ${TYPE_LABELS[tx.type] ?? tx.type}`}
+                        onClick={() => setSelectedTx(tx)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setSelectedTx(tx);
+                          }
+                        }}
+                        className="group cursor-pointer hover:bg-[color-mix(in_srgb,var(--primary)_4%,var(--muted))] transition-colors duration-200 focus-visible:outline-none focus-visible:bg-[color-mix(in_srgb,var(--primary)_6%,var(--muted))]"
                       >
                         <td className="px-5 py-4">
                           <p className="text-sm font-medium text-foreground">{date.toLocaleDateString()}</p>
@@ -584,6 +592,11 @@ export default function WalletPage() {
                         </td>
                         <td className="px-5 py-4">
                           <span className="text-sm text-muted-foreground">{tx.description || tx.reference || '—'}</span>
+                          {tx.billingId && (
+                            <p className="mt-0.5 font-mono text-[10px] text-muted-foreground/80 truncate max-w-[14rem]">
+                              {tx.billingId}
+                            </p>
+                          )}
                         </td>
                         <td className="px-5 py-4 text-right">
                           <span className={cn('text-sm font-bold tabular-nums', isOut ? 'text-destructive' : 'text-chart-3')}>
@@ -731,6 +744,14 @@ export default function WalletPage() {
 
       <DepositModal open={isDepositOpen} onOpenChange={setIsDepositOpen} />
       <WithdrawSheet open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen} availableBalance={available} />
+      <TransactionDetailModal
+        open={Boolean(selectedTx)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedTx(null);
+        }}
+        transaction={selectedTx}
+        currency={currency}
+      />
     </div>
   );
 }

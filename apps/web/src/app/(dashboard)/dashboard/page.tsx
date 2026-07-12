@@ -21,6 +21,13 @@ import { OverviewEconomicCalendar } from '@/components/dashboard/overview/Overvi
 import { OverviewMarketNews } from '@/components/dashboard/overview/OverviewMarketNews';
 import { OverviewQuickActions } from '@/components/dashboard/overview/OverviewQuickActions';
 import { OverviewAccountHealth } from '@/components/dashboard/overview/OverviewAccountHealth';
+import { useCurrency } from '@/lib/hooks/useCurrency';
+import { CURRENCY_MAP } from '@/lib/currency';
+import { convertMoney } from '@/components/dashboard/overview/overview-utils';
+import {
+  readOverviewAccountCache,
+  writeOverviewAccountCache,
+} from '@/lib/overview-account-cache';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -31,6 +38,21 @@ export default function DashboardPage() {
   const [serverTime, setServerTime] = React.useState('');
 
   const { data: currentUser } = useCurrentUser();
+  const { currency: preferredCurrency } = useCurrency();
+  // Prefer local currency (INR for India). If geo-detect still says USD, use INR
+  // when the browser locale is Indian — Overview should not flash $.
+  const displayCurrency = React.useMemo(() => {
+    if (preferredCurrency.code !== 'USD') return preferredCurrency;
+    if (typeof navigator !== 'undefined') {
+      const locales = [navigator.language, ...(navigator.languages ?? [])];
+      if (locales.some((l) => /-(IN)\b/i.test(l) || /^hi\b/i.test(l))) {
+        return CURRENCY_MAP.IN;
+      }
+    }
+    // Product default for this market: show rupees on Overview.
+    return CURRENCY_MAP.IN;
+  }, [preferredCurrency]);
+
   const {
     quotes,
     portfolio,
@@ -44,11 +66,15 @@ export default function DashboardPage() {
     refreshAll,
     risk,
     accountsInitialLoading,
+    accountsRefreshing,
     portfolioInitialLoading,
     openTradesInitialLoading,
     tradeHistoryInitialLoading,
     quotesInitialLoading,
   } = useDashboardData('1M');
+
+  const accountsStillLoading =
+    !hasBrokerAccount && accountsInitialLoading;
 
   const newsQuery = useQuery({
     queryKey: ['market-news', 'overview', newsCategory],
@@ -101,16 +127,35 @@ export default function DashboardPage() {
   const liveFromAccounts = Boolean(accountInfo?.balance && accountInfo.balance > 0);
   const liveReady = liveFromAccounts;
 
-  const currency = accountInfo?.currency || portfolio?.liveCurrency || 'USD';
+  const accountCurrency = accountInfo?.currency || portfolio?.liveCurrency || 'USD';
+  const toDisplay = React.useCallback(
+    (amount: number) => convertMoney(amount, accountCurrency, displayCurrency),
+    [accountCurrency, displayCurrency],
+  );
+  const currency = displayCurrency.code;
 
-  // Fast path only: live /broker/accounts. Never flash initialEquity or wait on slow portfolio.
-  const balance = accountInfo?.balance ?? 0;
-  const equity = accountInfo?.equity ?? accountInfo?.balance ?? 0;
-  const margin = accountInfo?.margin ?? 0;
-  const freeMargin =
-    accountInfo?.freeMargin ?? Math.max(0, equity - margin);
+  // Fast path: live /broker/accounts, else sticky session cache — never invent zeros.
+  const balanceRaw = accountInfo?.balance ?? 0;
+  const equityRaw = accountInfo?.equity ?? accountInfo?.balance ?? 0;
+  const marginRaw = accountInfo?.margin ?? 0;
+  const freeMarginRaw =
+    accountInfo?.freeMargin ?? Math.max(0, equityRaw - marginRaw);
 
-  const unrealizedPnl = openTrades.reduce((s, t) => s + Number(t.pnl || 0), 0);
+  const balance = toDisplay(balanceRaw);
+  const equity = toDisplay(equityRaw);
+  const margin = toDisplay(marginRaw);
+  const freeMargin = toDisplay(freeMarginRaw);
+
+  const unrealizedPnl = React.useMemo(() => {
+    if (openTrades.length > 0) {
+      return toDisplay(openTrades.reduce((s, t) => s + Number(t.pnl || 0), 0));
+    }
+    const cached = readOverviewAccountCache();
+    if (openTradesInitialLoading && cached?.unrealizedPnl != null) {
+      return toDisplay(cached.unrealizedPnl);
+    }
+    return 0;
+  }, [openTrades, openTradesInitialLoading, toDisplay]);
   const [nowMs] = React.useState(() => Date.now());
   const realizedPnl24h = React.useMemo(() => {
     const cutoff = nowMs - 24 * 60 * 60 * 1000;
@@ -120,9 +165,42 @@ export default function DashboardPage() {
         return closed >= cutoff;
       })
       .reduce((s, t) => s + Number(t.profit ?? 0), 0);
-    if (tradeHistory.length > 0) return fromHistory;
-    return Number(portfolio?.totalProfit ?? 0);
-  }, [tradeHistory, portfolio?.totalProfit, nowMs]);
+    const raw =
+      tradeHistory.length > 0 ? fromHistory : Number(portfolio?.totalProfit ?? 0);
+    return toDisplay(raw);
+  }, [tradeHistory, portfolio?.totalProfit, nowMs, toDisplay]);
+
+  // Keep PnL companions in the same session cache for next reload.
+  React.useEffect(() => {
+    if (!accountInfo || accountInfo.balance <= 0) return;
+    const prev = readOverviewAccountCache();
+    writeOverviewAccountCache({
+      balance: accountInfo.balance,
+      equity: accountInfo.equity,
+      margin: accountInfo.margin,
+      freeMargin: accountInfo.freeMargin,
+      currency: accountInfo.currency,
+      unrealizedPnl: openTrades.reduce((s, t) => s + Number(t.pnl || 0), 0),
+      realizedPnl24h:
+        tradeHistory.length > 0
+          ? tradeHistory
+              .filter((t) => {
+                const closed = t.closedAt ? new Date(t.closedAt).getTime() : 0;
+                return closed >= Date.now() - 24 * 60 * 60 * 1000;
+              })
+              .reduce((s, t) => s + Number(t.profit ?? 0), 0)
+          : Number(portfolio?.totalProfit ?? 0),
+      change24hPct: prev?.change24hPct,
+      accountId: defaultBrokerAccount?.id,
+      savedAt: Date.now(),
+    });
+  }, [
+    accountInfo,
+    openTrades,
+    tradeHistory,
+    portfolio?.totalProfit,
+    defaultBrokerAccount?.id,
+  ]);
 
   const equityCurve = portfolio?.equityCurve ?? [];
   // Sparkline from real curve — drop pathological end spikes for display.
@@ -130,7 +208,7 @@ export default function DashboardPage() {
     if (equityCurve.length < 2) {
       return balance > 0 ? [balance * 0.99, balance] : [0, 0];
     }
-    const pts = equityCurve.slice(-24).map((p) => p.equity);
+    const pts = equityCurve.slice(-24).map((p) => toDisplay(p.equity));
     // If last jump is >35%, flatten last segment toward live equity gradually.
     if (pts.length >= 2) {
       const a = pts[pts.length - 2];
@@ -151,7 +229,9 @@ export default function DashboardPage() {
       ? portfolio.totalReturnPct
       : (() => {
           const base = Number(portfolio?.depositBase ?? portfolio?.equityBase ?? 0);
-          return base > 0 && equity > 0 ? ((equity - base) / base) * 100 : 0;
+          return base > 0 && equityRaw > 0
+            ? ((equityRaw - base) / base) * 100
+            : 0;
         })();
 
   const change24hPct = totalReturnPct;
@@ -169,8 +249,10 @@ export default function DashboardPage() {
     portfolio?.syncError || tradeHistoryQuery.data?.syncError;
   const metaApiBroken = syncError === 'METAAPI_UNAUTHORIZED';
 
-  // Skeleton only on true first load — never on background MetaAPI polls.
-  const metricsLoading = hasBrokerAccount && accountsInitialLoading && !liveReady;
+  // Skeleton only when we have nothing to show — never zero-out a cached snapshot.
+  const metricsLoading =
+    (hasBrokerAccount && accountsInitialLoading && !liveReady) ||
+    (!hasBrokerAccount && accountsStillLoading);
 
   const drawdownPct = Number(portfolio?.maxDrawdown ?? risk?.drawdownPct ?? 0);
   const profitFactor = Number(portfolio?.profitFactor ?? 0);
@@ -246,7 +328,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {!hasBrokerAccount && (
+      {!hasBrokerAccount && !accountsStillLoading && (
         <div className="rounded-xl border border-primary/20 bg-primary/[0.04] p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-3">
@@ -284,6 +366,7 @@ export default function DashboardPage() {
           sparkline,
           isPaper,
           loading: metricsLoading,
+          refreshing: accountsRefreshing && liveReady,
         }}
       />
 
@@ -291,7 +374,10 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 items-stretch gap-3 xl:grid-cols-12">
         <div className="xl:col-span-5">
           <OverviewOpenPositions
-            positions={openTrades}
+            positions={openTrades.map((t) => ({
+              ...t,
+              pnl: toDisplay(Number(t.pnl || 0)),
+            }))}
             quotes={quoteMap}
             currency={currency}
             loading={openTradesInitialLoading}
@@ -320,7 +406,10 @@ export default function DashboardPage() {
       {/* Row: Recent Trades | Economic Calendar | Market News */}
       <div className="grid grid-cols-1 items-stretch gap-3 lg:grid-cols-3">
         <OverviewRecentTrades
-          trades={tradeHistory}
+          trades={tradeHistory.map((t) => ({
+            ...t,
+            profit: toDisplay(Number(t.profit ?? 0)),
+          }))}
           currency={currency}
           loading={tradeHistoryInitialLoading}
         />

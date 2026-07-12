@@ -20,6 +20,14 @@ export type BrokerAccountSummary = {
   liveSynced?: boolean;
 };
 
+function normalizeAccounts(raw: unknown): BrokerAccountSummary[] {
+  if (Array.isArray(raw)) return raw as BrokerAccountSummary[];
+  if (raw && typeof raw === 'object' && Array.isArray((raw as any).data)) {
+    return (raw as any).data as BrokerAccountSummary[];
+  }
+  return [];
+}
+
 export function useAccountContext() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isHydrating = useAuthStore((s) => s.isHydrating);
@@ -28,19 +36,33 @@ export function useAccountContext() {
 
   const brokerAccountsQuery = useQuery({
     queryKey: ['broker-accounts'],
-    queryFn: () => brokerApi.getBrokerAccounts(),
+    queryFn: async () => normalizeAccounts(await brokerApi.getBrokerAccounts()),
     staleTime: 8_000,
     refetchInterval: 12_000,
     refetchOnWindowFocus: true,
-    refetchOnMount: false,
+    refetchOnMount: true,
+    // Early 401s during token hydrate should not stick forever.
+    retry: (count, err: any) => {
+      const status = err?.response?.status;
+      if (status === 401 || status === 403) return count < 2;
+      return count < 1;
+    },
+    retryDelay: (attempt) => 600 * (attempt + 1),
+    placeholderData: (previous) => previous,
     enabled: sessionReady,
   });
 
-  const accounts = (brokerAccountsQuery.data ?? []) as BrokerAccountSummary[];
+  const accounts = normalizeAccounts(brokerAccountsQuery.data);
   const defaultAccount =
     accounts.find((a) => a.isDefault) ?? accounts[0] ?? null;
   const hasBrokerAccount = accounts.length > 0;
   const isPaper = defaultAccount?.isPaperTrading ?? false;
+  const accountsLoading =
+    sessionReady &&
+    !hasBrokerAccount &&
+    (brokerAccountsQuery.isPending ||
+      brokerAccountsQuery.isLoading ||
+      brokerAccountsQuery.isFetching);
 
   return {
     brokerAccountsQuery,
@@ -49,5 +71,6 @@ export function useAccountContext() {
     hasBrokerAccount,
     isPaper,
     isLoading: brokerAccountsQuery.isPending,
+    accountsLoading,
   };
 }

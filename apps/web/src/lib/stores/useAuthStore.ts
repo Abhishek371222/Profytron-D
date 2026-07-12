@@ -23,6 +23,7 @@ interface AuthState {
   isHydrating: boolean;
   setAuth: (user: User, accessToken: string) => void;
   setToken: (token: string) => void;
+  updateUser: (patch: Partial<User>) => void;
   clearAuth: () => void;
   login: (accessToken: string, user: User) => void;
   logout: () => Promise<void>;
@@ -49,6 +50,13 @@ export const useAuthStore = create<AuthState>()(
       isHydrating: true,
       setAuth: (user, accessToken) => set({ user, accessToken, isAuthenticated: true }),
       setToken: (accessToken) => set({ accessToken, isAuthenticated: true }),
+      updateUser: (patch) => {
+        const current = get().user;
+        if (!current) return;
+        const next = { ...current, ...patch };
+        syncUserCookies(next);
+        set({ user: next });
+      },
       clearAuth: () => {
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem(SESSION_TOKEN_KEY);
@@ -196,6 +204,8 @@ export const useAuthStore = create<AuthState>()(
               avatarUrl: state.user.avatarUrl,
               role: state.user.role,
               onboardingCompleted: state.user.onboardingCompleted,
+              twoFactorEnabled: state.user.twoFactorEnabled,
+              hasPassword: state.user.hasPassword,
             }
           : null,
       }),

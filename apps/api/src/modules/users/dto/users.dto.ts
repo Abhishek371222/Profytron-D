@@ -4,6 +4,7 @@ import {
   IsNumber,
   IsObject,
   IsBoolean,
+  IsEmail,
   Equals,
   Length,
   Matches,
@@ -12,9 +13,37 @@ import {
   IsStrongPassword,
   Min,
   Max,
+  registerDecorator,
+  ValidationOptions,
+  ValidationArguments,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+function Match(property: string, validationOptions?: ValidationOptions) {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      name: 'Match',
+      target: (object as any).constructor,
+      propertyName,
+      constraints: [property],
+      options: validationOptions,
+      validator: {
+        validate(value: unknown, args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints as string[];
+          const relatedValue = (args.object as Record<string, unknown>)[
+            relatedPropertyName
+          ];
+          return value === relatedValue;
+        },
+        defaultMessage(args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints as string[];
+          return `${args.property} must match ${relatedPropertyName}`;
+        },
+      },
+    });
+  };
+}
 
 export class UpdateProfileDto {
   @ApiPropertyOptional()
@@ -73,10 +102,32 @@ export class UpdateRiskProfileDto {
   riskDnaScore: number;
 }
 
-export class ChangePasswordDto {
-  @ApiProperty()
+export class RequestPasswordResetOtpDto {
+  @ApiProperty({ example: 'trader@example.com' })
+  @Transform(({ value }) => String(value ?? '').trim().toLowerCase())
+  @IsEmail({}, { message: 'Enter a valid email address' })
+  email: string;
+}
+
+export class VerifyPasswordResetOtpDto {
+  @ApiProperty({ example: 'trader@example.com' })
+  @Transform(({ value }) => String(value ?? '').trim().toLowerCase())
+  @IsEmail({}, { message: 'Enter a valid email address' })
+  email: string;
+
+  @ApiProperty({ description: '6-digit OTP sent to the user email' })
+  @Transform(({ value }) => String(value ?? '').trim())
   @IsString()
-  currentPassword: string;
+  @Length(6, 6)
+  @Matches(/^\d{6}$/, { message: 'OTP must be a 6-digit code' })
+  otp: string;
+}
+
+export class ConfirmPasswordResetDto {
+  @ApiProperty({ example: 'trader@example.com' })
+  @Transform(({ value }) => String(value ?? '').trim().toLowerCase())
+  @IsEmail({}, { message: 'Enter a valid email address' })
+  email: string;
 
   @ApiProperty()
   @IsStrongPassword(
@@ -93,6 +144,11 @@ export class ChangePasswordDto {
     },
   )
   newPassword: string;
+
+  @ApiProperty()
+  @IsString()
+  @Match('newPassword', { message: 'Confirm password must match new password' })
+  confirmPassword: string;
 }
 
 export class VerifyDeleteAccountOtpDto {

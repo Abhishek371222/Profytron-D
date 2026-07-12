@@ -1,4 +1,4 @@
-import { apiClient } from './client';
+import { apiClient, unwrapApiResponse } from './client';
 
 export interface LeaderboardEntry {
   id: string;
@@ -23,31 +23,57 @@ export interface TopStrategy {
   name: string;
   category: string;
   riskLevel: string;
-  creator: { id: string; fullName: string; username: string | null; avatarUrl: string | null };
+  creator: {
+    id: string;
+    fullName: string;
+    username: string | null;
+    avatarUrl: string | null;
+  };
   subscribers: number;
-  latestPerformance: { winRate: number; totalReturn: number; sharpeRatio: number } | null;
+  latestPerformance: {
+    winRate: number;
+    netPnl: number;
+    sharpeRatio: number;
+    totalTrades: number;
+    winningTrades: number;
+  } | null;
   monthlyPrice: number | null;
+  profitRate: number;
 }
 
 export const leaderboardApi = {
-  monthly: (limit = 50) =>
-    apiClient
-      .get<{ period: string; entries: LeaderboardEntry[] }>('/leaderboard/monthly', { params: { limit } })
-      .then((r) => r.data),
+  monthly: async (limit = 50) => {
+    const response = await apiClient.get('/leaderboard/monthly', {
+      params: { limit },
+    });
+    return unwrapApiResponse<{
+      period: string;
+      entries: LeaderboardEntry[];
+    }>(response.data);
+  },
 
-  allTime: (limit = 50) =>
-    apiClient
-      .get<{ period: string; entries: LeaderboardEntry[] }>('/leaderboard/alltime', { params: { limit } })
-      .then((r) => r.data),
+  allTime: async (limit = 50) => {
+    const response = await apiClient.get('/leaderboard/alltime', {
+      params: { limit },
+    });
+    return unwrapApiResponse<{
+      period: string;
+      entries: LeaderboardEntry[];
+    }>(response.data);
+  },
 
-  topStrategies: (limit = 20) =>
-    apiClient.get<TopStrategy[] | { data: TopStrategy[] }>('/leaderboard/strategies', { params: { limit } }).then((r) => {
-      const data = r.data;
-      return Array.isArray(data) ? data : (data as any)?.data ?? [];
-    }),
+  topStrategies: async (limit = 20) => {
+    const response = await apiClient.get('/leaderboard/strategies', {
+      params: { limit },
+    });
+    return unwrapApiResponse<TopStrategy[]>(response.data);
+  },
 
-  myRank: () =>
-    apiClient
-      .get<{ monthly: LeaderboardEntry | null; allTime: LeaderboardEntry | null }>('/leaderboard/me')
-      .then((r) => r.data),
+  myRank: async () => {
+    const response = await apiClient.get('/leaderboard/me');
+    return unwrapApiResponse<{
+      monthly: LeaderboardEntry | null;
+      allTime: LeaderboardEntry | null;
+    }>(response.data);
+  },
 };

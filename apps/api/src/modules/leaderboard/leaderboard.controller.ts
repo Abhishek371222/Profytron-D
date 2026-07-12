@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Req } from '@nestjs/common';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -21,7 +21,7 @@ export class LeaderboardController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get monthly leaderboard rankings' })
   getMonthly(@Query('limit') limit?: string) {
-    return this.leaderboardService.getMonthly(limit ? parseInt(limit, 10) : 50);
+    return this.leaderboardService.getMonthly(this.parseLimit(limit, 50));
   }
 
   @Public()
@@ -29,7 +29,7 @@ export class LeaderboardController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get all-time leaderboard rankings' })
   getAllTime(@Query('limit') limit?: string) {
-    return this.leaderboardService.getAllTime(limit ? parseInt(limit, 10) : 50);
+    return this.leaderboardService.getAllTime(this.parseLimit(limit, 50));
   }
 
   @Public()
@@ -37,9 +37,7 @@ export class LeaderboardController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get top-performing verified strategies' })
   getTopStrategies(@Query('limit') limit?: string) {
-    return this.leaderboardService.getTopStrategies(
-      limit ? parseInt(limit, 10) : 20,
-    );
+    return this.leaderboardService.getTopStrategies(this.parseLimit(limit, 20));
   }
 
   @Get('me')
@@ -47,5 +45,11 @@ export class LeaderboardController {
   @ApiOperation({ summary: 'Get current user rank across periods' })
   getMyRank(@Req() req: any) {
     return this.leaderboardService.getUserRank(req.user.userId);
+  }
+
+  private parseLimit(raw: string | undefined, fallback: number): number {
+    if (raw == null || raw === '') return fallback;
+    const parsed = Number.parseInt(raw, 10);
+    return Number.isFinite(parsed) ? parsed : fallback;
   }
 }

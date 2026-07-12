@@ -11,6 +11,7 @@ import {
   REFERRAL_DEPOSIT_BONUS_INR,
   REFERRAL_MIN_DEPOSIT_INR,
 } from '../../common/constants/pricing.constants';
+import { buildWalletPaymentFields } from '../wallet/wallet-payment.util';
 
 type FunnelEventInput = {
   referrerId: string;
@@ -19,6 +20,14 @@ type FunnelEventInput = {
   amount?: number;
   sourceRef?: string;
 };
+
+export type CaptureReferralContext = {
+  visitorId: string;
+  viewerUserId?: string;
+};
+
+const VISITOR_ID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 @Injectable()
 export class AffiliatesService {
@@ -152,29 +161,6 @@ export class AffiliatesService {
     };
   }
 
-  async trackClick(referralCode: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { referralCode },
-      include: { affiliateRecord: true },
-    });
-
-    if (!user || !user.affiliateRecord) return { success: false };
-
-    await this.prisma.$transaction(async (tx) => {
-      await tx.affiliate.update({
-        where: { userId: user.id },
-        data: { clickCount: { increment: 1 } },
-      });
-      await this.recordFunnelEvent(tx, {
-        referrerId: user.id,
-        eventType: 'CLICK',
-        sourceRef: `click_${randomUUID()}`,
-      });
-    });
-
-    return { success: true };
-  }
-
   async processReferral(newUserId: string, referralCode: string) {
     const code = referralCode.trim();
     if (!code) return;
@@ -262,6 +248,14 @@ export class AffiliatesService {
           idempotencyKey,
           description,
           reference,
+          ...buildWalletPaymentFields({
+            type: 'COMMISSION',
+            direction: 'IN',
+            userId: targetUserId,
+            paymentCategory: 'Commission',
+            externalTxnId: reference,
+            metadata: { source: 'referral_bonus' },
+          }),
         },
       });
     };
@@ -280,31 +274,75 @@ export class AffiliatesService {
     );
   }
 
-  async captureReferralCode(referralCode: string) {
+  async captureReferralCode(
+    referralCode: string,
+    context: CaptureReferralContext,
+  ) {
+    const code = referralCode?.trim();
+    if (!code) {
+      return { valid: false, counted: false };
+    }
+
+    const visitorId = context.visitorId?.trim() ?? '';
+    if (!VISITOR_ID_RE.test(visitorId)) {
+      // Still report code validity for cookie/registration flows, but do not count.
+      const user = await this.prisma.user.findUnique({
+        where: { referralCode: code },
+        select: { id: true },
+      });
+      return { valid: !!user, counted: false };
+    }
+
     const user = await this.prisma.user.findUnique({
-      where: { referralCode },
+      where: { referralCode: code },
       select: { id: true },
     });
 
     if (!user) {
-      return { valid: false };
+      return { valid: false, counted: false };
     }
+
+    // Authenticated affiliate opening their own link must not inflate clicks.
+    if (context.viewerUserId && context.viewerUserId === user.id) {
+      return { valid: true, counted: false };
+    }
+
+    // Deterministic per (referrer, visitor) — survives /signup→/register double capture
+    // and concurrent requests via unique(sourceRef) + P2002 handling.
+    const sourceRef = `click_${user.id}_${visitorId}`;
+
+    let counted = false;
 
     await this.prisma.$transaction(async (tx) => {
       await tx.affiliate.upsert({
         where: { userId: user.id },
-        create: { userId: user.id, clickCount: 1 },
-        update: { clickCount: { increment: 1 } },
+        create: { userId: user.id, clickCount: 0 },
+        update: {},
       });
 
-      await this.recordFunnelEvent(tx, {
-        referrerId: user.id,
-        eventType: 'CLICK',
-        sourceRef: `click_${randomUUID()}`,
-      });
+      try {
+        await tx.affiliateFunnelEvent.create({
+          data: {
+            referrerId: user.id,
+            eventType: 'CLICK',
+            sourceRef,
+          },
+        });
+        await tx.affiliate.update({
+          where: { userId: user.id },
+          data: { clickCount: { increment: 1 } },
+        });
+        counted = true;
+      } catch (error: any) {
+        if (error?.code === 'P2002') {
+          // Same visitor already recorded for this referrer — no increment.
+          return;
+        }
+        throw error;
+      }
     });
 
-    return { valid: true };
+    return { valid: true, counted };
   }
 
   async calculateCommission(userId: string, amount: number, sourceRef: string) {
@@ -370,6 +408,14 @@ export class AffiliatesService {
             idempotencyKey,
             description: `Affiliate commission from referral`,
             reference: userId,
+            ...buildWalletPaymentFields({
+              type: 'COMMISSION',
+              direction: 'IN',
+              userId: referrerId,
+              paymentCategory: 'Commission',
+              externalTxnId: userId,
+              metadata: { source: 'affiliate_commission', refereeId: userId },
+            }),
           },
         });
 
@@ -636,6 +682,13 @@ export class AffiliatesService {
           balanceAfter: currentBalance - amount,
           idempotencyKey,
           description: 'Affiliate payout withdrawal request',
+          ...buildWalletPaymentFields({
+            type: 'WITHDRAWAL',
+            direction: 'OUT',
+            userId,
+            paymentCategory: 'Affiliate Payout',
+            metadata: { source: 'affiliate_payout' },
+          }),
         },
       });
 

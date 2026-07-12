@@ -34,6 +34,8 @@ const RISK_LEVELS = [
 
 const MARKET_OPTIONS = ['Forex', 'Crypto', 'Indices', 'Commodities', 'Stocks'] as const;
 
+const TIMEFRAMES = ['M1', 'M3', 'M5', 'M15', 'H1', 'H4'] as const;
+
 const addBotSchema = z.object({
   name: z.string().min(3, 'Bot name must be at least 3 characters').max(80),
   strategyStyle: z.string().min(2, 'Enter the strategy style or name it follows'),
@@ -42,7 +44,7 @@ const addBotSchema = z.object({
   expectedProfitPct: z.number().min(0, 'Must be 0 or more').max(1000),
   monthlyPrice: z.number().min(0, 'Price cannot be negative'),
   markets: z.array(z.string()).min(1, 'Select at least one market'),
-  timeframe: z.string().min(1, 'Enter a timeframe'),
+  timeframe: z.enum(TIMEFRAMES),
   description: z.string().min(20, 'Describe the bot in at least 20 characters').max(2000),
   publishNow: z.boolean().optional(),
 });
@@ -58,12 +60,21 @@ type PendingFile = {
 const fieldClass =
   'w-full rounded-xl border border-[var(--card-border)] bg-card px-3 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary/40';
 
+// Mirrors KIND_MAX_BYTES in apps/api/.../strategy-documents.service.ts — the
+// server enforces these for real; this is just fast client-side feedback.
+const KIND_MAX_BYTES: Record<StrategyDocumentKind, number> = {
+  IMAGE: 5 * 1024 * 1024,
+  PDF: 10 * 1024 * 1024,
+  DATA: 10 * 1024 * 1024,
+};
+
 const UPLOAD_SLOTS: Array<{
   kind: StrategyDocumentKind;
   label: string;
   hint: string;
   accept: string;
   icon: typeof FileImage;
+  maxLabel: string;
 }> = [
   {
     kind: 'IMAGE',
@@ -71,6 +82,7 @@ const UPLOAD_SLOTS: Array<{
     hint: 'Charts, screenshots, or bot visuals (JPG, PNG, WebP)',
     accept: 'image/jpeg,image/png,image/webp,image/gif',
     icon: FileImage,
+    maxLabel: 'Max 5MB',
   },
   {
     kind: 'PDF',
@@ -78,6 +90,7 @@ const UPLOAD_SLOTS: Array<{
     hint: 'Strategy docs or research notes — optional if you add image or data',
     accept: 'application/pdf',
     icon: FileText,
+    maxLabel: 'Max 10MB',
   },
   {
     kind: 'DATA',
@@ -85,6 +98,7 @@ const UPLOAD_SLOTS: Array<{
     hint: 'Backtest exports, CSV, JSON, or Excel files',
     accept: '.csv,.json,.txt,.xlsx,.xls,text/csv,application/json,text/plain',
     icon: Database,
+    maxLabel: 'Max 10MB',
   },
 ];
 
@@ -145,7 +159,16 @@ export default function AddBotPage() {
 
   const addFiles = (kind: StrategyDocumentKind, list: FileList | null) => {
     if (!list?.length) return;
-    const next = Array.from(list).map((file) => ({
+    const files = Array.from(list);
+    const maxBytes = KIND_MAX_BYTES[kind];
+    const oversized = files.find((f) => f.size > maxBytes);
+    if (oversized) {
+      setAssetError(
+        `${oversized.name} is ${(oversized.size / (1024 * 1024)).toFixed(1)}MB — ${kind} files are limited to ${Math.round(maxBytes / (1024 * 1024))}MB.`,
+      );
+      return;
+    }
+    const next = files.map((file) => ({
       id: `${kind}-${file.name}-${file.size}-${file.lastModified}`,
       kind,
       file,
@@ -298,7 +321,13 @@ export default function AddBotPage() {
 
           <div className="space-y-1.5">
             <label htmlFor="bot-timeframe" className="text-xs font-semibold text-muted-foreground">Timeframe</label>
-            <input id="bot-timeframe" {...register('timeframe')} className={fieldClass} placeholder="e.g. M15, H1, H4" />
+            <select id="bot-timeframe" {...register('timeframe')} className={fieldClass}>
+              {TIMEFRAMES.map((tf) => (
+                <option key={tf} value={tf}>
+                  {tf}
+                </option>
+              ))}
+            </select>
             {errors.timeframe && <p className="text-xs text-destructive">{errors.timeframe.message}</p>}
           </div>
 
@@ -433,6 +462,7 @@ export default function AddBotPage() {
                     </span>
                     <span className="text-sm font-semibold text-foreground">{slot.label}</span>
                     <span className="text-[11px] text-muted-foreground leading-snug">{slot.hint}</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/70">{slot.maxLabel}</span>
                     {count > 0 && (
                       <span className="text-[11px] font-semibold text-primary">
                         {count} file{count === 1 ? '' : 's'} selected

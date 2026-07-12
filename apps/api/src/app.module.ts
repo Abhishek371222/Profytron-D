@@ -3,6 +3,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { join } from 'path';
 import { AppThrottlerGuard } from './common/guards/throttler.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -44,6 +45,10 @@ import { CopyModule } from './modules/copy/copy.module';
 import { CopyBridgeModule } from './modules/copy-bridge/copy-bridge.module';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { JwtAuthGuard } from './modules/auth/guards/auth.guard';
+
+/** Always resolve apps/api/.env regardless of process cwd (pnpm filter / nest watch). */
+const API_ENV_FILE = join(__dirname, '..', '..', '.env');
+const API_ENV_LOCAL_FILE = join(__dirname, '..', '..', '.env.local');
 
 const parseRedisConfig = () => {
   // Dev without a real Redis server: point BullMQ at a local (unreachable)
@@ -98,6 +103,9 @@ const parseRedisConfig = () => {
         process.env.NODE_ENV === 'test'
           ? ['.env.test']
           : [
+              // Absolute paths first so cwd (repo root vs apps/api) never matters
+              API_ENV_LOCAL_FILE,
+              API_ENV_FILE,
               // Render Secret Files (filename must match upload)
               '/etc/secrets/.env',
               '/etc/secrets/render.env',

@@ -94,6 +94,7 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
           reference: event.data.object.id,
           idempotencyKey: event.data.object.id,
           balanceAfter: 50,
+          billingId: 'PRF-WLT-20260101-AAAA0001',
         },
       });
 
@@ -141,6 +142,7 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
           status: 'CONFIRMED',
           idempotencyKey: event.data.object.id,
           balanceAfter: 50,
+          billingId: 'PRF-WLT-20260101-AAAA0002',
         },
       });
 
@@ -321,6 +323,7 @@ describe('Stripe Webhook Handler - PAYMENT CRITICAL', () => {
           type: 'WITHDRAWAL',
           idempotencyKey: `refund-${originalTransactionId}`,
           balanceAfter: 0,
+          billingId: 'PRF-WLT-20260101-AAAA0003',
         },
       });
 

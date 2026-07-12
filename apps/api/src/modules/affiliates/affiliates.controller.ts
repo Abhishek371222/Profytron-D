@@ -7,7 +7,10 @@ import {
   Query,
   UseGuards,
   Req,
+  Headers,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { AffiliatesService } from './affiliates.service';
 import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
 import { RequestWithdrawalDto } from './dto/affiliates.dto';
@@ -17,22 +20,18 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
+import type { Request } from 'express';
 
 @ApiTags('Affiliates')
 @ApiResponse({ status: 401, description: 'Unauthorized' })
 @ApiResponse({ status: 429, description: 'Rate limit exceeded' })
 @Controller('affiliates')
 export class AffiliatesController {
-  constructor(private readonly affiliatesService: AffiliatesService) {}
-
-  @Public()
-  @ApiResponse({ status: 200, description: 'OK' })
-  @ApiResponse({ status: 404, description: 'Not found' })
-  @ApiOperation({ summary: 'Track a referral link click' })
-  @Post('click/:code')
-  async trackClick(@Param('code') code: string) {
-    return this.affiliatesService.trackClick(code);
-  }
+  constructor(
+    private readonly affiliatesService: AffiliatesService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -77,8 +76,19 @@ export class AffiliatesController {
     summary: 'Validate and capture referral code from landing flow',
   })
   @Post('capture/:code')
-  async captureReferral(@Param('code') code: string) {
-    return this.affiliatesService.captureReferralCode(code);
+  async captureReferral(
+    @Param('code') code: string,
+    @Req() req: Request,
+    @Headers('x-affiliate-visitor-id') visitorIdHeader?: string,
+  ) {
+    const visitorId =
+      typeof visitorIdHeader === 'string' ? visitorIdHeader.trim() : '';
+    const viewerUserId = this.tryResolveViewerUserId(req);
+
+    return this.affiliatesService.captureReferralCode(code, {
+      visitorId,
+      viewerUserId,
+    });
   }
 
   @ApiBearerAuth()
@@ -88,5 +98,36 @@ export class AffiliatesController {
   @Post('withdraw')
   async requestWithdrawal(@Req() req: any, @Body() body: RequestWithdrawalDto) {
     return this.affiliatesService.requestWithdrawal(req.user.id, body.amount);
+  }
+
+  /**
+   * Optionally identify an authenticated viewer from the forwarded refresh_token
+   * cookie. Invalid/missing/expired tokens must never make this public endpoint
+   * return 401 — genuine receivers are typically logged out.
+   */
+  private tryResolveViewerUserId(req: Request): string | undefined {
+    const refreshToken = req.cookies?.refresh_token;
+    if (!refreshToken || typeof refreshToken !== 'string') {
+      return undefined;
+    }
+
+    const secret = this.configService.get<string>('JWT_REFRESH_SECRET');
+    if (!secret) {
+      return undefined;
+    }
+
+    try {
+      const payload = this.jwtService.verify<{ sub?: string }>(refreshToken, {
+        secret,
+        algorithms: ['HS256'],
+      });
+      if (payload?.sub && typeof payload.sub === 'string') {
+        return payload.sub;
+      }
+    } catch {
+      // Expired, malformed, or wrong-secret tokens are ignored.
+    }
+
+    return undefined;
   }
 }

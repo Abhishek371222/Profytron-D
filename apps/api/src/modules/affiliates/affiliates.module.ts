@@ -1,8 +1,16 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 import { AffiliatesService } from './affiliates.service';
 import { AffiliatesController } from './affiliates.controller';
 
 @Module({
+  imports: [
+    ConfigModule,
+    // Minimal JWT support for optional refresh-token verification on public
+    // capture. Do not import AuthModule (AuthModule already imports this module).
+    JwtModule.register({}),
+  ],
   controllers: [AffiliatesController],
   providers: [AffiliatesService],
   exports: [AffiliatesService],

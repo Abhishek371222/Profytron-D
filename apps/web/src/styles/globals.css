@@ -658,15 +658,25 @@ img, svg, canvas, video { max-width: 100%; }
 }
 
 /* ── Custom Scrollbar ──────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
+/* Width kept generous enough to actually grab and drag — a too-thin thumb
+   makes clicks miss it and land on the track instead, which jump-scrolls
+   the page and reads as the thumb "disappearing" from under the cursor. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--primary) 30%, transparent);
   border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
   transition: background 0.2s;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--primary) 60%, transparent);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:active {
+  background: color-mix(in srgb, var(--primary) 80%, transparent);
+  background-clip: padding-box;
 }
 ::-webkit-scrollbar-corner { background: transparent; }
 * {

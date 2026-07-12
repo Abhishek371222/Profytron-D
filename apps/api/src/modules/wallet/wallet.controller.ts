@@ -129,6 +129,21 @@ export class WalletController {
     return data.pdfBuffer;
   }
 
+  @Get('billing/:billingId')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({
+    summary: 'Look up a wallet payment by canonical Billing ID (PRF-WLT-…)',
+  })
+  async getByBillingId(
+    @Req() req: RequestWithUser,
+    @Param('billingId') billingId: string,
+  ) {
+    return this.walletService.getTransactionByBillingId(billingId, {
+      userId: req.user.id,
+    });
+  }
+
   @Get('transaction/:id')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not found' })

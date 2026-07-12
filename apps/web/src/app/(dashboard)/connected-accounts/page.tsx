@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -16,14 +17,16 @@ import {
   Building2,
   CheckCircle2,
   ChevronRight,
+  ExternalLink,
   Globe,
   Link2,
   Link2Off,
   Loader2,
+  Pause,
+  Play,
   Plus,
   RefreshCcw,
   Shield,
-  TrendingUp,
   XCircle,
 } from 'lucide-react';
 
@@ -56,7 +59,7 @@ interface BrokerAccount {
 interface LinkedBot {
   id: string;
   botName: string;
-  brokerAccountId: string;
+  brokerAccountId?: string;
   brokerName: string;
   accountNumber: string;
   status: string;
@@ -127,6 +130,7 @@ function timeAgo(dateStr: string) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ConnectedAccountsPage() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = React.useState(false);
   const [detailsAccount, setDetailsAccount] = React.useState<BrokerAccount | null>(null);
@@ -177,12 +181,31 @@ export default function ConnectedAccountsPage() {
     },
   });
 
-  // Fetch linked bots (from strategies with broker info)
+  // Fetch linked bots (same source as My Bots — strategy id is marketplace detail id)
   const botsQuery = useQuery({
     queryKey: ['connected-bots'],
     queryFn: async () => {
       const res = await apiClient.get('/strategies/my');
-      return unwrapApiResponse<LinkedBot[]>(res.data);
+      const raw = unwrapApiResponse<any[]>(res.data) ?? [];
+      const list = Array.isArray(raw) ? raw : [];
+      return list.map((s): LinkedBot => ({
+        id: String(s.id),
+        botName: String(s.botName ?? s.name ?? 'Bot'),
+        brokerAccountId: s.brokerAccountId ? String(s.brokerAccountId) : undefined,
+        brokerName: String(
+          s.brokerName ?? s.brokerAccount?.broker ?? '—',
+        ),
+        accountNumber: String(
+          s.accountNumber ?? s.brokerAccount?.last4 ?? '',
+        ),
+        status: String(s.status ?? 'INACTIVE'),
+        pnl:
+          typeof s.pnl === 'number'
+            ? s.pnl
+            : typeof s.currentPnl === 'number'
+              ? s.currentPnl
+              : undefined,
+      }));
     },
   });
 
@@ -199,6 +222,37 @@ export default function ConnectedAccountsPage() {
       ).length,
     }));
   }, [accountsQuery.data, bots]);
+
+  const invalidateBots = React.useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: ['connected-bots'] });
+    void queryClient.invalidateQueries({ queryKey: ['my-bots'] });
+  }, [queryClient]);
+
+  const pauseMut = useMutation({
+    mutationFn: (id: string) => apiClient.post(`/strategies/${id}/pause`),
+    onSuccess: () => {
+      toast.success('Bot paused');
+      invalidateBots();
+    },
+    onError: () => toast.error('Could not pause bot'),
+  });
+
+  const resumeMut = useMutation({
+    mutationFn: (id: string) => apiClient.post(`/strategies/${id}/resume`),
+    onSuccess: () => {
+      toast.success('Bot resumed');
+      invalidateBots();
+    },
+    onError: () => toast.error('Could not resume bot'),
+  });
+
+  const handleViewBot = (bot: LinkedBot) => {
+    if (!bot.id) {
+      toast.error('Bot details unavailable');
+      return;
+    }
+    router.push(`/marketplace/${bot.id}`);
+  };
 
   // Account health status
   const totalAccounts = accounts.length;
@@ -668,14 +722,46 @@ export default function ConnectedAccountsPage() {
                           )}
                         </td>
                         <td className="px-5 py-4 text-right">
-                          <button
-                            type="button"
-                            onClick={() => toast.info(`Viewing bot ${bot.botName}`)}
-                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
-                          >
-                            <TrendingUp className="h-3 w-3" />
-                            View
-                          </button>
+                          <div className="inline-flex items-center justify-end gap-1.5">
+                            {bot.status === 'ACTIVE' && (
+                              <button
+                                type="button"
+                                onClick={() => pauseMut.mutate(bot.id)}
+                                disabled={pauseMut.isPending}
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-50"
+                              >
+                                {pauseMut.isPending ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Pause className="h-3 w-3" />
+                                )}
+                                Pause
+                              </button>
+                            )}
+                            {(bot.status === 'PAUSED' || bot.status === 'INACTIVE') && (
+                              <button
+                                type="button"
+                                onClick={() => resumeMut.mutate(bot.id)}
+                                disabled={resumeMut.isPending}
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-primary/25 bg-primary/10 text-[11px] font-semibold text-primary hover:bg-primary/15 transition-colors disabled:opacity-50"
+                              >
+                                {resumeMut.isPending ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Play className="h-3 w-3" />
+                                )}
+                                Resume
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleViewBot(bot)}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              View
+                            </button>
+                          </div>
                         </td>
                       </motion.tr>
                     ))}

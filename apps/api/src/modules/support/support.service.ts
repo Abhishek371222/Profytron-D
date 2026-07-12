@@ -25,6 +25,7 @@ export class SupportService {
     subject: string,
     description: string,
     category: string,
+    billingId?: string,
   ) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -38,6 +39,28 @@ export class SupportService {
       );
     }
 
+    let linkedBillingId: string | undefined;
+    if (billingId) {
+      const normalized = billingId.trim().toUpperCase();
+      const walletTxn = await this.prisma.walletTransaction.findUnique({
+        where: { billingId: normalized },
+        select: { id: true, userId: true, billingId: true },
+      });
+      if (!walletTxn) {
+        appError(
+          HttpStatus.BAD_REQUEST,
+          'Invalid Billing ID — no matching payment found',
+          ErrorCode.TRANSACTION_NOT_FOUND,
+        );
+      }
+      if (walletTxn.userId !== userId) {
+        throw new ForbiddenException(
+          'Billing ID does not belong to this account',
+        );
+      }
+      linkedBillingId = walletTxn.billingId;
+    }
+
     const ticket = await this.prisma.supportTicket.create({
       data: {
         userId,
@@ -45,7 +68,20 @@ export class SupportService {
         description,
         category,
         status: 'OPEN',
-        priority: 'MEDIUM',
+        priority: category === 'billing' ? 'HIGH' : 'MEDIUM',
+        ...(linkedBillingId ? { billingId: linkedBillingId } : {}),
+      },
+      include: {
+        walletTxn: {
+          select: {
+            id: true,
+            billingId: true,
+            amount: true,
+            status: true,
+            type: true,
+            createdAt: true,
+          },
+        },
       },
     });
 
@@ -57,6 +93,7 @@ export class SupportService {
       payload: {
         subject,
         category,
+        billingId: linkedBillingId ?? null,
         description: description.slice(0, 500),
       },
       idempotencyKey: `ticket:${ticket.id}`,
@@ -66,7 +103,9 @@ export class SupportService {
       await this.emailService.sendSupportTicketEmail({
         ticketId: ticket.id,
         subject,
-        description,
+        description: linkedBillingId
+          ? `${description}\n\nBilling ID: ${linkedBillingId}`
+          : description,
         category,
         user: {
           id: user.id,
@@ -92,7 +131,20 @@ export class SupportService {
         userId,
         ...(status && { status: status as any }),
       },
-      include: { responses: true },
+      include: {
+        responses: true,
+        walletTxn: {
+          select: {
+            id: true,
+            billingId: true,
+            amount: true,
+            status: true,
+            type: true,
+            paymentCategory: true,
+            createdAt: true,
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -103,6 +155,20 @@ export class SupportService {
       include: {
         responses: {
           include: { user: { select: { fullName: true, avatarUrl: true } } },
+        },
+        walletTxn: {
+          select: {
+            id: true,
+            billingId: true,
+            amount: true,
+            status: true,
+            type: true,
+            paymentCategory: true,
+            senderAddress: true,
+            receiverAddress: true,
+            externalTxnId: true,
+            createdAt: true,
+          },
         },
       },
     });
@@ -178,7 +244,66 @@ export class SupportService {
   async getPendingTickets() {
     return this.prisma.supportTicket.findMany({
       where: { status: { in: ['OPEN', 'IN_PROGRESS'] } },
+      include: {
+        user: { select: { id: true, email: true, fullName: true } },
+        walletTxn: {
+          select: {
+            id: true,
+            billingId: true,
+            amount: true,
+            status: true,
+            type: true,
+            paymentCategory: true,
+            createdAt: true,
+          },
+        },
+      },
       orderBy: { priority: 'desc' },
     });
+  }
+
+  /** Admin: resolve exact user + payment from a Billing ID */
+  async getPaymentByBillingId(billingId: string) {
+    const normalized = billingId.trim().toUpperCase();
+    const tx = await this.prisma.walletTransaction.findUnique({
+      where: { billingId: normalized },
+      include: {
+        user: {
+          select: { id: true, email: true, fullName: true },
+        },
+        supportTickets: {
+          select: {
+            id: true,
+            subject: true,
+            status: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        },
+      },
+    });
+    if (!tx) {
+      appError(
+        HttpStatus.NOT_FOUND,
+        'No payment found for this Billing ID',
+        ErrorCode.TRANSACTION_NOT_FOUND,
+      );
+    }
+    return {
+      billingId: tx.billingId,
+      transactionId: tx.id,
+      type: tx.type,
+      status: tx.status,
+      amount: tx.amount,
+      paymentCategory: tx.paymentCategory,
+      senderAddress: tx.senderAddress,
+      receiverAddress: tx.receiverAddress,
+      externalTxnId: tx.externalTxnId,
+      description: tx.description,
+      createdAt: tx.createdAt,
+      user: tx.user,
+      relatedTickets: tx.supportTickets,
+    };
   }
 }

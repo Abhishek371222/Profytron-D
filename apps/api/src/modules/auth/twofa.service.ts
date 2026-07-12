@@ -1,5 +1,5 @@
 import { Injectable, HttpStatus, Logger } from '@nestjs/common';
-import { TOTP } from 'otplib';
+import { generateSecret, generateURI, verify } from 'otplib';
 import * as qrcode from 'qrcode';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -7,21 +7,28 @@ import { RedisService } from './redis.service';
 import { appError, ErrorCode } from '../../common/errors';
 
 const TOTP_ATTEMPT_KEY = (userId: string) => `auth:2fa:attempts:${userId}`;
+const SETUP_SECRET_KEY = (userId: string) => `auth:2fa:setup:${userId}`;
 const MAX_2FA_ATTEMPTS = 10;
+const SETUP_SECRET_TTL = 600;
 
 @Injectable()
 export class TwoFaService {
   private readonly logger = new Logger(TwoFaService.name);
-  private totp: TOTP;
 
   constructor(
     private prisma: PrismaService,
     private redisService: RedisService,
-  ) {
-    this.totp = new TOTP({
-      period: 30,
-      digits: 6,
-    });
+  ) {}
+
+  private async isTotpValid(secret: string, token: string): Promise<boolean> {
+    const normalized = String(token ?? '').trim();
+    if (!/^\d{6}$/.test(normalized)) return false;
+    try {
+      const result = await verify({ secret, token: normalized });
+      return Boolean(result?.valid);
+    } catch {
+      return false;
+    }
   }
 
   async setupTwoFa(userId: string) {
@@ -43,37 +50,48 @@ export class TwoFaService {
       );
     }
 
-    const secret = this.totp.generateSecret();
-    const otpUri = this.totp.toURI({
-      label: user.email,
+    const secret = generateSecret();
+    const otpUri = generateURI({
       issuer: 'Profytron',
+      label: user.email,
       secret,
     });
     const qrCodeDataUrl = await qrcode.toDataURL(otpUri);
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { twoFactorSecret: secret },
-    });
+    // Keep the pending secret in Redis until the user verifies a TOTP code.
+    await this.redisService.set(SETUP_SECRET_KEY(userId), secret, SETUP_SECRET_TTL);
 
     return { qrCode: qrCodeDataUrl, secret, otpUri };
   }
 
+  async cancelSetup(userId: string) {
+    await this.redisService.del(SETUP_SECRET_KEY(userId));
+    return { cancelled: true };
+  }
+
   async verifyAndEnable(userId: string, token: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { twoFactorSecret: true, twoFactorEnabled: true },
-    });
-    if (!user?.twoFactorSecret) {
+    const pendingSecret = await this.redisService.get(SETUP_SECRET_KEY(userId));
+    if (!pendingSecret) {
       appError(
         HttpStatus.BAD_REQUEST,
-        '2FA setup not initiated',
+        '2FA setup not initiated or has expired',
         ErrorCode.VALIDATION_ERROR,
       );
     }
-    const isValid = await this.totp.verify(token, {
-      secret: user.twoFactorSecret,
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { twoFactorEnabled: true },
     });
+    if (user?.twoFactorEnabled) {
+      appError(
+        HttpStatus.BAD_REQUEST,
+        '2FA is already enabled',
+        ErrorCode.VALIDATION_ERROR,
+      );
+    }
+
+    const isValid = await this.isTotpValid(pendingSecret, token);
     if (!isValid) {
       appError(
         HttpStatus.BAD_REQUEST,
@@ -85,8 +103,13 @@ export class TwoFaService {
     const backupCodes = this.generateBackupCodes();
     await this.prisma.user.update({
       where: { id: userId },
-      data: { twoFactorEnabled: true, twoFactorBackupCodes: backupCodes },
+      data: {
+        twoFactorEnabled: true,
+        twoFactorSecret: pendingSecret,
+        twoFactorBackupCodes: backupCodes,
+      },
     });
+    await this.redisService.del(SETUP_SECRET_KEY(userId));
 
     this.logger.log(`2FA enabled for user ${userId}`);
     return { success: true, backupCodes };
@@ -109,11 +132,14 @@ export class TwoFaService {
       );
     }
 
-    const valid = await this.totp.verify(token, {
-      secret: user.twoFactorSecret!,
-    });
+    const valid = user.twoFactorSecret
+      ? await this.isTotpValid(user.twoFactorSecret, token)
+      : false;
     const backupCodes = (user.twoFactorBackupCodes as string[]) ?? [];
-    const isBackup = backupCodes.includes(token);
+    const normalizedToken = token.trim().toUpperCase();
+    const isBackup = backupCodes.some(
+      (code) => String(code).toUpperCase() === normalizedToken,
+    );
     if (!valid && !isBackup) {
       appError(
         HttpStatus.BAD_REQUEST,
@@ -131,6 +157,7 @@ export class TwoFaService {
         twoFactorBackupCodes: [],
       },
     });
+    await this.redisService.del(SETUP_SECRET_KEY(userId));
 
     this.logger.log(`2FA disabled for user ${userId}`);
     return { success: true };
@@ -141,14 +168,14 @@ export class TwoFaService {
       where: { id: userId },
       select: { twoFactorSecret: true, twoFactorEnabled: true },
     });
-    if (!user?.twoFactorEnabled) {
+    if (!user?.twoFactorEnabled || !user.twoFactorSecret) {
       appError(
         HttpStatus.BAD_REQUEST,
         '2FA is not enabled',
         ErrorCode.VALIDATION_ERROR,
       );
     }
-    if (!(await this.totp.verify(token, { secret: user.twoFactorSecret! }))) {
+    if (!(await this.isTotpValid(user.twoFactorSecret, token))) {
       appError(
         HttpStatus.BAD_REQUEST,
         'Invalid TOTP code',
@@ -189,9 +216,7 @@ export class TwoFaService {
     });
     if (!user?.twoFactorSecret) return false;
 
-    const valid = await this.totp.verify(token, {
-      secret: user.twoFactorSecret,
-    });
+    const valid = await this.isTotpValid(user.twoFactorSecret, token);
     if (valid) {
       await this.redisService.del(attemptKey);
       return true;
@@ -216,7 +241,7 @@ export class TwoFaService {
   }
 
   async verifyToken(secret: string, token: string): Promise<boolean> {
-    return !!(await this.totp.verify(token, { secret }));
+    return this.isTotpValid(secret, token);
   }
 
   private generateBackupCodes(): string[] {

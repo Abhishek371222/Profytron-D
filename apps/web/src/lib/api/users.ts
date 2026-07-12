@@ -44,9 +44,23 @@ export const usersApi = {
     return unwrapApiResponse<any>(res.data);
   },
 
-  async changePassword(data: any) {
-    const res = await apiClient.post('/users/me/change-password', data);
-    return unwrapApiResponse<any>(res.data);
+  async requestPasswordResetOtp(data: { email: string }) {
+    const res = await apiClient.post('/users/me/password-reset/request-otp', data);
+    return unwrapApiResponse<{ sent: boolean }>(res.data);
+  },
+
+  async verifyPasswordResetOtp(data: { email: string; otp: string }) {
+    const res = await apiClient.post('/users/me/password-reset/verify-otp', data);
+    return unwrapApiResponse<{ verified: boolean }>(res.data);
+  },
+
+  async confirmPasswordReset(data: {
+    email: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) {
+    const res = await apiClient.post('/users/me/password-reset/confirm', data);
+    return unwrapApiResponse<{ success: boolean; requireReauth: boolean }>(res.data);
   },
 
   async requestDeleteAccountOtp() {
