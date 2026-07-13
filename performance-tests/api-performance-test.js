@@ -17,7 +17,7 @@ export const options = {
   thresholds: {
     http_req_duration: ['p(95)<1000'], // 95% of requests should be below 1s
     http_req_failed: ['rate<0.05'],    // Error rate should be below 5%
-    errors: ['rate<0.05'],             // Custom error rate
+    errors: ['rate<0.05'],
   },
 };
 
@@ -30,7 +30,7 @@ export default function () {
     },
   };
 
-  // Test health endpoint
+  
   let response = http.get(`${BASE_URL}/health`, params);
   check(response, {
     'health check status is 200': (r) => r.status === 200,
@@ -39,7 +39,7 @@ export default function () {
 
   sleep(0.5);
 
-  // Test auth endpoints (without actual authentication)
+  
   response = http.post(`${BASE_URL}/auth/login`, JSON.stringify({
     email: 'test@example.com',
     password: 'testpass'
