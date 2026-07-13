@@ -6,6 +6,7 @@ const AFFILIATE_VISITOR_COOKIE = 'affiliate_visitor_id';
 const AFFILIATE_VISITOR_MAX_AGE = 60 * 60 * 24 * 365; // ~1 year
 
 const protectedRoutes = [
+  '/get-bots',
   '/copy-trading',
   '/dashboard',
   '/strategies',
@@ -148,8 +149,7 @@ async function handleProxy(request: NextRequest) {
     }
 
     if (pathname.startsWith('/admin')) {
-      const role = request.cookies.get('user_role')?.value;
-      if (role !== 'ADMIN') {
+      if (!isAdmin) {
         const url = request.nextUrl.clone();
         url.pathname = '/dashboard';
         return updateSession(request, NextResponse.redirect(url));

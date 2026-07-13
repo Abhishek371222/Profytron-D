@@ -26,7 +26,7 @@ export function formatMoney(
 ): string {
   // Overview money is always USD (MetaAPI account currency for this product).
   const abs = Math.abs(value);
-  const locale = localeForCurrency(currency);
+  const locale = localeForCurrency(_currency);
   try {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
@@ -35,7 +35,7 @@ export function formatMoney(
       maximumFractionDigits: decimals,
     }).format(value);
   } catch {
-    const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : `${currency} `;
+    const symbol = _currency === 'INR' ? '₹' : _currency === 'USD' ? '$' : `${_currency} `;
     return `${value < 0 ? '-' : ''}${symbol}${abs.toLocaleString(locale, {
       minimumFractionDigits: decimals,
       maximumFractionDigits: decimals,

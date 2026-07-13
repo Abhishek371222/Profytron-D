@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import Stripe from 'stripe';
 import Razorpay from 'razorpay';
@@ -19,7 +20,12 @@ import {
   ActivationService,
   ACTIVATION_EVENTS,
 } from '../growth/activation.service';
-import { SubscriptionTier, SubscriptionStatus } from '@prisma/client';
+import {
+  ProfitShareState,
+  SubscriptionBillingModel,
+  SubscriptionTier,
+  SubscriptionStatus,
+} from '@prisma/client';
 import { PLATFORM_PLANS } from '../../common/constants/pricing.constants';
 import { AgentEventService } from '../agents/agent-event.service';
 import { AGENT_EVENTS } from '../agents/agent.types';
@@ -27,6 +33,8 @@ import { EmailService } from '../email/email.service';
 import { SubscriptionProvisioningService } from '../provisioning/subscription-provisioning.service';
 import { requireActiveMt5Broker } from '../../common/utils/broker-requirement.util';
 import { buildWalletPaymentFields } from '../wallet/wallet-payment.util';
+import { CryptoService } from '../../common/crypto.service';
+import { MetaTraderAdapter } from '../broker/adapters/metatrader.adapter';
 
 @Injectable()
 export class PaymentsService {
@@ -44,6 +52,8 @@ export class PaymentsService {
     private readonly agentEvents: AgentEventService,
     private readonly emailService: EmailService,
     private readonly provisioning: SubscriptionProvisioningService,
+    private readonly cryptoService: CryptoService,
+    private readonly mtAdapter: MetaTraderAdapter,
     @Inject(REDIS_CLIENT) private readonly redis: IORedis,
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
@@ -70,6 +80,38 @@ export class PaymentsService {
 
   private demoOrderRedisKey(orderId: string): string {
     return `razorpay:demo:${orderId}`;
+  }
+
+  private isProfitShareBilling(value?: string | null): boolean {
+    return value === SubscriptionBillingModel.PROFIT_SHARE;
+  }
+
+  private async captureEquityBaseline(brokerAccountId: string): Promise<number> {
+    const broker = await this.prisma.brokerAccount.findUnique({
+      where: { id: brokerAccountId },
+      select: { credentialsEncrypted: true },
+    });
+    if (!broker) {
+      throw new BadRequestException('Broker account not found');
+    }
+
+    const creds = JSON.parse(
+      this.cryptoService.decrypt(broker.credentialsEncrypted),
+    ) as { metaApiAccountId?: string; metaApiRegion?: string };
+    if (!creds.metaApiAccountId) {
+      throw new BadRequestException('MT5 account is not ready for live equity');
+    }
+
+    const equity = await this.mtAdapter.getLiveEquity(
+      creds.metaApiAccountId,
+      creds.metaApiRegion,
+    );
+    if (equity == null || equity <= 0) {
+      throw new BadRequestException(
+        'Could not read live MT5 equity for profit-share baseline',
+      );
+    }
+    return equity;
   }
 
   // ── Razorpay Standard Checkout ─────────────────────────────────────────────
@@ -189,11 +231,32 @@ export class PaymentsService {
     const notes = stored.notes ?? {};
 
     if (notes.type === 'marketplace_subscription' && notes.strategyId) {
+      const isProfitShare = this.isProfitShareBilling(notes.billingModel);
+      if (isProfitShare) {
+        await this.creditWallet(
+          userId,
+          amountRupees,
+          'DEPOSIT',
+          {
+            source: 'profit_share_upfront',
+            orderId,
+            paymentId,
+            strategyId: notes.strategyId,
+            billingModel: notes.billingModel,
+          },
+          `profit_share_upfront_${paymentId}`,
+        );
+      }
       await this.activateSubscription(
         userId,
         notes.strategyId,
         notes.planType ?? 'MONTHLY',
-        { id: paymentId, amount_total: stored.amount },
+        {
+          id: paymentId,
+          amount_total: stored.amount,
+          billingModel: notes.billingModel,
+          profitSharePct: notes.profitSharePct,
+        },
       );
       await this.redis.del(this.demoOrderRedisKey(orderId));
       return {
@@ -339,17 +402,27 @@ export class PaymentsService {
     const isPlatformPayment =
       orderNotes.type === 'platform_subscription' && orderNotes.planId;
 
-    if (!isMarketplacePayment) {
+    const isProfitShareMarketplace =
+      Boolean(isMarketplacePayment) &&
+      this.isProfitShareBilling(orderNotes.billingModel);
+
+    if (!isMarketplacePayment || isProfitShareMarketplace) {
       await this.creditWallet(
         creditUserId,
         amountRupees,
         'DEPOSIT',
         {
-          source: 'razorpay_checkout',
+          source: isProfitShareMarketplace
+            ? 'profit_share_upfront'
+            : 'razorpay_checkout',
           orderId: razorpay_order_id,
           paymentId: razorpay_payment_id,
+          strategyId: orderNotes.strategyId,
+          billingModel: orderNotes.billingModel,
         },
-        `razorpay_payment_${razorpay_payment_id}`,
+        isProfitShareMarketplace
+          ? `profit_share_upfront_${razorpay_payment_id}`
+          : `razorpay_payment_${razorpay_payment_id}`,
       );
     }
 
@@ -372,6 +445,8 @@ export class PaymentsService {
         {
           id: razorpay_payment_id,
           amount_total: order.amount,
+          billingModel: orderNotes.billingModel,
+          profitSharePct: orderNotes.profitSharePct,
         },
       );
     } else {
@@ -395,7 +470,9 @@ export class PaymentsService {
       userId: creditUserId,
       title: isMarketplacePayment ? 'Payment Received' : 'Deposit Successful',
       message: isMarketplacePayment
-        ? `Your bot subscription payment of ₹${amountRupees.toFixed(2)} was confirmed. Setup is in progress.`
+        ? isProfitShareMarketplace
+          ? `₹${amountRupees.toFixed(2)} was added to your wallet for profit sharing. Bot setup is in progress.`
+          : `Your bot subscription payment of ₹${amountRupees.toFixed(2)} was confirmed. Setup is in progress.`
         : `₹${amountRupees.toFixed(2)} has been added to your wallet.`,
       type: 'SUCCESS',
       category: 'PAYMENT',
@@ -486,6 +563,20 @@ export class PaymentsService {
           const session = event.data.object;
           const metadata = session.metadata || {};
           if (metadata.userId && metadata.strategyId && metadata.planType) {
+            if (this.isProfitShareBilling(metadata.billingModel)) {
+              await this.creditWallet(
+                metadata.userId,
+                Number(session.amount_total || 0) / 100,
+                'DEPOSIT',
+                {
+                  source: 'profit_share_upfront',
+                  paymentId: session.id,
+                  strategyId: metadata.strategyId,
+                  billingModel: metadata.billingModel,
+                },
+                `profit_share_upfront_${session.id}`,
+              );
+            }
             await this.activateSubscription(
               metadata.userId,
               metadata.strategyId,
@@ -647,9 +738,26 @@ export class PaymentsService {
       }
 
       if (notes.type === 'marketplace_subscription' && strategyId) {
+        const isProfitShare = this.isProfitShareBilling(notes.billingModel);
+        if (isProfitShare) {
+          await this.creditWallet(
+            userId,
+            Number(paymentEntity.amount || 0) / 100,
+            'DEPOSIT',
+            {
+              source: 'profit_share_upfront',
+              paymentId: paymentEntity.id,
+              strategyId,
+              billingModel: notes.billingModel,
+            },
+            `profit_share_upfront_${paymentEntity.id}`,
+          );
+        }
         await this.activateSubscription(userId, strategyId, planType, {
           id: paymentEntity.id,
           amount_total: paymentEntity.amount,
+          billingModel: notes.billingModel,
+          profitSharePct: notes.profitSharePct,
         });
         void this.agentEvents.emit({
           type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
@@ -790,13 +898,30 @@ export class PaymentsService {
     }
 
     const followerBroker = await requireActiveMt5Broker(this.prisma, userId);
+    const billingModel = this.isProfitShareBilling(
+      stripeObject.billingModel ?? stripeObject.metadata?.billingModel,
+    )
+      ? SubscriptionBillingModel.PROFIT_SHARE
+      : SubscriptionBillingModel.FIXED;
+    const isProfitShare =
+      billingModel === SubscriptionBillingModel.PROFIT_SHARE;
+    const profitSharePct = Number(
+      stripeObject.profitSharePct ??
+        stripeObject.metadata?.profitSharePct ??
+        30,
+    );
+    const equityBaselineAtSubscribe = isProfitShare
+      ? await this.captureEquityBaseline(followerBroker.id)
+      : null;
 
     const currentPeriodEndUnix =
       stripeObject.current_period_end ||
       (stripeObject.subscription_details?.current_period_end as
         | number
         | undefined);
-    const expiresAt = currentPeriodEndUnix
+    const expiresAt = isProfitShare
+      ? null
+      : currentPeriodEndUnix
       ? new Date(currentPeriodEndUnix * 1000)
       : planType === 'LIFETIME'
         ? null
@@ -806,8 +931,11 @@ export class PaymentsService {
           );
 
     const paidAmount = Number(stripeObject.amount_total || 0) / 100;
+    const marketplaceRevenue = isProfitShare ? 0 : paidAmount;
     const creatorShare = paidAmount * (listing.creatorSharePct ?? 0.8);
-    const platformShare = Math.max(0, paidAmount - creatorShare);
+    const platformShare = isProfitShare
+      ? 0
+      : Math.max(0, paidAmount - creatorShare);
 
     const followerBrokerId = followerBroker.id;
 
@@ -826,6 +954,13 @@ export class PaymentsService {
           strategyId,
           status: SubscriptionStatus.PROVISIONING,
           planType,
+          billingModel,
+          profitSharePct: isProfitShare ? profitSharePct : null,
+          equityBaselineAtSubscribe,
+          profitShareAccruedUnsettled: isProfitShare ? 0 : null,
+          profitShareState: isProfitShare
+            ? ProfitShareState.PROFIT_SHARE_OK
+            : null,
           stripeSubId: paymentReference,
           brokerAccountId: followerBrokerId,
           subscribedAt: new Date(),
@@ -840,6 +975,13 @@ export class PaymentsService {
         update: {
           status: SubscriptionStatus.PROVISIONING,
           planType,
+          billingModel,
+          profitSharePct: isProfitShare ? profitSharePct : null,
+          equityBaselineAtSubscribe,
+          profitShareAccruedUnsettled: isProfitShare ? 0 : null,
+          profitShareState: isProfitShare
+            ? ProfitShareState.PROFIT_SHARE_OK
+            : null,
           stripeSubId: paymentReference ?? undefined,
           brokerAccountId: followerBrokerId,
           subscribedAt: new Date(),
@@ -856,7 +998,7 @@ export class PaymentsService {
       await tx.marketplaceListing.update({
         where: { strategyId },
         data: {
-          totalRevenue: { increment: paidAmount },
+          totalRevenue: { increment: marketplaceRevenue },
           lastPayoutAt: new Date(),
         },
       });
@@ -865,7 +1007,7 @@ export class PaymentsService {
         where: { id: strategyId },
         data: {
           copiesCount: { increment: 1 },
-          totalRevenue: { increment: paidAmount },
+          totalRevenue: { increment: marketplaceRevenue },
         },
       });
 
@@ -876,9 +1018,11 @@ export class PaymentsService {
           detailsJson: {
             strategyId,
             paidAmount,
-            creatorShare,
+            creatorShare: isProfitShare ? 0 : creatorShare,
             platformShare,
             planType,
+            billingModel,
+            equityBaselineAtSubscribe,
             stripePaymentId: stripeObject.id,
           },
           triggeredBy: listing.strategy.creatorId,
@@ -886,7 +1030,7 @@ export class PaymentsService {
       });
     });
 
-    if (paidAmount > 0) {
+    if (!isProfitShare && paidAmount > 0) {
       await this.creditWallet(
         listing.strategy.creatorId,
         creatorShare,
@@ -1076,7 +1220,7 @@ export class PaymentsService {
     // writes can't lost-update the balance. The unique `idempotencyKey` is the
     // ultimate double-credit guard (a duplicate insert rolls the txn back).
     try {
-      return await this.prisma.$transaction(async (tx) => {
+      const transaction = await this.prisma.$transaction(async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
 
         const existing = await tx.walletTransaction.findUnique({
@@ -1139,6 +1283,10 @@ export class PaymentsService {
           },
         });
       });
+      if (transaction.direction === 'IN') {
+        await this.reconcileProfitShareAutoResume(userId);
+      }
+      return transaction;
     } catch (e: any) {
       // Concurrent duplicate for the same idempotency key — return the row that
       // the other writer committed instead of surfacing a 500 to the webhook.
@@ -1149,6 +1297,46 @@ export class PaymentsService {
         if (existing) return existing;
       }
       throw e;
+    }
+  }
+
+  private async reconcileProfitShareAutoResume(userId: string) {
+    const sums = await this.prisma.walletTransaction.groupBy({
+      by: ['direction'],
+      where: { userId, status: 'CONFIRMED' },
+      _sum: { amount: true },
+    });
+    const credits =
+      sums.find((item) => item.direction === 'IN')?._sum.amount ?? 0;
+    const debits =
+      sums.find((item) => item.direction === 'OUT')?._sum.amount ?? 0;
+    const available = credits - debits;
+
+    const subscriptions = await this.prisma.userStrategySubscription.findMany({
+      where: {
+        userId,
+        status: SubscriptionStatus.PAUSED,
+        billingModel: SubscriptionBillingModel.PROFIT_SHARE,
+        profitShareState: ProfitShareState.PROFIT_SHARE_PAUSED,
+        profitShareAccruedUnsettled: { not: null },
+      },
+      select: { id: true, profitShareAccruedUnsettled: true },
+    });
+
+    for (const subscription of subscriptions) {
+      const liability = subscription.profitShareAccruedUnsettled ?? 0;
+      if (liability >= available) continue;
+      await this.prisma.userStrategySubscription.update({
+        where: { id: subscription.id },
+        data: {
+          status: SubscriptionStatus.ACTIVE,
+          profitShareState:
+            liability > 0
+              ? ProfitShareState.PROFIT_SHARE_DUE
+              : ProfitShareState.PROFIT_SHARE_OK,
+        },
+      });
+      await this.copyFactorySync.enqueueLinkSubscription(subscription.id);
     }
   }
 
@@ -1259,6 +1447,30 @@ export class PaymentsService {
       monthlyAmount,
       renewsAt: sub.nextBillingAt ?? sub.expiresAt,
     };
+  }
+
+  /**
+   * Platform plans renew via manual re-checkout each cycle (no live Razorpay
+   * recurring subscription to call out to), so "cancel" just stops that
+   * intent — access is kept until `expiresAt`, where the existing
+   * expirePlatformSubscriptions cron (subscription-cleanup.service.ts)
+   * naturally downgrades the user to FREE.
+   */
+  async cancelSubscription(userId: string) {
+    const sub = await this.prisma.userSubscription.findFirst({
+      where: { userId, status: SubscriptionStatus.ACTIVE },
+      orderBy: { subscribedAt: 'desc' },
+    });
+    if (!sub) {
+      throw new NotFoundException('No active subscription to cancel');
+    }
+    if (sub.cancelledAt) {
+      return sub;
+    }
+    return this.prisma.userSubscription.update({
+      where: { id: sub.id },
+      data: { cancelledAt: new Date(), autoRenewal: false },
+    });
   }
 
   async createPlatformPlanOrder(

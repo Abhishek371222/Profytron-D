@@ -16,6 +16,7 @@ const PRIVATE_PREFIXES = [
   '/leaderboard',
   '/bots',
   '/notifications',
+  '/get-bots',
   '/copy-trading',
   '/builder',
   '/social',

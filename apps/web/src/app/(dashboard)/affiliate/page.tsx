@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Copy,
   Share2,
@@ -35,6 +35,14 @@ import {
 import { cn } from '@/lib/utils';
 import { affiliatesApi } from '@/lib/api/affiliates';
 import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   AFFILIATE_ACTIVITY_RANGE_OPTIONS,
   type AffiliateActivityRange,
@@ -114,9 +122,12 @@ function AffiliateChartTooltip({
 }
 
 export default function AffiliatePage() {
+  const queryClient = useQueryClient();
   const [origin, setOrigin] = React.useState('');
   const [activityRange, setActivityRange] = React.useState<AffiliateActivityRange>('week');
   const [activityMenuOpen, setActivityMenuOpen] = React.useState(false);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = React.useState(false);
+  const [withdrawAmount, setWithdrawAmount] = React.useState('');
   const activityMenuRef = React.useRef<HTMLDivElement>(null);
 
   const dashboardQuery = useQuery({
@@ -149,6 +160,19 @@ export default function AffiliatePage() {
     staleTime: 15_000,
     refetchOnWindowFocus: true,
     retry: 1,
+  });
+
+  const withdrawMutation = useMutation({
+    mutationFn: (amount: number) => affiliatesApi.withdraw(amount),
+    onSuccess: () => {
+      toast.success('Withdrawal requested — funds credited to your wallet');
+      setWithdrawDialogOpen(false);
+      setWithdrawAmount('');
+      queryClient.invalidateQueries({ queryKey: ['affiliate-dashboard'] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to request withdrawal');
+    },
   });
 
   React.useEffect(() => {
@@ -622,6 +646,18 @@ export default function AffiliatePage() {
               <Copy className="h-4 w-4" />
               Copy Link
             </DashButton>
+            <DashButton
+              variant="outline"
+              onClick={() => {
+                setWithdrawAmount(stats ? String(Math.floor(stats.pendingPayout)) : '');
+                setWithdrawDialogOpen(true);
+              }}
+              disabled={!stats || stats.pendingPayout < 500}
+              className="w-full mt-2 gap-2"
+            >
+              <Wallet className="h-4 w-4" />
+              Withdraw Earnings
+            </DashButton>
           </motion.div>
 
           {/* Network tree */}
@@ -658,6 +694,47 @@ export default function AffiliatePage() {
           </motion.div>
         </div>
       </div>
+
+      <Dialog open={withdrawDialogOpen} onOpenChange={setWithdrawDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Withdraw affiliate earnings</DialogTitle>
+            <DialogDescription>
+              Funds are credited to your Profytron wallet. Minimum withdrawal is 500.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <label htmlFor="withdraw-amount-input" className="text-xs font-semibold text-muted-foreground">
+              Amount (available: {stats ? formatCurrency(stats.pendingPayout) : '$0.00'})
+            </label>
+            <input
+              id="withdraw-amount-input"
+              type="number"
+              min={500}
+              max={stats?.pendingPayout ?? undefined}
+              value={withdrawAmount}
+              onChange={(e) => setWithdrawAmount(e.target.value)}
+              className="w-full rounded-xl border border-[var(--card-border)] bg-muted/40 px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+            />
+          </div>
+          <DialogFooter>
+            <DashButton variant="outline" onClick={() => setWithdrawDialogOpen(false)}>
+              Cancel
+            </DashButton>
+            <DashButton
+              onClick={() => withdrawMutation.mutate(Number(withdrawAmount))}
+              disabled={
+                withdrawMutation.isPending ||
+                !Number(withdrawAmount) ||
+                Number(withdrawAmount) < 500 ||
+                Number(withdrawAmount) > (stats?.pendingPayout ?? 0)
+              }
+            >
+              {withdrawMutation.isPending ? 'Requesting...' : 'Withdraw'}
+            </DashButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardPage>
   );
 }

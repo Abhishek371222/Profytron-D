@@ -36,6 +36,11 @@ export class UpsertRiskPolicyDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
+  dailyWinTargetUsd?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   @Max(100)
   riskPerTradePct?: number;
 

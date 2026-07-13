@@ -29,7 +29,9 @@ export type RiskBreachCode =
   | 'MAX_OPEN_TRADES'
   | 'DAILY_LOSS_USD'
   | 'DAILY_LOSS_PCT'
-  | 'MAX_DRAWDOWN';
+  | 'DAILY_WIN_TARGET'
+  | 'MAX_DRAWDOWN'
+  | 'MIN_WIN_RATE';
 
 export interface RiskEvaluation {
   allowed: boolean;
@@ -212,7 +214,23 @@ export class AiRiskService {
       }
     }
 
-    // 4. Max drawdown
+    // 4. Daily win target — lock in profit rather than give it back.
+    if (policy.autoStopAfterWin && policy.dailyWinTargetUsd != null) {
+      const dailyProfit = todaysClosed.reduce(
+        (sum, t) => sum + (t.profit ?? 0),
+        0,
+      );
+      if (dailyProfit >= policy.dailyWinTargetUsd) {
+        return {
+          allowed: false,
+          code: 'DAILY_WIN_TARGET',
+          reason: `Daily win target reached ($${dailyProfit.toFixed(2)} / $${policy.dailyWinTargetUsd}) — trading paused for today`,
+          hardStop: true,
+        };
+      }
+    }
+
+    // 5. Max drawdown
     if (policy.maxDrawdownPct != null) {
       const dd = await this.currentDrawdownPct(userId, baseEquity);
       if (dd >= policy.maxDrawdownPct) {
@@ -222,6 +240,28 @@ export class AiRiskService {
           reason: `Max drawdown breached (${dd.toFixed(1)}% / ${policy.maxDrawdownPct}%)`,
           hardStop: true,
         };
+      }
+    }
+
+    // 6. Rolling win rate floor — same 100-trade window as getRiskScore.
+    // Skip below 5 trades; a win rate over 1-4 trades is noise, not a signal.
+    if (policy.minWinRate != null) {
+      const recentClosed = await this.prisma.trade.findMany({
+        where: { userId, status: 'CLOSED' },
+        orderBy: { closedAt: 'desc' },
+        take: 100,
+        select: { profit: true },
+      });
+      if (recentClosed.length >= 5) {
+        const wins = recentClosed.filter((t) => (t.profit ?? 0) > 0).length;
+        const rollingWinRate = (wins / recentClosed.length) * 100;
+        if (rollingWinRate < policy.minWinRate) {
+          return {
+            allowed: false,
+            code: 'MIN_WIN_RATE',
+            reason: `Rolling win rate below floor (${rollingWinRate.toFixed(1)}% / ${policy.minWinRate}%)`,
+          };
+        }
       }
     }
 

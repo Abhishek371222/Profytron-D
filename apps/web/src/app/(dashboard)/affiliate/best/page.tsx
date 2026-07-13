@@ -7,9 +7,17 @@ import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { affiliateLeaders, affiliateRegionFilters, affiliateTierFilters } from '../_lib/affiliateData';
+import { affiliateRegionFilters, affiliateTierFilters } from '../_lib/affiliateData';
 import { AffiliateTreeScene } from '../_components/AffiliateTreeScene';
 import { affiliatesApi, type AffiliateDashboardResponse } from '@/lib/api/affiliates';
+
+const LEADER_COLORS = [
+  'from-chart-3/35 via-chart-5/20 to-transparent',
+  'from-primary/35 via-chart-2/20 to-transparent',
+  'from-chart-4/35 via-chart-5/20 to-transparent',
+  'from-destructive/35 via-chart-2/20 to-transparent',
+  'from-chart-1/35 via-chart-5/20 to-transparent',
+];
 
 export default function BestAffiliatesPage() {
   const router = useRouter();
@@ -17,7 +25,19 @@ export default function BestAffiliatesPage() {
     queryKey: ['affiliate-dashboard'],
     queryFn: () => affiliatesApi.getDashboard(),
   });
-  const leaders = affiliateLeaders.slice(0, 5);
+  const leaderboardQuery = useQuery({
+    queryKey: ['affiliate-leaderboard'],
+    queryFn: () => affiliatesApi.getLeaderboard(5),
+    staleTime: 60_000,
+  });
+  const leaders = React.useMemo(
+    () =>
+      (leaderboardQuery.data ?? []).map((entry, index) => ({
+        ...entry,
+        color: LEADER_COLORS[index % LEADER_COLORS.length],
+      })),
+    [leaderboardQuery.data],
+  );
   const dashboard = dashboardQuery.data;
   const stats = dashboard?.stats;
   const commissionRate = dashboard?.commissionRate ?? 0;
@@ -250,10 +270,22 @@ export default function BestAffiliatesPage() {
         </div>
       </section>
 
+      {leaderboardQuery.isLoading && (
+        <section className="rounded-[28px] border border-border bg-foreground/4 p-8 text-center text-sm text-foreground/50">
+          Loading leaderboard...
+        </section>
+      )}
+
+      {!leaderboardQuery.isLoading && filteredLeaders.length === 0 && (
+        <section className="rounded-[28px] border border-border bg-foreground/4 p-8 text-center text-sm text-foreground/50">
+          No affiliates match these filters yet.
+        </section>
+      )}
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filteredLeaders.map((leader, index) => (
           <motion.div
-            key={leader.handle}
+            key={leader.rank}
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.06 }}
@@ -275,8 +307,7 @@ export default function BestAffiliatesPage() {
                         {leader.tier}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-foreground/45">{leader.handle} · {leader.region}</p>
-                    <p className="mt-2 text-sm text-foreground/60">{leader.note}</p>
+                    <p className="mt-1 text-sm text-foreground/45">{leader.region}</p>
                   </div>
                 </div>
                 <div className="rounded-full border border-border bg-foreground/4 px-3 py-1 text-micro font-semibold uppercase tracking-[0.22em] text-foreground/50">

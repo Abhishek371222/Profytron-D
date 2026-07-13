@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { walletApi } from '@/lib/api/wallet';
 import {
@@ -24,6 +25,7 @@ export function WithdrawSheet({
   availableBalance: number;
 }) {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const [step, setStep] = React.useState<1 | 2 | 3>(1);
   const [amount, setAmount] = React.useState('');
   const [otp, setOtp] = React.useState('');
@@ -38,13 +40,33 @@ export function WithdrawSheet({
       setStep(3);
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || error?.response?.data?.message || 'Withdrawal failed');
+      const message =
+        error?.response?.data?.error || error?.response?.data?.message || 'Withdrawal failed';
+      if (typeof message === 'string' && message.toLowerCase().includes('kyc')) {
+        onOpenChange(false);
+        toast.error('Identity verification required', {
+          description: 'Verify your identity before withdrawing funds.',
+          action: {
+            label: 'Verify now',
+            onClick: () => router.push('/settings/kyc'),
+          },
+        });
+        return;
+      }
+      toast.error(message);
     },
   });
 
   const numericAmount = Number(amount || 0);
   const isAmountValid = Number.isFinite(numericAmount) && numericAmount >= 500;
   const isWithinBalance = numericAmount <= availableBalance;
+  const withdrawalPreview = useQuery({
+    queryKey: ['withdrawal-impact', numericAmount],
+    queryFn: () => walletApi.previewWithdrawal({ amount: numericAmount }),
+    enabled: isAmountValid && isWithinBalance,
+    staleTime: 10_000,
+  });
+  const affectedBots = withdrawalPreview.data?.affectedSubscriptions ?? [];
 
   const handleSendOtp = async () => {
     setIsSendingOtp(true);
@@ -109,6 +131,16 @@ export function WithdrawSheet({
               {!isWithinBalance && amount ? (
                 <p className="text-xs text-destructive">Amount exceeds available balance</p>
               ) : null}
+              {affectedBots.length > 0 ? (
+                <div className="rounded-xl border border-chart-4/30 bg-chart-4/10 p-3 text-xs text-chart-4">
+                  <p className="font-semibold">
+                    Withdrawing will pause your bot {affectedBots.map((bot) => bot.botName).join(', ')}.
+                  </p>
+                  <p className="mt-1 text-chart-4/80">
+                    Top up above the required buffer to auto-resume profit sharing.
+                  </p>
+                </div>
+              ) : null}
             </div>
 
             <div className="space-y-2">
@@ -123,7 +155,7 @@ export function WithdrawSheet({
 
             <Button
               className="w-full rounded-xl"
-              disabled={!isAmountValid || !isWithinBalance || !bankAccount.trim() || isSendingOtp}
+              disabled={!isAmountValid || !isWithinBalance || !bankAccount.trim() || isSendingOtp || withdrawalPreview.isFetching}
               onClick={async () => {
                 await handleSendOtp();
                 setStep(2);

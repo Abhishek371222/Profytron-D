@@ -16,7 +16,7 @@ import { useUIStore } from '@/lib/stores/useUIStore';
 
 const APP_SHELL_ROUTES = [
   '/dashboard', '/analytics', '/wallet', '/strategies', '/marketplace',
-  '/journal', '/history', '/leaderboard', '/bots', '/copy-trading',
+  '/journal', '/history', '/leaderboard', '/bots', '/get-bots',
   '/notifications', '/affiliate', '/creator', '/alpha-coach', '/settings', '/admin',
   '/my-bots', '/subscriptions', '/billing', '/team-plans', '/connected-accounts',
 ];

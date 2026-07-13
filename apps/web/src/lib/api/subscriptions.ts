@@ -36,6 +36,11 @@ export const subscriptionsApi = {
     }>(res.data);
   },
 
+  async cancel() {
+    const res = await apiClient.post('/subscriptions/cancel');
+    return unwrapApiResponse<any>(res.data);
+  },
+
   async getInvoices() {
     const res = await apiClient.get('/subscriptions/invoices');
     return unwrapApiResponse<any[]>(res.data);

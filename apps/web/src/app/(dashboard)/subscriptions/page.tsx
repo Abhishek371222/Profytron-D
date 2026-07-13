@@ -20,7 +20,8 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type SubscriptionStatus = 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE';
+type SubscriptionStatus = 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE' | 'BLOCKED';
+type ProfitShareState = 'PROFIT_SHARE_OK' | 'PROFIT_SHARE_DUE' | 'PROFIT_SHARE_PAUSED' | 'PROFIT_SHARE_SETTLING';
 
 interface SubscribedBot {
   id: string;
@@ -40,6 +41,9 @@ interface SubscribedBot {
     renewalDate?: string;
     startedAt?: string;
     planType?: 'MONTHLY' | 'ANNUAL' | 'LIFETIME';
+    billingModel?: 'FIXED' | 'PROFIT_SHARE';
+    profitShareState?: ProfitShareState | null;
+    profitShareAccruedUnsettled?: number | null;
     autoRenew?: boolean;
   };
 }
@@ -57,6 +61,7 @@ const STATUS_FILTER_TABS: Array<{ label: string; value: SubscriptionStatus | 'AL
 const STATUS_BADGE: Record<SubscriptionStatus, { label: string; cls: string }> = {
   ACTIVE: { label: 'Active', cls: 'bg-primary/10 text-primary border-primary/20' },
   PAUSED: { label: 'Paused', cls: 'bg-muted/60 text-muted-foreground border-[var(--card-border)]' },
+  BLOCKED: { label: 'Blocked', cls: 'bg-destructive/10 text-destructive border-destructive/20' },
   EXPIRED: { label: 'Expired', cls: 'bg-destructive/10 text-destructive border-destructive/20' },
   CANCELLED: { label: 'Cancelled', cls: 'bg-muted/60 text-muted-foreground border-[var(--card-border)]' },
   INACTIVE: { label: 'Inactive', cls: 'bg-muted/60 text-muted-foreground border-[var(--card-border)]' },
@@ -66,6 +71,14 @@ function getStatusFromBot(bot: SubscribedBot): SubscriptionStatus {
   const s = bot.subscription?.status;
   if (!s || s === 'INACTIVE') return 'INACTIVE';
   return s;
+}
+
+function profitShareBadge(bot: SubscribedBot) {
+  if (bot.subscription?.billingModel !== 'PROFIT_SHARE') return null;
+  if (bot.subscription.profitShareState === 'PROFIT_SHARE_PAUSED') return 'Paused — top up required';
+  if (bot.subscription.profitShareState === 'PROFIT_SHARE_SETTLING') return 'Profit share settlement due';
+  if (bot.subscription.profitShareState === 'PROFIT_SHARE_DUE') return 'Profit share due';
+  return 'Profit sharing';
 }
 
 function formatINR(amount: number) {
@@ -383,6 +396,7 @@ export default function SubscriptionsPage() {
                   const badge = STATUS_BADGE[status] ?? STATUS_BADGE.INACTIVE;
                   const plan = bot.subscription?.planType ?? 'MONTHLY';
                   const autoRenew = bot.subscription?.autoRenew ?? true;
+                  const psBadge = profitShareBadge(bot);
 
                   return (
                     <motion.tr
@@ -423,6 +437,11 @@ export default function SubscriptionsPage() {
                           <span className="w-1.5 h-1.5 rounded-full bg-current" />
                           {badge.label}
                         </span>
+                        {psBadge ? (
+                          <span className="mt-1 inline-flex rounded-lg border border-chart-4/30 bg-chart-4/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-chart-4">
+                            {psBadge}
+                          </span>
+                        ) : null}
                       </td>
 
                       {/* Price/mo */}

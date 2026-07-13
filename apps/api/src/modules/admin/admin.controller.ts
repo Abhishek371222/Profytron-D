@@ -25,8 +25,9 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { RiskLevel, StrategyCategory, UserRole } from '@prisma/client';
+import { RiskLevel, StrategyCategory, AssetClass, Timeframe, UserRole } from '@prisma/client';
 import { StrategyDocumentsService } from '../marketplace/strategy-documents.service';
+import { UsersService } from '../users/users.service';
 import { Request } from 'express';
 import {
   IsNumber,
@@ -71,6 +72,7 @@ export class AdminController {
     private tradingService: TradingService,
     private strategyDocuments: StrategyDocumentsService,
     private walletService: WalletService,
+    private usersService: UsersService,
   ) {}
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -184,6 +186,8 @@ export class AdminController {
     @Body('description') description: string,
     @Body('category') category: StrategyCategory,
     @Body('riskLevel') riskLevel: RiskLevel,
+    @Body('assetClass') assetClass?: AssetClass,
+    @Body('timeframe') timeframe?: Timeframe,
     @Body('configJson') configJson?: unknown,
     @Body('monthlyPrice') monthlyPrice?: number,
     @Body('annualPrice') annualPrice?: number,
@@ -204,6 +208,8 @@ export class AdminController {
         description,
         category,
         riskLevel,
+        assetClass,
+        timeframe,
         configJson: (configJson ?? {}) as any,
         monthlyPrice:
           monthlyPrice !== undefined ? Number(monthlyPrice) : undefined,
@@ -239,6 +245,8 @@ export class AdminController {
     @Body('description') description?: string,
     @Body('category') category?: StrategyCategory,
     @Body('riskLevel') riskLevel?: RiskLevel,
+    @Body('assetClass') assetClass?: AssetClass,
+    @Body('timeframe') timeframe?: Timeframe,
     @Body('configJson') configJson?: unknown,
     @Body('monthlyPrice') monthlyPrice?: number,
     @Body('annualPrice') annualPrice?: number,
@@ -260,6 +268,8 @@ export class AdminController {
         description,
         category,
         riskLevel,
+        assetClass,
+        timeframe,
         configJson: configJson as any,
         monthlyPrice:
           monthlyPrice !== undefined ? Number(monthlyPrice) : undefined,
@@ -453,6 +463,13 @@ export class AdminController {
   @ApiOperation({ summary: 'List users with pending KYC submissions' })
   async getPendingKyc() {
     return this.adminService.getPendingKyc();
+  }
+
+  @Get('kyc/documents/:docId/url')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Get a short-lived signed URL to view a KYC document' })
+  async getKycDocumentUrl(@Param('docId') docId: string) {
+    return this.usersService.getKycDocumentSignedUrl(docId);
   }
 
   @Post('kyc/:userId/review')

@@ -8,6 +8,7 @@ import { ShieldCheck, Activity, ArrowRight, Bot, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Button } from "@/components/ui/button";
+import type { SubscriptionBillingModel } from "@/lib/api/marketplace";
 
 export interface MarketplaceStrategyRow {
   id: string;
@@ -41,7 +42,7 @@ export function MarketplaceStrategyTable({
   onSubscribe,
 }: {
   strategies: MarketplaceStrategyRow[];
-  onSubscribe: (s: MarketplaceStrategyRow) => void;
+  onSubscribe: (s: MarketplaceStrategyRow, billingModel?: SubscriptionBillingModel) => void;
 }) {
   const maxSubs = Math.max(...strategies.map((s) => s.subscribers), 1);
 
@@ -109,14 +110,24 @@ export function MarketplaceStrategyTable({
                   View Strategy
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-h-[var(--touch-min)]"
-                  onClick={() => onSubscribe(s)}
-                >
-                  Subscribe
-                </Button>
+                <div className="grid flex-1 gap-2">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="min-h-[var(--touch-min)]"
+                    onClick={() => onSubscribe(s, 'FIXED')}
+                  >
+                    Buy Subscription
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="min-h-[var(--touch-min)]"
+                    onClick={() => onSubscribe(s, 'PROFIT_SHARE')}
+                  >
+                    Get Profit Sharing · ₹149
+                  </Button>
+                </div>
               </div>
             </motion.div>
           );
@@ -293,9 +304,17 @@ export function MarketplaceStrategyTable({
                         variant="ghost"
                         size="sm"
                         className="rounded-[12px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] text-[11px] font-bold uppercase tracking-wide text-primary"
-                        onClick={() => onSubscribe(s)}
+                        onClick={() => onSubscribe(s, 'FIXED')}
                       >
-                        Subscribe
+                        Buy Subscription
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-[12px] border border-chart-3/30 text-[11px] font-bold uppercase tracking-wide text-chart-3"
+                        onClick={() => onSubscribe(s, 'PROFIT_SHARE')}
+                      >
+                        Profit Sharing · ₹149
                       </Button>
                     </div>
                   </td>

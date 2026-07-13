@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "AiRiskPolicy" ADD COLUMN IF NOT EXISTS "dailyWinTargetUsd" DOUBLE PRECISION;

@@ -79,7 +79,32 @@ export const usersApi = {
     });
     return unwrapApiResponse<{ success: boolean }>(res.data);
   },
-  
+
+  async getKycStatus() {
+    const res = await apiClient.get('/users/me/kyc');
+    return unwrapApiResponse<{
+      kycStatus: 'NOT_STARTED' | 'PENDING' | 'VERIFIED' | 'REJECTED';
+      documents: Array<{
+        id: string;
+        docType: string;
+        status: 'PENDING' | 'VERIFIED' | 'REJECTED';
+        notes?: string | null;
+        submittedAt: string;
+        reviewedAt?: string | null;
+      }>;
+    }>(res.data);
+  },
+
+  async submitKyc(docType: string, file: File) {
+    const formData = new FormData();
+    formData.append('docType', docType);
+    formData.append('file', file);
+    const res = await apiClient.post('/users/me/kyc', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return unwrapApiResponse<{ success: boolean; documentId: string; status: string }>(res.data);
+  },
+
   async checkUsername(username: string) {
      // A mock endpoint or logic right now just simulating
      return { available: true };

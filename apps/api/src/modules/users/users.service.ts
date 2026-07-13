@@ -401,6 +401,26 @@ export class UsersService {
     return { kycStatus: user?.kycStatus ?? 'NOT_STARTED', documents };
   }
 
+  /** Admin-only: short-lived signed URL to view a submitted KYC document. */
+  async getKycDocumentSignedUrl(docId: string) {
+    const doc = await this.prisma.kycDocument.findUnique({
+      where: { id: docId },
+      select: { storagePath: true },
+    });
+    if (!doc) throw new NotFoundException('Document not found');
+
+    if (!this.supabase) {
+      throw new BadRequestException('Document storage is not configured');
+    }
+    const { data, error } = await this.supabase.storage
+      .from('kyc-documents')
+      .createSignedUrl(doc.storagePath, 600);
+    if (error || !data?.signedUrl) {
+      throw new BadRequestException('Failed to generate document URL');
+    }
+    return { url: data.signedUrl };
+  }
+
   async submitKycDocument(
     userId: string,
     docType: string,

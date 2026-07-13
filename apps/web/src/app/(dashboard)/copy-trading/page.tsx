@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { copyTradingApi } from '@/lib/api/copy-trading';
 import { brokerApi } from '@/lib/api/broker';
-import { marketplaceApi } from '@/lib/api/marketplace';
+import { marketplaceApi, SubscriptionBillingModel } from '@/lib/api/marketplace';
 import { BrokerConnectModal } from '@/components/copy-trading/BrokerConnectModal';
 import { BrokerAccountsPanel } from '@/components/copy-trading/BrokerAccountsPanel';
 import { CopySettingsSheet } from '@/components/copy-trading/CopySettingsSheet';
@@ -79,6 +79,7 @@ export default function CopyTradingPage() {
   const [connectOpen, setConnectOpen] = React.useState(false);
   const [settingsTarget, setSettingsTarget] = React.useState<any>(null);
   const [subscribePlan, setSubscribePlan] = React.useState<any>(null);
+  const [billingModel, setBillingModel] = React.useState<SubscriptionBillingModel>('FIXED');
 
   const { data: brokers = [] } = useQuery({
     queryKey: ['broker-accounts'],
@@ -271,14 +272,32 @@ export default function CopyTradingPage() {
                     ✓ Bot enabled
                   </div>
                 ) : (
-                  <DashButton
-                    variant="primary"
-                    className="w-full"
-                    disabled={!hasConnectedBroker || !plan.strategy}
-                    onClick={() => plan.strategy && setSubscribePlan(plan.strategy)}
-                  >
-                    Buy Bot
-                  </DashButton>
+                  <div className="grid gap-2">
+                    <DashButton
+                      variant="primary"
+                      className="w-full"
+                      disabled={!hasConnectedBroker || !plan.strategy}
+                      onClick={() => {
+                        if (!plan.strategy) return;
+                        setBillingModel('FIXED');
+                        setSubscribePlan(plan.strategy);
+                      }}
+                    >
+                      Buy Subscription
+                    </DashButton>
+                    <DashButton
+                      variant="outline"
+                      className="w-full"
+                      disabled={!hasConnectedBroker || !plan.strategy}
+                      onClick={() => {
+                        if (!plan.strategy) return;
+                        setBillingModel('PROFIT_SHARE');
+                        setSubscribePlan(plan.strategy);
+                      }}
+                    >
+                      Get Profit Sharing · ₹149
+                    </DashButton>
+                  </div>
                 )}
               </motion.div>
             );
@@ -365,6 +384,7 @@ export default function CopyTradingPage() {
         <SubscribeModal
           strategy={subscribePlan}
           isOpen={!!subscribePlan}
+          initialBillingModel={billingModel}
           onClose={() => {
             setSubscribePlan(null);
             qc.invalidateQueries({ queryKey: ['copy-subscriptions'] });

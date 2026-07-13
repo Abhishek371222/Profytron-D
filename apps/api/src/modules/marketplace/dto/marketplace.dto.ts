@@ -10,7 +10,13 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { RiskLevel, StrategyCategory } from '@prisma/client';
+import {
+  RiskLevel,
+  StrategyCategory,
+  AssetClass,
+  Timeframe,
+  SubscriptionBillingModel,
+} from '@prisma/client';
 
 export class MarketplaceQueryDto {
   @IsOptional()
@@ -41,12 +47,12 @@ export class MarketplaceQueryDto {
   verified?: boolean;
 
   @IsOptional()
-  @IsString()
-  assetClass?: string;
+  @IsEnum(AssetClass)
+  assetClass?: AssetClass;
 
   @IsOptional()
-  @IsString()
-  timeframe?: string;
+  @IsEnum(Timeframe)
+  timeframe?: Timeframe;
 
   @IsOptional()
   @IsString()
@@ -130,8 +136,13 @@ export class CreateMarketplaceListingDto {
 }
 
 export class SubscribeStrategyDto {
+  @IsOptional()
   @IsString()
-  planType: 'MONTHLY' | 'ANNUAL' | 'LIFETIME';
+  planType?: 'MONTHLY' | 'ANNUAL' | 'LIFETIME';
+
+  @IsOptional()
+  @IsEnum(SubscriptionBillingModel)
+  billingModel?: SubscriptionBillingModel;
 
   @IsOptional()
   @Transform(({ value }) => value === 'true' || value === true)

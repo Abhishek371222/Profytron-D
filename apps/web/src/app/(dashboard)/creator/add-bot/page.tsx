@@ -194,6 +194,8 @@ export default function AddBotPage() {
         name: values.name.trim(),
         category: values.category,
         riskLevel: values.riskLevel,
+        assetClass: values.markets[0],
+        timeframe: values.timeframe,
         description: values.description.trim(),
         monthlyPrice: values.monthlyPrice,
         annualPrice: Math.round(values.monthlyPrice * 10),

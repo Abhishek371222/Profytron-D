@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       })();
     } else {
-      hydrate();
+      void hydrate().catch(() => undefined);
     }
   }, [hydrate, login, router]);
 

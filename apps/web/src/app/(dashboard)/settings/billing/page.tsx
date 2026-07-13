@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, CreditCard, History, Zap } from '@/components/ui/icons';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -11,6 +12,14 @@ import { RazorpaySubscriptionButton } from '@/components/payments/RazorpaySubscr
 import { formatInr } from '@/lib/pricing/plans';
 import { trackEvent, ACTIVATION_EVENTS } from '@/lib/analytics/track';
 import { SettingsSection } from '@/components/settings/SettingsUi';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import Link from 'next/link';
 
 function parseFeatures(features: SubscriptionPlan['features']): string[] {
@@ -23,6 +32,7 @@ export default function BillingPage() {
   const [billingCycle, setBillingCycle] = React.useState<'MONTHLY' | 'ANNUAL'>(
     'MONTHLY',
   );
+  const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
 
   const plansQuery = useQuery({
     queryKey: ['subscription-plans'],
@@ -43,6 +53,19 @@ export default function BillingPage() {
   const current = currentQuery.data;
   const activePlanId = current?.planId ?? current?.plan?.id;
   const activePlanName = current?.plan?.name;
+  const isCancelled = Boolean(current?.cancelledAt);
+
+  const cancelMutation = useMutation({
+    mutationFn: () => subscriptionsApi.cancel(),
+    onSuccess: () => {
+      toast.success('Subscription cancelled. You’ll keep access until your current period ends.');
+      setCancelDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['subscription-current'] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to cancel subscription');
+    },
+  });
 
   const refreshBilling = () => {
     void queryClient.invalidateQueries({ queryKey: ['subscription-current'] });
@@ -58,18 +81,31 @@ export default function BillingPage() {
         transition={{ duration: 0.35, ease: 'easeOut' }}
         className="space-y-6 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)]"
       >
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Zap className="w-6 h-6 text-primary" />
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Zap className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Billing & Plans</h1>
+              <p className="text-sm text-foreground/40">
+                {activePlanName
+                  ? isCancelled
+                    ? `${activePlanName} — cancelled, access continues until period end`
+                    : `Active plan: ${activePlanName}`
+                  : 'You are on the Free plan — upgrade for live copy trading'}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">Billing & Plans</h1>
-            <p className="text-sm text-foreground/40">
-              {activePlanName
-                ? `Active plan: ${activePlanName}`
-                : 'You are on the Free plan — upgrade for live copy trading'}
-            </p>
-          </div>
+          {activePlanName && !isCancelled && (
+            <button
+              type="button"
+              onClick={() => setCancelDialogOpen(true)}
+              className="shrink-0 text-xs font-semibold text-foreground/40 hover:text-destructive"
+            >
+              Cancel plan
+            </button>
+          )}
         </div>
 
         <div className="inline-flex rounded-full border border-border bg-foreground/5 p-1">
@@ -240,6 +276,29 @@ export default function BillingPage() {
           )}
         </div>
       </SettingsSection>
+
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel your subscription?</DialogTitle>
+            <DialogDescription>
+              You&apos;ll keep full access to {activePlanName} until your current billing period ends. After that, your account moves to the Free plan.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelDialogOpen(false)}>
+              Keep plan
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => cancelMutation.mutate()}
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending ? 'Cancelling...' : 'Cancel subscription'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

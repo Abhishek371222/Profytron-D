@@ -1,6 +1,7 @@
 import { apiClient } from './client';
 
 export type PlanType = 'MONTHLY' | 'ANNUAL' | 'LIFETIME';
+export type SubscriptionBillingModel = 'FIXED' | 'PROFIT_SHARE';
 
 export interface MarketplaceQueryParams {
   q?: string;
@@ -17,7 +18,8 @@ export interface MarketplaceQueryParams {
 }
 
 export interface SubscribeRequest {
-  planType: PlanType;
+  planType?: PlanType;
+  billingModel?: SubscriptionBillingModel;
   useTrial?: boolean;
 }
 

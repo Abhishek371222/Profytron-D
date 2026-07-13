@@ -17,8 +17,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const broker = findBroker(slug);
   if (!broker) return { title: 'Broker Setup' };
   return buildPageMetadata({
-    title: `Connect ${broker.displayName} to Profytron MT5 Copy Trading`,
-    description: `Step-by-step guide to connect ${broker.displayName} (${broker.platform}) with Profytron for automated copy trading. ${broker.description}`,
+    title: `Connect ${broker.displayName} to Profytron MT5 Bots`,
+    description: `Step-by-step guide to connect ${broker.displayName} (${broker.platform}) with Profytron for automated bot trading. ${broker.description}`,
     path: `/brokers/${slug}`,
     keywords: [
       `${broker.name} MT5 setup`,

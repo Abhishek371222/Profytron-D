@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "VpsProvider" ADD VALUE IF NOT EXISTS 'GCP';

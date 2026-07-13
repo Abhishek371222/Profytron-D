@@ -19,10 +19,16 @@ import {
 import { MemoryStick } from 'lucide-react';
 import { toast } from 'sonner';
 
-const PROVIDERS = ['AWS', 'DIGITALOCEAN', 'LINODE', 'VULTR'] as const;
+const PROVIDERS = ['GCP', 'AWS', 'DIGITALOCEAN', 'LINODE', 'VULTR'] as const;
 type Provider = (typeof PROVIDERS)[number];
 
+// Only GCP is actually wired to real provisioning right now (Google Compute
+// Engine). The others stay visible but disabled rather than removed — no
+// live integration exists for them yet.
+const CONNECTED_PROVIDERS: Provider[] = ['GCP'];
+
 const PROVIDER_LABELS: Record<Provider, string> = {
+  GCP: 'Google Cloud',
   AWS: 'Amazon Web Services',
   DIGITALOCEAN: 'DigitalOcean',
   LINODE: 'Linode / Akamai',
@@ -30,6 +36,7 @@ const PROVIDER_LABELS: Record<Provider, string> = {
 };
 
 const PROVIDER_COLORS: Record<Provider, string> = {
+  GCP: 'from-chart-2/10 to-primary/10 border-chart-2/15',
   AWS: 'from-chart-4/10 to-chart-1/10 border-chart-4/15',
   DIGITALOCEAN: 'from-primary/10 to-chart-5/10 border-primary/15',
   LINODE: 'from-chart-3/10 to-primary/10 border-chart-3/15',
@@ -275,7 +282,7 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
 
 function ProvisionModal({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
-  const [provider, setProvider] = React.useState<Provider>('DIGITALOCEAN');
+  const [provider, setProvider] = React.useState<Provider>('GCP');
   const [cpu, setCpu] = React.useState(2);
   const [ram, setRam] = React.useState(4);
 
@@ -317,21 +324,29 @@ function ProvisionModal({ onClose }: { onClose: () => void }) {
           <div>
             <label className="text-micro font-bold text-foreground/30 uppercase tracking-widest block mb-2">Cloud Provider</label>
             <div className="grid grid-cols-2 gap-2">
-              {PROVIDERS.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setProvider(p)}
-                  className={cn(
-                    'p-3 rounded-xl border text-left transition-all',
-                    provider === p
-                      ? 'bg-primary/10 border-primary/30 text-foreground'
-                      : 'bg-muted border-[var(--card-border)] text-foreground/40 hover:border-border hover:text-foreground/60',
-                  )}
-                >
-                  <p className="text-xs font-bold">{p}</p>
-                  <p className="text-micro text-foreground/25 mt-0.5">{PROVIDER_LABELS[p].split(' ')[0]}</p>
-                </button>
-              ))}
+              {PROVIDERS.map((p) => {
+                const connected = CONNECTED_PROVIDERS.includes(p);
+                return (
+                  <button
+                    key={p}
+                    onClick={() => connected && setProvider(p)}
+                    disabled={!connected}
+                    title={connected ? undefined : 'Not connected yet'}
+                    className={cn(
+                      'p-3 rounded-xl border text-left transition-all',
+                      !connected && 'opacity-40 cursor-not-allowed',
+                      connected && provider === p
+                        ? 'bg-primary/10 border-primary/30 text-foreground'
+                        : 'bg-muted border-[var(--card-border)] text-foreground/40 hover:border-border hover:text-foreground/60',
+                    )}
+                  >
+                    <p className="text-xs font-bold">{p}</p>
+                    <p className="text-micro text-foreground/25 mt-0.5">
+                      {connected ? PROVIDER_LABELS[p].split(' ')[0] : 'Coming soon'}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

@@ -62,7 +62,7 @@ const navGroups: NavGroup[] = [
       { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
       { name: "Markets", icon: LineChart, href: "/markets" },
       { name: "My Bots", icon: Server, href: "/my-bots" },
-      { name: "Copy Trading", icon: Copy, href: "/copy-trading" },
+      { name: "Get Bots", icon: Copy, href: "/get-bots" },
       { name: "Connected Accounts", icon: Unplug, href: "/connected-accounts" },
       { name: "Alpha Coach", icon: Target, href: "/alpha-coach" },
     ],

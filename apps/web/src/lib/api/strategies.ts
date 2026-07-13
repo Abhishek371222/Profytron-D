@@ -5,6 +5,8 @@ export interface Strategy {
   name: string;
   category: string;
   riskLevel: string;
+  assetClass?: string | null;
+  timeframe?: string | null;
   description: string;
   creatorId: string;
   creator: {

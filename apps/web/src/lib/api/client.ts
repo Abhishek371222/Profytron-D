@@ -106,6 +106,19 @@ async function postRefreshOnce() {
   );
 }
 
+function isMissingRefreshSessionError(error: unknown): boolean {
+  const axiosErr = error as AxiosError<{ code?: string; message?: string }>;
+  const status = axiosErr?.response?.status;
+  if (status !== 401 && status !== 403) return false;
+  const code = axiosErr?.response?.data?.code;
+  // No cookie / invalid JWT — not a rotation race worth retrying.
+  return (
+    code === 'INTERNAL_ERROR' ||
+    code === 'INVALID_REFRESH_SESSION' ||
+    !code
+  );
+}
+
 function isTransientRefreshFailure(error: unknown): boolean {
   const axiosErr = error as AxiosError;
   const status = axiosErr?.response?.status;
@@ -184,6 +197,15 @@ export function refreshSession(): Promise<string> {
       const status = (err as AxiosError)?.response?.status;
       const code = (err as AxiosError<{ code?: string }>)?.response?.data?.code;
 
+      // Cold start / logged out — no refresh cookie. Don't retry (avoids overlay noise).
+      if (
+        (status === 401 || status === 403) &&
+        !useAuthStore.getState().accessToken &&
+        isMissingRefreshSessionError(err)
+      ) {
+        throw err;
+      }
+
       // Another request won the cookie rotation — reuse its token if present.
       if (
         status === 401 &&
@@ -213,11 +235,15 @@ export function refreshSession(): Promise<string> {
   })();
 
   refreshPromise = pending;
-  void pending.finally(() => {
-    if (refreshPromise === pending) {
-      refreshPromise = null;
-    }
-  });
+  void pending
+    .finally(() => {
+      if (refreshPromise === pending) {
+        refreshPromise = null;
+      }
+    })
+    // Prevent unhandledRejection when hydrate/callers catch the same promise
+    // (void finally() re-rejects and Next.js flashes a runtime overlay).
+    .catch(() => undefined);
   return pending;
 }
 
@@ -258,10 +284,15 @@ function silentAuthReject(error: AxiosError) {
   const quiet = new Error(
     (error.response?.data as { message?: string })?.message ||
       'Session ended',
-  ) as Error & { isAxiosError?: boolean; silentAuth?: boolean };
+  ) as Error & {
+    isAxiosError?: boolean;
+    silentAuth?: boolean;
+    response?: AxiosError['response'];
+  };
   quiet.name = 'SessionEndedError';
   quiet.silentAuth = true;
   quiet.isAxiosError = false;
+  quiet.response = error.response;
   return Promise.reject(quiet);
 }
 
@@ -270,6 +301,15 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as any;
     const requestUrl = originalRequest?.url as string | undefined;
+
+    // Logged-out hydrate hits /auth/refresh with no cookie — expected 401.
+    // Reject quietly so Next.js does not flash a Runtime AxiosError overlay.
+    if (
+      (error.response?.status === 401 || error.response?.status === 403) &&
+      isAuthBootstrapEndpoint(requestUrl)
+    ) {
+      return silentAuthReject(error);
+    }
 
     if (error.response?.status === 401 && isSessionSupersededError(error)) {
       if (!originalRequest?._retry && !isAuthBootstrapEndpoint(requestUrl)) {

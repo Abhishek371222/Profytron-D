@@ -18,6 +18,8 @@ import { TradeDlqProcessor } from './trade-dlq.processor';
 import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
 import { BotTradeSyncService } from './bot-trade-sync.service';
 import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
+import { WalletModule } from '../wallet/wallet.module';
+import { ProfitShareService } from './profit-share.service';
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
     MarketModule,
     AiRiskModule,
     CopyBridgeModule,
+    WalletModule,
     BullModule.registerQueue(
       {
         name: 'trade_execution',
@@ -53,6 +56,7 @@ import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
     CopyLedgerService,
     CopyFactoryPositionSyncService,
     BotTradeSyncService,
+    ProfitShareService,
   ],
   exports: [
     TradingService,
@@ -62,6 +66,7 @@ import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
     MasterSyncService,
     TrailingStopService,
     BotTradeSyncService,
+    ProfitShareService,
   ],
 })
 export class TradingModule {}

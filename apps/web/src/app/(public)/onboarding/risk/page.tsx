@@ -127,7 +127,7 @@ export default function RiskOnboardingPage() {
       toast.success('Risk profile saved', {
         description: 'Next: connect a paper account or browse strategies.',
       });
-      router.push('/copy-trading?paper=1');
+      router.push('/get-bots?paper=1');
     } catch (error: unknown) {
       const axiosErr = error as {
         response?: { data?: { error?: string }; status?: number };

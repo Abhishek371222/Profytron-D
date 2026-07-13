@@ -12,6 +12,9 @@ import PDFDocument from 'pdfkit';
 import Stripe from 'stripe';
 import {
   Prisma,
+  ProfitShareState,
+  SubscriptionBillingModel,
+  SubscriptionStatus,
   TransactionDirection,
   TransactionStatus,
   TransactionType,
@@ -39,6 +42,8 @@ export class WalletService {
     @Inject(REDIS_CLIENT) private readonly redis: IORedis,
     @InjectQueue('withdrawal-processing')
     private readonly withdrawalQueue: Queue,
+    @InjectQueue('copyfactory_sync')
+    private readonly copyFactoryQueue: Queue,
     private readonly emailService: EmailService,
   ) {
     this.stripe = process.env.STRIPE_SECRET_KEY
@@ -279,7 +284,7 @@ export class WalletService {
     }
 
     const current = await this.getBalance(userId);
-    return this.prisma.walletTransaction.update({
+    const transaction = await this.prisma.walletTransaction.update({
       where: { id: existing.id },
       data: {
         status: 'CONFIRMED',
@@ -287,6 +292,36 @@ export class WalletService {
         description: 'Wallet deposit confirmed',
       },
     });
+    await this.reconcileProfitShareAutoResume(userId);
+    return transaction;
+  }
+
+  async previewWithdrawalImpact(userId: string, amount: number) {
+    if (!amount || amount <= 0) {
+      return {
+        willPauseProfitShareBots: false,
+        affectedSubscriptions: [],
+        remainingBalance: (await this.getBalance(userId)).available,
+      };
+    }
+
+    const balance = await this.getBalance(userId);
+    const remainingBalance = balance.available - amount;
+    const affectedSubscriptions =
+      await this.getProfitShareSubscriptionsBelowBuffer(
+        userId,
+        remainingBalance,
+      );
+
+    return {
+      willPauseProfitShareBots: affectedSubscriptions.length > 0,
+      affectedSubscriptions,
+      remainingBalance,
+      requiredBuffer: Math.max(
+        0,
+        ...affectedSubscriptions.map((sub) => sub.requiredBuffer),
+      ),
+    };
   }
 
   async initiateWithdrawal(userId: string, dto: InitiateWithdrawalDto) {
@@ -376,9 +411,15 @@ export class WalletService {
       { attempts: 3, backoff: { type: 'exponential', delay: 3000 } },
     );
 
+    const withdrawalImpact = await this.pauseProfitShareBelowBuffer(
+      userId,
+      transaction.balanceAfter,
+    );
+
     return {
       transaction: this.mapTransaction(transaction),
       estimatedArrival: '1-2 business days',
+      withdrawalImpact,
     };
   }
 
@@ -586,7 +627,7 @@ export class WalletService {
   }
 
   async createTransaction(userId: string, dto: CreateWalletTransactionDto) {
-    return this.prisma.$transaction(async (tx) => {
+    const transaction = await this.prisma.$transaction(async (tx) => {
       const existing = await tx.walletTransaction.findUnique({
         where: { idempotencyKey: dto.idempotencyKey },
       });
@@ -613,7 +654,7 @@ export class WalletService {
         metadata: (dto.metadataJson as Record<string, unknown> | undefined) ?? {},
       });
 
-      return tx.walletTransaction.create({
+      const transaction = await tx.walletTransaction.create({
         data: {
           userId,
           type: dto.type,
@@ -631,7 +672,132 @@ export class WalletService {
           } as Prisma.JsonObject,
         },
       });
+      return transaction;
     });
+    if (
+      transaction.direction === TransactionDirection.IN &&
+      transaction.status === TransactionStatus.CONFIRMED
+    ) {
+      await this.reconcileProfitShareAutoResume(userId);
+    }
+    return transaction;
+  }
+
+  private async getProfitShareSubscriptionsBelowBuffer(
+    userId: string,
+    remainingBalance: number,
+  ) {
+    const subscriptions = await this.prisma.userStrategySubscription.findMany({
+      where: {
+        userId,
+        status: SubscriptionStatus.ACTIVE,
+        billingModel: SubscriptionBillingModel.PROFIT_SHARE,
+        profitShareAccruedUnsettled: { gt: 0 },
+      },
+      select: {
+        id: true,
+        strategyId: true,
+        profitShareAccruedUnsettled: true,
+        strategy: { select: { name: true } },
+      },
+    });
+
+    return subscriptions
+      .filter(
+        (subscription) =>
+          (subscription.profitShareAccruedUnsettled ?? 0) >= remainingBalance,
+      )
+      .map((subscription) => ({
+        subscriptionId: subscription.id,
+        strategyId: subscription.strategyId,
+        botName: subscription.strategy.name,
+        requiredBuffer: subscription.profitShareAccruedUnsettled ?? 0,
+      }));
+  }
+
+  private async pauseProfitShareBelowBuffer(
+    userId: string,
+    remainingBalance: number,
+  ) {
+    const affectedSubscriptions =
+      await this.getProfitShareSubscriptionsBelowBuffer(
+        userId,
+        remainingBalance,
+      );
+
+    for (const subscription of affectedSubscriptions) {
+      await this.prisma.userStrategySubscription.update({
+        where: { id: subscription.subscriptionId },
+        data: {
+          status: SubscriptionStatus.PAUSED,
+          profitShareState: ProfitShareState.PROFIT_SHARE_PAUSED,
+        },
+      });
+      await this.enqueueCopyFactory('unlink', subscription.subscriptionId);
+    }
+
+    return {
+      willPauseProfitShareBots: affectedSubscriptions.length > 0,
+      affectedSubscriptions,
+      remainingBalance,
+    };
+  }
+
+  private async reconcileProfitShareAutoResume(userId: string) {
+    const balance = await this.getBalance(userId);
+    const subscriptions = await this.prisma.userStrategySubscription.findMany({
+      where: {
+        userId,
+        status: SubscriptionStatus.PAUSED,
+        billingModel: SubscriptionBillingModel.PROFIT_SHARE,
+        profitShareState: ProfitShareState.PROFIT_SHARE_PAUSED,
+        profitShareAccruedUnsettled: { not: null },
+      },
+      select: {
+        id: true,
+        profitShareAccruedUnsettled: true,
+      },
+    });
+
+    for (const subscription of subscriptions) {
+      const liability = subscription.profitShareAccruedUnsettled ?? 0;
+      if (liability >= balance.available) continue;
+
+      await this.prisma.userStrategySubscription.update({
+        where: { id: subscription.id },
+        data: {
+          status: SubscriptionStatus.ACTIVE,
+          profitShareState:
+            liability > 0
+              ? ProfitShareState.PROFIT_SHARE_DUE
+              : ProfitShareState.PROFIT_SHARE_OK,
+        },
+      });
+      await this.enqueueCopyFactory('link', subscription.id);
+    }
+  }
+
+  private async enqueueCopyFactory(
+    action: 'link' | 'unlink',
+    subscriptionId: string,
+  ) {
+    try {
+      await this.copyFactoryQueue.add(
+        'sync_copyfactory',
+        { action, subscriptionId },
+        {
+          jobId: `${action}:${subscriptionId}::`,
+          removeOnComplete: true,
+          removeOnFail: 50,
+          attempts: 4,
+          backoff: { type: 'exponential', delay: 5000 },
+        },
+      );
+    } catch (error) {
+      this.logger.warn(
+        `CopyFactory ${action} skipped for ${subscriptionId}: ${(error as Error).message}`,
+      );
+    }
   }
 
   verifyAndBuildStripeEvent(rawBody: Buffer, signature: string): any {

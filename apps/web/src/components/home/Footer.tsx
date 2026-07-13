@@ -18,7 +18,7 @@ const footerLinks = {
     { name: "Features", href: "/#features" },
     { name: "Strategy Marketplace", href: "/register" },
     { name: "Visual Builder", href: "/register" },
-    { name: "Copy Trading", href: "/register" },
+    { name: "Get Bots", href: "/register" },
     { name: "Pricing", href: "/#pricing" },
   ],
   Company: [

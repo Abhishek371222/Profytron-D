@@ -21,6 +21,7 @@ export type RiskPolicy = {
   maxDrawdownPct?: number | null;
   autoStopAfterLoss?: boolean;
   autoStopAfterWin?: boolean;
+  dailyWinTargetUsd?: number | null;
   riskPerTradePct?: number | null;
   maxOpenTrades?: number | null;
   minWinRate?: number | null;

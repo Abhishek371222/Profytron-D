@@ -69,6 +69,17 @@ export class AffiliatesController {
     return this.affiliatesService.getActivityChart(req.user.id, range);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'Top affiliates ranked by lifetime earnings' })
+  @Get('leaderboard')
+  async getLeaderboard(@Query('limit') limit?: string) {
+    return this.affiliatesService.getLeaderboard(
+      limit ? Number(limit) : undefined,
+    );
+  }
+
   @Public()
   @ApiResponse({ status: 201, description: 'Created' })
   @ApiResponse({ status: 404, description: 'Not found' })

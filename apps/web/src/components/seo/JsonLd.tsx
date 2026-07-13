@@ -128,7 +128,7 @@ function buildSchema(props: JsonLdProps): object | null {
           bestRating: '5',
         },
         featureList: [
-          'Copy Trading',
+          'Automated Trading Bots',
           'Alpha Coach',
           'Strategy Marketplace',
           'MT4/MT5 Integration',

@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { Star } from 'lucide-react';
-import { marketplaceApi } from '@/lib/api/marketplace';
+import { marketplaceApi, SubscriptionBillingModel } from '@/lib/api/marketplace';
 import {
   DashboardPage,
   DashboardBreadcrumbs,
@@ -92,6 +92,7 @@ export default function MarketplaceStrategyDetailPage() {
   const [rating, setRating] = React.useState(5);
   const [reviewText, setReviewText] = React.useState('');
   const [subscribeOpen, setSubscribeOpen] = React.useState(false);
+  const [billingModel, setBillingModel] = React.useState<SubscriptionBillingModel>('FIXED');
 
   const strategyQuery = useQuery({
     queryKey: ['marketplace-strategy', strategyId],
@@ -237,8 +238,8 @@ export default function MarketplaceStrategyDetailPage() {
         description={displayDescription}
         actions={
           <div className="flex flex-wrap items-center gap-2">
-            <Link href="/copy-trading">
-              <DashButton variant="outline">Copy Trading</DashButton>
+            <Link href="/get-bots">
+              <DashButton variant="outline">Get Bots</DashButton>
             </Link>
             <Link href="/my-bots">
               <DashButton variant="outline">My Bots</DashButton>
@@ -254,15 +255,30 @@ export default function MarketplaceStrategyDetailPage() {
         <div>
           <p className="text-sm font-semibold text-foreground">Ready to copy this strategy?</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Subscribe to activate it on your MT5, then manage copy settings under Copy Trading.
+            Buy a fixed subscription or use profit sharing to activate it on your MT5.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <DashButton variant="primary" onClick={() => setSubscribeOpen(true)}>
-            Subscribe / Activate
+          <DashButton
+            variant="primary"
+            onClick={() => {
+              setBillingModel('FIXED');
+              setSubscribeOpen(true);
+            }}
+          >
+            Buy Subscription
           </DashButton>
-          <Link href="/copy-trading">
-            <DashButton variant="outline">Open Copy Trading</DashButton>
+          <DashButton
+            variant="outline"
+            onClick={() => {
+              setBillingModel('PROFIT_SHARE');
+              setSubscribeOpen(true);
+            }}
+          >
+            Get Profit Sharing · ₹149
+          </DashButton>
+          <Link href="/get-bots">
+            <DashButton variant="outline">Open Get Bots</DashButton>
           </Link>
         </div>
       </DashboardCard>
@@ -508,6 +524,7 @@ export default function MarketplaceStrategyDetailPage() {
           category: strategy.category,
         }}
         isOpen={subscribeOpen}
+        initialBillingModel={billingModel}
         onClose={() => setSubscribeOpen(false)}
       />
     </DashboardPage>

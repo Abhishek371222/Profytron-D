@@ -14,7 +14,12 @@ import {
   SubscribeStrategyDto,
   UpdateSubscriptionRiskDto,
 } from './dto/marketplace.dto';
-import { Prisma, SubscriptionStatus, TradeStatus } from '@prisma/client';
+import {
+  Prisma,
+  SubscriptionBillingModel,
+  SubscriptionStatus,
+  TradeStatus,
+} from '@prisma/client';
 import { getTierLimits } from '../../common/constants/pricing.constants';
 import { buildStrategyAnalytics } from './strategy-analytics.builder';
 import {
@@ -34,6 +39,8 @@ import { StrategyDocumentsService } from './strategy-documents.service';
 const FEATURED_TTL = 60;
 const LISTINGS_TTL = 30;
 const STRATEGY_ANALYTICS_TTL = 60;
+const DEFAULT_PROFIT_SHARE_UPFRONT_FEE_INR = 149;
+const DEFAULT_PROFIT_SHARE_PCT = 30;
 
 @Injectable()
 export class MarketplaceService {
@@ -73,6 +80,8 @@ export class MarketplaceService {
       verified: query.verified ?? null,
       category: query.category ?? null,
       riskLevel: query.riskLevel ?? null,
+      assetClass: query.assetClass ?? null,
+      timeframe: query.timeframe ?? null,
       q: query.q ?? null,
       cursor: query.cursor ?? null,
       limit: query.limit ?? null,
@@ -98,6 +107,12 @@ export class MarketplaceService {
     }
     if (query.riskLevel) {
       where.strategy.riskLevel = query.riskLevel;
+    }
+    if (query.assetClass) {
+      where.strategy.assetClass = query.assetClass;
+    }
+    if (query.timeframe) {
+      where.strategy.timeframe = query.timeframe;
     }
     if (query.q) {
       where.strategy.OR = [
@@ -580,13 +595,17 @@ export class MarketplaceService {
       );
     }
 
-    const planType = dto.planType;
+    const billingModel =
+      dto.billingModel ?? SubscriptionBillingModel.FIXED;
+    const isProfitShare =
+      billingModel === SubscriptionBillingModel.PROFIT_SHARE;
+    const planType = dto.planType ?? 'MONTHLY';
     const isFree =
       listing.monthlyPrice <= 0 &&
       listing.annualPrice <= 0 &&
       listing.lifetimePrice <= 0;
 
-    if (!isFree) {
+    if (!isFree && !isProfitShare) {
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
         select: { subscriptionTier: true },
@@ -598,7 +617,7 @@ export class MarketplaceService {
       }
     }
 
-    if (isFree) {
+    if (isFree && !isProfitShare) {
       const subscription = await this.prisma.userStrategySubscription.upsert({
         where: { userId_strategyId: { userId, strategyId } },
         create: {
@@ -649,6 +668,7 @@ export class MarketplaceService {
     }
 
     if (
+      !isProfitShare &&
       dto.useTrial &&
       listing.trialDays > 0 &&
       planType !== 'LIFETIME' &&
@@ -710,8 +730,13 @@ export class MarketplaceService {
       };
     }
 
-    const amount =
-      planType === 'ANNUAL'
+    const profitShareUpfrontFee = Number(
+      process.env.PROFIT_SHARE_UPFRONT_FEE_INR ??
+        DEFAULT_PROFIT_SHARE_UPFRONT_FEE_INR,
+    );
+    const amount = isProfitShare
+      ? profitShareUpfrontFee
+      : planType === 'ANNUAL'
         ? listing.annualPrice
         : planType === 'LIFETIME'
           ? listing.lifetimePrice
@@ -731,12 +756,16 @@ export class MarketplaceService {
         userId,
         amountPaise,
         'INR',
-        `bot_${strategyId.slice(0, 8)}`,
+        isProfitShare
+          ? `ps_${strategyId.slice(0, 8)}`
+          : `bot_${strategyId.slice(0, 8)}`,
         {
           type: 'marketplace_subscription',
           strategyId,
           planType,
           userId,
+          billingModel,
+          profitSharePct: String(DEFAULT_PROFIT_SHARE_PCT),
         },
       );
       return {
@@ -756,7 +785,8 @@ export class MarketplaceService {
       );
     }
 
-    const mode = planType === 'LIFETIME' ? 'payment' : 'subscription';
+    const mode =
+      isProfitShare || planType === 'LIFETIME' ? 'payment' : 'subscription';
     const session = await this.stripe.checkout.sessions.create({
       mode,
       payment_method_types: ['card'],
@@ -767,10 +797,12 @@ export class MarketplaceService {
             currency: (process.env.STRIPE_CURRENCY || 'inr').toLowerCase(),
             product_data: {
               name: listing.strategy.name,
-              description: `${planType} access to ${listing.strategy.name}`,
+              description: isProfitShare
+                ? `Profit-share wallet funding for ${listing.strategy.name}`
+                : `${planType} access to ${listing.strategy.name}`,
             },
             unit_amount: Math.round(amount * 100),
-            ...(planType === 'LIFETIME'
+            ...(isProfitShare || planType === 'LIFETIME'
               ? {}
               : {
                   recurring: {
@@ -786,6 +818,8 @@ export class MarketplaceService {
         userId,
         strategyId,
         planType,
+        billingModel,
+        profitSharePct: String(DEFAULT_PROFIT_SHARE_PCT),
       },
       customer_creation: 'always',
     });

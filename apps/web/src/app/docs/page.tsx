@@ -15,14 +15,14 @@ import Link from 'next/link';
 const quickstart = [
   { step: '01', title: 'Create an Account', desc: 'Register with your institutional email and complete identity verification.', link: '/register' },
   { step: '02', title: 'Configure API Keys', desc: 'Generate your API key from the dashboard Settings → Developer panel.', link: '/dashboard' },
-  { step: '03', title: 'Connect a Broker', desc: 'Link your broker via the supported FIX/REST adapters in the Connections module.', link: '/copy-trading' },
+  { step: '03', title: 'Connect a Broker', desc: 'Link your broker via the supported FIX/REST adapters in the Connections module.', link: '/get-bots' },
   { step: '04', title: 'Deploy Your First Strategy', desc: 'Use the Visual Builder or submit a strategy via the REST API and go live.', link: '/strategies/builder' },
 ];
 
 const guides = [
-  { icon: Zap, title: 'Copy Trading Setup', href: '/docs#copy-trading', desc: 'Connect MT5 and subscribe to verified strategies in minutes.' },
+  { icon: Zap, title: 'Get Bots Setup', href: '/docs#get-bots', desc: 'Connect MT5 and buy verified bots in minutes.' },
   { icon: Cpu, title: 'AI Risk Engine', href: '/analytics/risk', desc: 'Drawdown limits, kill-switches, and position size rules.' },
-  { icon: Shield, title: 'Broker Connect', href: '/copy-trading', desc: 'Link paper or live MT4/MT5 accounts from 20+ brokers.' },
+  { icon: Shield, title: 'Broker Connect', href: '/get-bots', desc: 'Link paper or live MT4/MT5 accounts from 20+ brokers.' },
   { icon: Activity, title: 'Marketplace Strategies', href: '/marketplace', desc: 'Browse verified track records before you subscribe.' },
   { icon: Code2, title: 'REST API Reference', href: '/api-reference', desc: 'Full endpoint documentation, auth, rate limits, and code samples.' },
   { icon: Terminal, title: 'Broker Setup Guides', href: '/brokers/ic-markets', desc: 'Step-by-step MT5 server setup for popular brokers.' },
@@ -109,7 +109,7 @@ const data = await response.json();`}</code>
           </div>
       </MarketingBand>
 
-      <MarketingSection id="copy-trading">
+      <MarketingSection id="get-bots">
           <h2 className="brand-display-heading mb-8 text-2xl sm:text-3xl">Core Guides</h2>
           <MarketingGrid cols={3}>
             {guides.map((g, i) => (

@@ -15,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Button } from "@/components/ui/button";
+import type { SubscriptionBillingModel } from "@/lib/api/marketplace";
 
 export interface FeaturedStrategyItem {
   id: string;
@@ -36,7 +37,7 @@ export interface FeaturedStrategyItem {
 
 interface FeaturedRowProps {
   strategies?: FeaturedStrategyItem[];
-  onSubscribe?: (strategy: FeaturedStrategyItem) => void;
+  onSubscribe?: (strategy: FeaturedStrategyItem, billingModel?: SubscriptionBillingModel) => void;
 }
 
 function riskScore(risk?: string) {
@@ -183,15 +184,25 @@ export function FeaturedRow({ strategies = [], onSubscribe }: FeaturedRowProps) 
                       {price > 0 ? `₹${price.toLocaleString('en-IN')}` : "FREE"}
                     </p>
                   </div>
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    className="btn-premium group/btn uppercase tracking-[0.1em]"
-                    onClick={() => onSubscribe?.(strategy)}
-                  >
-                    Deploy
-                    <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/btn:translate-x-1" />
-                  </Button>
+                  <div className="flex flex-col gap-2 sm:min-w-[190px]">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="btn-premium group/btn uppercase tracking-[0.1em]"
+                      onClick={() => onSubscribe?.(strategy, 'FIXED')}
+                    >
+                      Buy Subscription
+                      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/btn:translate-x-1" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="uppercase tracking-[0.1em]"
+                      onClick={() => onSubscribe?.(strategy, 'PROFIT_SHARE')}
+                    >
+                      Get Profit Sharing · ₹149
+                    </Button>
+                  </div>
                 </div>
               </div>
             </motion.article>

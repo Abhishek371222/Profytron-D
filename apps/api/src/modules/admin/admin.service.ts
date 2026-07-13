@@ -13,6 +13,8 @@ import {
   Prisma,
   RiskLevel,
   StrategyCategory,
+  AssetClass,
+  Timeframe,
   UserRole,
   VerificationStatus,
   SubscriptionTier,
@@ -655,6 +657,8 @@ export class AdminService {
       description: string;
       category: StrategyCategory;
       riskLevel: RiskLevel;
+      assetClass?: AssetClass;
+      timeframe?: Timeframe;
       configJson: Prisma.InputJsonValue;
       monthlyPrice?: number;
       annualPrice?: number;
@@ -697,6 +701,8 @@ export class AdminService {
           description: input.description,
           category: input.category,
           riskLevel: input.riskLevel,
+          assetClass: input.assetClass ?? null,
+          timeframe: input.timeframe ?? null,
           configJson: input.configJson,
           monthlyPrice: normalizedPrices.monthlyPrice,
           annualPrice: normalizedPrices.annualPrice,
@@ -762,6 +768,8 @@ export class AdminService {
       description?: string;
       category?: StrategyCategory;
       riskLevel?: RiskLevel;
+      assetClass?: AssetClass;
+      timeframe?: Timeframe;
       configJson?: Prisma.InputJsonValue;
       monthlyPrice?: number;
       annualPrice?: number;
@@ -811,6 +819,8 @@ export class AdminService {
           description: input.description,
           category: input.category,
           riskLevel: input.riskLevel,
+          assetClass: input.assetClass,
+          timeframe: input.timeframe,
           configJson: input.configJson,
           monthlyPrice: input.monthlyPrice,
           annualPrice: input.annualPrice,
@@ -922,8 +932,8 @@ export class AdminService {
       );
     }
 
-    const newStatus = approve ? 'VERIFIED' : 'NOT_STARTED';
-    const docStatus = approve ? 'VERIFIED' : 'NOT_STARTED';
+    const newStatus = approve ? 'VERIFIED' : 'REJECTED';
+    const docStatus = approve ? 'VERIFIED' : 'REJECTED';
 
     await this.prisma.$transaction(async (tx) => {
       await tx.user.update({
@@ -933,7 +943,7 @@ export class AdminService {
 
       await tx.kycDocument.updateMany({
         where: { userId, status: 'PENDING' },
-        data: { status: docStatus },
+        data: { status: docStatus, notes: notes ?? null, reviewedAt: new Date() },
       });
 
       await tx.auditLog.create({

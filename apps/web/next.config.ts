@@ -74,7 +74,7 @@ const nextConfig: NextConfig = {
     return [
       { source: '/documentation', destination: '/docs', permanent: true },
       { source: '/press', destination: '/', permanent: true },
-      // Keep /copy-trading as its own page (do not send users to My Bots).
+      { source: '/copy-trading', destination: '/get-bots', permanent: false },
     ];
   },
 

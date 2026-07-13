@@ -67,6 +67,24 @@ enum RiskLevel {
   EXPERT
 }
 
+enum AssetClass {
+  Forex
+  Crypto
+  Indices
+  Commodities
+  Stocks
+}
+
+enum Timeframe {
+  M1
+  M3
+  M5
+  M15
+  H1
+  H4
+  D1
+}
+
 enum VerificationStatus {
   UNVERIFIED
   PENDING
@@ -81,6 +99,19 @@ enum SubscriptionStatus {
   CANCELLED
   EXPIRED
   PAUSED
+  BLOCKED
+}
+
+enum SubscriptionBillingModel {
+  FIXED
+  PROFIT_SHARE
+}
+
+enum ProfitShareState {
+  PROFIT_SHARE_OK
+  PROFIT_SHARE_DUE
+  PROFIT_SHARE_PAUSED
+  PROFIT_SHARE_SETTLING
 }
 
 enum TradeDirection {
@@ -101,6 +132,15 @@ enum TransactionType {
   TRADING_PNL
   COMMISSION
   MARKETPLACE_SALE
+  PROFIT_SHARE_DEBIT
+  PROFIT_SHARE_LOSS_CREDIT
+}
+
+enum ProfitShareLedgerStatus {
+  PENDING
+  COLLECTED
+  CREDITED
+  WRITTEN_OFF
 }
 
 enum TransactionDirection {
@@ -184,6 +224,7 @@ enum VpsProvider {
   DIGITALOCEAN
   LINODE
   VULTR
+  GCP
   CUSTOM
 }
 
@@ -221,50 +262,50 @@ model User {
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 
-  brokerAccounts     BrokerAccount[]
-  createdStrategies  Strategy[]                 @relation("CreatedStrategies")
-  subscriptions      UserStrategySubscription[]
-  trades             Trade[]
-  walletTransactions WalletTransaction[]
-  achievements       UserAchievement[]
-  notifications             Notification[]
-  notificationPreference    NotificationPreference?
-  affiliateRecord           Affiliate?             @relation("UserAffiliate")
-  referrals          Affiliate[]                @relation("ReferrerAffiliate")
-  affiliateFunnelEventsAsReferrer AffiliateFunnelEvent[] @relation("AffiliateFunnelReferrer")
-  affiliateFunnelEventsAsReferee  AffiliateFunnelEvent[] @relation("AffiliateFunnelReferee")
-  reviews            StrategyReview[]
-  auditLogs          AuditLog[]
-  kycDocuments       KycDocument[]
-  sessions           UserSession[]
-  fcmTokens          UserFcmToken[]
-  leaderboardEntries LeaderboardEntry[]
+  brokerAccounts                  BrokerAccount[]
+  createdStrategies               Strategy[]                 @relation("CreatedStrategies")
+  subscriptions                   UserStrategySubscription[]
+  trades                          Trade[]
+  walletTransactions              WalletTransaction[]
+  achievements                    UserAchievement[]
+  notifications                   Notification[]
+  notificationPreference          NotificationPreference?
+  affiliateRecord                 Affiliate?                 @relation("UserAffiliate")
+  referrals                       Affiliate[]                @relation("ReferrerAffiliate")
+  affiliateFunnelEventsAsReferrer AffiliateFunnelEvent[]     @relation("AffiliateFunnelReferrer")
+  affiliateFunnelEventsAsReferee  AffiliateFunnelEvent[]     @relation("AffiliateFunnelReferee")
+  reviews                         StrategyReview[]
+  auditLogs                       AuditLog[]
+  kycDocuments                    KycDocument[]
+  sessions                        UserSession[]
+  fcmTokens                       UserFcmToken[]
+  leaderboardEntries              LeaderboardEntry[]
 
   twoFactorEnabled     Boolean @default(false)
   twoFactorSecret      String?
   twoFactorBackupCodes Json?
 
-  payments              Payment[]
-  invoices              Invoice[]
-  paidSubscriptions     UserSubscription[]
-  traderProfile         TraderProfile?
-  socialComments        SocialComment[]
-  supportTickets        SupportTicket[]
-  supportResponses      SupportTicketResponse[]
-  strategyBuilders      StrategyBuilder[]
-  vpsAccounts           VpsAccount[]
-  aiRiskPolicy          AiRiskPolicy?
-  userPreferences       UserPreference?
-  brokerCredentials     BrokerApiCredential[]
-  tradeJournalEntries   TradeJournalEntry[]
-  apiKeys               ApiKey[]
-  activationEvents      UserActivationEvent[]
-  masterProfile         MasterProfile?
-  followerRelationships CopyRelationship[]      @relation("FollowerRelationships")
-  coachConversations    CoachConversation[]
-  coachMessagesSent     CoachMessage[]          @relation("CoachMessageSender")
-  coachEscalations      CoachEscalation[]       @relation("CoachEscalationUser")
-  coachEscalationsClaimed CoachEscalation[]     @relation("CoachEscalationClaimedBy")
+  payments                Payment[]
+  invoices                Invoice[]
+  paidSubscriptions       UserSubscription[]
+  traderProfile           TraderProfile?
+  socialComments          SocialComment[]
+  supportTickets          SupportTicket[]
+  supportResponses        SupportTicketResponse[]
+  strategyBuilders        StrategyBuilder[]
+  vpsAccounts             VpsAccount[]
+  aiRiskPolicy            AiRiskPolicy?
+  userPreferences         UserPreference?
+  brokerCredentials       BrokerApiCredential[]
+  tradeJournalEntries     TradeJournalEntry[]
+  apiKeys                 ApiKey[]
+  activationEvents        UserActivationEvent[]
+  masterProfile           MasterProfile?
+  followerRelationships   CopyRelationship[]      @relation("FollowerRelationships")
+  coachConversations      CoachConversation[]
+  coachMessagesSent       CoachMessage[]          @relation("CoachMessageSender")
+  coachEscalations        CoachEscalation[]       @relation("CoachEscalationUser")
+  coachEscalationsClaimed CoachEscalation[]       @relation("CoachEscalationClaimedBy")
 
   @@index([email])
   @@index([referralCode])
@@ -337,6 +378,8 @@ model Strategy {
   description           String             @db.Text
   category              StrategyCategory
   riskLevel             RiskLevel
+  assetClass            AssetClass?
+  timeframe             Timeframe?
   configJson            Json
   isPublished           Boolean            @default(false)
   verificationStatus    VerificationStatus @default(UNVERIFIED)
@@ -393,38 +436,48 @@ model StrategyPerformance {
 }
 
 model UserStrategySubscription {
-  id                   String             @id @default(uuid())
-  userId               String
-  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  strategyId           String
-  strategy             Strategy           @relation(fields: [strategyId], references: [id], onDelete: Cascade)
-  brokerAccountId      String?
-  brokerAccount        BrokerAccount?     @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
-  status               SubscriptionStatus @default(INACTIVE)
-  provisioningJob      ProvisioningJob?
-  planType             String?
-  stripeSubId          String?
-  stripeItemId         String?
-  trialEndsAt          DateTime?
-  subscribedAt         DateTime           @default(now())
-  expiresAt            DateTime?
-  cancelledAt          DateTime?
-  riskOverrideEnabled  Boolean            @default(false)
-  maxDrawdownPct       Float?
-  excludedSymbolsJson  Json?
-  slippageBps          Float              @default(0)
-  executionPriority    Int                @default(0)
-  latencyLimitMs       Int?
-  lastLatencyMs        Int?
-  lastExecutionAt      DateTime?
-  riskPolicyJson       Json?
-  executionProfileJson Json?
-  lotMultiplier        Float              @default(1.0)
+  id                          String                   @id @default(uuid())
+  userId                      String
+  user                        User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  strategyId                  String
+  strategy                    Strategy                 @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  brokerAccountId             String?
+  brokerAccount               BrokerAccount?           @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
+  status                      SubscriptionStatus       @default(INACTIVE)
+  provisioningJob             ProvisioningJob?
+  planType                    String?
+  billingModel                SubscriptionBillingModel @default(FIXED)
+  profitSharePct              Float?
+  equityBaselineAtSubscribe   Float?
+  profitShareAccruedUnsettled Float?
+  profitShareState            ProfitShareState?
+  lastProfitCheckAt           DateTime?
+  lastProfitPingAt            DateTime?
+  stripeSubId                 String?
+  stripeItemId                String?
+  trialEndsAt                 DateTime?
+  subscribedAt                DateTime                 @default(now())
+  expiresAt                   DateTime?
+  cancelledAt                 DateTime?
+  riskOverrideEnabled         Boolean                  @default(false)
+  maxDrawdownPct              Float?
+  excludedSymbolsJson         Json?
+  slippageBps                 Float                    @default(0)
+  executionPriority           Int                      @default(0)
+  latencyLimitMs              Int?
+  lastLatencyMs               Int?
+  lastExecutionAt             DateTime?
+  riskPolicyJson              Json?
+  executionProfileJson        Json?
+  lotMultiplier               Float                    @default(1.0)
+  profitShareLedgerEntries    ProfitShareLedgerEntry[]
 
   @@unique([userId, strategyId])
   @@index([userId, status])
   @@index([strategyId])
   @@index([expiresAt])
+  @@index([billingModel, status])
+  @@index([profitShareState])
 }
 
 model Trade {
@@ -474,39 +527,62 @@ model Trade {
 }
 
 model WalletTransaction {
-  id               String               @id @default(uuid())
-  userId           String
-  user             User                 @relation(fields: [userId], references: [id])
-  type             TransactionType
-  direction        TransactionDirection
-  amount           Float
-  balanceAfter     Float
-  status           TransactionStatus    @default(PENDING)
+  id                       String                   @id @default(uuid())
+  userId                   String
+  user                     User                     @relation(fields: [userId], references: [id])
+  type                     TransactionType
+  direction                TransactionDirection
+  amount                   Float
+  balanceAfter             Float
+  status                   TransactionStatus        @default(PENDING)
   /// Canonical support ID: PRF-WLT-YYYYMMDD-XXXXXXXX — unique, immutable after create
-  billingId        String               @unique
+  billingId                String                   @unique
   /// Human-readable payment category captured at transaction time
-  paymentCategory  String?
+  paymentCategory          String?
   /// Payer / sending account address (user or company)
-  senderAddress    String?
+  senderAddress            String?
   /// Payee / receiving account address (user or company)
-  receiverAddress  String?
+  receiverAddress          String?
   /// Gateway / bank transaction reference when available
-  externalTxnId    String?
-  reference        String?
-  idempotencyKey   String               @unique
-  description      String?
-  metadataJson     Json?
-  stripePaymentId  String?
-  razorpayOrderId  String?
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
-  supportTickets   SupportTicket[]
+  externalTxnId            String?
+  reference                String?
+  idempotencyKey           String                   @unique
+  description              String?
+  metadataJson             Json?
+  stripePaymentId          String?
+  razorpayOrderId          String?
+  createdAt                DateTime                 @default(now())
+  updatedAt                DateTime                 @updatedAt
+  supportTickets           SupportTicket[]
+  profitShareLedgerEntries ProfitShareLedgerEntry[]
 
   @@index([userId, createdAt])
   @@index([status])
   @@index([idempotencyKey])
   @@index([billingId])
   @@index([externalTxnId])
+}
+
+model ProfitShareLedgerEntry {
+  id                  String                   @id @default(uuid())
+  subscriptionId      String
+  subscription        UserStrategySubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  periodStart         DateTime                 @db.Date
+  periodEnd           DateTime                 @db.Date
+  netPnl              Float
+  companySharePct     Float
+  companyShareAmount  Float
+  status              ProfitShareLedgerStatus  @default(PENDING)
+  settledAt           DateTime?
+  walletTransactionId String?
+  walletTransaction   WalletTransaction?       @relation(fields: [walletTransactionId], references: [id], onDelete: SetNull)
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  @@unique([subscriptionId, periodStart, periodEnd])
+  @@index([subscriptionId, periodEnd])
+  @@index([status, periodEnd])
+  @@index([walletTransactionId])
 }
 
 model MarketplaceListing {
@@ -600,23 +676,23 @@ model Notification {
 }
 
 model NotificationPreference {
-  id               String   @id @default(uuid())
-  userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  inAppEnabled     Boolean  @default(true)
-  emailEnabled     Boolean  @default(true)
-  pushEnabled      Boolean  @default(true)
-  securityAlerts   Boolean  @default(true)
-  tradingAlerts    Boolean  @default(true)
-  paymentAlerts    Boolean  @default(true)
-  systemAlerts     Boolean  @default(true)
-  marketingAlerts  Boolean  @default(false)
-  accountAlerts    Boolean  @default(true)
-  quietHoursEnabled Boolean @default(false)
-  quietHoursStart  String   @default("22:00")
-  quietHoursEnd    String   @default("07:00")
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  inAppEnabled      Boolean  @default(true)
+  emailEnabled      Boolean  @default(true)
+  pushEnabled       Boolean  @default(true)
+  securityAlerts    Boolean  @default(true)
+  tradingAlerts     Boolean  @default(true)
+  paymentAlerts     Boolean  @default(true)
+  systemAlerts      Boolean  @default(true)
+  marketingAlerts   Boolean  @default(false)
+  accountAlerts     Boolean  @default(true)
+  quietHoursEnabled Boolean  @default(false)
+  quietHoursStart   String   @default("22:00")
+  quietHoursEnd     String   @default("07:00")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model NotificationLog {
@@ -1014,6 +1090,7 @@ model AiRiskPolicy {
   maxDrawdownPct    Float?
   autoStopAfterLoss Boolean  @default(false)
   autoStopAfterWin  Boolean  @default(false)
+  dailyWinTargetUsd Float?
   riskPerTradePct   Float    @default(1.0)
   maxOpenTrades     Int      @default(10)
   minWinRate        Float?
@@ -1368,27 +1445,27 @@ model TradeExecution {
 
 /// Live copy signals for user MT5 terminals (bridge EA) — no MetaApi seat required.
 model CopyBridgeOrder {
-  id               String    @id @default(uuid())
+  id               String        @id @default(uuid())
   userId           String
   brokerAccountId  String
   brokerAccount    BrokerAccount @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
   subscriptionId   String?
   followerTradeId  String?
   masterPositionId String?
-  action           String    // OPEN | CLOSE | MODIFY
+  action           String // OPEN | CLOSE | MODIFY
   symbol           String
-  side             String?   // BUY | SELL
+  side             String? // BUY | SELL
   volume           Float
   price            Float?
   stopLoss         Float?
   takeProfit       Float?
-  status           String    @default("PENDING") // PENDING | CLAIMED | FILLED | FAILED | CANCELLED
+  status           String        @default("PENDING") // PENDING | CLAIMED | FILLED | FAILED | CANCELLED
   brokerTicket     String?
-  errorReason      String?   @db.Text
+  errorReason      String?       @db.Text
   claimedAt        DateTime?
   filledAt         DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   @@index([brokerAccountId, status])
   @@index([userId, status])
@@ -1486,13 +1563,13 @@ enum CoachEscalationStatus {
 }
 
 model CoachConversation {
-  id        String                   @id @default(uuid())
+  id        String                  @id @default(uuid())
   userId    String
-  user      User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title     String                   @default("New coaching session")
-  status    CoachConversationStatus  @default(ACTIVE)
-  createdAt DateTime                 @default(now())
-  updatedAt DateTime                 @updatedAt
+  user      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String                  @default("New coaching session")
+  status    CoachConversationStatus @default(ACTIVE)
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
 
   messages    CoachMessage[]
   escalations CoachEscalation[]

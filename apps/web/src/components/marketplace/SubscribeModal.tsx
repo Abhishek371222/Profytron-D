@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, X, Sparkles, Zap, Calendar, Infinity as InfinityIcon, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { marketplaceApi, PlanType } from '@/lib/api/marketplace';
+import { marketplaceApi, PlanType, SubscriptionBillingModel } from '@/lib/api/marketplace';
 import { razorpayApi } from '@/lib/api/razorpay';
 import { openRazorpayCheckout } from '@/lib/razorpay/load-checkout';
 import { toast } from 'sonner';
@@ -17,6 +17,7 @@ interface SubscribeModalProps {
   strategy: any;
   isOpen: boolean;
   onClose: () => void;
+  initialBillingModel?: SubscriptionBillingModel;
 }
 
 /** Marketplace prices are stored in INR — display as rupees, no USD conversion. */
@@ -37,10 +38,13 @@ const ACCENT_STYLES: Record<string, { border: string; bg: string; ring: string; 
   violet: { border: 'border-chart-2/50', bg: 'bg-chart-2/[0.08]', ring: 'ring-chart-2/30', text: 'text-chart-2', dot: 'bg-chart-2' },
 };
 
-export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProps) {
+const PROFIT_SHARE_UPFRONT_FEE = 149;
+
+export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel = 'FIXED' }: SubscribeModalProps) {
   const user = useAuthStore((s) => s.user);
   const [step, setStep] = React.useState<1 | 2>(1);
   const [planType, setPlanType] = React.useState<PlanType>('ANNUAL');
+  const [billingModel, setBillingModel] = React.useState<SubscriptionBillingModel>(initialBillingModel);
   const [useTrial, setUseTrial] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
@@ -50,12 +54,13 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
     if (isOpen) {
       setStep(1);
       setPlanType('ANNUAL');
+      setBillingModel(initialBillingModel);
       setUseTrial(false);
       setIsSubmitting(false);
       setShowSuccess(false);
       setIsProvisioning(false);
     }
-  }, [isOpen]);
+  }, [isOpen, initialBillingModel]);
 
   if (!strategy) return null;
 
@@ -67,6 +72,8 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
         : Number(strategy.lifetimePrice ?? strategy.price ?? 0);
 
   const planPrice = priceFor(planType);
+  const isProfitShare = billingModel === 'PROFIT_SHARE';
+  const checkoutAmount = isProfitShare ? PROFIT_SHARE_UPFRONT_FEE : planPrice;
 
   const handleRazorpayCheckout = async (response: {
     orderId: string;
@@ -137,7 +144,11 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
   const submit = async () => {
     setIsSubmitting(true);
     try {
-      const response = await marketplaceApi.subscribe(strategy.id, { planType, useTrial });
+      const response = await marketplaceApi.subscribe(strategy.id, {
+        planType,
+        billingModel,
+        useTrial: isProfitShare ? false : useTrial,
+      });
 
       if (!response.requiresPayment) {
         setIsProvisioning(Boolean(response.provisioning));
@@ -285,13 +296,13 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                     <div className="flex-1 min-w-0">
                       <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/15 border border-primary/25 text-micro font-bold uppercase tracking-[0.22em] text-primary mb-2.5">
                         <Sparkles className="w-2.5 h-2.5" />
-                        Subscribe
+                        Choose billing
                       </div>
                       <h3 className="text-2xl font-bold text-foreground tracking-tight leading-tight truncate">
                         {formatBotName(strategy.name)}
                       </h3>
                       <p className="mt-1 text-xs text-foreground/40 font-bold uppercase tracking-[0.18em]">
-                        Step {step} of 2 — {step === 1 ? 'Choose plan' : 'Confirm'}
+                        Step {step} of 2 — {step === 1 ? 'Choose billing' : 'Confirm'}
                       </p>
                       <p className="mt-2 text-caption text-muted-foreground">
                         MT5 account connection is required before purchase.{' '}
@@ -324,7 +335,40 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                         transition={{ duration: 0.25 }}
                         className="space-y-3"
                       >
-                        {(Object.keys(PLAN_CONFIG) as PlanType[]).map((key) => {
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <button
+                            type="button"
+                            onClick={() => setBillingModel('FIXED')}
+                            className={cn(
+                              'rounded-2xl border p-4 text-left transition-all',
+                              !isProfitShare
+                                ? 'border-primary/50 bg-primary/[0.08] ring-1 ring-primary/30'
+                                : 'border-white/[0.08] bg-muted/25 hover:border-white/[0.16]',
+                            )}
+                          >
+                            <p className="text-sm font-bold text-foreground">Buy Subscription</p>
+                            <p className="mt-1 text-caption text-foreground/45">
+                              Pay the regular plan price and keep 100% of trading P&L.
+                            </p>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setBillingModel('PROFIT_SHARE')}
+                            className={cn(
+                              'rounded-2xl border p-4 text-left transition-all',
+                              isProfitShare
+                                ? 'border-chart-3/50 bg-chart-3/[0.08] ring-1 ring-chart-3/30'
+                                : 'border-white/[0.08] bg-muted/25 hover:border-white/[0.16]',
+                            )}
+                          >
+                            <p className="text-sm font-bold text-foreground">Get Profit Sharing</p>
+                            <p className="mt-1 text-caption text-foreground/45">
+                              Pay ₹{PROFIT_SHARE_UPFRONT_FEE} into your wallet now. We settle 30% of monthly net profit or credit 30% of a monthly loss.
+                            </p>
+                          </button>
+                        </div>
+
+                        {!isProfitShare && (Object.keys(PLAN_CONFIG) as PlanType[]).map((key) => {
                           const config = PLAN_CONFIG[key];
                           const accent = ACCENT_STYLES[config.accent];
                           const price = priceFor(key);
@@ -389,7 +433,7 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                           );
                         })}
 
-                        {Number(strategy.trialDays || 0) > 0 && planType !== 'LIFETIME' && (
+                        {Number(strategy.trialDays || 0) > 0 && planType !== 'LIFETIME' && !isProfitShare && (
                           <motion.label
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -423,8 +467,14 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                       >
                         {[
                           { label: 'Bot', value: formatBotName(strategy.name) },
-                          { label: 'Plan', value: PLAN_CONFIG[planType].label },
-                          { label: 'Billing', value: PLAN_CONFIG[planType].subtitle },
+                          { label: 'Billing model', value: isProfitShare ? 'Profit sharing' : 'Fixed subscription' },
+                          { label: 'Plan', value: isProfitShare ? 'Wallet-funded access' : PLAN_CONFIG[planType].label },
+                          {
+                            label: 'Billing',
+                            value: isProfitShare
+                              ? '₹149 upfront wallet funding; monthly profit-share settlement'
+                              : PLAN_CONFIG[planType].subtitle,
+                          },
                         ].map((row) => (
                           <div key={row.label} className="flex items-center justify-between text-sm">
                             <span className="text-caption text-foreground/35 font-bold uppercase tracking-[0.18em]">{row.label}</span>
@@ -438,7 +488,7 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                           <span className="text-caption text-foreground/35 font-bold uppercase tracking-[0.18em]">Total</span>
                           <div className="text-right">
                             <span className="text-2xl font-bold text-foreground font-mono tabular-nums">
-                              {formatInr(Number(planPrice || 0))}
+                              {formatInr(Number(checkoutAmount || 0))}
                             </span>
                             <p className="text-micro text-foreground/30 uppercase tracking-widest mt-0.5 font-bold">
                               INR
@@ -472,7 +522,7 @@ export function SubscribeModal({ strategy, isOpen, onClose }: SubscribeModalProp
                         disabled={isSubmitting}
                         isLoading={isSubmitting}
                       >
-                        {isSubmitting ? 'Processing…' : useTrial ? 'Activate Trial' : 'Proceed to Payment'}
+                        {isSubmitting ? 'Processing…' : useTrial && !isProfitShare ? 'Activate Trial' : 'Proceed to Payment'}
                         {!isSubmitting && <ArrowRight className="w-4 h-4" />}
                       </Button>
                     )}

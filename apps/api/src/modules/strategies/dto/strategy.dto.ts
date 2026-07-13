@@ -13,6 +13,8 @@ import {
   StrategyCategory,
   RiskLevel,
   VerificationStatus,
+  AssetClass,
+  Timeframe,
 } from '@prisma/client';
 import { Transform } from 'class-transformer';
 
@@ -75,6 +77,16 @@ export class CreateStrategyDto {
   @IsEnum(RiskLevel)
   riskLevel: RiskLevel;
 
+  @ApiProperty({ enum: AssetClass, required: false })
+  @IsOptional()
+  @IsEnum(AssetClass)
+  assetClass?: AssetClass;
+
+  @ApiProperty({ enum: Timeframe, required: false })
+  @IsOptional()
+  @IsEnum(Timeframe)
+  timeframe?: Timeframe;
+
   @ApiProperty({ example: 'AI scalping strategy...' })
   @IsString()
   description: string;
@@ -104,6 +116,14 @@ export class UpdateStrategyDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsEnum(AssetClass)
+  assetClass?: AssetClass;
+
+  @IsOptional()
+  @IsEnum(Timeframe)
+  timeframe?: Timeframe;
 
   @IsOptional()
   configJson?: any;

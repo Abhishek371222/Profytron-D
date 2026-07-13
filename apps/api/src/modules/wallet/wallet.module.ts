@@ -9,6 +9,9 @@ import { WalletProcessor } from './wallet.processor';
     BullModule.registerQueue({
       name: 'withdrawal-processing',
     }),
+    BullModule.registerQueue({
+      name: 'copyfactory_sync',
+    }),
   ],
   controllers: [WalletController],
   providers: [WalletService, WalletProcessor],

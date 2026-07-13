@@ -22,7 +22,8 @@ import {
   persistDashboardQuery,
 } from '@/lib/queries/dashboard-cache';
 
-type BotStatus = 'ACTIVE' | 'PROVISIONING' | 'FAILED' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE';
+type BotStatus = 'ACTIVE' | 'PROVISIONING' | 'FAILED' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE' | 'BLOCKED';
+type ProfitShareState = 'PROFIT_SHARE_OK' | 'PROFIT_SHARE_DUE' | 'PROFIT_SHARE_PAUSED' | 'PROFIT_SHARE_SETTLING';
 
 interface UserBot {
   id: string;
@@ -37,6 +38,9 @@ interface UserBot {
   creator?: { fullName?: string; username?: string };
   brokerAccount?: { accountName?: string; broker?: string } | null;
   currentPnl?: number;
+  billingModel?: 'FIXED' | 'PROFIT_SHARE';
+  profitShareState?: ProfitShareState | null;
+  profitShareAccruedUnsettled?: number | null;
 }
 
 const STATUS_CFG: Record<BotStatus, { label: string; tone: 'primary' | 'destructive' | 'neutral' }> = {
@@ -44,6 +48,7 @@ const STATUS_CFG: Record<BotStatus, { label: string; tone: 'primary' | 'destruct
   PROVISIONING: { label: 'Processing',   tone: 'neutral' },
   FAILED:       { label: 'Setup Failed', tone: 'destructive' },
   PAUSED:       { label: 'Paused',       tone: 'neutral' },
+  BLOCKED:      { label: 'Blocked',      tone: 'destructive' },
   EXPIRED:      { label: 'Expired',      tone: 'destructive' },
   CANCELLED:    { label: 'Cancelled',    tone: 'neutral' },
   INACTIVE:     { label: 'Inactive',     tone: 'neutral' },
@@ -74,6 +79,14 @@ const TABS: Array<{ key: BotStatus | 'ALL'; label: string }> = [
   { key: 'EXPIRED',   label: 'Expired'   },
   { key: 'CANCELLED', label: 'Cancelled' },
 ];
+
+function profitShareBadge(bot: UserBot) {
+  if (bot.billingModel !== 'PROFIT_SHARE') return null;
+  if (bot.profitShareState === 'PROFIT_SHARE_PAUSED') return 'Paused — top up required';
+  if (bot.profitShareState === 'PROFIT_SHARE_SETTLING') return 'Profit share settlement due';
+  if (bot.profitShareState === 'PROFIT_SHARE_DUE') return 'Profit share due';
+  return 'Profit sharing';
+}
 
 async function fetchMyBots(): Promise<UserBot[]> {
   const res = await apiClient.get('/strategies/my');
@@ -359,6 +372,7 @@ export default function MyBotsPage() {
             const st   = STATUS_CFG[bot.status] ?? STATUS_CFG.INACTIVE;
             const tone = TONE_CLASSES[st.tone];
             const pnl  = bot.currentPnl ?? 0;
+            const psBadge = profitShareBadge(bot);
             return (
               <motion.div
                 key={bot.id}
@@ -384,6 +398,11 @@ export default function MyBotsPage() {
                     {st.label}
                   </span>
                 </div>
+                {psBadge ? (
+                  <span className="inline-flex w-fit rounded-full border border-chart-4/30 bg-chart-4/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-chart-4">
+                    {psBadge}
+                  </span>
+                ) : null}
 
                 {/* Metrics */}
                 <div className="grid grid-cols-3 gap-2 rounded-[12px] bg-[color-mix(in_srgb,var(--muted)_35%,transparent)] p-3 text-center">

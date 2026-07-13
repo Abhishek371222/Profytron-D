@@ -43,6 +43,18 @@ export interface WalletTransactionsParams {
   limit?: number;
 }
 
+export interface WithdrawalImpact {
+  willPauseProfitShareBots: boolean;
+  affectedSubscriptions: Array<{
+    subscriptionId: string;
+    strategyId: string;
+    botName: string;
+    requiredBuffer: number;
+  }>;
+  remainingBalance: number;
+  requiredBuffer?: number;
+}
+
 export const walletApi = {
   async getBalance() {
     const res = await apiClient.get<WalletBalance>('/wallet/balance');
@@ -72,6 +84,11 @@ export const walletApi = {
   async requestWithdrawalOtp() {
     const res = await apiClient.post('/wallet/withdrawal-otp');
     return unwrapApiResponse<{ sent: boolean }>(res.data);
+  },
+
+  async previewWithdrawal(data: { amount: number }) {
+    const res = await apiClient.post('/wallet/withdraw/preview', data);
+    return unwrapApiResponse<WithdrawalImpact>(res.data);
   },
 
   async initiateWithdrawal(data: { amount: number; bankAccount?: string; otp: string }) {

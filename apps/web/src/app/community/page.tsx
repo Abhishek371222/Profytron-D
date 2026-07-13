@@ -66,7 +66,7 @@ export default function CommunityPage() {
                   Join Waitlist
                 </button>
                 <a
-                  href="https://discord.gg/replace-this"
+                  href="https://discord.gg/profytron"
                   target="_blank"
                   rel="noreferrer"
                   className="text-sm text-muted-foreground underline"

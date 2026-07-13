@@ -161,6 +161,84 @@ export class AffiliatesService {
     };
   }
 
+  /** First name + last initial only — real ranking, without exposing full names publicly. */
+  private maskAffiliateName(fullName: string | null | undefined): string {
+    const parts = (fullName ?? '').trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'Affiliate';
+    if (parts.length === 1) return parts[0];
+    return `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.`;
+  }
+
+  async getLeaderboard(limit = 20) {
+    const take = Math.min(Math.max(limit, 1), 50);
+    const now = new Date();
+    const periodStart = new Date(now.getTime() - 30 * 86_400_000);
+    const priorPeriodStart = new Date(now.getTime() - 60 * 86_400_000);
+
+    const top = await this.prisma.affiliate.findMany({
+      where: { totalEarned: { gt: 0 } },
+      orderBy: { totalEarned: 'desc' },
+      take,
+      include: {
+        user: { select: { id: true, fullName: true, country: true } },
+      },
+    });
+
+    if (top.length === 0) return [];
+
+    const userIds = top.map((a) => a.user.id);
+    const [currentPeriod, priorPeriod] = await Promise.all([
+      this.prisma.affiliateFunnelEvent.groupBy({
+        by: ['referrerId'],
+        where: {
+          referrerId: { in: userIds },
+          eventType: 'CONVERSION',
+          createdAt: { gte: periodStart, lte: now },
+        },
+        _sum: { amount: true },
+      }),
+      this.prisma.affiliateFunnelEvent.groupBy({
+        by: ['referrerId'],
+        where: {
+          referrerId: { in: userIds },
+          eventType: 'CONVERSION',
+          createdAt: { gte: priorPeriodStart, lt: periodStart },
+        },
+        _sum: { amount: true },
+      }),
+    ]);
+
+    const currentByUser = new Map(
+      currentPeriod.map((r) => [r.referrerId, r._sum.amount ?? 0]),
+    );
+    const priorByUser = new Map(
+      priorPeriod.map((r) => [r.referrerId, r._sum.amount ?? 0]),
+    );
+
+    return top.map((affiliate, index) => {
+      const current = currentByUser.get(affiliate.user.id) ?? 0;
+      const prior = priorByUser.get(affiliate.user.id) ?? 0;
+      const growth =
+        prior > 0
+          ? ((current - prior) / prior) * 100
+          : current > 0
+            ? 100
+            : 0;
+
+      return {
+        rank: index + 1,
+        name: this.maskAffiliateName(affiliate.user.fullName),
+        region: affiliate.user.country ?? '—',
+        clicks: affiliate.clickCount,
+        signups: affiliate.signupCount,
+        conversions: affiliate.conversionCount,
+        earnings: Number(affiliate.totalEarned.toFixed(2)),
+        growth: Number(growth.toFixed(1)),
+        tier: affiliate.tier,
+      };
+    });
+  }
+
   async processReferral(newUserId: string, referralCode: string) {
     const code = referralCode.trim();
     if (!code) return;

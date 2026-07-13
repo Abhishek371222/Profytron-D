@@ -69,6 +69,18 @@ export type AffiliateActivityResponse = {
   points: AffiliateActivityPoint[];
 };
 
+export type AffiliateLeaderboardEntry = {
+  rank: number;
+  name: string;
+  region: string;
+  clicks: number;
+  signups: number;
+  conversions: number;
+  earnings: number;
+  growth: number;
+  tier: AffiliateTier;
+};
+
 const unwrap = <T>(payload: any): T => {
   if (payload && typeof payload === 'object' && 'data' in payload) {
     return payload.data as T;
@@ -100,5 +112,15 @@ export const affiliatesApi = {
   async capture(code: string) {
     const res = await apiClient.post(`/affiliates/capture/${code}`);
     return unwrap<any>(res.data);
+  },
+
+  async withdraw(amount: number) {
+    const res = await apiClient.post('/affiliates/withdraw', { amount });
+    return unwrap<any>(res.data);
+  },
+
+  async getLeaderboard(limit = 20) {
+    const res = await apiClient.get('/affiliates/leaderboard', { params: { limit } });
+    return unwrap<AffiliateLeaderboardEntry[]>(res.data);
   },
 };

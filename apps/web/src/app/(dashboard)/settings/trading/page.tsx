@@ -19,6 +19,7 @@ type FormState = {
   maxOpenTrades: string;
   riskPerTradePct: string;
   minWinRate: string;
+  dailyWinTargetUsd: string;
   autoStopAfterLoss: boolean;
   autoStopAfterWin: boolean;
 };
@@ -30,6 +31,7 @@ const EMPTY: FormState = {
   maxOpenTrades: '',
   riskPerTradePct: '',
   minWinRate: '',
+  dailyWinTargetUsd: '',
   autoStopAfterLoss: false,
   autoStopAfterWin: false,
 };
@@ -43,6 +45,7 @@ function policyToForm(p: RiskPolicy | null): FormState {
     maxOpenTrades: p.maxOpenTrades != null ? String(p.maxOpenTrades) : '',
     riskPerTradePct: p.riskPerTradePct != null ? String(p.riskPerTradePct) : '',
     minWinRate: p.minWinRate != null ? String(p.minWinRate) : '',
+    dailyWinTargetUsd: p.dailyWinTargetUsd != null ? String(p.dailyWinTargetUsd) : '',
     autoStopAfterLoss: !!p.autoStopAfterLoss,
     autoStopAfterWin: !!p.autoStopAfterWin,
   };
@@ -86,6 +89,7 @@ export default function TradingSettingsPage() {
         maxOpenTrades: numOrUndef(form.maxOpenTrades) ?? null,
         riskPerTradePct: numOrUndef(form.riskPerTradePct) ?? null,
         minWinRate: numOrUndef(form.minWinRate) ?? null,
+        dailyWinTargetUsd: numOrUndef(form.dailyWinTargetUsd) ?? null,
         autoStopAfterLoss: form.autoStopAfterLoss,
         autoStopAfterWin: form.autoStopAfterWin,
       }),
@@ -216,12 +220,27 @@ export default function TradingSettingsPage() {
           checked={form.autoStopAfterWin}
           onChange={(v) => set('autoStopAfterWin', v)}
         />
+        {form.autoStopAfterWin && (
+          <SettingsField
+            label="Daily win target ($)"
+            hint="Once today's realized profit reaches this amount, new trades are blocked and copying pauses for the rest of the day."
+          >
+            <SettingsInput
+              type="number"
+              inputMode="decimal"
+              min={0}
+              placeholder="e.g. 200"
+              value={form.dailyWinTargetUsd}
+              onChange={(e) => set('dailyWinTargetUsd', e.target.value)}
+            />
+          </SettingsField>
+        )}
       </SettingsSection>
 
       <SettingsSection title="Connected brokers" description="Brokers linked for live execution.">
         <p className="text-sm text-muted-foreground">
           Manage broker connections from{' '}
-          <a href="/copy-trading" className="text-primary hover:underline">Copy Trading</a>
+          <a href="/get-bots" className="text-primary hover:underline">Get Bots</a>
           {' '}or the dashboard connect flow.
         </p>
       </SettingsSection>

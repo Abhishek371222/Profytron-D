@@ -13,7 +13,7 @@ import { MarketplaceStrategyTable } from '@/components/marketplace/MarketplaceSt
 import { SubscribeModal } from '@/components/marketplace/SubscribeModal';
 import { MarketplaceSkeleton } from '@/components/skeletons/MarketplaceSkeleton';
 import { cn } from '@/lib/utils';
-import { marketplaceApi } from '@/lib/api/marketplace';
+import { marketplaceApi, SubscriptionBillingModel } from '@/lib/api/marketplace';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -37,8 +37,12 @@ function MarketplacePageInner() {
   const desktopFilterInitialized = React.useRef(false);
   const [viewType, setViewType] = React.useState<'grid' | 'list'>('list');
   const [selectedStrategy, setSelectedStrategy] = React.useState<Record<string, unknown> | null>(null);
+  const [selectedBillingModel, setSelectedBillingModel] = React.useState<SubscriptionBillingModel>('FIXED');
 
-  const openSubscribe = (strategy: unknown) => setSelectedStrategy(strategy as Record<string, unknown>);
+  const openSubscribe = (strategy: unknown, billingModel: SubscriptionBillingModel = 'FIXED') => {
+    setSelectedBillingModel(billingModel);
+    setSelectedStrategy(strategy as Record<string, unknown>);
+  };
   const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
   const [sortBy, setSortBy] = React.useState<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'>(
     (searchParams.get('sort') as 'trending') || 'trending',
@@ -116,6 +120,8 @@ function MarketplacePageInner() {
         q: debouncedSearch || undefined,
         verified: filters.verifiedOnly || undefined,
         riskLevel: filters.selectedRisks[0]?.toUpperCase(),
+        assetClass: filters.selectedAssets[0],
+        timeframe: filters.selectedTimeframes[0],
         priceMax: filters.priceMax || undefined,
       }),
     initialPageParam: null as string | null,
@@ -126,25 +132,30 @@ function MarketplacePageInner() {
 
   const mappedStrategies = React.useMemo(() => {
     const items = marketplaceQuery.data?.pages.flatMap((page) => page.items) ?? [];
-    const defaultAssets = ['Forex', 'Crypto', 'Indices', 'Commodities'];
-    const defaultTimeframes = ['M1', 'M5', 'M15', 'H1', 'H4', 'D1'];
-    const hash = (seed: string, len: number) => {
-      let h = 0;
-      for (let i = 0; i < seed.length; i += 1) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-      return h % len;
-    };
 
     return items.map((item: Record<string, unknown>) => {
       const strategy = item.strategy as Record<string, unknown>;
       const perf = (strategy.performance as Record<string, unknown>[])?.[0] ?? {};
+      const assetClass = strategy.assetClass ? String(strategy.assetClass) : 'Unknown';
+      // A strategy can trade several markets (creator's Add Bot form is
+      // multi-select), but Strategy.assetClass only stores the first one.
+      // Fall back to the full list stashed in configJson.markets so the
+      // asset-class filter matches every market this strategy actually
+      // trades, not just its primary one — keeps this list consistent with
+      // the strategy detail page, which already shows all configJson.markets.
+      const configMarkets = (strategy.configJson as Record<string, unknown> | undefined)?.markets;
+      const allMarkets = Array.isArray(configMarkets) && configMarkets.length > 0
+        ? configMarkets.map(String)
+        : [assetClass];
       return {
         id: String(item.strategyId),
         name: formatBotName(String(strategy.name)),
         category: String(strategy.category),
         creator: (strategy.creator as { fullName?: string })?.fullName || 'Unknown',
         verified: Boolean(strategy.isVerified),
-        assetClass: String(strategy.assetClass || defaultAssets[hash(String(item.strategyId), defaultAssets.length)]),
-        timeframe: String(strategy.timeframe || defaultTimeframes[hash(`tf-${item.strategyId}`, defaultTimeframes.length)]).toUpperCase(),
+        assetClass,
+        allMarkets,
+        timeframe: strategy.timeframe ? String(strategy.timeframe).toUpperCase() : 'Unknown',
         price: Number(item.monthlyPrice || 0),
         monthlyPrice: Number(item.monthlyPrice || 0),
         subscribers: Number(strategy.copiesCount || 0),
@@ -163,7 +174,7 @@ function MarketplacePageInner() {
     const filtered = mappedStrategies.filter((s) => {
       if (filters.verifiedOnly && !s.verified) return false;
       if (filters.selectedRisks.length && !filters.selectedRisks.includes(s.risk.toLowerCase())) return false;
-      if (filters.selectedAssets.length && !filters.selectedAssets.includes(s.assetClass)) return false;
+      if (filters.selectedAssets.length && !filters.selectedAssets.some((a) => s.allMarkets.includes(a))) return false;
       if (filters.selectedTimeframes.length && !filters.selectedTimeframes.includes(s.timeframe)) return false;
       if (filters.priceMax > 0 && s.price > filters.priceMax) return false;
       if (normalizedQuery) {
@@ -402,7 +413,12 @@ function MarketplacePageInner() {
         </div>
       </div>
 
-      <SubscribeModal strategy={selectedStrategy} isOpen={!!selectedStrategy} onClose={() => setSelectedStrategy(null)} />
+      <SubscribeModal
+        strategy={selectedStrategy}
+        isOpen={!!selectedStrategy}
+        initialBillingModel={selectedBillingModel}
+        onClose={() => setSelectedStrategy(null)}
+      />
     </div>
   );
 }

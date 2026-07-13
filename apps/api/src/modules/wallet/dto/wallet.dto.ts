@@ -38,6 +38,12 @@ export class InitiateWithdrawalDto {
   otp?: string;
 }
 
+export class PreviewWithdrawalDto {
+  @IsNumber()
+  @IsPositive()
+  amount: number;
+}
+
 export class WalletTransactionsQueryDto {
   @IsOptional()
   @IsEnum(TransactionType)

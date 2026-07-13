@@ -24,6 +24,8 @@ type StrategyRow = {
   description: string;
   category: string;
   riskLevel: string;
+  assetClass?: string | null;
+  timeframe?: string | null;
   isPublished: boolean;
   isVerified: boolean;
   verificationStatus: string;
@@ -59,6 +61,8 @@ type FormState = {
   description: string;
   category: string;
   riskLevel: string;
+  assetClass: string;
+  timeframe: string;
   monthlyPrice: string;
   annualPrice: string;
   lifetimePrice: string;
@@ -168,6 +172,8 @@ type StrategyPdfPreview = {
   description?: string;
   category?: string;
   riskLevel?: string;
+  assetClass?: string;
+  timeframe?: string;
   monthlyPrice?: number;
   annualPrice?: number;
   lifetimePrice?: number;
@@ -186,6 +192,8 @@ const defaultFormState: FormState = {
   description: '',
   category: 'TREND',
   riskLevel: 'MEDIUM',
+  assetClass: '',
+  timeframe: '',
   monthlyPrice: '0',
   annualPrice: '0',
   lifetimePrice: '0',
@@ -213,6 +221,8 @@ const defaultFormState: FormState = {
 
 const categories = ['TREND', 'SCALPING', 'RANGE', 'VOLATILITY', 'ARBITRAGE'];
 const riskLevels = ['LOW', 'MEDIUM', 'HIGH', 'EXPERT'];
+const assetClasses = ['Forex', 'Crypto', 'Indices', 'Commodities', 'Stocks'];
+const timeframes = ['M1', 'M3', 'M5', 'M15', 'H1', 'H4', 'D1'];
 
 const toNumberOrUndefined = (value: string) => {
   const trimmed = value.trim();
@@ -250,6 +260,8 @@ const buildPayload = (form: FormState) => {
     description: form.description.trim(),
     category: form.category,
     riskLevel: form.riskLevel,
+    assetClass: form.assetClass.trim() || undefined,
+    timeframe: form.timeframe.trim() || undefined,
     monthlyPrice,
     annualPrice,
     lifetimePrice,
@@ -336,6 +348,8 @@ export default function AdminStrategiesPage() {
         description: result.description ?? current.description,
         category: result.category ?? current.category,
         riskLevel: result.riskLevel ?? current.riskLevel,
+        assetClass: result.assetClass ?? current.assetClass,
+        timeframe: result.timeframe ?? current.timeframe,
         monthlyPrice:
           result.monthlyPrice !== undefined ? String(result.monthlyPrice) : current.monthlyPrice,
         annualPrice:
@@ -420,6 +434,8 @@ export default function AdminStrategiesPage() {
       description: row.description,
       category: row.category,
       riskLevel: row.riskLevel,
+      assetClass: row.assetClass ?? '',
+      timeframe: row.timeframe ?? '',
       monthlyPrice: String(row.monthlyPrice ?? 0),
       annualPrice: String(row.annualPrice ?? 0),
       lifetimePrice: String(row.lifetimePrice ?? 0),
@@ -574,6 +590,33 @@ export default function AdminStrategiesPage() {
               >
                 {riskLevels.map((risk) => (
                   <option key={risk} value={risk}>{risk}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Asset class">
+              <select
+                value={form.assetClass}
+                onChange={(event) => setForm((current) => ({ ...current, assetClass: event.target.value }))}
+                className="h-10 w-full rounded-xl border border-[var(--card-border)] bg-muted/40 px-3 text-sm text-foreground outline-none focus:border-primary"
+              >
+                <option value="">Unset</option>
+                {assetClasses.map((asset) => (
+                  <option key={asset} value={asset}>{asset}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Timeframe">
+              <select
+                value={form.timeframe}
+                onChange={(event) => setForm((current) => ({ ...current, timeframe: event.target.value }))}
+                className="h-10 w-full rounded-xl border border-[var(--card-border)] bg-muted/40 px-3 text-sm text-foreground outline-none focus:border-primary"
+              >
+                <option value="">Unset</option>
+                {timeframes.map((tf) => (
+                  <option key={tf} value={tf}>{tf}</option>
                 ))}
               </select>
             </Field>

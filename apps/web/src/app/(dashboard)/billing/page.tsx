@@ -2,10 +2,21 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
+import { subscriptionsApi } from '@/lib/api/subscriptions';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import {
   ArrowUpRight,
   Bot,
@@ -20,6 +31,7 @@ import {
   RefreshCcw,
   Smartphone,
   Wallet,
+  XCircle,
   Zap,
 } from 'lucide-react';
 
@@ -44,6 +56,7 @@ interface CurrentSubscription {
   monthlyAmount?: number;
   renewsAt?: string;
   nextPaymentDate?: string;
+  cancelledAt?: string | null;
 }
 
 interface MyBot {
@@ -116,12 +129,27 @@ function StatCard({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function BillingPage() {
+  const queryClient = useQueryClient();
+  const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
+
   // Fetch current subscription
   const currentQuery = useQuery({
     queryKey: ['subscription-current'],
     queryFn: async () => {
       const res = await apiClient.get('/subscriptions/current');
       return unwrapApiResponse<CurrentSubscription>(res.data);
+    },
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: () => subscriptionsApi.cancel(),
+    onSuccess: () => {
+      toast.success('Subscription cancelled. You’ll keep access until your current period ends.');
+      setCancelDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['subscription-current'] });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || 'Failed to cancel subscription');
     },
   });
 
@@ -245,19 +273,64 @@ export default function BillingPage() {
               {(current?.renewsAt ?? current?.nextPaymentDate) && (
                 <span className="flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5" />
-                  Renews {new Date(current!.renewsAt ?? current!.nextPaymentDate!).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  {current?.cancelledAt ? 'Access until' : 'Renews'}{' '}
+                  {new Date(current!.renewsAt ?? current!.nextPaymentDate!).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                </span>
+              )}
+              {current?.cancelledAt && (
+                <span className="flex items-center gap-1.5 text-destructive">
+                  <XCircle className="h-3.5 w-3.5" />
+                  Cancelled — won&apos;t renew
                 </span>
               )}
             </div>
           </div>
-          <Link
-            href="/team-plans"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline shrink-0"
-          >
-            View all plans <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
+          <div className="flex items-center gap-3 shrink-0">
+            {planKey !== 'FREE' && !current?.cancelledAt && (
+              <button
+                type="button"
+                onClick={() => setCancelDialogOpen(true)}
+                className="text-xs font-semibold text-muted-foreground hover:text-destructive"
+              >
+                Cancel plan
+              </button>
+            )}
+            <Link
+              href="/team-plans"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+            >
+              View all plans <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
         </div>
       </motion.div>
+
+      <Dialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel your subscription?</DialogTitle>
+            <DialogDescription>
+              You&apos;ll keep full access to {planName} until your current billing period ends
+              {current?.renewsAt || current?.nextPaymentDate
+                ? ` on ${new Date(current!.renewsAt ?? current!.nextPaymentDate!).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+                : ''}
+              . After that, your account moves to the Free plan.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCancelDialogOpen(false)}>
+              Keep plan
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => cancelMutation.mutate()}
+              disabled={cancelMutation.isPending}
+            >
+              {cancelMutation.isPending ? 'Cancelling...' : 'Cancel subscription'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -526,7 +599,7 @@ export default function BillingPage() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            GST at 18% is applicable for all Indian users. Tax-compliant invoices are generated automatically for every payment and can be downloaded from the Payment History above.
+            GST at 18% is applicable for all Indian users. Downloadable tax-compliant invoices are coming soon — until then, contact support for a copy of any payment record.
           </p>
           <p className="text-[10px] text-muted-foreground mt-3 border-t border-[var(--card-border)] pt-3">
             GSTIN required for business accounts. Contact support to update.

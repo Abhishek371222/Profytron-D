@@ -41,7 +41,7 @@ export function BrokerSetupClient({ broker }: { broker: BrokerEntry }) {
           <h2 className="dash-section-title mb-4">Quick setup</h2>
           <ol className="list-inside list-decimal space-y-3 text-sm leading-relaxed text-muted-foreground">
             <li>Create a Profytron account and complete onboarding</li>
-            <li>Open Copy Trading → Connect Broker → select {broker.displayName}</li>
+            <li>Open Get Bots → Connect Broker → select {broker.displayName}</li>
             <li>Enter your MT login, password, and server name</li>
             <li>Subscribe to a verified marketplace strategy</li>
             <li>Configure lot multiplier and risk limits — trades copy automatically</li>
@@ -64,7 +64,7 @@ export function BrokerSetupClient({ broker }: { broker: BrokerEntry }) {
           <Link href="/register" className="dash-btn-primary inline-flex h-12 items-center px-6">
             Start 7-Day Free Trial
           </Link>
-          <Link href="/copy-trading" className="dash-btn-outline inline-flex h-12 items-center px-6">
+          <Link href="/get-bots" className="dash-btn-outline inline-flex h-12 items-center px-6">
             Connect Broker
           </Link>
         </div>

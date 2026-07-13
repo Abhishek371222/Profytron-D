@@ -27,6 +27,7 @@ import { Public, JwtAuthGuard } from '../auth/guards/auth.guard';
 import {
   InitiateDepositDto,
   InitiateWithdrawalDto,
+  PreviewWithdrawalDto,
   WalletTransactionsQueryDto,
 } from './dto/wallet.dto';
 
@@ -82,6 +83,21 @@ export class WalletController {
   @ApiOperation({ summary: 'Send OTP to email for withdrawal verification' })
   async sendWithdrawalOtp(@Req() req: RequestWithUser) {
     return this.walletService.sendWithdrawalOtp(req.user.id);
+  }
+
+  @Throttle({ default: { ttl: 60000, limit: 3 } })
+  @Post('withdraw/preview')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiOperation({ summary: 'Preview withdrawal profit-share impact' })
+  async previewWithdraw(
+    @Req() req: RequestWithUser,
+    @Body(new ValidationPipe({ transform: true })) dto: PreviewWithdrawalDto,
+  ) {
+    return this.walletService.previewWithdrawalImpact(
+      req.user.id,
+      dto.amount,
+    );
   }
 
   @Throttle({ default: { ttl: 60000, limit: 3 } })

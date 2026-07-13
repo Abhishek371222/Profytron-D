@@ -7,6 +7,7 @@ import { ShieldCheck, Star, Activity, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Button } from "@/components/ui/button";
+import type { SubscriptionBillingModel } from "@/lib/api/marketplace";
 
 function formatInr(amount: number) {
   if (!amount || amount <= 0) return "FREE";
@@ -29,7 +30,7 @@ interface MarketplaceCardProps {
     reviewCount?: number;
     drawdown?: number;
   };
-  onSubscribe: (strategy: MarketplaceCardProps["strategy"]) => void;
+  onSubscribe: (strategy: MarketplaceCardProps["strategy"], billingModel?: SubscriptionBillingModel) => void;
 }
 
 export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps) {
@@ -96,10 +97,15 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
           ) : null}
         </div>
 
-        <Button variant="primary" size="sm" className="group/btn w-full uppercase tracking-[0.1em]" onClick={() => onSubscribe(strategy)}>
-          Subscribe
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
-        </Button>
+        <div className="grid gap-2">
+          <Button variant="primary" size="sm" className="group/btn w-full uppercase tracking-[0.1em]" onClick={() => onSubscribe(strategy, 'FIXED')}>
+            Buy Subscription
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
+          </Button>
+          <Button variant="outline" size="sm" className="w-full uppercase tracking-[0.1em]" onClick={() => onSubscribe(strategy, 'PROFIT_SHARE')}>
+            Get Profit Sharing · ₹149
+          </Button>
+        </div>
         <Link
           href={`/marketplace/${strategy.id}`}
           className="text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary"

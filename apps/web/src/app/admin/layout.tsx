@@ -8,12 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { LayoutDashboard, ShieldCheck, LogOut, ChevronLeft, AlertTriangle } from "@/components/ui/icons";
-import { Users as UsersIcon, Shield as ShieldIcon, Server as ServerIcon, Bot, Menu, Headset } from "lucide-react";
+import { Users as UsersIcon, Shield as ShieldIcon, Server as ServerIcon, Bot, Menu, Headset, FileCheck } from "lucide-react";
 
 const adminNavItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/admin" },
   { name: "Users", icon: UsersIcon, href: "/admin/users" },
   { name: "Strategies", icon: ShieldIcon, href: "/admin/strategies" },
+  { name: "KYC Review", icon: FileCheck, href: "/admin/kyc" },
   { name: "Alpha Coach", icon: Headset, href: "/admin/coach" },
   { name: "System", icon: ServerIcon, href: "/admin/system" },
   { name: "AI Workforce", icon: Bot, href: "/admin/agents" },

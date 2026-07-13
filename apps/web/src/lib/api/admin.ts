@@ -139,6 +139,21 @@ export const adminApi = {
     return this.handleVerification(id, false, notes);
   },
 
+  async getPendingKyc() {
+    const res = await apiClient.get('/admin/kyc/pending');
+    return unwrap<any[]>(res.data);
+  },
+
+  async reviewKyc(userId: string, approve: boolean, notes?: string) {
+    const res = await apiClient.post(`/admin/kyc/${userId}/review`, { approve, notes });
+    return unwrap<any>(res.data);
+  },
+
+  async getKycDocumentUrl(docId: string) {
+    const res = await apiClient.get(`/admin/kyc/documents/${docId}/url`);
+    return unwrap<{ url: string }>(res.data);
+  },
+
   async getPaymentsOverview() {
     const res = await apiClient.get('/admin/payments/overview');
     return unwrap<any>(res.data);

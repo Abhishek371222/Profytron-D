@@ -202,8 +202,8 @@ export default function DashboardPage() {
       ? portfolio.totalReturnPct
       : (() => {
           const base = Number(portfolio?.depositBase ?? portfolio?.equityBase ?? 0);
-          return base > 0 && equityRaw > 0
-            ? ((equityRaw - base) / base) * 100
+          return base > 0 && equity > 0
+            ? ((equity - base) / base) * 100
             : 0;
         })();
 
