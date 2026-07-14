@@ -5,7 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
-import { Star } from 'lucide-react';
+import { RefreshCw, Star } from 'lucide-react';
 import { marketplaceApi, SubscriptionBillingModel } from '@/lib/api/marketplace';
 import {
   DashboardPage,
@@ -244,8 +244,8 @@ export default function MarketplaceStrategyDetailPage() {
             <Link href="/my-bots">
               <DashButton variant="outline">My Bots</DashButton>
             </Link>
-            <DashButton variant="outline" onClick={refreshDetail}>
-              Refresh
+            <DashButton variant="icon" onClick={refreshDetail} aria-label="Refresh">
+              <RefreshCw className="h-4 w-4" />
             </DashButton>
           </div>
         }

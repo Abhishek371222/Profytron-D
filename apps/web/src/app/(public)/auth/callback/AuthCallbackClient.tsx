@@ -17,6 +17,26 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/**
+ * When Google sign-in was opened in a popup (see social-oauth.ts), this page
+ * renders inside that popup once the redirect chain lands back on our origin.
+ * Rather than navigating the popup itself, hand the destination back to the
+ * opener (which holds the real login page) and close — the opener does the
+ * actual navigation, picking up the session cookie that was just set.
+ * Returns true if handled (caller should stop), false for a normal top-level tab.
+ */
+function finishInPopup(destination: string): boolean {
+  if (typeof window === 'undefined' || !window.opener || window.opener === window) {
+    return false;
+  }
+  window.opener.postMessage(
+    { source: 'profytron-oauth', redirectTo: destination },
+    window.location.origin,
+  );
+  window.close();
+  return true;
+}
+
 function resolveOAuthEmail(
   user: NonNullable<
     Awaited<ReturnType<NonNullable<typeof supabase>['auth']['getSession']>>['data']['session']
@@ -117,13 +137,15 @@ export default function AuthCallbackClient() {
             headers: { Authorization: `Bearer ${accessToken}` },
           });
           const user = unwrapApiResponse<any>(meRes.data);
-          login(accessToken, user);
           const redirectTo = searchParams.get('redirect') || '/dashboard';
           const dest = resolvePostLoginRedirect(user, redirectTo);
+          if (finishInPopup(dest)) return;
+          login(accessToken, user);
           useWorkspaceBootstrapStore.getState().startBootstrap(dest);
           router.replace(dest);
         } catch (e) {
           console.error('OAuth code exchange failed:', e);
+          if (finishInPopup('/login?error=oauth_failed')) return;
           router.push('/login?error=oauth_failed');
         }
         return;
@@ -136,12 +158,14 @@ export default function AuthCallbackClient() {
 
       if (providerError) {
         console.error('OAuth provider error:', providerError);
+        if (finishInPopup('/login?error=auth_failed')) return;
         router.push('/login?error=auth_failed');
         return;
       }
 
       if (!supabase) {
         console.error('Supabase client unavailable (missing env configuration)');
+        if (finishInPopup('/login?error=auth_failed')) return;
         router.push('/login?error=auth_failed');
         return;
       }
@@ -183,6 +207,7 @@ export default function AuthCallbackClient() {
 
       if (error || !session?.access_token) {
         console.error('Supabase session retrieval failed:', error);
+        if (finishInPopup('/login?error=auth_failed')) return;
         router.push('/login?error=auth_failed');
         return;
       }
@@ -192,6 +217,7 @@ export default function AuthCallbackClient() {
         const email = resolveOAuthEmail(session.user);
         if (!email) {
           console.error('Supabase session is missing an email address');
+          if (finishInPopup('/login?error=auth_failed')) return;
           router.push('/login?error=auth_failed');
           return;
         }
@@ -221,9 +247,9 @@ export default function AuthCallbackClient() {
         >(response.data);
 
         if ('requiresTwoFa' in data && data.requiresTwoFa) {
-          router.push(
-            `/login?twoFaChallenge=${encodeURIComponent(data.challengeToken)}&redirect=${encodeURIComponent(searchParams.get('redirect') || '/dashboard')}`,
-          );
+          const twoFaUrl = `/login?twoFaChallenge=${encodeURIComponent(data.challengeToken)}&redirect=${encodeURIComponent(searchParams.get('redirect') || '/dashboard')}`;
+          if (finishInPopup(twoFaUrl)) return;
+          router.push(twoFaUrl);
           return;
         }
 
@@ -231,14 +257,17 @@ export default function AuthCallbackClient() {
           accessToken: string;
           user: any;
         };
-        login(accessToken, user);
         const redirectTo = searchParams.get('redirect') || '/dashboard';
         const dest = resolvePostLoginRedirect(user, redirectTo);
+        if (finishInPopup(dest)) return;
+        login(accessToken, user);
         useWorkspaceBootstrapStore.getState().startBootstrap(dest);
         router.replace(dest);
       } catch (e) {
         console.error('Backend synchronization failed:', e);
-        router.push(`/login?error=${mapSyncError(e)}`);
+        const errUrl = `/login?error=${mapSyncError(e)}`;
+        if (finishInPopup(errUrl)) return;
+        router.push(errUrl);
       }
     };
 

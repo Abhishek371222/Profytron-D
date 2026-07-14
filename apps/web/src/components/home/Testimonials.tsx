@@ -1,9 +1,12 @@
 ﻿"use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Star, Quote, BadgeCheck, Shield } from "lucide-react";
+import { Star, Quote, BadgeCheck, Shield, ChevronDown } from "lucide-react";
 import { BrandGradientText } from "@/components/brand/BrandGradientText";
 import { cn } from "@/lib/utils";
+
+const MOBILE_VISIBLE_COUNT = 3;
 
 type BadgeTone = "violet" | "emerald" | "rose" | "blue" | "amber";
 
@@ -173,6 +176,8 @@ function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
 }
 
 export function Testimonials() {
+  const [showAllMobile, setShowAllMobile] = useState(false);
+
   return (
     <section
       id="testimonials"
@@ -234,19 +239,35 @@ export function Testimonials() {
           </motion.div>
 
           {/* Right — responsive grid (max 4 cols so badges stay readable) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4">
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={t.author}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.4, delay: (i % 5) * 0.05 }}
-                className="min-w-0"
+          <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4">
+              {testimonials.map((t, i) => (
+                <motion.div
+                  key={t.author}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.15 }}
+                  transition={{ duration: 0.4, delay: (i % 5) * 0.05 }}
+                  className={cn(
+                    "min-w-0",
+                    !showAllMobile && i >= MOBILE_VISIBLE_COUNT && "hidden sm:block",
+                  )}
+                >
+                  <TestimonialCard t={t} />
+                </motion.div>
+              ))}
+            </div>
+
+            {testimonials.length > MOBILE_VISIBLE_COUNT && (
+              <button
+                type="button"
+                onClick={() => setShowAllMobile((v) => !v)}
+                className="mt-4 flex w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--card-border)] bg-card py-2.5 text-sm font-semibold text-primary sm:hidden"
               >
-                <TestimonialCard t={t} />
-              </motion.div>
-            ))}
+                {showAllMobile ? "Show fewer reviews" : `Show all ${testimonials.length} reviews`}
+                <ChevronDown className={cn("h-4 w-4 transition-transform", showAllMobile && "rotate-180")} />
+              </button>
+            )}
           </div>
         </div>
       </div>

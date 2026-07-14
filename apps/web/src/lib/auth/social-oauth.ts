@@ -45,6 +45,55 @@ function isSupabaseSocialBroken(): boolean {
   return false;
 }
 
+type OAuthPopupMessage = { source?: string; redirectTo?: string };
+
+/**
+ * Opens the OAuth flow in a popup instead of navigating the whole page away,
+ * so a user who backs out just closes the popup and stays on the login page
+ * (no more getting stranded on Google's account picker with nothing behind it).
+ * The popup runs the normal redirect chain and, once it lands back on our own
+ * origin at /auth/callback, posts the final destination back here and closes
+ * itself; we then hard-navigate so the freshly-set session cookie is picked up.
+ */
+function openOAuthPopup(url: string) {
+  if (typeof window === 'undefined') return;
+
+  const width = 480;
+  const height = 640;
+  const left = window.screenX + Math.max((window.outerWidth - width) / 2, 0);
+  const top = window.screenY + Math.max((window.outerHeight - height) / 2, 0);
+  const popup = window.open(
+    url,
+    'profytron-oauth',
+    `width=${width},height=${height},left=${left},top=${top}`,
+  );
+
+  if (!popup) {
+    // Popup blocked by the browser — fall back to the old full-page redirect.
+    window.location.href = url;
+    return;
+  }
+
+  const cleanup = () => {
+    window.removeEventListener('message', handleMessage);
+    window.clearInterval(pollClosed);
+  };
+
+  const handleMessage = (event: MessageEvent<OAuthPopupMessage>) => {
+    if (event.origin !== window.location.origin) return;
+    if (!event.data || event.data.source !== 'profytron-oauth') return;
+    cleanup();
+    if (event.data.redirectTo) {
+      window.location.href = event.data.redirectTo;
+    }
+  };
+  window.addEventListener('message', handleMessage);
+
+  const pollClosed = window.setInterval(() => {
+    if (popup.closed) cleanup();
+  }, 500);
+}
+
 /**
  * Social sign-in via Supabase Auth (Google/GitHub).
  * Google Client ID/Secret are configured in Supabase Dashboard → Authentication →
@@ -65,19 +114,19 @@ export async function startSocialOAuth(
 
   // Local dev: Nest Google OAuth → FRONTEND_URL=localhost (never production).
   if (provider === 'google' && isLocalhost) {
-    window.location.href = '/api/auth/google';
+    openOAuthPopup('/api/auth/google');
     return;
   }
 
   // Dead / mismatched Supabase project → NestJS Google OAuth (silent, no toast).
   if (provider === 'google' && isSupabaseSocialBroken()) {
-    window.location.href = '/api/auth/google';
+    openOAuthPopup('/api/auth/google');
     return;
   }
 
   if (!supabase) {
     if (provider === 'google') {
-      window.location.href = '/api/auth/google';
+      openOAuthPopup('/api/auth/google');
       return;
     }
     return;
@@ -85,7 +134,7 @@ export async function startSocialOAuth(
 
   if (!window.location.origin) {
     if (provider === 'google') {
-      window.location.href = '/api/auth/google';
+      openOAuthPopup('/api/auth/google');
       return;
     }
     return;
@@ -93,10 +142,13 @@ export async function startSocialOAuth(
 
   const redirectUrl = `${window.location.origin}/auth/callback`;
 
-  const { error } = await supabase.auth.signInWithOAuth({
+  // Google runs through our own popup (skipBrowserRedirect); GitHub keeps the
+  // SDK's normal top-level redirect since it isn't affected by this issue.
+  const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
       redirectTo: redirectUrl,
+      skipBrowserRedirect: provider === 'google',
       ...(provider === 'google'
         ? { queryParams: { access_type: 'offline', prompt: 'consent' } }
         : {}),
@@ -105,9 +157,14 @@ export async function startSocialOAuth(
 
   if (error) {
     if (provider === 'google') {
-      window.location.href = '/api/auth/google';
+      openOAuthPopup('/api/auth/google');
       return;
     }
     console.error(`Unable to ${action} with ${provider}:`, error.message);
+    return;
+  }
+
+  if (provider === 'google' && data?.url) {
+    openOAuthPopup(data.url);
   }
 }

@@ -78,12 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className={cn(
-        "flex overflow-x-hidden relative min-w-0 brand-surface-bg",
-        isCoach || !isMobile
-          ? "h-[100dvh] max-h-[100dvh] overflow-hidden"
-          : "min-h-[100dvh]",
-      )}
+      className="flex overflow-x-hidden relative min-w-0 brand-surface-bg h-[100dvh] max-h-[100dvh] overflow-hidden"
       suppressHydrationWarning
     >
       {/* Skip link — first focusable element so keyboard users can bypass the
@@ -131,9 +126,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         tabIndex={-1}
         className={cn(
           "flex-1 min-w-0 relative z-20 w-full flex flex-col focus:outline-none",
-          isCoach || !isMobile
-            ? "min-h-0 h-[100dvh] max-h-[100dvh] overflow-hidden"
-            : "min-h-[100dvh]",
+          "min-h-0 h-[100dvh] max-h-[100dvh] overflow-hidden",
           // CSS-gated so mobile pre-hydration paint has no phantom right pad.
           "lg:pr-[var(--sidebar-pad)]",
         )}

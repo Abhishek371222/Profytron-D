@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Tailwind v4 defaults dark: to prefers-color-scheme; this makes it follow the
+   manually-toggled .dark class on <html> (see ThemeProvider.tsx) instead, so
+   dark: utilities stay in sync with the in-app theme toggle regardless of OS
+   preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ═══════════════════════════════════════════════════════
    PROFYTRON — ENTERPRISE SAAS DESIGN SYSTEM
    Stripe · Linear · Notion · Vercel inspired
@@ -488,6 +494,11 @@ html {
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* framer-motion's useScroll() measures offsets against document.documentElement
+     by default and warns in dev if it's position: static. This doesn't affect
+     fixed-position descendants (viewport remains their containing block) or
+     layout — it only gives framer-motion a stable positioning context. */
+  position: relative;
 }
 
 body {
@@ -1454,6 +1465,10 @@ body::before {
       margin-top: 0;
       z-index: 0;
     }
+
+    .hero-ambient-lines {
+      pointer-events: auto;
+    }
   }
 
   .hero-ambient-layer-cta {
@@ -1557,7 +1572,10 @@ body::before {
     inset: -8% -12% -8% -5%;
     z-index: 0;
     opacity: 0.72;
-    pointer-events: auto;
+    /* auto only on desktop, where the layer sits beside the copy; on mobile the
+       layout stacks and this decorative layer bleeds upward over the trust
+       badges row, so pointer-events:auto there silently blocks its scroll/swipe */
+    pointer-events: none;
     -webkit-mask-image: linear-gradient(
       to right,
       transparent 0%,
