@@ -239,7 +239,7 @@ export function MarketplaceStrategyTable({
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold tabular-nums text-primary">+{s.returns.toFixed(1)}%</span>
                       <div className="hidden h-8 w-[4.5rem] md:block" aria-hidden="true">
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
                           <AreaChart data={spark}>
                             <Area
                               type="monotone"
