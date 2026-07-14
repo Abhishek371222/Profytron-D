@@ -39,6 +39,14 @@ const PLAN_MAX_LOT: Record<string, number> = {
 
 export function CopySettingsSheet({ subscription, onClose }: Props) {
   const maxLot = PLAN_MAX_LOT[subscription.strategy?.name ?? ''] ?? 2.0;
+  // Below sm (640px) the panel presents as a bottom sheet, so it should slide
+  // up (y), not sideways (x). Mounted only on user interaction, so reading
+  // window at mount is safe; captured once — the enter/exit animation axis
+  // shouldn't flip mid-flight on resize.
+  const [isBottomSheet] = React.useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 640,
+  );
+  const panelOffset = isBottomSheet ? { y: 40 } : { x: 40 };
   const [lotMultiplier, setLotMultiplier] = React.useState(subscription.lotMultiplier ?? 1.0);
   const [sizingMode, setSizingMode] = React.useState<SizingMode>(
     subscription.sizingMode ?? 'EQUITY_RATIO',
@@ -78,9 +86,9 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         <motion.div
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 40 }}
+          initial={{ opacity: 0, ...panelOffset }}
+          animate={{ opacity: 1, x: 0, y: 0 }}
+          exit={{ opacity: 0, ...panelOffset }}
           className="w-full sm:w-96 h-full sm:max-h-[100dvh] flex flex-col border-l border-border-default bg-bg-elevated glass shadow-2xl"
         >
           {/* Header */}
@@ -91,7 +99,11 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
                 {formatBotName(subscription.strategy?.name ?? 'Bot')}
               </p>
             </div>
-            <button onClick={onClose} className="p-1 rounded-lg hover:bg-foreground/5 text-text-secondary">
+            <button
+              onClick={onClose}
+              aria-label="Close bot settings"
+              className="-m-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg hover:bg-foreground/5 text-text-secondary outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>

@@ -135,7 +135,7 @@ export function NotificationDropdown() {
       <DropdownMenuTrigger asChild>
         <button
           onClick={handleTriggerClick}
-          className="relative h-10 w-10 sm:h-[42px] sm:w-[42px] rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-border text-foreground/40 hover:text-foreground transition-all flex items-center justify-center outline-none"
+          className="relative h-10 w-10 sm:h-[42px] sm:w-[42px] rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-border text-foreground/40 hover:text-foreground transition-all flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         >
           <Bell className="w-[18px] h-[18px]" />
@@ -288,7 +288,7 @@ export function NotificationDropdown() {
                       {/* Delete */}
                       <button
                         onClick={(e) => onDelete(e, item.id)}
-                        className="absolute top-2.5 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-lg hover:bg-destructive/15 text-text-muted hover:text-destructive"
+                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity p-2.5 rounded-lg hover:bg-destructive/15 text-text-muted hover:text-destructive outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         type="button"
                         aria-label="Delete notification"
                       >

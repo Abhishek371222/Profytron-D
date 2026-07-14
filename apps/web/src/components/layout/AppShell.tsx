@@ -111,12 +111,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           "transition-transform duration-300 ease-out flex z-40 shrink-0 will-change-transform",
-          isMobile
-            ? cn(
-                "fixed inset-y-0 left-0 pt-safe pb-safe pl-safe",
-                sidebarOpen ? "translate-x-0" : "-translate-x-full",
-              )
-            : "h-[100dvh] py-[var(--sidebar-pad)] pl-[var(--sidebar-pad)]",
+          // Positioning is CSS-gated (not JS-gated) so the pre-hydration paint
+          // is already correct on mobile: the drawer starts fixed + off-canvas
+          // instead of flashing the in-flow desktop rail while isMobile is
+          // still its initial `false`.
+          "max-lg:fixed max-lg:inset-y-0 max-lg:left-0",
+          "lg:h-[100dvh] lg:py-[var(--sidebar-pad)] lg:pl-[var(--sidebar-pad)]",
+          isMobile && "pt-safe pb-safe pl-safe",
+          isMobile && sidebarOpen
+            ? "max-lg:translate-x-0"
+            : "max-lg:-translate-x-full",
         )}
       >
         <Sidebar mobile={isMobile} />
@@ -130,7 +134,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           isCoach || !isMobile
             ? "min-h-0 h-[100dvh] max-h-[100dvh] overflow-hidden"
             : "min-h-[100dvh]",
-          !isMobile && "pr-[var(--sidebar-pad)]",
+          // CSS-gated so mobile pre-hydration paint has no phantom right pad.
+          "lg:pr-[var(--sidebar-pad)]",
         )}
       >
         <div className="shrink-0 z-30 h-[clamp(3.5rem,4.5vw,4.25rem)] pt-safe">

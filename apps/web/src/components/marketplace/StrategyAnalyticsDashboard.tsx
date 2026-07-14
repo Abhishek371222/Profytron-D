@@ -318,7 +318,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
             {(charts?.monthlyHeatmap ?? []).map((yearRow: any) => (
               <div key={yearRow.year}>
                 <p className="text-xs font-bold text-foreground/40 mb-2">{yearRow.year}</p>
-                <div className="grid grid-cols-12 gap-1">
+                <div className="grid grid-cols-6 sm:grid-cols-12 gap-1">
                   {yearRow.months.map((month: any) => (
                     <div
                       key={`${yearRow.year}-${month.name}`}

@@ -23,21 +23,16 @@ function GitHubLogo() {
   );
 }
 
-const buttonClassName =
-  'flex h-[52px] w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm';
-
 type SocialAuthButtonsProps = {
   onGoogle: () => void;
   onGithub: () => void;
   itemVariants?: Variants;
-  variant?: 'default' | 'light';
 };
 
 export function SocialAuthButtons({
   onGoogle,
   onGithub,
   itemVariants,
-  variant = 'default',
 }: SocialAuthButtonsProps) {
   const [mounted, setMounted] = React.useState(false);
 
@@ -46,9 +41,7 @@ export function SocialAuthButtons({
   }, []);
 
   const btnClass =
-    variant === 'light'
-      ? buttonClassName
-      : 'flex h-12 w-full items-center justify-between gap-3 rounded-xl border border-border bg-card/50 px-5 text-sm font-semibold text-foreground/85 transition-colors hover:bg-muted/60 hover:border-primary/30';
+    'flex h-12 w-full items-center justify-between gap-3 rounded-xl border border-border bg-card/50 px-5 text-sm font-semibold text-foreground/85 transition-colors hover:bg-muted/60 hover:border-primary/30';
 
   if (!mounted) {
     return (

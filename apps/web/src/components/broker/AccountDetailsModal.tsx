@@ -125,7 +125,11 @@ export function AccountDetailsModal({
                   <p className="text-xs text-muted-foreground">Account Details</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
+              <button
+                onClick={onClose}
+                aria-label="Close account details"
+                className="-m-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>

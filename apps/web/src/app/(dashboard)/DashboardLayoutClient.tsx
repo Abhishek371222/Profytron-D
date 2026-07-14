@@ -138,7 +138,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             <div className="flex-1 flex flex-col gap-4 animate-pulse" aria-busy="true">
               <div className="h-8 w-64 rounded-xl bg-muted border border-border" />
               <div className="h-48 rounded-card bg-muted border border-border" />
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="h-28 rounded-card bg-muted border border-border" />
                 ))}

@@ -113,7 +113,7 @@ export default function CookiePolicyPage() {
       <MarketingSection narrow>
         <h2 className="dash-section-title mb-8">Cookie Retention Periods</h2>
         <div className="overflow-hidden rounded-2xl border border-[var(--card-border)]">
-          <div className="grid grid-cols-3 border-b border-[var(--card-border)] bg-muted/30 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          <div className="hidden sm:grid grid-cols-3 gap-3 border-b border-[var(--card-border)] bg-muted/30 px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             <div>Cookie Name</div>
             <div>Purpose</div>
             <div>Duration</div>
@@ -121,7 +121,7 @@ export default function CookiePolicyPage() {
           {retention.map((r) => (
             <div
               key={r.name}
-              className="grid grid-cols-3 border-b border-[var(--card-border)] px-5 py-4 text-sm transition-colors last:border-b-0 hover:bg-muted/20"
+              className="grid grid-cols-1 gap-1.5 sm:grid-cols-3 sm:gap-3 border-b border-[var(--card-border)] px-5 py-4 text-sm transition-colors last:border-b-0 hover:bg-muted/20"
             >
               <code className="font-mono text-xs text-primary">{r.name}</code>
               <span className="text-xs text-muted-foreground">{r.purpose}</span>

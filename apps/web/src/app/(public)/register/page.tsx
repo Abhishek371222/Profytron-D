@@ -181,7 +181,6 @@ export default function RegisterPage() {
                   itemVariants={itemVariants}
                   onGoogle={() => handleSocialLogin('google')}
                   onGithub={() => handleSocialLogin('github')}
-                  variant="light"
                 />
               ) : (
                 <div className="mb-6 space-y-3" aria-hidden>

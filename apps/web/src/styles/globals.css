@@ -1145,6 +1145,15 @@ body::before {
     color: var(--muted-foreground);
     border: 1px solid transparent;
     transition: color 0.22s ease-out, background 0.22s ease-out, border-color 0.22s ease-out;
+    /* Invisible hit-area extension to the 44px touch-target minimum
+       (visual stays 32px) — matters for touch-capable devices ≥1024px. */
+    position: relative;
+  }
+
+  .sidebar-collapse-inline::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
   }
 
   .sidebar-collapse-inline:hover {

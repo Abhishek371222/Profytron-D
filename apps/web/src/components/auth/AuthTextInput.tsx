@@ -46,7 +46,7 @@ export const AuthTextInput = React.forwardRef<HTMLInputElement, AuthTextInputPro
             ref={ref}
             suppressHydrationWarning
             className={cn(
-              'h-12 w-full rounded-xl border border-[var(--card-border)] bg-white text-sm text-foreground shadow-sm outline-none transition-colors',
+              'h-12 w-full rounded-xl border border-[var(--card-border)] bg-input text-sm text-foreground shadow-sm outline-none transition-colors',
               'placeholder:text-muted-foreground/60',
               'hover:border-primary/25 focus:border-primary/40 focus:ring-2 focus:ring-primary/10',
               Icon ? 'pl-11 pr-4' : 'px-4',

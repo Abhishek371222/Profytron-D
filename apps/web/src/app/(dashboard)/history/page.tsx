@@ -315,7 +315,7 @@ export default function HistoryPage() {
  {/* Main Table */}
  <div className="dash-table-wrap overflow-hidden">
  <div className="responsive-table-shell">
- <table className="w-full border-collapse">
+ <table className="w-full max-md:min-w-[48rem] border-collapse">
  <thead>
  <tr className="border-b border-[var(--card-border)] bg-muted/50">
  {['Trade', 'Pair', 'Bot', 'Side', 'Size', 'Profit', 'Closed', 'Status'].map((head) => (
@@ -421,7 +421,7 @@ export default function HistoryPage() {
   <div className="dashboard-card p-6 space-y-4">
    <div className="flex items-center justify-between">
 	<h3 className="text-base font-semibold text-foreground">Trade details</h3>
-	<button onClick={() => setSelectedTradeId(null)} className="w-8 h-8 rounded-lg bg-foreground/5 border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors" aria-label="Close">
+	<button onClick={() => setSelectedTradeId(null)} className="relative w-8 h-8 rounded-lg bg-foreground/5 border border-border flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring before:absolute before:-inset-1.5 before:content-['']" aria-label="Close">
 	 <X className="w-4 h-4" />
 	</button>
    </div>

@@ -136,7 +136,10 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
             <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
               Total Balance
             </p>
-            <p className="mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums">
+            <p
+              className="mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums truncate"
+              title={formatMoney(balance, currency)}
+            >
               {formatMoney(balance, currency)}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -157,7 +160,10 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
           Equity
         </p>
-        <p className="mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums">
+        <p
+          className="mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums truncate"
+          title={formatMoney(equity, currency)}
+        >
           {formatMoney(equity, currency)}
         </p>
         <div className="mt-2 space-y-1.5">
@@ -175,7 +181,10 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
         <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
           Free Margin
         </p>
-        <p className="mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums">
+        <p
+          className="mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums truncate"
+          title={formatMoney(freeMargin, currency)}
+        >
           {formatMoney(freeMargin, currency)}
         </p>
         <div className="mt-2 space-y-1.5">
@@ -199,7 +208,10 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
             <Clock className="h-3.5 w-3.5" />
           </div>
         </div>
-        <p className={cn('mt-1.5 text-xl font-semibold tracking-tight tabular-nums', pnlClass(unrealizedPnl))}>
+        <p
+          className={cn('mt-1.5 text-xl font-semibold tracking-tight tabular-nums truncate', pnlClass(unrealizedPnl))}
+          title={formatSignedMoney(unrealizedPnl, currency)}
+        >
           {formatSignedMoney(unrealizedPnl, currency)}
         </p>
         <div className="mt-2 flex items-center justify-between text-xs">

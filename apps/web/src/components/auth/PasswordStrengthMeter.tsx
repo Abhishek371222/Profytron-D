@@ -31,7 +31,7 @@ export const PasswordStrengthMeter = ({ password ="" }: PasswordStrengthMeterPro
   return (
     <div className="space-y-2 py-1">
       <div className="flex justify-between items-center px-1">
-        <span className="text-[11px] uppercase tracking-wider font-medium text-slate-400">Password strength</span>
+        <span className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground">Password strength</span>
         <span className={cn("text-[11px] uppercase tracking-wider font-semibold", current.color.replace('bg-', 'text-'))}>
           {password ? current.label : '—'}
         </span>
@@ -43,7 +43,7 @@ export const PasswordStrengthMeter = ({ password ="" }: PasswordStrengthMeterPro
             key={i}
             className={cn(
               'flex-1 rounded-full transition-all duration-500',
-              i <= score ? current.color : 'bg-slate-200',
+              i <= score ? current.color : 'bg-muted',
             )}
           />
         ))}
