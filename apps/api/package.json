@@ -30,7 +30,6 @@
   },
   "dependencies": {
     "@google-cloud/compute": "^6.13.0",
-    "@nest-lab/throttler-storage-redis": "^1.2.0",
     "@nestjs/bull": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
@@ -47,14 +46,11 @@
     "@opentelemetry/exporter-trace-otlp-http": "^0.219.0",
     "@opentelemetry/resources": "^2.8.0",
     "@opentelemetry/sdk-node": "^0.219.0",
-    "@opentelemetry/semantic-conventions": "^1.41.1",
     "@prisma/client": "^5.22.0",
     "@sentry/nestjs": "^10.57.0",
-    "@sentry/profiling-node": "^10.57.0",
     "@socket.io/redis-adapter": "^8.3.0",
     "@supabase/supabase-js": "^2.103.0",
     "@types/pdfkit": "^0.17.5",
-    "@types/uuid": "^11.0.0",
     "axios": "^1.15.0",
     "bcrypt": "^6.0.0",
     "bull": "^4.16.5",
@@ -87,7 +83,6 @@
     "socket.io": "^4.8.3",
     "stripe": "^22.0.1",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^13.0.0",
     "winston": "^3.19.0"
   },
   "devDependencies": {

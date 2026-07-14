@@ -35,6 +35,16 @@ export const CURRENCY_MAP: Record<string, CurrencyInfo> = {
 
 export const DEFAULT_CURRENCY: CurrencyInfo = { code: 'USD', symbol: '$', locale: 'en-US', rate: 1 };
 
+/**
+ * Formats an amount already denominated in `currency` (no rate conversion) —
+ * for wallet balances/transactions, which are stored in their real currency,
+ * unlike `formatPrice` below which converts a USD marketplace price.
+ */
+export function formatWalletAmount(amount: number, currency: string): string {
+  const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : `${currency} `;
+  return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 export function formatPrice(usdPrice: number, currency: CurrencyInfo): string {
   if (usdPrice === 0) return 'FREE';
   const localPrice = usdPrice * currency.rate;

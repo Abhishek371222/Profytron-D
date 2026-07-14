@@ -35,9 +35,6 @@ importers:
       '@google-cloud/compute':
         specifier: ^6.13.0
         version: 6.13.0
-      '@nest-lab/throttler-storage-redis':
-        specifier: ^1.2.0
-        version: 1.2.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)(@nestjs/throttler@6.5.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)(reflect-metadata@0.2.2))(ioredis@5.10.1)(reflect-metadata@0.2.2)
       '@nestjs/bull':
         specifier: ^11.0.4
         version: 11.0.4(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)(bull@4.16.5)
@@ -86,18 +83,12 @@ importers:
       '@opentelemetry/sdk-node':
         specifier: ^0.219.0
         version: 0.219.0(@opentelemetry/api@1.9.1)
-      '@opentelemetry/semantic-conventions':
-        specifier: ^1.41.1
-        version: 1.41.1
       '@prisma/client':
         specifier: ^5.22.0
         version: 5.22.0(prisma@5.22.0)
       '@sentry/nestjs':
         specifier: ^10.57.0
         version: 10.58.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)(@opentelemetry/exporter-trace-otlp-http@0.219.0(@opentelemetry/api@1.9.1))
-      '@sentry/profiling-node':
-        specifier: ^10.57.0
-        version: 10.58.0(@opentelemetry/exporter-trace-otlp-http@0.219.0(@opentelemetry/api@1.9.1))
       '@socket.io/redis-adapter':
         specifier: ^8.3.0
         version: 8.3.0(socket.io-adapter@2.5.6)
@@ -107,9 +98,6 @@ importers:
       '@types/pdfkit':
         specifier: ^0.17.5
         version: 0.17.5
-      '@types/uuid':
-        specifier: ^11.0.0
-        version: 11.0.0
       axios:
         specifier: ^1.15.0
         version: 1.15.0
@@ -206,9 +194,6 @@ importers:
       swagger-ui-express:
         specifier: ^5.0.1
         version: 5.0.1(express@5.2.1)
-      uuid:
-        specifier: ^13.0.0
-        version: 13.0.0
       winston:
         specifier: ^3.19.0
         version: 3.19.0
@@ -351,9 +336,6 @@ importers:
       '@supabase/ssr':
         specifier: ^0.10.2
         version: 0.10.2(@supabase/supabase-js@2.103.0)
-      '@supabase/supabase-js':
-        specifier: ^2.103.0
-        version: 2.103.0
       '@tanstack/react-query':
         specifier: ^5.96.2
         version: 5.97.0(react@19.2.4)
@@ -426,9 +408,6 @@ importers:
       three:
         specifier: ^0.185.1
         version: 0.185.1
-      topojson-client:
-        specifier: ^3.1.0
-        version: 3.1.0
       zod:
         specifier: ^4.3.6
         version: 4.3.6
@@ -2197,15 +2176,6 @@ packages:
     resolution: {integrity: sha512-r3ZZhRjEcfEdKIZnoB1RusNgvHuaBRqfCzV4Gi+5A9yUX0S4HTws/ASWqt13wL4y4I+0rqsWGdA2w7EQXHi3+Q==}
     engines: {node: '>=19.0.0'}
 
-  '@nest-lab/throttler-storage-redis@1.2.0':
-    resolution: {integrity: sha512-tMkUyo68NCKTR+zILk+EC35SMYBtDPZY2mCj7ZaCietWGVTnuP4zwq9ERYfvU6kJv6h8teNZrC6MJCmY6/dljw==}
-    peerDependencies:
-      '@nestjs/common': ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
-      '@nestjs/core': ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0
-      '@nestjs/throttler': '>=6.0.0'
-      ioredis: '>=5.0.0'
-      reflect-metadata: ^0.2.1
-
   '@nestjs/bull-shared@11.0.4':
     resolution: {integrity: sha512-VBJcDHSAzxQnpcDfA0kt9MTGUD1XZzfByV70su0W0eDCQ9aqIEBlzWRW21tv9FG9dIut22ysgDidshdjlnczLw==}
     peerDependencies:
@@ -3544,10 +3514,6 @@ packages:
       '@opentelemetry/semantic-conventions':
         optional: true
 
-  '@sentry/node-cpu-profiler@2.4.2':
-    resolution: {integrity: sha512-E6q+eE/sTpiofzW9jFKAx6ZQaDAoZDnsaLA/nRlkiK+K2X4k+hSyKhhLfw8PJlejB8edk7uxJF57r5JoRnyaPA==}
-    engines: {node: '>=18'}
-
   '@sentry/node@10.57.0':
     resolution: {integrity: sha512-7KEStrJ97wPf1fA5nU5ONeTTcIIlh7oT8OMffEVA1PXmlhFoXhcQZVzr4rM+zj9tfMWT01og5Ng/Grgh3dN+FA==}
     engines: {node: '>=18'}
@@ -3573,11 +3539,6 @@ packages:
       '@opentelemetry/core': ^1.30.1 || ^2.1.0
       '@opentelemetry/sdk-trace-base': ^1.30.1 || ^2.1.0
       '@opentelemetry/semantic-conventions': ^1.39.0
-
-  '@sentry/profiling-node@10.58.0':
-    resolution: {integrity: sha512-zTDY6Ier1xaMlwer7NFlSrAMlZ4O9heWJo5t0uy02+RgP04Sv50Y6FDmkKm4BxVUFJCHtEeldnXDvrFSW2p2kg==}
-    engines: {node: '>=18'}
-    hasBin: true
 
   '@sentry/react@10.57.0':
     resolution: {integrity: sha512-6QThwQ4XWQ2rwKZEVQ9P9WKl7JlowC7S5LpAvmMdrwlfJBpLDFOsM7tycnIvbXTXf0ZOOuLFPa4L4YYbdyNGmA==}
@@ -4159,10 +4120,6 @@ packages:
 
   '@types/use-sync-external-store@0.0.6':
     resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
-
-  '@types/uuid@11.0.0':
-    resolution: {integrity: sha512-HVyk8nj2m+jcFRNazzqyVKiZezyhDKrGUA3jlEcg/nZ6Ms+qHwocba1Y/AaVaznJTAM9xpdFSh+ptbNrhOGvZA==}
-    deprecated: This is a stub types definition. uuid provides its own type definitions, so you do not need this installed.
 
   '@types/validator@13.15.10':
     resolution: {integrity: sha512-T8L6i7wCuyoK8A/ZeLYt1+q0ty3Zb9+qbSSvrIVitzT3YjZqkTZ40IbRsPanlB4h1QB3JVL1SYCdR6ngtFYcuA==}
@@ -6968,10 +6925,6 @@ packages:
       sass:
         optional: true
 
-  node-abi@3.92.0:
-    resolution: {integrity: sha512-KdHvFWZjEKDf0cakgFjebl371GPsISX2oZHcuyKqM7DtogIsHrqKeLTo8wBHxaXRAQlY2PsPlZmfo+9ZCxEREQ==}
-    engines: {node: '>=10'}
-
   node-abort-controller@3.1.1:
     resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
 
@@ -8090,10 +8043,6 @@ packages:
     resolution: {integrity: sha512-dRXchy+C0IgK8WPC6xvCHFRIWYUbqqdEIKPaKo/AcTUNzwLTK6AH7RjdLWsEZcAN/TBdtfUw3PYEgPr5VPr6ww==}
     engines: {node: '>=14.16'}
 
-  topojson-client@3.1.0:
-    resolution: {integrity: sha512-605uxS6bcYxGXw9qi62XyrV6Q3xwbndjachmNxu8HWTtVPxZfEJN9fd/SZS1Q54Sn2y0TMyMxFj/cJINqGHrKw==}
-    hasBin: true
-
   tough-cookie@6.0.1:
     resolution: {integrity: sha512-LktZQb3IeoUWB9lqR5EWTHgW/VTITCXg4D21M+lvybRVdylLrRMnqaIONLVb5mav8vM19m44HIcGq4qASeu2Qw==}
     engines: {node: '>=16'}
@@ -8340,10 +8289,6 @@ packages:
 
   uuid@11.1.1:
     resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
-    hasBin: true
-
-  uuid@13.0.0:
-    resolution: {integrity: sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==}
     hasBin: true
 
   uuid@8.3.2:
@@ -10678,15 +10623,6 @@ snapshots:
 
   '@neondatabase/serverless@1.1.0': {}
 
-  '@nest-lab/throttler-storage-redis@1.2.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)(@nestjs/throttler@6.5.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)(reflect-metadata@0.2.2))(ioredis@5.10.1)(reflect-metadata@0.2.2)':
-    dependencies:
-      '@nestjs/common': 11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/core': 11.1.18(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.18)(@nestjs/websockets@11.1.18)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@nestjs/throttler': 6.5.0(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)(reflect-metadata@0.2.2)
-      ioredis: 5.10.1
-      reflect-metadata: 0.2.2
-      tslib: 2.8.1
-
   '@nestjs/bull-shared@11.0.4(@nestjs/common@11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.18)':
     dependencies:
       '@nestjs/common': 11.1.18(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -12153,11 +12089,6 @@ snapshots:
       '@opentelemetry/sdk-trace-base': 2.8.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/semantic-conventions': 1.41.1
 
-  '@sentry/node-cpu-profiler@2.4.2':
-    dependencies:
-      detect-libc: 2.1.2
-      node-abi: 3.92.0
-
   '@sentry/node@10.57.0(@opentelemetry/exporter-trace-otlp-http@0.219.0(@opentelemetry/api@1.9.1))':
     dependencies:
       '@opentelemetry/api': 1.9.1
@@ -12205,15 +12136,6 @@ snapshots:
       '@opentelemetry/sdk-trace-base': 2.8.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/semantic-conventions': 1.41.1
       '@sentry/core': 10.58.0
-
-  '@sentry/profiling-node@10.58.0(@opentelemetry/exporter-trace-otlp-http@0.219.0(@opentelemetry/api@1.9.1))':
-    dependencies:
-      '@sentry/core': 10.58.0
-      '@sentry/node': 10.58.0(@opentelemetry/exporter-trace-otlp-http@0.219.0(@opentelemetry/api@1.9.1))
-      '@sentry/node-cpu-profiler': 2.4.2
-    transitivePeerDependencies:
-      - '@opentelemetry/exporter-trace-otlp-http'
-      - supports-color
 
   '@sentry/react@10.57.0(react@19.2.4)':
     dependencies:
@@ -12867,10 +12789,6 @@ snapshots:
     optional: true
 
   '@types/use-sync-external-store@0.0.6': {}
-
-  '@types/uuid@11.0.0':
-    dependencies:
-      uuid: 13.0.0
 
   '@types/validator@13.15.10': {}
 
@@ -16263,10 +16181,6 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  node-abi@3.92.0:
-    dependencies:
-      semver: 7.7.4
-
   node-abort-controller@3.1.1: {}
 
   node-addon-api@6.1.0:
@@ -17574,10 +17488,6 @@ snapshots:
       '@tokenizer/token': 0.3.0
       ieee754: 1.2.1
 
-  topojson-client@3.1.0:
-    dependencies:
-      commander: 2.20.3
-
   tough-cookie@6.0.1:
     dependencies:
       tldts: 7.0.28
@@ -17844,8 +17754,6 @@ snapshots:
   uuid@10.0.0: {}
 
   uuid@11.1.1: {}
-
-  uuid@13.0.0: {}
 
   uuid@8.3.2: {}
 

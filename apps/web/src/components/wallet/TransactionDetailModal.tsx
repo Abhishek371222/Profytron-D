@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { formatWalletAmount as formatCurrency } from '@/lib/currency';
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: 'bg-chart-4/10 text-chart-4 border-chart-4/20',
@@ -33,11 +34,6 @@ const TYPE_LABELS: Record<string, string> = {
   COMMISSION: 'Commission',
   MARKETPLACE_SALE: 'Marketplace Sale',
 };
-
-function formatCurrency(amount: number, currency: string) {
-  const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : `${currency} `;
-  return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
 
 function DetailRow({
   label,

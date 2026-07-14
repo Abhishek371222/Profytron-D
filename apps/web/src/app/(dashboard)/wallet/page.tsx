@@ -6,6 +6,7 @@ import { io, Socket } from 'socket.io-client';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { walletApi } from '@/lib/api/wallet';
+import { formatWalletAmount as formatCurrency } from '@/lib/currency';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { useUIStore } from '@/lib/stores/useUIStore';
 import { DepositModal } from '@/components/wallet/DepositModal';
@@ -43,11 +44,6 @@ function formatWalletInputDate(date: Date) {
 }
 
 const WALLET_DATE_MAX = formatWalletInputDate(new Date());
-
-function formatCurrency(amount: number, currency: string) {
-  const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : `${currency} `;
-  return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
 
 const TYPE_STYLES: Record<string, string> = {
   DEPOSIT: 'bg-chart-3/10 text-chart-3 border-chart-3/20',

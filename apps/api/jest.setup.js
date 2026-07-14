@@ -43,7 +43,3 @@ process.env.SUPABASE_SERVICE_ROLE_KEY =
 // "Exceeded timeout for a hook". Give those runs a generous boot window while
 // keeping fast unit runs strict so genuine hangs still surface quickly.
 jest.setTimeout(process.env.API_TEST_WITH_INFRA === 'true' ? 120000 : 30000);
-
-jest.mock('uuid', () => ({
-  v4: jest.fn(() => 'mock-uuid-1234'),
-}));
