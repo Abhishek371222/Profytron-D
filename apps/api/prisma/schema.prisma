@@ -519,6 +519,7 @@ model Trade {
   @@index([userId, closedAt])
   @@index([userId, openedAt])
   @@index([strategyId])
+  @@index([strategyId, status])
   @@index([strategyId, openedAt])
   @@index([brokerAccountId])
   @@index([brokerTicket])

@@ -17,7 +17,7 @@ export function DashboardAIWidget({ sharpeRatio = 0 }: Props) {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<{ role: "user" | "assistant"; text: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const { setAIChatOpen } = useUIStore();
+  const setAIChatOpen = useUIStore((s) => s.setAIChatOpen);
 
   React.useEffect(() => {
     setMessages([

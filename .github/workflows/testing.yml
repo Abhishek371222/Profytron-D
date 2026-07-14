@@ -28,6 +28,13 @@ jobs:
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
+    - name: Cache turbo build outputs
+      uses: actions/cache@v4
+      with:
+        path: .turbo
+        key: turbo-web-${{ github.job }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: turbo-web-${{ github.job }}-
+
     - name: Type check web
       run: pnpm --dir apps/web exec tsc --noEmit
 
@@ -35,7 +42,7 @@ jobs:
       run: pnpm --dir apps/web lint
 
     - name: Build web
-      run: pnpm --dir apps/web build
+      run: pnpm exec turbo run build --filter=profytron
 
   api-quality:
     name: API — Type check, lint, test
@@ -61,6 +68,13 @@ jobs:
     - name: Generate Prisma client
       run: pnpm --dir apps/api exec prisma generate
 
+    - name: Cache turbo build outputs
+      uses: actions/cache@v4
+      with:
+        path: .turbo
+        key: turbo-api-${{ github.job }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: turbo-api-${{ github.job }}-
+
     - name: Type check API
       run: pnpm --dir apps/api exec tsc --noEmit -p tsconfig.build.json
 
@@ -71,7 +85,7 @@ jobs:
       run: pnpm --dir apps/api test --passWithNoTests
 
     - name: Build API
-      run: pnpm --dir apps/api build
+      run: pnpm exec turbo run build --filter=api
 
   api-integration:
     name: API — Integration tests (Postgres + Redis)

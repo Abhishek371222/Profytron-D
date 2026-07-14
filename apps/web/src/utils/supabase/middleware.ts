@@ -26,8 +26,33 @@ function shouldRefreshSupabaseSession(request: NextRequest): boolean {
   return hasSupabaseAuthCookie(request);
 }
 
+// In-process cache of "this exact sb- cookie set was verified recently" so
+// back-to-back navigations in the same session skip the remote getUser()
+// round trip. Doesn't weaken security: this call only refreshes the Supabase
+// session cookie as a side effect and never gates access on its result —
+// actual authorization happens via the API's JWT guard.
+const SESSION_CACHE_TTL_MS = 30_000;
+const SESSION_CACHE_MAX_SIZE = 5000;
+const recentlyVerified = new Map<string, number>();
+
+function sessionCacheKey(request: NextRequest): string {
+  return request.cookies
+    .getAll()
+    .filter((c) => c.name.startsWith('sb-'))
+    .map((c) => `${c.name}=${c.value}`)
+    .sort()
+    .join('&');
+}
+
 export async function updateSession(request: NextRequest, response: NextResponse) {
   if (!shouldRefreshSupabaseSession(request)) {
+    return response;
+  }
+
+  const cacheKey = sessionCacheKey(request);
+  const now = Date.now();
+  const expiresAt = recentlyVerified.get(cacheKey);
+  if (expiresAt && expiresAt > now) {
     return response;
   }
 
@@ -45,6 +70,12 @@ export async function updateSession(request: NextRequest, response: NextResponse
   });
 
   await supabase.auth.getUser();
+
+  if (recentlyVerified.size >= SESSION_CACHE_MAX_SIZE) {
+    const oldestKey = recentlyVerified.keys().next().value;
+    if (oldestKey) recentlyVerified.delete(oldestKey);
+  }
+  recentlyVerified.set(cacheKey, now + SESSION_CACHE_TTL_MS);
 
   return response;
 }

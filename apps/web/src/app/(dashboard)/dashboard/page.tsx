@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Link2, RefreshCcw, Zap } from 'lucide-react';
@@ -11,7 +12,6 @@ import { marketApi, type MarketNewsCategory } from '@/lib/api/market';
 import { ManualOrderModal } from '@/components/trading/ManualOrderModal';
 import { OverviewMetricCards } from '@/components/dashboard/overview/OverviewMetricCards';
 import { OverviewOpenPositions } from '@/components/dashboard/overview/OverviewOpenPositions';
-import { OverviewPerformance } from '@/components/dashboard/overview/OverviewPerformance';
 import {
   OverviewMarketWatch,
   type WatchTab,
@@ -25,6 +25,17 @@ import {
   readOverviewAccountCache,
   writeOverviewAccountCache,
 } from '@/lib/overview-account-cache';
+
+const OverviewPerformance = dynamic(
+  () =>
+    import('@/components/dashboard/overview/OverviewPerformance').then(
+      (m) => ({ default: m.OverviewPerformance }),
+    ),
+  {
+    ssr: false,
+    loading: () => <div className="h-[280px] rounded-xl bg-muted/40 animate-pulse" />,
+  },
+);
 
 export default function DashboardPage() {
   const router = useRouter();

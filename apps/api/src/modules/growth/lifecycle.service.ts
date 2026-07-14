@@ -23,6 +23,25 @@ export class LifecycleService {
     return Boolean(await this.redis.get(`lifecycle:${campaign}:${userId}`));
   }
 
+  /**
+   * Runs `handler` over `items` in concurrency-limited batches instead of one
+   * at a time — these cron jobs were doing sequential per-user Redis/DB round
+   * trips, which scales linearly (and slowly) with signup volume.
+   */
+  private async processInBatches<T>(
+    items: T[],
+    batchSize: number,
+    handler: (item: T) => Promise<boolean>,
+  ): Promise<number> {
+    let sent = 0;
+    for (let i = 0; i < items.length; i += batchSize) {
+      const batch = items.slice(i, i + batchSize);
+      const results = await Promise.all(batch.map((item) => handler(item)));
+      sent += results.filter(Boolean).length;
+    }
+    return sent;
+  }
+
   /** Day 1 — portfolio waiting nudge */
   @Cron(CronExpression.EVERY_DAY_AT_9AM)
   async sendDay1Nudges() {
@@ -41,9 +60,8 @@ export class LifecycleService {
       select: { id: true, email: true, fullName: true },
     });
 
-    let sent = 0;
-    for (const user of users) {
-      if (await this.alreadySent(user.id, 'day1')) continue;
+    const sent = await this.processInBatches(users, 20, async (user) => {
+      if (await this.alreadySent(user.id, 'day1')) return false;
       await this.markSent(user.id, 'day1', 60 * 60 * 24 * 14);
       this.email
         .sendLifecycleEmail(user.email, user.fullName, {
@@ -54,8 +72,8 @@ export class LifecycleService {
           ctaPath: '/onboarding/risk',
         })
         .catch(() => {});
-      sent++;
-    }
+      return true;
+    });
 
     if (sent) {
       this.logger.log(`Day 1 nudges sent to ${sent} users`);
@@ -80,30 +98,32 @@ export class LifecycleService {
     });
 
     let sent = 0;
-    for (const user of users) {
-      if (await this.alreadySent(user.id, 'day3')) continue;
-
-      const brokerConnected = await this.prisma.userActivationEvent.findUnique({
+    if (users.length) {
+      const connectedEvents = await this.prisma.userActivationEvent.findMany({
         where: {
-          userId_event: {
-            userId: user.id,
-            event: ACTIVATION_EVENTS.BROKER_CONNECTED,
-          },
+          userId: { in: users.map((u) => u.id) },
+          event: ACTIVATION_EVENTS.BROKER_CONNECTED,
         },
+        select: { userId: true },
       });
-      if (brokerConnected) continue;
+      const connectedUserIds = new Set(connectedEvents.map((e) => e.userId));
+      const eligible = users.filter((u) => !connectedUserIds.has(u.id));
 
-      await this.markSent(user.id, 'day3', 60 * 60 * 24 * 14);
-      this.email
-        .sendLifecycleEmail(user.email, user.fullName, {
-          subject: 'Connect MT5 and start copying verified strategies',
-          headline: '3 traders like you connected this week',
-          body: 'Link your MetaTrader 5 account or start with a free paper account — no capital required.',
-          ctaLabel: 'Connect Broker',
-          ctaPath: '/copy-trading',
-        })
-        .catch(() => {});
-      sent++;
+      sent = await this.processInBatches(eligible, 20, async (user) => {
+        if (await this.alreadySent(user.id, 'day3')) return false;
+
+        await this.markSent(user.id, 'day3', 60 * 60 * 24 * 14);
+        this.email
+          .sendLifecycleEmail(user.email, user.fullName, {
+            subject: 'Connect MT5 and start copying verified strategies',
+            headline: '3 traders like you connected this week',
+            body: 'Link your MetaTrader 5 account or start with a free paper account — no capital required.',
+            ctaLabel: 'Connect Broker',
+            ctaPath: '/copy-trading',
+          })
+          .catch(() => {});
+        return true;
+      });
     }
 
     if (sent) {
@@ -129,24 +149,32 @@ export class LifecycleService {
     });
 
     let sent = 0;
-    for (const user of users) {
-      if (await this.alreadySent(user.id, 'day7')) continue;
-
-      const tradeCount = await this.prisma.trade.count({
-        where: { userId: user.id },
+    if (users.length) {
+      const tradeCounts = await this.prisma.trade.groupBy({
+        by: ['userId'],
+        where: { userId: { in: users.map((u) => u.id) } },
+        _count: { id: true },
       });
+      const tradeCountByUser = new Map(
+        tradeCounts.map((row) => [row.userId, row._count.id]),
+      );
 
-      await this.markSent(user.id, 'day7', 60 * 60 * 24 * 30);
-      this.email
-        .sendLifecycleEmail(user.email, user.fullName, {
-          subject: `Your 7-day Profytron report: ${tradeCount} trades`,
-          headline: 'Your first week on Profytron',
-          body: `You executed ${tradeCount} trades this week. Upgrade to Starter (₹3,999/mo) for live copy trading and unlimited analytics.`,
-          ctaLabel: 'View Plans',
-          ctaPath: '/pricing',
-        })
-        .catch(() => {});
-      sent++;
+      sent = await this.processInBatches(users, 20, async (user) => {
+        if (await this.alreadySent(user.id, 'day7')) return false;
+
+        const tradeCount = tradeCountByUser.get(user.id) ?? 0;
+        await this.markSent(user.id, 'day7', 60 * 60 * 24 * 30);
+        this.email
+          .sendLifecycleEmail(user.email, user.fullName, {
+            subject: `Your 7-day Profytron report: ${tradeCount} trades`,
+            headline: 'Your first week on Profytron',
+            body: `You executed ${tradeCount} trades this week. Upgrade to Starter (₹3,999/mo) for live copy trading and unlimited analytics.`,
+            ctaLabel: 'View Plans',
+            ctaPath: '/pricing',
+          })
+          .catch(() => {});
+        return true;
+      });
     }
 
     if (sent) {
@@ -171,9 +199,8 @@ export class LifecycleService {
       select: { id: true, email: true, fullName: true },
     });
 
-    let sent = 0;
-    for (const user of users) {
-      if (await this.alreadySent(user.id, 'reengagement')) continue;
+    const sent = await this.processInBatches(users, 20, async (user) => {
+      if (await this.alreadySent(user.id, 'reengagement')) return false;
 
       await this.markSent(user.id, 'reengagement', 60 * 60 * 24 * 14);
       this.email
@@ -185,8 +212,8 @@ export class LifecycleService {
           ctaPath: '/dashboard',
         })
         .catch(() => {});
-      sent++;
-    }
+      return true;
+    });
 
     if (sent) {
       this.logger.log(`Re-engagement emails sent to ${sent} users`);

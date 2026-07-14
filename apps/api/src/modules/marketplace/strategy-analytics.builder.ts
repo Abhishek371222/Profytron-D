@@ -7,7 +7,6 @@ type PerformanceRow = {
   totalTrades: number;
   winningTrades: number;
   netPnl: number;
-  equityCurve: unknown;
 };
 
 type TradeRow = {

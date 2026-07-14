@@ -46,6 +46,9 @@ const nextConfig: NextConfig = {
       "gsap",
       "lenis",
       "socket.io-client",
+      "three",
+      "zustand",
+      "react-hook-form",
     ],
   },
 

@@ -27,6 +27,10 @@ export class RedisService {
   private readonly logger = new Logger(RedisService.name);
   private readonly memoryStore = new Map<string, string>();
   private readonly memoryTimers = new Map<string, NodeJS.Timeout>();
+  // Single-flight guard: dedupes concurrent cache-miss producer calls for the
+  // same key within this process (e.g. a burst of requests for a popular
+  // strategy's analytics all missing cache at once).
+  private readonly inFlight = new Map<string, Promise<unknown>>();
 
   constructor(@Inject(REDIS_CLIENT) private readonly redis: IORedis) {}
 
@@ -317,11 +321,23 @@ export class RedisService {
     const hit = await this.getJson<T>(key);
     if (hit !== null) return hit;
 
-    const fresh = await producer();
-    if (fresh !== null && fresh !== undefined) {
-      await this.setJson(key, fresh, ttlSeconds);
-    }
-    return fresh;
+    const existing = this.inFlight.get(key) as Promise<T> | undefined;
+    if (existing) return existing;
+
+    const promise = (async () => {
+      try {
+        const fresh = await producer();
+        if (fresh !== null && fresh !== undefined) {
+          await this.setJson(key, fresh, ttlSeconds);
+        }
+        return fresh;
+      } finally {
+        this.inFlight.delete(key);
+      }
+    })();
+
+    this.inFlight.set(key, promise);
+    return promise;
   }
 
   async ping(): Promise<boolean> {

@@ -60,11 +60,13 @@ export class SubscriptionCleanupService {
         },
       });
 
-      for (const subscription of subscriptions) {
-        if (subscription.strategy.copyFactoryStrategyId) {
-          await this.copyFactorySync.enqueueUnlinkSubscription(subscription.id);
-        }
-      }
+      await Promise.all(
+        subscriptions
+          .filter((subscription) => subscription.strategy.copyFactoryStrategyId)
+          .map((subscription) =>
+            this.copyFactorySync.enqueueUnlinkSubscription(subscription.id),
+          ),
+      );
 
       await this.prisma.auditLog.createMany({
         data: subscriptions.map((subscription) => ({
@@ -127,16 +129,25 @@ export class SubscriptionCleanupService {
       // Downgrade each affected user to FREE only if they have no other plan
       // still active (a user may hold multiple plan rows).
       const affectedUserIds = [...new Set(lapsed.map((s) => s.userId))];
-      for (const userId of affectedUserIds) {
-        const stillActive = await this.prisma.userSubscription.count({
-          where: { userId, status: SubscriptionStatus.ACTIVE },
+      const stillActiveCounts = await this.prisma.userSubscription.groupBy({
+        by: ['userId'],
+        where: {
+          userId: { in: affectedUserIds },
+          status: SubscriptionStatus.ACTIVE,
+        },
+        _count: { id: true },
+      });
+      const stillActiveUserIds = new Set(
+        stillActiveCounts.map((row) => row.userId),
+      );
+      const usersToDowngrade = affectedUserIds.filter(
+        (userId) => !stillActiveUserIds.has(userId),
+      );
+      if (usersToDowngrade.length > 0) {
+        await this.prisma.user.updateMany({
+          where: { id: { in: usersToDowngrade } },
+          data: { subscriptionTier: SubscriptionTier.FREE },
         });
-        if (stillActive === 0) {
-          await this.prisma.user.update({
-            where: { id: userId },
-            data: { subscriptionTier: SubscriptionTier.FREE },
-          });
-        }
       }
 
       await this.prisma.auditLog.createMany({
@@ -192,16 +203,16 @@ export class SubscriptionCleanupService {
         },
       });
 
-      for (const sub of subs) {
-        const shouldBeLinked =
-          sub.status === SubscriptionStatus.ACTIVE &&
-          isPaidCopySubscription(sub, now);
-        if (shouldBeLinked) {
-          await this.copyFactorySync.enqueueLinkSubscription(sub.id);
-        } else {
-          await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
-        }
-      }
+      await Promise.all(
+        subs.map((sub) => {
+          const shouldBeLinked =
+            sub.status === SubscriptionStatus.ACTIVE &&
+            isPaidCopySubscription(sub, now);
+          return shouldBeLinked
+            ? this.copyFactorySync.enqueueLinkSubscription(sub.id)
+            : this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+        }),
+      );
     } catch (error) {
       this.logger.warn(
         `CopyFactory reconcile skipped: ${(error as Error).message}`,

@@ -1,15 +1,14 @@
 'use client';
 
 import React, { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown, Server, ArrowRight, Sparkles } from 'lucide-react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero';
-import { FeaturedRow } from '@/components/marketplace/FeaturedRow';
 import { FilterSidebar } from '@/components/marketplace/FilterSidebar';
 import { MarketplaceCard } from '@/components/marketplace/MarketplaceCard';
-import { MarketplaceStrategyTable } from '@/components/marketplace/MarketplaceStrategyTable';
 import { SubscribeModal } from '@/components/marketplace/SubscribeModal';
 import { MarketplaceSkeleton } from '@/components/skeletons/MarketplaceSkeleton';
 import { cn } from '@/lib/utils';
@@ -19,6 +18,28 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useBreakpoint } from '@/lib/hooks/useBreakpoint';
 import { formatBotName } from '@/lib/bot-labels';
+
+const FeaturedRow = dynamic(
+  () =>
+    import('@/components/marketplace/FeaturedRow').then((m) => ({
+      default: m.FeaturedRow,
+    })),
+  {
+    ssr: false,
+    loading: () => <div className="h-[220px] rounded-xl bg-muted/40 animate-pulse" />,
+  },
+);
+
+const MarketplaceStrategyTable = dynamic(
+  () =>
+    import('@/components/marketplace/MarketplaceStrategyTable').then((m) => ({
+      default: m.MarketplaceStrategyTable,
+    })),
+  {
+    ssr: false,
+    loading: () => <div className="h-[400px] rounded-xl bg-muted/40 animate-pulse" />,
+  },
+);
 
 function useDebouncedValue<T>(value: T, delay = 350): T {
   const [debounced, setDebounced] = React.useState(value);

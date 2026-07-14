@@ -113,7 +113,9 @@ export function ChatbotWidget() {
     (r) => pathname === r || pathname?.startsWith(`${r}/`),
   );
   const isAppShell = APP_SHELL_ROUTES.some((r) => pathname?.startsWith(r));
-  const { aiChatOpen, setAIChatOpen, toggleAIChat } = useUIStore();
+  const aiChatOpen = useUIStore((s) => s.aiChatOpen);
+  const setAIChatOpen = useUIStore((s) => s.setAIChatOpen);
+  const toggleAIChat = useUIStore((s) => s.toggleAIChat);
   const [localOpen, setLocalOpen] = useState(false);
   const isOpen = isAppShell ? aiChatOpen : localOpen;
   const setIsOpen = isAppShell ? setAIChatOpen : setLocalOpen;

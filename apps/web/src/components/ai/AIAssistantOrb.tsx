@@ -12,7 +12,8 @@ type AIAssistantOrbProps = {
 
 /** Floating AI assistant orb — soft pulsing glow, opens dashboard AI chat */
 export function AIAssistantOrb({ className, hasUnread = false }: AIAssistantOrbProps) {
-  const { aiChatOpen, toggleAIChat } = useUIStore();
+  const aiChatOpen = useUIStore((s) => s.aiChatOpen);
+  const toggleAIChat = useUIStore((s) => s.toggleAIChat);
 
   return (
     <div className={cn("hidden lg:block fixed right-4 z-[90] bottom-8 lg:right-8", className)}>

@@ -217,8 +217,10 @@ export class AnalyticsService {
       return JSON.parse(cached);
     }
 
-    const trades = await this.getClosedTrades(userId, range);
-    const baseEquity = await this.resolveEquityBase(userId);
+    const [trades, baseEquity] = await Promise.all([
+      this.getClosedTrades(userId, range),
+      this.resolveEquityBase(userId),
+    ]);
 
     if (trades.length === 0) {
       return {
@@ -297,8 +299,10 @@ export class AnalyticsService {
   }
 
   async getMonthlyReturns(userId: string) {
-    const trades = await this.getClosedTrades(userId, 'all');
-    const baseEquity = await this.resolveEquityBase(userId);
+    const [trades, baseEquity] = await Promise.all([
+      this.getClosedTrades(userId, 'all'),
+      this.resolveEquityBase(userId),
+    ]);
     const monthly = new Map<string, number>();
 
     for (const trade of trades) {
@@ -371,8 +375,10 @@ export class AnalyticsService {
       return JSON.parse(cached);
     }
 
-    const trades = await this.getClosedTrades(userId, range);
-    const baseEquity = await this.resolveEquityBase(userId);
+    const [trades, baseEquity] = await Promise.all([
+      this.getClosedTrades(userId, range),
+      this.resolveEquityBase(userId),
+    ]);
     const groups = new Map<string, { name: string; pnl: number[] }>();
 
     for (const trade of trades) {
@@ -447,8 +453,10 @@ export class AnalyticsService {
       return JSON.parse(cached);
     }
 
-    const trades = await this.getClosedTrades(userId, range);
-    const baseEquity = await this.resolveEquityBase(userId);
+    const [trades, baseEquity] = await Promise.all([
+      this.getClosedTrades(userId, range),
+      this.resolveEquityBase(userId),
+    ]);
     const pnl = trades.map((t) => t.profit ?? 0);
     const curve = this.buildEquityCurve(trades, baseEquity);
 
@@ -592,6 +600,13 @@ export class AnalyticsService {
   }
 
   async getTradeExport(userId: string, range: RangeKey = '3m') {
+    const cacheKey = `analytics:trade-export:${userId}:${range}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(`Cache hit: trade export ${userId}/${range}`);
+      return JSON.parse(cached);
+    }
+
     const start = this.rangeStart(range);
     const trades = await this.prisma.trade.findMany({
       where: {
@@ -601,16 +616,29 @@ export class AnalyticsService {
       orderBy: {
         openedAt: 'desc',
       },
-      include: {
-        strategy: {
-          select: {
-            name: true,
-          },
-        },
+      select: {
+        id: true,
+        symbol: true,
+        direction: true,
+        volume: true,
+        openPrice: true,
+        closePrice: true,
+        requestedPrice: true,
+        fillPrice: true,
+        slippageBps: true,
+        executionLatencyMs: true,
+        executionMode: true,
+        profit: true,
+        commission: true,
+        swap: true,
+        status: true,
+        openedAt: true,
+        closedAt: true,
+        strategy: { select: { name: true } },
       },
     });
 
-    return {
+    const result = {
       range,
       rows: trades.map((trade) => ({
         id: trade.id,
@@ -633,9 +661,19 @@ export class AnalyticsService {
         closedAt: trade.closedAt,
       })),
     };
+
+    await this.redis.set(cacheKey, JSON.stringify(result), TTL_ANALYTICS);
+    return result;
   }
 
   async getExecutionMetrics(userId: string, range: RangeKey = '3m') {
+    const cacheKey = `analytics:execution-metrics:${userId}:${range}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(`Cache hit: execution metrics ${userId}/${range}`);
+      return JSON.parse(cached);
+    }
+
     const start = this.rangeStart(range);
     const trades = await this.prisma.trade.findMany({
       where: {
@@ -660,7 +698,7 @@ export class AnalyticsService {
       .filter((value) => value > 0);
     const slippages = trades.map((trade) => trade.slippageBps ?? 0);
 
-    return {
+    const result = {
       range,
       averageLatencyMs: this.round(this.mean(latencies)),
       p95LatencyMs: this.round(this.percentile(latencies, 95)),
@@ -677,6 +715,9 @@ export class AnalyticsService {
         fillPrice: trade.fillPrice ?? trade.openPrice,
       })),
     };
+
+    await this.redis.set(cacheKey, JSON.stringify(result), TTL_ANALYTICS);
+    return result;
   }
 
   async getTaxReport(userId: string, year: number) {
