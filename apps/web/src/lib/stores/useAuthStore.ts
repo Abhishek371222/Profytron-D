@@ -21,6 +21,12 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isHydrating: boolean;
+  /** True once auth is confirmed AND has held for SESSION_SETTLE_MS.
+   * A freshly-issued token can be momentarily rejected by other endpoints
+   * while the backend's session/cache state finishes propagating — gating
+   * dashboard queries on this instead of isAuthenticated directly avoids
+   * that first-request-401-then-silent-retry flash across every widget. */
+  sessionReady: boolean;
   setAuth: (user: User, accessToken: string) => void;
   setToken: (token: string) => void;
   updateUser: (patch: Partial<User>) => void;
@@ -48,6 +54,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       isHydrating: true,
+      sessionReady: false,
       setAuth: (user, accessToken) => set({ user, accessToken, isAuthenticated: true }),
       setToken: (accessToken) => set({ accessToken, isAuthenticated: true }),
       updateUser: (patch) => {
@@ -166,8 +173,17 @@ export const useAuthStore = create<AuthState>()(
           try {
             user = await tryMe(accessToken);
             syncUserCookies(user);
-          } catch {
-            /* keep whatever user we have */
+          } catch (meError) {
+            // A freshly-refreshed token that /users/me itself rejects (401/403)
+            // is not authenticated, whatever the API said a moment ago — treat
+            // it as a failed hydrate so we don't mark isAuthenticated true and
+            // let every session-gated query on the page fire against a token
+            // the API is going to reject anyway.
+            const status = (meError as { response?: { status?: number } })?.response?.status;
+            if (status === 401 || status === 403) {
+              throw meError;
+            }
+            /* transient /me failure (network/5xx) — keep whatever user we have */
           }
           if (typeof window !== 'undefined') {
             sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
@@ -214,7 +230,38 @@ export const useAuthStore = create<AuthState>()(
         state.isAuthenticated = false;
         state.accessToken = null;
         state.isHydrating = true;
+        state.sessionReady = false;
       },
     },
   ),
 );
+
+// A freshly-confirmed token can still be momentarily rejected by other
+// endpoints while the backend's session/cache state finishes propagating.
+// Derive `sessionReady` centrally (rather than in every consumer) so it only
+// flips true SESSION_SETTLE_MS after auth is confirmed, and flips false
+// immediately the moment auth drops — every dashboard query should gate on
+// this instead of computing its own isAuthenticated && !isHydrating check.
+const SESSION_SETTLE_MS = 400;
+let sessionSettleTimer: ReturnType<typeof setTimeout> | null = null;
+
+useAuthStore.subscribe((state, prevState) => {
+  const isReady = state.isAuthenticated && !state.isHydrating && Boolean(state.accessToken);
+  const wasReady =
+    prevState.isAuthenticated && !prevState.isHydrating && Boolean(prevState.accessToken);
+  if (isReady === wasReady) return;
+
+  if (sessionSettleTimer) {
+    clearTimeout(sessionSettleTimer);
+    sessionSettleTimer = null;
+  }
+
+  if (isReady) {
+    sessionSettleTimer = setTimeout(() => {
+      sessionSettleTimer = null;
+      useAuthStore.setState({ sessionReady: true });
+    }, SESSION_SETTLE_MS);
+  } else if (state.sessionReady) {
+    useAuthStore.setState({ sessionReady: false });
+  }
+});

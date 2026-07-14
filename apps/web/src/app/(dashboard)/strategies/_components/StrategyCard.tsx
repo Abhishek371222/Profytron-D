@@ -129,7 +129,7 @@ export function StrategyCard({
       )}
 
       <div className="h-24 -mx-5 mb-4 border-y border-[var(--card-border)]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
           <AreaChart data={chartData}>
             <defs>
               <linearGradient id={`grid-${strategy.id}`} x1="0" y1="0" x2="0" y2="1">

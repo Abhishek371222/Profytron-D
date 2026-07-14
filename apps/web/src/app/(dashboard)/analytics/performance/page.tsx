@@ -43,10 +43,7 @@ const MONTHS_BY_RANGE: Record<AnalyticsRange, number> = {
 export default function PerformanceAnalyticsPage() {
   const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('1m');
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
 
   const portfolioQuery = useQuery({
     queryKey: ['analytics', 'portfolio', range],
@@ -228,7 +225,7 @@ export default function PerformanceAnalyticsPage() {
           delay={0.1}
         >
           <div className="h-[240px] relative">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
               <BarChart data={botChartData} margin={{ top: 12, right: 8, left: 0, bottom: 4 }} barCategoryGap="28%">
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
                 <XAxis dataKey="name" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />
@@ -278,7 +275,7 @@ export default function PerformanceAnalyticsPage() {
           delay={0.15}
         >
           <div className="h-[240px] relative">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
               <BarChart data={monthly.months} margin={{ top: 12, right: 8, left: 0, bottom: 4 }} barCategoryGap="32%">
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
                 <XAxis dataKey="name" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} />

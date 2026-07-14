@@ -460,7 +460,7 @@ export default function AffiliatePage() {
               </div>
             </div>
             <div className="h-52 overflow-visible">
-              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
                 <AreaChart
                   key={activityRange}
                   data={activityChartData}

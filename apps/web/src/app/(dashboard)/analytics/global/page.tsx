@@ -40,10 +40,7 @@ function RankBadge({ rank }: { rank: number }) {
 
 export default function GlobalAnalyticsPage() {
   const queryClient = useQueryClient();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
 
   const globalQuery = useQuery({
     queryKey: ['analytics', 'global'],

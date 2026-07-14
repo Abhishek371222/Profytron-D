@@ -70,10 +70,7 @@ const RISK_STATS: {
 export default function RiskAnalyticsPage() {
   const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('1m');
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
 
   const riskQuery = useQuery({
     queryKey: ['analytics', 'risk', range],
@@ -202,7 +199,7 @@ export default function RiskAnalyticsPage() {
       <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
         <ChartCard eyebrow="Drawdown" title="Drawdown Curve" delay={0.1}>
           <div className="h-[240px] relative">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
               <AreaChart data={risk?.drawdownCurve ?? []} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="riskFill" x1="0" y1="0" x2="0" y2="1">

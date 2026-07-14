@@ -71,26 +71,9 @@ export function useCurrency(): {
     let cancelled = false;
 
     async function detect() {
-      // 2. Try ipapi.co geolocation (free, no key)
-      try {
-        const res = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(4000) });
-        if (res.ok) {
-          const data = await res.json();
-          const countryCode: string = (data.country_code ?? '').toUpperCase();
-          if (countryCode && countryCode in CURRENCY_MAP) {
-            const detected = CURRENCY_MAP[countryCode];
-            if (!cancelled) {
-              writeCache(detected);
-              setCurrency(detected);
-            }
-            return;
-          }
-        }
-      } catch {
-        // fall through to locale fallback
-      }
-
-      // 3. Fallback: parse navigator.language
+      // Currency is derived from navigator.language — no third-party
+      // geo-IP lookup, which would need a CSP connect-src exception and
+      // leaks the visitor's IP to an external service for no real gain.
       const locales = [
         navigator.language,
         ...(Array.isArray(navigator.languages) ? navigator.languages : []),
@@ -107,7 +90,7 @@ export function useCurrency(): {
         }
       }
 
-      // 4. Ultimate fallback: USD
+      // Ultimate fallback: USD
       if (!cancelled) {
         writeCache(DEFAULT_CURRENCY);
         setCurrency(DEFAULT_CURRENCY);

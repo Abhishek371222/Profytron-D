@@ -58,10 +58,7 @@ function toLiveAccountInfo(
 
 export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   const queryClient = useQueryClient();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
   const {
     hasBrokerAccount,
     defaultAccount,

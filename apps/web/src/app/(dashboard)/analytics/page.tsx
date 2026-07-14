@@ -158,8 +158,7 @@ function MiniSparkline({ data, positive }: { data: number[]; positive: boolean }
 export default function AnalyticsPage() {
   const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('1m');
-  const { isAuthenticated, isHydrating, accessToken } = useAuthStore();
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
 
   const portfolioQuery = useQuery({
     queryKey: ['analytics', 'portfolio', range],
