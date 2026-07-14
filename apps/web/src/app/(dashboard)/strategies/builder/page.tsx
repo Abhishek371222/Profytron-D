@@ -5,14 +5,13 @@ import Link from 'next/link';
 import { ChevronLeft, Hammer, Sparkles, Layers, GitBranch, BarChart3 } from 'lucide-react';
 import {
   DashboardPage,
-  DashboardBreadcrumbs,
   DashButton,
 } from '@/components/dashboard/DashboardPrimitives';
 
 export default function StrategyBuilderPage() {
   return (
-    <DashboardPage className="!gap-0 !pb-0">
-      <div className="flex h-[calc(100dvh-68px-1rem)] min-h-[520px] overflow-hidden rounded-2xl border border-[var(--card-border)] bg-bg-secondary">
+    <DashboardPage className="!gap-0 !p-0 !m-0 flex h-full min-h-0 flex-1 flex-col">
+      <div className="flex h-full min-h-0 flex-1 overflow-hidden rounded-none border-0 bg-bg-secondary md:rounded-2xl md:border md:border-[var(--card-border)]">
         {/* Preview sidebar — matches mockup */}
         <aside className="hidden md:flex w-[280px] shrink-0 flex-col border-r border-[var(--card-border)] bg-card text-foreground">
           <div className="p-4 border-b border-[var(--card-border)] space-y-3">
@@ -33,7 +32,7 @@ export default function StrategyBuilderPage() {
           </div>
         </aside>
 
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <div className="h-14 shrink-0 border-b border-[var(--card-border)] bg-card px-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Link href="/strategies" className="w-9 h-9 rounded-lg border border-[var(--card-border)] flex items-center justify-center text-muted-foreground hover:text-foreground">
@@ -47,7 +46,7 @@ export default function StrategyBuilderPage() {
             <DashButton disabled className="opacity-50 cursor-not-allowed">Run Backtest</DashButton>
           </div>
 
-          <div className="flex-1 relative bg-bg-secondary flex items-center justify-center p-6">
+          <div className="relative flex min-h-0 flex-1 items-center justify-center bg-bg-secondary p-6">
             <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle, var(--foreground) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
             <div className="relative max-w-md w-full text-center space-y-5">
@@ -96,7 +95,7 @@ export default function StrategyBuilderPage() {
             </div>
           </div>
 
-          <div className="h-11 shrink-0 border-t border-[var(--card-border)] bg-card px-4 flex items-center justify-center">
+          <div className="h-11 shrink-0 border-t border-[var(--card-border)] bg-card px-4 flex items-center justify-center pb-safe">
             <p className="text-xs text-muted-foreground">Strategy Builder launches in a future update · Use Marketplace or Get Bots today</p>
           </div>
         </div>

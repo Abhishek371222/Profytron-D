@@ -464,19 +464,24 @@ function QuoteCard({
 }
 
 function SessionBoard() {
-  const [now, setNow] = React.useState(() => new Date());
+  // Null until mount so SSR and first client paint match (avoids clock hydration mismatch).
+  const [now, setNow] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
+    setNow(new Date());
     const id = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(id);
   }, []);
 
-  const nowIstMin = minutesInTimeZone(now, IST);
-  const clock = formatIstClock(now);
-  const weekday = formatIstWeekday(now);
-  const openCount = SESSIONS.filter((s) =>
-    sessionOpenIst(s.openIstMin, s.closeIstMin, nowIstMin),
-  ).length;
+  const nowIstMin = now ? minutesInTimeZone(now, IST) : null;
+  const clock = now ? formatIstClock(now) : '--:--:--';
+  const weekday = now ? formatIstWeekday(now) : '—';
+  const openCount =
+    nowIstMin == null
+      ? null
+      : SESSIONS.filter((s) =>
+          sessionOpenIst(s.openIstMin, s.closeIstMin, nowIstMin),
+        ).length;
 
   return (
     <div className="rounded-2xl border border-[var(--card-border)] bg-card">
@@ -495,23 +500,29 @@ function SessionBoard() {
             {clock} IST
           </p>
           <p className="text-[11px] text-muted-foreground">
-            {weekday} · {openCount} session{openCount === 1 ? '' : 's'} open
+            {weekday}
+            {openCount == null
+              ? ''
+              : ` · ${openCount} session${openCount === 1 ? '' : 's'} open`}
           </p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-4">
         {SESSIONS.map((session) => {
-          const open = sessionOpenIst(
-            session.openIstMin,
-            session.closeIstMin,
-            nowIstMin,
-          );
+          const open =
+            nowIstMin == null
+              ? null
+              : sessionOpenIst(
+                  session.openIstMin,
+                  session.closeIstMin,
+                  nowIstMin,
+                );
           return (
             <div
               key={session.name}
               className={cn(
                 'rounded-xl border px-3 py-3 transition-colors',
-                open
+                open === true
                   ? 'border-primary/35 bg-primary/10'
                   : 'border-[var(--card-border)] bg-muted/20',
               )}
@@ -523,7 +534,7 @@ function SessionBoard() {
                 <span
                   className={cn(
                     'h-2 w-2 rounded-full',
-                    open
+                    open === true
                       ? 'bg-[var(--chart-bull)] shadow-[0_0_0_3px_color-mix(in_srgb,var(--chart-bull)_25%,transparent)]'
                       : 'bg-muted-foreground/40',
                   )}
@@ -538,10 +549,10 @@ function SessionBoard() {
               <p
                 className={cn(
                   'mt-1 text-[11px] font-semibold uppercase tracking-wide',
-                  open ? 'text-primary' : 'text-muted-foreground',
+                  open === true ? 'text-primary' : 'text-muted-foreground',
                 )}
               >
-                {open ? 'Open' : 'Closed'}
+                {open == null ? '—' : open ? 'Open' : 'Closed'}
               </p>
             </div>
           );

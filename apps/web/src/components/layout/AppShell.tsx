@@ -145,7 +145,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             suppressHydrationWarning
             className={cn(
               isBuilder
-                ? "p-0 max-w-none w-full h-full min-h-0"
+                ? "p-0 max-w-none w-full h-full min-h-0 flex flex-col"
                 : isCoach
                   ? "flex h-full min-h-0 w-full min-w-0 max-w-none mx-auto flex-col overflow-hidden p-1.5 sm:p-2"
                   : "p-[var(--dashboard-p)] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-[clamp(3rem,4vw,4rem)] max-w-[1920px] mx-auto w-full min-w-0",

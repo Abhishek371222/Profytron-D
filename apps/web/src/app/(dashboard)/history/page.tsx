@@ -39,7 +39,7 @@ const mapRangeToAnalytics = (range: HistoryDateRange): AnalyticsRange => {
  return '3m';
 };
 
-const formatPrice = (value: number | null) => {
+ const formatPrice = (value: number | null) => {
  if (value === null || Number.isNaN(value)) {
   return '--';
  }
@@ -49,8 +49,42 @@ const formatPrice = (value: number | null) => {
  return value.toFixed(5).replace(/0+$/, '').replace(/\.$/, '');
 };
 
+/** Compact page list without duplicate last-page numbers (e.g. 9 10 10 … 10). */
+function getHistoryPageItems(current: number, total: number): Array<number | 'ellipsis'> {
+ if (total <= 1) return [1];
+ if (total <= 5) {
+  return Array.from({ length: total }, (_, i) => i + 1);
+ }
+
+ const items: Array<number | 'ellipsis'> = [1];
+ let windowStart = Math.max(2, current - 1);
+ let windowEnd = Math.min(total - 1, current + 1);
+
+ if (current <= 3) {
+  windowStart = 2;
+  windowEnd = 4;
+ }
+ if (current >= total - 2) {
+  windowStart = total - 3;
+  windowEnd = total - 1;
+ }
+
+ windowStart = Math.max(2, windowStart);
+ windowEnd = Math.min(total - 1, windowEnd);
+
+ if (windowStart > 2) items.push('ellipsis');
+ for (let page = windowStart; page <= windowEnd; page += 1) {
+  items.push(page);
+ }
+ if (windowEnd < total - 1) items.push('ellipsis');
+ items.push(total);
+ return items;
+}
+
+
 export default function HistoryPage() {
  const [searchQuery, setSearchQuery] = useState('');
+ const [isPhone, setIsPhone] = useState(false);
  const [selectedStrategy, setSelectedStrategy] = useState('All bots');
  const [currentPage, setCurrentPage] = useState(1);
  const [selectedTradeId, setSelectedTradeId] = useState<string | null>(null);
@@ -157,7 +191,20 @@ export default function HistoryPage() {
   }
  }, [purchasedBots, selectedStrategy]);
 
+ // Short placeholders on phone so long bot names in (…) don’t clip.
+ React.useEffect(() => {
+  if (typeof window === 'undefined') return;
+  const mq = window.matchMedia('(max-width: 639px)');
+  const sync = () => setIsPhone(mq.matches);
+  sync();
+  mq.addEventListener('change', sync);
+  return () => mq.removeEventListener('change', sync);
+ }, []);
+
  const searchPlaceholder = useMemo(() => {
+  if (isPhone) {
+   return purchasedBots.length > 0 ? 'Search your bots…' : 'Search trades…';
+  }
   if (purchasedBots.length === 1) {
    return `Search ${purchasedBots[0]} trades…`;
   }
@@ -165,7 +212,7 @@ export default function HistoryPage() {
    return `Search your bots (${purchasedBots.slice(0, 2).join(', ')})…`;
   }
   return 'Search your bot trades…';
- }, [purchasedBots]);
+ }, [purchasedBots, isPhone]);
 
  const filteredHistory = useMemo(() => {
   const normalizedQuery = searchQuery.trim().toLowerCase();
@@ -274,14 +321,29 @@ export default function HistoryPage() {
 
  {/* Filter bar — icon sits beside text (no absolute overlap) */}
  <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
-  <label className="flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-xl border border-[var(--card-border)] bg-card px-3.5 shadow-none transition-[border-color,box-shadow] focus-within:border-[color-mix(in_srgb,var(--primary)_35%,var(--card-border))] focus-within:shadow-[0_0_0_3px_color-mix(in_srgb,var(--primary)_12%,transparent)]">
-   <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+  <label
+   className={cn(
+    'group flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-xl border border-[var(--card-border)] bg-card px-3.5',
+    'transition-[border-color,box-shadow,outline-color]',
+    // Full-control focus ring (icon + field), not the inner input only.
+    'focus-within:border-primary/50',
+    'focus-within:outline focus-within:outline-2 focus-within:outline-offset-2',
+    'focus-within:outline-[color-mix(in_srgb,var(--ring)_70%,transparent)]',
+   )}
+  >
+   <Search className="h-4 w-4 shrink-0 text-muted-foreground group-focus-within:text-primary/70" aria-hidden />
    <input
-    type="search"
+    type="text"
+    inputMode="search"
+    enterKeyHint="search"
+    autoComplete="off"
+    autoCorrect="off"
+    spellCheck={false}
     placeholder={searchPlaceholder}
     value={searchQuery}
     onChange={(e) => setSearchQuery(e.target.value)}
-    className="h-full w-full min-w-0 border-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+    className="h-full w-full min-w-0 appearance-none border-0 bg-transparent p-0 text-sm text-foreground shadow-none ring-0 placeholder:text-muted-foreground outline-none focus:outline-none focus-visible:outline-none focus-visible:!outline-none [&:focus]:!outline-none [&:focus-visible]:!outline-none"
+    style={{ outline: 'none', boxShadow: 'none' }}
     aria-label="Search your bot trades"
    />
   </label>
@@ -461,25 +523,27 @@ export default function HistoryPage() {
  >
   Previous
  </button>
- <div className="flex gap-2">
- {Array.from({ length: Math.min(3, totalPages) }).map((_, index) => {
-  const page = Math.min(totalPages, Math.max(1, currentPage - 1) + index);
-  return (
-   <button
-	key={page}
-	onClick={() => setCurrentPage(page)}
-	className={cn('transition-colors hover:text-primary', page === currentPage ? 'text-foreground' : 'text-foreground/30')}
-   >
-	{page}
-   </button>
-  );
- })}
- {totalPages > 3 && <span>...</span>}
- {totalPages > 3 && (
-  <button onClick={() => setCurrentPage(totalPages)} className={cn('transition-colors hover:text-primary', totalPages === currentPage ? 'text-foreground' : 'text-foreground/30')}>
-   {totalPages}
-  </button>
- )}
+ <div className="flex items-center gap-2">
+  {getHistoryPageItems(currentPage, totalPages).map((item, index) =>
+   item === 'ellipsis' ? (
+    <span key={`ellipsis-${index}`} className="px-0.5 text-foreground/30">
+     …
+    </span>
+   ) : (
+    <button
+     key={item}
+     type="button"
+     onClick={() => setCurrentPage(item)}
+     className={cn(
+      'min-w-[1.25rem] transition-colors hover:text-primary',
+      item === currentPage ? 'font-semibold text-foreground' : 'text-foreground/30',
+     )}
+     aria-current={item === currentPage ? 'page' : undefined}
+    >
+     {item}
+    </button>
+   ),
+  )}
  </div>
  <button
   onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}

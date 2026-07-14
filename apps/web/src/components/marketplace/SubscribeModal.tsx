@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, X, Sparkles, Zap, Calendar, Infinity as InfinityIcon, Clock } from 'lucide-react';
@@ -42,6 +43,7 @@ const PROFIT_SHARE_UPFRONT_FEE = 149;
 
 export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel = 'FIXED' }: SubscribeModalProps) {
   const user = useAuthStore((s) => s.user);
+  const [mounted, setMounted] = React.useState(false);
   const [step, setStep] = React.useState<1 | 2>(1);
   const [planType, setPlanType] = React.useState<PlanType>('ANNUAL');
   const [billingModel, setBillingModel] = React.useState<SubscriptionBillingModel>(initialBillingModel);
@@ -49,6 +51,8 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [isProvisioning, setIsProvisioning] = React.useState(false);
+
+  React.useEffect(() => setMounted(true), []);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -62,7 +66,18 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
     }
   }, [isOpen, initialBillingModel]);
 
-  if (!strategy) return null;
+  // Portal to body so z-index isn't trapped under AppShell main (z-20) while
+  // MobileBottomNav sits at root z-50 and covers Cancel / Continue on phones.
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
+
+  if (!strategy || !mounted) return null;
 
   const priceFor = (key: PlanType) =>
     key === 'MONTHLY'
@@ -208,10 +223,10 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
     }
   };
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+        <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-6 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] sm:pb-6">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -227,8 +242,9 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
             exit={{ opacity: 0, y: 30, scale: 0.94 }}
             transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
             className={cn(
-              'relative w-full max-w-2xl overflow-hidden rounded-[var(--radius-modal)]',
+              'relative w-full max-w-2xl overflow-hidden rounded-t-[var(--radius-modal)] sm:rounded-[var(--radius-modal)]',
               'dashboard-card shadow-[var(--shadow-lg)]',
+              'max-h-[min(92dvh,100%)] sm:max-h-[min(90dvh,100%)] flex flex-col',
             )}
           >
             <div className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 rounded-full bg-primary/15 blur-[80px]" />
@@ -243,7 +259,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
               <X className="h-4 w-4" />
             </button>
 
-            <div className="relative p-7 sm:p-9">
+            <div className="relative flex-1 min-h-0 flex flex-col p-7 sm:p-9">
               {showSuccess ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -292,9 +308,9 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                 </motion.div>
               ) : (
                 <>
-                  <div className="flex items-start justify-between gap-4 mb-7">
+                  <div className="flex items-start justify-between gap-4 mb-5">
                     <div className="flex-1 min-w-0">
-                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/15 border border-primary/25 text-micro font-bold uppercase tracking-[0.22em] text-primary mb-2.5">
+                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/15 border border-primary/25 text-micro font-bold uppercase tracking-[0.22em] text-primary mb-2">
                         <Sparkles className="w-2.5 h-2.5" />
                         Choose billing
                       </div>
@@ -304,7 +320,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                       <p className="mt-1 text-xs text-foreground/40 font-bold uppercase tracking-[0.18em]">
                         Step {step} of 2 — {step === 1 ? 'Choose billing' : 'Confirm'}
                       </p>
-                      <p className="mt-2 text-caption text-muted-foreground">
+                      <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
                         MT5 account connection is required before purchase.{' '}
                         <Link href="/connected-accounts" className="text-primary hover:underline">
                           Connect account
@@ -325,6 +341,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                     </div>
                   </div>
 
+                  <div className="flex-1 min-h-0 overflow-y-auto">
                   <AnimatePresence mode="wait">
                     {step === 1 ? (
                       <motion.div
@@ -340,31 +357,35 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                             type="button"
                             onClick={() => setBillingModel('FIXED')}
                             className={cn(
-                              'rounded-2xl border p-4 text-left transition-all',
+                              'rounded-2xl border p-3.5 text-left transition-all',
                               !isProfitShare
                                 ? 'border-primary/50 bg-primary/[0.08] ring-1 ring-primary/30'
                                 : 'border-white/[0.08] bg-muted/25 hover:border-white/[0.16]',
                             )}
                           >
                             <p className="text-sm font-bold text-foreground">Buy Subscription</p>
-                            <p className="mt-1 text-caption text-foreground/45">
-                              Pay the regular plan price and keep 100% of trading P&L.
-                            </p>
+                            {!isProfitShare && (
+                              <p className="mt-1 text-caption text-foreground/45">
+                                Pay the regular plan price and keep 100% of trading P&L.
+                              </p>
+                            )}
                           </button>
                           <button
                             type="button"
                             onClick={() => setBillingModel('PROFIT_SHARE')}
                             className={cn(
-                              'rounded-2xl border p-4 text-left transition-all',
+                              'rounded-2xl border p-3.5 text-left transition-all',
                               isProfitShare
                                 ? 'border-chart-3/50 bg-chart-3/[0.08] ring-1 ring-chart-3/30'
                                 : 'border-white/[0.08] bg-muted/25 hover:border-white/[0.16]',
                             )}
                           >
                             <p className="text-sm font-bold text-foreground">Get Profit Sharing</p>
-                            <p className="mt-1 text-caption text-foreground/45">
-                              Pay ₹{PROFIT_SHARE_UPFRONT_FEE} into your wallet now. We settle 30% of monthly net profit or credit 30% of a monthly loss.
-                            </p>
+                            {isProfitShare && (
+                              <p className="mt-1 text-caption text-foreground/45">
+                                Pay ₹{PROFIT_SHARE_UPFRONT_FEE} into your wallet now. We settle 30% of monthly net profit or credit 30% of a monthly loss.
+                              </p>
+                            )}
                           </button>
                         </div>
 
@@ -381,7 +402,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                               whileHover={{ scale: 1.005 }}
                               whileTap={{ scale: 0.995 }}
                               className={cn(
-                                'group relative w-full rounded-2xl border p-4 text-left overflow-hidden',
+                                'group relative w-full rounded-2xl border p-3.5 text-left overflow-hidden',
                                 'transition-all duration-200',
                                 isSelected
                                   ? cn(accent.border, accent.bg, 'ring-1', accent.ring)
@@ -498,8 +519,9 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                       </motion.div>
                     )}
                   </AnimatePresence>
+                  </div>
 
-                  <div className="mt-7 flex items-center justify-between gap-3">
+                  <div className="mt-4 pt-4 pb-[max(0.25rem,env(safe-area-inset-bottom,0px))] border-t border-[var(--card-border)] flex items-center justify-between gap-3 shrink-0">
                     <Button
                       variant="ghost"
                       size="lg"
@@ -533,6 +555,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

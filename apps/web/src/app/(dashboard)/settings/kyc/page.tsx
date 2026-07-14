@@ -121,13 +121,26 @@ export default function KycSettingsPage() {
           </SettingsField>
 
           <SettingsField label="Document file">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="dash-input h-11 w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:py-1.5 file:text-xs file:font-semibold"
-            />
+            <label
+              className={cn(
+                'dash-input flex h-11 w-full cursor-pointer items-center gap-3 !px-3',
+                'hover:border-[color-mix(in_srgb,var(--primary)_25%,var(--card-border))]',
+              )}
+            >
+              <span className="inline-flex h-8 shrink-0 items-center justify-center rounded-lg bg-muted px-3 text-xs font-semibold text-foreground">
+                Choose File
+              </span>
+              <span className="min-w-0 truncate text-sm text-muted-foreground">
+                {file ? file.name : 'No file chosen'}
+              </span>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,application/pdf"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                className="sr-only"
+              />
+            </label>
           </SettingsField>
 
           <DashButton

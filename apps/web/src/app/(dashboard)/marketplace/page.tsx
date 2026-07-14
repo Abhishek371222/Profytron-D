@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useBreakpoint } from '@/lib/hooks/useBreakpoint';
 import { formatBotName } from '@/lib/bot-labels';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
 
 const FeaturedRow = dynamic(
   () =>
@@ -54,6 +55,7 @@ function MarketplacePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isMobile, width } = useBreakpoint();
+  const sessionReady = useAuthStore((s) => s.sessionReady);
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const desktopFilterInitialized = React.useRef(false);
   const [viewType, setViewType] = React.useState<'grid' | 'list'>('list');
@@ -128,6 +130,7 @@ function MarketplacePageInner() {
     },
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    enabled: sessionReady,
   });
   const activeBotsCount = myBotsQuery.data ?? 0;
 
