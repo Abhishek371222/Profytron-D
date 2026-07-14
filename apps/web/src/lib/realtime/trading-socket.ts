@@ -16,6 +16,14 @@ type EventHandler = (payload: unknown) => void;
 let socket: Socket | null = null;
 let refCount = 0;
 let activeToken: string | null = null;
+// React Strict Mode double-effects, Fast Refresh remounts, and quick
+// component churn cause refCount to bounce 1 -> 0 -> 1 within a tick.
+// Without a grace period we'd call socket.disconnect() on a socket whose
+// native WebSocket handshake hasn't finished yet — hence the "WebSocket is
+// closed before the connection is established" console warning — and then
+// immediately reopen a brand new connection for the re-mount.
+let disconnectTimer: ReturnType<typeof setTimeout> | null = null;
+const TEARDOWN_GRACE_MS = 500;
 
 const priceHandlers = new Set<EventHandler>();
 const eventHandlers = new Map<string, Set<EventHandler>>();
@@ -47,6 +55,10 @@ function bindSocketEvents(sock: Socket) {
 }
 
 function connectSocket(token: string) {
+  if (disconnectTimer) {
+    clearTimeout(disconnectTimer);
+    disconnectTimer = null;
+  }
   if (socket && activeToken === token) return socket;
 
   if (socket) {
@@ -90,13 +102,19 @@ export function acquireTradingSocket(token: string): () => void {
   connectSocket(token);
   return () => {
     refCount = Math.max(0, refCount - 1);
-    if (refCount === 0 && socket) {
+    if (refCount !== 0) return;
+    if (disconnectTimer) clearTimeout(disconnectTimer);
+    disconnectTimer = setTimeout(() => {
+      disconnectTimer = null;
+      // A re-acquire within the grace window bumped refCount back up —
+      // keep the (possibly still-connecting) socket alive.
+      if (refCount !== 0 || !socket) return;
       socket.emit('unsubscribe_prices');
       socket.removeAllListeners();
       socket.disconnect();
       socket = null;
       activeToken = null;
-    }
+    }, TEARDOWN_GRACE_MS);
   };
 }
 

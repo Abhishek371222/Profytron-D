@@ -16,6 +16,11 @@ type EventHandler = (payload: unknown) => void;
 let socket: Socket | null = null;
 let refCount = 0;
 let activeToken: string | null = null;
+// See trading-socket.ts — grace period avoids tearing down a socket whose
+// handshake is still in flight when refCount briefly bounces to 0 (Strict
+// Mode double-effects, Fast Refresh remounts).
+let disconnectTimer: ReturnType<typeof setTimeout> | null = null;
+const TEARDOWN_GRACE_MS = 500;
 const eventHandlers = new Map<string, Set<EventHandler>>();
 
 function dispatch(event: string, payload: unknown) {
@@ -37,6 +42,10 @@ function bindSocketEvents(sock: Socket) {
 }
 
 function connectSocket(token: string) {
+  if (disconnectTimer) {
+    clearTimeout(disconnectTimer);
+    disconnectTimer = null;
+  }
   if (socket && activeToken === token) return socket;
 
   if (socket) {
@@ -71,12 +80,16 @@ export function acquireCoachSocket(token: string): () => void {
   connectSocket(token);
   return () => {
     refCount = Math.max(0, refCount - 1);
-    if (refCount === 0 && socket) {
+    if (refCount !== 0) return;
+    if (disconnectTimer) clearTimeout(disconnectTimer);
+    disconnectTimer = setTimeout(() => {
+      disconnectTimer = null;
+      if (refCount !== 0 || !socket) return;
       socket.removeAllListeners();
       socket.disconnect();
       socket = null;
       activeToken = null;
-    }
+    }, TEARDOWN_GRACE_MS);
   };
 }
 
