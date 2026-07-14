@@ -21,6 +21,13 @@ const APP_SHELL_ROUTES = [
   '/my-bots', '/subscriptions', '/billing', '/team-plans', '/connected-accounts',
 ];
 
+// Routes that render the mobile bottom nav (via AppShell/MobileBottomNav) but
+// aren't in APP_SHELL_ROUTES above — that list also controls chat state
+// sharing + hides this widget's own trigger (assumes AIAssistantOrb/inline
+// entry points cover it). /markets has neither on mobile, so it still needs
+// its own trigger — just positioned high enough to clear the bottom nav.
+const EXTRA_BOTTOM_NAV_ROUTES = ['/markets'];
+
 // Focused conversion / auth flows — a floating launcher just overlaps the
 // primary CTAs (esp. on mobile), so we hide it entirely on these routes.
 const HIDDEN_ROUTES = [
@@ -113,6 +120,8 @@ export function ChatbotWidget() {
     (r) => pathname === r || pathname?.startsWith(`${r}/`),
   );
   const isAppShell = APP_SHELL_ROUTES.some((r) => pathname?.startsWith(r));
+  const clearsBottomNav =
+    isAppShell || EXTRA_BOTTOM_NAV_ROUTES.some((r) => pathname?.startsWith(r));
   const aiChatOpen = useUIStore((s) => s.aiChatOpen);
   const setAIChatOpen = useUIStore((s) => s.setAIChatOpen);
   const toggleAIChat = useUIStore((s) => s.toggleAIChat);
@@ -228,7 +237,7 @@ export function ChatbotWidget() {
   return (
     <div className={cn(
       'fixed z-[9999] flex flex-col items-end gap-3 select-none',
-      isAppShell ? 'bottom-24 right-6 sm:bottom-28 sm:right-8' : 'bottom-6 right-6',
+      clearsBottomNav ? 'bottom-24 right-6 sm:bottom-28 sm:right-8' : 'bottom-6 right-6',
     )}>
       {/* Chat window */}
       <AnimatePresence>

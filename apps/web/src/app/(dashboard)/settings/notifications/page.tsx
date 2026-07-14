@@ -126,22 +126,23 @@ export default function NotificationsPage() {
             const Icon = cat.icon;
             const active = prefs[cat.id as keyof NotificationPreferences] as boolean;
             return (
-              <div key={cat.id} className="flex items-center justify-between rounded-xl border border-[var(--card-border)] p-4">
-                <div className="flex items-center gap-3">
-                  <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center', active ? 'bg-primary/10 text-primary' : 'bg-muted/30 text-muted-foreground')}>
+              <div key={cat.id} className="flex items-center justify-between gap-3 rounded-xl border border-[var(--card-border)] p-4">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-lg', active ? 'bg-primary/10 text-primary' : 'bg-muted/30 text-muted-foreground')}>
                     <Icon className="h-4 w-4" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-semibold text-foreground">{cat.label}</p>
-                      <span className={cn('text-[10px] font-semibold px-2 py-0.5 rounded-full border', SEVERITY_STYLES[cat.severity])}>
+                      <span className={cn('rounded-full border px-2 py-0.5 text-[10px] font-semibold', SEVERITY_STYLES[cat.severity])}>
                         {cat.severity}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{cat.desc}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{cat.desc}</p>
                   </div>
                 </div>
                 <Switch
+                  className="self-center"
                   checked={active}
                   onCheckedChange={() => update(cat.id as keyof NotificationPreferences, !active)}
                 />

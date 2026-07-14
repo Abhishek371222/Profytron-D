@@ -27,7 +27,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   compress: true, // Enable gzip compression
-  allowedDevOrigins: ["192.168.1.7"],
+  // Allow LAN origin for phone/tablet testing (current Wi‑Fi IP + prior IP).
+  allowedDevOrigins: ["192.168.1.17", "192.168.1.7"],
   // Monorepo: pin Turbopack to workspace root so pnpm-hoisted `next` resolves.
   turbopack: {
     root: path.join(__dirname, "../.."),

@@ -80,7 +80,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div
       className={cn(
         "flex overflow-x-hidden relative min-w-0 brand-surface-bg",
-        isCoach || !isMobile
+        // Builder / coach: lock to the viewport so the pane fills edge-to-edge
+        // (no leftover bottom gap under the preview chrome on phones).
+        isBuilder || isCoach || !isMobile
           ? "h-[100dvh] max-h-[100dvh] overflow-hidden"
           : "min-h-[100dvh]",
       )}
@@ -131,7 +133,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         tabIndex={-1}
         className={cn(
           "flex-1 min-w-0 relative z-20 w-full flex flex-col focus:outline-none",
-          isCoach || !isMobile
+          isBuilder || isCoach || !isMobile
             ? "min-h-0 h-[100dvh] max-h-[100dvh] overflow-hidden"
             : "min-h-[100dvh]",
           // CSS-gated so mobile pre-hydration paint has no phantom right pad.
@@ -152,7 +154,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             suppressHydrationWarning
             className={cn(
               isBuilder
-                ? "p-0 max-w-none w-full h-full min-h-0"
+                ? "p-0 max-w-none w-full h-full min-h-0 flex flex-col"
                 : isCoach
                   ? "flex h-full min-h-0 w-full min-w-0 max-w-none mx-auto flex-col overflow-hidden p-1.5 sm:p-2"
                   : "p-[var(--dashboard-p)] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-[clamp(3rem,4vw,4rem)] max-w-[1920px] mx-auto w-full min-w-0",

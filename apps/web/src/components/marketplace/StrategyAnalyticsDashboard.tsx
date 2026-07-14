@@ -228,7 +228,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
       </section>
 
       {/* Advanced analytics */}
-      <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/20p-5">
+      <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/20 p-5">
         <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30 mb-1">
           Advanced Trading Analytics
         </p>
@@ -254,15 +254,15 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
           ))}
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-3 text-sm">
-          <div className="rounded-xl border border-[var(--card-border)] bg-muted/20p-3">
+          <div className="rounded-xl border border-[var(--card-border)] bg-muted/20 p-3">
             <span className="text-foreground/40">Avg Win</span>
             <span className="float-right font-semibold text-chart-3">${advanced.avgWin.toLocaleString()}</span>
           </div>
-          <div className="rounded-xl border border-[var(--card-border)] bg-muted/20p-3">
+          <div className="rounded-xl border border-[var(--card-border)] bg-muted/20 p-3">
             <span className="text-foreground/40">Avg Loss</span>
             <span className="float-right font-semibold text-destructive">${Math.abs(advanced.avgLoss).toLocaleString()}</span>
           </div>
-          <div className="rounded-xl border border-[var(--card-border)] bg-muted/20p-3">
+          <div className="rounded-xl border border-[var(--card-border)] bg-muted/20 p-3">
             <span className="text-foreground/40">Floating PnL</span>
             <span
               className={cn(
