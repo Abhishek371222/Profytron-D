@@ -2,7 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { z } from 'zod';
+import { z } from '@/lib/zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, Sparkles, Lock, Mail, Shield } from 'lucide-react';
