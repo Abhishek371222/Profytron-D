@@ -234,7 +234,11 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), payment=()",
+            // Razorpay/Stripe checkout use the Payment Request API — blocking
+            // `payment` outright (payment=()) breaks their UPI/wallet fast
+            // checkout and logs a permissions-policy violation on every load.
+            value:
+              'camera=(), microphone=(), geolocation=(), payment=(self "https://checkout.razorpay.com" "https://api.razorpay.com" "https://js.stripe.com")',
           },
           {
             key: "Cross-Origin-Opener-Policy",
