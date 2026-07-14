@@ -195,21 +195,22 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               // Next.js (App Router) hydrates via inline bootstrap scripts, so
               // 'unsafe-inline' is required for the app's own JS to run at all.
-              // In development, React Refresh / webpack HMR additionally need
-              // 'unsafe-eval'. Without these the browser blocks all page JS and
-              // client components render blank. (Replace with per-request nonces
-              // if/when SSR nonce injection is wired up.)
+              // Production intentionally omits 'unsafe-eval'. Zod v4's
+              // Function() JIT probe is disabled via `z.config({ jitless: true })`
+              // in src/lib/zod.ts — do not add 'unsafe-eval' for that.
+              // In development, React Refresh / webpack HMR still need
+              // 'unsafe-eval' or client components can render blank.
               // Payment SDKs are loaded from their own CDNs: Razorpay Checkout
               // (checkout.razorpay.com) and Stripe.js (js.stripe.com). They must
               // be whitelisted in script-src or the browser blocks them.
               isProd
-                ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://va.vercel-scripts.com"
-                : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://va.vercel-scripts.com",
+                ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com"
+                : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
               // unsafe-inline required by Tailwind CSS and CSS-in-JS at runtime
               "style-src 'self' 'unsafe-inline' https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
               "img-src 'self' data: https:",
               "font-src 'self' data: https://*.tradingview.com https://*.tradingview-widget.com",
-              `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io https://*.tradingview.com https://s3.tradingview.com wss://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com wss://*.tradingview-widget.com https://va.vercel-scripts.com https://vitals.vercel-insights.com`,
+              `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io https://*.tradingview.com https://s3.tradingview.com wss://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com wss://*.tradingview-widget.com`,
               // Razorpay/Stripe payment UI + TradingView chart embeds (widget host is tradingview-widget.com).
               "frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://js.stripe.com https://hooks.stripe.com https://*.tradingview.com https://s.tradingview.com https://www.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
               "frame-ancestors 'none'",

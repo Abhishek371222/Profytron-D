@@ -332,7 +332,7 @@ export default function BestAffiliatesPage() {
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 rounded-full border border-chart-3/20 bg-chart-3/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-chart-3">
                   <TrendingUp className="h-4 w-4" />
-                  +{leader.growth}%
+                  {leader.growth > 0 ? '+' : ''}{leader.growth}%
                 </div>
                 <div className="rounded-full border border-border bg-foreground/4 p-3 text-foreground/60">
                   <Users className="h-4 w-4" />
