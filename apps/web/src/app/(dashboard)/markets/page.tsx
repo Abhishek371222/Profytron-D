@@ -464,19 +464,23 @@ function QuoteCard({
 }
 
 function SessionBoard() {
-  const [now, setNow] = React.useState(() => new Date());
+  // Start `null` so the server render and the client's first hydration pass
+  // emit identical markup — the real clock only exists client-side, set
+  // after mount to avoid a text mismatch against the server-rendered time.
+  const [now, setNow] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
+    setNow(new Date());
     const id = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(id);
   }, []);
 
-  const nowIstMin = minutesInTimeZone(now, IST);
-  const clock = formatIstClock(now);
-  const weekday = formatIstWeekday(now);
-  const openCount = SESSIONS.filter((s) =>
-    sessionOpenIst(s.openIstMin, s.closeIstMin, nowIstMin),
-  ).length;
+  const nowIstMin = now ? minutesInTimeZone(now, IST) : 0;
+  const clock = now ? formatIstClock(now) : '--:--:--';
+  const weekday = now ? formatIstWeekday(now) : '';
+  const openCount = now
+    ? SESSIONS.filter((s) => sessionOpenIst(s.openIstMin, s.closeIstMin, nowIstMin)).length
+    : 0;
 
   return (
     <div className="rounded-2xl border border-[var(--card-border)] bg-card">

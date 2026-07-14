@@ -132,7 +132,6 @@ function isTransientRefreshFailure(error: unknown): boolean {
 }
 
 async function applyRefreshedAccessToken(accessToken: string): Promise<string> {
-  useAuthStore.getState().setToken(accessToken);
   lastRefreshAt = Date.now();
   if (typeof window !== 'undefined') {
     sessionStorage.setItem('profytron_access', accessToken);
@@ -147,7 +146,10 @@ async function applyRefreshedAccessToken(accessToken: string): Promise<string> {
     /* socket optional */
   }
 
-  // Optional profile sync — never fail the refresh because /me is slow/down.
+  // Confirm the freshly-refreshed token actually authenticates before
+  // broadcasting isAuthenticated: true — every sessionReady-gated query in
+  // the app reacts to that flag, so flipping it on a token /users/me is
+  // about to reject fires a wave of 401s across every widget at once.
   try {
     const meRes = await apiClient.get('/users/me', {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -161,10 +163,18 @@ async function applyRefreshedAccessToken(accessToken: string): Promise<string> {
       if (user.role) {
         document.cookie = `user_role=${user.role}; path=/; max-age=7776000; samesite=lax`;
       }
-      useAuthStore.setState({ user, isAuthenticated: true });
     }
-  } catch {
-    /* optional */
+    useAuthStore.setState({ accessToken, user, isAuthenticated: true });
+  } catch (meError) {
+    const status = (meError as AxiosError)?.response?.status;
+    if (status === 401 || status === 403) {
+      // The refresh cookie was valid but the issued token isn't accepted —
+      // don't mark the app authenticated on it. Let the original caller's
+      // own retry/error handling decide what happens next.
+      throw meError;
+    }
+    // Transient /me failure (network/5xx) — trust the refresh itself.
+    useAuthStore.getState().setToken(accessToken);
   }
 
   return accessToken;

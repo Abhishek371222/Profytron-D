@@ -166,8 +166,17 @@ export const useAuthStore = create<AuthState>()(
           try {
             user = await tryMe(accessToken);
             syncUserCookies(user);
-          } catch {
-            /* keep whatever user we have */
+          } catch (meError) {
+            // A freshly-refreshed token that /users/me itself rejects (401/403)
+            // is not authenticated, whatever the API said a moment ago — treat
+            // it as a failed hydrate so we don't mark isAuthenticated true and
+            // let every session-gated query on the page fire against a token
+            // the API is going to reject anyway.
+            const status = (meError as { response?: { status?: number } })?.response?.status;
+            if (status === 401 || status === 403) {
+              throw meError;
+            }
+            /* transient /me failure (network/5xx) — keep whatever user we have */
           }
           if (typeof window !== 'undefined') {
             sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
