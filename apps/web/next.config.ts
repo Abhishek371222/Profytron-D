@@ -203,6 +203,8 @@ const nextConfig: NextConfig = {
               // Payment SDKs are loaded from their own CDNs: Razorpay Checkout
               // (checkout.razorpay.com) and Stripe.js (js.stripe.com). They must
               // be whitelisted in script-src or the browser blocks them.
+              // @vercel/analytics (<Analytics /> in layout.tsx) loads its beacon
+              // script from va.vercel-scripts.com — must be whitelisted too.
               isProd
                 ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com"
                 : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
