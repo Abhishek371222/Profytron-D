@@ -55,9 +55,7 @@ function MarketplacePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isMobile, width } = useBreakpoint();
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const sessionReady = isAuthenticated && !isHydrating;
+  const sessionReady = useAuthStore((s) => s.sessionReady);
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const desktopFilterInitialized = React.useRef(false);
   const [viewType, setViewType] = React.useState<'grid' | 'list'>('list');

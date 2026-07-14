@@ -29,10 +29,7 @@ function normalizeAccounts(raw: unknown): BrokerAccountSummary[] {
 }
 
 export function useAccountContext() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
 
   const brokerAccountsQuery = useQuery({
     queryKey: ['broker-accounts'],

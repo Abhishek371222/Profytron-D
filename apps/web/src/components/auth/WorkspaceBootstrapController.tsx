@@ -59,15 +59,13 @@ export function WorkspaceBootstrapController() {
   const exiting = useWorkspaceBootstrapStore((s) => s.exiting);
   const completeStep = useWorkspaceBootstrapStore((s) => s.completeStep);
   const beginExit = useWorkspaceBootstrapStore((s) => s.beginExit);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
   const queryClient = useQueryClient();
   const runIdRef = React.useRef(0);
 
   React.useEffect(() => {
     if (!active || exiting) return;
-    if (isHydrating) return;
-    if (!accessToken) return;
+    if (!sessionReady) return;
 
     const runId = ++runIdRef.current;
     let cancelled = false;
@@ -241,8 +239,7 @@ export function WorkspaceBootstrapController() {
   }, [
     active,
     exiting,
-    accessToken,
-    isHydrating,
+    sessionReady,
     queryClient,
     completeStep,
     beginExit,

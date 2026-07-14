@@ -70,10 +70,7 @@ const RISK_STATS: {
 export default function RiskAnalyticsPage() {
   const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('1m');
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
 
   const riskQuery = useQuery({
     queryKey: ['analytics', 'risk', range],

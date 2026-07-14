@@ -21,6 +21,12 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isHydrating: boolean;
+  /** True once auth is confirmed AND has held for SESSION_SETTLE_MS.
+   * A freshly-issued token can be momentarily rejected by other endpoints
+   * while the backend's session/cache state finishes propagating — gating
+   * dashboard queries on this instead of isAuthenticated directly avoids
+   * that first-request-401-then-silent-retry flash across every widget. */
+  sessionReady: boolean;
   setAuth: (user: User, accessToken: string) => void;
   setToken: (token: string) => void;
   updateUser: (patch: Partial<User>) => void;
@@ -48,6 +54,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: false,
       isHydrating: true,
+      sessionReady: false,
       setAuth: (user, accessToken) => set({ user, accessToken, isAuthenticated: true }),
       setToken: (accessToken) => set({ accessToken, isAuthenticated: true }),
       updateUser: (patch) => {
@@ -223,7 +230,38 @@ export const useAuthStore = create<AuthState>()(
         state.isAuthenticated = false;
         state.accessToken = null;
         state.isHydrating = true;
+        state.sessionReady = false;
       },
     },
   ),
 );
+
+// A freshly-confirmed token can still be momentarily rejected by other
+// endpoints while the backend's session/cache state finishes propagating.
+// Derive `sessionReady` centrally (rather than in every consumer) so it only
+// flips true SESSION_SETTLE_MS after auth is confirmed, and flips false
+// immediately the moment auth drops — every dashboard query should gate on
+// this instead of computing its own isAuthenticated && !isHydrating check.
+const SESSION_SETTLE_MS = 400;
+let sessionSettleTimer: ReturnType<typeof setTimeout> | null = null;
+
+useAuthStore.subscribe((state, prevState) => {
+  const isReady = state.isAuthenticated && !state.isHydrating && Boolean(state.accessToken);
+  const wasReady =
+    prevState.isAuthenticated && !prevState.isHydrating && Boolean(prevState.accessToken);
+  if (isReady === wasReady) return;
+
+  if (sessionSettleTimer) {
+    clearTimeout(sessionSettleTimer);
+    sessionSettleTimer = null;
+  }
+
+  if (isReady) {
+    sessionSettleTimer = setTimeout(() => {
+      sessionSettleTimer = null;
+      useAuthStore.setState({ sessionReady: true });
+    }, SESSION_SETTLE_MS);
+  } else if (state.sessionReady) {
+    useAuthStore.setState({ sessionReady: false });
+  }
+});

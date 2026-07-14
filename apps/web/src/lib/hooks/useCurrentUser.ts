@@ -3,7 +3,7 @@ import { usersApi } from '../api/users';
 import { useAuthStore } from '../stores/useAuthStore';
 
 export function useCurrentUser() {
-  const { isAuthenticated, isHydrating, user } = useAuthStore();
+  const { user, sessionReady } = useAuthStore();
 
   return useQuery({
     queryKey: ['currentUser'],
@@ -18,7 +18,7 @@ export function useCurrentUser() {
         throw new Error('Unable to load current user');
       }
     },
-    enabled: isAuthenticated && !isHydrating,
+    enabled: sessionReady,
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 }

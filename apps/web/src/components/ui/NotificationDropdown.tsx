@@ -62,14 +62,10 @@ function timeAgo(iso: string) {
 }
 
 export function NotificationDropdown() {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
   const [items, setItems] = React.useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
-
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
 
   const load = React.useCallback(async () => {
     if (!sessionReady) return;

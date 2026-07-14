@@ -43,10 +43,7 @@ const MONTHS_BY_RANGE: Record<AnalyticsRange, number> = {
 export default function PerformanceAnalyticsPage() {
   const queryClient = useQueryClient();
   const [range, setRange] = React.useState<AnalyticsRange>('1m');
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
 
   const portfolioQuery = useQuery({
     queryKey: ['analytics', 'portfolio', range],

@@ -12,8 +12,7 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 export function ActivationChecklist() {
   const [dismissed, setDismissed] = React.useState(false);
   const user = useAuthStore((s) => s.user);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
 
   React.useEffect(() => {
     setDismissed(localStorage.getItem('profytron_activation_dismissed') === 'true');
@@ -23,7 +22,7 @@ export function ActivationChecklist() {
     queryKey: ['activation-progress'],
     queryFn: () => growthApi.getActivation(),
     staleTime: 30_000,
-    enabled: !isHydrating && isAuthenticated && !isAdminUser(user),
+    enabled: sessionReady && !isAdminUser(user),
   });
 
   if (isAdminUser(user) || dismissed || isLoading || !data) return null;

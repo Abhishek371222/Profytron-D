@@ -102,10 +102,7 @@ export default function MyBotsPage() {
   const qc = useQueryClient();
   const { formatPrice } = useCurrency();
   const [tab, setTab] = React.useState<BotStatus | 'ALL'>('ALL');
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isHydrating = useAuthStore((s) => s.isHydrating);
-  const accessToken = useAuthStore((s) => s.accessToken);
-  const sessionReady = isAuthenticated && !isHydrating && Boolean(accessToken);
+  const sessionReady = useAuthStore((s) => s.sessionReady);
 
   React.useEffect(() => {
     if (!sessionReady) return;
