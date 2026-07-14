@@ -202,7 +202,7 @@ export default function RiskAnalyticsPage() {
       <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">
         <ChartCard eyebrow="Drawdown" title="Drawdown Curve" delay={0.1}>
           <div className="h-[240px] relative">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} initialDimension={{ width: 400, height: 250 }}>
               <AreaChart data={risk?.drawdownCurve ?? []} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="riskFill" x1="0" y1="0" x2="0" y2="1">
