@@ -10,12 +10,10 @@ COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 COPY services/ai/package.json ./services/ai/
 COPY services/backtest/package.json ./services/backtest/
-COPY packages/types/package.json ./packages/types/
 
 RUN pnpm install --frozen-lockfile --filter profytron... --ignore-scripts
 
 COPY apps/web ./apps/web
-COPY packages/types ./packages/types
 
 WORKDIR /app/apps/web
 ENV NEXT_TELEMETRY_DISABLED=1

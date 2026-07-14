@@ -17,7 +17,6 @@ COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
 COPY services/ai/package.json ./services/ai/
 COPY services/backtest/package.json ./services/backtest/
-COPY packages/types/package.json ./packages/types/
 
 # Install API deps (+ its workspace deps). --ignore-scripts so the api
 # postinstall (prisma generate) does not run before the schema is copied.
