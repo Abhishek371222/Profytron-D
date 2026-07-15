@@ -131,16 +131,25 @@ export default function DashboardPage() {
   const freeMargin =
     accountInfo?.freeMargin ?? Math.max(0, equity - margin);
 
+  // Gates the sessionStorage read below to client-only renders: reading it
+  // straight in the useMemo ran during SSR too (where it's always empty) and
+  // disagreed with the client's first hydration pass (already-cached value),
+  // causing a hydration mismatch — same class of bug as stickyAccount in
+  // useDashboardData.ts.
+  const [mountedForCache, setMountedForCache] = React.useState(false);
+  React.useEffect(() => setMountedForCache(true), []);
+
   const unrealizedPnl = React.useMemo(() => {
     if (openTrades.length > 0) {
       return openTrades.reduce((s, t) => s + Number(t.pnl || 0), 0);
     }
+    if (!mountedForCache) return 0;
     const cached = readOverviewAccountCache();
     if (openTradesInitialLoading && cached?.unrealizedPnl != null) {
       return Number(cached.unrealizedPnl);
     }
     return 0;
-  }, [openTrades, openTradesInitialLoading]);
+  }, [openTrades, openTradesInitialLoading, mountedForCache]);
   const [nowMs] = React.useState(() => Date.now());
   const realizedPnl24h = React.useMemo(() => {
     const cutoff = nowMs - 24 * 60 * 60 * 1000;

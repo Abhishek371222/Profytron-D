@@ -6,6 +6,7 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { resolvePostLoginRedirect } from '@/lib/utils';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
+import { resumePendingOAuthPopup } from '@/lib/auth/social-oauth';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -16,6 +17,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (window.location.pathname.startsWith('/auth/callback')) {
       return;
     }
+
+    // A page reload while a popup OAuth flow was in flight (e.g. dev-mode
+    // Fast Refresh) wipes the in-memory storage listener that would have
+    // caught the popup's result — recover it here so a stray reload doesn't
+    // strand the login page forever.
+    resumePendingOAuthPopup();
 
     const params = new URLSearchParams(window.location.search);
     const oauthCode = params.get('oauthCode');

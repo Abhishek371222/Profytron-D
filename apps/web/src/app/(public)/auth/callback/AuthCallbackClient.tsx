@@ -8,6 +8,7 @@ import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
 import { resolvePostLoginRedirect } from '@/lib/utils';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
+import { OAUTH_POPUP_PENDING_KEY, OAUTH_POPUP_RESULT_KEY } from '@/lib/auth/social-oauth';
 import type { AxiosError } from 'axios';
 
 const SYNC_MAX_ATTEMPTS = 4;
@@ -23,17 +24,44 @@ function sleep(ms: number) {
  * Rather than navigating the popup itself, hand the destination back to the
  * opener (which holds the real login page) and close — the opener does the
  * actual navigation, picking up the session cookie that was just set.
+ *
+ * Detection/delivery both go through localStorage, not window.opener/name.
+ * Verified against the real redirect chain: this site's
+ * Cross-Origin-Opener-Policy: same-origin header doesn't just sever
+ * window.opener on the popup's first cross-origin hop (ours -> NestJS ->
+ * Google) — it forces a genuinely new, unrelated browsing context, which also
+ * resets window.name to "". Neither survives, so nothing tied to
+ * browsing-context identity can be trusted here. localStorage has no such tie
+ * (pure per-origin storage) and came through intact in that same test.
+ *
  * Returns true if handled (caller should stop), false for a normal top-level tab.
  */
 function finishInPopup(destination: string): boolean {
-  if (typeof window === 'undefined' || !window.opener || window.opener === window) {
+  if (typeof window === 'undefined') {
     return false;
   }
-  window.opener.postMessage(
-    { source: 'profytron-oauth', redirectTo: destination },
-    window.location.origin,
-  );
-  window.close();
+  let isPopupFlow = false;
+  try {
+    isPopupFlow = window.localStorage.getItem(OAUTH_POPUP_PENDING_KEY) !== null;
+  } catch {
+    return false;
+  }
+  if (!isPopupFlow) {
+    return false;
+  }
+
+  try {
+    window.localStorage.removeItem(OAUTH_POPUP_PENDING_KEY);
+    window.localStorage.setItem(OAUTH_POPUP_RESULT_KEY, JSON.stringify({ redirectTo: destination }));
+  } catch {
+    return false;
+  }
+  // Closing immediately can race ahead of the browser dispatching the
+  // storage event to the opener — give it a beat to actually propagate
+  // before this window (and its half of the event pipe) goes away.
+  window.setTimeout(() => {
+    window.close();
+  }, 150);
   return true;
 }
 
@@ -117,7 +145,9 @@ export default function AuthCallbackClient() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      if (syncStartedRef.current) return;
+      if (syncStartedRef.current) {
+        return;
+      }
       syncStartedRef.current = true;
 
       // NestJS OAuth (Google/GitHub) returns a one-time code. Exchanging it here
@@ -139,13 +169,19 @@ export default function AuthCallbackClient() {
           const user = unwrapApiResponse<any>(meRes.data);
           const redirectTo = searchParams.get('redirect') || '/dashboard';
           const dest = resolvePostLoginRedirect(user, redirectTo);
-          if (finishInPopup(dest)) return;
+          const handledInPopup = finishInPopup(dest);
+          if (handledInPopup) {
+            return;
+          }
           login(accessToken, user);
           useWorkspaceBootstrapStore.getState().startBootstrap(dest);
           router.replace(dest);
         } catch (e) {
           console.error('OAuth code exchange failed:', e);
-          if (finishInPopup('/login?error=oauth_failed')) return;
+          const handledInPopup = finishInPopup('/login?error=oauth_failed');
+          if (handledInPopup) {
+            return;
+          }
           router.push('/login?error=oauth_failed');
         }
         return;

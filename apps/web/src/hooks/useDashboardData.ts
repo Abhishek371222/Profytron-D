@@ -141,9 +141,17 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   });
 
   // Sticky last-good snapshot — hydrate from sessionStorage so reload never flashes 0.
-  const [stickyAccount, setStickyAccount] = React.useState<LiveAccountInfo | null>(
-    () => toLiveAccountInfo(readOverviewAccountCache()),
-  );
+  // Seeded null (not read eagerly) because sessionStorage doesn't exist during
+  // SSR: reading it in the useState initializer made the server render ($0)
+  // disagree with the client's first hydration pass (already-cached balance),
+  // causing a hydration mismatch. Read it in an effect instead, which only
+  // ever runs client-side, after the render that has to match SSR.
+  const [stickyAccount, setStickyAccount] = React.useState<LiveAccountInfo | null>(null);
+
+  React.useEffect(() => {
+    const cached = toLiveAccountInfo(readOverviewAccountCache());
+    if (cached) setStickyAccount(cached);
+  }, []);
 
   const liveAccountSnapshot = React.useMemo((): LiveAccountInfo | null => {
     if (brokerAccountsQuery.isError || !defaultAccount) return null;

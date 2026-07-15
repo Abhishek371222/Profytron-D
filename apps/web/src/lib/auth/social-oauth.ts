@@ -45,18 +45,143 @@ function isSupabaseSocialBroken(): boolean {
   return false;
 }
 
-type OAuthPopupMessage = { source?: string; redirectTo?: string };
+/**
+ * localStorage keys used to hand the OAuth result back from the popup to the
+ * opener. Read by AuthCallbackClient.tsx too — keep in sync.
+ *
+ * Why localStorage and not window.opener/postMessage or window.name/
+ * BroadcastChannel: the popup's redirect chain hops across origins (ours ->
+ * NestJS -> Google -> back), and this site sends
+ * Cross-Origin-Opener-Policy: same-origin. Verified against the real chain
+ * (not simulated): that header doesn't just sever window.opener on the first
+ * cross-origin hop — it forces the popup into a genuinely new, unrelated
+ * browsing context, which *also* resets window.name to "". Neither opener nor
+ * name survive, so nothing tied to browsing-context identity can be trusted
+ * as the "am I the popup" signal or as a delivery channel. localStorage is
+ * pure origin-scoped storage with no ties to browsing-context identity at
+ * all, so it comes through unaffected — confirmed empirically by driving a
+ * real popup through an actual Google redirect and back.
+ */
+export const OAUTH_POPUP_PENDING_KEY = 'profytron-oauth-popup-pending';
+export const OAUTH_POPUP_RESULT_KEY = 'profytron-oauth-popup-result';
+
+/** Give up listening after this long if the popup never reports back
+ * (abandoned flow, or the user closed it partway through). */
+const OAUTH_POPUP_LISTEN_TIMEOUT_MS = 5 * 60 * 1000;
+
+/** Parses a popup result payload and navigates the opener if it resolves to a destination. */
+function applyPopupResult(raw: string) {
+  try {
+    window.localStorage.removeItem(OAUTH_POPUP_RESULT_KEY);
+  } catch {
+    /* ignore */
+  }
+  let data: { redirectTo?: string } | null = null;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return;
+  }
+  if (data?.redirectTo) {
+    window.location.href = data.redirectTo;
+  }
+}
+
+/**
+ * Attaches the storage listener that catches the popup's result and navigates
+ * the opener. Used both right after opening a popup, and to re-arm listening
+ * on a fresh page load (see resumePendingOAuthPopup below).
+ */
+function armPopupResultListener() {
+  const cleanup = () => {
+    window.removeEventListener('storage', handleStorage);
+    window.clearTimeout(giveUpTimer);
+    try {
+      window.localStorage.removeItem(OAUTH_POPUP_PENDING_KEY);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key !== OAUTH_POPUP_RESULT_KEY || !event.newValue) {
+      return;
+    }
+    cleanup();
+    applyPopupResult(event.newValue);
+  };
+  window.addEventListener('storage', handleStorage);
+
+  const giveUpTimer = window.setTimeout(cleanup, OAUTH_POPUP_LISTEN_TIMEOUT_MS);
+}
+
+/**
+ * Recovers a pending popup flow after a fresh page load (e.g. the opener tab
+ * reloaded mid-flight — a dev-mode Fast Refresh reload is the common case,
+ * since none of this survives a page reload: it's plain in-memory JS state).
+ * Without this, a reload between "popup opened" and "popup finished" silently
+ * drops the completion signal forever — the popup closes right on schedule,
+ * but nothing is left listening on the opener side to act on it.
+ *
+ * Call once on app mount (outside /auth/callback, which is the popup's own
+ * page and has nothing to recover into).
+ */
+export function resumePendingOAuthPopup() {
+  if (typeof window === 'undefined') return;
+  let pending: string | null = null;
+  try {
+    pending = window.localStorage.getItem(OAUTH_POPUP_PENDING_KEY);
+  } catch {
+    return;
+  }
+  if (!pending) return;
+
+  let existingResult: string | null = null;
+  try {
+    existingResult = window.localStorage.getItem(OAUTH_POPUP_RESULT_KEY);
+  } catch {
+    /* ignore */
+  }
+  if (existingResult) {
+    try {
+      window.localStorage.removeItem(OAUTH_POPUP_PENDING_KEY);
+    } catch {
+      /* ignore */
+    }
+    applyPopupResult(existingResult);
+    return;
+  }
+
+  // No result yet — the popup may still be working. Re-arm listening so its
+  // eventual write is still caught by this (freshly loaded) page.
+  armPopupResultListener();
+}
 
 /**
  * Opens the OAuth flow in a popup instead of navigating the whole page away,
  * so a user who backs out just closes the popup and stays on the login page
  * (no more getting stranded on Google's account picker with nothing behind it).
- * The popup runs the normal redirect chain and, once it lands back on our own
- * origin at /auth/callback, posts the final destination back here and closes
- * itself; we then hard-navigate so the freshly-set session cookie is picked up.
+ *
+ * Deliberately does NOT try to detect "the user closed the popup" via
+ * popup.closed. Verified empirically: the moment the popup navigates
+ * cross-origin (which it always does here, to Google), COOP forces it into
+ * an isolated browsing context group, and the opener's popup.closed reads
+ * true from that point on regardless of whether it's actually still open —
+ * the opener can no longer observe it at all, so the browser reports it as
+ * gone. Polling that would tear the listener down within moments of opening
+ * the popup, long before the user could ever finish. A generous timeout is
+ * the only reliable fallback.
  */
 function openOAuthPopup(url: string) {
   if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.setItem(OAUTH_POPUP_PENDING_KEY, String(Date.now()));
+  } catch {
+    // Storage disabled (private mode etc.) — the popup just won't recognize
+    // itself as a popup and will fall back to a normal top-level login in
+    // that window, which the user can still close manually.
+  }
 
   const width = 480;
   const height = 640;
@@ -64,7 +189,7 @@ function openOAuthPopup(url: string) {
   const top = window.screenY + Math.max((window.outerHeight - height) / 2, 0);
   const popup = window.open(
     url,
-    'profytron-oauth',
+    'profytron-oauth-popup',
     `width=${width},height=${height},left=${left},top=${top}`,
   );
 
@@ -74,24 +199,7 @@ function openOAuthPopup(url: string) {
     return;
   }
 
-  const cleanup = () => {
-    window.removeEventListener('message', handleMessage);
-    window.clearInterval(pollClosed);
-  };
-
-  const handleMessage = (event: MessageEvent<OAuthPopupMessage>) => {
-    if (event.origin !== window.location.origin) return;
-    if (!event.data || event.data.source !== 'profytron-oauth') return;
-    cleanup();
-    if (event.data.redirectTo) {
-      window.location.href = event.data.redirectTo;
-    }
-  };
-  window.addEventListener('message', handleMessage);
-
-  const pollClosed = window.setInterval(() => {
-    if (popup.closed) cleanup();
-  }, 500);
+  armPopupResultListener();
 }
 
 /**
