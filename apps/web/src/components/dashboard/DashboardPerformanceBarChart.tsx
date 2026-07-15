@@ -18,7 +18,7 @@ export default function DashboardPerformanceBarChart({ data }: { data: Performan
       aria-label={summary ? `Performance metrics bar chart. ${summary}.` : 'Performance metrics bar chart'}
       className="h-full w-full"
     >
-    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+    <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
       <BarChart data={data} layout="vertical" margin={{ top: 0, right: 16, bottom: 0, left: 0 }}>
         <CartesianGrid strokeDasharray="2 4" stroke="rgba(0,0,0,0.06)" horizontal={false} />
         <XAxis

@@ -72,7 +72,7 @@ export function AnalyticsEquityChart({ data }: { data: EquityPoint[] }) {
 
   return (
     <div className="h-[220px] relative" role="img" aria-label={ariaLabel}>
-      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
         <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 4, left: 4 }}>
           <defs>
             <linearGradient id="analyticsEqFill" x1="0" y1="0" x2="0" y2="1">

@@ -285,7 +285,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
             Balance (closed PnL) vs equity (includes floating open positions).
           </p>
           <div className="h-[300px]" role="img" aria-label="Balance versus equity chart">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
               <LineChart data={equityData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} />
                 <XAxis
@@ -340,7 +340,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
             ))}
           </div>
           <div className="mt-4 h-[140px]" role="img" aria-label="Monthly returns chart">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
               <BarChart data={charts?.monthlyReturns ?? []} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} />
                 <XAxis dataKey="month" tick={{ fill: 'var(--muted-foreground)', fontSize: 9 }} axisLine={false} tickLine={false} />
@@ -369,7 +369,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
         <p className="text-base font-bold text-foreground mt-1 mb-4">Symbol Concentration</p>
         <div className="grid gap-6 lg:grid-cols-2 items-center">
           <div className="h-[260px]" role="img" aria-label="Symbol concentration chart">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
               <PieChart>
                 <Pie
                   data={charts?.symbolDistribution ?? []}

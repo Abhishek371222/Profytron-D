@@ -170,6 +170,13 @@ export class RedisService {
       if (result > 0) return true;
       return this.memoryStore.has(key);
     } catch (error) {
+      // `exists()` backs the blacklist check that runs on EVERY authenticated
+      // request (JwtStrategy + JwtRefreshStrategy). Throwing here used to
+      // "fail hard to protect auth state", but a single Upstash blip during a
+      // burst of parallel dashboard requests would then 401/500-storm the
+      // entire app. Degrade like get()/set()/del(): trust the in-process
+      // mirror (populated by set() when THIS instance blacklists a token),
+      // otherwise treat as "not blacklisted" until Redis recovers.
       if (isSecurityCriticalKey(key)) {
         if (this.memoryStore.has(key)) {
           this.logger.warn(
@@ -178,9 +185,11 @@ export class RedisService {
           return true;
         }
         this.logger.error(
-          `Redis unavailable for security-critical exists(${key}). Failing hard to protect auth state.`,
+          `Redis unavailable for security-critical exists(${key}); treating as not-blacklisted to avoid app-wide auth storms. ${
+            error instanceof Error ? error.message : 'unknown error'
+          }`,
         );
-        throw error;
+        return false;
       }
       this.logger.warn(
         `Redis unavailable for exists(${key}), checking in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,

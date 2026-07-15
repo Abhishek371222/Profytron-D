@@ -76,6 +76,11 @@ async function syncFirebaseSession(payload: {
   throw lastError;
 }
 
+// This page only ever runs for: (1) the legacy NestJS oauthCode exchange, and
+// (2) GitHub's Firebase signInWithRedirect callback (or Google's, if the
+// signInWithPopup fallback in social-oauth.ts had to fall back to a redirect
+// because the popup was blocked). Google's normal path resolves directly in
+// social-oauth.ts's signInWithPopup call and never lands here.
 export default function AuthCallbackClient() {
   const router = useRouter();
   const searchParams = useSearchParams();

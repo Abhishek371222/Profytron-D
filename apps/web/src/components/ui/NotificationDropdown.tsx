@@ -157,7 +157,7 @@ export function NotificationDropdown() {
 
       <DropdownMenuContent
         align="end"
-        className="w-[calc(100vw-2rem)] max-w-[380px] bg-popover border border-card-border shadow-[var(--shadow-lg)] rounded-card p-0 overflow-hidden"
+        className="w-[calc(100vw-2rem)] max-w-[380px] max-sm:right-[-2.75rem] bg-popover border border-card-border shadow-[var(--shadow-lg)] rounded-card p-0 overflow-hidden"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-border">

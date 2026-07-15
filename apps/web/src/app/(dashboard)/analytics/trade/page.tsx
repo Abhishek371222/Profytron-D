@@ -180,7 +180,7 @@ export default function TradeAnalyticsPage() {
       <div className="grid gap-3 lg:grid-cols-[3fr_2fr]">
         <ChartCard eyebrow="Distribution" title="Earnings Distribution" delay={0.1}>
           <div className="h-[240px] relative">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 240 }}>
               <BarChart data={trade?.distribution ?? []} margin={{ top: 8, right: 8, left: 0, bottom: 4 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID_STROKE} vertical={false} />
                 <XAxis dataKey="range" tick={CHART_AXIS_TICK} axisLine={false} tickLine={false} interval={0} angle={-20} textAnchor="end" height={48} />
@@ -214,7 +214,7 @@ export default function TradeAnalyticsPage() {
           <div className="h-[240px] relative flex items-center justify-center">
             {hasData && (trade?.winLoss ?? []).some((w) => w.value > 0) ? (
               <>
-                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 240 }}>
                   <PieChart>
                     <Pie
                       data={trade!.winLoss}

@@ -62,7 +62,7 @@ export function OverviewPerformance({
           </div>
         ) : (
           <div className="h-full min-h-[120px] w-full min-w-0">
-            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
               <AreaChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="overviewEquityFill" x1="0" y1="0" x2="0" y2="1">

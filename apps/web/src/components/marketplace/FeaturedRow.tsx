@@ -132,7 +132,7 @@ export function FeaturedRow({ strategies = [], onSubscribe }: FeaturedRowProps) 
 
                 {/* Equity curve — decorative sparkline; the numeric return is shown alongside */}
                 <div className="mt-5 h-[5.5rem] -mx-1" aria-hidden="true">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1}>
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
                     <AreaChart data={strategy.chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
                       <defs>
                         <linearGradient id={`feat-${strategy.id}`} x1="0" y1="0" x2="0" y2="1">
