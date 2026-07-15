@@ -23,7 +23,7 @@ export const unwrapApiResponse = <T>(payload: any): T => {
 // current access token to identify which session/refresh-token to revoke.
 const isAuthBootstrapEndpoint = (url?: string): boolean => {
   if (!url) return false;
-  return /\/auth\/(login|register|supabase|verify-email|forgot-password|reset-password|refresh|oauth-token-exchange)/.test(
+  return /\/auth\/(login|register|supabase|firebase|verify-email|forgot-password|reset-password|refresh|oauth-token-exchange)/.test(
     url,
   );
 };

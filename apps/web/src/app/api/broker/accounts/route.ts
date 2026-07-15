@@ -1,6 +1,6 @@
 import { createDecipheriv } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { sql as pgSql } from '@/lib/server/pg-sql';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -150,7 +150,7 @@ export async function GET(req: NextRequest) {
   const metaToken = process.env.METAAPI_TOKEN?.trim();
   if (!dbUrl || !aesKey) return error('Database not configured', 503);
 
-  const sql = neon(dbUrl);
+  const sql = pgSql(dbUrl);
   const rows = await sql`
     SELECT id, "brokerName", "accountNumberLast4", "serverName",
            "isPaperTrading", "isDefault", "isActive", "connectedAt",

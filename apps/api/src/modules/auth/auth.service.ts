@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID, randomInt } from 'crypto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import * as admin from 'firebase-admin';
 import type { Request } from 'express';
 import {
   RegisterDto,
@@ -25,6 +26,8 @@ import { AgentEventService } from '../agents/agent-event.service';
 import { AGENT_EVENTS } from '../agents/agent.types';
 import { NotificationsService } from '../notifications/notifications.service';
 import { isClosedAccount } from './account-lifecycle';
+
+const FIREBASE_AUTH_APP_NAME = 'auth';
 
 @Injectable()
 export class AuthService {
@@ -51,6 +54,35 @@ export class AuthService {
         'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — Supabase auth flows disabled',
       );
       this.supabase = null as any;
+    }
+
+    // Separate named app from FcmService's default app — Auth and FCM
+    // intentionally live in different Firebase projects (FCM keeps the
+    // original project so already-registered push tokens keep working;
+    // Auth uses the project the web app's OAuth config actually points at).
+    if (!admin.apps.some((app) => app?.name === FIREBASE_AUTH_APP_NAME)) {
+      const projectId = process.env.FIREBASE_AUTH_PROJECT_ID;
+      const clientEmail = process.env.FIREBASE_AUTH_CLIENT_EMAIL;
+      const privateKey = process.env.FIREBASE_AUTH_PRIVATE_KEY?.replace(
+        /\\n/g,
+        '\n',
+      );
+      if (projectId && clientEmail && privateKey) {
+        admin.initializeApp(
+          {
+            credential: admin.credential.cert({
+              projectId,
+              clientEmail,
+              privateKey,
+            }),
+          },
+          FIREBASE_AUTH_APP_NAME,
+        );
+      } else {
+        this.logger.warn(
+          'FIREBASE_AUTH_PROJECT_ID/CLIENT_EMAIL/PRIVATE_KEY not set — Firebase auth flow disabled',
+        );
+      }
     }
   }
 
@@ -1064,25 +1096,51 @@ export class AuthService {
       );
     }
 
-    // Ensure fullName has a meaningful default
-    const fullName = dto.fullName?.trim() || 'User';
-    const metadata = data.user.user_metadata ?? {};
     const googleId =
-      (typeof metadata.provider_id === 'string' && metadata.provider_id) ||
-      (typeof metadata.sub === 'string' && metadata.sub) ||
+      (typeof data.user.user_metadata?.provider_id === 'string' &&
+        data.user.user_metadata.provider_id) ||
+      (typeof data.user.user_metadata?.sub === 'string' &&
+        data.user.user_metadata.sub) ||
       data.user.identities?.find((identity) => identity.provider === 'google')
         ?.identity_data?.sub ||
       null;
 
+    return this.syncVerifiedIdentityAndIssueSession({
+      verifiedEmail,
+      fullName: dto.fullName,
+      avatarUrl: dto.avatarUrl,
+      bio: dto.bio,
+      googleId,
+      provider: dto.provider,
+    });
+  }
+
+  /**
+   * Shared by supabaseLogin and firebaseLogin: both verify a third-party
+   * identity token first, then converge here to upsert the local User row
+   * and issue the app's own JWT session (or a 2FA challenge).
+   */
+  private async syncVerifiedIdentityAndIssueSession(params: {
+    verifiedEmail: string;
+    fullName?: string;
+    avatarUrl?: string;
+    bio?: string;
+    googleId?: string | null;
+    provider?: string;
+  }) {
+    const { verifiedEmail, googleId, provider } = params;
+    // Ensure fullName has a meaningful default
+    const fullName = params.fullName?.trim() || 'User';
+
     this.logger.log(
-      `Identity verified for ${dto.email}. Provider: ${dto.provider}. Profile: fullName="${fullName}", hasAvatar=${!!dto.avatarUrl}`,
+      `Identity verified for ${verifiedEmail}. Provider: ${provider}. Profile: fullName="${fullName}", hasAvatar=${!!params.avatarUrl}`,
     );
 
-    // 2. Sync/create user with profile data
-    const existingSupabaseUser = await this.prisma.user.findUnique({
+    // Sync/create user with profile data
+    const existingUser = await this.prisma.user.findUnique({
       where: { email: verifiedEmail },
     });
-    if (existingSupabaseUser && isClosedAccount(existingSupabaseUser)) {
+    if (existingUser && isClosedAccount(existingUser)) {
       appError(
         HttpStatus.FORBIDDEN,
         'This account has been deleted and can no longer be accessed.',
@@ -1095,26 +1153,26 @@ export class AuthService {
       create: {
         email: verifiedEmail,
         fullName, // Use the ensured fullName
-        avatarUrl: dto.avatarUrl || null,
-        bio: dto.bio || null,
+        avatarUrl: params.avatarUrl || null,
+        bio: params.bio || null,
         googleId,
         emailVerified: true,
         referralCode: randomUUID(),
       },
       update: {
         fullName: fullName || undefined, // Update if we have a meaningful name
-        avatarUrl: dto.avatarUrl || undefined,
-        bio: dto.bio || undefined,
+        avatarUrl: params.avatarUrl || undefined,
+        bio: params.bio || undefined,
         googleId: googleId || undefined,
         emailVerified: true,
       },
     });
 
     this.logger.log(
-      `User profile synced: ${user.id} (${user.email}) - fullName="${user.fullName}", provider=${dto.provider}`,
+      `User profile synced: ${user.id} (${user.email}) - fullName="${user.fullName}", provider=${provider}`,
     );
 
-    // 3. Issue local tokens
+    // Issue local tokens
     const session = await this.issueSessionOrTwoFaChallenge(user);
     if (session.requiresTwoFa) {
       return {
@@ -1128,6 +1186,63 @@ export class AuthService {
       user: this.sanitizeUser(user),
       refreshTokenForCookie: session.tokens.refreshToken,
     };
+  }
+
+  async firebaseLogin(dto: SupabaseLoginDto) {
+    this.logger.log(`Initiating Firebase sync for: ${dto.email}`);
+
+    if (!admin.apps.some((app) => app?.name === FIREBASE_AUTH_APP_NAME)) {
+      this.logger.error(
+        'Firebase Admin not configured — set FIREBASE_AUTH_PROJECT_ID, FIREBASE_AUTH_CLIENT_EMAIL, FIREBASE_AUTH_PRIVATE_KEY on the API',
+      );
+      appError(
+        HttpStatus.SERVICE_UNAVAILABLE,
+        'Account sync is temporarily unavailable',
+        ErrorCode.INTERNAL_ERROR,
+      );
+    }
+
+    let decoded: admin.auth.DecodedIdToken;
+    try {
+      decoded = await admin.auth(admin.app(FIREBASE_AUTH_APP_NAME)).verifyIdToken(dto.token);
+    } catch (verifyError) {
+      this.logger.error(
+        `Firebase verification failed for ${dto.email}: ${(verifyError as Error).message}`,
+      );
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Invalid Firebase token',
+        ErrorCode.FIREBASE_AUTH_FAILED,
+      );
+    }
+
+    const verifiedEmail = decoded!.email?.trim().toLowerCase();
+    const dtoEmail = dto.email?.trim().toLowerCase();
+    if (!verifiedEmail || !dtoEmail || verifiedEmail !== dtoEmail) {
+      this.logger.error(
+        `Email mismatch: Firebase=${decoded!.email}, DTO=${dto.email}`,
+      );
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Email mismatch',
+        ErrorCode.EMAIL_MISMATCH,
+      );
+    }
+
+    const googleId =
+      (typeof decoded!.firebase?.identities?.['google.com']?.[0] ===
+        'string' && decoded!.firebase.identities['google.com'][0]) ||
+      decoded!.uid ||
+      null;
+
+    return this.syncVerifiedIdentityAndIssueSession({
+      verifiedEmail,
+      fullName: dto.fullName || (decoded!.name as string | undefined),
+      avatarUrl: dto.avatarUrl || (decoded!.picture as string | undefined),
+      bio: dto.bio,
+      googleId,
+      provider: dto.provider || 'firebase',
+    });
   }
 
   private async issueSessionOrTwoFaChallenge(user: {

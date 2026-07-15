@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { getFirebaseAuth } from '@/lib/firebase/client';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
@@ -15,19 +15,6 @@ const SYNC_RETRY_DELAYS_MS = [0, 800, 2000, 4000];
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function resolveOAuthEmail(
-  user: NonNullable<
-    Awaited<ReturnType<NonNullable<typeof supabase>['auth']['getSession']>>['data']['session']
-  >['user'],
-) {
-  const metadata = user.user_metadata ?? {};
-  return (
-    user.email ||
-    (typeof metadata.email === 'string' ? metadata.email : null) ||
-    null
-  );
 }
 
 function mapSyncError(error: unknown): string {
@@ -50,7 +37,7 @@ function mapSyncError(error: unknown): string {
   return 'sync_failed';
 }
 
-async function syncSupabaseSession(payload: {
+async function syncFirebaseSession(payload: {
   token: string;
   email: string;
   fullName: string;
@@ -63,7 +50,7 @@ async function syncSupabaseSession(payload: {
       await sleep(SYNC_RETRY_DELAYS_MS[attempt]);
     }
     try {
-      return await apiClient.post('/auth/supabase', payload, { timeout: 45_000 });
+      return await apiClient.post('/auth/firebase', payload, { timeout: 45_000 });
     } catch (error) {
       lastError = error;
       const axiosErr = error as AxiosError;
@@ -140,76 +127,47 @@ export default function AuthCallbackClient() {
         return;
       }
 
-      if (!supabase) {
-        console.error('Supabase client unavailable (missing env configuration)');
+      const auth = await getFirebaseAuth();
+      if (!auth) {
+        console.error('Firebase auth unavailable (missing env configuration)');
         router.push('/login?error=auth_failed');
         return;
       }
 
-      let {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        const url = new URL(window.location.href);
-        const params = new URLSearchParams(
-          `${url.search}${url.hash ? `&${url.hash.replace(/^#/, '')}` : ''}`,
-        );
-
-        const code = params.get('code');
-        const accessToken = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
-
-        if (code) {
-          const exchanged = await supabase.auth.exchangeCodeForSession(code);
-          if (exchanged.error) {
-            console.error('Supabase code exchange failed:', exchanged.error);
-          }
-        } else if (accessToken && refreshToken) {
-          const restored = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          if (restored.error) {
-            console.error('Supabase session restore failed:', restored.error);
-          }
-        }
-
-        const retry = await supabase.auth.getSession();
-        session = retry.data.session;
-        error = retry.error;
-      }
-
-      if (error || !session?.access_token) {
-        console.error('Supabase session retrieval failed:', error);
+      const { getRedirectResult } = await import('firebase/auth');
+      let result;
+      try {
+        result = await getRedirectResult(auth);
+      } catch (redirectError) {
+        console.error('Firebase redirect result failed:', redirectError);
         router.push('/login?error=auth_failed');
         return;
       }
+
+      if (!result?.user) {
+        console.error('Firebase session retrieval failed: no redirect result');
+        router.push('/login?error=auth_failed');
+        return;
+      }
+
+      const fbUser = result.user;
 
       try {
-        const metadata = session.user.user_metadata ?? {};
-        const email = resolveOAuthEmail(session.user);
+        const email = fbUser.email;
         if (!email) {
-          console.error('Supabase session is missing an email address');
+          console.error('Firebase session is missing an email address');
           router.push('/login?error=auth_failed');
           return;
         }
 
-        const fullName =
-          metadata.full_name ||
-          metadata.name ||
-          email.split('@')[0] ||
-          'User';
-        const avatarUrl =
-          metadata.avatar_url || metadata.picture || metadata.avatar;
+        const fullName = fbUser.displayName || email.split('@')[0] || 'User';
+        const avatarUrl = fbUser.photoURL || undefined;
         const provider =
-          session.user.app_metadata?.provider ||
-          session.user.identities?.[0]?.provider ||
-          'oauth';
+          fbUser.providerData[0]?.providerId?.replace('.com', '') || 'oauth';
+        const idToken = await fbUser.getIdToken();
 
-        const response = await syncSupabaseSession({
-          token: session.access_token,
+        const response = await syncFirebaseSession({
+          token: idToken,
           email,
           fullName,
           avatarUrl,

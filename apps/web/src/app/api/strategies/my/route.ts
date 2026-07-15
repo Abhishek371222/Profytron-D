@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { sql as pgSql } from '@/lib/server/pg-sql';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
     return error('Database is not configured', 503);
   }
 
-  const sql = neon(dbUrl);
+  const sql = pgSql(dbUrl);
 
   try {
     // Prefer live MT4/MT5, then any active account.

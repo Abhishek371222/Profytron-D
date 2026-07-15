@@ -1,6 +1,6 @@
 import { createCipheriv, randomBytes, randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { sql as pgSql } from '@/lib/server/pg-sql';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -215,7 +215,7 @@ export async function POST(req: NextRequest) {
     return error('Login, password, and server are required');
   }
 
-  const sql = neon(dbUrl);
+  const sql = pgSql(dbUrl);
   const last4 = login.slice(-4).padStart(4, '0');
   const resolvedBrokerName = platform === 'mt4' ? 'MT4' : 'MT5';
 
