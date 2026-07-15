@@ -1,13 +1,13 @@
 import { createDecipheriv } from 'crypto';
 import { NextRequest } from 'next/server';
-import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
+import { sql as pgSql, type SqlFunction } from './pg-sql';
 
 export type LiveBroker = {
   brokerAccountId: string;
   metaApiAccountId: string;
   region: string;
   metaToken: string;
-  sql: NeonQueryFunction<false, false>;
+  sql: SqlFunction;
 };
 
 type Creds = {
@@ -84,7 +84,7 @@ export async function loadLiveBroker(userId: string): Promise<LiveBroker | null>
   if (!dbUrl || !aesKey || !metaToken) {
     throw new Error('Trading sync is not configured');
   }
-  const sql = neon(dbUrl);
+  const sql = pgSql(dbUrl);
   const rows = await sql`
     SELECT id, "credentialsEncrypted", "isPaperTrading"
     FROM "BrokerAccount"

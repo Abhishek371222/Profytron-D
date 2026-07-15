@@ -1,5 +1,5 @@
 import { createDecipheriv, createCipheriv, randomBytes, randomUUID } from 'crypto';
-import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
+import { sql as pgSql, type SqlFunction } from './pg-sql';
 
 const PROVISIONING =
   'https://mt-provisioning-api-v1.agiliumtrade.agiliumtrade.ai';
@@ -10,7 +10,7 @@ const CF_API =
 export const DEFAULT_CF_STRATEGY_ID =
   process.env.COPYFACTORY_STRATEGY_FALLBACK?.trim() || 'Z4kE';
 
-export type Sql = NeonQueryFunction<false, false>;
+export type Sql = SqlFunction;
 
 export function metaHeaders(token: string) {
   return {
@@ -405,5 +405,5 @@ export async function linkUserCopySubscriptions(input: {
 export function createSql(): Sql {
   const dbUrl = process.env.DATABASE_URL?.trim();
   if (!dbUrl) throw new Error('DATABASE_URL is not configured');
-  return neon(dbUrl);
+  return pgSql(dbUrl);
 }

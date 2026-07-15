@@ -4,6 +4,9 @@ import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient } from '@/lib/api/client';
 
+// Deliberately separate from lib/firebase/client.ts (Auth): FCM stays on the
+// original Firebase project so already-registered push tokens keep working,
+// while Auth moved to a different project. Do not consolidate these.
 const FIREBASE_CONFIG = {
   apiKey:            process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain:        process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,

@@ -252,6 +252,37 @@ export class AuthController {
     return { accessToken: result.accessToken, user: result.user };
   }
 
+  @Public()
+  @Post('firebase')
+  @HttpCode(HttpStatus.OK)
+  // OAuth callbacks can fire twice (React Strict Mode) and users retry quickly.
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
+  @ApiResponse({ status: 200, description: 'Synchronized — tokens issued' })
+  @ApiResponse({ status: 401, description: 'Invalid Firebase token' })
+  @ApiOperation({
+    summary:
+      'Synchronize a Firebase authentication session with the local backend',
+  })
+  async firebaseLogin(
+    @Body() dto: SupabaseLoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.firebaseLogin(dto);
+    if ('requiresTwoFa' in result && result.requiresTwoFa) {
+      return {
+        requiresTwoFa: true,
+        challengeToken: result.challengeToken,
+      };
+    }
+    this.setSessionCookies(
+      res,
+      result.refreshTokenForCookie,
+      result.user?.role,
+      result.user?.onboardingCompleted,
+    );
+    return { accessToken: result.accessToken, user: result.user };
+  }
+
   // Public: a refresh call is by definition made without a valid access
   // token (that's the whole point of it), so it must not be blocked by the
   // global JwtAuthGuard's Bearer-token requirement. JwtRefreshGuard below

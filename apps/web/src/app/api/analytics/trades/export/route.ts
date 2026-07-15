@@ -1,6 +1,6 @@
 import { createDecipheriv, randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { sql as pgSql } from '@/lib/server/pg-sql';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
       return error('Trading sync is not configured', 503);
     }
 
-    const sql = neon(dbUrl);
+    const sql = pgSql(dbUrl);
 
     // Resolve the bot name the user actually subscribed to (never show "CopyFactory").
     const botRows = await sql`

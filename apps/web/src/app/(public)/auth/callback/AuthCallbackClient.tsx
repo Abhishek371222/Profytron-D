@@ -2,13 +2,12 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { getFirebaseAuth } from '@/lib/firebase/client';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
 import { resolvePostLoginRedirect } from '@/lib/utils';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
-import { OAUTH_POPUP_PENDING_KEY, OAUTH_POPUP_RESULT_KEY } from '@/lib/auth/social-oauth';
 import type { AxiosError } from 'axios';
 
 const SYNC_MAX_ATTEMPTS = 4;
@@ -16,66 +15,6 @@ const SYNC_RETRY_DELAYS_MS = [0, 800, 2000, 4000];
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-/**
- * When Google sign-in was opened in a popup (see social-oauth.ts), this page
- * renders inside that popup once the redirect chain lands back on our origin.
- * Rather than navigating the popup itself, hand the destination back to the
- * opener (which holds the real login page) and close — the opener does the
- * actual navigation, picking up the session cookie that was just set.
- *
- * Detection/delivery both go through localStorage, not window.opener/name.
- * Verified against the real redirect chain: this site's
- * Cross-Origin-Opener-Policy: same-origin header doesn't just sever
- * window.opener on the popup's first cross-origin hop (ours -> NestJS ->
- * Google) — it forces a genuinely new, unrelated browsing context, which also
- * resets window.name to "". Neither survives, so nothing tied to
- * browsing-context identity can be trusted here. localStorage has no such tie
- * (pure per-origin storage) and came through intact in that same test.
- *
- * Returns true if handled (caller should stop), false for a normal top-level tab.
- */
-function finishInPopup(destination: string): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-  let isPopupFlow = false;
-  try {
-    isPopupFlow = window.localStorage.getItem(OAUTH_POPUP_PENDING_KEY) !== null;
-  } catch {
-    return false;
-  }
-  if (!isPopupFlow) {
-    return false;
-  }
-
-  try {
-    window.localStorage.removeItem(OAUTH_POPUP_PENDING_KEY);
-    window.localStorage.setItem(OAUTH_POPUP_RESULT_KEY, JSON.stringify({ redirectTo: destination }));
-  } catch {
-    return false;
-  }
-  // Closing immediately can race ahead of the browser dispatching the
-  // storage event to the opener — give it a beat to actually propagate
-  // before this window (and its half of the event pipe) goes away.
-  window.setTimeout(() => {
-    window.close();
-  }, 150);
-  return true;
-}
-
-function resolveOAuthEmail(
-  user: NonNullable<
-    Awaited<ReturnType<NonNullable<typeof supabase>['auth']['getSession']>>['data']['session']
-  >['user'],
-) {
-  const metadata = user.user_metadata ?? {};
-  return (
-    user.email ||
-    (typeof metadata.email === 'string' ? metadata.email : null) ||
-    null
-  );
 }
 
 function mapSyncError(error: unknown): string {
@@ -98,7 +37,7 @@ function mapSyncError(error: unknown): string {
   return 'sync_failed';
 }
 
-async function syncSupabaseSession(payload: {
+async function syncFirebaseSession(payload: {
   token: string;
   email: string;
   fullName: string;
@@ -111,7 +50,7 @@ async function syncSupabaseSession(payload: {
       await sleep(SYNC_RETRY_DELAYS_MS[attempt]);
     }
     try {
-      return await apiClient.post('/auth/supabase', payload, { timeout: 45_000 });
+      return await apiClient.post('/auth/firebase', payload, { timeout: 45_000 });
     } catch (error) {
       lastError = error;
       const axiosErr = error as AxiosError;
@@ -137,6 +76,11 @@ async function syncSupabaseSession(payload: {
   throw lastError;
 }
 
+// This page only ever runs for: (1) the legacy NestJS oauthCode exchange, and
+// (2) GitHub's Firebase signInWithRedirect callback (or Google's, if the
+// signInWithPopup fallback in social-oauth.ts had to fall back to a redirect
+// because the popup was blocked). Google's normal path resolves directly in
+// social-oauth.ts's signInWithPopup call and never lands here.
 export default function AuthCallbackClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -145,9 +89,7 @@ export default function AuthCallbackClient() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      if (syncStartedRef.current) {
-        return;
-      }
+      if (syncStartedRef.current) return;
       syncStartedRef.current = true;
 
       // NestJS OAuth (Google/GitHub) returns a one-time code. Exchanging it here
@@ -167,21 +109,13 @@ export default function AuthCallbackClient() {
             headers: { Authorization: `Bearer ${accessToken}` },
           });
           const user = unwrapApiResponse<any>(meRes.data);
+          login(accessToken, user);
           const redirectTo = searchParams.get('redirect') || '/dashboard';
           const dest = resolvePostLoginRedirect(user, redirectTo);
-          const handledInPopup = finishInPopup(dest);
-          if (handledInPopup) {
-            return;
-          }
-          login(accessToken, user);
           useWorkspaceBootstrapStore.getState().startBootstrap(dest);
           router.replace(dest);
         } catch (e) {
           console.error('OAuth code exchange failed:', e);
-          const handledInPopup = finishInPopup('/login?error=oauth_failed');
-          if (handledInPopup) {
-            return;
-          }
           router.push('/login?error=oauth_failed');
         }
         return;
@@ -194,84 +128,51 @@ export default function AuthCallbackClient() {
 
       if (providerError) {
         console.error('OAuth provider error:', providerError);
-        if (finishInPopup('/login?error=auth_failed')) return;
         router.push('/login?error=auth_failed');
         return;
       }
 
-      if (!supabase) {
-        console.error('Supabase client unavailable (missing env configuration)');
-        if (finishInPopup('/login?error=auth_failed')) return;
+      const auth = await getFirebaseAuth();
+      if (!auth) {
+        console.error('Firebase auth unavailable (missing env configuration)');
         router.push('/login?error=auth_failed');
         return;
       }
 
-      let {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        const url = new URL(window.location.href);
-        const params = new URLSearchParams(
-          `${url.search}${url.hash ? `&${url.hash.replace(/^#/, '')}` : ''}`,
-        );
-
-        const code = params.get('code');
-        const accessToken = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
-
-        if (code) {
-          const exchanged = await supabase.auth.exchangeCodeForSession(code);
-          if (exchanged.error) {
-            console.error('Supabase code exchange failed:', exchanged.error);
-          }
-        } else if (accessToken && refreshToken) {
-          const restored = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          if (restored.error) {
-            console.error('Supabase session restore failed:', restored.error);
-          }
-        }
-
-        const retry = await supabase.auth.getSession();
-        session = retry.data.session;
-        error = retry.error;
-      }
-
-      if (error || !session?.access_token) {
-        console.error('Supabase session retrieval failed:', error);
-        if (finishInPopup('/login?error=auth_failed')) return;
+      const { getRedirectResult } = await import('firebase/auth');
+      let result;
+      try {
+        result = await getRedirectResult(auth);
+      } catch (redirectError) {
+        console.error('Firebase redirect result failed:', redirectError);
         router.push('/login?error=auth_failed');
         return;
       }
+
+      if (!result?.user) {
+        console.error('Firebase session retrieval failed: no redirect result');
+        router.push('/login?error=auth_failed');
+        return;
+      }
+
+      const fbUser = result.user;
 
       try {
-        const metadata = session.user.user_metadata ?? {};
-        const email = resolveOAuthEmail(session.user);
+        const email = fbUser.email;
         if (!email) {
-          console.error('Supabase session is missing an email address');
-          if (finishInPopup('/login?error=auth_failed')) return;
+          console.error('Firebase session is missing an email address');
           router.push('/login?error=auth_failed');
           return;
         }
 
-        const fullName =
-          metadata.full_name ||
-          metadata.name ||
-          email.split('@')[0] ||
-          'User';
-        const avatarUrl =
-          metadata.avatar_url || metadata.picture || metadata.avatar;
+        const fullName = fbUser.displayName || email.split('@')[0] || 'User';
+        const avatarUrl = fbUser.photoURL || undefined;
         const provider =
-          session.user.app_metadata?.provider ||
-          session.user.identities?.[0]?.provider ||
-          'oauth';
+          fbUser.providerData[0]?.providerId?.replace('.com', '') || 'oauth';
+        const idToken = await fbUser.getIdToken();
 
-        const response = await syncSupabaseSession({
-          token: session.access_token,
+        const response = await syncFirebaseSession({
+          token: idToken,
           email,
           fullName,
           avatarUrl,
@@ -283,9 +184,9 @@ export default function AuthCallbackClient() {
         >(response.data);
 
         if ('requiresTwoFa' in data && data.requiresTwoFa) {
-          const twoFaUrl = `/login?twoFaChallenge=${encodeURIComponent(data.challengeToken)}&redirect=${encodeURIComponent(searchParams.get('redirect') || '/dashboard')}`;
-          if (finishInPopup(twoFaUrl)) return;
-          router.push(twoFaUrl);
+          router.push(
+            `/login?twoFaChallenge=${encodeURIComponent(data.challengeToken)}&redirect=${encodeURIComponent(searchParams.get('redirect') || '/dashboard')}`,
+          );
           return;
         }
 
@@ -293,17 +194,14 @@ export default function AuthCallbackClient() {
           accessToken: string;
           user: any;
         };
+        login(accessToken, user);
         const redirectTo = searchParams.get('redirect') || '/dashboard';
         const dest = resolvePostLoginRedirect(user, redirectTo);
-        if (finishInPopup(dest)) return;
-        login(accessToken, user);
         useWorkspaceBootstrapStore.getState().startBootstrap(dest);
         router.replace(dest);
       } catch (e) {
         console.error('Backend synchronization failed:', e);
-        const errUrl = `/login?error=${mapSyncError(e)}`;
-        if (finishInPopup(errUrl)) return;
-        router.push(errUrl);
+        router.push(`/login?error=${mapSyncError(e)}`);
       }
     };
 
