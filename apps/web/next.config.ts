@@ -206,16 +206,22 @@ const nextConfig: NextConfig = {
               // be whitelisted in script-src or the browser blocks them.
               // @vercel/analytics (<Analytics /> in layout.tsx) loads its beacon
               // script from va.vercel-scripts.com — must be whitelisted too.
+              // Firebase Auth's signInWithRedirect/signInWithPopup for Google
+              // loads Google's gapi helper from apis.google.com (distinct from
+              // the *.googleapis.com wildcard below — not a subdomain of it)
+              // and needs www.gstatic.com for its GIS client assets.
               isProd
-                ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://va.vercel-scripts.com"
-                : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://va.vercel-scripts.com",
+                ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://va.vercel-scripts.com https://apis.google.com https://www.gstatic.com"
+                : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://va.vercel-scripts.com https://apis.google.com https://www.gstatic.com",
               // unsafe-inline required by Tailwind CSS and CSS-in-JS at runtime
               "style-src 'self' 'unsafe-inline' https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
               "img-src 'self' data: https:",
               "font-src 'self' data: https://*.tradingview.com https://*.tradingview-widget.com",
-              `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io https://*.tradingview.com https://s3.tradingview.com wss://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com wss://*.tradingview-widget.com`,
+              `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://apis.google.com https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io https://*.tradingview.com https://s3.tradingview.com wss://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com wss://*.tradingview-widget.com`,
               // Razorpay/Stripe payment UI + TradingView chart embeds (widget host is tradingview-widget.com).
-              "frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://js.stripe.com https://hooks.stripe.com https://*.tradingview.com https://s.tradingview.com https://www.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
+              // accounts.google.com + *.firebaseapp.com: Firebase Auth's internal
+              // sign-in iframe/handler for Google sign-in.
+              "frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://js.stripe.com https://hooks.stripe.com https://*.tradingview.com https://s.tradingview.com https://www.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://accounts.google.com https://*.firebaseapp.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
