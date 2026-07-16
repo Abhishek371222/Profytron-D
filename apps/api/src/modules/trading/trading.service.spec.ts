@@ -5,6 +5,7 @@ import { TradingGateway } from './trading.gateway';
 import { MasterSyncService } from './master-sync.service';
 import { TrailingStopService } from './trailing-stop.service';
 import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
+import { BotTradeSyncService } from './bot-trade-sync.service';
 import { MarketService } from '../market/market.service';
 import { getQueueToken } from '@nestjs/bull';
 
@@ -74,6 +75,13 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         {
           provide: CopyFactoryPositionSyncService,
           useValue: {
+            startPolling: jest.fn(),
+          },
+        },
+        {
+          provide: BotTradeSyncService,
+          useValue: {
+            syncSubscription: jest.fn().mockResolvedValue(undefined),
             startPolling: jest.fn(),
           },
         },

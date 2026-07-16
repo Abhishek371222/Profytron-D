@@ -65,7 +65,7 @@ export function fakeUserAccountAddress(userId: string): string {
 export function paymentCategoryForType(
   type: string,
   override?: string,
-): WalletPaymentCategory | string {
+): string {
   if (override) return override;
   return TYPE_CATEGORY[type] ?? 'Other';
 }

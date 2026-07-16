@@ -29,11 +29,13 @@ export function ExecutiveWaitBar({
     avatarUrl?: string | null;
   } | null;
 }) {
+  // Capture fallback once on mount — Date.now() must not run inside render/useMemo.
+  const [fallbackDeadline] = React.useState(() => Date.now() + 15 * 60 * 1000);
   const deadlineMs = React.useMemo(() => {
     if (slaDeadline) return new Date(slaDeadline).getTime();
     if (createdAt) return new Date(createdAt).getTime() + 15 * 60 * 1000;
-    return Date.now() + 15 * 60 * 1000;
-  }, [slaDeadline, createdAt]);
+    return fallbackDeadline;
+  }, [slaDeadline, createdAt, fallbackDeadline]);
 
   const [now, setNow] = React.useState(() => Date.now());
 

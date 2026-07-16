@@ -58,9 +58,10 @@ export class UsersService {
   }
 
   private normalizeEmail(value: unknown): string {
-    return String(value ?? '')
-      .trim()
-      .toLowerCase();
+    if (typeof value === 'string' || typeof value === 'number') {
+      return String(value).trim().toLowerCase();
+    }
+    return '';
   }
 
   private rememberDeleteOtp(userId: string, otp: string, ttlSeconds: number) {
