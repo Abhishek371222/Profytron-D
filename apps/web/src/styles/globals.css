@@ -1444,6 +1444,45 @@ body::before {
     display: none;
   }
 
+  /* Testimonial wall edge fade — masks rows toward both ends so cards
+     dissolve into the section background in either theme (mask alpha is
+     theme-agnostic; it reveals whatever surface sits behind the row). */
+  .testimonial-fade-mask {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 8%,
+      #000 92%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      #000 8%,
+      #000 92%,
+      transparent 100%
+    );
+  }
+
+  @media (min-width: 1280px) {
+    .testimonial-fade-mask {
+      -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        #000 11%,
+        #000 89%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        #000 11%,
+        #000 89%,
+        transparent 100%
+      );
+    }
+  }
+
   /* Hero ambient animation — mask fade only, no box/vignette */
   .hero-main {
     position: relative;

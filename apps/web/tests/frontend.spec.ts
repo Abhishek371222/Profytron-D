@@ -392,4 +392,60 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
       await expect(page.getByTestId('2fa-disable-button')).toHaveCount(0);
     });
   });
+
+  test.describe('8. TESTIMONIAL WALL', () => {
+    test('renders the testimonial section heading', async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto('/');
+      const section = page.locator('#testimonials');
+      await section.scrollIntoViewIfNeeded();
+      await expect(section.getByRole('heading', { name: /Validated by the/i })).toBeVisible();
+    });
+
+    test('previous/next controls update the focused testimonial and wrap', async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto('/');
+      const section = page.locator('#testimonials');
+      await section.scrollIntoViewIfNeeded();
+
+      const next = section.getByRole('button', { name: 'Next testimonial' }).first();
+      const prev = section.getByRole('button', { name: 'Previous testimonial' }).first();
+      const counter = section.getByTestId('testimonial-position').first();
+
+      await expect(counter).toHaveText('01 / 10');
+
+      // Retry the first click until it registers (guards against the section
+      // still hydrating when the very first click lands).
+      await expect(async () => {
+        await next.click();
+        await expect(counter).toHaveText('02 / 10', { timeout: 800 });
+      }).toPass({ timeout: 8000 });
+
+      // From 02, stepping back twice wraps 02 → 01 → 10.
+      await prev.click();
+      await expect(counter).toHaveText('01 / 10');
+      await prev.click();
+      await expect(counter).toHaveText('10 / 10');
+    });
+
+    test('exposes accessible navigation labels', async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto('/');
+      const section = page.locator('#testimonials');
+      await section.scrollIntoViewIfNeeded();
+      await expect(section.getByRole('button', { name: 'Next testimonial' }).first()).toBeVisible();
+      await expect(section.getByRole('button', { name: 'Previous testimonial' }).first()).toBeVisible();
+    });
+
+    test('mobile carousel does not cause horizontal body overflow', async ({ page }) => {
+      await page.setViewportSize({ width: 375, height: 667 });
+      await page.goto('/');
+      const section = page.locator('#testimonials');
+      await section.scrollIntoViewIfNeeded();
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow).toBeLessThanOrEqual(1);
+    });
+  });
 });
