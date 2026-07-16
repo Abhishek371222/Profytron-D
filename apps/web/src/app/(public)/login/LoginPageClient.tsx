@@ -19,7 +19,6 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { authApi } from '@/lib/api/auth';
 import { startSocialOAuth } from '@/lib/auth/social-oauth';
 import { resolvePostLoginRedirect } from '@/lib/utils';
-import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
 import { toast } from 'sonner';
 
 const loginSchema = z.object({
@@ -135,9 +134,12 @@ function LoginPageContent() {
       }
       const { accessToken, user } = response as { accessToken: string; user: any };
       const dest = resolvePostLoginRedirect(user, redirectTo);
-      useWorkspaceBootstrapStore.getState().startBootstrap(dest);
       login(accessToken, user);
-      router.replace(dest);
+      // Hard navigation: the refresh_token cookie was just set on this
+      // response, and a soft router.replace() can serve a stale (pre-login)
+      // middleware/router-cache result for the destination route before the
+      // cookie is visible to it. A full navigation always re-checks fresh.
+      window.location.href = dest;
     } catch (error: unknown) {
       const payload =
         typeof error === 'object' &&
@@ -203,8 +205,7 @@ function LoginPageContent() {
       });
       login(response.accessToken, response.user);
       const dest = resolvePostLoginRedirect(response.user, redirectTo);
-      useWorkspaceBootstrapStore.getState().startBootstrap(dest);
-      router.replace(dest);
+      window.location.href = dest;
     } catch (error: unknown) {
       const message =
         typeof error === 'object' &&

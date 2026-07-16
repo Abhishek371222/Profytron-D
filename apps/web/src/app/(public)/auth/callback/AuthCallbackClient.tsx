@@ -7,7 +7,6 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
 import { resolvePostLoginRedirect } from '@/lib/utils';
-import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
 import type { AxiosError } from 'axios';
 
 const SYNC_MAX_ATTEMPTS = 4;
@@ -120,8 +119,8 @@ export default function AuthCallbackClient() {
           login(accessToken, user);
           const redirectTo = searchParams.get('redirect') || '/dashboard';
           const dest = resolvePostLoginRedirect(user, redirectTo);
-          useWorkspaceBootstrapStore.getState().startBootstrap(dest);
-          router.replace(dest);
+          // Hard navigation — see note on the Firebase success path below.
+          window.location.href = dest;
         } catch (e) {
           console.error('OAuth code exchange failed:', e);
           router.push('/login?error=oauth_failed');
@@ -231,8 +230,15 @@ export default function AuthCallbackClient() {
         login(accessToken, user);
         const redirectTo = searchParams.get('redirect') || '/dashboard';
         const dest = resolvePostLoginRedirect(user, redirectTo);
-        useWorkspaceBootstrapStore.getState().startBootstrap(dest);
-        router.replace(dest);
+        // Hard navigation, not router.replace(): this callback is only
+        // reached via GitHub's redirect flow or Google's popup-blocked
+        // fallback (both common on Safari/iOS — see file header comment).
+        // The refresh_token cookie was just set on the /auth/firebase
+        // response; a client-side transition to the destination can be
+        // served from Next's router cache or race the middleware's cookie
+        // read, bouncing straight back to /login with no error param. A
+        // full navigation always re-fetches through the middleware fresh.
+        window.location.href = dest;
       } catch (e) {
         console.error('Backend synchronization failed:', e);
         router.push(`/login?error=${mapSyncError(e)}`);

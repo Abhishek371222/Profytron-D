@@ -330,7 +330,11 @@ apiClient.interceptors.response.use(
             ...originalRequest.headers,
             Authorization: `Bearer ${accessToken}`,
           };
-          return apiClient(originalRequest);
+          // Awaited so a 401 on the retry itself is caught here instead of
+          // leaking past this try/catch as an unhandled AxiosError — a bare
+          // `return apiClient(...)` resolves this async function directly,
+          // skipping the catch below entirely.
+          return await apiClient(originalRequest);
         } catch {
           forceLoginRedirect('superseded');
           return silentAuthReject(error);
@@ -353,7 +357,12 @@ apiClient.interceptors.response.use(
           ...originalRequest.headers,
           Authorization: `Bearer ${accessToken}`,
         };
-        return apiClient(originalRequest);
+        // Awaited (see comment above) so a 401 on the retry — e.g. a
+        // freshly-issued token momentarily rejected while the backend's
+        // session/cache finishes propagating right after login — is caught
+        // and handled below instead of crashing the caller with a raw
+        // AxiosError.
+        return await apiClient(originalRequest);
       } catch (refreshError) {
         const refreshStatus = (refreshError as AxiosError)?.response?.status;
         const isAuthRejection = refreshStatus === 401 || refreshStatus === 403;
