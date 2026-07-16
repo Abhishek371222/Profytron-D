@@ -42,6 +42,20 @@ enum SubscriptionTier {
   INSTITUTIONAL
 }
 
+enum ShareStatus {
+  PENDING
+  ACTIVE
+  DECLINED
+  REVOKED
+}
+
+enum TutorialStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
 enum BrokerName {
   PAPER
   MT4
@@ -300,6 +314,9 @@ model User {
   tradeJournalEntries     TradeJournalEntry[]
   apiKeys                 ApiKey[]
   activationEvents        UserActivationEvent[]
+  tutorialProgress        TutorialProgress[]
+  brokerSharesOwned       BrokerAccountShare[]    @relation("BrokerShareOwner")
+  brokerSharesReceived    BrokerAccountShare[]    @relation("BrokerShareMember")
   masterProfile           MasterProfile?
   followerRelationships   CopyRelationship[]      @relation("FollowerRelationships")
   coachConversations      CoachConversation[]
@@ -371,9 +388,35 @@ model BrokerAccount {
   masterProfile       MasterProfile?
   bridgeOrders        CopyBridgeOrder[]
   equitySnapshots     EquitySnapshot[]
+  shares              BrokerAccountShare[]
 
   @@index([userId])
   @@index([isMasterSource])
+}
+
+/// Grants a teammate (memberUserId, once resolved — nullable until they sign up
+/// with inviteEmail) view-only access to one BrokerAccount, gated behind the
+/// owner's plan tier (see getTierLimits().maxTeamMembers). Never grants trade
+/// rights and never extends to wallet deposit/withdraw — view access only.
+model BrokerAccountShare {
+  id              String        @id @default(uuid())
+  brokerAccountId String
+  brokerAccount   BrokerAccount @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
+  ownerUserId     String
+  owner           User          @relation("BrokerShareOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  memberUserId    String?
+  member          User?         @relation("BrokerShareMember", fields: [memberUserId], references: [id], onDelete: Cascade)
+  inviteEmail     String
+  status          ShareStatus   @default(PENDING)
+  invitedAt       DateTime      @default(now())
+  respondedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([brokerAccountId, inviteEmail])
+  @@index([memberUserId, status])
+  @@index([ownerUserId])
+  @@index([inviteEmail])
 }
 
 /// Durable equity/balance history for connected broker accounts — captured on
@@ -1138,6 +1181,21 @@ model UserPreference {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  @@index([userId])
+}
+
+model TutorialProgress {
+  id            String         @id @default(uuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tourId        String         @default("main")
+  status        TutorialStatus @default(NOT_STARTED)
+  currentStepId String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  updatedAt     DateTime       @updatedAt
+
+  @@unique([userId, tourId])
   @@index([userId])
 }
 

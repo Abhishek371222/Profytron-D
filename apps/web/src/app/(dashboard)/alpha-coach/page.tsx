@@ -495,7 +495,7 @@ export default function AlphaCoachPage() {
             />
           </div>
 
-          <div className="min-h-0 min-w-0 overflow-hidden bg-background">
+          <div className="min-h-0 min-w-0 overflow-hidden bg-background" data-tour="alpha-coach-panel">
             <CoachChatPanel
               messages={messages}
               isTyping={isTyping}

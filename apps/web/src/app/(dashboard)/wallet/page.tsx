@@ -409,6 +409,7 @@ export default function WalletPage() {
           <Button
             type="button"
             onClick={() => setIsDepositOpen(true)}
+            data-tour="wallet-deposit-cta"
             className="btn-premium h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide"
           >
             <Plus className="h-4 w-4" />

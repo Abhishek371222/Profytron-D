@@ -18,9 +18,11 @@ import {
   type CachedOverviewAccount,
 } from '@/lib/overview-account-cache';
 import {
+  clearAccountBoundDashboardCache,
   hydrateDashboardCache,
   persistDashboardQuery,
 } from '@/lib/queries/dashboard-cache';
+import { ensureWorkspaceCacheOwner } from '@/lib/queries/purge-workspace-caches';
 
 export type AnalyticsRange = '1d' | '1w' | '1m' | '3m' | '1y' | 'all';
 
@@ -76,10 +78,12 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   const apiRange = RANGE_MAP[chartRange] ?? '1m';
 
   // Paint last-good localStorage values before any network round-trip.
+  const userId = useAuthStore((s) => s.user?.id);
   React.useEffect(() => {
     if (!sessionReady) return;
-    hydrateDashboardCache(queryClient);
-  }, [sessionReady, queryClient]);
+    ensureWorkspaceCacheOwner(userId);
+    hydrateDashboardCache(queryClient, userId);
+  }, [sessionReady, queryClient, userId]);
 
   useDashboardRealtime(sessionReady);
 
@@ -94,6 +98,8 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     allowFallback: false,
   });
 
+  const accountQueriesEnabled = sessionReady && hasBrokerAccount;
+
   const portfolioQuery = useQuery({
     queryKey: ['portfolio', apiRange],
     queryFn: async () => {
@@ -107,8 +113,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     refetchInterval: LIVE_POLL_MS,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    placeholderData: (previous) => previous,
-    enabled: sessionReady,
+    enabled: accountQueriesEnabled,
   });
 
   const openTradesQuery = useQuery({
@@ -133,8 +138,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     refetchInterval: LIVE_POLL_MS,
     refetchOnWindowFocus: true,
     refetchOnMount: false,
-    placeholderData: (previous) => previous,
-    enabled: sessionReady,
+    enabled: accountQueriesEnabled,
   });
 
   const strategiesQuery = useQuery({
@@ -147,7 +151,6 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     staleTime: LIVE_POLL_MS,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    placeholderData: (previous) => previous,
     enabled: sessionReady,
   });
 
@@ -162,8 +165,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     refetchInterval: LIVE_POLL_MS,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
-    placeholderData: (previous) => previous,
-    enabled: sessionReady,
+    enabled: accountQueriesEnabled,
   });
 
   const tradeHistoryQuery = useQuery({
@@ -180,20 +182,41 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     refetchInterval: LIVE_POLL_MS,
     refetchOnMount: false,
     refetchOnWindowFocus: true,
-    placeholderData: (previous) => previous,
-    enabled: sessionReady,
+    enabled: accountQueriesEnabled,
   });
 
   const [stickyAccount, setStickyAccount] =
     React.useState<LiveAccountInfo | null>(null);
 
   React.useEffect(() => {
-    const cached = toLiveAccountInfo(readOverviewAccountCache());
+    // Only restore sticky metrics once we know a broker account exists.
+    if (!hasBrokerAccount) return;
+    const cached = toLiveAccountInfo(
+      readOverviewAccountCache(useAuthStore.getState().user?.id),
+    );
     if (cached) setStickyAccount(cached);
-  }, []);
+  }, [hasBrokerAccount]);
+
+  const accountsSettled =
+    brokerAccountsQuery.isFetched && !brokerAccountsQuery.isPending;
+
+  // No linked broker → drop sticky + hydrated portfolio/trades so Overview
+  // cannot paint orphan MetaAPI figures from a previous session.
+  React.useEffect(() => {
+    if (!sessionReady || !accountsSettled || hasBrokerAccount) return;
+    setStickyAccount(null);
+    clearOverviewAccountCache();
+    clearAccountBoundDashboardCache(queryClient);
+  }, [
+    sessionReady,
+    accountsSettled,
+    hasBrokerAccount,
+    queryClient,
+  ]);
 
   const liveAccountSnapshot = React.useMemo((): LiveAccountInfo | null => {
-    if (brokerAccountsQuery.isError || !defaultAccount) return null;
+    if (!hasBrokerAccount || brokerAccountsQuery.isError || !defaultAccount)
+      return null;
 
     const status = String(defaultAccount.connectionStatus || '').toUpperCase();
     if (status === 'DISCONNECTED' || status === 'ERROR' || status === 'FAILED') {
@@ -230,9 +253,10 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
       connected: true,
       liveSynced: true,
     };
-  }, [defaultAccount, brokerAccountsQuery.isError]);
+  }, [hasBrokerAccount, defaultAccount, brokerAccountsQuery.isError]);
 
   const portfolioLiveSnapshot = React.useMemo((): LiveAccountInfo | null => {
+    if (!hasBrokerAccount) return null;
     const p = portfolioQuery.data;
     if (!p || p.source !== 'metaapi') return null;
     const equity = Number(p.liveEquity ?? p.liveBalance ?? 0);
@@ -252,7 +276,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
       connected: true,
       liveSynced: true,
     };
-  }, [portfolioQuery.data]);
+  }, [hasBrokerAccount, portfolioQuery.data]);
 
   const accountDisconnected =
     brokerAccountsQuery.isError ||
@@ -266,6 +290,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     })();
 
   React.useEffect(() => {
+    if (!hasBrokerAccount) return;
     const next = liveAccountSnapshot ?? portfolioLiveSnapshot;
     if (next) {
       setStickyAccount(next);
@@ -276,6 +301,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
         freeMargin: next.freeMargin,
         currency: next.currency,
         accountId: defaultAccount?.id,
+        userId: useAuthStore.getState().user?.id,
         savedAt: Date.now(),
       });
       return;
@@ -285,22 +311,25 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
       clearOverviewAccountCache();
     }
   }, [
+    hasBrokerAccount,
     liveAccountSnapshot,
     portfolioLiveSnapshot,
     accountDisconnected,
     defaultAccount?.id,
   ]);
 
-  const accountInfo =
-    liveAccountSnapshot ?? portfolioLiveSnapshot ?? stickyAccount;
+  const accountInfo = !hasBrokerAccount
+    ? null
+    : liveAccountSnapshot ?? portfolioLiveSnapshot ?? stickyAccount;
 
-  const portfolio =
-    portfolioQuery.data?.source === 'metaapi' ||
-    portfolioQuery.data?.source === 'empty'
+  const portfolio = !hasBrokerAccount
+    ? undefined
+    : portfolioQuery.data?.source === 'metaapi' ||
+        portfolioQuery.data?.source === 'empty'
       ? portfolioQuery.data
       : undefined;
 
-  const portfolioValue = accountInfo?.equity ?? stickyAccount?.equity ?? 0;
+  const portfolioValue = accountInfo?.equity ?? 0;
   const equityBase = Number(
     portfolio?.equityBase ?? defaultAccount?.initialEquity ?? 0,
   );
@@ -399,11 +428,15 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
       (brokerAccountsQuery.isPending || brokerAccountsQuery.isLoading)) ||
     accountsLoading;
   const portfolioInitialLoading =
-    sessionReady && portfolioQuery.isPending && !portfolio;
+    hasBrokerAccount && sessionReady && portfolioQuery.isPending && !portfolio;
   const openTradesInitialLoading =
-    openTradesQuery.isPending && openTradesQuery.data === undefined;
+    hasBrokerAccount &&
+    openTradesQuery.isPending &&
+    openTradesQuery.data === undefined;
   const tradeHistoryInitialLoading =
-    tradeHistoryQuery.isPending && tradeHistoryQuery.data === undefined;
+    hasBrokerAccount &&
+    tradeHistoryQuery.isPending &&
+    tradeHistoryQuery.data === undefined;
   const quotesInitialLoading =
     quotesLoading && Object.keys(stableQuotes).length === 0;
   const accountsRefreshing =
@@ -420,14 +453,14 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     equityBase,
     winRate,
     bestMonth,
-    openTrades: openTradesQuery.data ?? [],
-    tradeHistory: tradeHistoryQuery.data?.rows ?? [],
+    openTrades: hasBrokerAccount ? openTradesQuery.data ?? [] : [],
+    tradeHistory: hasBrokerAccount ? tradeHistoryQuery.data?.rows ?? [] : [],
     tradeHistoryQuery,
     accountInfo,
     brokerAccountInfoQuery,
     activeStrategies,
     performanceBars,
-    risk: riskQuery.data,
+    risk: hasBrokerAccount ? riskQuery.data : undefined,
     riskQuery,
     hasBrokerAccount,
     defaultBrokerAccount: defaultAccount,

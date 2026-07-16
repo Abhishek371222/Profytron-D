@@ -124,6 +124,12 @@ export default function RiskOnboardingPage() {
       if (typeof document !== 'undefined') {
         document.cookie = 'onboarding_completed=1; path=/; max-age=7776000; samesite=lax';
       }
+      // One-shot signal so the dashboard shows the tutorial prompt only for users who
+      // just finished onboarding — not for existing users whose tutorial status simply
+      // defaults to NOT_STARTED because the feature is new.
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem('profytron_just_onboarded', '1');
+      }
       toast.success('Risk profile saved', {
         description: 'Next: connect a paper account or browse strategies.',
       });

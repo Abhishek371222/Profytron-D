@@ -33,4 +33,33 @@ export const brokerApi = {
     );
     return unwrapApiResponse<any>(res.data);
   },
+
+  async shareAccount(accountId: string, email: string) {
+    const res = await apiClient.post(`/broker/accounts/${accountId}/share`, {
+      email,
+    });
+    return unwrapApiResponse<{ shared: boolean; shareId: string; status: string }>(
+      res.data,
+    );
+  },
+
+  async listShares() {
+    const res = await apiClient.get('/broker/shares');
+    return unwrapApiResponse<{ owned: any[]; received: any[] }>(res.data);
+  },
+
+  async acceptShare(shareId: string) {
+    const res = await apiClient.post(`/broker/shares/${shareId}/accept`);
+    return unwrapApiResponse<any>(res.data);
+  },
+
+  async declineShare(shareId: string) {
+    const res = await apiClient.post(`/broker/shares/${shareId}/decline`);
+    return unwrapApiResponse<any>(res.data);
+  },
+
+  async revokeShare(shareId: string) {
+    const res = await apiClient.delete(`/broker/shares/${shareId}`);
+    return unwrapApiResponse<any>(res.data);
+  },
 };

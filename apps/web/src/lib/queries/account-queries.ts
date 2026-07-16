@@ -1,5 +1,6 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { brokerApi } from '@/lib/api/broker';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
 
 export const BROKER_ACCOUNTS_KEY = ['broker-accounts'] as const;
 export const BROKER_LIVE_SNAPSHOT_KEY = ['broker-live-snapshot'] as const;
@@ -47,6 +48,11 @@ export type BrokerAccountRow = {
   isMasterSource?: boolean;
   lastConnectedAt?: string | null;
   connectedAt?: string | null;
+  /** True when this account is viewed via a teammate's share grant, not owned. */
+  sharedAccess?: boolean;
+  /** False for shared-in accounts — hides Disconnect/Reconnect/Rotate token actions. */
+  canManage?: boolean;
+  sharedByName?: string | null;
 };
 
 export type LiveAccountSnapshot = {
@@ -96,7 +102,10 @@ function writeStorage(key: string, value: unknown) {
 }
 
 /** Paint Overview instantly on reload from last successful session. */
-export function hydrateBrokerCacheFromStorage(qc: QueryClient) {
+export function hydrateBrokerCacheFromStorage(
+  qc: QueryClient,
+  expectedUserId?: string | null,
+) {
   // Drop legacy locale-FX snapshots so Overview cannot revive INR-scaled balances.
   if (typeof window !== 'undefined') {
     try {
@@ -107,7 +116,23 @@ export function hydrateBrokerCacheFromStorage(qc: QueryClient) {
     }
   }
 
-  const snapshot = readStorage<LiveAccountSnapshot>(SNAPSHOT_STORAGE_KEY);
+  const snapshot = readStorage<LiveAccountSnapshot & { userId?: string }>(
+    SNAPSHOT_STORAGE_KEY,
+  );
+  if (
+    snapshot?.userId &&
+    expectedUserId &&
+    snapshot.userId !== expectedUserId
+  ) {
+    try {
+      window.localStorage.removeItem(SNAPSHOT_STORAGE_KEY);
+      window.localStorage.removeItem(ACCOUNTS_STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    return;
+  }
+
   if (snapshot?.accountId && snapshot.equity > 0) {
     const existing = qc.getQueryData<LiveAccountSnapshot>(BROKER_LIVE_SNAPSHOT_KEY);
     if (!existing || existing.updatedAt < snapshot.updatedAt) {
@@ -118,9 +143,31 @@ export function hydrateBrokerCacheFromStorage(qc: QueryClient) {
     }
   }
 
-  const cachedAccounts = readStorage<BrokerAccountRow[]>(ACCOUNTS_STORAGE_KEY);
-  if (cachedAccounts?.length && !qc.getQueryData(BROKER_ACCOUNTS_KEY)) {
-    const merged = mergeBrokerAccountsWithSnapshot(cachedAccounts, snapshot);
+  const cachedAccounts = readStorage<
+    (BrokerAccountRow & { userId?: string })[] | { userId?: string; accounts: BrokerAccountRow[] }
+  >(ACCOUNTS_STORAGE_KEY);
+
+  let accounts: BrokerAccountRow[] | null = null;
+  if (Array.isArray(cachedAccounts)) {
+    accounts = cachedAccounts;
+  } else if (cachedAccounts && Array.isArray((cachedAccounts as any).accounts)) {
+    if (
+      expectedUserId &&
+      (cachedAccounts as any).userId &&
+      (cachedAccounts as any).userId !== expectedUserId
+    ) {
+      try {
+        window.localStorage.removeItem(ACCOUNTS_STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
+    accounts = (cachedAccounts as any).accounts;
+  }
+
+  if (accounts?.length && !qc.getQueryData(BROKER_ACCOUNTS_KEY)) {
+    const merged = mergeBrokerAccountsWithSnapshot(accounts, snapshot);
     qc.setQueryData(BROKER_ACCOUNTS_KEY, merged);
   }
 }
@@ -186,7 +233,7 @@ export function rememberLiveSnapshot(
     account.freeMargin ?? Math.max(0, equity - (Number.isFinite(margin) ? margin : 0)),
   );
 
-  const snapshot: LiveAccountSnapshot = {
+  const snapshot: LiveAccountSnapshot & { userId?: string } = {
     accountId: account.id,
     balance,
     equity,
@@ -195,6 +242,9 @@ export function rememberLiveSnapshot(
     currency: normalizeBrokerCurrency(account.currency),
     updatedAt: Date.now(),
   };
+
+  const uid = useAuthStore.getState().user?.id;
+  if (uid) snapshot.userId = uid;
 
   qc.setQueryData<LiveAccountSnapshot>(BROKER_LIVE_SNAPSHOT_KEY, snapshot);
   writeStorage(SNAPSHOT_STORAGE_KEY, snapshot);
@@ -219,7 +269,11 @@ export function rememberAccountsLite(
     connectionStatus: a.connectionStatus,
     liveSynced: a.liveSynced,
   }));
-  writeStorage(ACCOUNTS_STORAGE_KEY, lite);
+  const userId = useAuthStore.getState().user?.id;
+  writeStorage(
+    ACCOUNTS_STORAGE_KEY,
+    userId ? { userId, accounts: lite } : lite,
+  );
 }
 
 /** Shared queryFn so bootstrap and hooks write the same merged cache. */

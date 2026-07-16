@@ -6,8 +6,11 @@ import { AppShell } from '@/components/layout/AppShell';
 import { AppProviders } from '@/components/providers/AppProviders';
 import { ActivationChecklist } from '@/components/dashboard/ActivationChecklist';
 import { BrokerConnectBanner } from '@/components/dashboard/BrokerConnectBanner';
+import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
+import { TutorialPrompt } from '@/components/tutorial/TutorialPrompt';
 import { cn, isAdminUser } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { useTutorialStore } from '@/lib/stores/useTutorialStore';
 import { AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { toast } from 'sonner';
@@ -38,6 +41,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   const bootstrapActive = useWorkspaceBootstrapStore((s) => s.active);
   const { hasBrokerAccount } = useAccountContext();
   const queryClient = useQueryClient();
+  const notifyTourAction = useTutorialStore((s) => s.notifyAction);
 
   useFcmToken();
   useInactivityLogout(Boolean(user) && !bootstrapActive);
@@ -73,6 +77,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
     setShowDemoBanner(false);
     if (mounted) window.localStorage.setItem('profytron_mt5_banner_dismissed', 'true');
     void queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
+    notifyTourAction('broker-connected');
   };
 
   const connectDemoAccount = async () => {
@@ -124,6 +129,8 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
         </AnimatePresence>
 
         {mounted && !isBuilder && !isAdmin && <ActivationChecklist />}
+        {mounted && !isBuilder && !isAdmin && <TutorialPrompt />}
+        {mounted && !isBuilder && !isAdmin && <TutorialOverlay />}
 
         {showBrokerModal && (
           <BrokerConnectModal

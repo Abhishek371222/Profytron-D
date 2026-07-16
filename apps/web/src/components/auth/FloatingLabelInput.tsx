@@ -83,9 +83,12 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
       },
       onFocus: (e) => {
         setIsFocused(true);
-        forceBlackCaret(e.currentTarget);
-        // Password fields often flip caret color one frame later
-        requestAnimationFrame(() => forceBlackCaret(e.currentTarget));
+        const node = e.currentTarget;
+        forceBlackCaret(node);
+        // Password fields often flip caret color one frame later. React resets
+        // e.currentTarget to null once the event finishes dispatching, so the
+        // node reference must be captured now rather than read from `e` later.
+        requestAnimationFrame(() => forceBlackCaret(node));
         props.onFocus?.(e);
       },
       onBlur: (e) => {

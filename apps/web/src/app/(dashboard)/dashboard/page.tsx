@@ -48,6 +48,7 @@ export default function DashboardPage() {
   const { data: currentUser } = useCurrentUser();
   // Always USD on Overview so live MetaAPI figures match MT5 Account Details.
   const currency = 'USD';
+  const userId = currentUser?.id;
 
   const {
     quotes,
@@ -140,18 +141,20 @@ export default function DashboardPage() {
   React.useEffect(() => setMountedForCache(true), []);
 
   const unrealizedPnl = React.useMemo(() => {
+    if (!hasBrokerAccount) return 0;
     if (openTrades.length > 0) {
       return openTrades.reduce((s, t) => s + Number(t.pnl || 0), 0);
     }
     if (!mountedForCache) return 0;
-    const cached = readOverviewAccountCache();
+    const cached = readOverviewAccountCache(userId);
     if (openTradesInitialLoading && cached?.unrealizedPnl != null) {
       return Number(cached.unrealizedPnl);
     }
     return 0;
-  }, [openTrades, openTradesInitialLoading, mountedForCache]);
+  }, [hasBrokerAccount, openTrades, openTradesInitialLoading, mountedForCache, userId]);
   const [nowMs] = React.useState(() => Date.now());
   const realizedPnl24h = React.useMemo(() => {
+    if (!hasBrokerAccount) return 0;
     const cutoff = nowMs - 24 * 60 * 60 * 1000;
     const fromHistory = tradeHistory
       .filter((t) => {
@@ -161,7 +164,7 @@ export default function DashboardPage() {
       .reduce((s, t) => s + Number(t.profit ?? 0), 0);
     if (tradeHistory.length > 0) return fromHistory;
     if (mountedForCache) {
-      const cached = readOverviewAccountCache();
+      const cached = readOverviewAccountCache(userId);
       if (
         (tradeHistoryInitialLoading || tradeHistoryQuery.isFetching) &&
         cached?.realizedPnl24h != null
@@ -171,32 +174,36 @@ export default function DashboardPage() {
     }
     return Number(portfolio?.totalProfit ?? 0);
   }, [
+    hasBrokerAccount,
     tradeHistory,
     portfolio?.totalProfit,
     nowMs,
     mountedForCache,
     tradeHistoryInitialLoading,
     tradeHistoryQuery.isFetching,
+    userId,
   ]);
 
-  const equityCurve = portfolio?.equityCurve ?? [];
+  const equityCurve = hasBrokerAccount ? portfolio?.equityCurve ?? [] : [];
   // Real MetaAPI equity points only — no invented deltas. With <2 points there
   // is nothing to plot yet, so render a flat line at the live balance rather
   // than fabricating a fake dip/rise.
   const sparkline =
-    equityCurve.length < 2
-      ? balance > 0
+    !hasBrokerAccount || equityCurve.length < 2
+      ? hasBrokerAccount && balance > 0
         ? [balance, balance]
         : [0, 0]
       : equityCurve.slice(-24).map((p) => p.equity);
 
-  const cachedReturnPct = mountedForCache
-    ? Number(readOverviewAccountCache()?.change24hPct)
-    : NaN;
-  const totalReturnPct =
-    portfolio?.source === 'metaapi' &&
-    portfolio.totalReturnPct != null &&
-    Number.isFinite(portfolio.totalReturnPct)
+  const cachedReturnPct =
+    hasBrokerAccount && mountedForCache
+      ? Number(readOverviewAccountCache(userId)?.change24hPct)
+      : NaN;
+  const totalReturnPct = !hasBrokerAccount
+    ? 0
+    : portfolio?.source === 'metaapi' &&
+        portfolio.totalReturnPct != null &&
+        Number.isFinite(portfolio.totalReturnPct)
       ? portfolio.totalReturnPct
       : (() => {
           const base = Number(
@@ -216,7 +223,7 @@ export default function DashboardPage() {
 
   // Keep PnL companions in the same session cache for next reload.
   React.useEffect(() => {
-    if (!accountInfo || accountInfo.balance <= 0) return;
+    if (!hasBrokerAccount || !accountInfo || accountInfo.balance <= 0) return;
     writeOverviewAccountCache({
       balance: accountInfo.balance,
       equity: accountInfo.equity,
@@ -235,17 +242,20 @@ export default function DashboardPage() {
           : Number(portfolio?.totalProfit ?? 0),
       change24hPct: Number.isFinite(change24hPct)
         ? change24hPct
-        : readOverviewAccountCache()?.change24hPct,
+        : readOverviewAccountCache(userId)?.change24hPct,
       accountId: defaultBrokerAccount?.id,
+      userId,
       savedAt: Date.now(),
     });
   }, [
+    hasBrokerAccount,
     accountInfo,
     openTrades,
     tradeHistory,
     portfolio?.totalProfit,
     defaultBrokerAccount?.id,
     change24hPct,
+    userId,
   ]);
 
   const quoteMap = React.useMemo(() => {
@@ -288,7 +298,11 @@ export default function DashboardPage() {
     : 'No account';
 
   return (
-    <div className="space-y-2.5 pb-5 sm:space-y-3" suppressHydrationWarning>
+    <div
+      className="space-y-2.5 pb-5 sm:space-y-3"
+      suppressHydrationWarning
+      data-tour="dashboard-overview"
+    >
       {/* Page header — compact chips, not oversized cards */}
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
@@ -370,44 +384,56 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <OverviewMetricCards
-        metrics={{
-          balance,
-          equity,
-          margin,
-          freeMargin,
-          currency,
-          unrealizedPnl,
-          realizedPnl24h,
-          change24hPct,
-          sparkline,
-          isPaper,
-          loading: metricsLoading,
-          refreshing: accountsRefreshing && liveReady,
-        }}
-      />
+      {(hasBrokerAccount || accountsStillLoading) && (
+        <OverviewMetricCards
+          metrics={{
+            balance: hasBrokerAccount ? balance : 0,
+            equity: hasBrokerAccount ? equity : 0,
+            margin: hasBrokerAccount ? margin : 0,
+            freeMargin: hasBrokerAccount ? freeMargin : 0,
+            currency,
+            unrealizedPnl: hasBrokerAccount ? unrealizedPnl : 0,
+            realizedPnl24h: hasBrokerAccount ? realizedPnl24h : 0,
+            change24hPct: hasBrokerAccount ? change24hPct : 0,
+            sparkline: hasBrokerAccount ? sparkline : [0, 0],
+            isPaper,
+            loading: metricsLoading,
+            refreshing: accountsRefreshing && liveReady,
+          }}
+        />
+      )}
 
       {/* Row: Open Positions | Performance | Market Watch */}
       <div className="grid grid-cols-1 items-stretch gap-3 xl:grid-cols-12">
-        <div className="xl:col-span-5">
-          <OverviewOpenPositions
-            positions={openTrades}
-            quotes={quoteMap}
-            currency={currency}
-            loading={openTradesInitialLoading}
-            onNewOrder={() => setManualOrderOpen(true)}
-          />
-        </div>
-        <div className="xl:col-span-4">
-          <OverviewPerformance
-            equityCurve={equityCurve}
-            totalReturnPct={totalReturnPct}
-            winRate={portfolio?.winRate ?? 0}
-            totalTrades={portfolio?.totalTrades ?? 0}
-            loading={portfolioInitialLoading}
-          />
-        </div>
-        <div className="xl:col-span-3">
+        {(hasBrokerAccount || accountsStillLoading) && (
+          <>
+            <div className="xl:col-span-5">
+              <OverviewOpenPositions
+                positions={hasBrokerAccount ? openTrades : []}
+                quotes={quoteMap}
+                currency={currency}
+                loading={accountsStillLoading || openTradesInitialLoading}
+                onNewOrder={() => setManualOrderOpen(true)}
+              />
+            </div>
+            <div className="xl:col-span-4">
+              <OverviewPerformance
+                equityCurve={hasBrokerAccount ? equityCurve : []}
+                totalReturnPct={hasBrokerAccount ? totalReturnPct : 0}
+                winRate={hasBrokerAccount ? portfolio?.winRate ?? 0 : 0}
+                totalTrades={hasBrokerAccount ? portfolio?.totalTrades ?? 0 : 0}
+                loading={accountsStillLoading || portfolioInitialLoading}
+              />
+            </div>
+          </>
+        )}
+        <div
+          className={
+            hasBrokerAccount || accountsStillLoading
+              ? 'xl:col-span-3'
+              : 'xl:col-span-12'
+          }
+        >
           <OverviewMarketWatch
             quotes={quoteMap}
             activeTab={watchTab}
@@ -418,19 +444,34 @@ export default function DashboardPage() {
       </div>
 
       {/* Row: Recent Trades | Economic Calendar | Market News */}
-      <div className="grid grid-cols-1 items-stretch gap-3 lg:grid-cols-3">
-        <OverviewRecentTrades
-          trades={tradeHistory}
-          currency={currency}
-          loading={tradeHistoryInitialLoading}
-          syncError={tradeHistoryQuery.data?.syncError ?? (tradeHistoryQuery.isError ? 'METAAPI_UNAVAILABLE' : null)}
-          syncMessage={
-            tradeHistoryQuery.data?.message ??
-            (tradeHistoryQuery.isError
-              ? 'Could not sync closed trades from MetaAPI. Showing last saved trades if available.'
-              : null)
-          }
-        />
+      <div
+        className={
+          hasBrokerAccount || accountsStillLoading
+            ? 'grid grid-cols-1 items-stretch gap-3 lg:grid-cols-3'
+            : 'grid grid-cols-1 items-stretch gap-3 lg:grid-cols-2'
+        }
+      >
+        {(hasBrokerAccount || accountsStillLoading) && (
+          <OverviewRecentTrades
+            trades={hasBrokerAccount ? tradeHistory : []}
+            currency={currency}
+            loading={accountsStillLoading || tradeHistoryInitialLoading}
+            syncError={
+              hasBrokerAccount
+                ? tradeHistoryQuery.data?.syncError ??
+                  (tradeHistoryQuery.isError ? 'METAAPI_UNAVAILABLE' : null)
+                : null
+            }
+            syncMessage={
+              hasBrokerAccount
+                ? tradeHistoryQuery.data?.message ??
+                  (tradeHistoryQuery.isError
+                    ? 'Could not sync closed trades from MetaAPI. Showing last saved trades if available.'
+                    : null)
+                : null
+            }
+          />
+        )}
         <OverviewEconomicCalendar
           events={calendarQuery.data?.events ?? []}
           loading={calendarQuery.isPending && !calendarQuery.data}
@@ -445,15 +486,23 @@ export default function DashboardPage() {
       </div>
 
       {/* Footer: Quick Actions | Account Health */}
-      <div className="grid grid-cols-1 items-stretch gap-3 lg:grid-cols-2">
+      <div
+        className={
+          hasBrokerAccount || accountsStillLoading
+            ? 'grid grid-cols-1 items-stretch gap-3 lg:grid-cols-2'
+            : 'grid grid-cols-1 items-stretch gap-3'
+        }
+      >
         <OverviewQuickActions onNewOrder={() => setManualOrderOpen(true)} />
-        <OverviewAccountHealth
-          riskScoreLabel={riskScoreLabel}
-          drawdownPct={drawdownPct}
-          profitFactor={profitFactor}
-          sharpeRatio={sharpeRatio}
-          healthPct={healthPct}
-        />
+        {(hasBrokerAccount || accountsStillLoading) && (
+          <OverviewAccountHealth
+            riskScoreLabel={hasBrokerAccount ? riskScoreLabel : 'No Data'}
+            drawdownPct={hasBrokerAccount ? drawdownPct : 0}
+            profitFactor={hasBrokerAccount ? profitFactor : 0}
+            sharpeRatio={hasBrokerAccount ? sharpeRatio : 0}
+            healthPct={hasBrokerAccount ? healthPct : 8}
+          />
+        )}
       </div>
 
       <p className="text-center text-[11px] text-muted-foreground">

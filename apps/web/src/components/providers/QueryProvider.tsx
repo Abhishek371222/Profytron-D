@@ -1,7 +1,8 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { registerQueryClient } from '@/lib/queries/query-client-registry';
 
 const NON_RETRYABLE_STATUSES = new Set([400, 401, 403, 404, 422]);
 
@@ -29,6 +30,10 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
         },
       }),
   );
+
+  useEffect(() => {
+    registerQueryClient(queryClient);
+  }, [queryClient]);
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }

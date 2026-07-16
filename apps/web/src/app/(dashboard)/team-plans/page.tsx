@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
+import { plansApi, type PlatformPlan } from '@/lib/api/plans';
 import {
   Bot,
   Check,
@@ -26,151 +27,57 @@ interface CurrentSubscription {
   planName?: string;
 }
 
-// ─── Plan definitions ─────────────────────────────────────────────────────────
+const TIER_ICON: Record<string, React.ElementType> = {
+  FREE: Bot,
+  PRO: Zap,
+  ELITE: Sparkles,
+  BUSINESS: Users,
+  INSTITUTIONAL: Crown,
+};
 
-const PLANS = [
-  {
-    id: 'FREE',
-    name: 'Free',
-    monthlyPrice: 0,
-    icon: Bot,
-    iconBg: 'bg-muted/60 text-muted-foreground',
-    highlight: false,
-    badge: null,
-    description: 'Get started with bot trading at zero cost.',
-    features: [
-      'Max 1 active bot',
-      'View up to 10 bots in marketplace',
-      'Basic analytics dashboard',
-      'Email support',
-      'Demo trading mode',
-    ],
-    notIncluded: [
-      'AI-powered bots',
-      'Advanced analytics',
-      'API access',
-      'Priority support',
-    ],
-    cta: 'Continue Free',
-    ctaHref: '/dashboard',
-  },
-  {
-    id: 'BASIC',
-    name: 'Basic',
-    monthlyPrice: 999,
-    icon: Zap,
-    iconBg: 'bg-chart-5/10 text-chart-5',
-    highlight: false,
-    badge: '7-day free trial',
-    badgeClass: 'bg-chart-5/10 text-chart-5 border-chart-5/20',
-    description: 'For individual traders building consistency.',
-    features: [
-      'Max 5 active bots',
-      'Full marketplace access',
-      'Standard analytics',
-      'Priority email support',
-      'Bot performance tracking',
-      'Copy-trading (1 signal)',
-    ],
-    notIncluded: [
-      'AI-powered bots',
-      'API access',
-      'White-label options',
-    ],
-    cta: 'Get Started',
-    ctaHref: '#',
-  },
-  {
-    id: 'PREMIUM',
-    name: 'Premium',
-    monthlyPrice: 2999,
-    icon: Sparkles,
-    iconBg: 'bg-primary/10 text-primary',
-    highlight: true,
-    badge: 'MOST POPULAR',
-    badgeClass: 'bg-primary/10 text-primary border-primary/30',
-    description: 'For serious traders who want an edge.',
-    features: [
-      'Unlimited active bots',
-      'AI-powered bots access',
-      'Advanced analytics',
-      'Priority support (24/7)',
-      'Custom risk controls',
-      'API access',
-      'White-label options',
-      'Copy-trading (unlimited)',
-    ],
-    notIncluded: [],
-    cta: 'Get Started',
-    ctaHref: '#',
-  },
-  {
-    id: 'TEAM',
-    name: 'Team',
-    monthlyPrice: 7999,
-    icon: Users,
-    iconBg: 'bg-chart-2/10 text-chart-2',
-    highlight: false,
-    badge: 'For firms',
-    badgeClass: 'bg-chart-2/10 text-chart-2 border-chart-2/20',
-    description: 'For prop firms, funds and trading teams.',
-    features: [
-      'Everything in Premium',
-      'Multi-account trading',
-      'Team member access (up to 5)',
-      'Creator access — publish bots',
-      'Dedicated account manager',
-      'Custom integrations',
-      'SLA guarantee (99.9% uptime)',
-      'Priority onboarding',
-    ],
-    notIncluded: [],
-    cta: 'Contact Sales',
-    ctaHref: 'mailto:support@profytron.com',
-  },
-] as const;
-
-// ─── Feature comparison matrix ────────────────────────────────────────────────
-
-type FeatureAvailability = boolean | string;
-
-const COMPARE_FEATURES: { label: string; free: FeatureAvailability; basic: FeatureAvailability; premium: FeatureAvailability; team: FeatureAvailability }[] = [
-  { label: 'Active bots', free: '1', basic: '5', premium: 'Unlimited', team: 'Unlimited' },
-  { label: 'Marketplace access', free: '10 bots', basic: 'Full', premium: 'Full', team: 'Full' },
-  { label: 'AI-powered bots', free: false, basic: false, premium: true, team: true },
-  { label: 'Analytics', free: 'Basic', basic: 'Standard', premium: 'Advanced', team: 'Advanced' },
-  { label: 'Copy-trading signals', free: false, basic: '1', premium: 'Unlimited', team: 'Unlimited' },
-  { label: 'Custom risk controls', free: false, basic: false, premium: true, team: true },
-  { label: 'API access', free: false, basic: false, premium: true, team: true },
-  { label: 'White-label options', free: false, basic: false, premium: true, team: true },
-  { label: 'Multi-account trading', free: false, basic: false, premium: false, team: true },
-  { label: 'Team members', free: false, basic: false, premium: false, team: 'Up to 5' },
-  { label: 'Creator access', free: false, basic: false, premium: false, team: true },
-  { label: 'Dedicated manager', free: false, basic: false, premium: false, team: true },
-  { label: 'SLA guarantee', free: false, basic: false, premium: false, team: true },
-  { label: 'Support', free: 'Email', basic: 'Priority email', premium: '24/7 priority', team: 'Dedicated' },
-];
+const TIER_ICON_BG: Record<string, string> = {
+  FREE: 'bg-muted/60 text-muted-foreground',
+  PRO: 'bg-chart-5/10 text-chart-5',
+  ELITE: 'bg-primary/10 text-primary',
+  BUSINESS: 'bg-chart-2/10 text-chart-2',
+  INSTITUTIONAL: 'bg-chart-4/10 text-chart-4',
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatInr(amount: number) {
+  if (amount < 0) return 'Custom';
   return `₹${amount.toLocaleString('en-IN')}`;
 }
 
-function annualPrice(monthly: number) {
-  return Math.round(monthly * 12 * 0.8);
+function annualEquivalentMonthly(annualPrice: number) {
+  return Math.round(annualPrice / 12);
 }
 
-function CellValue({ value }: { value: FeatureAvailability }) {
-  if (value === true) return <Check className="h-4 w-4 text-chart-3 mx-auto" />;
-  if (value === false) return <Minus className="h-4 w-4 text-muted-foreground/30 mx-auto" />;
-  return <span className="text-xs font-medium text-foreground">{value}</span>;
+function CellValue({ value }: { value: number | boolean }) {
+  if (typeof value === 'boolean') {
+    return value ? (
+      <Check className="h-4 w-4 text-chart-3 mx-auto" />
+    ) : (
+      <Minus className="h-4 w-4 text-muted-foreground/30 mx-auto" />
+    );
+  }
+  return (
+    <span className="text-xs font-medium text-foreground">
+      {value >= 999 ? 'Unlimited' : value}
+    </span>
+  );
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function TeamPlansPage() {
   const [annual, setAnnual] = React.useState(false);
+
+  const plansQuery = useQuery({
+    queryKey: ['platform-plans'],
+    queryFn: () => plansApi.getPlans(),
+  });
 
   const currentQuery = useQuery({
     queryKey: ['subscription-current'],
@@ -180,13 +87,14 @@ export default function TeamPlansPage() {
     },
   });
 
+  const plans = plansQuery.data ?? [];
   const current = currentQuery.data;
-  const activePlan = (current?.plan?.name ?? current?.planName ?? 'FREE').toUpperCase();
+  const activeTier = (current?.plan?.name ?? current?.planName ?? 'FREE').toUpperCase();
 
-  const handleGetStarted = (planId: string, planName: string) => {
-    if (planId === 'FREE') return;
-    if (planId === 'TEAM') return; // handled by mailto href
-    toast.info(`Redirecting to checkout for ${planName} plan…`);
+  const handleGetStarted = (plan: PlatformPlan) => {
+    if (plan.tier === 'FREE') return;
+    if (plan.ctaHref.startsWith('mailto:')) return; // handled by the anchor itself
+    toast.info(`Redirecting to checkout for ${plan.name} plan…`);
   };
 
   return (
@@ -256,57 +164,47 @@ export default function TeamPlansPage() {
               'text-[9px] font-black px-1.5 py-0.5 rounded-full border transition-colors',
               annual ? 'bg-white/20 text-white border-white/30' : 'bg-chart-3/10 text-chart-3 border-chart-3/20',
             )}>
-              SAVE 20%
+              SAVE
             </span>
           </button>
         </motion.div>
       </div>
 
       {/* Plan Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-        {PLANS.map((plan, idx) => {
-          const isActive = activePlan === plan.id;
-          const price = plan.monthlyPrice === 0
-            ? 0
-            : annual
-            ? annualPrice(plan.monthlyPrice)
-            : plan.monthlyPrice;
-
-          const Icon = plan.icon;
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
+        {plans.map((plan, idx) => {
+          const isActive = activeTier === plan.tier;
+          const isCustom = plan.monthlyPrice < 0;
+          const price = isCustom ? 0 : plan.monthlyPrice === 0 ? 0 : annual ? plan.annualPrice : plan.monthlyPrice;
+          const Icon = TIER_ICON[plan.tier] ?? Bot;
+          const isMailto = plan.ctaHref.startsWith('mailto:');
 
           return (
             <motion.div
-              key={plan.id}
+              key={plan.slug}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + idx * 0.06, duration: 0.35, ease: 'easeOut' }}
               whileHover={{ y: -6 }}
               className={cn(
                 'dashboard-card flex flex-col relative overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]',
-                plan.highlight
+                plan.recommended
                   ? 'border-primary/40 bg-gradient-to-b from-primary/[0.07] to-primary/[0.02] shadow-lg shadow-primary/10'
                   : '',
-                isActive && !plan.highlight ? 'border-primary/30' : '',
+                isActive && !plan.recommended ? 'border-primary/30' : '',
               )}
             >
-              {/* Popular ribbon */}
-              {plan.highlight && (
+              {plan.recommended && (
                 <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-bl-xl">
                   MOST POPULAR
                 </div>
               )}
 
               <div className="p-5 flex-1 flex flex-col">
-                {/* Icon + badge */}
                 <div className="flex items-start justify-between mb-4">
-                  <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl', plan.iconBg)}>
+                  <div className={cn('flex h-10 w-10 items-center justify-center rounded-xl', TIER_ICON_BG[plan.tier] ?? TIER_ICON_BG.FREE)}>
                     <Icon className="h-5 w-5" />
                   </div>
-                  {plan.badge && !plan.highlight && (
-                    <span className={cn('text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full border', plan.badgeClass)}>
-                      {plan.badge}
-                    </span>
-                  )}
                   {isActive && (
                     <span className="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-chart-3/10 text-chart-3 border border-chart-3/20">
                       CURRENT
@@ -314,12 +212,13 @@ export default function TeamPlansPage() {
                   )}
                 </div>
 
-                {/* Name + price */}
                 <h3 className="text-base font-bold text-foreground">{plan.name}</h3>
                 <p className="text-muted-foreground text-xs mt-1 mb-3">{plan.description}</p>
 
                 <div className="mb-4">
-                  {price === 0 ? (
+                  {isCustom ? (
+                    <p className="text-2xl font-black text-foreground">Custom</p>
+                  ) : price === 0 ? (
                     <p className="text-3xl font-black text-foreground">Free</p>
                   ) : (
                     <div>
@@ -329,14 +228,13 @@ export default function TeamPlansPage() {
                       </p>
                       {annual && (
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {formatInr(Math.round(price / 12))}/mo billed annually
+                          {formatInr(annualEquivalentMonthly(price))}/mo billed annually
                         </p>
                       )}
                     </div>
                   )}
                 </div>
 
-                {/* Features */}
                 <ul className="space-y-2 flex-1">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-xs text-foreground">
@@ -344,23 +242,13 @@ export default function TeamPlansPage() {
                       {f}
                     </li>
                   ))}
-                  {plan.notIncluded.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-xs text-muted-foreground/50">
-                      <Minus className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                      {f}
-                    </li>
-                  ))}
                 </ul>
 
-                {/* CTA */}
                 <div className="mt-5">
-                  {plan.id === 'TEAM' ? (
+                  {isMailto ? (
                     <a
                       href={plan.ctaHref}
-                      className={cn(
-                        'w-full inline-flex items-center justify-center h-10 rounded-xl text-xs font-bold uppercase tracking-wide transition-colors',
-                        'border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground hover:border-primary/30',
-                      )}
+                      className="w-full inline-flex items-center justify-center h-10 rounded-xl text-xs font-bold uppercase tracking-wide transition-colors border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground hover:border-primary/30"
                     >
                       {plan.cta}
                     </a>
@@ -372,7 +260,7 @@ export default function TeamPlansPage() {
                     >
                       Current Plan
                     </button>
-                  ) : plan.id === 'FREE' ? (
+                  ) : plan.tier === 'FREE' ? (
                     <Link
                       href={plan.ctaHref}
                       className="w-full inline-flex items-center justify-center h-10 rounded-xl text-xs font-bold uppercase tracking-wide border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
@@ -382,10 +270,10 @@ export default function TeamPlansPage() {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => handleGetStarted(plan.id, plan.name)}
+                      onClick={() => handleGetStarted(plan)}
                       className={cn(
                         'w-full h-10 rounded-xl text-xs font-bold uppercase tracking-wide transition-colors',
-                        plan.highlight
+                        plan.recommended
                           ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm'
                           : 'border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground hover:border-primary/30',
                       )}
@@ -420,45 +308,61 @@ export default function TeamPlansPage() {
       </motion.div>
 
       {/* Compare Plans Table */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.55 }}
-        className="dashboard-card overflow-hidden"
-      >
-        <div className="px-5 py-4 border-b border-[var(--card-border)]">
-          <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">Compare Plans</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">Full feature comparison across all tiers</p>
-        </div>
+      {plans.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="dashboard-card overflow-hidden"
+        >
+          <div className="px-5 py-4 border-b border-[var(--card-border)]">
+            <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">Compare Plans</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Full feature comparison across all tiers</p>
+          </div>
 
-        <div className="responsive-table-shell">
-          <table className="w-full min-w-[600px]">
-            <thead>
-              <tr className="border-b border-[var(--card-border)] bg-muted/20">
-                <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground w-1/3">
-                  Feature
-                </th>
-                {PLANS.map((p) => (
-                  <th key={p.id} className={cn('px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wider', p.highlight ? 'text-primary' : 'text-muted-foreground')}>
-                    {p.name}
+          <div className="responsive-table-shell">
+            <table className="w-full min-w-[700px]">
+              <thead>
+                <tr className="border-b border-[var(--card-border)] bg-muted/20">
+                  <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground w-1/3">
+                    Feature
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--card-border)]">
-              {COMPARE_FEATURES.map((row, i) => (
-                <tr key={row.label} className={cn('transition-colors hover:bg-muted/10', i % 2 === 0 ? '' : 'bg-muted/5')}>
-                  <td className="px-5 py-3 text-xs font-medium text-muted-foreground">{row.label}</td>
-                  <td className="px-4 py-3 text-center"><CellValue value={row.free} /></td>
-                  <td className="px-4 py-3 text-center"><CellValue value={row.basic} /></td>
-                  <td className="px-4 py-3 text-center bg-primary/[0.03]"><CellValue value={row.premium} /></td>
-                  <td className="px-4 py-3 text-center"><CellValue value={row.team} /></td>
+                  {plans.map((p) => (
+                    <th key={p.slug} className={cn('px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wider', p.recommended ? 'text-primary' : 'text-muted-foreground')}>
+                      {p.name}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </motion.div>
+              </thead>
+              <tbody className="divide-y divide-[var(--card-border)]">
+                {[
+                  { label: 'Live trading bots', key: 'maxStrategies' as const },
+                  { label: 'Copy-trades', key: 'maxCopyTrades' as const },
+                  { label: 'Broker accounts', key: 'maxBrokerAccounts' as const },
+                  { label: 'Shared teammates', key: 'maxTeamMembers' as const },
+                ].map((row, i) => (
+                  <tr key={row.label} className={cn('transition-colors hover:bg-muted/10', i % 2 === 0 ? '' : 'bg-muted/5')}>
+                    <td className="px-5 py-3 text-xs font-medium text-muted-foreground">{row.label}</td>
+                    {plans.map((p) => (
+                      <td key={p.slug} className="px-4 py-3 text-center">
+                        <CellValue value={p[row.key]} />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                <tr className="transition-colors hover:bg-muted/10 bg-muted/5">
+                  <td className="px-5 py-3 text-xs font-medium text-muted-foreground">Priority support</td>
+                  {plans.map((p) => (
+                    <td key={p.slug} className="px-4 py-3 text-center">
+                      <CellValue value={p.prioritySupport} />
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }

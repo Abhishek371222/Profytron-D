@@ -54,7 +54,6 @@ export function useAccountContext() {
       return count < 1;
     },
     retryDelay: (attempt) => 600 * (attempt + 1),
-    placeholderData: (previous) => previous,
     enabled: sessionReady,
   });
 

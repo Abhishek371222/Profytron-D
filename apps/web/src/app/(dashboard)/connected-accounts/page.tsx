@@ -30,7 +30,20 @@ import {
   RefreshCcw,
   Shield,
   XCircle,
+  Users,
+  Mail,
+  Check,
+  X,
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,6 +69,9 @@ interface BrokerAccount {
   initialEquity?: number;
   isDefault?: boolean;
   isMasterSource?: boolean;
+  sharedAccess?: boolean;
+  canManage?: boolean;
+  sharedByName?: string | null;
 }
 
 interface LinkedBot {
@@ -164,6 +180,9 @@ function mapBrokerAccountRow(a: BrokerAccountRow): BrokerAccount {
     initialEquity: a.initialEquity ?? undefined,
     isDefault: !!a.isDefault,
     isMasterSource: !!a.isMasterSource,
+    sharedAccess: Boolean(a.sharedAccess),
+    canManage: a.canManage ?? true,
+    sharedByName: a.sharedByName ?? null,
   };
 }
 
@@ -351,6 +370,67 @@ export default function ConnectedAccountsPage() {
     toast.success('Accounts refreshed');
   };
 
+  // ─── Team sharing ──────────────────────────────────────────────────────────
+
+  const [shareDialogAccount, setShareDialogAccount] = React.useState<BrokerAccount | null>(null);
+  const [shareEmail, setShareEmail] = React.useState('');
+
+  const openShareDialog = (account: BrokerAccount) => {
+    setShareEmail('');
+    setShareDialogAccount(account);
+  };
+
+  const sharesQuery = useQuery({
+    queryKey: ['broker-shares'],
+    queryFn: () => brokerApi.listShares(),
+  });
+
+  const shareMut = useMutation({
+    mutationFn: () =>
+      brokerApi.shareAccount(shareDialogAccount!.id, shareEmail.trim()),
+    onSuccess: () => {
+      toast.success('Invite sent', {
+        description: `${shareEmail.trim()} will see this account once they accept.`,
+      });
+      setShareDialogAccount(null);
+      queryClient.invalidateQueries({ queryKey: ['broker-shares'] });
+    },
+    onError: (err: any) => {
+      const data = err?.response?.data;
+      const msg = data?.message ?? data?.error ?? err?.message ?? 'Could not send invite';
+      toast.error(typeof msg === 'string' ? msg : 'Could not send invite');
+    },
+  });
+
+  const acceptShareMut = useMutation({
+    mutationFn: (shareId: string) => brokerApi.acceptShare(shareId),
+    onSuccess: () => {
+      toast.success('Invite accepted');
+      queryClient.invalidateQueries({ queryKey: ['broker-shares'] });
+      queryClient.invalidateQueries({ queryKey: BROKER_ACCOUNTS_KEY });
+    },
+    onError: () => toast.error('Could not accept invite'),
+  });
+
+  const declineShareMut = useMutation({
+    mutationFn: (shareId: string) => brokerApi.declineShare(shareId),
+    onSuccess: () => {
+      toast.success('Invite declined');
+      queryClient.invalidateQueries({ queryKey: ['broker-shares'] });
+    },
+    onError: () => toast.error('Could not decline invite'),
+  });
+
+  const revokeShareMut = useMutation({
+    mutationFn: (shareId: string) => brokerApi.revokeShare(shareId),
+    onSuccess: () => {
+      toast.success('Access revoked');
+      queryClient.invalidateQueries({ queryKey: ['broker-shares'] });
+      queryClient.invalidateQueries({ queryKey: BROKER_ACCOUNTS_KEY });
+    },
+    onError: () => toast.error('Could not revoke access'),
+  });
+
   return (
     <div className="space-y-6 pb-10">
       <BrokerConnectModal
@@ -373,6 +453,51 @@ export default function ConnectedAccountsPage() {
         formatAmount={formatInr}
         timeAgo={timeAgo}
       />
+
+      <Dialog
+        open={Boolean(shareDialogAccount)}
+        onOpenChange={(open: boolean) => {
+          if (!open) setShareDialogAccount(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share this account with a teammate</DialogTitle>
+            <DialogDescription>
+              {shareDialogAccount &&
+                `They'll see ${shareDialogAccount.brokerName} ···${maskAccount(shareDialogAccount.accountNumber).slice(-4)} — balance, equity, and trades — but can't disconnect, reconnect, or trade on it. Requires a Business plan or higher.`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="email"
+              placeholder="teammate@email.com"
+              value={shareEmail}
+              onChange={(e) => setShareEmail(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setShareDialogAccount(null)}
+              className="h-9 px-4 rounded-lg border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => shareMut.mutate()}
+              disabled={!shareEmail.trim() || shareMut.isPending}
+              className="h-9 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              {shareMut.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              Send invite
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Breadcrumb */}
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
@@ -411,6 +536,7 @@ export default function ConnectedAccountsPage() {
           <button
             type="button"
             onClick={() => setShowModal(true)}
+            data-tour="connect-broker-cta"
             className="btn-premium inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide"
           >
             <Plus className="h-4 w-4" />
@@ -478,6 +604,7 @@ export default function ConnectedAccountsPage() {
           <button
             type="button"
             onClick={() => setShowModal(true)}
+            data-tour="connect-broker-cta"
             className="inline-flex items-center gap-2 h-9 px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-4 w-4" />
@@ -506,10 +633,17 @@ export default function ConnectedAccountsPage() {
                     <p className="text-xs text-muted-foreground font-mono">{maskAccount(account.accountNumber)}</p>
                   </div>
                 </div>
-                <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide border shrink-0', STATUS_STYLE[account.status] ?? STATUS_STYLE.CONNECTED)}>
-                  <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[account.status] ?? STATUS_DOT.CONNECTED)} />
-                  {formatStatus(account.status)}
-                </span>
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                  <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide border shrink-0', STATUS_STYLE[account.status] ?? STATUS_STYLE.CONNECTED)}>
+                    <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[account.status] ?? STATUS_DOT.CONNECTED)} />
+                    {formatStatus(account.status)}
+                  </span>
+                  {account.sharedAccess && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-chart-2/10 text-chart-2 border border-chart-2/20">
+                      Shared by {account.sharedByName || 'teammate'} · view only
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Details */}
@@ -568,34 +702,38 @@ export default function ConnectedAccountsPage() {
               ) : null}
 
                 <div className="flex flex-col gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => handleDisconnect(account)}
-                  disabled={disconnectingId === account.id}
-                  className="w-full h-10 rounded-lg border border-destructive/40 bg-destructive text-destructive-foreground text-[12px] font-bold uppercase tracking-wide hover:bg-destructive/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
-                  aria-label="Disconnect account"
-                >
-                  {disconnectingId === account.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Link2Off className="h-4 w-4" />
-                  )}
-                  Disconnect account
-                </button>
-                <div className="flex items-center gap-2">
+                {account.canManage !== false && (
                   <button
                     type="button"
-                    onClick={() => handleReconnect(account)}
+                    onClick={() => handleDisconnect(account)}
                     disabled={disconnectingId === account.id}
-                    className="flex-1 h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-40 disabled:cursor-default flex items-center justify-center gap-1"
+                    className="w-full h-10 rounded-lg border border-destructive/40 bg-destructive text-destructive-foreground text-[12px] font-bold uppercase tracking-wide hover:bg-destructive/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
+                    aria-label="Disconnect account"
                   >
-                    {account.status === 'SYNCING' ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                    {disconnectingId === account.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <RefreshCcw className="h-3 w-3" />
+                      <Link2Off className="h-4 w-4" />
                     )}
-                    {account.storeOnly ? 'Upgrade to MetaApi' : 'Reconnect'}
+                    Disconnect account
                   </button>
+                )}
+                <div className="flex items-center gap-2">
+                  {account.canManage !== false && (
+                    <button
+                      type="button"
+                      onClick={() => handleReconnect(account)}
+                      disabled={disconnectingId === account.id}
+                      className="flex-1 h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-40 disabled:cursor-default flex items-center justify-center gap-1"
+                    >
+                      {account.status === 'SYNCING' ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <RefreshCcw className="h-3 w-3" />
+                      )}
+                      {account.storeOnly ? 'Upgrade to MetaApi' : 'Reconnect'}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => handleViewDetails(account)}
@@ -606,7 +744,7 @@ export default function ConnectedAccountsPage() {
                     Details
                   </button>
                 </div>
-                {!account.isPaperTrading && account.storeOnly && (
+                {!account.isPaperTrading && account.storeOnly && account.canManage !== false && (
                   <button
                     type="button"
                     onClick={() => handleRotateBridgeToken(account)}
@@ -620,6 +758,16 @@ export default function ConnectedAccountsPage() {
                       <Loader2 className="h-3 w-3 animate-spin" />
                     ) : null}
                     Bridge EA token
+                  </button>
+                )}
+                {!account.sharedAccess && (
+                  <button
+                    type="button"
+                    onClick={() => openShareDialog(account)}
+                    className="w-full h-8 rounded-lg border border-[color-mix(in_srgb,var(--primary)_28%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_6%,transparent)] text-[11px] font-bold uppercase tracking-wide text-primary hover:bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Users className="h-3 w-3" />
+                    Share with teammate
                   </button>
                 )}
               </div>
@@ -768,6 +916,97 @@ export default function ConnectedAccountsPage() {
           </div>
         </motion.div>
       )}
+
+      {/* Team Access */}
+      {sharesQuery.data &&
+        (sharesQuery.data.owned.length > 0 || sharesQuery.data.received.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="dashboard-card p-5 space-y-5"
+          >
+            <div className="flex items-center gap-3">
+              <Users className="h-4 w-4 text-primary" />
+              <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">Team Access</h2>
+            </div>
+
+            {sharesQuery.data.received.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Shared with you</p>
+                {sharesQuery.data.received.map((share: any) => (
+                  <div
+                    key={share.id}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-[var(--card-border)] bg-muted/20 p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-foreground">
+                        {share.owner?.fullName || share.owner?.email} — {share.brokerAccount?.brokerName} ···{share.brokerAccount?.accountNumberLast4}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{share.status}</p>
+                    </div>
+                    {share.status === 'PENDING' ? (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => acceptShareMut.mutate(share.id)}
+                          className="h-8 w-8 rounded-lg bg-chart-3/10 text-chart-3 border border-chart-3/20 flex items-center justify-center hover:bg-chart-3/15"
+                          aria-label="Accept"
+                        >
+                          <Check className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => declineShareMut.mutate(share.id)}
+                          className="h-8 w-8 rounded-lg bg-destructive/10 text-destructive border border-destructive/20 flex items-center justify-center hover:bg-destructive/15"
+                          aria-label="Decline"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : share.status === 'ACTIVE' ? (
+                      <button
+                        type="button"
+                        onClick={() => revokeShareMut.mutate(share.id)}
+                        className="h-8 px-3 rounded-lg border border-[var(--card-border)] bg-card text-[10px] font-bold uppercase tracking-wide text-muted-foreground hover:text-destructive shrink-0"
+                      >
+                        Leave
+                      </button>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {sharesQuery.data.owned.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Shared by you</p>
+                {sharesQuery.data.owned.map((share: any) => (
+                  <div
+                    key={share.id}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-[var(--card-border)] bg-muted/20 p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-foreground">
+                        {share.member?.fullName || share.inviteEmail} — {share.brokerAccount?.brokerName} ···{share.brokerAccount?.accountNumberLast4}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{share.status}</p>
+                    </div>
+                    {(share.status === 'PENDING' || share.status === 'ACTIVE') && (
+                      <button
+                        type="button"
+                        onClick={() => revokeShareMut.mutate(share.id)}
+                        className="h-8 px-3 rounded-lg border border-[var(--card-border)] bg-card text-[10px] font-bold uppercase tracking-wide text-muted-foreground hover:text-destructive shrink-0"
+                      >
+                        Revoke
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
 
       {/* Supported Brokers */}
       <motion.div

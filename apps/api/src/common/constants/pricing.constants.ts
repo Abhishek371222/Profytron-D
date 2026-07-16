@@ -18,6 +18,7 @@ export const PLATFORM_PLANS = [
     maxStrategies: 1,
     maxCopyTrades: 1,
     maxBrokerAccounts: 5,
+    maxTeamMembers: 0,
     prioritySupport: false,
     recommended: false,
     cta: 'Start Free',
@@ -42,6 +43,7 @@ export const PLATFORM_PLANS = [
     maxStrategies: 1,
     maxCopyTrades: 2,
     maxBrokerAccounts: 1,
+    maxTeamMembers: 0,
     prioritySupport: false,
     recommended: false,
     cta: 'Start 7-Day Trial',
@@ -66,6 +68,7 @@ export const PLATFORM_PLANS = [
     maxStrategies: 999,
     maxCopyTrades: 4,
     maxBrokerAccounts: 3,
+    maxTeamMembers: 0,
     prioritySupport: true,
     recommended: true,
     cta: 'Start 7-Day Trial',
@@ -86,10 +89,12 @@ export const PLATFORM_PLANS = [
       'Advanced analytics & exports',
       'Priority support + onboarding',
       'Add extra bots anytime',
+      'Share your MT5 account with up to 3 teammates',
     ],
     maxStrategies: 999,
     maxCopyTrades: 6,
     maxBrokerAccounts: 5,
+    maxTeamMembers: 3,
     prioritySupport: true,
     recommended: false,
     cta: 'Contact Sales',
@@ -109,10 +114,12 @@ export const PLATFORM_PLANS = [
       'White-label client dashboard',
       'On-premise deployment',
       'Custom contracts & SLAs',
+      'Share your MT5 account with up to 25 teammates',
     ],
     maxStrategies: 9999,
     maxCopyTrades: 9999,
     maxBrokerAccounts: 9999,
+    maxTeamMembers: 25,
     prioritySupport: true,
     recommended: false,
     cta: 'Contact Engineering',
@@ -127,6 +134,7 @@ export type PlanLimits = {
   maxStrategies: number;
   maxCopyTrades: number;
   maxBrokerAccounts: number;
+  maxTeamMembers: number;
 };
 
 /**
@@ -144,7 +152,13 @@ export function getTierLimits(tier: string | null | undefined): PlanLimits {
       maxStrategies: Math.max(acc.maxStrategies, p.maxStrategies),
       maxCopyTrades: Math.max(acc.maxCopyTrades, p.maxCopyTrades),
       maxBrokerAccounts: Math.max(acc.maxBrokerAccounts, p.maxBrokerAccounts),
+      maxTeamMembers: Math.max(acc.maxTeamMembers, p.maxTeamMembers),
     }),
-    { maxStrategies: 0, maxCopyTrades: 0, maxBrokerAccounts: 0 },
+    {
+      maxStrategies: 0,
+      maxCopyTrades: 0,
+      maxBrokerAccounts: 0,
+      maxTeamMembers: 0,
+    },
   );
 }

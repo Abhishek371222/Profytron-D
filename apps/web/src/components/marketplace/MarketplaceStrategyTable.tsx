@@ -116,6 +116,7 @@ export function MarketplaceStrategyTable({
                     size="sm"
                     className="min-h-[var(--touch-min)]"
                     onClick={() => onSubscribe(s, 'FIXED')}
+                    data-tour={rowIndex === 0 ? 'marketplace-subscribe-cta' : undefined}
                   >
                     Buy Subscription
                   </Button>
@@ -305,6 +306,7 @@ export function MarketplaceStrategyTable({
                         size="sm"
                         className="rounded-[12px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] text-[11px] font-bold uppercase tracking-wide text-primary"
                         onClick={() => onSubscribe(s, 'FIXED')}
+                        data-tour={rowIndex === 0 ? 'marketplace-subscribe-cta' : undefined}
                       >
                         Buy Subscription
                       </Button>

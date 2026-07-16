@@ -1,6 +1,6 @@
 import { Module, Global } from '@nestjs/common';
 import { BrokerService } from './broker.service';
-import { BrokerController } from './broker.controller';
+import { BrokerController, BrokerSharesController } from './broker.controller';
 import { CryptoService } from '../../common/crypto.service';
 import { MetaTraderAdapter } from './adapters/metatrader.adapter';
 import { PaperBrokerAdapter } from './adapters/paper.adapter';
@@ -16,7 +16,7 @@ import { GrowthModule } from '../growth/growth.module';
     }),
     GrowthModule,
   ],
-  controllers: [BrokerController],
+  controllers: [BrokerController, BrokerSharesController],
   providers: [
     BrokerService,
     CryptoService,

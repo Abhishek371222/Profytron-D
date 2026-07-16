@@ -55,7 +55,9 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
       />
 
       <div className="dash-settings-layout">
-        <DashboardSubNav items={navItems} pathname={pathname ?? ''} />
+        <div data-tour="settings-subnav">
+          <DashboardSubNav items={navItems} pathname={pathname ?? ''} />
+        </div>
         <div className="min-w-0 w-full max-w-none">{children}</div>
       </div>
     </DashboardPage>

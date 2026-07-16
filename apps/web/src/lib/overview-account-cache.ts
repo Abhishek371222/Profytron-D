@@ -10,6 +10,8 @@ export type CachedOverviewAccount = {
   realizedPnl24h?: number;
   change24hPct?: number;
   accountId?: string;
+  /** Owning Profytron user — refuse to paint if login switched. */
+  userId?: string;
   savedAt: number;
 };
 
@@ -17,7 +19,9 @@ const KEY = 'profytron_overview_account_v1';
 /** Keep last-good metrics for a full day so reload never flashes zeros. */
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
-export function readOverviewAccountCache(): CachedOverviewAccount | null {
+export function readOverviewAccountCache(
+  expectedUserId?: string | null,
+): CachedOverviewAccount | null {
   if (typeof window === 'undefined') return null;
   try {
     const raw = sessionStorage.getItem(KEY);
@@ -25,6 +29,14 @@ export function readOverviewAccountCache(): CachedOverviewAccount | null {
     const parsed = JSON.parse(raw) as CachedOverviewAccount;
     if (!parsed || typeof parsed.balance !== 'number') return null;
     if (Date.now() - Number(parsed.savedAt || 0) > MAX_AGE_MS) {
+      sessionStorage.removeItem(KEY);
+      return null;
+    }
+    if (
+      expectedUserId &&
+      parsed.userId &&
+      parsed.userId !== expectedUserId
+    ) {
       sessionStorage.removeItem(KEY);
       return null;
     }

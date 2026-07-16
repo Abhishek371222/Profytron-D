@@ -21,6 +21,7 @@ import {
   hydrateDashboardCache,
   persistDashboardQuery,
 } from '@/lib/queries/dashboard-cache';
+import { ensureWorkspaceCacheOwner } from '@/lib/queries/purge-workspace-caches';
 
 type BotStatus = 'ACTIVE' | 'PROVISIONING' | 'FAILED' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE' | 'BLOCKED';
 type ProfitShareState = 'PROFIT_SHARE_OK' | 'PROFIT_SHARE_DUE' | 'PROFIT_SHARE_PAUSED' | 'PROFIT_SHARE_SETTLING';
@@ -103,11 +104,13 @@ export default function MyBotsPage() {
   const { formatPrice } = useCurrency();
   const [tab, setTab] = React.useState<BotStatus | 'ALL'>('ALL');
   const sessionReady = useAuthStore((s) => s.sessionReady);
+  const userId = useAuthStore((s) => s.user?.id);
 
   React.useEffect(() => {
     if (!sessionReady) return;
-    hydrateDashboardCache(qc);
-  }, [sessionReady, qc]);
+    ensureWorkspaceCacheOwner(userId);
+    hydrateDashboardCache(qc, userId);
+  }, [sessionReady, qc, userId]);
 
   const {
     data: bots = [],
@@ -232,7 +235,7 @@ export default function MyBotsPage() {
   const addTileCount = filtered.length > 0 && filtered.length < 3 ? 3 - filtered.length : filtered.length === 0 ? 0 : 1;
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="space-y-6 pb-8" data-tour="my-bots-overview">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}

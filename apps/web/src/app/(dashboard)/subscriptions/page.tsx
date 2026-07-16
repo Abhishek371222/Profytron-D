@@ -266,7 +266,7 @@ export default function SubscriptionsPage() {
   ];
 
   return (
-    <div className="space-y-5 pb-8">
+    <div className="space-y-5 pb-8" data-tour="subscriptions-overview">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
         <Link href="/dashboard" className="hover:underline">Dashboard</Link>

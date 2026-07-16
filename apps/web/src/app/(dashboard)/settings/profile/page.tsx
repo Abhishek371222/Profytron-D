@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import { usersApi } from '@/lib/api/users';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import { useTutorialStore } from '@/lib/stores/useTutorialStore';
 import {
   SettingsSection,
   SettingsField,
@@ -21,6 +22,7 @@ export default function ProfileSettingsPage() {
   const { data: user, isLoading } = useCurrentUser();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const startTour = useTutorialStore((s) => s.start);
 
   const [fullName, setFullName] = React.useState('');
   const [username, setUsername] = React.useState('');
@@ -112,6 +114,20 @@ export default function ProfileSettingsPage() {
           checked={demoMode}
           onChange={(v) => { setDemoMode(v); markDirty(); }}
         />
+      </SettingsSection>
+
+      <SettingsSection title="Help" description="Need a refresher on how Profytron works?">
+        <div className="flex items-center justify-between gap-4 rounded-xl border border-[var(--card-border)] bg-muted/20 p-4">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground">Guided product tour</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Replay the walkthrough of the dashboard, broker connection, wallet, and marketplace.
+            </p>
+          </div>
+          <DashButton variant="outline" onClick={() => startTour()} data-tour="replay-tour-button">
+            Replay tour
+          </DashButton>
+        </div>
       </SettingsSection>
 
       <div className="flex justify-end pt-2 border-t border-[var(--card-border)]">

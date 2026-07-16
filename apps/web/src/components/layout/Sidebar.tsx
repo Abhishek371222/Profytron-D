@@ -99,6 +99,19 @@ function isItemActive(pathname: string | null, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** Anchors used by the guided product tour (see lib/tours/mainTour.ts) to spotlight nav items. */
+const TOUR_ANCHORS: Record<string, string> = {
+  "/connected-accounts": "nav-connected-accounts",
+  "/wallet": "nav-wallet",
+  "/marketplace": "nav-marketplace",
+  "/my-bots": "nav-my-bots",
+  "/markets": "nav-markets",
+  "/alpha-coach": "nav-alpha-coach",
+  "/subscriptions": "nav-subscriptions",
+  "/leaderboard": "nav-leaderboard",
+  "/settings/profile": "nav-settings",
+};
+
 const TIER_STYLES: Record<string, string> = {
   FREE: "bg-muted/60 text-muted-foreground",
   BASIC: "bg-primary/10 text-primary",
@@ -244,6 +257,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
                       <Link
                         key={item.href}
                         href={item.href}
+                        data-tour={TOUR_ANCHORS[item.href]}
                         title={!expanded ? item.name : undefined}
                         aria-label={!expanded ? item.name : undefined}
                         aria-current={active ? "page" : undefined}

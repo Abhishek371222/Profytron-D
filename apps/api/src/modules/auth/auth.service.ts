@@ -26,6 +26,7 @@ import { AgentEventService } from '../agents/agent-event.service';
 import { AGENT_EVENTS } from '../agents/agent.types';
 import { NotificationsService } from '../notifications/notifications.service';
 import { isClosedAccount } from './account-lifecycle';
+import { BrokerService } from '../broker/broker.service';
 
 const FIREBASE_AUTH_APP_NAME = 'auth';
 
@@ -44,6 +45,7 @@ export class AuthService {
     private agentEvents: AgentEventService,
     private twoFaService: TwoFaService,
     private notificationsService: NotificationsService,
+    private brokerService: BrokerService,
   ) {
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -201,6 +203,12 @@ export class AuthService {
 
     await this.prisma.affiliate
       .create({ data: { userId: user.id } })
+      .catch(() => {});
+
+    // Resolve any pending "shared broker account" invites sent to this email
+    // before the invitee had a Profytron account.
+    void this.brokerService
+      .resolvePendingSharesForEmail(user.id, dto.email)
       .catch(() => {});
 
     void this.agentEvents.emit({

@@ -44,6 +44,8 @@ import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module
 import { ApiKeysModule } from './modules/api-keys/api-keys.module';
 import { CopyModule } from './modules/copy/copy.module';
 import { CopyBridgeModule } from './modules/copy-bridge/copy-bridge.module';
+import { TutorialModule } from './modules/tutorial/tutorial.module';
+import { PlansModule } from './modules/plans/plans.module';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { JwtAuthGuard } from './modules/auth/guards/auth.guard';
 
@@ -161,6 +163,8 @@ const parseRedisConfig = () => {
     ApiKeysModule,
     CopyModule,
     CopyBridgeModule,
+    TutorialModule,
+    PlansModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Search, Command, Menu, ChevronDown, CreditCard, LogOut, User, Link2, Wallet } from "lucide-react";
+import { Search, Command, Menu, ChevronDown, CreditCard, LogOut, User, Link2, Wallet, Compass } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ import {
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { useUIStore } from "@/lib/stores/useUIStore";
+import { useTutorialStore } from "@/lib/stores/useTutorialStore";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import { NotificationDropdown } from "@/components/ui/NotificationDropdown";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -31,6 +32,7 @@ export function TopBar() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { setCommandPaletteOpen, toggleSidebar, setDepositIntent } = useUIStore();
+  const startTour = useTutorialStore((s) => s.start);
   const { data: currentUser } = useCurrentUser();
   const [searchFocused, setSearchFocused] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
@@ -195,6 +197,15 @@ export function TopBar() {
             >
               <CreditCard className="w-3.5 h-3.5" />
               Subscription
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              onClick={() => startTour()}
+              data-tour="replay-tour-menu-item"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-foreground/60 hover:text-foreground hover:bg-muted/5 cursor-pointer text-caption font-medium transition-colors"
+            >
+              <Compass className="w-3.5 h-3.5" />
+              Guided Tour
             </DropdownMenuItem>
 
             <div className="h-px bg-muted/6 mx-1 my-1" />

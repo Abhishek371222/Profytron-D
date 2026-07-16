@@ -31,9 +31,11 @@ interface MarketplaceCardProps {
     drawdown?: number;
   };
   onSubscribe: (strategy: MarketplaceCardProps["strategy"], billingModel?: SubscriptionBillingModel) => void;
+  /** Marks this card's primary CTA as the guided-tour anchor (see lib/tours/mainTour.ts). */
+  tourAnchor?: boolean;
 }
 
-export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps) {
+export function MarketplaceCard({ strategy, onSubscribe, tourAnchor }: MarketplaceCardProps) {
   const { returns, sharpe, subscribers, price, rating = 0, reviewCount = 0, drawdown = 0 } = strategy;
   const roundedRating = Math.round(rating);
   const aiScore = rating > 0 ? rating : Math.min(99, 60 + sharpe * 12);
@@ -98,7 +100,13 @@ export function MarketplaceCard({ strategy, onSubscribe }: MarketplaceCardProps)
         </div>
 
         <div className="grid gap-2">
-          <Button variant="primary" size="sm" className="group/btn w-full uppercase tracking-[0.1em]" onClick={() => onSubscribe(strategy, 'FIXED')}>
+          <Button
+            variant="primary"
+            size="sm"
+            className="group/btn w-full uppercase tracking-[0.1em]"
+            onClick={() => onSubscribe(strategy, 'FIXED')}
+            data-tour={tourAnchor ? 'marketplace-subscribe-cta' : undefined}
+          >
             Buy Subscription
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
           </Button>

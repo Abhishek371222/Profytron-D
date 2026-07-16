@@ -8,6 +8,10 @@ import {
 } from '../api/client';
 import { authApi } from '../api/auth';
 import { isAdminUser } from '../utils';
+import {
+  ensureWorkspaceCacheOwner,
+  purgeWorkspaceCaches,
+} from '../queries/purge-workspace-caches';
 
 const isMockApiEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_API === 'true';
 const SESSION_TOKEN_KEY = 'profytron_access';
@@ -55,7 +59,10 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       isHydrating: true,
       sessionReady: false,
-      setAuth: (user, accessToken) => set({ user, accessToken, isAuthenticated: true }),
+      setAuth: (user, accessToken) => {
+        if (user?.id) ensureWorkspaceCacheOwner(user.id);
+        set({ user, accessToken, isAuthenticated: true });
+      },
       setToken: (accessToken) => set({ accessToken, isAuthenticated: true }),
       updateUser: (patch) => {
         const current = get().user;
@@ -71,12 +78,16 @@ export const useAuthStore = create<AuthState>()(
           document.cookie = 'onboarding_completed=; path=/; max-age=0; samesite=lax';
           document.cookie = 'user_role=; path=/; max-age=0; samesite=lax';
         }
+        // Drop Overview / broker snapshots so the next login never paints
+        // another user's balance for 1–2s.
+        purgeWorkspaceCaches();
         set({
           user: null,
           accessToken: null,
           isAuthenticated: false,
           isLoading: false,
           isHydrating: false,
+          sessionReady: false,
         });
       },
       login: (accessToken, user) => {
@@ -91,6 +102,8 @@ export const useAuthStore = create<AuthState>()(
             window.posthog.identify(user.id, { email: user.email, name: user.fullName });
           }
         }
+        // Bind (or wipe) workspace caches to this user before any hydrate.
+        if (user?.id) ensureWorkspaceCacheOwner(user.id);
         set({ user, accessToken, isAuthenticated: true, isLoading: false, isHydrating: false });
       },
       logout: async () => {
@@ -120,6 +133,7 @@ export const useAuthStore = create<AuthState>()(
           ) {
             sessionStorage.removeItem(FORCE_LOGIN_KEY);
             sessionStorage.removeItem(SESSION_TOKEN_KEY);
+            purgeWorkspaceCaches();
             set({
               user: null,
               accessToken: null,
@@ -160,6 +174,7 @@ export const useAuthStore = create<AuthState>()(
               isAuthenticated: true,
               isHydrating: false,
             });
+            if (user?.id) ensureWorkspaceCacheOwner(user.id);
             return;
           } catch {
             if (typeof window !== 'undefined') sessionStorage.removeItem(SESSION_TOKEN_KEY);
@@ -194,10 +209,12 @@ export const useAuthStore = create<AuthState>()(
             isAuthenticated: Boolean(user?.id || accessToken),
             isHydrating: false,
           });
+          if (user?.id) ensureWorkspaceCacheOwner(user.id);
         } catch {
           if (typeof window !== 'undefined') {
             sessionStorage.removeItem(SESSION_TOKEN_KEY);
           }
+          purgeWorkspaceCaches();
           set({
             user: null,
             accessToken: null,

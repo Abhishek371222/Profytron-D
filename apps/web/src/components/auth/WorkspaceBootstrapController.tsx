@@ -14,6 +14,7 @@ import {
   hydrateDashboardCache,
   persistDashboardQuery,
 } from '@/lib/queries/dashboard-cache';
+import { ensureWorkspaceCacheOwner } from '@/lib/queries/purge-workspace-caches';
 
 function sleep(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -64,6 +65,7 @@ export function WorkspaceBootstrapController() {
   const completeStep = useWorkspaceBootstrapStore((s) => s.completeStep);
   const beginExit = useWorkspaceBootstrapStore((s) => s.beginExit);
   const sessionReady = useAuthStore((s) => s.sessionReady);
+  const userId = useAuthStore((s) => s.user?.id);
   const queryClient = useQueryClient();
   const runIdRef = React.useRef(0);
 
@@ -87,8 +89,9 @@ export function WorkspaceBootstrapController() {
       const started = Date.now();
       const hardCapMs = 12_000;
       completeStep('session');
-      // Instant paint from last successful MetaAPI snapshots (localStorage).
-      hydrateDashboardCache(queryClient);
+      // Never hydrate another user's leftover snapshots into this session.
+      ensureWorkspaceCacheOwner(userId);
+      hydrateDashboardCache(queryClient, userId);
       await hold(350);
       if (!still()) return;
 
@@ -275,6 +278,7 @@ export function WorkspaceBootstrapController() {
     active,
     exiting,
     sessionReady,
+    userId,
     queryClient,
     completeStep,
     beginExit,

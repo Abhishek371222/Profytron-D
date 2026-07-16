@@ -1,4 +1,4 @@
-import { createCipheriv, randomBytes, randomUUID } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes, randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { sql as pgSql } from '@/lib/server/pg-sql';
 
@@ -58,6 +58,61 @@ function encryptAesGcm(plaintext: string, keyHex: string): string {
     encrypted,
     authTag,
   });
+}
+
+function decryptAesGcm(payload: string, keyHex: string): string {
+  const parsed = JSON.parse(payload);
+  const key = Buffer.from(keyHex, 'hex');
+  const iv = Buffer.from(parsed.iv, 'hex');
+  const authTag = Buffer.from(parsed.authTag, 'hex');
+  const decipher = createDecipheriv('aes-256-gcm', key, iv);
+  decipher.setAuthTag(authTag);
+  let out = decipher.update(parsed.encrypted, 'hex', 'utf8');
+  out += decipher.final('utf8');
+  return out;
+}
+
+/**
+ * One real MT5 login ↔ one Profytron user. Teammate "sharing" is a separate
+ * Business+ invite flow — not dual ownership of the same credentials.
+ */
+async function assertMt5NotLinkedToAnotherUser(
+  sql: ReturnType<typeof pgSql>,
+  userId: string,
+  login: string,
+  serverName: string,
+  last4: string,
+  aesKey: string,
+) {
+  const candidates = await sql`
+    SELECT "credentialsEncrypted" FROM "BrokerAccount"
+    WHERE "userId" <> ${userId}
+      AND "accountNumberLast4" = ${last4}
+      AND "serverName" = ${serverName}
+      AND "isActive" = true
+      AND "isPaperTrading" = false
+  `;
+
+  for (const candidate of candidates) {
+    try {
+      const creds = JSON.parse(
+        decryptAesGcm(candidate.credentialsEncrypted as string, aesKey),
+      );
+      if (String(creds.login ?? '').trim() === login.trim()) {
+        throw new Error(
+          'This MT5 account is already connected to another Profytron account. Each MT5 account can only be linked to one Profytron account at a time. Use Business+ sharing to invite teammates to view your account.',
+        );
+      }
+    } catch (e: any) {
+      if (
+        typeof e?.message === 'string' &&
+        e.message.includes('already connected to another Profytron account')
+      ) {
+        throw e;
+      }
+      // Undecryptable row — ignore.
+    }
+  }
 }
 
 async function userIdFromRequest(req: NextRequest): Promise<string | null> {
@@ -220,6 +275,16 @@ export async function POST(req: NextRequest) {
   const resolvedBrokerName = platform === 'mt4' ? 'MT4' : 'MT5';
 
   try {
+    // One MT5 login cannot be owned by two Profytron users.
+    await assertMt5NotLinkedToAnotherUser(
+      sql,
+      userId,
+      login,
+      serverName,
+      last4,
+      aesKey,
+    );
+
     // Quota: FREE plan allows 5 (match API pricing.constants)
     const existing = await sql`
       SELECT id, "initialEquity" FROM "BrokerAccount"
@@ -259,6 +324,31 @@ export async function POST(req: NextRequest) {
     if (existingMeta?._id || existingMeta?.id) {
       accountId = existingMeta._id || existingMeta.id;
       region = existingMeta.region || region;
+
+      // MetaAPI reuses one cloud seat for the same login+server. If another
+      // Profytron user already stored that seat id, refuse to link it again.
+      const seatHolders = await sql`
+        SELECT "credentialsEncrypted" FROM "BrokerAccount"
+        WHERE "userId" <> ${userId}
+          AND "isActive" = true
+          AND "isPaperTrading" = false
+      `;
+      for (const row of seatHolders) {
+        try {
+          const creds = JSON.parse(
+            decryptAesGcm(row.credentialsEncrypted as string, aesKey),
+          );
+          if (String(creds.metaApiAccountId ?? '') === String(accountId)) {
+            return error(
+              'This MT5 account is already connected to another Profytron account. Each MT5 account can only be linked to one Profytron account at a time. Use Business+ sharing to invite teammates to view your account.',
+              400,
+            );
+          }
+        } catch {
+          /* undecryptable — ignore */
+        }
+      }
+
       if (existingMeta.state !== 'DEPLOYED') {
         await deployAccount(metaToken, accountId);
       }

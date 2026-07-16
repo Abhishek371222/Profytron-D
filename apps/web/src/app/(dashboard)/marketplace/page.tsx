@@ -391,24 +391,29 @@ function MarketplacePageInner() {
               </div>
             </div>
 
-            {isLoading ? (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="marketplace-skeleton h-64 rounded-[var(--radius-card)]" />
-                ))}
-              </div>
-            ) : viewType === 'list' ? (
-              <MarketplaceStrategyTable strategies={strategies} onSubscribe={openSubscribe} />
-            ) : (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {strategies.map((s) => (
-                  <MarketplaceCard key={s.id} strategy={s} onSubscribe={openSubscribe} />
-                ))}
-              </div>
-            )}
+            <div data-tour="marketplace-bots-list">
+              {isLoading ? (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="marketplace-skeleton h-64 rounded-[var(--radius-card)]" />
+                  ))}
+                </div>
+              ) : viewType === 'list' ? (
+                <MarketplaceStrategyTable strategies={strategies} onSubscribe={openSubscribe} />
+              ) : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {strategies.map((s, i) => (
+                    <MarketplaceCard key={s.id} strategy={s} onSubscribe={openSubscribe} tourAnchor={i === 0} />
+                  ))}
+                </div>
+              )}
+            </div>
 
             {!isLoading && strategies.length === 0 && (
-              <div className="rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-12 text-center shadow-[var(--shadow-card)]">
+              <div
+                data-tour-empty="marketplace-bots-list"
+                className="rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-12 text-center shadow-[var(--shadow-card)]"
+              >
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary">
                   <Sparkles className="h-7 w-7" />
                 </div>

@@ -1,6 +1,11 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { hydrateBrokerCacheFromStorage } from '@/lib/queries/account-queries';
 import { readOverviewAccountCache } from '@/lib/overview-account-cache';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
+import {
+  readWorkspaceCacheOwner,
+  writeWorkspaceCacheOwner,
+} from '@/lib/queries/purge-workspace-caches';
 
 const DASHBOARD_CACHE_KEY = 'profytron.dashboard-cache.v1';
 /** Keep last-good UI data for a week — cloud APIs remain source of truth. */
@@ -13,11 +18,16 @@ type CacheEntry = {
 
 type DashboardCacheBlob = {
   version: 1;
+  ownerUserId?: string;
   entries: Record<string, CacheEntry>;
 };
 
 function storageKey(queryKey: readonly unknown[]): string {
   return JSON.stringify(queryKey);
+}
+
+function currentUserId(): string | null {
+  return useAuthStore.getState().user?.id ?? readWorkspaceCacheOwner();
 }
 
 function readBlob(): DashboardCacheBlob {
@@ -36,6 +46,8 @@ function readBlob(): DashboardCacheBlob {
 function writeBlob(blob: DashboardCacheBlob) {
   if (typeof window === 'undefined') return;
   try {
+    const owner = currentUserId();
+    if (owner) blob.ownerUserId = owner;
     window.localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify(blob));
   } catch {
     /* quota / private mode */
@@ -86,11 +98,17 @@ export function persistDashboardQuery(
   }
 
   const blob = readBlob();
+  const owner = currentUserId();
+  // Never append into another user's leftover blob.
+  if (blob.ownerUserId && owner && blob.ownerUserId !== owner) {
+    blob.entries = {};
+  }
   blob.entries[key] = {
     updatedAt: Date.now(),
     data,
   };
   writeBlob(blob);
+  if (owner) writeWorkspaceCacheOwner(owner);
 }
 
 function readEntry(queryKey: readonly unknown[]): unknown | undefined {
@@ -102,12 +120,35 @@ function readEntry(queryKey: readonly unknown[]): unknown | undefined {
 
 /**
  * Hydrate React Query + broker snapshot from localStorage.
- * Safe on localhost and production — cloud APIs still refresh in the background.
+ * Refuses to paint when the blob belongs to a different Profytron user.
  */
-export function hydrateDashboardCache(qc: QueryClient) {
+export function hydrateDashboardCache(
+  qc: QueryClient,
+  expectedUserId?: string | null,
+) {
   if (typeof window === 'undefined') return;
 
-  hydrateBrokerCacheFromStorage(qc);
+  const userId = expectedUserId ?? currentUserId();
+  const blob = readBlob();
+  if (blob.ownerUserId && userId && blob.ownerUserId !== userId) {
+    try {
+      window.localStorage.removeItem(DASHBOARD_CACHE_KEY);
+    } catch {
+      /* ignore */
+    }
+    return;
+  }
+  if (!blob.ownerUserId && userId && Object.keys(blob.entries).length > 0) {
+    // Legacy unscoped blob — too risky across logins; drop it.
+    try {
+      window.localStorage.removeItem(DASHBOARD_CACHE_KEY);
+    } catch {
+      /* ignore */
+    }
+    return;
+  }
+
+  hydrateBrokerCacheFromStorage(qc, userId);
 
   const keys: readonly (readonly unknown[])[] = [
     ['my-bots'],
@@ -130,7 +171,7 @@ export function hydrateDashboardCache(qc: QueryClient) {
     let data = readEntry(key);
     if (data !== undefined) {
       if (key[0] === 'broker-accounts') {
-        data = reconcileBrokerAccountsWithSessionCache(data);
+        data = reconcileBrokerAccountsWithSessionCache(data, userId);
       }
       qc.setQueryData(key, data);
     }
@@ -145,8 +186,11 @@ export function hydrateDashboardCache(qc: QueryClient) {
  * that fresher source before painting, so a reload never briefly regresses
  * to an older balance/equity while the real network fetch is in flight.
  */
-function reconcileBrokerAccountsWithSessionCache(data: unknown): unknown {
-  const fresher = readOverviewAccountCache();
+function reconcileBrokerAccountsWithSessionCache(
+  data: unknown,
+  expectedUserId?: string | null,
+): unknown {
+  const fresher = readOverviewAccountCache(expectedUserId);
   if (!fresher || !(fresher.balance > 0)) return data;
 
   const list = Array.isArray(data)
@@ -183,4 +227,40 @@ export function rememberDashboardQuery(
   if (data === undefined || data === null) return;
   qc.setQueryData(queryKey, data);
   persistDashboardQuery(queryKey, data);
+}
+
+/** Account-sourced keys that must not paint when no broker is linked. */
+const ACCOUNT_BOUND_KEYS: readonly (readonly unknown[])[] = [
+  ['open-trades'],
+  ['trade-history', 'overview'],
+  ['portfolio', '1m'],
+  ['portfolio', '1d'],
+  ['portfolio', '1w'],
+  ['portfolio', '3m'],
+  ['portfolio', '1y'],
+  ['portfolio', 'all'],
+  ['dashboard-risk'],
+];
+
+/**
+ * Drop last-good portfolio / trades / risk snapshots from React Query and
+ * localStorage so a disconnected workspace cannot show orphan MetaAPI figures.
+ */
+export function clearAccountBoundDashboardCache(qc: QueryClient) {
+  if (typeof window === 'undefined') return;
+
+  for (const key of ACCOUNT_BOUND_KEYS) {
+    qc.removeQueries({ queryKey: key, exact: true });
+  }
+
+  const blob = readBlob();
+  let changed = false;
+  for (const key of ACCOUNT_BOUND_KEYS) {
+    const sk = storageKey(key);
+    if (blob.entries[sk]) {
+      delete blob.entries[sk];
+      changed = true;
+    }
+  }
+  if (changed) writeBlob(blob);
 }
