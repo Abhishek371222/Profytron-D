@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { brokerApi } from '@/lib/api/broker';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { persistDashboardQuery } from '@/lib/queries/dashboard-cache';
 
 export type BrokerAccountSummary = {
   id: string;
@@ -33,12 +34,20 @@ export function useAccountContext() {
 
   const brokerAccountsQuery = useQuery({
     queryKey: ['broker-accounts'],
-    queryFn: async () => normalizeAccounts(await brokerApi.getBrokerAccounts()),
-    staleTime: 8_000,
-    refetchInterval: 12_000,
+    queryFn: async () => {
+      const raw = await brokerApi.getBrokerAccounts();
+      // Keep the localStorage snapshot fresh on every 1-minute poll, not just
+      // at login bootstrap — otherwise a reload can re-hydrate React Query
+      // from a snapshot that's minutes/hours stale (e.g. balance before the
+      // last few trades), briefly flashing an old number before the next
+      // live fetch corrects it.
+      persistDashboardQuery(['broker-accounts'], raw);
+      return normalizeAccounts(raw);
+    },
+    staleTime: 60_000,
+    refetchInterval: 60_000,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    // Early 401s during token hydrate should not stick forever.
     retry: (count, err: any) => {
       const status = err?.response?.status;
       if (status === 401 || status === 403) return count < 2;

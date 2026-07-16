@@ -1,6 +1,7 @@
-import { createDecipheriv, randomUUID } from 'crypto';
+import { createDecipheriv } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { sql as pgSql } from '@/lib/server/pg-sql';
+import { closedTradesFromMetaDeals } from '@/lib/server/metaapi-closed-trades';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -162,82 +163,27 @@ export async function GET(req: NextRequest) {
     const deals = (await res.json()) as any[];
     const list = Array.isArray(deals) ? deals : [];
 
-    const byPosition = new Map<string, any[]>();
-    for (const d of list) {
-      const pid = String(d.positionId || d.id || randomUUID());
-      if (!byPosition.has(pid)) byPosition.set(pid, []);
-      byPosition.get(pid)!.push(d);
-    }
-
-    const exportRows: any[] = [];
-    for (const [pid, group] of byPosition) {
-      const sorted = [...group].sort(
-        (a, b) =>
-          new Date(a.time || 0).getTime() - new Date(b.time || 0).getTime(),
-      );
-      const entry =
-        sorted.find((d) =>
-          String(d.entryType || '')
-            .toUpperCase()
-            .includes('IN'),
-        ) || sorted[0];
-      const exit =
-        [...sorted]
-          .reverse()
-          .find((d) =>
-            String(d.entryType || '')
-              .toUpperCase()
-              .includes('OUT'),
-          ) || sorted[sorted.length - 1];
-
-      const hasOut = sorted.some((d) =>
-        String(d.entryType || '')
-          .toUpperCase()
-          .includes('OUT'),
-      );
-      if (!hasOut) continue;
-
-      const profit = sorted.reduce(
-        (sum, d) =>
-          sum +
-          Number(d.profit || 0) +
-          Number(d.commission || 0) +
-          Number(d.swap || 0),
-        0,
-      );
-      const commission = sorted.reduce(
-        (sum, d) => sum + Number(d.commission || 0),
-        0,
-      );
-      const swap = sorted.reduce((sum, d) => sum + Number(d.swap || 0), 0);
-
-      exportRows.push({
-        id: `meta:${pid}`,
-        symbol: String(entry?.symbol || exit?.symbol || ''),
-        direction: mapDirection(entry?.type || ''),
-        volume: Number(entry?.volume || exit?.volume || 0),
-        openPrice: Number(entry?.price || 0),
-        closePrice: Number(exit?.price || 0),
-        requestedPrice: null,
-        fillPrice: Number(entry?.price || 0),
-        slippageBps: 0,
-        executionLatencyMs: null,
-        executionMode: 'LIVE',
-        profit,
-        commission,
-        swap,
-        status: 'CLOSED',
-        strategyName: String(subscribedBotName),
-        openedAt: entry?.time || null,
-        closedAt: exit?.time || null,
-      });
-    }
-
-    exportRows.sort(
-      (a, b) =>
-        new Date(b.closedAt || b.openedAt || 0).getTime() -
-        new Date(a.closedAt || a.openedAt || 0).getTime(),
-    );
+    const closed = closedTradesFromMetaDeals(list, { idPrefix: 'meta' });
+    const exportRows = closed.map((row) => ({
+      id: row.id,
+      symbol: row.symbol,
+      direction: mapDirection(row.direction),
+      volume: row.volume,
+      openPrice: row.openPrice,
+      closePrice: row.closePrice,
+      requestedPrice: null,
+      fillPrice: row.openPrice,
+      slippageBps: 0,
+      executionLatencyMs: null,
+      executionMode: 'LIVE',
+      profit: row.profit,
+      commission: 0,
+      swap: 0,
+      status: 'CLOSED',
+      strategyName: String(subscribedBotName),
+      openedAt: row.openedAt,
+      closedAt: row.closedAt,
+    }));
 
     return json({ range, rows: exportRows });
   } catch (e: any) {

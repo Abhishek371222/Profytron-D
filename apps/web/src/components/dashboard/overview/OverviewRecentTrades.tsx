@@ -15,10 +15,21 @@ type Props = {
   trades: TradeHistoryRow[];
   currency?: string;
   loading?: boolean;
+  syncError?: string | null;
+  syncMessage?: string | null;
 };
 
-export function OverviewRecentTrades({ trades, currency: _currency = 'USD', loading }: Props) {
+export function OverviewRecentTrades({
+  trades,
+  currency: _currency = 'USD',
+  loading,
+  syncError,
+  syncMessage,
+}: Props) {
   const currency = 'USD';
+  // Never replace real rows with a skeleton while a background refresh runs.
+  const showSkeleton = Boolean(loading) && trades.length === 0;
+
   return (
     <div className="flex h-full min-h-[280px] flex-col overflow-hidden rounded-xl border border-[var(--card-border)] bg-card">
       <div className="flex items-center justify-between gap-3 border-b border-[var(--card-border)] px-4 py-3.5 sm:px-5">
@@ -29,7 +40,7 @@ export function OverviewRecentTrades({ trades, currency: _currency = 'USD', load
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
-        {loading ? (
+        {showSkeleton ? (
           <div className="space-y-2 p-4">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="h-9 animate-pulse rounded-lg bg-muted/40" />
@@ -38,7 +49,12 @@ export function OverviewRecentTrades({ trades, currency: _currency = 'USD', load
         ) : trades.length === 0 ? (
           <div className="flex min-h-[160px] flex-col items-center justify-center gap-1 px-6 text-center">
             <p className="text-sm font-medium text-foreground">No recent trades</p>
-            <p className="text-xs text-muted-foreground">Closed trades will show here.</p>
+            <p className="text-xs text-muted-foreground">
+              {syncError
+                ? syncMessage ||
+                  'Could not sync closed trades from your broker yet. Retrying…'
+                : 'Closed trades will show here.'}
+            </p>
           </div>
         ) : (
           <table className="w-full text-left text-xs">
@@ -82,7 +98,12 @@ export function OverviewRecentTrades({ trades, currency: _currency = 'USD', load
                     <td className="hidden px-2 py-2.5 text-right tabular-nums sm:table-cell">
                       {Number(t.volume).toFixed(2)}
                     </td>
-                    <td className={cn('px-2 py-2.5 text-right tabular-nums font-medium', pnlClass(pnl))}>
+                    <td
+                      className={cn(
+                        'px-2 py-2.5 text-right tabular-nums font-medium',
+                        pnlClass(pnl),
+                      )}
+                    >
                       {formatSignedMoney(pnl, currency)}
                     </td>
                     <td className="px-4 py-2.5 text-right text-muted-foreground sm:px-5">

@@ -13,6 +13,8 @@ ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "twoFactorEnabled" BOOLEAN DEFAULT f
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "twoFactorSecret" TEXT;
 ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "twoFactorBackupCodes" JSONB;
 ALTER TABLE "BrokerAccount" ADD COLUMN IF NOT EXISTS "isMasterSource" BOOLEAN DEFAULT false;
+ALTER TABLE "BrokerAccount" ADD COLUMN IF NOT EXISTS "lastKnownEquity" DOUBLE PRECISION;
+ALTER TABLE "BrokerAccount" ADD COLUMN IF NOT EXISTS "lastKnownBalance" DOUBLE PRECISION;
 ALTER TABLE "MarketplaceListing" ADD COLUMN IF NOT EXISTS "creatorSharePct" DOUBLE PRECISION DEFAULT 0.8;
 ALTER TABLE "MarketplaceListing" ADD COLUMN IF NOT EXISTS "platformSharePct" DOUBLE PRECISION DEFAULT 0.2;
 ALTER TABLE "MarketplaceListing" ADD COLUMN IF NOT EXISTS "payoutEnabled" BOOLEAN DEFAULT true;
@@ -490,4 +492,28 @@ CREATE UNIQUE INDEX IF NOT EXISTS "UserSubscription_paymentId_key" ON "UserSubsc
 -- (constraint already present) doesn't error.
 DO $$ BEGIN
   ALTER TABLE "SupportTicketResponse" ADD CONSTRAINT "SupportTicketResponse_ticketId_fkey" FOREIGN KEY ("ticketId") REFERENCES "SupportTicket"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- Durable MetaAPI account history: equity snapshots table + idempotent
+-- broker-ticket key on Trade so background sync can upsert without duplicates.
+-- ───────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS "EquitySnapshot" (
+    "id" TEXT NOT NULL,
+    "brokerAccountId" TEXT NOT NULL,
+    "balance" DOUBLE PRECISION NOT NULL,
+    "equity" DOUBLE PRECISION NOT NULL,
+    "margin" DOUBLE PRECISION,
+    "freeMargin" DOUBLE PRECISION,
+    "capturedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "EquitySnapshot_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "EquitySnapshot_brokerAccountId_capturedAt_idx" ON "EquitySnapshot"("brokerAccountId", "capturedAt");
+DO $$ BEGIN
+  ALTER TABLE "EquitySnapshot" ADD CONSTRAINT "EquitySnapshot_brokerAccountId_fkey" FOREIGN KEY ("brokerAccountId") REFERENCES "BrokerAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN null; END $$;
+
+DO $$ BEGIN
+  ALTER TABLE "Trade" ADD CONSTRAINT "trade_broker_account_ticket_unique" UNIQUE ("brokerAccountId", "brokerTicket");
 EXCEPTION WHEN duplicate_object THEN null; END $$;

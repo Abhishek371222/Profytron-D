@@ -1,4 +1,10 @@
-export type MarketSymbol = 'BTCUSDT' | 'EURUSD' | 'XAUUSD';
+export type MarketSymbol =
+  | 'BTCUSDT'
+  | 'EURUSD'
+  | 'XAUUSD'
+  | 'US30'
+  | 'NAS100'
+  | 'SPX500';
 export type MarketTimeframe = '1m' | '5m' | '15m' | '1h' | '4h' | '1d';
 
 export type OhlcCandle = {
@@ -23,6 +29,9 @@ const TV_TICKER: Record<MarketSymbol, { market: string; ticker: string }> = {
   XAUUSD: { market: 'cfd', ticker: 'OANDA:XAUUSD' },
   EURUSD: { market: 'forex', ticker: 'OANDA:EURUSD' },
   BTCUSDT: { market: 'crypto', ticker: 'BINANCE:BTCUSDT' },
+  US30: { market: 'cfd', ticker: 'OANDA:US30USD' },
+  NAS100: { market: 'cfd', ticker: 'OANDA:NAS100USD' },
+  SPX500: { market: 'cfd', ticker: 'OANDA:SPX500USD' },
 };
 
 async function fetchTradingViewQuote(symbol: MarketSymbol): Promise<LiveQuote> {
@@ -122,6 +131,9 @@ const YAHOO_SYMBOL: Record<MarketSymbol, string> = {
   EURUSD: 'EURUSD=X',
   // XAUUSD=X often 404s; use COMEX futures and overwrite live price via TradingView.
   XAUUSD: 'GC=F',
+  US30: '^DJI',
+  NAS100: '^NDX',
+  SPX500: '^GSPC',
 };
 
 const YAHOO_FALLBACK: Partial<Record<MarketSymbol, string>> = {
@@ -332,7 +344,7 @@ export async function fetchLiveQuote(symbol: MarketSymbol): Promise<LiveQuote> {
 }
 
 export async function fetchLiveQuotes(
-  symbols: MarketSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'],
+  symbols: MarketSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD', 'US30', 'NAS100', 'SPX500'],
 ): Promise<LiveQuote[]> {
   const tv = await fetchTradingViewQuotes(symbols);
   const quotes: LiveQuote[] = [];

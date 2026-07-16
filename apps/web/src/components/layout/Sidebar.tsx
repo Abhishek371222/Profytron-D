@@ -130,6 +130,11 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
 
   const handleBrandClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
+    // Collapsed rail: clicking the mark re-expands the sidebar instead of navigating away.
+    if (!expanded && !mobile) {
+      toggleSidebar();
+      return;
+    }
     router.push("/");
   };
 
@@ -164,21 +169,29 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
             href="/"
             onClick={handleBrandClick}
             className={cn(
-              "relative flex items-center w-full min-h-[clamp(3.5rem,4.5vw,4.25rem)] transition-opacity duration-200 hover:opacity-90",
-              expanded ? "px-[var(--sidebar-pad)] justify-between" : "justify-center px-2",
+              "relative flex w-full items-center transition-colors duration-200",
+              expanded
+                ? // Logo/text lockup centers in the space left of the collapse
+                  // button (flex-1 below), so it never sits off vertically —
+                  // both stay in normal flow and share the same items-center row.
+                  "min-h-[clamp(6.5rem,7.5vw,7.25rem)] py-1 px-[calc(var(--sidebar-pad)*0.65)] hover:opacity-90"
+                : // Collapsed: shorter box sized to the small icon; whole rail is an "expand sidebar" hit target.
+                  "min-h-[clamp(4.25rem,5vw,4.75rem)] py-1 justify-center px-2 rounded-xl hover:bg-[color-mix(in_srgb,var(--muted)_45%,transparent)]",
             )}
-            aria-label="Profytron Home"
+            aria-label={expanded ? "Profytron Home" : "Expand sidebar"}
+            title={expanded ? undefined : "Expand sidebar"}
           >
             <AnimatePresence mode="wait">
               {expanded ? (
                 <motion.div
                   key="expanded"
+                  className="flex flex-1 justify-center min-w-0"
                   initial={{ opacity: 0, x: -4 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -4 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <BrandLogo size="lg" />
+                  <BrandLogo size="sidebar" />
                 </motion.div>
               ) : (
                 <motion.div
@@ -188,7 +201,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
                   exit={{ opacity: 0, scale: 0.92 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <BrandLogo size="md" showWordmark={false} />
+                  <BrandLogo size="sidebarCollapsed" showWordmark={false} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -197,13 +210,17 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
               <button
                 type="button"
                 onClick={(e) => {
+                  // Must stop propagation — this button lives inside the brand
+                  // <Link>, and without this the click bubbles up to it and
+                  // navigates home right after toggling the sidebar.
                   e.preventDefault();
+                  e.stopPropagation();
                   toggleSidebar();
                 }}
-                className="sidebar-collapse-inline"
+                className="sidebar-collapse-inline shrink-0"
                 aria-label="Collapse sidebar"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5" />
               </button>
             )}
           </Link>

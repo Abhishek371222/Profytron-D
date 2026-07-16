@@ -7,6 +7,7 @@ import {
   AreaChart,
   ResponsiveContainer,
   Tooltip,
+  XAxis,
   YAxis,
 } from 'recharts';
 import { cn } from '@/lib/utils';
@@ -34,6 +35,17 @@ export function OverviewPerformance({
     label: p.date.slice(5),
   }));
 
+  const formatFullDate = (iso: string) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  };
+
   return (
     <div className="flex h-full min-h-[220px] flex-col overflow-hidden rounded-xl border border-[var(--card-border)] bg-card">
       <div className="flex items-center justify-between gap-3 border-b border-[var(--card-border)] px-3 py-2.5 sm:px-4">
@@ -54,7 +66,7 @@ export function OverviewPerformance({
       </div>
 
       <div className="min-h-[120px] flex-1 px-2 pb-2 pt-2">
-        {loading ? (
+        {loading && data.length < 2 ? (
           <div className="mx-3 h-full min-h-[120px] animate-pulse rounded-xl bg-muted/40" />
         ) : data.length < 2 ? (
           <div className="flex h-full min-h-[120px] items-center justify-center text-xs text-muted-foreground">
@@ -70,6 +82,7 @@ export function OverviewPerformance({
                     <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
+                <XAxis dataKey="label" hide />
                 <YAxis
                   domain={['dataMin', 'dataMax']}
                   hide
@@ -82,9 +95,16 @@ export function OverviewPerformance({
                     borderRadius: 10,
                     fontSize: 12,
                   }}
-                  labelFormatter={(l) => String(l)}
+                  labelFormatter={(_label, payload) => {
+                    const iso = payload?.[0]?.payload?.date;
+                    return iso ? formatFullDate(String(iso)) : '';
+                  }}
                   formatter={(value) => [
-                    Number(value).toLocaleString('en-US', { maximumFractionDigits: 2 }),
+                    Number(value).toLocaleString('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                      maximumFractionDigits: 2,
+                    }),
                     'Equity',
                   ]}
                 />

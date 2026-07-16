@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
   try {
     // Quota: FREE plan allows 5 (match API pricing.constants)
     const existing = await sql`
-      SELECT id FROM "BrokerAccount"
+      SELECT id, "initialEquity" FROM "BrokerAccount"
       WHERE "userId" = ${userId}
         AND "accountNumberLast4" = ${last4}
         AND "serverName" = ${serverName}
@@ -321,10 +321,28 @@ export async function POST(req: NextRequest) {
     let accountRow: any;
 
     if (existing[0]?.id) {
-      const updated = await sql`
+      const existingBaseline = Number(existing[0].initialEquity ?? 0);
+      const keepBaseline =
+        Number.isFinite(existingBaseline) && existingBaseline > 0;
+      const liveVal = equity || balance || null;
+      const updated = keepBaseline
+        ? await sql`
         UPDATE "BrokerAccount"
         SET "credentialsEncrypted" = ${credentialsEncrypted},
-            "initialEquity" = ${equity || balance || null},
+            "lastKnownEquity" = ${liveVal},
+            "lastKnownBalance" = ${balance || equity || null},
+            "lastConnectedAt" = ${now}::timestamp
+        WHERE id = ${existing[0].id}
+        RETURNING id, "brokerName", "accountNumberLast4", "serverName",
+                  "isPaperTrading", "isDefault", "isActive", "connectedAt",
+                  "initialEquity"
+      `
+        : await sql`
+        UPDATE "BrokerAccount"
+        SET "credentialsEncrypted" = ${credentialsEncrypted},
+            "initialEquity" = ${liveVal},
+            "lastKnownEquity" = ${liveVal},
+            "lastKnownBalance" = ${balance || equity || null},
             "lastConnectedAt" = ${now}::timestamp
         WHERE id = ${existing[0].id}
         RETURNING id, "brokerName", "accountNumberLast4", "serverName",
@@ -344,12 +362,13 @@ export async function POST(req: NextRequest) {
           id, "userId", "brokerName", "accountNumberLast4",
           "credentialsEncrypted", "serverName", "isPaperTrading",
           "isDefault", "isActive", "connectedAt", "createdAt",
-          "lastConnectedAt", "initialEquity"
+          "lastConnectedAt", "initialEquity", "lastKnownEquity", "lastKnownBalance"
         ) VALUES (
           ${id}, ${userId}, ${resolvedBrokerName}::"BrokerName", ${last4},
           ${credentialsEncrypted}, ${serverName}, false,
           ${isDefault}, true, ${now}::timestamp, ${now}::timestamp,
-          ${now}::timestamp, ${equity || balance || null}
+          ${now}::timestamp, ${equity || balance || null},
+          ${equity || balance || null}, ${balance || equity || null}
         )
         RETURNING id, "brokerName", "accountNumberLast4", "serverName",
                   "isPaperTrading", "isDefault", "isActive", "connectedAt",

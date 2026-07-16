@@ -8,7 +8,13 @@ import {
   isTradingSocketConnected,
 } from '@/lib/realtime/trading-socket';
 
-export type SupportedSymbol = 'BTCUSDT' | 'EURUSD' | 'XAUUSD';
+export type SupportedSymbol =
+  | 'BTCUSDT'
+  | 'EURUSD'
+  | 'XAUUSD'
+  | 'US30'
+  | 'NAS100'
+  | 'SPX500';
 
 export type LiveQuote = {
   symbol: SupportedSymbol;
@@ -20,7 +26,14 @@ export type LiveQuote = {
 
 type LiveQuoteMap = Partial<Record<SupportedSymbol, LiveQuote>>;
 
-const SUPPORTED: SupportedSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'];
+const SUPPORTED: SupportedSymbol[] = [
+  'BTCUSDT',
+  'EURUSD',
+  'XAUUSD',
+  'US30',
+  'NAS100',
+  'SPX500',
+];
 
 /** Nest stuck-API demo bands — never show these in the UI. */
 export function isFakeNestQuote(symbol: string, price: number, source?: string): boolean {

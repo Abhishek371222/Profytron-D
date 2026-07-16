@@ -355,7 +355,12 @@ model BrokerAccount {
   isDefault            Boolean    @default(false)
   isMasterSource       Boolean    @default(false)
   isActive             Boolean    @default(true)
+  /// First synchronized equity/balance — permanent return baseline. Never overwrite after seed.
   initialEquity        Float?
+  /// Latest live equity snapshot for cold-start UI (safe to overwrite every sync).
+  lastKnownEquity      Float?
+  /// Latest live balance snapshot for cold-start UI (safe to overwrite every sync).
+  lastKnownBalance     Float?
   lastConnectedAt      DateTime?
   connectedAt          DateTime   @default(now())
   createdAt            DateTime   @default(now())
@@ -365,9 +370,27 @@ model BrokerAccount {
   masterForStrategies Strategy[]                 @relation("StrategyMasterAccount")
   masterProfile       MasterProfile?
   bridgeOrders        CopyBridgeOrder[]
+  equitySnapshots     EquitySnapshot[]
 
   @@index([userId])
   @@index([isMasterSource])
+}
+
+/// Durable equity/balance history for connected broker accounts — captured on
+/// a fixed interval by AccountHistorySyncService regardless of bot activity,
+/// so the equity curve survives even if MetaAPI's own deal history is thin or
+/// unavailable. Company-owned record of account value over time.
+model EquitySnapshot {
+  id              String        @id @default(uuid())
+  brokerAccountId String
+  brokerAccount   BrokerAccount @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
+  balance         Float
+  equity          Float
+  margin          Float?
+  freeMargin      Float?
+  capturedAt      DateTime      @default(now())
+
+  @@index([brokerAccountId, capturedAt])
 }
 
 model Strategy {
@@ -521,6 +544,7 @@ model Trade {
   @@index([strategyId])
   @@index([strategyId, status])
   @@index([strategyId, openedAt])
+  @@unique([brokerAccountId, brokerTicket], map: "trade_broker_account_ticket_unique")
   @@index([brokerAccountId])
   @@index([brokerTicket])
   @@index([symbol])

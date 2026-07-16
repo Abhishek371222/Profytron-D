@@ -441,6 +441,60 @@ export class MetaTraderAdapter {
   }
 
   /**
+   * Full account snapshot (balance/equity/margin) for a point-in-time
+   * persistence write — unlike getLiveEquity this is not cached, since the
+   * caller (history sync) already throttles its own poll interval.
+   */
+  async getAccountSnapshot(
+    metaApiAccountId: string,
+    region?: string,
+  ): Promise<{
+    balance: number;
+    equity: number;
+    margin: number;
+    freeMargin: number;
+    currency?: string;
+  } | null> {
+    if (!this.isLive || !metaApiAccountId) return null;
+    try {
+      const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+      const d = await this.fetchAccountInformation(
+        metaApiAccountId,
+        resolvedRegion,
+      );
+      return {
+        balance: Number(d?.balance ?? 0),
+        equity: Number(d?.equity ?? d?.balance ?? 0),
+        margin: Number(d?.margin ?? 0),
+        freeMargin: Number(d?.freeMargin ?? 0),
+        currency: d?.currency,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Closed + open deals in a time window, for durable Trade-table persistence.
+   * Raw MetaAPI deal objects — grouping into closed positions happens in the
+   * calling service so it can share logic with the manual-close reconciler.
+   */
+  async getHistoryDeals(
+    metaApiAccountId: string,
+    from: Date,
+    to: Date,
+    region?: string,
+  ): Promise<any[]> {
+    if (!this.isLive || !metaApiAccountId) return [];
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    const res = await this.http.get(
+      `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/history-deals/time/${encodeURIComponent(from.toISOString())}/${encodeURIComponent(to.toISOString())}`,
+      { headers: this.headers() },
+    );
+    return Array.isArray(res.data) ? res.data : [];
+  }
+
+  /**
    * Current account equity, cached per account for `EQUITY_TTL_MS` to avoid
    * hammering the client API during high-frequency copy fan-out. Returns null
    * when unavailable so callers can fall back to a recorded baseline.

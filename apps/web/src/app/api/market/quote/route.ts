@@ -5,7 +5,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 20;
 
-const SYMBOLS: MarketSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD'];
+const SYMBOLS: MarketSymbol[] = ['BTCUSDT', 'EURUSD', 'XAUUSD', 'US30', 'NAS100', 'SPX500'];
 
 function noStore(data: unknown, status = 200) {
   return NextResponse.json(data, {

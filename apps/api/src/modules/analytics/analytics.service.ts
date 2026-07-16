@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 import { WalletService } from '../wallet/wallet.service';
+import { computeReturnPct } from '../../common/utils/account-performance.util';
 
 type RangeKey = '1d' | '1w' | '1m' | '3m' | '1y' | 'all';
 
@@ -226,6 +227,7 @@ export class AnalyticsService {
       return {
         range,
         totalProfit: 0,
+        totalReturnPct: 0,
         winRate: 0,
         totalTrades: 0,
         sharpeRatio: 0,
@@ -238,6 +240,7 @@ export class AnalyticsService {
         allTimeHigh: baseEquity,
         bestMonth: 0,
         equityBase: this.round(baseEquity),
+        depositBase: this.round(baseEquity),
       };
     }
 
@@ -277,9 +280,15 @@ export class AnalyticsService {
       0,
     );
 
+    const currentEquity =
+      equityCurve.length > 0
+        ? equityCurve[equityCurve.length - 1].equity
+        : baseEquity + totalProfit;
+
     const stats = {
       range,
       totalProfit: this.round(totalProfit),
+      totalReturnPct: computeReturnPct(currentEquity, baseEquity),
       winRate: this.round(winRate),
       totalTrades: trades.length,
       sharpeRatio: this.round(sharpe),
@@ -292,6 +301,7 @@ export class AnalyticsService {
       bestMonth: this.round(bestMonth),
       equityCurve,
       equityBase: this.round(baseEquity),
+      depositBase: this.round(baseEquity),
     };
 
     await this.redis.set(cacheKey, JSON.stringify(stats), TTL_ANALYTICS);

@@ -30,6 +30,7 @@ import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
 import { strategiesApi } from '@/lib/api/strategies';
 import { formatBotName } from '@/lib/bot-labels';
 import { toast } from 'sonner';
+import { persistDashboardQuery } from '@/lib/queries/dashboard-cache';
 
 
 const mapRangeToAnalytics = (range: HistoryDateRange): AnalyticsRange => {
@@ -95,13 +96,13 @@ export default function HistoryPage() {
  const {
   data: liveHistory,
   isFetching,
-  isLoading,
   isError,
+  isPending,
  } = useQuery({
   queryKey: ['history-export', selectedRange],
   queryFn: async () => {
    const payload = await analyticsApi.getTradeExport(mapRangeToAnalytics(selectedRange));
-   return payload.rows.map((row, index) => {
+   const mapped = payload.rows.map((row, index) => {
     const occurredAt = row.closedAt ?? row.openedAt;
     const direction = String(row.direction || '').toUpperCase();
     return {
@@ -124,10 +125,17 @@ export default function HistoryPage() {
     })(),
    };
    });
+   persistDashboardQuery(['history-export', selectedRange], mapped);
+   return mapped;
   },
+  staleTime: 60_000,
+  refetchInterval: 60_000,
+  placeholderData: (previous) => previous,
+  refetchOnMount: false,
  });
 
  const historyRows = liveHistory ?? [];
+ const historyLoading = isPending && liveHistory === undefined;
 
  const { data: myBots = [] } = useQuery({
   queryKey: ['history-my-bots'],
@@ -183,13 +191,7 @@ export default function HistoryPage() {
   return ['All bots', ...purchasedBots];
  }, [purchasedBots]);
 
- // Default filter to the bot they bought when they only have one.
- React.useEffect(() => {
-  if (selectedStrategy !== 'All bots') return;
-  if (purchasedBots.length === 1) {
-   setSelectedStrategy(purchasedBots[0]);
-  }
- }, [purchasedBots, selectedStrategy]);
+ // Keep "All bots" as the default so MetaAPI rows are never hidden by a name mismatch.
 
  // Short placeholders on phone so long bot names in (…) don’t clip.
  React.useEffect(() => {
@@ -388,7 +390,7 @@ export default function HistoryPage() {
  </tr>
  </thead>
  <tbody className="divide-y divide-[var(--card-border)]">
- {isLoading ? (
+ {historyLoading ? (
   Array.from({ length: pageSize }).map((_, i) => (
    <tr key={i} className="animate-pulse">
     {Array.from({ length: 8 }).map((__, j) => (
@@ -466,7 +468,7 @@ export default function HistoryPage() {
  </table>
  </div>
 
- {!isLoading && filteredHistory.length === 0 && (
+ {!historyLoading && filteredHistory.length === 0 && (
  <div className="py-24 flex flex-col items-center justify-center space-y-4">
  <div className="w-16 h-16 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center">
  <Brain className="w-8 h-8 text-foreground/15" />

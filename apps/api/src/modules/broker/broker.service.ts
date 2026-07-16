@@ -17,6 +17,7 @@ import {
 import { getTierLimits } from '../../common/constants/pricing.constants';
 import { CopyBridgeService } from '../copy-bridge/copy-bridge.service';
 import { linkOrphanStrategySubscriptions } from '../../common/utils/broker-requirement.util';
+import { seedInitialEquity } from '../../common/utils/account-performance.util';
 
 @Injectable()
 export class BrokerService {
@@ -207,16 +208,30 @@ export class BrokerService {
       });
       const isDefault = existingCount === 0;
 
+      const liveAtConnect = Number(
+        connectionResult.equity ?? connectionResult.balance ?? 0,
+      );
+      const seeded = seedInitialEquity(
+        existingAccount?.initialEquity,
+        liveAtConnect,
+      );
+
       const account = existingAccount
         ? await this.prisma.brokerAccount.update({
             where: { id: existingAccount.id },
             data: {
               credentialsEncrypted: encrypted,
               ...(bridgeTokenHash ? { bridgeTokenHash } : {}),
-              initialEquity:
-                Number(
-                  connectionResult.equity ?? connectionResult.balance ?? 0,
-                ) || existingAccount.initialEquity,
+              // Never overwrite a stored return baseline on reconnect.
+              ...(seeded != null ? { initialEquity: seeded } : {}),
+              ...(liveAtConnect > 0
+                ? {
+                    lastKnownEquity: liveAtConnect,
+                    lastKnownBalance: Number(
+                      connectionResult.balance ?? liveAtConnect,
+                    ),
+                  }
+                : {}),
             },
           })
         : await this.prisma.brokerAccount.create({
@@ -229,10 +244,15 @@ export class BrokerService {
               serverName,
               isPaperTrading: brokerName === 'PAPER',
               isDefault,
-              initialEquity:
-                Number(
-                  connectionResult.equity ?? connectionResult.balance ?? 0,
-                ) || null,
+              initialEquity: seeded ?? null,
+              ...(liveAtConnect > 0
+                ? {
+                    lastKnownEquity: liveAtConnect,
+                    lastKnownBalance: Number(
+                      connectionResult.balance ?? liveAtConnect,
+                    ),
+                  }
+                : {}),
             },
           });
 
@@ -401,14 +421,23 @@ export class BrokerService {
             if (info?.connected) {
               live = info;
               connectionStatus = 'CONNECTED';
-              liveSynced = Number(info.equity ?? info.balance ?? 0) > 0;
+              const liveEquity = Number(info.equity ?? info.balance ?? 0);
+              const liveBalance = Number(info.balance ?? info.equity ?? 0);
+              liveSynced = liveEquity > 0;
               if (liveSynced) {
+                // Persist live cache every sync; seed initialEquity only once.
+                const seed = seedInitialEquity(
+                  account.initialEquity,
+                  liveEquity,
+                );
                 void this.prisma.brokerAccount
                   .update({
                     where: { id: account.id },
                     data: {
-                      initialEquity: Number(info.equity ?? info.balance),
+                      lastKnownEquity: liveEquity,
+                      lastKnownBalance: liveBalance,
                       lastConnectedAt: new Date(),
+                      ...(seed != null ? { initialEquity: seed } : {}),
                     },
                   })
                   .catch(() => undefined);
@@ -423,9 +452,13 @@ export class BrokerService {
         }
 
         const balance =
-          live?.balance ?? safe.initialEquity ?? null;
+          live?.balance ?? safe.lastKnownBalance ?? safe.initialEquity ?? null;
         const equity =
-          live?.equity ?? live?.balance ?? safe.initialEquity ?? null;
+          live?.equity ??
+          live?.balance ??
+          safe.lastKnownEquity ??
+          safe.initialEquity ??
+          null;
 
         return {
           ...safe,
@@ -434,7 +467,9 @@ export class BrokerService {
           margin: live?.margin ?? 0,
           freeMargin:
             live?.freeMargin ??
-            (equity != null ? Math.max(0, Number(equity) - Number(live?.margin ?? 0)) : null),
+            (equity != null
+              ? Math.max(0, Number(equity) - Number(live?.margin ?? 0))
+              : null),
           currency: live?.currency ?? 'USD',
           leverage: live?.leverage ?? null,
           connectionStatus,

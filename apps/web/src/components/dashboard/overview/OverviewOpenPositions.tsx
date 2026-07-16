@@ -79,7 +79,7 @@ export function OverviewOpenPositions({
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto">
-        {loading ? (
+        {loading && rows.length === 0 ? (
           <div className="space-y-2 p-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-10 animate-pulse rounded-lg bg-muted/40" />

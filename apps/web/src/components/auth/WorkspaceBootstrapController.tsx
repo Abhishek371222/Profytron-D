@@ -10,6 +10,10 @@ import { tradingApi } from '@/lib/api/trading';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
 import { WorkspaceBootstrapScreen } from '@/components/auth/WorkspaceBootstrapScreen';
+import {
+  hydrateDashboardCache,
+  persistDashboardQuery,
+} from '@/lib/queries/dashboard-cache';
 
 function sleep(ms: number) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -83,6 +87,8 @@ export function WorkspaceBootstrapController() {
       const started = Date.now();
       const hardCapMs = 12_000;
       completeStep('session');
+      // Instant paint from last successful MetaAPI snapshots (localStorage).
+      hydrateDashboardCache(queryClient);
       await hold(350);
       if (!still()) return;
 
@@ -95,37 +101,66 @@ export function WorkspaceBootstrapController() {
       // Kick all dashboard-critical fetches in parallel.
       const accountsP = queryClient.fetchQuery({
         queryKey: ['broker-accounts'],
-        queryFn: () => brokerApi.getBrokerAccounts(),
-        staleTime: 8_000,
+        queryFn: async () => {
+          const rows = await brokerApi.getBrokerAccounts();
+          persistDashboardQuery(['broker-accounts'], rows);
+          return rows;
+        },
+        staleTime: 60_000,
       });
 
       const portfolioP = queryClient.fetchQuery({
         queryKey: ['portfolio', '1m'],
-        queryFn: () => analyticsApi.getPortfolio('1m'),
-        staleTime: 30_000,
+        queryFn: async () => {
+          const data = await analyticsApi.getPortfolio('1m');
+          if (data?.source === 'metaapi') {
+            persistDashboardQuery(['portfolio', '1m'], data);
+          }
+          return data;
+        },
+        staleTime: 60_000,
       });
 
       const openTradesP = queryClient.fetchQuery({
         queryKey: ['open-trades'],
-        queryFn: async () => mapOpenTrades(await tradingApi.getOpenTrades()),
-        staleTime: 8_000,
+        queryFn: async () => {
+          const mapped = mapOpenTrades(await tradingApi.getOpenTrades());
+          persistDashboardQuery(['open-trades'], mapped);
+          return mapped;
+        },
+        staleTime: 60_000,
       });
 
       const historyP = queryClient.fetchQuery({
         queryKey: ['trade-history', 'overview'],
-        queryFn: () => tradingApi.getTradeHistory({ limit: 12 }),
-        staleTime: 20_000,
+        queryFn: async () => {
+          const result = await tradingApi.getTradeHistory({ limit: 12 });
+          if (result.syncError && (!result.rows || result.rows.length === 0)) {
+            throw new Error(result.message || result.syncError);
+          }
+          persistDashboardQuery(['trade-history', 'overview'], result);
+          return result;
+        },
+        staleTime: 60_000,
       });
 
       const strategiesP = queryClient.fetchQuery({
         queryKey: ['my-strategies'],
-        queryFn: () => strategiesApi.getMyStrategies(),
-        staleTime: 120_000,
+        queryFn: async () => {
+          const data = await strategiesApi.getMyStrategies();
+          persistDashboardQuery(['my-strategies'], data);
+          return data;
+        },
+        staleTime: 60_000,
       });
 
       const riskP = queryClient.fetchQuery({
         queryKey: ['dashboard-risk'],
-        queryFn: () => riskApi.getDashboard(),
+        queryFn: async () => {
+          const data = await riskApi.getDashboard();
+          persistDashboardQuery(['dashboard-risk'], data);
+          return data;
+        },
         staleTime: 60_000,
       });
 

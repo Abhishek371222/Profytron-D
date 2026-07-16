@@ -160,13 +160,63 @@ export default function DashboardPage() {
       })
       .reduce((s, t) => s + Number(t.profit ?? 0), 0);
     if (tradeHistory.length > 0) return fromHistory;
+    if (mountedForCache) {
+      const cached = readOverviewAccountCache();
+      if (
+        (tradeHistoryInitialLoading || tradeHistoryQuery.isFetching) &&
+        cached?.realizedPnl24h != null
+      ) {
+        return Number(cached.realizedPnl24h);
+      }
+    }
     return Number(portfolio?.totalProfit ?? 0);
-  }, [tradeHistory, portfolio?.totalProfit, nowMs]);
+  }, [
+    tradeHistory,
+    portfolio?.totalProfit,
+    nowMs,
+    mountedForCache,
+    tradeHistoryInitialLoading,
+    tradeHistoryQuery.isFetching,
+  ]);
+
+  const equityCurve = portfolio?.equityCurve ?? [];
+  // Real MetaAPI equity points only — no invented deltas. With <2 points there
+  // is nothing to plot yet, so render a flat line at the live balance rather
+  // than fabricating a fake dip/rise.
+  const sparkline =
+    equityCurve.length < 2
+      ? balance > 0
+        ? [balance, balance]
+        : [0, 0]
+      : equityCurve.slice(-24).map((p) => p.equity);
+
+  const cachedReturnPct = mountedForCache
+    ? Number(readOverviewAccountCache()?.change24hPct)
+    : NaN;
+  const totalReturnPct =
+    portfolio?.source === 'metaapi' &&
+    portfolio.totalReturnPct != null &&
+    Number.isFinite(portfolio.totalReturnPct)
+      ? portfolio.totalReturnPct
+      : (() => {
+          const base = Number(
+            portfolio?.depositBase ??
+              portfolio?.equityBase ??
+              defaultBrokerAccount?.initialEquity ??
+              0,
+          );
+          const current = equity > 0 ? equity : balance;
+          if (base > 0 && current > 0) {
+            return ((current - base) / base) * 100;
+          }
+          return Number.isFinite(cachedReturnPct) ? cachedReturnPct : 0;
+        })();
+
+  const change24hPct = totalReturnPct;
 
   // Keep PnL companions in the same session cache for next reload.
   React.useEffect(() => {
     if (!accountInfo || accountInfo.balance <= 0) return;
-    const prev = readOverviewAccountCache();
     writeOverviewAccountCache({
       balance: accountInfo.balance,
       equity: accountInfo.equity,
@@ -183,7 +233,9 @@ export default function DashboardPage() {
               })
               .reduce((s, t) => s + Number(t.profit ?? 0), 0)
           : Number(portfolio?.totalProfit ?? 0),
-      change24hPct: prev?.change24hPct,
+      change24hPct: Number.isFinite(change24hPct)
+        ? change24hPct
+        : readOverviewAccountCache()?.change24hPct,
       accountId: defaultBrokerAccount?.id,
       savedAt: Date.now(),
     });
@@ -193,41 +245,8 @@ export default function DashboardPage() {
     tradeHistory,
     portfolio?.totalProfit,
     defaultBrokerAccount?.id,
+    change24hPct,
   ]);
-
-  const equityCurve = portfolio?.equityCurve ?? [];
-  // Sparkline from real curve — drop pathological end spikes for display.
-  const sparkline = (() => {
-    if (equityCurve.length < 2) {
-      return balance > 0 ? [balance * 0.99, balance] : [0, 0];
-    }
-    const pts = equityCurve.slice(-24).map((p) => p.equity);
-    // If last jump is >35%, flatten last segment toward live equity gradually.
-    if (pts.length >= 2) {
-      const a = pts[pts.length - 2];
-      const b = pts[pts.length - 1];
-      if (a > 0 && Math.abs(b - a) / a > 0.35) {
-        pts[pts.length - 1] = equity > 0 ? equity : b;
-        pts[pts.length - 2] = equity > 0 ? equity * 0.985 : a;
-      }
-    }
-    return pts;
-  })();
-
-  // Prefer server deposit-based return once MetaAPI portfolio is ready.
-  const totalReturnPct =
-    portfolio?.source === 'metaapi' &&
-    portfolio.totalReturnPct != null &&
-    Number.isFinite(portfolio.totalReturnPct)
-      ? portfolio.totalReturnPct
-      : (() => {
-          const base = Number(portfolio?.depositBase ?? portfolio?.equityBase ?? 0);
-          return base > 0 && equity > 0
-            ? ((equity - base) / base) * 100
-            : 0;
-        })();
-
-  const change24hPct = totalReturnPct;
 
   const quoteMap = React.useMemo(() => {
     const next: Record<string, { price: number; change24hPct: number }> = {};
@@ -250,14 +269,19 @@ export default function DashboardPage() {
   const drawdownPct = Number(portfolio?.maxDrawdown ?? risk?.drawdownPct ?? 0);
   const profitFactor = Number(portfolio?.profitFactor ?? 0);
   const sharpeRatio = Number(portfolio?.sharpeRatio ?? 0);
+  const hasClosedTrades = (portfolio?.totalTrades ?? 0) > 0;
   // Map drawdown to health needle: 0% DD → healthy (8%), 25%+ DD → elevated (92%).
   const healthPct = Math.max(8, Math.min(92, 8 + drawdownPct * 3.2));
-  const riskScoreLabel =
-    drawdownPct < 5
-      ? 'Low Risk'
-      : drawdownPct < 12
+  // Composite of all three live MetaAPI-derived metrics, not drawdown alone —
+  // a losing edge (profit factor < 1) or negative risk-adjusted return
+  // (Sharpe < 0) is elevated risk even with a small drawdown so far.
+  const riskScoreLabel = !hasClosedTrades
+    ? 'No Data'
+    : drawdownPct >= 12 || profitFactor < 1 || sharpeRatio < 0
+      ? 'Elevated'
+      : drawdownPct >= 5 || profitFactor < 1.2 || sharpeRatio < 0.5
         ? 'Moderate'
-        : 'Elevated';
+        : 'Low Risk';
 
   const accountLabel = defaultBrokerAccount
     ? `${isPaper ? 'Paper' : 'Real'} Account ····${defaultBrokerAccount.accountNumberLast4 || ''}`
@@ -399,6 +423,13 @@ export default function DashboardPage() {
           trades={tradeHistory}
           currency={currency}
           loading={tradeHistoryInitialLoading}
+          syncError={tradeHistoryQuery.data?.syncError ?? (tradeHistoryQuery.isError ? 'METAAPI_UNAVAILABLE' : null)}
+          syncMessage={
+            tradeHistoryQuery.data?.message ??
+            (tradeHistoryQuery.isError
+              ? 'Could not sync closed trades from MetaAPI. Showing last saved trades if available.'
+              : null)
+          }
         />
         <OverviewEconomicCalendar
           events={calendarQuery.data?.events ?? []}

@@ -154,7 +154,8 @@ export async function GET(req: NextRequest) {
   const rows = await sql`
     SELECT id, "brokerName", "accountNumberLast4", "serverName",
            "isPaperTrading", "isDefault", "isActive", "connectedAt",
-           "initialEquity", "credentialsEncrypted", "lastConnectedAt"
+           "initialEquity", "lastKnownEquity", "lastKnownBalance",
+           "credentialsEncrypted", "lastConnectedAt"
     FROM "BrokerAccount"
     WHERE "userId" = ${userId} AND "isActive" = true
     ORDER BY "connectedAt" DESC
@@ -182,6 +183,11 @@ export async function GET(req: NextRequest) {
 
       const baseline = Number(row.initialEquity ?? 0);
       const hasBaseline = Number.isFinite(baseline) && baseline > 0;
+      const cachedEquity = Number(row.lastKnownEquity ?? 0);
+      const cachedBalance = Number(row.lastKnownBalance ?? 0);
+      const hasCache =
+        (Number.isFinite(cachedEquity) && cachedEquity > 0) ||
+        (Number.isFinite(cachedBalance) && cachedBalance > 0);
 
       let balance: number | null = null;
       let equity: number | null = null;
@@ -207,17 +213,34 @@ export async function GET(req: NextRequest) {
           currency = live.currency;
           liveSynced = true;
           connectionStatus = 'CONNECTED';
-          // Persist last-known equity so the next cold login shows numbers immediately.
-          void sql`
-            UPDATE "BrokerAccount"
-            SET "initialEquity" = ${live.equity},
-                "lastConnectedAt" = NOW()
-            WHERE id = ${row.id}
-          `.catch(() => undefined);
-        } else if (hasBaseline) {
-          balance = baseline;
-          equity = baseline;
-          freeMargin = baseline;
+          // Persist live cache every sync; seed initialEquity only once.
+          if (!hasBaseline) {
+            void sql`
+              UPDATE "BrokerAccount"
+              SET "initialEquity" = ${live.equity},
+                  "lastKnownEquity" = ${live.equity},
+                  "lastKnownBalance" = ${live.balance},
+                  "lastConnectedAt" = NOW()
+              WHERE id = ${row.id}
+                AND ("initialEquity" IS NULL OR "initialEquity" <= 0)
+            `.catch(() => undefined);
+          } else {
+            void sql`
+              UPDATE "BrokerAccount"
+              SET "lastKnownEquity" = ${live.equity},
+                  "lastKnownBalance" = ${live.balance},
+                  "lastConnectedAt" = NOW()
+              WHERE id = ${row.id}
+            `.catch(() => undefined);
+          }
+        } else if (hasCache || hasBaseline) {
+          balance = hasCache
+            ? cachedBalance || cachedEquity
+            : baseline;
+          equity = hasCache
+            ? cachedEquity || cachedBalance
+            : baseline;
+          freeMargin = equity;
           liveSynced = false;
           connectionStatus = 'SYNCING';
         } else {

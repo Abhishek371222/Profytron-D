@@ -160,7 +160,7 @@ export function PublicNavbar() {
       <div className="page-container w-full">
         <nav
           className={cn(
-            'flex items-center justify-between px-4 sm:px-5 py-2.5 rounded-button border transition-all duration-300',
+            'flex items-center justify-between pl-0 pr-4 sm:pl-1 sm:pr-5 py-2.5 rounded-button border transition-all duration-300 overflow-visible',
             isScrolled && mounted
               ? 'glass-navbar shadow-sm border-[var(--card-border)]'
               : 'border-transparent bg-transparent',
@@ -168,7 +168,7 @@ export function PublicNavbar() {
           aria-label="Site navigation"
         >
           <Link href="/" className="group shrink-0" aria-label="Profytron Home">
-            <BrandLogo size="xl" />
+            <BrandLogo size="home" />
           </Link>
 
           <div className="hidden lg:flex items-center gap-1">
@@ -189,7 +189,7 @@ export function PublicNavbar() {
               return (
                 <div
                   key={group.name}
-                  className="relative"
+                  className="relative z-50"
                   onMouseEnter={() => setOpenDropdown(group.name)}
                   onMouseLeave={() => setOpenDropdown(null)}
                 >
@@ -218,7 +218,7 @@ export function PublicNavbar() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 8 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 mt-2 w-52 py-2 rounded-card bg-card border border-border shadow-[var(--shadow-lg)]"
+                        className="absolute top-full left-0 z-[60] mt-2 w-52 py-2 rounded-card bg-card border border-border shadow-[var(--shadow-lg)]"
                       >
                         {group.children.map((child) => (
                           <Link

@@ -124,10 +124,7 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
 
   return (
     <div
-      className={cn(
-        'grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 transition-opacity duration-300',
-        refreshing && 'opacity-80',
-      )}
+      className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4"
       aria-busy={refreshing || undefined}
     >
       <Card>

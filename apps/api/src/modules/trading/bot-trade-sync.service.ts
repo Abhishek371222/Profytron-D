@@ -77,7 +77,9 @@ export class BotTradeSyncService implements OnModuleDestroy {
   }
 
   /** On-demand sync for one user (My Bots refresh). Throttled to 8s. */
-  async syncUser(userId: string): Promise<{ synced: number; tradesTouched: number }> {
+  async syncUser(
+    userId: string,
+  ): Promise<{ synced: number; tradesTouched: number }> {
     const last = this.userSyncCooldown.get(userId) ?? 0;
     if (Date.now() - last < 8_000) {
       return { synced: 0, tradesTouched: 0 };
@@ -222,7 +224,9 @@ export class BotTradeSyncService implements OnModuleDestroy {
         }
       }
     } catch (err) {
-      this.logger.warn(`Bot trade sync cycle failed: ${(err as Error).message}`);
+      this.logger.warn(
+        `Bot trade sync cycle failed: ${(err as Error).message}`,
+      );
     } finally {
       this.polling = false;
     }
@@ -266,7 +270,10 @@ export class BotTradeSyncService implements OnModuleDestroy {
     } catch {
       return 0;
     }
-    if (!creds.metaApiAccountId || String(creds.metaApiAccountId).startsWith('mock-')) {
+    if (
+      !creds.metaApiAccountId ||
+      String(creds.metaApiAccountId).startsWith('mock-')
+    ) {
       return 0;
     }
 
@@ -274,18 +281,23 @@ export class BotTradeSyncService implements OnModuleDestroy {
       creds.metaApiAccountId,
       creds.metaApiRegion,
     );
-    const brokerPositions: BrokerPosition[] = raw.map((p: any) => ({
-      id: String(p.id ?? p.positionId ?? ''),
-      symbol: String(p.symbol || ''),
-      type: String(p.type || ''),
-      volume: Number(p.volume ?? 0),
-      openPrice: Number(p.openPrice ?? p.price ?? 0),
-      stopLoss: p.stopLoss ?? null,
-      takeProfit: p.takeProfit ?? null,
-      profit: typeof p.profit === 'number' ? p.profit : Number(p.unrealizedProfit ?? 0) || 0,
-      comment: p.comment ?? p.brokerComment ?? null,
-      magic: typeof p.magic === 'number' ? p.magic : null,
-    })).filter((p) => p.id && p.symbol);
+    const brokerPositions: BrokerPosition[] = raw
+      .map((p: any) => ({
+        id: String(p.id ?? p.positionId ?? ''),
+        symbol: String(p.symbol || ''),
+        type: String(p.type || ''),
+        volume: Number(p.volume ?? 0),
+        openPrice: Number(p.openPrice ?? p.price ?? 0),
+        stopLoss: p.stopLoss ?? null,
+        takeProfit: p.takeProfit ?? null,
+        profit:
+          typeof p.profit === 'number'
+            ? p.profit
+            : Number(p.unrealizedProfit ?? 0) || 0,
+        comment: p.comment ?? p.brokerComment ?? null,
+        magic: typeof p.magic === 'number' ? p.magic : null,
+      }))
+      .filter((p) => p.id && p.symbol);
 
     const openDbTrades = await this.prisma.trade.findMany({
       where: {
@@ -314,7 +326,8 @@ export class BotTradeSyncService implements OnModuleDestroy {
         );
         const nextProfit = Number(pos.profit ?? existing.profit ?? 0);
         const needsUpdate =
-          (Number.isFinite(nextProfit) && nextProfit !== Number(existing.profit ?? 0)) ||
+          (Number.isFinite(nextProfit) &&
+            nextProfit !== Number(existing.profit ?? 0)) ||
           (strategyId && strategyId !== existing.strategyId);
 
         if (needsUpdate) {
@@ -443,8 +456,10 @@ export class BotTradeSyncService implements OnModuleDestroy {
         where: { id: input.brokerAccountId },
         data: {
           lastConnectedAt: new Date(),
+          lastKnownEquity: live,
+          lastKnownBalance: live,
           // Keep initialEquity if unset; otherwise leave baseline — live is for status.
-          ...(await this.shouldSeedEquity(input.brokerAccountId)
+          ...((await this.shouldSeedEquity(input.brokerAccountId))
             ? { initialEquity: live }
             : {}),
         },

@@ -14,7 +14,8 @@ export type CachedOverviewAccount = {
 };
 
 const KEY = 'profytron_overview_account_v1';
-const MAX_AGE_MS = 6 * 60 * 60 * 1000; // 6 hours
+/** Keep last-good metrics for a full day so reload never flashes zeros. */
+const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 export function readOverviewAccountCache(): CachedOverviewAccount | null {
   if (typeof window === 'undefined') return null;

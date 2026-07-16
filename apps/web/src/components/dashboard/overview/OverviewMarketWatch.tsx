@@ -22,7 +22,7 @@ const TAB_SYMBOLS: Record<WatchTab, string[]> = {
   forex: ['EURUSD'],
   metals: ['XAUUSD'],
   crypto: ['BTCUSDT'],
-  indices: [],
+  indices: ['US30', 'NAS100', 'SPX500'],
 };
 
 type Quote = {

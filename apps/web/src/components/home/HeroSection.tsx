@@ -66,7 +66,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] pt-24 pb-14 dark:bg-background sm:pt-28 sm:pb-16 lg:pb-20">
+    <section className="relative w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] pt-28 pb-14 dark:bg-background sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-20">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"

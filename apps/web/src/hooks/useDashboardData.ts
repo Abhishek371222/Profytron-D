@@ -17,6 +17,10 @@ import {
   writeOverviewAccountCache,
   type CachedOverviewAccount,
 } from '@/lib/overview-account-cache';
+import {
+  hydrateDashboardCache,
+  persistDashboardQuery,
+} from '@/lib/queries/dashboard-cache';
 
 export type AnalyticsRange = '1d' | '1w' | '1m' | '3m' | '1y' | 'all';
 
@@ -28,6 +32,9 @@ const RANGE_MAP: Record<string, AnalyticsRange> = {
   '1Y': '1y',
   ALL: 'all',
 };
+
+/** Poll live MetaAPI-backed widgets once per minute. */
+const LIVE_POLL_MS = 60_000;
 
 type LiveAccountInfo = {
   balance: number;
@@ -68,22 +75,37 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   } = useAccountContext();
   const apiRange = RANGE_MAP[chartRange] ?? '1m';
 
+  // Paint last-good localStorage values before any network round-trip.
+  React.useEffect(() => {
+    if (!sessionReady) return;
+    hydrateDashboardCache(queryClient);
+  }, [sessionReady, queryClient]);
+
   useDashboardRealtime(sessionReady);
 
-  const { quotes, priceHistory, wsConnected, refresh: refreshQuotes, isLoading: quotesLoading } =
-    useLiveMarketFeed(['BTCUSDT', 'EURUSD', 'XAUUSD'], {
-      enabled: sessionReady,
-      allowFallback: false,
-    });
+  const {
+    quotes,
+    priceHistory,
+    wsConnected,
+    refresh: refreshQuotes,
+    isLoading: quotesLoading,
+  } = useLiveMarketFeed(['BTCUSDT', 'EURUSD', 'XAUUSD'], {
+    enabled: sessionReady,
+    allowFallback: false,
+  });
 
-  // Analytics is secondary — balance comes from fast /broker/accounts.
   const portfolioQuery = useQuery({
     queryKey: ['portfolio', apiRange],
-    queryFn: () => analyticsApi.getPortfolio(apiRange),
-    staleTime: 30_000,
-    refetchInterval: 45_000,
+    queryFn: async () => {
+      const data = await analyticsApi.getPortfolio(apiRange);
+      if (data?.source === 'metaapi') {
+        persistDashboardQuery(['portfolio', apiRange], data);
+      }
+      return data;
+    },
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
     refetchOnWindowFocus: false,
-    // Warm cache from bootstrap — don't flash empty then refill.
     refetchOnMount: false,
     placeholderData: (previous) => previous,
     enabled: sessionReady,
@@ -93,7 +115,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     queryKey: ['open-trades'],
     queryFn: async () => {
       const rows = await tradingApi.getOpenTrades();
-      return rows.map((r) => ({
+      const mapped = rows.map((r) => ({
         id: r.id,
         asset: r.symbol,
         type: r.direction === 'LONG' ? ('Long' as const) : ('Short' as const),
@@ -104,49 +126,66 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
         strategyId: r.strategyId ?? '',
         isPaper: r.isPaper,
       }));
+      persistDashboardQuery(['open-trades'], mapped);
+      return mapped;
     },
-    staleTime: 8_000,
-    refetchInterval: 12_000,
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
     refetchOnWindowFocus: true,
     refetchOnMount: false,
+    placeholderData: (previous) => previous,
     enabled: sessionReady,
   });
 
   const strategiesQuery = useQuery({
     queryKey: ['my-strategies'],
-    queryFn: () => strategiesApi.getMyStrategies(),
-    staleTime: 120_000,
+    queryFn: async () => {
+      const data = await strategiesApi.getMyStrategies();
+      persistDashboardQuery(['my-strategies'], data);
+      return data;
+    },
+    staleTime: LIVE_POLL_MS,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    placeholderData: (previous) => previous,
     enabled: sessionReady,
   });
 
   const riskQuery = useQuery({
     queryKey: ['dashboard-risk'],
-    queryFn: () => riskApi.getDashboard(),
-    staleTime: 60_000,
-    refetchInterval: 90_000,
+    queryFn: async () => {
+      const data = await riskApi.getDashboard();
+      persistDashboardQuery(['dashboard-risk'], data);
+      return data;
+    },
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    placeholderData: (previous) => previous,
     enabled: sessionReady,
   });
 
   const tradeHistoryQuery = useQuery({
     queryKey: ['trade-history', 'overview'],
-    queryFn: () => tradingApi.getTradeHistory({ limit: 12 }),
-    staleTime: 20_000,
-    refetchInterval: 30_000,
+    queryFn: async () => {
+      const result = await tradingApi.getTradeHistory({ limit: 12 });
+      if (result.syncError && (!result.rows || result.rows.length === 0)) {
+        throw new Error(result.message || result.syncError);
+      }
+      persistDashboardQuery(['trade-history', 'overview'], result);
+      return result;
+    },
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
     refetchOnMount: false,
+    refetchOnWindowFocus: true,
+    placeholderData: (previous) => previous,
     enabled: sessionReady,
   });
 
-  // Sticky last-good snapshot — hydrate from sessionStorage so reload never flashes 0.
-  // Seeded null (not read eagerly) because sessionStorage doesn't exist during
-  // SSR: reading it in the useState initializer made the server render ($0)
-  // disagree with the client's first hydration pass (already-cached balance),
-  // causing a hydration mismatch. Read it in an effect instead, which only
-  // ever runs client-side, after the render that has to match SSR.
-  const [stickyAccount, setStickyAccount] = React.useState<LiveAccountInfo | null>(null);
+  const [stickyAccount, setStickyAccount] =
+    React.useState<LiveAccountInfo | null>(null);
 
   React.useEffect(() => {
     const cached = toLiveAccountInfo(readOverviewAccountCache());
@@ -170,7 +209,6 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
         defaultAccount.initialEquity ??
         0,
     );
-    // Accept any finite positive snapshot (MetaAPI / bridge / paper baseline).
     const looksLive =
       Number.isFinite(equity) &&
       equity > 0 &&
@@ -194,7 +232,6 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     };
   }, [defaultAccount, brokerAccountsQuery.isError]);
 
-  // Portfolio MetaAPI path often has live equity even when broker list is still syncing.
   const portfolioLiveSnapshot = React.useMemo((): LiveAccountInfo | null => {
     const p = portfolioQuery.data;
     if (!p || p.source !== 'metaapi') return null;
@@ -257,14 +294,16 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   const accountInfo =
     liveAccountSnapshot ?? portfolioLiveSnapshot ?? stickyAccount;
 
-  // Ignore non-MetaAPI portfolio payloads (stale Nest cache) until live data arrives.
   const portfolio =
-    portfolioQuery.data?.source === 'metaapi' || portfolioQuery.data?.source === 'empty'
+    portfolioQuery.data?.source === 'metaapi' ||
+    portfolioQuery.data?.source === 'empty'
       ? portfolioQuery.data
       : undefined;
 
-  const portfolioValue = accountInfo?.equity ?? 0;
-  const equityBase = Number(portfolio?.equityBase ?? defaultAccount?.initialEquity ?? 0);
+  const portfolioValue = accountInfo?.equity ?? stickyAccount?.equity ?? 0;
+  const equityBase = Number(
+    portfolio?.equityBase ?? defaultAccount?.initialEquity ?? 0,
+  );
   const winRate = portfolio?.winRate ?? 0;
   const bestMonth = portfolio?.bestMonth ?? 0;
 
@@ -272,7 +311,10 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     id: s.id,
     name: s.name,
     status: 'active' as const,
-    winRate: Math.min(100, Math.max(0, Number(s.winRate ?? portfolio?.winRate ?? 0))),
+    winRate: Math.min(
+      100,
+      Math.max(0, Number(s.winRate ?? portfolio?.winRate ?? 0)),
+    ),
     confidence: Math.min(100, Math.max(40, 50 + Number(s.latestPnl ?? 0) / 10)),
     latestPnl: Number(s.latestPnl ?? 0),
   }));
@@ -304,7 +346,9 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     const next: typeof quotes = {};
     for (const [key, q] of Object.entries(quotes)) {
       if (!q) continue;
-      if (isFakeNestQuote(key, q.price, (q as { source?: string }).source)) continue;
+      if (isFakeNestQuote(key, q.price, (q as { source?: string }).source)) {
+        continue;
+      }
       next[key as keyof typeof quotes] = q;
     }
     return next;
@@ -326,7 +370,9 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
         const hist = priceHistory[key as keyof typeof priceHistory];
         return [
           key,
-          q ? { ...q, sparkline: hist && hist.length > 0 ? hist : undefined } : undefined,
+          q
+            ? { ...q, sparkline: hist && hist.length > 0 ? hist : undefined }
+            : undefined,
         ];
       }),
     );
@@ -334,18 +380,18 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
 
   const refreshAll = () => {
     invalidateAccountQueries(queryClient);
+    void queryClient.invalidateQueries({ queryKey: ['trade-history'] });
+    void queryClient.invalidateQueries({ queryKey: ['open-trades'] });
+    void queryClient.invalidateQueries({ queryKey: ['portfolio'] });
     refreshQuotes();
   };
 
-  // Stub kept for callers that still read these keys — no extra MetaAPI round-trips.
   const brokerAccountInfoQuery = {
     isPending: brokerAccountsQuery.isPending,
     data: accountInfo,
   };
   const brokerEquityQuery = { data: portfolioValue };
 
-  // Initial load only — never treat a background poll as "no data".
-  // If we already have sticky/cached numbers, do not block the UI on MetaAPI.
   const accountsInitialLoading =
     (hasBrokerAccount &&
       !accountInfo &&

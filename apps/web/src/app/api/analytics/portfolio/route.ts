@@ -10,6 +10,10 @@ import {
   metaHeaders,
   withResolvedRegion,
 } from '@/lib/server/metaapi-trading';
+import {
+  computeReturnPct,
+  resolveDepositBase,
+} from '@/lib/server/account-performance';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -215,19 +219,35 @@ export async function GET(req: NextRequest) {
     const tradingPnLAll = closedAll.reduce((s, t) => s + t.profit, 0);
     const totalProfit = closed.reduce((s, t) => s + t.profit, 0);
 
-    let depositBase = 0;
-    if (netDeposits > 1) {
-      depositBase = netDeposits;
-    } else if (dbInitialEquity > 1) {
-      depositBase = dbInitialEquity;
-    } else {
-      // Reconstruct funding when MetaAPI history has no balance deals.
-      depositBase = Math.max(1, liveEquity - tradingPnLAll);
+    const { depositBase, shouldRepairBaseline, repairedBaseline } =
+      resolveDepositBase({
+        netDeposits,
+        dbInitialEquity,
+        liveEquity,
+        tradingPnLAll,
+      });
+
+    // One-time repair when sync previously overwrote the return baseline.
+    if (
+      shouldRepairBaseline &&
+      repairedBaseline != null &&
+      repairedBaseline > 0
+    ) {
+      void live.sql`
+        UPDATE "BrokerAccount"
+        SET "initialEquity" = ${repairedBaseline}
+        WHERE id = ${live.brokerAccountId}
+          AND (
+            "initialEquity" IS NULL
+            OR "initialEquity" <= 0
+            OR ABS("initialEquity" - ${liveEquity}) / GREATEST(${liveEquity}, 1) < 0.01
+          )
+      `.catch(() => undefined);
     }
 
-    // $100 → $120 ⇒ +20%
-    const totalReturnPct =
-      depositBase > 0 ? ((liveEquity - depositBase) / depositBase) * 100 : 0;
+    // $100 → $120 ⇒ +20%  (uses live balance when available for return display)
+    const returnReference = liveBalance > 0 ? liveBalance : liveEquity;
+    const totalReturnPct = computeReturnPct(returnReference, depositBase);
 
     const wins = closed.filter((t) => t.profit > 0);
     const losses = closed.filter((t) => t.profit < 0);

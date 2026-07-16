@@ -19,6 +19,14 @@ export function OverviewAccountHealth({
   healthPct,
 }: Props) {
   const clamped = Math.min(100, Math.max(0, healthPct));
+  const riskColorClass =
+    riskScoreLabel === 'Elevated'
+      ? 'text-destructive'
+      : riskScoreLabel === 'Moderate'
+        ? 'text-amber-500'
+        : riskScoreLabel === 'No Data'
+          ? 'text-muted-foreground'
+          : 'text-[var(--chart-bull)]';
 
   return (
     <div className="rounded-xl border border-[var(--card-border)] bg-card p-3 sm:p-3.5">
@@ -27,7 +35,7 @@ export function OverviewAccountHealth({
         <Stat
           label="Risk Score"
           value={riskScoreLabel}
-          valueClass="text-[var(--chart-bull)]"
+          valueClass={riskColorClass}
         />
         <Stat label="Drawdown" value={`${drawdownPct.toFixed(2)}%`} />
         <Stat label="Profit Factor" value={profitFactor.toFixed(2)} />

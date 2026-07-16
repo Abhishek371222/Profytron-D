@@ -244,7 +244,8 @@
   --dashboard-rail-w: clamp(18rem, 22vw, 23.75rem);
   --chart-h-lg: clamp(22.5rem, 42vh, 32.5rem);
   --chart-h-md: clamp(18rem, 34vh, 26rem);
-  --sidebar-w: clamp(15rem, 16vw, 17.5rem);
+  /* +24px on both clamp ends vs. 15rem/17.5rem — gives the brand lockup room without touching collapsed width. */
+  --sidebar-w: clamp(16.5rem, 17vw, 19rem);
   --sidebar-w-collapsed: clamp(4.5rem, 5vw, 5.5rem);
   --sidebar-pad: clamp(0.75rem, 1vw, 1rem);
   --nav-icon: clamp(1.125rem, 1.1vw, 1.375rem);
@@ -1150,27 +1151,31 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 2.5rem;
+    height: 2.5rem;
     border-radius: 9999px;
     color: var(--muted-foreground);
-    border: 1px solid transparent;
-    transition: color 0.22s ease-out, background 0.22s ease-out, border-color 0.22s ease-out;
+    border: 1px solid var(--card-border);
+    background: color-mix(in srgb, var(--card) 75%, transparent);
+    box-shadow: 0 1px 4px color-mix(in srgb, var(--foreground) 6%, transparent);
+    transition: color 0.22s ease-out, background 0.22s ease-out, border-color 0.22s ease-out, box-shadow 0.22s ease-out, transform 0.15s ease-out;
     /* Invisible hit-area extension to the 44px touch-target minimum
-       (visual stays 32px) — matters for touch-capable devices ≥1024px. */
+       (visual stays 40px) — matters for touch-capable devices ≥1024px. */
     position: relative;
   }
 
   .sidebar-collapse-inline::before {
     content: '';
     position: absolute;
-    inset: -6px;
+    inset: -4px;
   }
 
   .sidebar-collapse-inline:hover {
     color: var(--foreground);
-    background: color-mix(in srgb, var(--muted) 50%, transparent);
-    border-color: var(--card-border);
+    background: color-mix(in srgb, var(--teal-tint-1) 14%, var(--card));
+    border-color: color-mix(in srgb, var(--primary) 32%, var(--card-border));
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 14%, transparent);
+    transform: translateY(-1px);
   }
 
   .sidebar-collapse-fab {
