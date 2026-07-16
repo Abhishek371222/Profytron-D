@@ -55,6 +55,15 @@ steps:
       - "-t"
       - "asia-south1-docker.pkg.dev/gen-lang-client-0497144011/profytron/web:latest"
       - "."
+  # Push the freshly-built image to Artifact Registry BEFORE deploying. Without
+  # this, `gcloud run deploy` below pulls whatever :latest was last pushed (the
+  # `images:` push at the end only runs on full build success) — so a failure in
+  # a later step (e.g. CDN invalidation) meant the new image was never pushed and
+  # every deploy silently served stale code.
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "push"
+      - "asia-south1-docker.pkg.dev/gen-lang-client-0497144011/profytron/web:latest"
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: "gcloud"
     args:
@@ -74,8 +83,14 @@ steps:
   # Cloud Run deploys don't invalidate Cloud CDN — without this, the edge
   # keeps serving pre-deploy HTML/JS (observed: register page cached with
   # s-maxage=31536000) regardless of how many times you redeploy.
+  # allowFailure: the deploy above has already shipped the new code; a missing
+  # CDN-invalidate permission must never fail the build and block the image push
+  # (that's exactly what left production stuck on stale images). The cache can be
+  # invalidated manually if this step can't. Grant the build's service account
+  # the Compute Load Balancer Admin role to let this step succeed automatically.
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: "gcloud"
+    allowFailure: true
     args:
       - "compute"
       - "url-maps"
@@ -84,8 +99,6 @@ steps:
       - "--path=/*"
       - "--async"
       - "--project=gen-lang-client-0497144011"
-images:
-  - "asia-south1-docker.pkg.dev/gen-lang-client-0497144011/profytron/web:latest"
 options:
   logging: CLOUD_LOGGING_ONLY
   machineType: "E2_HIGHCPU_8"
