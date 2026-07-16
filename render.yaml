@@ -170,3 +170,17 @@ services:
         sync: false
       - key: FIREBASE_PRIVATE_KEY
         sync: false
+
+      # --- Firebase Admin (REQUIRED if Google/GitHub sign-in via Firebase is
+      # enabled — see POST /auth/firebase in auth.controller.ts) ---
+      # Deliberately a SEPARATE Firebase project from the push-notification one
+      # above, so already-registered push tokens keep working (see comments in
+      # auth.service.ts). Use the service account for whichever Firebase project
+      # NEXT_PUBLIC_FIREBASE_LOGIN_PROJECT_ID (frontend) points to — Firebase
+      # Console -> Project Settings -> Service Accounts -> Generate new private key.
+      - key: FIREBASE_AUTH_PROJECT_ID
+        sync: false
+      - key: FIREBASE_AUTH_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_AUTH_PRIVATE_KEY
+        sync: false

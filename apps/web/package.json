@@ -3,8 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node ./scripts/generate-firebase-sw.mjs",
     "dev": "next dev --webpack -H 0.0.0.0 -p 3000",
-    "prebuild": "node ./scripts/clear-next-build-lock.mjs",
+    "prebuild": "node ./scripts/clear-next-build-lock.mjs && node ./scripts/generate-firebase-sw.mjs",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint --quiet"

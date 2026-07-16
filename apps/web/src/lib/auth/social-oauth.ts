@@ -8,6 +8,20 @@ import type { User } from 'firebase/auth';
 type SocialProvider = 'google' | 'github';
 type SocialAuthContext = 'login' | 'register';
 
+/**
+ * Firebase's signInWithRedirect() always returns to whatever page it was
+ * called from — there's no way to point it at a different URL. Calling it
+ * directly from /login or /register means the return trip lands back on
+ * that same page, which never checks getRedirectResult(), so the completed
+ * sign-in is silently dropped. Instead, navigate to /auth/callback (the one
+ * place that does call getRedirectResult()) and let IT start the redirect,
+ * so the round trip returns to where the result is actually handled.
+ */
+function startRedirectFlow(provider: SocialProvider, redirectTarget: string) {
+  const params = new URLSearchParams({ startProvider: provider, redirect: redirectTarget });
+  window.location.href = `/auth/callback?${params.toString()}`;
+}
+
 /** Exchanges a signed-in Firebase user for the app's own JWT session and navigates. */
 async function completeFirebaseLogin(fbUser: User, redirectTarget: string) {
   const email = fbUser.email;
@@ -81,8 +95,7 @@ export async function startSocialOAuth(
     new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
 
   if (provider === 'google') {
-    const { GoogleAuthProvider, signInWithPopup, signInWithRedirect } =
-      await import('firebase/auth');
+    const { GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
     const authProvider = new GoogleAuthProvider();
     authProvider.setCustomParameters({ prompt: 'consent' });
 
@@ -95,7 +108,7 @@ export async function startSocialOAuth(
         return; // user closed the popup — no error, no fallback
       }
       if (code === 'auth/popup-blocked') {
-        await signInWithRedirect(auth, authProvider);
+        startRedirectFlow('google', redirectTarget);
         return;
       }
       console.error(`Unable to ${action} with google:`, err);
@@ -104,12 +117,5 @@ export async function startSocialOAuth(
     return;
   }
 
-  try {
-    const { GithubAuthProvider, signInWithRedirect } = await import('firebase/auth');
-    const authProvider = new GithubAuthProvider();
-    authProvider.addScope('user:email');
-    await signInWithRedirect(auth, authProvider);
-  } catch (error) {
-    console.error(`Unable to ${action} with github:`, error);
-  }
+  startRedirectFlow('github', redirectTarget);
 }

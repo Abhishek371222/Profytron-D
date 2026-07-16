@@ -77,10 +77,18 @@ async function syncFirebaseSession(payload: {
 }
 
 // This page only ever runs for: (1) the legacy NestJS oauthCode exchange, and
-// (2) GitHub's Firebase signInWithRedirect callback (or Google's, if the
+// (2) GitHub's Firebase signInWithRedirect flow (or Google's, if the
 // signInWithPopup fallback in social-oauth.ts had to fall back to a redirect
 // because the popup was blocked). Google's normal path resolves directly in
 // social-oauth.ts's signInWithPopup call and never lands here.
+//
+// For (2), this page runs TWICE: first with a ?startProvider= param — Firebase's
+// signInWithRedirect() always returns to whichever page called it, so it must
+// be called from here (not from /login or /register) for the eventual return
+// trip to land somewhere that actually calls getRedirectResult(). The second
+// visit (after the provider + Firebase's own auth handler round trip) has no
+// startProvider param confusion because getRedirectResult() is checked first —
+// it only resolves on that second visit.
 export default function AuthCallbackClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -150,6 +158,32 @@ export default function AuthCallbackClient() {
       }
 
       if (!result?.user) {
+        // First visit for a redirect-based sign-in: social-oauth.ts navigates
+        // here with startProvider instead of calling signInWithRedirect()
+        // itself, since that call always returns to whatever page it was
+        // made from — starting it here means the round trip lands back on
+        // this same URL, where getRedirectResult() above will then resolve.
+        const startProvider = searchParams.get('startProvider');
+        if (startProvider === 'google' || startProvider === 'github') {
+          try {
+            const { GoogleAuthProvider, GithubAuthProvider, signInWithRedirect } =
+              await import('firebase/auth');
+            if (startProvider === 'google') {
+              const provider = new GoogleAuthProvider();
+              provider.setCustomParameters({ prompt: 'consent' });
+              await signInWithRedirect(auth, provider);
+            } else {
+              const provider = new GithubAuthProvider();
+              provider.addScope('user:email');
+              await signInWithRedirect(auth, provider);
+            }
+          } catch (startError) {
+            console.error('Failed to start redirect sign-in:', startError);
+            router.push('/login?error=auth_failed');
+          }
+          return;
+        }
+
         console.error('Firebase session retrieval failed: no redirect result');
         router.push('/login?error=auth_failed');
         return;

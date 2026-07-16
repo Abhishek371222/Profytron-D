@@ -59,6 +59,11 @@ web-err.txt
 *firebase-adminsdk*.json
 **/serviceAccount*.json
 
+# Generated from apps/web/scripts/firebase-messaging-sw.template.js by
+# apps/web/scripts/generate-firebase-sw.mjs (runs via predev/prebuild) —
+# not hand-edited, so it shouldn't be tracked.
+apps/web/public/firebase-messaging-sw.js
+
 # Generated production env block for Render (contains secrets)
 render.env
 vercel.env

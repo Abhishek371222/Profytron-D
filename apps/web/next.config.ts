@@ -251,7 +251,13 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
+            // same-origin (rather than same-origin-allow-popups) severs the
+            // window.opener/postMessage channel signInWithPopup() needs to
+            // learn the Google OAuth popup finished — the popup itself
+            // completes fine, but the main window never finds out, so the
+            // sign-in silently fails. allow-popups keeps the same isolation
+            // from cross-origin openers, just permits popups this page opens.
+            value: "same-origin-allow-popups",
           },
           {
             key: "Cross-Origin-Resource-Policy",

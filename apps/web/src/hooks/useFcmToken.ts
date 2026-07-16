@@ -18,6 +18,12 @@ const FIREBASE_CONFIG = {
 
 const VAPID_KEY = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
 
+// Named app so this never collides with lib/firebase/client.ts's 'profytron-login'
+// app. getApps() returns every initialized app regardless of project, so picking
+// getApps()[0] blindly would silently reuse the login app (no messagingSenderId)
+// whenever Auth already initialized first — breaking push with no visible error.
+const FCM_APP_NAME = 'profytron-fcm';
+
 /** Registers an FCM push token on mount and removes it on unmount. */
 export function useFcmToken() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -32,12 +38,12 @@ export function useFcmToken() {
     (async () => {
       try {
         // Dynamically import firebase/messaging to keep bundle lean
-        const { initializeApp, getApps } = await import('firebase/app');
+        const { initializeApp, getApps, getApp } = await import('firebase/app');
         const { getMessaging, getToken, onMessage } = await import('firebase/messaging');
 
-        const app = getApps().length
-          ? getApps()[0]
-          : initializeApp(FIREBASE_CONFIG);
+        const app = getApps().some((a) => a.name === FCM_APP_NAME)
+          ? getApp(FCM_APP_NAME)
+          : initializeApp(FIREBASE_CONFIG, FCM_APP_NAME);
 
         const messaging = getMessaging(app);
 
