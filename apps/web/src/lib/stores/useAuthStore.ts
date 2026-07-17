@@ -50,6 +50,29 @@ function syncUserCookies(user: User | null | undefined) {
   }
 }
 
+// Client-set session hint for the edge middleware (proxy.ts) ONLY.
+//
+// The real refresh_token cookie is set via the login XHR *response*, and Safari
+// /iOS WebKit does not reliably commit response cookies before a same-tick
+// window.location navigation — so the immediate hop to /dashboard races ahead
+// of the cookie and proxy.ts bounces to /login. A document.cookie write, by
+// contrast, is committed synchronously on every browser, so this hint is
+// guaranteed present on that first navigation.
+//
+// This is a UX gate only, NOT an auth boundary: every protected API call still
+// requires the Bearer access token / valid refresh_token, so a forged or stale
+// hint grants no data access — it just lets the client-side hydrate run and
+// self-correct (bouncing to /login if there is really no session). Mirrors the
+// existing demo_access cookie pattern. Non-httpOnly by necessity (JS must set
+// it); lifetime matches the 7-day refresh token.
+const SESSION_HINT_MAX_AGE = 7 * 24 * 60 * 60;
+function setSessionHintCookie(active: boolean) {
+  if (typeof window === 'undefined') return;
+  document.cookie = active
+    ? `pf_session_hint=1; path=/; max-age=${SESSION_HINT_MAX_AGE}; samesite=lax`
+    : 'pf_session_hint=; path=/; max-age=0; samesite=lax';
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -77,6 +100,7 @@ export const useAuthStore = create<AuthState>()(
           document.cookie = 'demo_access=; path=/; max-age=0; samesite=lax';
           document.cookie = 'onboarding_completed=; path=/; max-age=0; samesite=lax';
           document.cookie = 'user_role=; path=/; max-age=0; samesite=lax';
+          setSessionHintCookie(false);
         }
         // Drop Overview / broker snapshots so the next login never paints
         // another user's balance for 1–2s.
@@ -97,6 +121,10 @@ export const useAuthStore = create<AuthState>()(
           if (accessToken.startsWith('mock_token_')) {
             document.cookie = 'demo_access=1; path=/; max-age=86400; samesite=lax';
           }
+          // Set synchronously BEFORE any window.location navigation so the edge
+          // middleware sees a session on the first hop even on Safari, where the
+          // refresh_token response cookie may not be committed yet (see helper).
+          setSessionHintCookie(true);
           syncUserCookies(user);
           if (user?.id && window.posthog) {
             window.posthog.identify(user.id, { email: user.email, name: user.fullName });
@@ -133,6 +161,7 @@ export const useAuthStore = create<AuthState>()(
           ) {
             sessionStorage.removeItem(FORCE_LOGIN_KEY);
             sessionStorage.removeItem(SESSION_TOKEN_KEY);
+            setSessionHintCookie(false);
             purgeWorkspaceCaches();
             set({
               user: null,
@@ -168,6 +197,7 @@ export const useAuthStore = create<AuthState>()(
             if (typeof window !== 'undefined') {
               sessionStorage.setItem(SESSION_TOKEN_KEY, bootstrapToken);
             }
+            setSessionHintCookie(true);
             set({
               accessToken: bootstrapToken,
               user,
@@ -203,6 +233,7 @@ export const useAuthStore = create<AuthState>()(
           if (typeof window !== 'undefined') {
             sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
           }
+          setSessionHintCookie(true);
           set({
             accessToken,
             user,
@@ -214,6 +245,10 @@ export const useAuthStore = create<AuthState>()(
           if (typeof window !== 'undefined') {
             sessionStorage.removeItem(SESSION_TOKEN_KEY);
           }
+          // Terminal "not authenticated" — drop the hint so a stale value can't
+          // keep letting the edge middleware wave this browser into protected
+          // routes on the next navigation.
+          setSessionHintCookie(false);
           purgeWorkspaceCaches();
           set({
             user: null,

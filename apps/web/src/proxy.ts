@@ -102,7 +102,16 @@ async function handleProxy(request: NextRequest) {
   if (isProtected) {
     const refreshToken = request.cookies.get('refresh_token');
     const demoAccess = request.cookies.get('demo_access')?.value === '1';
-    if (!refreshToken && !demoAccess) {
+    // pf_session_hint is a client-set UX gate that survives Safari's delayed
+    // commit of the refresh_token response cookie on a fresh login (see
+    // setSessionHintCookie in useAuthStore). It is NOT an auth boundary: the
+    // page's client-side hydrate still validates the real session against the
+    // API and bounces to /login if there is none, and every data call requires
+    // the Bearer/refresh token regardless. Without it, first-login navigation
+    // to a protected route bounces to /login on all Apple devices.
+    const sessionHint = request.cookies.get('pf_session_hint')?.value === '1';
+    const hasSession = Boolean(refreshToken) || demoAccess || sessionHint;
+    if (!hasSession) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
       url.searchParams.set('redirect', pathname);
@@ -114,7 +123,7 @@ async function handleProxy(request: NextRequest) {
     const role = request.cookies.get('user_role')?.value?.toUpperCase();
     const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
     if (
-      refreshToken &&
+      (refreshToken || sessionHint) &&
       !onboardingDone &&
       !isAdmin &&
       !pathname.startsWith('/onboarding')
