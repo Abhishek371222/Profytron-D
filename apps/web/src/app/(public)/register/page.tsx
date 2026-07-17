@@ -123,7 +123,7 @@ export default function RegisterPage() {
         persistReferralCookie(referralCode);
       }
       const { referralCode: _referralField, ...registerPayload } = data;
-      const response = await authApi.register({
+      await authApi.register({
         ...registerPayload,
         referralCode: referralCode || undefined,
         plan: params.get('plan') || undefined,
@@ -131,9 +131,7 @@ export default function RegisterPage() {
       trackEvent(ACTIVATION_EVENTS.SIGNUP, { plan: params.get('plan') || 'free' });
       setSuccessMessage('Signup successful. Enter the OTP sent to your email.');
       sessionStorage.setItem('verificationEmail', data.email);
-      if (response?.devOtp) {
-        sessionStorage.setItem('verificationOtp', String(response.devOtp));
-      }
+      sessionStorage.removeItem('verificationOtp');
       router.push('/verify-email');
     } catch (error: unknown) {
       const fallback = 'Signup failed. Please try again with a different email.';

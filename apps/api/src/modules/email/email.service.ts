@@ -422,12 +422,18 @@ export class EmailService {
     let status = 'SENT';
     if (this.resend) {
       try {
-        await this.resend.emails.send({
+        const result = await this.resend.emails.send({
           from: 'Profytron <no-reply@profytron.com>',
           to,
           subject,
           html,
         });
+        if (result.error) {
+          status = 'FAILED';
+          this.logger.error(
+            `Resend API error for ${to}: ${result.error.message}`,
+          );
+        }
       } catch (err) {
         status = 'FAILED';
         this.logger.error(
@@ -436,6 +442,17 @@ export class EmailService {
       }
     } else {
       this.logger.warn(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
+      // Without RESEND_API_KEY, OTP emails are not delivered — log the OTP
+      // body only for local debugging when explicitly allowed.
+      if (
+        meta.type === 'OTP' &&
+        (process.env.NODE_ENV === 'test' ||
+          process.env.EXPOSE_DEV_OTP === 'true')
+      ) {
+        this.logger.warn(
+          `[MOCK EMAIL] OTP payload logged for local testing only`,
+        );
+      }
     }
 
     // Log every email attempt to the DB for full history.

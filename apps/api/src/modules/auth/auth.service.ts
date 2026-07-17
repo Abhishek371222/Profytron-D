@@ -242,7 +242,18 @@ export class AuthService {
     // Math.random() is NOT suitable for security-sensitive tokens.
     const otp = randomInt(100000, 1000000).toString();
     await this.redisService.set(`auth:otp:${dto.email}`, otp, 600);
-    await this.emailService.sendOtpEmail(dto.email, otp);
+    // 60s resend cooldown starts at registration so the UI and API stay aligned.
+    await this.redisService.set(`auth:otp:resend:${dto.email}`, '1', 60);
+    const emailSent = await this.emailService.sendOtpEmail(
+      dto.email,
+      otp,
+      user.id,
+    );
+    if (!emailSent) {
+      this.logger.error(
+        `OTP email failed for ${dto.email}. User can request a resend after cooldown.`,
+      );
+    }
 
     try {
       await this.prisma.auditLog.create({
@@ -265,8 +276,11 @@ export class AuthService {
       message: 'Check your email for verification code',
     };
 
-    // Local dev convenience: expose OTP in non-production to unblock testing.
-    if (process.env.NODE_ENV !== 'production') {
+    // Only expose OTP in automated tests — never in browser/dev flows.
+    if (
+      process.env.NODE_ENV === 'test' ||
+      process.env.EXPOSE_DEV_OTP === 'true'
+    ) {
       response.devOtp = otp;
     }
 
@@ -907,14 +921,31 @@ export class AuthService {
       return { success: true };
     }
 
-    const existing = await this.redisService.get(`auth:otp:${email}`);
-    if (existing) {
-      return { success: true };
+    const cooldownKey = `auth:otp:resend:${email}`;
+    const cooldownActive = await this.redisService.get(cooldownKey);
+    if (cooldownActive) {
+      appError(
+        HttpStatus.TOO_MANY_REQUESTS,
+        'Please wait 1 minute before requesting a new code.',
+        ErrorCode.RATE_LIMIT_EXCEEDED,
+      );
     }
 
+    // Always issue a fresh unique OTP and invalidate any previous one.
     const otp = randomInt(100000, 1000000).toString();
     await this.redisService.set(`auth:otp:${email}`, otp, 600);
-    await this.emailService.sendOtpEmail(email, otp);
+    await this.redisService.set(cooldownKey, '1', 60);
+    await this.redisService.del(`auth:otp:attempts:${email}`);
+
+    const emailSent = await this.emailService.sendOtpEmail(email, otp, user.id);
+    if (!emailSent) {
+      appError(
+        HttpStatus.BAD_GATEWAY,
+        'Failed to send verification email. Please try again shortly.',
+        ErrorCode.INTERNAL_ERROR,
+      );
+    }
+
     return { success: true };
   }
 

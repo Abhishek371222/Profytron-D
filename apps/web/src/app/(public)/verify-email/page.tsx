@@ -28,12 +28,8 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('verificationEmail');
     if (storedEmail) setEmail(storedEmail);
-
-    const storedOtp = sessionStorage.getItem('verificationOtp');
-    if (storedOtp && /^\d{6}$/.test(storedOtp)) {
-      setOtp(storedOtp.split(''));
-      sessionStorage.removeItem('verificationOtp');
-    }
+    // Never autofill OTP — user must enter the code from their email.
+    sessionStorage.removeItem('verificationOtp');
   }, []);
 
  useEffect(() => {
@@ -61,6 +57,18 @@ export default function VerifyEmailPage() {
  }
  };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+    if (!pasted) return;
+    const next = ['', '', '', '', '', ''];
+    pasted.split('').forEach((digit, i) => {
+      next[i] = digit;
+    });
+    setOtp(next);
+    inputRefs.current[Math.min(pasted.length, 5)]?.focus();
+  };
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const code = otp.join('');
@@ -87,12 +95,6 @@ export default function VerifyEmailPage() {
       setIsLoading(false);
     }
   };
-
- useEffect(() => {
- if (otp.join('').length === 6) {
- handleSubmit();
- }
- }, [otp]);
 
  const containerVariants = {
  hidden: { opacity: 0 },
@@ -202,10 +204,14 @@ export default function VerifyEmailPage() {
  <input
  ref={(el) => { inputRefs.current[index] = el; }}
  type="text"
+ inputMode="numeric"
+ pattern="[0-9]*"
  maxLength={1}
  value={digit}
+ autoComplete={index === 0 ? 'one-time-code' : 'off'}
  onChange={(e) => handleChange(index, e.target.value)}
  onKeyDown={(e) => handleKeyDown(index, e)}
+ onPaste={handlePaste}
  className="w-full h-16 bg-foreground/3 backdrop-blur-md border border-border rounded-xl text-center text-2xl font-mono font-bold text-foreground outline-none transition-all focus:bg-foreground/8 focus:border-primary focus:ring-1 focus:ring-primary/30"
  />
  {/* Shimmer line on focus */}
@@ -251,9 +257,13 @@ export default function VerifyEmailPage() {
  </p>
  <button
    onClick={async () => {
-     setTimer(60);
+     if (timer > 0 || !email) return;
      try {
        await authApi.resendOtp(email);
+       setTimer(60);
+       setOtp(['', '', '', '', '', '']);
+       setErrorMessage(null);
+       inputRefs.current[0]?.focus();
        toast.success('Verification code resent', {
          description: `A new OTP was sent to ${email}.`,
        });
@@ -267,7 +277,7 @@ export default function VerifyEmailPage() {
    className="flex items-center gap-2 text-foreground font-semibold hover:text-primary disabled:opacity-30 disabled:hover:text-foreground transition-all group/resend"
  >
  <RotateCcw className={`w-4 h-4 ${timer === 0 ? 'group-hover/resend:rotate-180 transition-transform duration-500' : ''}`} />
- {timer > 0 ? `Resend Signal in ${timer}s` : 'Resend Signal Now'}
+ {timer > 0 ? `Resend in ${timer}s` : 'Resend code'}
  </button>
  </motion.div>
  </div>
