@@ -1,6 +1,7 @@
 import path from "node:path";
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
+import { NOINDEX_ROUTE_PREFIXES } from "./src/lib/seo/private-routes";
 
 const backendApiOrigin =
   process.env.NEXT_PUBLIC_BACKEND_URL ||
@@ -177,6 +178,15 @@ const nextConfig: NextConfig = {
     const isProd = process.env.NODE_ENV === 'production';
     
     return [
+      ...NOINDEX_ROUTE_PREFIXES.map((prefix) => ({
+        source: `${prefix}/:path*`,
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow, noarchive",
+          },
+        ],
+      })),
       {
         source: "/:path*.(js|css|woff2|png|jpg|webp|avif|svg|ico)",
         headers: [

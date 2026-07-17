@@ -1,8 +1,12 @@
 {
+  "id": "/",
   "name": "Profytron — Fintech Intelligence",
   "short_name": "Profytron",
   "description": "Algorithmic trading, automated bots, and AI-powered portfolio management.",
-  "start_url": "/dashboard",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#368B9D",
@@ -10,20 +14,20 @@
   "categories": ["finance", "business"],
   "icons": [
     {
-      "src": "/brand-mark.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/brand-mark.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/brand-mark.png",
-      "sizes": "any",
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
@@ -34,28 +38,28 @@
       "short_name": "Dashboard",
       "description": "Go to main dashboard",
       "url": "/dashboard",
-      "icons": [{ "src": "/brand-mark.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Wallet",
       "short_name": "Wallet",
       "description": "View wallet and balances",
       "url": "/wallet",
-      "icons": [{ "src": "/brand-mark.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "AI Assistant",
       "short_name": "AI",
       "description": "Open AI trading assistant",
-      "url": "/ai-coach",
-      "icons": [{ "src": "/brand-mark.png", "sizes": "192x192", "type": "image/png" }]
+      "url": "/alpha-coach",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Leaderboard",
       "short_name": "Ranks",
       "description": "View top traders and strategies",
       "url": "/leaderboard",
-      "icons": [{ "src": "/brand-mark.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

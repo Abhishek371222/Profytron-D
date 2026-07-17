@@ -1,3 +1,6 @@
+import { SITE_URL } from '@/lib/seo/constants';
+import { PLATFORM_PLANS } from '@/lib/pricing/plans';
+
 export interface FaqItem {
   question: string;
   answer: string;
@@ -31,13 +34,13 @@ interface JsonLdProps {
   article?: ArticleSchemaInput;
 }
 
-const SITE_URL = 'https://profytron.com';
-
-const INR_PLANS = [
-  { name: 'Starter', price: '799', url: `${SITE_URL}/pricing` },
-  { name: 'Pro', price: '999', url: `${SITE_URL}/pricing` },
-  { name: 'Business', price: '1299', url: `${SITE_URL}/pricing` },
-];
+const INR_PLANS = PLATFORM_PLANS.filter((plan) => plan.monthlyPrice >= 0).map(
+  (plan) => ({
+    name: plan.name,
+    price: String(plan.monthlyPrice),
+    url: `${SITE_URL}/pricing`,
+  }),
+);
 
 function buildSchema(props: JsonLdProps): object | null {
   const { type, faqs, breadcrumbs, article } = props;
@@ -52,9 +55,9 @@ function buildSchema(props: JsonLdProps): object | null {
         url: SITE_URL,
         logo: {
           '@type': 'ImageObject',
-          url: `${SITE_URL}/brand-lockup.png`,
-          width: 640,
-          height: 160,
+          url: `${SITE_URL}/icons/icon-512.png`,
+          width: 512,
+          height: 512,
         },
         image: `${SITE_URL}/hero/hero-trading-3d.png`,
         description:
@@ -92,14 +95,6 @@ function buildSchema(props: JsonLdProps): object | null {
         description:
           'Algorithmic trading platform for Indian traders — copy trading, AI coach, strategy marketplace.',
         publisher: { '@id': `${SITE_URL}/#organization` },
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: `${SITE_URL}/help?q={search_term_string}`,
-          },
-          'query-input': 'required name=search_term_string',
-        },
       };
 
     case 'software':
@@ -117,16 +112,9 @@ function buildSchema(props: JsonLdProps): object | null {
           name: plan.name,
           price: plan.price,
           priceCurrency: 'INR',
-          priceValidUntil: '2026-12-31',
           url: plan.url,
           availability: 'https://schema.org/InStock',
         })),
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: '4.8',
-          reviewCount: '512',
-          bestRating: '5',
-        },
         featureList: [
           'Automated Trading Bots',
           'Alpha Coach',
@@ -141,7 +129,11 @@ function buildSchema(props: JsonLdProps): object | null {
       return {
         '@context': 'https://schema.org',
         '@type': 'Product',
+        '@id': `${SITE_URL}/pricing#product`,
         name: 'Profytron Trading Platform',
+        url: `${SITE_URL}/pricing`,
+        image: `${SITE_URL}/hero/hero-trading-3d.png`,
+        category: 'Algorithmic trading software',
         description:
           'SaaS algorithmic trading platform with copy trading, AI risk management, and strategy marketplace.',
         brand: { '@type': 'Brand', name: 'Profytron' },
@@ -241,7 +233,9 @@ function buildSchema(props: JsonLdProps): object | null {
           name: 'Profytron',
           logo: {
             '@type': 'ImageObject',
-            url: `${SITE_URL}/brand-lockup.png`,
+            url: `${SITE_URL}/icons/icon-512.png`,
+            width: 512,
+            height: 512,
           },
         },
         mainEntityOfPage: {
@@ -264,7 +258,9 @@ export function JsonLd(props: JsonLdProps) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(schema).replace(/</g, '\\u003c'),
+      }}
     />
   );
 }

@@ -3,10 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { BRAND_MARK_SRC } from '@/components/brand/BrandLogoMark';
-
-/** Tight crop of brand-mark.png — only the P glyph, no empty padding */
-const BRAND_MARK_TIGHT_SRC = '/brand-mark-tight.png';
+import { BRAND_MARK_SRC, BRAND_MARK_TIGHT_SRC } from '@/components/brand/BrandLogoMark';
 
 type BrandLogoProps = {
   /**

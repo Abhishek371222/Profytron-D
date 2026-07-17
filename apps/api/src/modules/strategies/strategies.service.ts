@@ -21,7 +21,6 @@ import {
   SensitivityAnalysisDto,
 } from './dto/strategy.dto';
 import {
-  Strategy,
   UserRole,
   SubscriptionStatus,
   VerificationStatus,
@@ -110,14 +109,38 @@ export class StrategiesService {
       ];
     }
 
-    let strategies: Array<
-      Strategy & {
-        creator: { id: string; fullName: string; avatarUrl: string | null };
-        performance: any[];
-        subscriptions?: any[];
-      }
-    > = [];
+    // Deliberately loosely typed: both branches below use a `select` (not
+    // `include`) that omits heavy/internal columns (configJson, biasCheckJson,
+    // etc.), so the shape is a strict subset of the full `Strategy` model.
+    let strategies: Array<Record<string, any>> = [];
     let total = 0;
+
+    // Public browse/marketplace listing — never needs the bot's internal
+    // config or bias-check payload (each can be tens of KB of JSON per row).
+    // Explicit `select` keeps this list endpoint's response and Redis cache
+    // entry small regardless of how many strategies match the filter.
+    const listSelect = {
+      id: true,
+      creatorId: true,
+      name: true,
+      description: true,
+      category: true,
+      riskLevel: true,
+      assetClass: true,
+      timeframe: true,
+      isPublished: true,
+      verificationStatus: true,
+      isVerified: true,
+      monthlyPrice: true,
+      annualPrice: true,
+      lifetimePrice: true,
+      maxCopies: true,
+      copiesCount: true,
+      totalRevenue: true,
+      isFeatured: true,
+      createdAt: true,
+      updatedAt: true,
+    } as const;
 
     if (performanceSortFields.has(requestedSortBy)) {
       // Include ALL published strategies — bots with no performance yet must still
@@ -131,7 +154,8 @@ export class StrategiesService {
       const [allStrategies, count] = await Promise.all([
         this.prisma.strategy.findMany({
           where,
-          include: {
+          select: {
+            ...listSelect,
             creator: { select: { id: true, fullName: true, avatarUrl: true } },
             performance: { take: 1, orderBy: { date: 'desc' } },
             subscriptions: userId
@@ -169,7 +193,8 @@ export class StrategiesService {
       const [pagedStrategies, count] = await Promise.all([
         this.prisma.strategy.findMany({
           where,
-          include: {
+          select: {
+            ...listSelect,
             creator: { select: { id: true, fullName: true, avatarUrl: true } },
             performance: {
               take: 1,

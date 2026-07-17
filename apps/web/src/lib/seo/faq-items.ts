@@ -14,7 +14,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "How does copy trading work on Profytron?",
     answer:
-      "When you subscribe to a strategy, Profytron's copy engine automatically mirrors every trade from the strategy creator's live account into yours — in real time. You can set your own risk parameters: maximum drawdown limit, lot multiplier, excluded symbols, and execution priority. Trades are copied in milliseconds via MetaAPI's CopyFactory.",
+      "When you subscribe to a strategy, Profytron's execution engine mirrors eligible trades from the strategy source into your connected account. You can set your own risk parameters, including drawdown limits and position-size multipliers, while monitoring execution from your dashboard.",
   },
   {
     question: "Is my money safe? Where are my funds held?",
@@ -34,12 +34,12 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "What are the pricing plans and what do they include?",
     answer:
-      "There are three plans: Developer Node (₹3,999/month) for individual traders with 3 strategy subscriptions and paper trading; Alpha Desk (₹11,999/month) for serious traders with unlimited subscriptions, AI coach, VPS hosting, and priority support; Institution (custom pricing) for proprietary desks and funds needing multi-account management, white labeling, and dedicated infrastructure. Annual plans offer 2 months free.",
+      "Profytron offers a Free plan for paper trading, Starter at ₹799/month, Pro at ₹999/month, and Business at ₹1,299/month. Enterprise deployments with white-label, colocation, or on-premise requirements use custom pricing. Annual billing and current plan limits are listed on the pricing page.",
   },
   {
     question: "Is there a free trial?",
     answer:
-      "Yes. All plans come with a 7-day free trial — no credit card required. You get full access to the platform including the strategy marketplace, paper trading, and AI coach. Your trial automatically converts to a paid subscription after 7 days if you choose to continue.",
+      "Yes. Paid plans include a 7-day trial, and the Free plan lets you explore paper trading without a subscription. The signup and checkout screens show any payment requirement before a paid plan begins.",
   },
   {
     question: "Can I cancel my subscription at any time?",
@@ -94,7 +94,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Does Profytron support cryptocurrency trading?",
     answer:
-      "Crypto spot and futures trading via Binance and Bybit is on the near-term roadmap (Q3 2025). Currently, Profytron focuses on Forex, Commodities (Gold, Silver, Oil), and Indices (NIFTY, S&P 500) via MT4/MT5. Paper trading for crypto strategies is already available for testing.",
+      "Profytron currently focuses on broker-connected Forex, commodities, and indices trading through MT4/MT5-compatible accounts. Broader exchange integrations may be added in the future; check the documentation for the current supported integrations.",
   },
   {
     question: "What is KYC and do I need to complete it?",
@@ -119,7 +119,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "What kind of support is available?",
     answer:
-      "All plans include email support with 24-hour response time and an in-app AI support assistant for instant answers. Alpha Desk and Institution plans get priority support with 4-hour response time, live chat, and access to a dedicated Telegram support group. Critical issues (platform down, trade execution failure) are escalated immediately regardless of plan.",
+      "The Free plan includes community support, Starter includes email support, and Pro and Business include priority support options. Enterprise support and service levels are tailored to the deployment. The pricing page lists the current support entitlement for each plan.",
   },
   {
     question: "How do I get started on Profytron?",
@@ -127,3 +127,6 @@ export const FAQ_ITEMS: FaqItem[] = [
       "Sign up for free in under 2 minutes — no credit card required. Connect your MT4/MT5 broker account (or start with the built-in paper account), browse the strategy marketplace, and click Subscribe on any verified strategy. Your first copied trade can happen within 5 minutes of signing up. The onboarding flow guides you through each step.",
   },
 ];
+
+// Keep homepage-visible FAQ content and FAQPage structured data identical.
+export const LANDING_FAQ_ITEMS = FAQ_ITEMS.slice(0, 8);

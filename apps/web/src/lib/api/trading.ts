@@ -102,15 +102,36 @@ export const tradingApi = {
     return unwrap<any>(res.data);
   },
 
-  async getTradeHistory(params?: { limit?: number; cursor?: string; symbol?: string }): Promise<{ rows: TradeHistoryRow[]; nextCursor: string | null; syncError?: string; message?: string }> {
-    const res = await apiClient.get('/trading/trades/history', { params });
-    const body = res.data as any;
-    const data = unwrap<{ rows: TradeHistoryRow[]; nextCursor: string | null }>(body);
-    return {
-      ...data,
-      syncError: body?.syncError,
-      message: body?.message,
-    };
+  async getTradeHistory(params?: {
+    limit?: number;
+    cursor?: string;
+    symbol?: string;
+    /** Lookback window in days (Overview uses 30; History can pass 365). */
+    days?: number;
+  }): Promise<{ rows: TradeHistoryRow[]; nextCursor: string | null; syncError?: string; message?: string }> {
+    try {
+      const res = await apiClient.get('/trading/trades/history', { params });
+      const body = res.data as any;
+      const data = unwrap<{ rows: TradeHistoryRow[]; nextCursor: string | null }>(body);
+      return {
+        ...data,
+        syncError: body?.syncError,
+        message: body?.message,
+      };
+    } catch (error: any) {
+      const body = error?.response?.data;
+      const data = unwrap<{ rows: TradeHistoryRow[]; nextCursor: string | null }>(
+        body ?? { rows: [], nextCursor: null },
+      );
+      return {
+        rows: Array.isArray(data?.rows) ? data.rows : [],
+        nextCursor: data?.nextCursor ?? null,
+        syncError: body?.syncError || 'METAAPI_UNAVAILABLE',
+        message:
+          body?.message ||
+          'Could not sync closed trades from MetaAPI. Showing last saved trades if available.',
+      };
+    }
   },
 
   /** Live lot calculator (equity-ratio safe for ~$100 accounts). */

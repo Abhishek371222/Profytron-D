@@ -20,7 +20,12 @@ export function useCoachContext() {
   });
 
   const openTradesQuery = useQuery({
-    queryKey: ['open-trades'],
+    // Deliberately NOT the shared `['open-trades']` key: useDashboardData
+    // caches a UI-mapped shape under that key (id/asset/type/amount/pnl/...),
+    // while this hook wants the raw tradingApi row shape. Sharing the key
+    // meant whichever hook mounted/refetched last silently overwrote the
+    // other's cache entry with an incompatible shape.
+    queryKey: ['open-trades', 'coach-raw'],
     queryFn: () => tradingApi.getOpenTrades(),
     staleTime: 30_000,
     refetchOnWindowFocus: false,

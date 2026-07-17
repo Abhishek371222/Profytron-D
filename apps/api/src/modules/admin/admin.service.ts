@@ -244,7 +244,25 @@ export class AdminService {
       orderBy: { connectedAt: 'desc' },
       take: Math.min(limit, 500),
       skip,
-      include: {
+      // Explicit `select` — the admin table only ever renders identity/status
+      // fields. Without this, `credentialsEncrypted` (an encrypted MetaAPI/MT
+      // credential blob) was loaded into every row of every admin page fetch.
+      select: {
+        id: true,
+        userId: true,
+        brokerName: true,
+        accountNumberLast4: true,
+        serverName: true,
+        isPaperTrading: true,
+        isDefault: true,
+        isMasterSource: true,
+        isActive: true,
+        initialEquity: true,
+        lastKnownEquity: true,
+        lastKnownBalance: true,
+        lastConnectedAt: true,
+        connectedAt: true,
+        createdAt: true,
         user: {
           select: {
             id: true,
@@ -910,6 +928,8 @@ export class AdminService {
         },
       },
       orderBy: { createdAt: 'asc' },
+      // Hard cap — admin queue view; previously unbounded across all users.
+      take: 500,
     });
     return users;
   }

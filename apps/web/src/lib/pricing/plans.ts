@@ -6,6 +6,7 @@ export const PLATFORM_PLANS = [
     description: 'Paper trading and marketplace exploration.',
     monthlyPrice: 0,
     annualPrice: 0,
+    previousPlanName: undefined as string | undefined,
     features: [
       '1 paper trading bot',
       'Paper trading account',
@@ -23,6 +24,7 @@ export const PLATFORM_PLANS = [
     description: 'For new traders starting with live MT5 copy execution.',
     monthlyPrice: 799,
     annualPrice: 7990,
+    previousPlanName: undefined as string | undefined,
     features: [
       '2 live trading bots',
       '1 strategy deployment',
@@ -42,6 +44,7 @@ export const PLATFORM_PLANS = [
     description: 'For active traders building and deploying strategies.',
     monthlyPrice: 999,
     annualPrice: 9990,
+    previousPlanName: 'Starter',
     features: [
       '4 live trading bots',
       'Unlimited strategy deployments',
@@ -61,6 +64,7 @@ export const PLATFORM_PLANS = [
     description: 'For power traders running multiple bots and portfolios.',
     monthlyPrice: 1299,
     annualPrice: 12990,
+    previousPlanName: 'Pro',
     features: [
       '6 live trading bots',
       'Unlimited strategy builder',
@@ -80,6 +84,7 @@ export const PLATFORM_PLANS = [
     description: 'White-label, colocation, and on-premise deployment.',
     monthlyPrice: -1,
     annualPrice: -1,
+    previousPlanName: 'Business' as string | undefined,
     features: [
       'NY4/LD4 colocation options',
       'Dedicated solutions architect',

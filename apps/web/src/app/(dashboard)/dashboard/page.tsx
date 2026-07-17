@@ -21,6 +21,7 @@ import { OverviewEconomicCalendar } from '@/components/dashboard/overview/Overvi
 import { OverviewMarketNews } from '@/components/dashboard/overview/OverviewMarketNews';
 import { OverviewQuickActions } from '@/components/dashboard/overview/OverviewQuickActions';
 import { OverviewAccountHealth } from '@/components/dashboard/overview/OverviewAccountHealth';
+import { LiveClock } from '@/components/dashboard/overview/LiveClock';
 import {
   readOverviewAccountCache,
   writeOverviewAccountCache,
@@ -43,7 +44,6 @@ export default function DashboardPage() {
   const [watchTab, setWatchTab] = React.useState<WatchTab>('forex');
   const [newsCategory, setNewsCategory] =
     React.useState<MarketNewsCategory>('forex');
-  const [serverTime, setServerTime] = React.useState('');
 
   const { data: currentUser } = useCurrentUser();
   // Always USD on Overview so live MetaAPI figures match MT5 Account Details.
@@ -99,27 +99,6 @@ export default function DashboardPage() {
     refetchInterval: 10 * 60_000,
     retry: 1,
   });
-
-  React.useEffect(() => {
-    const tick = () => {
-      setServerTime(
-        new Intl.DateTimeFormat('en-IN', {
-          weekday: 'short',
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          timeZone: 'Asia/Kolkata',
-          timeZoneName: 'short',
-        }).format(new Date()),
-      );
-    };
-    tick();
-    const id = window.setInterval(tick, 1000);
-    return () => window.clearInterval(id);
-  }, []);
 
   const liveFromAccounts = Boolean(accountInfo?.balance && accountInfo.balance > 0);
   const liveReady = liveFromAccounts;
@@ -199,25 +178,31 @@ export default function DashboardPage() {
     hasBrokerAccount && mountedForCache
       ? Number(readOverviewAccountCache(userId)?.change24hPct)
       : NaN;
+
+  // Total return is ALWAYS vs deposited capital (net deposits / initialEquity),
+  // never vs a rolling 30d window. Formula: (equity − depositBase) / depositBase.
+  const depositBase = Number(
+    portfolio?.depositBase ??
+      portfolio?.equityBase ??
+      defaultBrokerAccount?.initialEquity ??
+      0,
+  );
+  const currentEquity = hasBrokerAccount
+    ? equity > 0
+      ? equity
+      : balance
+    : 0;
   const totalReturnPct = !hasBrokerAccount
     ? 0
-    : portfolio?.source === 'metaapi' &&
-        portfolio.totalReturnPct != null &&
-        Number.isFinite(portfolio.totalReturnPct)
-      ? portfolio.totalReturnPct
-      : (() => {
-          const base = Number(
-            portfolio?.depositBase ??
-              portfolio?.equityBase ??
-              defaultBrokerAccount?.initialEquity ??
-              0,
-          );
-          const current = equity > 0 ? equity : balance;
-          if (base > 0 && current > 0) {
-            return ((current - base) / base) * 100;
-          }
-          return Number.isFinite(cachedReturnPct) ? cachedReturnPct : 0;
-        })();
+    : depositBase > 0 && currentEquity > 0
+      ? Number((((currentEquity - depositBase) / depositBase) * 100).toFixed(2))
+      : portfolio?.source === 'metaapi' &&
+          portfolio.totalReturnPct != null &&
+          Number.isFinite(portfolio.totalReturnPct)
+        ? portfolio.totalReturnPct
+        : Number.isFinite(cachedReturnPct)
+          ? cachedReturnPct
+          : 0;
 
   const change24hPct = totalReturnPct;
 
@@ -328,7 +313,7 @@ export default function DashboardPage() {
               Live
             </span>
             <span className="text-muted-foreground/50">·</span>
-            <span suppressHydrationWarning>{serverTime || '—'}</span>
+            <LiveClock />
           </div>
           <button
             type="button"
@@ -458,16 +443,12 @@ export default function DashboardPage() {
             loading={accountsStillLoading || tradeHistoryInitialLoading}
             syncError={
               hasBrokerAccount
-                ? tradeHistoryQuery.data?.syncError ??
-                  (tradeHistoryQuery.isError ? 'METAAPI_UNAVAILABLE' : null)
+                ? tradeHistoryQuery.data?.syncError ?? null
                 : null
             }
             syncMessage={
               hasBrokerAccount
-                ? tradeHistoryQuery.data?.message ??
-                  (tradeHistoryQuery.isError
-                    ? 'Could not sync closed trades from MetaAPI. Showing last saved trades if available.'
-                    : null)
+                ? tradeHistoryQuery.data?.message ?? null
                 : null
             }
           />

@@ -1,4 +1,15 @@
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://profytron.com';
+/**
+ * Canonical site origin. Must match the domain that actually serves the app —
+ * per render.yaml, the bare apex (profytron.com) redirects to www and 404s on
+ * every other path, so this defaults to www to keep canonical/OG/JSON-LD URLs
+ * resolvable. Override via NEXT_PUBLIC_SITE_URL if the serving domain changes.
+ */
+const configuredSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.profytron.com';
+
+// Keep URL composition stable when an environment value includes a trailing
+// slash (for example, avoid `https://www.profytron.com//pricing`).
+export const SITE_URL = configuredSiteUrl.replace(/\/+$/, '');
 export const SITE_NAME = 'Profytron';
 export const SITE_TAGLINE = "India's algorithmic trading platform";
 export const DEFAULT_OG_IMAGE = '/hero/hero-trading-3d.png';

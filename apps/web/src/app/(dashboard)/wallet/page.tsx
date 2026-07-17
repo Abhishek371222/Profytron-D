@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { io, Socket } from 'socket.io-client';
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { walletApi } from '@/lib/api/wallet';
@@ -143,7 +142,6 @@ function FilterPill({
 
 export default function WalletPage() {
   const queryClient = useQueryClient();
-  const token = useAuthStore((state) => state.accessToken);
   const [typeFilter, setTypeFilter] = React.useState<TxFilterType>('ALL');
   const [statusFilter, setStatusFilter] = React.useState<TxFilterStatus>('ALL');
   const [dateFrom, setDateFrom] = React.useState('');
@@ -200,31 +198,12 @@ export default function WalletPage() {
     }
   }, [depositIntent, setDepositIntent]);
 
-  React.useEffect(() => {
-    if (!token) return;
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.profytron.example';
-    // Delay connect so React Strict Mode's mount→unmount→remount doesn't open a
-    // socket that gets closed mid-handshake (noisy "WebSocket is closed before…" logs).
-    let socket: Socket | undefined;
-    let onUpdate: (() => void) | undefined;
-    const connectTimer = window.setTimeout(() => {
-      socket = io(`${wsUrl}/trading`, {
-        auth: { token },
-        transports: ['websocket'],
-      });
-      onUpdate = () => {
-        queryClient.invalidateQueries({ queryKey: ['wallet-balance'] });
-        queryClient.invalidateQueries({ queryKey: ['wallet-transactions'] });
-        queryClient.invalidateQueries({ queryKey: ['wallet-summary'] });
-      };
-      socket.on('transaction_update', onUpdate);
-    }, 0);
-    return () => {
-      window.clearTimeout(connectTimer);
-      if (socket && onUpdate) socket.off('transaction_update', onUpdate);
-      socket?.disconnect();
-    };
-  }, [queryClient, token]);
+  // Previously opened a second, unpooled `io(.../trading)` connection here to
+  // listen for `transaction_update` — an event the backend never emits
+  // (confirmed repo-wide). It was 100% dead code that still paid the full
+  // cost of a duplicate WebSocket handshake + reconnection loop on every
+  // Wallet page visit. Removed; balance/transactions refresh via the
+  // existing React Query polling and the manual refresh button below.
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 

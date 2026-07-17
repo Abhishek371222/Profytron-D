@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 
 /** Canonical Profytron assets from /logo folder */
 export const BRAND_MARK_SRC = '/brand-mark.png';
+/** Tight crop of brand-mark.png — only the P glyph, no empty padding */
+export const BRAND_MARK_TIGHT_SRC = '/brand-mark-tight.png';
 export const BRAND_LOCKUP_DARK_SRC = '/brand-lockup.png';
 export const BRAND_LOCKUP_LIGHT_SRC = '/brand-lockup-light.png';
 /** @deprecated use BRAND_LOCKUP_DARK_SRC */
@@ -23,14 +25,17 @@ export function BrandLogoMark({
   size = 48,
   className,
   priority = false,
+  tight = false,
 }: {
   size?: number;
   className?: string;
   priority?: boolean;
+  /** Use the tight-cropped glyph (no empty padding) so it visually fills `size` */
+  tight?: boolean;
 }) {
   return (
     <Image
-      src={BRAND_MARK_SRC}
+      src={tight ? BRAND_MARK_TIGHT_SRC : BRAND_MARK_SRC}
       alt="Profytron"
       width={size}
       height={size}

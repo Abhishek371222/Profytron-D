@@ -6,9 +6,7 @@ import { ArrowRight, ChevronDown, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { FaqItem } from "@/components/seo/JsonLd";
-import { FAQ_ITEMS } from "@/lib/seo/faq-items";
-
-const LANDING_FAQ_ITEMS = FAQ_ITEMS.slice(0, 8);
+import { LANDING_FAQ_ITEMS } from "@/lib/seo/faq-items";
 
 function FaqAccordion({ items }: { items: FaqItem[] }) {
   const [openIndex, setOpenIndex] = useState(0);

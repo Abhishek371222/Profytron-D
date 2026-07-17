@@ -1,34 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { updateSession } from '@/utils/supabase/middleware';
+import { PRIVATE_ROUTE_PREFIXES } from '@/lib/seo/private-routes';
 
 const AFFILIATE_VISITOR_COOKIE = 'affiliate_visitor_id';
 const AFFILIATE_VISITOR_MAX_AGE = 60 * 60 * 24 * 365; // ~1 year
-
-const protectedRoutes = [
-  '/get-bots',
-  '/copy-trading',
-  '/dashboard',
-  '/strategies',
-  '/marketplace',
-  '/markets',
-  '/analytics',
-  '/alpha-coach',
-  '/wallet',
-  '/affiliate',
-  '/creator',
-  '/settings',
-  '/admin',
-  '/journal',
-  '/history',
-  '/leaderboard',
-  '/bots',
-  '/notifications',
-  '/builder',
-  '/social',
-  '/support',
-  '/vps',
-];
 
 export function proxy(request: NextRequest) {
   return handleProxy(request);
@@ -119,7 +95,7 @@ async function handleProxy(request: NextRequest) {
     return updateSession(request, NextResponse.redirect(url));
   }
 
-  const isProtected = protectedRoutes.some((route) =>
+  const isProtected = PRIVATE_ROUTE_PREFIXES.some((route) =>
     pathname.startsWith(route),
   );
 

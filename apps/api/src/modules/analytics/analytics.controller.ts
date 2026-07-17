@@ -53,12 +53,13 @@ export class AnalyticsController {
   @Get('portfolio')
   async getPortfolio(@Req() req: any, @Query('range') range?: string) {
     const normalizedRange = this.normalizeRange(range);
-    return this.withCache(
-      `analytics:portfolio:${req.user.id}:${normalizedRange}`,
-      30,
-      () =>
-        this.analyticsService.getPortfolioStats(req.user.id, normalizedRange),
-    );
+    // getPortfolioStats caches itself in Redis under this exact same key with
+    // a deliberate 2-minute TTL. Wrapping it in withCache(..., 30, ...) here
+    // used to overwrite that TTL down to 30s on every write (SET always
+    // resets expiry) — silently quadrupling recompute frequency and issuing
+    // a redundant extra Redis round trip per request. Call the service
+    // directly and let it own its own cache lifetime.
+    return this.analyticsService.getPortfolioStats(req.user.id, normalizedRange);
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -75,14 +76,11 @@ export class AnalyticsController {
   @Get('strategy-comparison')
   async getStrategyComparison(@Req() req: any, @Query('range') range?: string) {
     const normalizedRange = this.normalizeRange(range);
-    return this.withCache(
-      `analytics:strategy-comparison:${req.user.id}:${normalizedRange}`,
-      120,
-      () =>
-        this.analyticsService.getStrategyComparison(
-          req.user.id,
-          normalizedRange,
-        ),
+    // Already Redis-cached inside the service under this exact key/TTL —
+    // avoid a redundant second cache layer (see getPortfolio for details).
+    return this.analyticsService.getStrategyComparison(
+      req.user.id,
+      normalizedRange,
     );
   }
 
@@ -93,12 +91,8 @@ export class AnalyticsController {
   @Get('risk')
   async getRisk(@Req() req: any, @Query('range') range?: string) {
     const normalizedRange = this.normalizeRange(range);
-    return this.withCache(
-      `analytics:risk:${req.user.id}:${normalizedRange}`,
-      120,
-      () =>
-        this.analyticsService.getRiskAnalytics(req.user.id, normalizedRange),
-    );
+    // Already Redis-cached inside the service under this exact key/TTL.
+    return this.analyticsService.getRiskAnalytics(req.user.id, normalizedRange);
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -108,12 +102,8 @@ export class AnalyticsController {
   @Get('trades')
   async getTrades(@Req() req: any, @Query('range') range?: string) {
     const normalizedRange = this.normalizeRange(range);
-    return this.withCache(
-      `analytics:trades:${req.user.id}:${normalizedRange}`,
-      120,
-      () =>
-        this.analyticsService.getTradeAnalytics(req.user.id, normalizedRange),
-    );
+    // Already Redis-cached inside the service under this exact key/TTL.
+    return this.analyticsService.getTradeAnalytics(req.user.id, normalizedRange);
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -121,11 +111,9 @@ export class AnalyticsController {
   @Get('trades/export')
   async getTradesExport(@Req() req: any, @Query('range') range?: string) {
     const normalizedRange = this.normalizeRange(range);
-    return this.withCache(
-      `analytics:trades:export:${req.user.id}:${normalizedRange}`,
-      60,
-      () => this.analyticsService.getTradeExport(req.user.id, normalizedRange),
-    );
+    // Already Redis-cached inside the service (under a different key,
+    // `analytics:trade-export:*`) — this outer layer was pure duplicate work.
+    return this.analyticsService.getTradeExport(req.user.id, normalizedRange);
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -133,12 +121,9 @@ export class AnalyticsController {
   @Get('execution')
   async getExecutionMetrics(@Req() req: any, @Query('range') range?: string) {
     const normalizedRange = this.normalizeRange(range);
-    return this.withCache(
-      `analytics:execution:${req.user.id}:${normalizedRange}`,
-      120,
-      () =>
-        this.analyticsService.getExecutionMetrics(req.user.id, normalizedRange),
-    );
+    // Already Redis-cached inside the service (under a different key,
+    // `analytics:execution-metrics:*`) — this outer layer was pure duplicate work.
+    return this.analyticsService.getExecutionMetrics(req.user.id, normalizedRange);
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -175,8 +160,9 @@ export class AnalyticsController {
     const safeLimit = Number.isFinite(parsedLimit)
       ? Math.min(Math.max(parsedLimit, 3), 50)
       : 10;
-    return this.withCache(`analytics:leaderboard:${safeLimit}`, 60, () =>
-      this.analyticsService.getLeaderboard(safeLimit),
-    );
+    // getLeaderboard caches itself under the exact same key
+    // (`analytics:leaderboard:{limit}`) with a 2-minute TTL — wrapping it here
+    // used to clobber that TTL down to 60s on every write (see getPortfolio).
+    return this.analyticsService.getLeaderboard(safeLimit);
   }
 }

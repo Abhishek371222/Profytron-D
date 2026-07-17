@@ -207,7 +207,26 @@ export function isMetaApiUnauthorized(message?: string | null): boolean {
   );
 }
 
-/** Try stored region first, then common MetaAPI regions. */
+export function isMetaApiRateLimited(message?: string | null): boolean {
+  const m = String(message || '').toLowerCase();
+  return (
+    m.includes('429') ||
+    m.includes('too many requests') ||
+    m.includes('rate limit') ||
+    m.includes('quota exceeded')
+  );
+}
+
+/** Sleep helper for MetaAPI 429 backoff. */
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Try stored region first, then common MetaAPI regions.
+ * Do not fan out across regions on auth or rate-limit failures — that
+ * multiplies 429s and makes Overview trade history fail louder.
+ */
 export async function withResolvedRegion<T>(
   live: LiveBroker,
   fn: (live: LiveBroker) => Promise<T>,
@@ -224,6 +243,7 @@ export async function withResolvedRegion<T>(
     } catch (e: any) {
       lastError = e instanceof Error ? e : new Error(String(e?.message || e));
       if (isMetaApiUnauthorized(lastError.message)) throw lastError;
+      if (isMetaApiRateLimited(lastError.message)) throw lastError;
     }
   }
   throw lastError || new Error('MetaApi request failed');

@@ -171,17 +171,22 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   const tradeHistoryQuery = useQuery({
     queryKey: ['trade-history', 'overview'],
     queryFn: async () => {
-      const result = await tradingApi.getTradeHistory({ limit: 12 });
-      if (result.syncError && (!result.rows || result.rows.length === 0)) {
-        throw new Error(result.message || result.syncError);
-      }
+      // 30d lookback is enough for Overview's 12-row widget and keeps MetaAPI
+      // history pulls small. DB-first server path paints cached rows in <2s.
+      const result = await tradingApi.getTradeHistory({ limit: 12, days: 30 });
+      // Keep syncError on the payload so Overview can soft-warn; do not throw
+      // or React Query will wipe previous trades and show a hard failure.
       persistDashboardQuery(['trade-history', 'overview'], result);
       return result;
     },
     staleTime: LIVE_POLL_MS,
     refetchInterval: LIVE_POLL_MS,
     refetchOnMount: false,
-    refetchOnWindowFocus: true,
+    // Window-focus refetch was forcing a MetaAPI round-trip on every tab
+    // switch — the slow refresh the user felt. Interval + manual Refresh
+    // cover freshness; keep previous rows painted while a background sync runs.
+    refetchOnWindowFocus: false,
+    placeholderData: (previous) => previous,
     enabled: accountQueriesEnabled,
   });
 

@@ -21,20 +21,15 @@ export const PUBLIC_SITEMAP_ROUTES: SitemapEntry[] = [
   { path: '/community', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/careers', changeFrequency: 'monthly', priority: 0.55 },
   { path: '/register', changeFrequency: 'monthly', priority: 0.85 },
-  { path: '/login', changeFrequency: 'monthly', priority: 0.5 },
   { path: '/privacy', changeFrequency: 'yearly', priority: 0.4 },
   { path: '/terms', changeFrequency: 'yearly', priority: 0.4 },
   { path: '/cookies', changeFrequency: 'yearly', priority: 0.35 },
   { path: '/risk-disclosure', changeFrequency: 'yearly', priority: 0.45 },
 ];
 
-export function toSitemapEntries(
-  routes: SitemapEntry[],
-  lastModified: Date = new Date(),
-): MetadataRoute.Sitemap {
+export function toSitemapEntries(routes: SitemapEntry[]): MetadataRoute.Sitemap {
   return routes.map(({ path, changeFrequency, priority }) => ({
     url: `${SITE_URL}${path}`,
-    lastModified,
     changeFrequency,
     priority,
   }));

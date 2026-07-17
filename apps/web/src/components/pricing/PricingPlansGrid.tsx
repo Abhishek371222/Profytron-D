@@ -205,6 +205,12 @@ function PricingCard({
       )}
       {!annualNote && <div className="mb-6" />}
 
+      {plan.previousPlanName && (
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Everything in {plan.previousPlanName}, plus:
+        </p>
+      )}
+
       <ul className="space-y-3 mb-8 flex-1">
         {plan.features.map((feature) => (
           <li key={feature} className="flex items-start gap-2.5 text-sm text-foreground/80">

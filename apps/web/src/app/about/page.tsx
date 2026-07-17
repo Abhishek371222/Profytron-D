@@ -138,7 +138,7 @@ function MarketingBandStats() {
           viewport={{ once: true }}
         >
           <div className="mb-6 flex justify-center opacity-90">
-            <BrandLogoMark size={56} />
+            <BrandLogoMark size={120} tight />
           </div>
           <span className="landing-eyebrow mb-5">Global Network</span>
           <h2 className="brand-display-heading mb-6 text-3xl sm:text-4xl">

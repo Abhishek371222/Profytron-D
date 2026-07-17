@@ -137,10 +137,7 @@ export function WorkspaceBootstrapController() {
       const historyP = queryClient.fetchQuery({
         queryKey: ['trade-history', 'overview'],
         queryFn: async () => {
-          const result = await tradingApi.getTradeHistory({ limit: 12 });
-          if (result.syncError && (!result.rows || result.rows.length === 0)) {
-            throw new Error(result.message || result.syncError);
-          }
+          const result = await tradingApi.getTradeHistory({ limit: 12, days: 30 });
           persistDashboardQuery(['trade-history', 'overview'], result);
           return result;
         },

@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown, Server, ArrowRight, Sparkles } from 'lucide-react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { MarketplaceHero } from '@/components/marketplace/MarketplaceHero';
 import { FilterSidebar } from '@/components/marketplace/FilterSidebar';
 import { MarketplaceCard } from '@/components/marketplace/MarketplaceCard';
 import { SubscribeModal } from '@/components/marketplace/SubscribeModal';
@@ -19,6 +18,21 @@ import { toast } from 'sonner';
 import { useBreakpoint } from '@/lib/hooks/useBreakpoint';
 import { formatBotName } from '@/lib/bot-labels';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+
+// MarketplaceHero pulls in MarketplaceHeroVisual -> the d3-powered wireframe
+// globe, adding a d3 + JSON-data (~230KB) dependency to what would otherwise
+// be a lightweight list/table page. Deferring it keeps the filter sidebar and
+// strategy table interactive without waiting on the globe visual.
+const MarketplaceHero = dynamic(
+  () =>
+    import('@/components/marketplace/MarketplaceHero').then((m) => ({
+      default: m.MarketplaceHero,
+    })),
+  {
+    ssr: false,
+    loading: () => <div className="h-[260px] rounded-xl bg-muted/40 animate-pulse" />,
+  },
+);
 
 const FeaturedRow = dynamic(
   () =>

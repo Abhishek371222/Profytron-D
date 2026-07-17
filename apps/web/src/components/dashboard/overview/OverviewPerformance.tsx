@@ -49,7 +49,7 @@ export function OverviewPerformance({
   return (
     <div className="flex h-full min-h-[220px] flex-col overflow-hidden rounded-xl border border-[var(--card-border)] bg-card">
       <div className="flex items-center justify-between gap-3 border-b border-[var(--card-border)] px-3 py-2.5 sm:px-4">
-        <h2 className="text-sm font-semibold text-foreground">Account Performance (30 Days)</h2>
+        <h2 className="text-sm font-semibold text-foreground">Account Performance</h2>
         <Link href="/analytics" className="text-[11px] font-medium text-primary hover:underline">
           View report
         </Link>
@@ -57,7 +57,7 @@ export function OverviewPerformance({
 
       <div className="grid grid-cols-3 gap-2 border-b border-[var(--card-border)] px-3 py-2.5 sm:px-4">
         <Stat
-          label="Total return"
+          label="Return vs deposit"
           value={formatPct(totalReturnPct)}
           className={pnlClass(totalReturnPct)}
         />

@@ -531,6 +531,9 @@ export class AffiliatesService {
         },
       },
       orderBy: { createdAt: 'desc' },
+      // Hard cap — a high-volume affiliate could otherwise pull thousands of
+      // rows (plus a matching funnel-event lookup) into memory on every call.
+      take: 500,
     });
 
     if (!referred.length) {

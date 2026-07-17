@@ -1,6 +1,6 @@
 import { LandingPageClient } from '@/components/home/LandingPageClient';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { FAQ_ITEMS } from '@/lib/seo/faq-items';
+import { LANDING_FAQ_ITEMS } from '@/lib/seo/faq-items';
 import type { Metadata } from 'next';
 import { pageSeo } from '@/lib/seo/page-metadata';
 
@@ -11,7 +11,7 @@ export default function LandingPage() {
     <>
       <JsonLd type="website" />
       <JsonLd type="howto" />
-      <JsonLd type="faq" faqs={FAQ_ITEMS} />
+      <JsonLd type="faq" faqs={LANDING_FAQ_ITEMS} />
       <LandingPageClient />
     </>
   );

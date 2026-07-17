@@ -571,8 +571,17 @@ export class MarketplaceService {
       },
     });
 
-    // Surface listing/price changes immediately instead of waiting out the TTL.
-    await this.redis.del('cache:mkt:featured');
+    // Surface listing/price changes immediately instead of waiting out the
+    // TTL. Previously only `cache:mkt:featured` was busted here, so an edited
+    // price/listing could still be served stale (up to 60s) from the browse
+    // list (`cache:mkt:listings:*`) and detail (`cache:mkt:analytics:{id}:*`)
+    // caches — both are keyed per-filter/per-page, so a targeted prefix
+    // delete is used rather than trying to enumerate every variant.
+    await Promise.all([
+      this.redis.del('cache:mkt:featured'),
+      this.redis.delPrefix('cache:mkt:listings:'),
+      this.redis.delPrefix(`cache:mkt:analytics:${strategyId}:`),
+    ]);
 
     return listing;
   }

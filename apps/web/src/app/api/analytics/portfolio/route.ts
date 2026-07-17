@@ -245,8 +245,11 @@ export async function GET(req: NextRequest) {
       `.catch(() => undefined);
     }
 
-    // $100 → $120 ⇒ +20%  (uses live balance when available for return display)
-    const returnReference = liveBalance > 0 ? liveBalance : liveEquity;
+    // Return % = (live equity − deposited capital) / deposited capital.
+    // Always use equity (includes floating P/L), never raw balance alone —
+    // and always use depositBase (net deposits / trusted initialEquity), never
+    // a period-relative baseline.
+    const returnReference = liveEquity > 0 ? liveEquity : liveBalance;
     const totalReturnPct = computeReturnPct(returnReference, depositBase);
 
     const wins = closed.filter((t) => t.profit > 0);

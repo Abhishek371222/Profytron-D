@@ -8,6 +8,7 @@ import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LazyChatbotWidget } from "@/components/chatbot/LazyChatbotWidget";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { SITE_URL } from "@/lib/seo/constants";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -24,7 +25,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://profytron.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Profytron — Algorithmic Trading Platform for Indian Traders",
     template: "%s | Profytron",
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
       },
     ],
     locale: "en_IN",
-    url: "https://profytron.com",
+    url: SITE_URL,
   },
   twitter: {
     card: "summary_large_image",
@@ -76,7 +77,7 @@ export const metadata: Metadata = {
     "algo trading",
     "prop trading platform",
   ],
-  authors: [{ name: "Profytron", url: "https://profytron.com" }],
+  authors: [{ name: "Profytron", url: SITE_URL }],
   creator: "Profytron",
   publisher: "Profytron",
   category: "finance",

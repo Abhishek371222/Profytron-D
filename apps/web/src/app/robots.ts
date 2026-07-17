@@ -1,70 +1,45 @@
 import type { MetadataRoute } from 'next';
 import { SITE_URL } from '@/lib/seo/constants';
-
-const PRIVATE_PREFIXES = [
-  '/dashboard',
-  '/strategies',
-  '/marketplace',
-  '/analytics',
-  '/alpha-coach',
-  '/wallet',
-  '/affiliate',
-  '/settings',
-  '/admin',
-  '/journal',
-  '/history',
-  '/leaderboard',
-  '/bots',
-  '/notifications',
-  '/get-bots',
-  '/copy-trading',
-  '/builder',
-  '/social',
-  '/support',
-  '/vps',
-  '/onboarding',
-  '/auth',
-  '/api',
-  '/verify-email',
-  '/reset-password',
-  '/forgot-password',
-];
+import { ROBOTS_DISALLOW_PREFIXES } from '@/lib/seo/private-routes';
 
 export default function robots(): MetadataRoute.Robots {
+  const disallow = [...ROBOTS_DISALLOW_PREFIXES];
+
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: PRIVATE_PREFIXES,
+        disallow,
       },
       {
         userAgent: 'GPTBot',
         allow: ['/', '/blog', '/docs', '/about', '/pricing', '/help', '/guides'],
-        disallow: PRIVATE_PREFIXES,
+        disallow,
       },
       {
         userAgent: 'Google-Extended',
         allow: ['/', '/blog', '/docs', '/about', '/pricing'],
-        disallow: PRIVATE_PREFIXES,
+        disallow,
       },
       {
         userAgent: 'anthropic-ai',
         allow: ['/', '/blog', '/docs', '/about', '/pricing'],
-        disallow: PRIVATE_PREFIXES,
+        disallow,
       },
       {
         userAgent: 'PerplexityBot',
         allow: '/',
-        disallow: PRIVATE_PREFIXES,
+        disallow,
       },
       {
         userAgent: 'Bingbot',
         allow: '/',
-        disallow: PRIVATE_PREFIXES,
+        disallow,
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
+    // `host` expects a bare hostname, not a full origin URL.
+    host: new URL(SITE_URL).host,
   };
 }

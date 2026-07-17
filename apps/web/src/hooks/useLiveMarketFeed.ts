@@ -93,30 +93,34 @@ async function fetchLiveQuotesFromVercel(): Promise<LiveQuoteMap> {
     };
   }
 
-  // If batch missed a symbol, fetch individually from Vercel.
-  for (const symbol of SUPPORTED) {
-    if (next[symbol]) continue;
-    try {
-      const one = await fetch(`/api/market/quote?symbol=${symbol}&_=${Date.now()}`, {
-        cache: 'no-store',
-      });
-      if (!one.ok) continue;
-      const payload = await one.json();
-      const q = payload?.data ?? payload;
-      const price = Number(q?.price);
-      const source = String(q?.source || 'rest');
-      if (isFakeNestQuote(symbol, price, source)) continue;
-      next[symbol] = {
-        symbol,
-        price,
-        change24hPct: Number(q?.change24hPct ?? 0) || 0,
-        timestamp: String(q?.timestamp || new Date().toISOString()),
-        source,
-      };
-    } catch {
-      /* skip */
-    }
-  }
+  // If batch missed a symbol, fetch individually from Vercel — in parallel,
+  // not one-by-one. The previous sequential `for...await` loop meant a miss
+  // on N symbols paid N round trips back-to-back (worst case ~6x latency).
+  const missing = SUPPORTED.filter((symbol) => !next[symbol]);
+  await Promise.all(
+    missing.map(async (symbol) => {
+      try {
+        const one = await fetch(`/api/market/quote?symbol=${symbol}&_=${Date.now()}`, {
+          cache: 'no-store',
+        });
+        if (!one.ok) return;
+        const payload = await one.json();
+        const q = payload?.data ?? payload;
+        const price = Number(q?.price);
+        const source = String(q?.source || 'rest');
+        if (isFakeNestQuote(symbol, price, source)) return;
+        next[symbol] = {
+          symbol,
+          price,
+          change24hPct: Number(q?.change24hPct ?? 0) || 0,
+          timestamp: String(q?.timestamp || new Date().toISOString()),
+          source,
+        };
+      } catch {
+        /* skip */
+      }
+    }),
+  );
 
   return next;
 }

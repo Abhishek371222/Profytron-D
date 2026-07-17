@@ -146,6 +146,8 @@ export class SupportService {
         },
       },
       orderBy: { createdAt: 'desc' },
+      // Hard cap — this endpoint was previously fully unbounded per user.
+      take: 200,
     });
   }
 

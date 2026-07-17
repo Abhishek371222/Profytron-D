@@ -134,11 +134,43 @@ export class UsersService {
   }
 
   async findById(id: string) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    // Hot path — hit on every `/users/me` session-restore call from the
+    // frontend. Explicit `select` avoids pulling passwordHash / 2FA secret /
+    // backup codes off Postgres on every call just to delete them afterward.
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        username: true,
+        avatarUrl: true,
+        bio: true,
+        country: true,
+        timezone: true,
+        role: true,
+        kycStatus: true,
+        subscriptionTier: true,
+        riskProfileJson: true,
+        riskDnaScore: true,
+        referralCode: true,
+        googleId: true,
+        emailVerified: true,
+        isActive: true,
+        isSuspended: true,
+        onboardingCompleted: true,
+        lastLoginAt: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        twoFactorEnabled: true,
+        passwordHash: true,
+      },
+    });
     if (user) {
       const hasPassword = Boolean(user.passwordHash);
-      delete (user as any).passwordHash;
-      return { ...user, hasPassword };
+      const { passwordHash: _passwordHash, ...safeUser } = user;
+      return { ...safeUser, hasPassword };
     }
     return user;
   }
@@ -245,6 +277,9 @@ export class UsersService {
     return this.prisma.userSession.findMany({
       where: { userId },
       orderBy: { lastActiveAt: 'desc' },
+      // Hard cap — device/session list shown in settings; unbounded growth
+      // over years of logins otherwise loads every historical session row.
+      take: 50,
     });
   }
 

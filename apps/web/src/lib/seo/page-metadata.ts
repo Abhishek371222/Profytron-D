@@ -16,7 +16,7 @@ export const pageSeo = {
   pricing: buildPageMetadata({
     title: 'Pricing — Plans for Every Trader',
     description:
-      'Transparent INR pricing for Profytron. Start free with paper trading, upgrade to Starter (₹3,999/mo) or Pro (₹11,999/mo). 7-day free trial on all paid plans.',
+      'Transparent INR pricing for Profytron. Start free with paper trading, or upgrade to Starter (₹799/mo), Pro (₹999/mo), or Business (₹1,299/mo). Paid plans include a 7-day trial.',
     path: '/pricing',
     keywords: ['algo trading pricing India', 'copy trading subscription', 'trading platform cost INR'],
   }),

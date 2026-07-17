@@ -37,11 +37,14 @@ export function buildPageMetadata({
   publishedTime,
 }: PageSeoInput): Metadata {
   const url = absoluteUrl(path);
-  const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+  const alreadyBranded = title.includes(SITE_NAME);
+  const fullTitle = alreadyBranded ? title : `${title} | ${SITE_NAME}`;
   const mergedKeywords = [...new Set([...keywords, ...DEFAULT_KEYWORDS])];
 
   return {
-    title,
+    // Skip the root "%s | Profytron" template when the title already brands itself
+    // (home, broker pages, etc.) to avoid "Profytron … | Profytron".
+    title: alreadyBranded ? { absolute: title } : title,
     description,
     keywords: mergedKeywords,
     alternates: {

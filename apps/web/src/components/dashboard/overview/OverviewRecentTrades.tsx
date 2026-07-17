@@ -50,10 +50,13 @@ export function OverviewRecentTrades({
           <div className="flex min-h-[160px] flex-col items-center justify-center gap-1 px-6 text-center">
             <p className="text-sm font-medium text-foreground">No recent trades</p>
             <p className="text-xs text-muted-foreground">
-              {syncError
+              {syncError === 'METAAPI_UNAUTHORIZED'
                 ? syncMessage ||
-                  'Could not sync closed trades from your broker yet. Retrying…'
-                : 'Closed trades will show here.'}
+                  'Broker sync authorization failed. Reconnect your account.'
+                : syncError
+                  ? syncMessage ||
+                    'Broker sync is temporarily unavailable. Retrying…'
+                  : 'Closed trades will show here.'}
             </p>
           </div>
         ) : (

@@ -90,30 +90,28 @@ export class MarketService {
 
   async getQuote(symbol: MarketSymbol) {
     const cacheKey = `market:quote:${symbol}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) {
-      this.logger.debug(`Cache hit: quote for ${symbol}`);
-      return JSON.parse(cached);
-    }
+    // Single-flight cache-aside: when the 30s TTL expires, every client
+    // polling this symbol at once (this endpoint is HTTP-polled every 12s by
+    // the frontend, per-user) would otherwise all miss simultaneously and
+    // fire duplicate upstream TwelveData calls. `cached()` collapses
+    // concurrent misses for the same key into a single in-flight producer.
+    return this.redis.cached(cacheKey, TTL_QUOTE, async () => {
+      const response = await this.getOHLC(symbol, '1m', 2);
+      const candles = response.candles;
+      const previous = candles[candles.length - 2];
+      const latest = candles[candles.length - 1];
+      const change24hPct = Number(
+        (((latest.close - previous.close) / previous.close) * 100).toFixed(4),
+      );
 
-    const response = await this.getOHLC(symbol, '1m', 2);
-    const candles = response.candles;
-    const previous = candles[candles.length - 2];
-    const latest = candles[candles.length - 1];
-    const change24hPct = Number(
-      (((latest.close - previous.close) / previous.close) * 100).toFixed(4),
-    );
-
-    const quote = {
-      symbol,
-      price: latest.close,
-      change24hPct,
-      timestamp: new Date().toISOString(),
-      source: response.source,
-    };
-
-    await this.redis.set(cacheKey, JSON.stringify(quote), TTL_QUOTE);
-    return quote;
+      return {
+        symbol,
+        price: latest.close,
+        change24hPct,
+        timestamp: new Date().toISOString(),
+        source: response.source,
+      };
+    });
   }
 
   async getAllQuotes() {
@@ -123,7 +121,19 @@ export class MarketService {
     return quotes;
   }
 
-  async getOHLC(symbol: MarketSymbol, timeframe: MarketTimeframe, limit = 220) {
+  // Explicit `Promise<any>` preserves this method's pre-existing (implicit,
+  // via the old JSON.parse-typed-as-any cache-hit branch) loose return type.
+  // A caller elsewhere (BacktestService) reads a `.datetime` field that does
+  // not exist on this module's `OhlcCandle` (which uses `.time`) — a
+  // pre-existing latent type mismatch, unrelated to this caching change, that
+  // only became visible once the cache-aside logic stopped returning `any`.
+  // Flagged in the performance report; not fixed here to avoid changing
+  // backtest behavior in an unrelated pass.
+  async getOHLC(
+    symbol: MarketSymbol,
+    timeframe: MarketTimeframe,
+    limit = 220,
+  ): Promise<any> {
     const safeLimit = Math.max(20, Math.min(500, Math.floor(limit || 220)));
 
     // Use shorter TTL for high-frequency timeframes
@@ -131,44 +141,36 @@ export class MarketService {
     const ttl = isShortTimeframe ? TTL_OHLC_SHORT : TTL_OHLC_LONG;
     const cacheKey = `market:ohlc:${symbol}:${timeframe}:${safeLimit}`;
 
-    const cached = await this.redis.get(cacheKey);
-    if (cached) {
-      this.logger.debug(`Cache hit: OHLC ${symbol}/${timeframe}/${safeLimit}`);
-      return JSON.parse(cached);
-    }
-
-    const liveCandles = await this.fetchTwelveDataOHLC(
-      symbol,
-      timeframe,
-      safeLimit,
-    );
-    if (liveCandles.length > 0) {
-      const result = {
+    // Single-flight cache-aside — see getQuote() for why this matters: a
+    // burst of concurrent requests for the same symbol/timeframe/limit no
+    // longer fans out into N parallel upstream TwelveData calls on a cache
+    // miss, they share one in-flight producer.
+    return this.redis.cached(cacheKey, ttl, async () => {
+      const liveCandles = await this.fetchTwelveDataOHLC(
         symbol,
         timeframe,
-        limit: safeLimit,
-        candles: liveCandles,
-        source: 'twelve-data',
-        serverTime: new Date().toISOString(),
-      };
-      await this.redis.set(cacheKey, JSON.stringify(result), ttl);
-      return result;
-    }
-
-    if (!this.allowSyntheticFallback) {
-      throw new ServiceUnavailableException(
-        'Live market data unavailable. Configure TWELVE_DATA_API_KEY or enable MARKET_ALLOW_SYNTHETIC_FALLBACK for non-production demos.',
+        safeLimit,
       );
-    }
+      if (liveCandles.length > 0) {
+        return {
+          symbol,
+          timeframe,
+          limit: safeLimit,
+          candles: liveCandles,
+          source: 'twelve-data',
+          serverTime: new Date().toISOString(),
+        };
+      }
 
-    const syntheticResult = this.buildSyntheticOHLC(
-      symbol,
-      timeframe,
-      safeLimit,
-    );
-    // Cache synthetic data with the same TTL to avoid re-generating on every request
-    await this.redis.set(cacheKey, JSON.stringify(syntheticResult), ttl);
-    return syntheticResult;
+      if (!this.allowSyntheticFallback) {
+        throw new ServiceUnavailableException(
+          'Live market data unavailable. Configure TWELVE_DATA_API_KEY or enable MARKET_ALLOW_SYNTHETIC_FALLBACK for non-production demos.',
+        );
+      }
+
+      // Cache synthetic data with the same TTL to avoid re-generating on every request.
+      return this.buildSyntheticOHLC(symbol, timeframe, safeLimit);
+    });
   }
 
   private async fetchTwelveDataOHLC(

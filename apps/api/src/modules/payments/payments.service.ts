@@ -1695,6 +1695,9 @@ export class PaymentsService {
     return this.prisma.invoice.findMany({
       where: { userId },
       orderBy: { issuedAt: 'desc' },
+      // Hard cap — previously fully unbounded; long-tenured accounts could
+      // accumulate hundreds of monthly invoices.
+      take: 200,
     });
   }
 }

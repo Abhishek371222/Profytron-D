@@ -290,6 +290,9 @@ export default function AlphaCoachPage() {
     if (!accessToken) return;
     const release = acquireTradingSocket(accessToken);
     const bump = (label: string) => {
+      // Invalidates both the dashboard's `['open-trades']` cache entry and
+      // this page's own `['open-trades', 'coach-raw']` entry (React Query
+      // treats query keys as prefix-matchable arrays).
       queryClient.invalidateQueries({ queryKey: ['open-trades'] });
       setFeed((prev) => [
         {
