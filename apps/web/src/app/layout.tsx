@@ -33,6 +33,18 @@ export const metadata: Metadata = {
   description:
     "Profytron is India's most advanced algorithmic trading platform. Copy top strategies, deploy AI-powered bots, and manage your portfolio with institutional-grade tools. Free trial available.",
   manifest: "/manifest.json",
+  // Absolute www icons — Bing/Google often resolve relative /favicon.ico against
+  // the indexed host (apex). Apex currently 404s favicon via GoDaddy forwarding,
+  // so pin icons to the host that actually serves them.
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: ["/favicon.ico"],
+  },
   appleWebApp: {
     capable: true,
     title: "Profytron",
