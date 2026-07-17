@@ -5,6 +5,14 @@ export type TourStep = {
   title: string;
   body: string;
   placement?: 'top' | 'bottom' | 'left' | 'right';
+  /**
+   * Mobile/tablet (<1024px) spotlight target. The desktop sidebar is off-canvas
+   * on phones, so nav steps point at the bottom-nav icons instead.
+   * - string: highlight this selector on mobile
+   * - null:   no spotlight on mobile (show the card only)
+   * - undefined: fall back to `target` (page content renders on mobile too)
+   */
+  mobileTarget?: string | null;
   /** actionId reported via useTutorialStore.notifyAction() — advisory only, never blocks Next */
   waitForAction?: string;
   /** If this selector matches, spotlight emptyTarget (defaults to itself) and swap in emptyBody. */
@@ -30,6 +38,8 @@ export const mainTourSteps: TourStep[] = [
     id: 'nav-connected-accounts',
     page: '/dashboard',
     target: '[data-tour="nav-connected-accounts"]',
+    // No bottom-nav entry on mobile — just explain what's coming next.
+    mobileTarget: null,
     title: 'Connected Accounts',
     body: 'Nothing can trade until a broker account is linked here — that’s our very next step.',
     placement: 'right',
@@ -47,6 +57,7 @@ export const mainTourSteps: TourStep[] = [
     id: 'nav-wallet',
     page: '/connected-accounts',
     target: '[data-tour="nav-wallet"]',
+    mobileTarget: '[data-tour="mobilenav-wallet"]',
     title: 'Wallet',
     body: 'Deposits, withdrawals, and transaction history all live here.',
     placement: 'right',
@@ -63,6 +74,7 @@ export const mainTourSteps: TourStep[] = [
     id: 'nav-marketplace',
     page: '/wallet',
     target: '[data-tour="nav-marketplace"]',
+    mobileTarget: '[data-tour="mobilenav-marketplace"]',
     title: 'Marketplace',
     body: 'Browse strategies built by other traders and subscribe to copy their trades automatically.',
     placement: 'right',
@@ -75,7 +87,8 @@ export const mainTourSteps: TourStep[] = [
     body: 'Every card here is a bot built and run by another trader — with its live win rate, drawdown, and subscriber count so you can judge it before copying.',
     placement: 'top',
     emptySelector: MARKETPLACE_EMPTY_SELECTOR,
-    emptyBody: 'No strategies match right now — try resetting filters. Once bots are listed here you\'ll see live win rate, drawdown, and subscriber count for each. You can also publish your own from the Creator dashboard for others to copy.',
+    emptyBody:
+      "No strategies match right now — try resetting filters. Once bots are listed here you'll see live win rate, drawdown, and subscriber count for each. You can also publish your own from the Creator dashboard for others to copy.",
   },
   {
     id: 'marketplace-subscribe',
@@ -85,7 +98,8 @@ export const mainTourSteps: TourStep[] = [
     body: 'Pick a strategy and subscribe to start copying its trades into your connected account.',
     placement: 'top',
     emptySelector: MARKETPLACE_EMPTY_SELECTOR,
-    emptyBody: 'No strategies to subscribe to yet. Once bots are listed here, click Subscribe on any card to start copying its trades into your connected account.',
+    emptyBody:
+      'No strategies to subscribe to yet. Once bots are listed here, click Subscribe on any card to start copying its trades into your connected account.',
   },
   {
     id: 'my-bots-overview',

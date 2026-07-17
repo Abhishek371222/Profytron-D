@@ -9,7 +9,6 @@ import { useAccountContext } from '@/hooks/useAccountContext';
 import { useTutorialStore } from '@/lib/stores/useTutorialStore';
 import { TutorialSpotlight, type SpotlightRect } from './TutorialSpotlight';
 import { TutorialCard } from './TutorialCard';
-import { Sheet, SheetContent } from '@/components/ui/sheet';
 import type { TourStep } from '@/lib/tours/mainTour';
 
 const CARD_GAP = 16;
@@ -76,9 +75,29 @@ export function TutorialOverlay() {
     }
   }, [next, isLastStep, router]);
 
-  const { isMdUp: isDesktop } = useBreakpoint();
+  // Match the application shell breakpoint. Below 1024px the sidebar is
+  // off-canvas, so desktop selector-based spotlights are not meaningful and we
+  // spotlight the bottom-nav icons (or page content) instead.
+  const { isLgUp: isDesktop } = useBreakpoint();
+
+  // Device-aware spotlight target:
+  // - desktop: always the sidebar/page selector
+  // - mobile with mobileTarget string: the bottom-nav icon
+  // - mobile with mobileTarget null: no spotlight (card only)
+  // - mobile with mobileTarget undefined: fall back to the page target
+  const effectiveTarget = !step
+    ? null
+    : isDesktop
+      ? step.target
+      : step.mobileTarget === undefined
+        ? step.target
+        : step.mobileTarget;
+
   const [rect, setRect] = React.useState<SpotlightRect | null>(null);
-  const [cardPos, setCardPos] = React.useState<{ top: number; left: number } | null>(null);
+  const [cardPos, setCardPos] = React.useState<{
+    top: number;
+    left: number;
+  } | null>(null);
   const [searchExhausted, setSearchExhausted] = React.useState(false);
   const [isEmptyState, setIsEmptyState] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
@@ -117,6 +136,9 @@ export function TutorialOverlay() {
   // and keep tracking it on scroll/resize until the step changes.
   React.useEffect(() => {
     if (!active || !step || pathname !== step.page) return;
+    // Steps that explicitly opt out of a mobile spotlight (mobileTarget: null)
+    // render as a card only — nothing to locate.
+    if (!effectiveTarget && !step.emptySelector) return;
 
     let cancelled = false;
     let elapsed = 0;
@@ -135,7 +157,8 @@ export function TutorialOverlay() {
         const emptyEl = document.querySelector<HTMLElement>(step.emptyTarget ?? step.emptySelector);
         if (emptyEl) return { el: emptyEl, empty: true };
       }
-      const el = document.querySelector<HTMLElement>(step.target);
+      if (!effectiveTarget) return null;
+      const el = document.querySelector<HTMLElement>(effectiveTarget);
       return el ? { el, empty: false } : null;
     };
 
@@ -175,7 +198,7 @@ export function TutorialOverlay() {
       window.removeEventListener('scroll', recompute, true);
       window.removeEventListener('resize', recompute);
     };
-  }, [active, step, pathname]);
+  }, [active, step, pathname, effectiveTarget]);
 
   // Measure the (desktop-only) floating card once we have a target rect, then position it.
   React.useLayoutEffect(() => {
@@ -208,7 +231,7 @@ export function TutorialOverlay() {
 
   return createPortal(
     <>
-      <TutorialSpotlight rect={rect} />
+      <TutorialSpotlight rect={rect} mobile={!isDesktop} />
 
       {isDesktop ? (
         <>
@@ -271,25 +294,34 @@ export function TutorialOverlay() {
           </AnimatePresence>
         </>
       ) : (
-        <Sheet
-          open
-          onOpenChange={(open: boolean) => {
-            if (!open) skip();
-          }}
+        <div
+          className="pointer-events-none fixed inset-x-3 z-[60] lg:hidden"
+          style={{ bottom: 'calc(4.75rem + env(safe-area-inset-bottom, 0px))' }}
+          role="region"
+          aria-label="Product tour"
         >
-          <SheetContent side="bottom" showCloseButton={false}>
-            <TutorialCard
-              step={displayStep}
-              index={currentIndex}
-              total={steps.length}
-              actionSatisfied={actionSatisfied}
-              onBack={back}
-              onNext={handleNext}
-              onSkip={skip}
-              className="w-full max-w-none border-none shadow-none p-4"
-            />
-          </SheetContent>
-        </Sheet>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step.id}
+              className="pointer-events-auto mx-auto max-w-md"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 16 }}
+              transition={{ duration: 0.18 }}
+            >
+              <TutorialCard
+                step={displayStep}
+                index={currentIndex}
+                total={steps.length}
+                actionSatisfied={actionSatisfied}
+                onBack={back}
+                onNext={handleNext}
+                onSkip={skip}
+                className="w-full max-w-none border-primary/25 bg-popover/98 shadow-[var(--shadow-modal)]"
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       )}
     </>,
     document.body,
