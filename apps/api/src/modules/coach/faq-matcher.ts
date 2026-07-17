@@ -108,10 +108,7 @@ export function rankFaq(
     ) {
       score = 0.85;
     } else {
-      const qTokens = new Set([
-        ...tokenize(c.question),
-        ...(c.keywords || []),
-      ]);
+      const qTokens = new Set([...tokenize(c.question), ...(c.keywords || [])]);
       const jac = jaccard(msgTokens, qTokens);
       const keywordHits = (c.keywords || []).filter((k) =>
         msgTokens.has(k.toLowerCase()),

@@ -91,9 +91,9 @@ describe('TwoFaService', () => {
     redis.get.mockResolvedValue(secret);
     prisma.user.findUnique.mockResolvedValue({ twoFactorEnabled: false });
 
-    await expect(service.verifyAndEnable(userId, '000000')).rejects.toBeInstanceOf(
-      HttpException,
-    );
+    await expect(
+      service.verifyAndEnable(userId, '000000'),
+    ).rejects.toBeInstanceOf(HttpException);
     expect(prisma.user.update).not.toHaveBeenCalled();
   });
 
@@ -125,7 +125,9 @@ describe('TwoFaService', () => {
     });
     redis.get.mockResolvedValue('0');
 
-    await expect(service.verifyForLogin(userId, 'ABCD1234')).resolves.toBe(true);
+    await expect(service.verifyForLogin(userId, 'ABCD1234')).resolves.toBe(
+      true,
+    );
     expect(prisma.user.update).toHaveBeenCalledWith({
       where: { id: userId },
       data: { twoFactorBackupCodes: [] },
@@ -164,8 +166,8 @@ describe('TwoFaService', () => {
   it('verifyAndEnable fails when pending setup is missing/expired', async () => {
     redis.get.mockResolvedValue(null);
 
-    await expect(service.verifyAndEnable(userId, '123456')).rejects.toBeInstanceOf(
-      HttpException,
-    );
+    await expect(
+      service.verifyAndEnable(userId, '123456'),
+    ).rejects.toBeInstanceOf(HttpException);
   });
 });

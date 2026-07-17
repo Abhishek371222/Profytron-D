@@ -41,13 +41,21 @@ export class VpsService {
     }
   }
 
-  private requireCompute(): { instances: InstancesClient; zoneOps: ZoneOperationsClient; projectId: string } {
+  private requireCompute(): {
+    instances: InstancesClient;
+    zoneOps: ZoneOperationsClient;
+    projectId: string;
+  } {
     if (!this.instances || !this.zoneOps || !this.projectId) {
       throw new BadRequestException(
         'VPS provisioning is not configured (missing GCP_PROJECT_ID).',
       );
     }
-    return { instances: this.instances, zoneOps: this.zoneOps, projectId: this.projectId };
+    return {
+      instances: this.instances,
+      zoneOps: this.zoneOps,
+      projectId: this.projectId,
+    };
   }
 
   private machineType(cpuCores: number, memoryGb: number): string {
@@ -70,9 +78,7 @@ export class VpsService {
       zone,
     });
     if (operation.error?.errors?.length) {
-      const message = operation.error.errors
-        .map((e) => e.message)
-        .join('; ');
+      const message = operation.error.errors.map((e) => e.message).join('; ');
       throw new BadRequestException(`GCE operation failed: ${message}`);
     }
     return operation;
@@ -92,8 +98,10 @@ export class VpsService {
         where: { userId, status: 'CONFIRMED' },
         _sum: { amount: true },
       });
-      const confirmedIn = grouped.find((g) => g.direction === 'IN')?._sum.amount ?? 0;
-      const confirmedOut = grouped.find((g) => g.direction === 'OUT')?._sum.amount ?? 0;
+      const confirmedIn =
+        grouped.find((g) => g.direction === 'IN')?._sum.amount ?? 0;
+      const confirmedOut =
+        grouped.find((g) => g.direction === 'OUT')?._sum.amount ?? 0;
       const available = confirmedIn - confirmedOut;
 
       if (amount > available) {
@@ -127,7 +135,11 @@ export class VpsService {
   }
 
   /** Refund a VPS charge if provisioning fails after the wallet was already debited. */
-  private async refundVpsCharge(userId: string, amount: number, reference: string) {
+  private async refundVpsCharge(
+    userId: string,
+    amount: number,
+    reference: string,
+  ) {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
@@ -136,8 +148,10 @@ export class VpsService {
           where: { userId, status: 'CONFIRMED' },
           _sum: { amount: true },
         });
-        const confirmedIn = grouped.find((g) => g.direction === 'IN')?._sum.amount ?? 0;
-        const confirmedOut = grouped.find((g) => g.direction === 'OUT')?._sum.amount ?? 0;
+        const confirmedIn =
+          grouped.find((g) => g.direction === 'IN')?._sum.amount ?? 0;
+        const confirmedOut =
+          grouped.find((g) => g.direction === 'OUT')?._sum.amount ?? 0;
         const available = confirmedIn - confirmedOut;
         const idempotencyKey = `vps_refund_${reference}`;
         const paymentFields = buildWalletPaymentFields({
@@ -172,7 +186,8 @@ export class VpsService {
     const cpuCores = config.cpuCores || 2;
     const memoryGb = config.memoryGb || 4;
     const monthlyPrice = this.getPricing(cpuCores, memoryGb);
-    const instanceName = `profytron-${userId.slice(0, 8)}-${Date.now()}`.toLowerCase();
+    const instanceName =
+      `profytron-${userId.slice(0, 8)}-${Date.now()}`.toLowerCase();
     const machineType = this.machineType(cpuCores, memoryGb);
     const chargeReference = randomUUID();
 
@@ -206,7 +221,10 @@ export class VpsService {
               accessConfigs: [{ name: 'External NAT', type: 'ONE_TO_ONE_NAT' }],
             },
           ],
-          labels: { profytron_user: userId.slice(0, 8), profytron_managed: 'true' },
+          labels: {
+            profytron_user: userId.slice(0, 8),
+            profytron_managed: 'true',
+          },
         },
       });
       await this.waitForOperation(insertOp.name!, GCP_ZONE);
@@ -274,7 +292,9 @@ export class VpsService {
     const { instances, projectId } = this.requireCompute();
     const zone = (vps.metadataJson as any)?.zone || GCP_ZONE;
 
-    this.logger.log(`Starting GCE instance ${vps.instanceId} for user ${userId}`);
+    this.logger.log(
+      `Starting GCE instance ${vps.instanceId} for user ${userId}`,
+    );
 
     // GCE can reject a start immediately after a stop with "resource
     // fingerprint changed" while its internal state settles — transient,
@@ -309,7 +329,8 @@ export class VpsService {
       instance: vps.instanceId,
     });
     const externalIp =
-      instance.networkInterfaces?.[0]?.accessConfigs?.[0]?.natIP ?? vps.ipAddress;
+      instance.networkInterfaces?.[0]?.accessConfigs?.[0]?.natIP ??
+      vps.ipAddress;
 
     return this.prisma.vpsAccount.update({
       where: { id: vpsId },
@@ -327,7 +348,9 @@ export class VpsService {
     const { instances, projectId } = this.requireCompute();
     const zone = (vps.metadataJson as any)?.zone || GCP_ZONE;
 
-    this.logger.log(`Stopping GCE instance ${vps.instanceId} for user ${userId}`);
+    this.logger.log(
+      `Stopping GCE instance ${vps.instanceId} for user ${userId}`,
+    );
     const [op] = await instances.stop({
       project: projectId,
       zone,

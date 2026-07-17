@@ -52,10 +52,7 @@ export class CoachController {
 
   @Get('conversations/:id')
   @ApiOperation({ summary: 'Get conversation with messages' })
-  getConversation(
-    @Req() req: AuthenticatedRequest,
-    @Param('id') id: string,
-  ) {
+  getConversation(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.coachService.getConversation(req.user.id, id);
   }
 

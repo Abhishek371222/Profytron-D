@@ -25,7 +25,13 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { RiskLevel, StrategyCategory, AssetClass, Timeframe, UserRole } from '@prisma/client';
+import {
+  RiskLevel,
+  StrategyCategory,
+  AssetClass,
+  Timeframe,
+  UserRole,
+} from '@prisma/client';
 import { StrategyDocumentsService } from '../marketplace/strategy-documents.service';
 import { UsersService } from '../users/users.service';
 import { Request } from 'express';
@@ -467,7 +473,9 @@ export class AdminController {
 
   @Get('kyc/documents/:docId/url')
   @ApiResponse({ status: 200, description: 'OK' })
-  @ApiOperation({ summary: 'Get a short-lived signed URL to view a KYC document' })
+  @ApiOperation({
+    summary: 'Get a short-lived signed URL to view a KYC document',
+  })
   async getKycDocumentUrl(@Param('docId') docId: string) {
     return this.usersService.getKycDocumentSignedUrl(docId);
   }

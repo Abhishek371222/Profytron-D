@@ -70,11 +70,11 @@ export function TopBar() {
   };
 
   return (
-    <header suppressHydrationWarning className="relative h-full w-full flex items-center justify-between px-[var(--dashboard-p)] z-30 gap-2 sm:gap-3 topbar-float">
+    <header suppressHydrationWarning className="relative h-full w-full flex items-center justify-between px-[var(--dashboard-p)] z-30 gap-1.5 sm:gap-3 topbar-float">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
 
       {/* ─── Left: Mobile menu + Search ─── */}
-      <div className="relative z-10 flex items-center gap-2 sm:gap-3 flex-1 max-w-xl min-w-0">
+      <div className="relative z-10 flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0 max-w-xl">
         <button
           onClick={toggleSidebar}
           className="lg:hidden h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] shrink-0 rounded-button border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-hover flex items-center justify-center"
@@ -87,7 +87,7 @@ export function TopBar() {
           type="button"
           onClick={() => setCommandPaletteOpen(true)}
           className={cn(
-            "relative w-full min-w-0 flex items-center gap-2.5 px-3.5 h-[clamp(2.375rem,2.6vw,2.625rem)] rounded-[14px] transition-all duration-[220ms] ease-out group overflow-hidden",
+            "relative min-w-0 flex-1 flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3.5 h-[clamp(2.375rem,2.6vw,2.625rem)] rounded-[14px] transition-all duration-[220ms] ease-out group overflow-hidden",
             searchFocused
               ? "bg-card border border-[color-mix(in_srgb,var(--primary)_28%,var(--card-border))] shadow-[0_4px_24px_color-mix(in_srgb,var(--primary)_10%,transparent)]"
               : "bg-card/70 border border-[color-mix(in_srgb,var(--card-border)_80%,transparent)] hover:bg-card hover:border-[color-mix(in_srgb,var(--primary)_12%,var(--card-border))]",
@@ -106,9 +106,10 @@ export function TopBar() {
             "text-caption sm:text-body-sm truncate transition-colors duration-200 font-medium",
             searchFocused ? "text-foreground/50" : "text-foreground/20 group-hover:text-foreground/30",
           )}>
-            Search markets, bots, or commands...
+            <span className="sm:hidden">Search</span>
+            <span className="hidden sm:inline">Search markets, bots, or commands...</span>
           </span>
-          <div className="ml-auto flex items-center gap-1 shrink-0 px-1.5 py-0.5 rounded-md border border-border bg-muted text-caption font-mono text-muted-foreground">
+          <div className="ml-auto hidden sm:flex items-center gap-1 shrink-0 px-1.5 py-0.5 rounded-md border border-border bg-muted text-caption font-mono text-muted-foreground">
             <Command className="w-2.5 h-2.5" />
             <span>K</span>
           </div>
@@ -116,7 +117,7 @@ export function TopBar() {
       </div>
 
       {/* ─── Right: Quick actions + Notifications + User ─── */}
-      <div className="relative z-10 flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <div className="relative z-10 flex items-center gap-1 sm:gap-2 shrink-0">
         {/* Connect Broker */}
         <button
           onClick={() => router.push("/connected-accounts")}

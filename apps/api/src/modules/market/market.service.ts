@@ -362,7 +362,10 @@ export class MarketService {
     const isArticleImage = (image?: string | null) => {
       if (!image) return false;
       const lower = image.toLowerCase();
-      if (lower.includes('/finnhub/logo') || lower.includes('finnhub.io/logo')) {
+      if (
+        lower.includes('/finnhub/logo') ||
+        lower.includes('finnhub.io/logo')
+      ) {
         return false;
       }
       if (/[/_-]logo\.(jpe?g|png|gif|webp|svg)(\?|$)/i.test(lower)) {

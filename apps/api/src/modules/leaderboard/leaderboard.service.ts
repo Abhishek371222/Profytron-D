@@ -198,8 +198,7 @@ export class LeaderboardService {
         netPnl = tradeNetByStrategy.get(s.id)!;
       }
 
-      const profitRate =
-        netPnl != null ? this.profitRateFromNetPnl(netPnl) : 0;
+      const profitRate = netPnl != null ? this.profitRateFromNetPnl(netPnl) : 0;
 
       return {
         id: s.id,

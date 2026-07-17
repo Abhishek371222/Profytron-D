@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
   // Standalone is for self-hosted Docker; Vercel manages output itself.
   ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
   transpilePackages: ["lucide-react"],
+  serverExternalPackages: ["pg"],
   reactCompiler: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,

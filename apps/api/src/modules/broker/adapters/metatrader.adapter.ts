@@ -65,6 +65,12 @@ export class MetaTraderAdapter {
     { equity: number; at: number }
   >();
   private readonly EQUITY_TTL_MS = 30_000;
+  /**
+   * Global circuit after HTTP 429. Without this, every sync loop (master,
+   * history, bot trades) independently retries 3× and floods MetaAPI + logs,
+   * which starves the Nest event loop and makes Next proxy `/users/me` time out.
+   */
+  private rateLimitedUntil = 0;
 
   constructor() {
     this.token = process.env.METAAPI_TOKEN;
@@ -72,14 +78,63 @@ export class MetaTraderAdapter {
     this.installRetryInterceptor(this.http);
   }
 
+  /** True while MetaAPI rate-limit cooldown is active. */
+  isRateLimited(): boolean {
+    return Date.now() < this.rateLimitedUntil;
+  }
+
+  /** Milliseconds left on the cooldown (0 if clear). */
+  rateLimitRemainingMs(): number {
+    return Math.max(0, this.rateLimitedUntil - Date.now());
+  }
+
+  private enterRateLimitCooldown(retryAfterHeader?: unknown): void {
+    const alreadyLimited = this.isRateLimited();
+    const retryAfter = Number(retryAfterHeader);
+    const headerMs =
+      Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : 0;
+    const cooldownMs = Math.max(
+      headerMs,
+      Number(process.env.METAAPI_RATE_LIMIT_COOLDOWN_MS) || 60_000,
+    );
+    const until = Date.now() + cooldownMs;
+    // Extend, never shorten, an existing cooldown.
+    if (until > this.rateLimitedUntil) {
+      this.rateLimitedUntil = until;
+    }
+    // One log per cooldown period (concurrent 429s must not spam).
+    if (!alreadyLimited) {
+      this.logger.warn(
+        `MetaAPI rate-limited — pausing all MetaAPI calls for ${Math.ceil(cooldownMs / 1000)}s`,
+      );
+    }
+  }
+
   /**
    * Retry transient MetaAPI failures with exponential backoff. MetaAPI enforces
    * per-second rate limits (and the free tier is small), so a burst of copy
    * fan-out or account-info reads can hit HTTP 429. Without this, those surface
    * as hard errors. Honors the `Retry-After` header when present.
+   *
+   * On 429 we also arm a process-wide cooldown so background syncs stop retrying
+   * in parallel and do not block the event loop.
    */
   private installRetryInterceptor(client: AxiosInstance): void {
     const maxRetries = Number(process.env.METAAPI_MAX_RETRIES) || 3;
+
+    client.interceptors.request.use((config) => {
+      if (this.isRateLimited()) {
+        const err: any = new Error(
+          `MetaAPI rate-limited; retry after ${Math.ceil(this.rateLimitRemainingMs() / 1000)}s`,
+        );
+        err.response = { status: 429 };
+        err.config = config;
+        err.isAxiosError = true;
+        throw err;
+      }
+      return config;
+    });
+
     client.interceptors.response.use(undefined, async (error: any) => {
       const config = error?.config;
       const status = error?.response?.status as number | undefined;
@@ -95,16 +150,19 @@ export class MetaTraderAdapter {
         throw error;
       }
 
+      if (isRateLimit) {
+        this.enterRateLimitCooldown(error?.response?.headers?.['retry-after']);
+        // Do not keep retrying 429 in a tight loop — other callers share one
+        // cooldown and will fail-fast until it clears.
+        throw error;
+      }
+
       config.__retryCount = (config.__retryCount || 0) + 1;
       if (config.__retryCount > maxRetries) {
         throw error;
       }
 
-      const retryAfter = Number(error?.response?.headers?.['retry-after']);
-      const delayMs =
-        Number.isFinite(retryAfter) && retryAfter > 0
-          ? retryAfter * 1000
-          : Math.min(500 * 2 ** (config.__retryCount - 1), 8000);
+      const delayMs = Math.min(500 * 2 ** (config.__retryCount - 1), 8000);
 
       this.logger.warn(
         `MetaAPI ${status ?? error?.code} — retry ${config.__retryCount}/${maxRetries} in ${delayMs}ms`,

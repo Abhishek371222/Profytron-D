@@ -41,6 +41,7 @@ export function DashboardPageHeader({
   icon: Icon,
   iconClassName,
   actions,
+  className,
 }: {
   title: string;
   titleAccent?: string;
@@ -48,13 +49,14 @@ export function DashboardPageHeader({
   icon?: React.ElementType;
   iconClassName?: string;
   actions?: React.ReactNode;
+  className?: string;
 }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+      className={cn('flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between', className)}
     >
       <div className="flex items-start gap-3 min-w-0">
         {Icon ? (
@@ -289,7 +291,7 @@ export function DashboardSubNav({
   items: { name: string; href: string; icon: React.ElementType }[];
 }) {
   return (
-    <nav className="dash-subnav-horizontal md:space-y-0.5 w-full md:w-56 shrink-0">
+    <nav className="dash-subnav-horizontal w-full max-w-full min-w-0 lg:space-y-0.5 lg:w-56 shrink-0">
       {items.map((item) => {
         const isActive = pathname === item.href;
         return (
@@ -297,11 +299,11 @@ export function DashboardSubNav({
             key={item.href}
             href={item.href}
             className={cn(
-              'dash-nav-link shrink-0 md:shrink',
+              'dash-nav-link shrink-0 lg:shrink',
               isActive && 'dash-nav-link-active',
             )}
           >
-            <div className="flex items-center gap-2.5 w-full pl-3 pr-3 md:pr-2 whitespace-nowrap md:whitespace-normal">
+            <div className="flex items-center gap-2.5 w-full pl-3 pr-3 lg:pr-2 whitespace-nowrap lg:whitespace-normal">
               <item.icon className="w-[18px] h-[18px] shrink-0" />
               <span className="truncate">{item.name}</span>
             </div>

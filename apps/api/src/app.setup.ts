@@ -103,7 +103,10 @@ export function configureApp(app: INestApplication) {
 
   // Next rewrite maps /api/health → /v1/health; bare /health stays for Render probes.
   app.use((req: Request, _res: Response, next: NextFunction) => {
-    if (req.method === 'GET' && (req.url === '/v1/health' || req.url?.startsWith('/v1/health?'))) {
+    if (
+      req.method === 'GET' &&
+      (req.url === '/v1/health' || req.url?.startsWith('/v1/health?'))
+    ) {
       req.url = req.url.replace('/v1/health', '/health');
     }
     next();

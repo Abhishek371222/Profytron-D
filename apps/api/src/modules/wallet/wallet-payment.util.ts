@@ -41,7 +41,10 @@ export function generateBillingId(at: Date = new Date()): string {
 }
 
 /** Build a stable canonical billing ID from an existing row (migration / repair). */
-export function billingIdFromTransactionId(id: string, createdAt: Date): string {
+export function billingIdFromTransactionId(
+  id: string,
+  createdAt: Date,
+): string {
   const stamp = createdAt.toISOString().slice(0, 10).replace(/-/g, '');
   const hex = id.replace(/-/g, '').toUpperCase();
   // Use chars 0-7 + 8-11 mixed for 8 hex that stay unique per UUID
@@ -58,14 +61,19 @@ export function normalizeBillingId(value: string): string {
 }
 
 export function fakeUserAccountAddress(userId: string): string {
-  const fragment = userId.replace(/-/g, '').slice(0, 10).toUpperCase() || 'UNKNOWN';
+  const fragment =
+    userId.replace(/-/g, '').slice(0, 10).toUpperCase() || 'UNKNOWN';
   return `USR-ACCT-${fragment}`;
 }
 
 export function paymentCategoryForType(
   type: string,
   override?: string,
-): string {
+  // `string & {}` (not plain `string`) keeps IDE autocomplete showing the
+  // known WalletPaymentCategory literals while still allowing an arbitrary
+  // override — `WalletPaymentCategory | string` collapses to plain `string`
+  // and loses that, which is what the lint rule flags.
+): WalletPaymentCategory | (string & {}) {
   if (override) return override;
   return TYPE_CATEGORY[type] ?? 'Other';
 }

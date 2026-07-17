@@ -203,16 +203,26 @@ export default function WalletPage() {
   React.useEffect(() => {
     if (!token) return;
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.profytron.example';
-    const socket: Socket = io(`${wsUrl}/trading`, { auth: { token }, transports: ['websocket'] });
-    const onUpdate = () => {
-      queryClient.invalidateQueries({ queryKey: ['wallet-balance'] });
-      queryClient.invalidateQueries({ queryKey: ['wallet-transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['wallet-summary'] });
-    };
-    socket.on('transaction_update', onUpdate);
+    // Delay connect so React Strict Mode's mount→unmount→remount doesn't open a
+    // socket that gets closed mid-handshake (noisy "WebSocket is closed before…" logs).
+    let socket: Socket | undefined;
+    let onUpdate: (() => void) | undefined;
+    const connectTimer = window.setTimeout(() => {
+      socket = io(`${wsUrl}/trading`, {
+        auth: { token },
+        transports: ['websocket'],
+      });
+      onUpdate = () => {
+        queryClient.invalidateQueries({ queryKey: ['wallet-balance'] });
+        queryClient.invalidateQueries({ queryKey: ['wallet-transactions'] });
+        queryClient.invalidateQueries({ queryKey: ['wallet-summary'] });
+      };
+      socket.on('transaction_update', onUpdate);
+    }, 0);
     return () => {
-      socket.off('transaction_update', onUpdate);
-      socket.disconnect();
+      window.clearTimeout(connectTimer);
+      if (socket && onUpdate) socket.off('transaction_update', onUpdate);
+      socket?.disconnect();
     };
   }, [queryClient, token]);
 

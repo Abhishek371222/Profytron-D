@@ -8,10 +8,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 import { EmailService } from '../email/email.service';
-import {
-  UpdateProfileDto,
-  UpdateRiskProfileDto,
-} from './dto/users.dto';
+import { UpdateProfileDto, UpdateRiskProfileDto } from './dto/users.dto';
 import { createClient } from '@supabase/supabase-js';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';

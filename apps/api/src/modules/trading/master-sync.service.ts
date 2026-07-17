@@ -74,6 +74,7 @@ export class MasterSyncService implements OnModuleDestroy {
 
   private async pollAllMasters() {
     if (this.polling) return;
+    if (this.mtAdapter.isRateLimited()) return;
     // Only one instance polls masters when scaled horizontally (leader lease).
     const isLeader = await this.redis.tryRenewableLock(
       'mastersync:leader',
@@ -89,6 +90,7 @@ export class MasterSyncService implements OnModuleDestroy {
       });
 
       for (const account of masterAccounts) {
+        if (this.mtAdapter.isRateLimited()) break;
         await this.syncMasterAccount(account);
       }
     } catch (err) {

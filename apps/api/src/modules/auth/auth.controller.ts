@@ -437,7 +437,9 @@ export class AuthController {
   @Post('2fa/cancel-setup')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'Pending 2FA setup cancelled' })
-  @ApiOperation({ summary: 'Cancel incomplete 2FA setup and discard pending secret' })
+  @ApiOperation({
+    summary: 'Cancel incomplete 2FA setup and discard pending secret',
+  })
   async cancel2faSetup(@Req() req: AuthenticatedRequest) {
     return this.twoFaService.cancelSetup(req.user.userId);
   }

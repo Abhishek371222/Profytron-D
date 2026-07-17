@@ -52,13 +52,17 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         title={sectionTitle}
         description="Manage your identity, security, notifications, and account preferences."
         icon={SectionIcon}
+        className="max-sm:[&_.dash-subtitle]:hidden"
       />
 
       <div className="dash-settings-layout">
-        <div data-tour="settings-subnav">
+        <div
+          data-tour="settings-subnav"
+          className="min-w-0 max-w-full overflow-hidden -mx-[var(--dashboard-p)] px-[var(--dashboard-p)] lg:mx-0 lg:px-0"
+        >
           <DashboardSubNav items={navItems} pathname={pathname ?? ''} />
         </div>
-        <div className="min-w-0 w-full max-w-none">{children}</div>
+        <div className="min-w-0 w-full max-w-full">{children}</div>
       </div>
     </DashboardPage>
   );

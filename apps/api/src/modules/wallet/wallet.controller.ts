@@ -94,10 +94,7 @@ export class WalletController {
     @Req() req: RequestWithUser,
     @Body(new ValidationPipe({ transform: true })) dto: PreviewWithdrawalDto,
   ) {
-    return this.walletService.previewWithdrawalImpact(
-      req.user.id,
-      dto.amount,
-    );
+    return this.walletService.previewWithdrawalImpact(req.user.id, dto.amount);
   }
 
   @Throttle({ default: { ttl: 60000, limit: 3 } })

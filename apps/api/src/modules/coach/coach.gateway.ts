@@ -29,9 +29,7 @@ const wsAllowedOrigins = (
   },
   namespace: 'coach',
 })
-export class CoachGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+export class CoachGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 

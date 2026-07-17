@@ -29,15 +29,18 @@ export function ExecutiveWaitBar({
     avatarUrl?: string | null;
   } | null;
 }) {
-  // Capture fallback once on mount — Date.now() must not run inside render/useMemo.
-  const [fallbackDeadline] = React.useState(() => Date.now() + 15 * 60 * 1000);
+  // Lazy initializer runs once on mount — the one place `Date.now()` is
+  // allowed to be impure. Everything else derives from this instead of
+  // calling Date.now() again, which useMemo's purity rule disallows.
+  const [mountTime] = React.useState(() => Date.now());
+
   const deadlineMs = React.useMemo(() => {
     if (slaDeadline) return new Date(slaDeadline).getTime();
     if (createdAt) return new Date(createdAt).getTime() + 15 * 60 * 1000;
-    return fallbackDeadline;
-  }, [slaDeadline, createdAt, fallbackDeadline]);
+    return mountTime + 15 * 60 * 1000;
+  }, [slaDeadline, createdAt, mountTime]);
 
-  const [now, setNow] = React.useState(() => Date.now());
+  const [now, setNow] = React.useState(() => mountTime);
 
   React.useEffect(() => {
     if (status !== 'OPEN') return;

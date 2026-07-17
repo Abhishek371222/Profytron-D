@@ -380,8 +380,12 @@ export class CoachService {
 
   private greetingReply(text: string): string | null {
     const t = text.trim().toLowerCase();
-    if (!/^(hi|hello|hey|yo|sup|good (morning|afternoon|evening)|hola)[\s!.]*$/i.test(t) &&
-        !/^(hi|hello|hey)\s+(hello|there|coach|alpha)\b/i.test(t)) {
+    if (
+      !/^(hi|hello|hey|yo|sup|good (morning|afternoon|evening)|hola)[\s!.]*$/i.test(
+        t,
+      ) &&
+      !/^(hi|hello|hey)\s+(hello|there|coach|alpha)\b/i.test(t)
+    ) {
       return null;
     }
     return 'Hey — Alpha Coach here.\n\nAsk about exposure, gold (XAUUSD), SL/TP, drawdown, or a bot.\n\nI’ll give you a direct playbook from your account data.';
@@ -738,7 +742,11 @@ User: ${text}`;
             'Alpha Coach could not reach Gemini just now. Tap retry, or Chat with Executive.',
         },
       });
-      onEvent({ type: 'done', message: assistantMessage, text: assistantMessage.content });
+      onEvent({
+        type: 'done',
+        message: assistantMessage,
+        text: assistantMessage.content,
+      });
       return { userMessage, assistantMessage };
     }
 
@@ -767,7 +775,9 @@ User: ${text}`;
     const existing = await this.prisma.coachEscalation.findFirst({
       where: {
         conversationId,
-        status: { in: [CoachEscalationStatus.OPEN, CoachEscalationStatus.CLAIMED] },
+        status: {
+          in: [CoachEscalationStatus.OPEN, CoachEscalationStatus.CLAIMED],
+        },
       },
       include: {
         claimedBy: {
@@ -870,11 +880,7 @@ User: ${text}`;
     return updated;
   }
 
-  async adminReply(
-    adminId: string,
-    escalationId: string,
-    content: string,
-  ) {
+  async adminReply(adminId: string, escalationId: string, content: string) {
     const text = content?.trim();
     if (!text) throw new BadRequestException('Message is required');
     if (text.length > 4000) {
@@ -925,7 +931,11 @@ User: ${text}`;
     };
     this.gateway.emitToUser(escalation.userId, 'message', payload);
     this.gateway.emitToUser(escalation.userId, 'escalation:reply', payload);
-    this.gateway.emitToConversation(escalation.conversationId, 'message', payload);
+    this.gateway.emitToConversation(
+      escalation.conversationId,
+      'message',
+      payload,
+    );
     this.gateway.emitToAdmins('escalation:reply', payload);
 
     return message;
@@ -951,7 +961,8 @@ User: ${text}`;
           conversationId: escalation.conversationId,
           role: CoachMessageRole.SYSTEM,
           source: CoachMessageSource.SYSTEM,
-          content: 'Executive chat resolved. You can continue with Alpha Coach anytime.',
+          content:
+            'Executive chat resolved. You can continue with Alpha Coach anytime.',
         },
       }),
       this.prisma.coachConversation.update({

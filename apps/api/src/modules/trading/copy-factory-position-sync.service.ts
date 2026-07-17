@@ -215,7 +215,9 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
       const existing = dbByTicket.get(pos.id);
       if (existing) {
         const nextProfit =
-          typeof pos.profit === 'number' ? pos.profit : Number(existing.profit ?? 0);
+          typeof pos.profit === 'number'
+            ? pos.profit
+            : Number(existing.profit ?? 0);
         if (nextProfit !== Number(existing.profit ?? 0)) {
           await this.prisma.trade.update({
             where: { id: existing.id },

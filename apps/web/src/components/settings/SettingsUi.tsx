@@ -23,7 +23,7 @@ export function SettingsSection({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.35, delay, ease: 'easeOut' }}
-      className={cn('space-y-4 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]', className)}
+      className={cn('min-w-0 max-w-full space-y-4 overflow-hidden rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-4 shadow-[var(--shadow-card)] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)] sm:p-5', className)}
     >
       <div>
         <h2 className="text-base font-semibold text-foreground">{title}</h2>
@@ -64,7 +64,7 @@ export function SettingsField({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       <label htmlFor={controlId} className="text-sm font-medium text-foreground">
         {label}
       </label>
@@ -83,7 +83,7 @@ export function SettingsInput(props: React.InputHTMLAttributes<HTMLInputElement>
     <input
       {...props}
       className={cn(
-        'dash-input h-11 w-full text-sm',
+        'dash-input box-border h-11 w-full min-w-0 max-w-full text-sm',
         props.className,
       )}
     />
@@ -95,7 +95,7 @@ export function SettingsTextarea(props: React.TextareaHTMLAttributes<HTMLTextAre
     <textarea
       {...props}
       className={cn(
-        'dash-input min-h-[100px] w-full resize-y py-3 text-sm',
+        'dash-input box-border min-h-[100px] w-full min-w-0 max-w-full resize-y py-3 text-sm',
         props.className,
       )}
     />
@@ -114,7 +114,7 @@ export function SettingsToggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-xl border border-[var(--card-border)] bg-muted/20 p-4">
+    <div className="flex flex-col gap-3 rounded-xl border border-[var(--card-border)] bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
       <div className="min-w-0">
         <p className="text-sm font-medium text-foreground">{label}</p>
         {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
@@ -142,5 +142,5 @@ export function SettingsToggle({
 }
 
 export function SettingsRow({ children }: { children: React.ReactNode }) {
-  return <div className="grid gap-4 sm:grid-cols-2">{children}</div>;
+  return <div className="grid min-w-0 gap-4 sm:grid-cols-2">{children}</div>;
 }

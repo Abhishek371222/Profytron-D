@@ -104,14 +104,22 @@ export class UpdateRiskProfileDto {
 
 export class RequestPasswordResetOtpDto {
   @ApiProperty({ example: 'trader@example.com' })
-  @Transform(({ value }) => String(value ?? '').trim().toLowerCase())
+  @Transform(({ value }) =>
+    String(value ?? '')
+      .trim()
+      .toLowerCase(),
+  )
   @IsEmail({}, { message: 'Enter a valid email address' })
   email: string;
 }
 
 export class VerifyPasswordResetOtpDto {
   @ApiProperty({ example: 'trader@example.com' })
-  @Transform(({ value }) => String(value ?? '').trim().toLowerCase())
+  @Transform(({ value }) =>
+    String(value ?? '')
+      .trim()
+      .toLowerCase(),
+  )
   @IsEmail({}, { message: 'Enter a valid email address' })
   email: string;
 
@@ -125,7 +133,11 @@ export class VerifyPasswordResetOtpDto {
 
 export class ConfirmPasswordResetDto {
   @ApiProperty({ example: 'trader@example.com' })
-  @Transform(({ value }) => String(value ?? '').trim().toLowerCase())
+  @Transform(({ value }) =>
+    String(value ?? '')
+      .trim()
+      .toLowerCase(),
+  )
   @IsEmail({}, { message: 'Enter a valid email address' })
   email: string;
 

@@ -73,9 +73,9 @@ export default function ProfileSettingsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="min-w-0 max-w-full space-y-6 sm:space-y-8">
       <SettingsSection title="Profile" description="Your public identity on Profytron.">
-        <div className="flex flex-col sm:flex-row items-start gap-6">
+        <div className="flex min-w-0 flex-col items-start gap-5 sm:flex-row sm:gap-6">
           <div className="relative shrink-0">
             <UserAvatar name={fullName || user?.email || 'User'} src={avatarPreview || undefined} size="xl" />
             <button
@@ -88,7 +88,7 @@ export default function ProfileSettingsPage() {
             </button>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
           </div>
-          <div className="flex-1 space-y-4 w-full">
+          <div className="min-w-0 flex-1 w-full space-y-4">
             <SettingsRow>
               <SettingsField label="Full name">
                 <SettingsInput value={fullName} onChange={(e) => { setFullName(e.target.value); markDirty(); }} placeholder="Your name" />
@@ -117,21 +117,21 @@ export default function ProfileSettingsPage() {
       </SettingsSection>
 
       <SettingsSection title="Help" description="Need a refresher on how Profytron works?">
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-[var(--card-border)] bg-muted/20 p-4">
+        <div className="flex flex-col gap-4 rounded-xl border border-[var(--card-border)] bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="text-sm font-medium text-foreground">Guided product tour</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               Replay the walkthrough of the dashboard, broker connection, wallet, and marketplace.
             </p>
           </div>
-          <DashButton variant="outline" onClick={() => startTour()} data-tour="replay-tour-button">
+          <DashButton variant="outline" onClick={() => startTour()} data-tour="replay-tour-button" className="w-full shrink-0 sm:w-auto">
             Replay tour
           </DashButton>
         </div>
       </SettingsSection>
 
-      <div className="flex justify-end pt-2 border-t border-[var(--card-border)]">
-        <DashButton onClick={handleSave} disabled={!isDirty || isSaving} className="gap-2 min-w-[120px]">
+      <div className="flex justify-stretch pt-2 border-t border-[var(--card-border)] sm:justify-end">
+        <DashButton onClick={handleSave} disabled={!isDirty || isSaving} className="gap-2 min-w-[120px] w-full sm:w-auto">
           {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
           Save Changes
         </DashButton>

@@ -629,8 +629,7 @@ export class MarketplaceService {
       );
     }
 
-    const billingModel =
-      dto.billingModel ?? SubscriptionBillingModel.FIXED;
+    const billingModel = dto.billingModel ?? SubscriptionBillingModel.FIXED;
     const isProfitShare =
       billingModel === SubscriptionBillingModel.PROFIT_SHARE;
     const planType = dto.planType ?? 'MONTHLY';

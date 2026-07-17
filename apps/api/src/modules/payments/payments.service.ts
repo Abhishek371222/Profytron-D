@@ -86,7 +86,9 @@ export class PaymentsService {
     return value === SubscriptionBillingModel.PROFIT_SHARE;
   }
 
-  private async captureEquityBaseline(brokerAccountId: string): Promise<number> {
+  private async captureEquityBaseline(
+    brokerAccountId: string,
+  ): Promise<number> {
     const broker = await this.prisma.brokerAccount.findUnique({
       where: { id: brokerAccountId },
       select: { credentialsEncrypted: true },
@@ -922,13 +924,13 @@ export class PaymentsService {
     const expiresAt = isProfitShare
       ? null
       : currentPeriodEndUnix
-      ? new Date(currentPeriodEndUnix * 1000)
-      : planType === 'LIFETIME'
-        ? null
-        : new Date(
-            Date.now() +
-              (planType === 'ANNUAL' ? 365 : 30) * 24 * 60 * 60 * 1000,
-          );
+        ? new Date(currentPeriodEndUnix * 1000)
+        : planType === 'LIFETIME'
+          ? null
+          : new Date(
+              Date.now() +
+                (planType === 'ANNUAL' ? 365 : 30) * 24 * 60 * 60 * 1000,
+            );
 
     const paidAmount = Number(stripeObject.amount_total || 0) / 100;
     const marketplaceRevenue = isProfitShare ? 0 : paidAmount;
@@ -1278,7 +1280,7 @@ export class PaymentsService {
                   : typeof metadata?.orderId === 'string'
                     ? metadata.orderId
                     : idempotencyKey,
-              metadata: metadata as Record<string, unknown>,
+              metadata: metadata,
             }),
           },
         });

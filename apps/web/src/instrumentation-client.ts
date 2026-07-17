@@ -4,42 +4,48 @@
  * Also initializes the browser Sentry SDK (formerly sentry.client.config.ts).
  */
 import { z } from "zod";
-import * as Sentry from "@sentry/nextjs";
+import { scheduleDevConsoleFilter } from "@/lib/dev-console-filter";
+
+scheduleDevConsoleFilter();
 
 z.config({ jitless: true });
 
 const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 
 if (SENTRY_DSN) {
-  Sentry.init({
-    dsn: SENTRY_DSN,
-    environment: process.env.NODE_ENV,
+  // Defer Sentry so instrumentation-client stays under Next's 16ms dev budget
+  // (avoids "[Client Instrumentation Hook] Slow execution" log spam).
+  void import("@sentry/nextjs").then((Sentry) => {
+    Sentry.init({
+      dsn: SENTRY_DSN,
+      environment: process.env.NODE_ENV,
 
-    // Capture 10% of transactions for performance tracing
-    tracesSampleRate: 0.1,
+      tracesSampleRate: 0.1,
+      replaysSessionSampleRate: 0,
+      replaysOnErrorSampleRate: 1.0,
 
-    // Replay only on error sessions to control quota
-    replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: 1.0,
+      integrations: [
+        Sentry.replayIntegration({
+          maskAllText: true,
+          blockAllMedia: true,
+        }),
+      ],
 
-    integrations: [
-      Sentry.replayIntegration({
-        maskAllText: true,
-        blockAllMedia: true,
-      }),
-    ],
+      enabled: process.env.NODE_ENV === "production",
 
-    // Don't send errors in development
-    enabled: process.env.NODE_ENV === "production",
-
-    beforeSend(event) {
-      // Strip PII from error events
-      if (event.user) {
-        delete event.user.ip_address;
-      }
-      return event;
-    },
+      beforeSend(event) {
+        if (event.user) {
+          delete event.user.ip_address;
+        }
+        return event;
+      },
+    });
   });
 }
 
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+export async function onRouterTransitionStart(...args: unknown[]) {
+  const Sentry = await import("@sentry/nextjs");
+  return Sentry.captureRouterTransitionStart(...(args as Parameters<
+    typeof Sentry.captureRouterTransitionStart
+  >));
+}

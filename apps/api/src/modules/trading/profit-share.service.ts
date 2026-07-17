@@ -254,22 +254,25 @@ export class ProfitShareService {
 
     if (netPnl < 0) {
       const creditAmount = this.money((Math.abs(netPnl) * sharePct) / 100);
-      const walletTx = await this.wallet.createTransaction(subscription.userId, {
-        type: 'PROFIT_SHARE_LOSS_CREDIT',
-        direction: 'IN',
-        amount: creditAmount,
-        status: 'CONFIRMED',
-        idempotencyKey: `profit-share-loss:${subscription.id}:${period.periodStart.toISOString()}`,
-        description: `Profit-share loss credit for ${subscription.strategy.name}`,
-        reference: subscription.id,
-        metadataJson: {
-          subscriptionId: subscription.id,
-          strategyId: subscription.strategyId,
-          periodStart: period.periodStart.toISOString(),
-          periodEnd: period.periodEnd.toISOString(),
-          netPnl,
+      const walletTx = await this.wallet.createTransaction(
+        subscription.userId,
+        {
+          type: 'PROFIT_SHARE_LOSS_CREDIT',
+          direction: 'IN',
+          amount: creditAmount,
+          status: 'CONFIRMED',
+          idempotencyKey: `profit-share-loss:${subscription.id}:${period.periodStart.toISOString()}`,
+          description: `Profit-share loss credit for ${subscription.strategy.name}`,
+          reference: subscription.id,
+          metadataJson: {
+            subscriptionId: subscription.id,
+            strategyId: subscription.strategyId,
+            periodStart: period.periodStart.toISOString(),
+            periodEnd: period.periodEnd.toISOString(),
+            netPnl,
+          },
         },
-      });
+      );
 
       await this.prisma.profitShareLedgerEntry.upsert({
         where: {
@@ -315,7 +318,10 @@ export class ProfitShareService {
         category: 'PAYMENT',
         priority: 'HIGH',
         actionUrl: '/wallet',
-        metadata: { subscriptionId: subscription.id, walletTransactionId: walletTx.id },
+        metadata: {
+          subscriptionId: subscription.id,
+          walletTransactionId: walletTx.id,
+        },
         sendPush: true,
       });
       return;
@@ -326,22 +332,25 @@ export class ProfitShareService {
     if (shareAmount <= 0) return;
 
     if (balance.available >= shareAmount) {
-      const walletTx = await this.wallet.createTransaction(subscription.userId, {
-        type: 'PROFIT_SHARE_DEBIT',
-        direction: 'OUT',
-        amount: shareAmount,
-        status: 'CONFIRMED',
-        idempotencyKey: `profit-share-debit:${subscription.id}:${period.periodStart.toISOString()}`,
-        description: `Profit-share settlement for ${subscription.strategy.name}`,
-        reference: subscription.id,
-        metadataJson: {
-          subscriptionId: subscription.id,
-          strategyId: subscription.strategyId,
-          periodStart: period.periodStart.toISOString(),
-          periodEnd: period.periodEnd.toISOString(),
-          netPnl,
+      const walletTx = await this.wallet.createTransaction(
+        subscription.userId,
+        {
+          type: 'PROFIT_SHARE_DEBIT',
+          direction: 'OUT',
+          amount: shareAmount,
+          status: 'CONFIRMED',
+          idempotencyKey: `profit-share-debit:${subscription.id}:${period.periodStart.toISOString()}`,
+          description: `Profit-share settlement for ${subscription.strategy.name}`,
+          reference: subscription.id,
+          metadataJson: {
+            subscriptionId: subscription.id,
+            strategyId: subscription.strategyId,
+            periodStart: period.periodStart.toISOString(),
+            periodEnd: period.periodEnd.toISOString(),
+            netPnl,
+          },
         },
-      });
+      );
 
       await this.prisma.profitShareLedgerEntry.upsert({
         where: {
@@ -494,7 +503,9 @@ export class ProfitShareService {
   private async getLiveEquity(brokerAccount: {
     credentialsEncrypted: string;
   }): Promise<number | null> {
-    const creds = JSON.parse(this.crypto.decrypt(brokerAccount.credentialsEncrypted)) as {
+    const creds = JSON.parse(
+      this.crypto.decrypt(brokerAccount.credentialsEncrypted),
+    ) as {
       metaApiAccountId?: string;
       metaApiRegion?: string;
     };

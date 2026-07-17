@@ -48,7 +48,10 @@ export class SubscriptionsController {
   @Post('cancel')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Cancel the current platform subscription (access continues until it expires)' })
+  @ApiOperation({
+    summary:
+      'Cancel the current platform subscription (access continues until it expires)',
+  })
   cancel(@Req() req: { user: { userId: string } }) {
     return this.paymentsService.cancelSubscription(req.user.userId);
   }

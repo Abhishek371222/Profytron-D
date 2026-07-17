@@ -53,8 +53,11 @@ export class AccountHistorySyncService
   onModuleInit() {
     // Match the 1-minute cadence the rest of the dashboard polls at, so a
     // newly closed/opened trade lands in the DB within ~1 minute — not 5.
+    // In local/dev, default slower so MetaAPI free-tier 429s do not starve Nest.
+    const defaultMs =
+      process.env.NODE_ENV === 'production' ? 60 * 1000 : 5 * 60 * 1000;
     this.startPolling(
-      Number(process.env.ACCOUNT_HISTORY_SYNC_INTERVAL_MS) || 60 * 1000,
+      Number(process.env.ACCOUNT_HISTORY_SYNC_INTERVAL_MS) || defaultMs,
     );
   }
 
@@ -70,11 +73,18 @@ export class AccountHistorySyncService
     if (this.pollTimer) return;
     this.pollTimer = setInterval(() => void this.syncAllAccounts(), intervalMs);
     this.logger.log(`Account history sync started (${intervalMs}ms tick)`);
-    void this.syncAllAccounts();
+    // Defer the boot tick so Nest can finish accepting HTTP before MetaAPI work.
+    setTimeout(() => void this.syncAllAccounts(), 15_000);
   }
 
   private async syncAllAccounts() {
     if (this.polling) return;
+    if (this.mtAdapter.isRateLimited()) {
+      this.logger.debug(
+        `Account history sync skipped — MetaAPI cooldown ${Math.ceil(this.mtAdapter.rateLimitRemainingMs() / 1000)}s`,
+      );
+      return;
+    }
 
     let isLeader = false;
     try {
@@ -96,6 +106,7 @@ export class AccountHistorySyncService
       });
 
       for (const account of accounts) {
+        if (this.mtAdapter.isRateLimited()) break;
         try {
           await this.syncAccount(
             account.id,
@@ -103,8 +114,16 @@ export class AccountHistorySyncService
             account.credentialsEncrypted,
           );
         } catch (err) {
+          const msg = (err as Error).message || '';
+          // 429 / cooldown: stop the whole cycle; do not log per-account spam.
+          if (msg.includes('rate-limited') || msg.includes('status code 429')) {
+            this.logger.warn(
+              `Account history sync paused after MetaAPI rate limit (account=${account.id})`,
+            );
+            break;
+          }
           this.logger.warn(
-            `Account history sync failed account=${account.id}: ${(err as Error).message}`,
+            `Account history sync failed account=${account.id}: ${msg}`,
           );
         }
       }

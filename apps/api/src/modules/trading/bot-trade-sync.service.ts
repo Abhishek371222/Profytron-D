@@ -133,6 +133,7 @@ export class BotTradeSyncService implements OnModuleDestroy {
 
   private async syncAllAccounts() {
     if (this.polling) return;
+    if (this.mtAdapter.isRateLimited()) return;
 
     let isLeader = false;
     try {

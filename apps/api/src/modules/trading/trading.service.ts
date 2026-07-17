@@ -39,10 +39,17 @@ export class TradingService {
     const hasMetaApiToken = Boolean(process.env.METAAPI_TOKEN?.trim());
     const masterOnly = isMasterOnlyExecution();
 
+    const isDev = process.env.NODE_ENV !== 'production';
+    // Local defaults are intentionally slower — MetaAPI free tier 429 storms
+    // previously blocked Nest from accepting proxied auth requests.
+    const botTickDefault = isDev ? 30_000 : 8_000;
+    const masterTickDefault = isDev ? 15_000 : 3_000;
+    const trailingTickDefault = isDev ? 15_000 : 5_000;
+
     // Always sync follower bot trades → DB PnL when MetaAPI is configured.
     if (hasMetaApiToken) {
       this.botTradeSync.startPolling(
-        Number(process.env.BOT_TRADE_SYNC_TICK_MS) || 8_000,
+        Number(process.env.BOT_TRADE_SYNC_TICK_MS) || botTickDefault,
       );
     }
 
@@ -71,7 +78,7 @@ export class TradingService {
           'EXECUTION_MODE=master_only — MasterSync on; CopyFactory subscriber path off',
         );
         this.masterSync.startPolling(
-          Number(process.env.MASTER_SYNC_INTERVAL_MS) || 3000,
+          Number(process.env.MASTER_SYNC_INTERVAL_MS) || masterTickDefault,
         );
       }
     } else {
@@ -98,13 +105,13 @@ export class TradingService {
         );
         this.copyFactoryPositionSync.startPolling(5000);
       } else {
-        this.masterSync.startPolling(3000);
+        this.masterSync.startPolling(masterTickDefault);
       }
     }
 
     if (process.env.TRAILING_STOP_ENABLED !== 'false') {
       this.trailingStop.startPolling(
-        Number(process.env.TRAILING_STOP_INTERVAL_MS) || 5000,
+        Number(process.env.TRAILING_STOP_INTERVAL_MS) || trailingTickDefault,
       );
     }
   }

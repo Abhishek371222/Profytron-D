@@ -46,18 +46,9 @@ export class AIService {
       .replace(/\bI (predict|forecast)\b/gi, 'setups often resolve when')
       .replace(/\b(guaranteed?|certain) profit\b/gi, 'favorable outcome')
       .replace(/\b100% (sure|certain|confident)\b/gi, 'high-conviction')
-      .replace(
-        /\n*\s*⚠️?\s*Educational analysis only[^\n]*/gi,
-        '',
-      )
-      .replace(
-        /\n*\s*Educational (coaching|analysis) only[^\n]*/gi,
-        '',
-      )
-      .replace(
-        /\n*\s*Trading involves significant risk of loss\.?/gi,
-        '',
-      )
+      .replace(/\n*\s*⚠️?\s*Educational analysis only[^\n]*/gi, '')
+      .replace(/\n*\s*Educational (coaching|analysis) only[^\n]*/gi, '')
+      .replace(/\n*\s*Trading involves significant risk of loss\.?/gi, '')
       .replace(/\n*\s*This is not financial advice\.?/gi, '')
       .trim();
   }
@@ -68,7 +59,11 @@ export class AIService {
 
   private preferredProvider(): 'gemini' | 'openrouter' | 'openai' {
     const explicit = (process.env.AI_PROVIDER || '').toLowerCase();
-    if (explicit === 'gemini' || explicit === 'openrouter' || explicit === 'openai') {
+    if (
+      explicit === 'gemini' ||
+      explicit === 'openrouter' ||
+      explicit === 'openai'
+    ) {
       return explicit;
     }
     if (process.env.GEMINI_API_KEY) return 'gemini';
@@ -201,7 +196,10 @@ export class AIService {
             return await this.callGemini(systemPrompt, userPrompt, maxTokens);
           }
           if (provider === 'openrouter') {
-            if (!process.env.OPENROUTER_API_KEY && !this.openaiApiKey?.startsWith('sk-or-')) {
+            if (
+              !process.env.OPENROUTER_API_KEY &&
+              !this.openaiApiKey?.startsWith('sk-or-')
+            ) {
               break;
             }
             return await this.callOpenAICompatible(
@@ -669,7 +667,11 @@ Recent context about the user's trades is provided below.`;
     };
 
     try {
-      await this.redis.set(cacheKey, JSON.stringify(report), TTL_COACHING_REPORT);
+      await this.redis.set(
+        cacheKey,
+        JSON.stringify(report),
+        TTL_COACHING_REPORT,
+      );
     } catch (error) {
       this.logger.warn(
         `Coaching report cache write failed for ${userId}: ${(error as Error).message}`,

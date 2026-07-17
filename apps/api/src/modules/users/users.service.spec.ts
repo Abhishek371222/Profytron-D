@@ -198,9 +198,7 @@ describe('UsersService password reset', () => {
   });
 
   it('does not allow OTP reuse after verification', async () => {
-    redis.get
-      .mockResolvedValueOnce('111222')
-      .mockResolvedValueOnce(null);
+    redis.get.mockResolvedValueOnce('111222').mockResolvedValueOnce(null);
 
     await service.verifyPasswordResetOtp(userId, emailAddress, '111222');
     expect(redis.del).toHaveBeenCalledWith(`auth:reset:otp:${userId}`);

@@ -943,7 +943,11 @@ export class AdminService {
 
       await tx.kycDocument.updateMany({
         where: { userId, status: 'PENDING' },
-        data: { status: docStatus, notes: notes ?? null, reviewedAt: new Date() },
+        data: {
+          status: docStatus,
+          notes: notes ?? null,
+          reviewedAt: new Date(),
+        },
       });
 
       await tx.auditLog.create({

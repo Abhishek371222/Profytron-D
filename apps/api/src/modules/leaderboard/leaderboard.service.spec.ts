@@ -1,5 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { LeaderboardService, STRATEGY_BASE_EQUITY } from './leaderboard.service';
+import {
+  LeaderboardService,
+  STRATEGY_BASE_EQUITY,
+} from './leaderboard.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 
@@ -56,8 +59,9 @@ describe('LeaderboardService', () => {
       set: jest.fn().mockResolvedValue(undefined),
       del: jest.fn().mockResolvedValue(undefined),
       delPrefix: jest.fn().mockResolvedValue(undefined),
-      cached: jest.fn(async (_key: string, _ttl: number, producer: () => Promise<unknown>) =>
-        producer(),
+      cached: jest.fn(
+        async (_key: string, _ttl: number, producer: () => Promise<unknown>) =>
+          producer(),
       ),
     };
 
@@ -300,7 +304,9 @@ describe('LeaderboardService', () => {
       expect(result.map((s: { id: string }) => s.id)).toEqual(['a', 'b']);
       expect(result[0].profitRate).toBe(18);
       expect(result[1].profitRate).toBe(4);
-      expect(result[0].profitRate).not.toBe(result[0].latestPerformance!.winRate);
+      expect(result[0].profitRate).not.toBe(
+        result[0].latestPerformance!.winRate,
+      );
     });
 
     it('computes positive, zero, and negative profit rates from netPnl', () => {
@@ -326,7 +332,11 @@ describe('LeaderboardService', () => {
 
     it('falls back to closed-trade profit when performance is missing', async () => {
       prisma.strategy.findMany.mockResolvedValue([
-        strategyFixture({ id: 'trade-only', name: 'Trade Only', performance: [] }),
+        strategyFixture({
+          id: 'trade-only',
+          name: 'Trade Only',
+          performance: [],
+        }),
       ]);
       prisma.trade.groupBy.mockResolvedValue([
         {

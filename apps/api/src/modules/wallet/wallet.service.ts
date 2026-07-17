@@ -543,7 +543,9 @@ export class WalletService {
       throw new NotFoundException('No payment found for this Billing ID');
     }
     if (!opts.asAdmin && opts.userId && tx.userId !== opts.userId) {
-      throw new ForbiddenException('Billing ID does not belong to this account');
+      throw new ForbiddenException(
+        'Billing ID does not belong to this account',
+      );
     }
     return {
       ...this.mapTransaction(tx),
@@ -651,7 +653,7 @@ export class WalletService {
         direction: dto.direction,
         userId,
         externalTxnId: dto.reference,
-        metadata: (dto.metadataJson as Record<string, unknown> | undefined) ?? {},
+        metadata: dto.metadataJson ?? {},
       });
 
       const transaction = await tx.walletTransaction.create({
@@ -668,7 +670,7 @@ export class WalletService {
           ...paymentFields,
           metadataJson: {
             ...paymentFields.metadataJson,
-            ...((dto.metadataJson as Record<string, unknown> | undefined) ?? {}),
+            ...(dto.metadataJson ?? {}),
           } as Prisma.JsonObject,
         },
       });

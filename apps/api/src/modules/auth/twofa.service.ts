@@ -59,7 +59,11 @@ export class TwoFaService {
     const qrCodeDataUrl = await qrcode.toDataURL(otpUri);
 
     // Keep the pending secret in Redis until the user verifies a TOTP code.
-    await this.redisService.set(SETUP_SECRET_KEY(userId), secret, SETUP_SECRET_TTL);
+    await this.redisService.set(
+      SETUP_SECRET_KEY(userId),
+      secret,
+      SETUP_SECRET_TTL,
+    );
 
     return { qrCode: qrCodeDataUrl, secret, otpUri };
   }

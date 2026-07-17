@@ -219,11 +219,7 @@ export class AffiliatesService {
       const current = currentByUser.get(affiliate.user.id) ?? 0;
       const prior = priorByUser.get(affiliate.user.id) ?? 0;
       const growth =
-        prior > 0
-          ? ((current - prior) / prior) * 100
-          : current > 0
-            ? 100
-            : 0;
+        prior > 0 ? ((current - prior) / prior) * 100 : current > 0 ? 100 : 0;
 
       return {
         rank: index + 1,
