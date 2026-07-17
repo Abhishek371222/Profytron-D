@@ -131,7 +131,7 @@ export default function CopyTradingPage() {
   }));
 
   return (
-    <DashboardPage className="max-w-6xl mx-auto">
+    <DashboardPage className="mx-auto max-w-6xl px-1 sm:px-2">
       <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'My Bots' }]} />
 
       <DashboardPageHeader
@@ -166,9 +166,9 @@ export default function CopyTradingPage() {
       )}
 
       {masters.length > 0 && (
-        <div>
+        <section className="w-full min-w-0 pl-1 sm:pl-2">
           <DashSectionTitle className="mb-4">Public master traders</DashSectionTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
             {masters.slice(0, 6).map((master, idx) => (
               <motion.div
                 key={master.id}
@@ -176,19 +176,19 @@ export default function CopyTradingPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.04, duration: 0.3, ease: 'easeOut' }}
                 whileHover={{ y: -3 }}
-                className="rounded-xl border border-[var(--card-border)] p-4 flex items-center justify-between transition-all duration-200 hover:border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] hover:shadow-[var(--shadow-card-hover)]"
+                className="flex w-full min-w-0 items-center justify-between rounded-xl border border-[var(--card-border)] p-4 transition-all duration-200 hover:border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] hover:shadow-[var(--shadow-card-hover)]"
               >
-                <div>
+                <div className="min-w-0 pr-3">
                   <p className="font-medium text-foreground">{master.displayName}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     ROI {master.roiPct?.toFixed?.(1) ?? master.roiPct}% · Win {master.winRate?.toFixed?.(0) ?? master.winRate}%
                   </p>
                 </div>
-                <span className="text-xs text-muted-foreground">{master.followersCount} followers</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{master.followersCount} followers</span>
               </motion.div>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
       {relationships.length > 0 && (
@@ -214,9 +214,9 @@ export default function CopyTradingPage() {
       )}
 
       {/* Plan cards */}
-      <div>
+      <section className="w-full min-w-0 pl-1 sm:pl-2">
         <DashSectionTitle className="mb-4">Buy a Bot Plan</DashSectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
           {planWithStrategy.map((plan) => {
             const Icon = plan.icon;
             const isSubscribed = subscriptions.some(
@@ -235,47 +235,47 @@ export default function CopyTradingPage() {
                 transition={{ duration: 0.35, ease: 'easeOut' }}
                 whileHover={{ y: -4 }}
                 className={cn(
-                  'relative flex flex-col p-5 rounded-2xl border bg-gradient-to-br glass transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]',
+                  'relative flex w-full min-w-0 flex-col items-stretch rounded-2xl border bg-gradient-to-br p-5 glass transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]',
                   plan.color,
                   plan.border,
                   plan.popular && 'ring-1 ring-chart-2/40',
                 )}
               >
                 {plan.popular && (
-                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-xs font-bold px-3 py-0.5 rounded-full bg-chart-2 text-foreground">
+                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-chart-2 px-3 py-0.5 text-xs font-bold text-foreground">
                     Most Popular
                   </span>
                 )}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className={cn('p-2 rounded-xl bg-foreground/5', plan.badge)}>
-                    <Icon className="w-5 h-5" />
+                <div className="mb-4 flex items-center gap-3">
+                  <div className={cn('rounded-xl bg-foreground/5 p-2', plan.badge)}>
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <div>
-                    <p className="font-semibold text-foreground text-base">{plan.name}</p>
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-foreground">{plan.name}</p>
                     <p className={cn('text-sm', plan.badge)}>Max {plan.maxLot} lot</p>
                   </div>
-                  <div className="ml-auto text-right">
+                  <div className="ml-auto shrink-0 text-right">
                     <p className="text-xl font-bold text-foreground">₹{plan.price}</p>
                     <p className="text-sm text-muted-foreground">/month</p>
                   </div>
                 </div>
-                <ul className="flex flex-col gap-1.5 mb-5 flex-1">
+                <ul className="mb-5 flex flex-1 flex-col gap-1.5">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-chart-3 shrink-0" />
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-chart-3" />
                       {f}
                     </li>
                   ))}
                 </ul>
                 {isSubscribed ? (
-                  <div className="text-center text-xs font-medium text-chart-3 py-2">
+                  <div className="py-2 text-center text-xs font-medium text-chart-3">
                     ✓ Bot enabled
                   </div>
                 ) : (
-                  <div className="grid gap-2">
+                  <div className="mt-auto flex w-full flex-col items-stretch gap-2">
                     <DashButton
                       variant="primary"
-                      className="w-full"
+                      className="w-full justify-center text-center"
                       disabled={!hasConnectedBroker || !plan.strategy}
                       onClick={() => {
                         if (!plan.strategy) return;
@@ -287,7 +287,7 @@ export default function CopyTradingPage() {
                     </DashButton>
                     <DashButton
                       variant="outline"
-                      className="w-full"
+                      className="w-full justify-center text-center"
                       disabled={!hasConnectedBroker || !plan.strategy}
                       onClick={() => {
                         if (!plan.strategy) return;
@@ -303,7 +303,7 @@ export default function CopyTradingPage() {
             );
           })}
         </div>
-      </div>
+      </section>
 
       {/* Active subscriptions */}
       <div>
