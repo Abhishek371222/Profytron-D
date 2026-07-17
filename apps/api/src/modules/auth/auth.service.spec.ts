@@ -133,7 +133,9 @@ describe('AuthService (UNIT TESTS)', () => {
         {
           provide: BrokerService,
           useValue: {
-            resolvePendingSharesForEmail: jest.fn().mockResolvedValue(undefined),
+            resolvePendingSharesForEmail: jest
+              .fn()
+              .mockResolvedValue(undefined),
           },
         },
       ],
@@ -202,6 +204,7 @@ describe('AuthService (UNIT TESTS)', () => {
       expect(emailService.sendOtpEmail).toHaveBeenCalledWith(
         dto.email,
         expect.any(String),
+        mockUser.id,
       );
     });
 

@@ -1243,7 +1243,9 @@ export class AuthService {
 
     let decoded: admin.auth.DecodedIdToken;
     try {
-      decoded = await admin.auth(admin.app(FIREBASE_AUTH_APP_NAME)).verifyIdToken(dto.token);
+      decoded = await admin
+        .auth(admin.app(FIREBASE_AUTH_APP_NAME))
+        .verifyIdToken(dto.token);
     } catch (verifyError) {
       this.logger.error(
         `Firebase verification failed for ${dto.email}: ${(verifyError as Error).message}`,
@@ -1269,15 +1271,15 @@ export class AuthService {
     }
 
     const googleId =
-      (typeof decoded!.firebase?.identities?.['google.com']?.[0] ===
-        'string' && decoded!.firebase.identities['google.com'][0]) ||
+      (typeof decoded!.firebase?.identities?.['google.com']?.[0] === 'string' &&
+        decoded!.firebase.identities['google.com'][0]) ||
       decoded!.uid ||
       null;
 
     return this.syncVerifiedIdentityAndIssueSession({
       verifiedEmail,
       fullName: dto.fullName || (decoded!.name as string | undefined),
-      avatarUrl: dto.avatarUrl || (decoded!.picture as string | undefined),
+      avatarUrl: dto.avatarUrl || decoded!.picture,
       bio: dto.bio,
       googleId,
       provider: dto.provider || 'firebase',
