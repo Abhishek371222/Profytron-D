@@ -139,7 +139,7 @@ function ResetPasswordPageInner() {
  <BrandLogo size="xl" />
  </div>
 
- {/* Centered Auth Card */}
+ { }
  <motion.div
  variants={containerVariants}
  initial={false}

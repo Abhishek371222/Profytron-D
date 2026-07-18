@@ -10,9 +10,6 @@ import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { buildWalletPaymentFields } from '../wallet/wallet-payment.util';
 
-// Real monthly estimates for the matching e2-custom machine type in
-// asia-south1 (compute only; a few dollars of pd-standard disk is bundled
-// into the estimate below rather than itemized separately).
 const VPS_PRICING: Record<string, number> = {
   '2cpu-4gb': 27,
   '4cpu-8gb': 54,
@@ -84,7 +81,6 @@ export class VpsService {
     return operation;
   }
 
-  /** Debit the wallet for a recurring VPS charge. Throws if balance is insufficient. */
   private async chargeWalletForVps(
     userId: string,
     amount: number,
@@ -140,6 +136,7 @@ export class VpsService {
     amount: number,
     reference: string,
   ) {
+
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
@@ -229,9 +226,6 @@ export class VpsService {
       });
       await this.waitForOperation(insertOp.name!, GCP_ZONE);
 
-      // Bring it down immediately — the app models a freshly-provisioned VPS
-      // as STOPPED until the user explicitly starts it, so billing for
-      // running compute only starts once they actually use it.
       const [stopOp] = await instances.stop({
         project: projectId,
         zone: GCP_ZONE,
@@ -296,9 +290,6 @@ export class VpsService {
       `Starting GCE instance ${vps.instanceId} for user ${userId}`,
     );
 
-    // GCE can reject a start immediately after a stop with "resource
-    // fingerprint changed" while its internal state settles — transient,
-    // resolves after a short wait. Retry once before surfacing an error.
     try {
       const [op] = await instances.start({
         project: projectId,
@@ -358,7 +349,6 @@ export class VpsService {
     });
     await this.waitForOperation(op.name!, zone);
 
-    // Stop all running bots on this VPS before stopping VPS
     await this.prisma.botInstance.updateMany({
       where: { vpsId, status: 'RUNNING' },
       data: { status: 'STOPPED', stoppedAt: new Date() },
@@ -397,10 +387,6 @@ export class VpsService {
     }
 
     this.logger.log(`Starting bot ${botId}`);
-    // Bot execution runs through the platform's own trade-execution queue
-    // (trade.processor.ts) against the user's broker account — not as a
-    // separate OS process on the VPS. There is no real PID to report here;
-    // the VPS is the compute this bot's strategy is billed/attributed to.
     return this.prisma.botInstance.update({
       where: { id: botId },
       data: {
@@ -452,8 +438,7 @@ export class VpsService {
       });
       await this.waitForOperation(op.name!, zone);
     } catch (err: any) {
-      // Instance already gone (e.g. deleted out-of-band) — proceed to clean up our records.
-      if (err?.code !== 5 /* NOT_FOUND */) throw err;
+      if (err?.code !== 5  ) throw err;
     }
 
     await this.prisma.botInstance.deleteMany({ where: { vpsId } });

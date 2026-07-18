@@ -1,7 +1,3 @@
-/**
- * Generates premium marketplace globe SVG assets (1000×1000 viewBox).
- * Brand colors: #348398, #9FE1F3, #ADFFFC
- */
 import { writeFileSync, mkdirSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -28,12 +24,12 @@ function inRegion(x, y, regions) {
 }
 
 const continentRegions = [
-  [180, 340, 300, 460], // North America
-  [300, 380, 480, 680], // South America
-  [440, 560, 280, 400], // Europe
-  [460, 580, 400, 640], // Africa
-  [560, 820, 280, 540], // Asia
-  [720, 840, 520, 620], // Australia
+  [180, 340, 300, 460],
+  [300, 380, 480, 680],
+  [440, 560, 280, 400],
+  [460, 580, 400, 640],
+  [560, 820, 280, 540],
+  [720, 840, 520, 620],
 ];
 
 function generateContinentsDots() {
@@ -43,7 +39,6 @@ function generateContinentsDots() {
     for (let x = CX - R; x <= CX + R; x += step) {
       if (!inSphere(x, y)) continue;
       if (!inRegion(x, y, continentRegions)) continue;
-      // organic edge falloff
       const jitter = ((x * 17 + y * 31) % 7) / 10;
       if (jitter > 0.55) continue;
       const r = 1.1 + ((x + y) % 5) * 0.15;
@@ -156,7 +151,6 @@ function generateParticles() {
       dots.push(`<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r.toFixed(2)}" fill="${fill}" fill-opacity="${layer.op}"/>`);
     }
   }
-  // foreground dust outside sphere
   for (let i = 0; i < 35; i++) {
     const t = i * 3571;
     const x = 80 + (t % 840);
@@ -237,7 +231,6 @@ writeFileSync(join(OUT, "particles.svg"), generateParticles());
 writeFileSync(join(OUT, "nodes.svg"), generateNodes());
 writeFileSync(join(OUT, "radial-glow.svg"), generateRadialGlow());
 writeFileSync(join(OUT, "gradient-mesh.svg"), generateGradientMesh());
-// latitude-grid merged into world-wireframe; keep lightweight alias
 writeFileSync(join(OUT, "latitude-grid.svg"), generateWorldWireframe());
 
 console.log("Generated globe SVGs in", OUT);

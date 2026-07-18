@@ -24,7 +24,6 @@ export function isDatabaseUnreachableError(exception: unknown): boolean {
   );
 }
 
-/** Query param value for /login?error=... after OAuth callback failure */
 export function oauthLoginErrorCode(exception: unknown): string {
   if (isDatabaseUnreachableError(exception)) {
     return 'database_unavailable';
@@ -32,15 +31,6 @@ export function oauthLoginErrorCode(exception: unknown): string {
   return 'auth_failed';
 }
 
-/**
- * Resolves the canonical frontend origin for browser-facing redirects.
- *
- * The production site is served on the `www` host; the apex `profytron.com`
- * only redirects "/" to www and returns 404 for every deep path. Redirecting
- * an OAuth login to `https://profytron.com/auth/callback` therefore lands on a
- * raw "Not Found". This upgrades the bare apex to www so the redirect always
- * hits a host that actually serves the app, regardless of env drift.
- */
 export function resolveFrontendUrl(): string {
   const raw = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(
     /\/$/,
@@ -53,7 +43,6 @@ export function resolveFrontendUrl(): string {
       return url.toString().replace(/\/$/, '');
     }
   } catch {
-    // Fall through to the raw value if it isn't a parseable URL.
   }
   return raw;
 }

@@ -34,6 +34,7 @@ export function ExecutiveWaitBar({
   // calling Date.now() again, which useMemo's purity rule disallows.
   const [mountTime] = React.useState(() => Date.now());
 
+
   const deadlineMs = React.useMemo(() => {
     if (slaDeadline) return new Date(slaDeadline).getTime();
     if (createdAt) return new Date(createdAt).getTime() + 15 * 60 * 1000;

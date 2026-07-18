@@ -9,10 +9,6 @@ export type AuthParticleSystem = THREE.Points & {
   };
 };
 
-/**
- * Drifting particles that fade as they approach the login side (positive X).
- * Uses a shader for per-particle opacity and soft circular points.
- */
 export function createParticleSystem(THREE: typeof import('three'), count = PARTICLE_COUNT) {
   const positions = new Float32Array(count * 3);
   const velocities = new Float32Array(count * 3);

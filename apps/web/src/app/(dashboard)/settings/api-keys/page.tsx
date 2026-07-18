@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-/** API Keys section removed from dashboard — redirect legacy links. */
 export default function APIKeysPage() {
   const router = useRouter();
 

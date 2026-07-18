@@ -130,11 +130,9 @@ export default function MyBotsPage() {
     placeholderData: (previous) => previous,
   });
 
-  // Never flash hard error while auth is warming or a retry is in flight.
   const showHardError =
     sessionReady && isError && !isFetching && bots.length === 0;
 
-  // Self-heal: pull MetaAPI positions → attribute to bots → refresh PnL in DB.
   React.useEffect(() => {
     if (!sessionReady) return;
     let cancelled = false;
@@ -147,7 +145,6 @@ export default function MyBotsPage() {
           qc.invalidateQueries({ queryKey: ['broker-accounts'] });
         }
       } catch {
-        /* sync is best-effort; list still loads from DB */
       }
     })();
     const id = window.setInterval(() => {
@@ -162,7 +159,6 @@ export default function MyBotsPage() {
     };
   }, [sessionReady, qc]);
 
-  // Self-heal: PROVISIONING copy bots get MetaApi CF wiring (Render queue is stuck).
   React.useEffect(() => {
     const needsWire = bots.some((b) => b.status === 'PROVISIONING');
     if (!needsWire) return;
@@ -174,7 +170,6 @@ export default function MyBotsPage() {
           qc.invalidateQueries({ queryKey: ['my-bots'] });
         }
       } catch {
-        /* best-effort */
       }
     })();
     return () => {
@@ -231,12 +226,11 @@ export default function MyBotsPage() {
       };
     });
 
-  // Show a couple of dashed "browse more" tiles so the grid never looks like a single orphan card.
   const addTileCount = filtered.length > 0 && filtered.length < 3 ? 3 - filtered.length : filtered.length === 0 ? 0 : 1;
 
   return (
     <div className="space-y-6 pb-8" data-tour="my-bots-overview">
-      {/* Header */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -259,7 +253,7 @@ export default function MyBotsPage() {
         </Link>
       </motion.div>
 
-      {/* Stats bar */}
+      { }
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {stats.map((s, i) => (
           <motion.div
@@ -298,7 +292,7 @@ export default function MyBotsPage() {
         ))}
       </div>
 
-      {/* Tabs */}
+      { }
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -322,7 +316,7 @@ export default function MyBotsPage() {
         ))}
       </motion.div>
 
-      {/* Cards */}
+      { }
       {!sessionReady || isLoading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -382,7 +376,7 @@ export default function MyBotsPage() {
                 whileHover={{ y: -4 }}
                 className="group flex flex-col gap-4 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)] transition-shadow duration-[250ms] hover:border-[color-mix(in_srgb,var(--primary)_22%,var(--card-border))] hover:shadow-[var(--shadow-card-hover)]"
               >
-                {/* Header */}
+                { }
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border border-[color-mix(in_srgb,var(--primary)_15%,transparent)] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary transition-transform duration-200 group-hover:scale-105">
@@ -404,7 +398,7 @@ export default function MyBotsPage() {
                   </span>
                 ) : null}
 
-                {/* Metrics */}
+                { }
                 <div className="grid grid-cols-3 gap-2 rounded-[12px] bg-[color-mix(in_srgb,var(--muted)_35%,transparent)] p-3 text-center">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">P&L</p>
@@ -424,7 +418,7 @@ export default function MyBotsPage() {
                   </div>
                 </div>
 
-                {/* Broker */}
+                { }
                 <div className="flex items-center gap-2 border-t border-[var(--card-border)] pt-3 text-xs text-muted-foreground">
                   <BarChart2 className="h-3.5 w-3.5 shrink-0" />
                   <span className="truncate">
@@ -435,7 +429,7 @@ export default function MyBotsPage() {
                   </span>
                 </div>
 
-                {/* Actions */}
+                { }
                 <div className="flex gap-2">
                   {bot.status === 'ACTIVE' && (
                     <DashButton
@@ -508,7 +502,7 @@ export default function MyBotsPage() {
         </div>
       )}
 
-      {/* Recommended for you — fills the page meaningfully instead of leaving dead space */}
+      { }
       {!isLoading && recommended.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 16 }}

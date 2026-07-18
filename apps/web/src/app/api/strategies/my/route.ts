@@ -78,11 +78,6 @@ async function userIdFromRequest(req: NextRequest): Promise<string | null> {
   }
 }
 
-/**
- * Reliable My Bots payload — does not depend on Nest staying healthy.
- * Auto-links orphan subscriptions to the user's default MT4/MT5 and returns
- * real trade PnL (USD), never seed/catalog marketing %.
- */
 export async function GET(req: NextRequest) {
   const userId = await userIdFromRequest(req);
   if (!userId) return error('Unauthorized', 401);
@@ -95,7 +90,6 @@ export async function GET(req: NextRequest) {
   const sql = pgSql(dbUrl);
 
   try {
-    // Prefer live MT4/MT5, then any active account.
     const brokers = await sql`
       SELECT id, "brokerName", "accountNumberLast4", "initialEquity", "isPaperTrading"
       FROM "BrokerAccount"
@@ -163,7 +157,6 @@ export async function GET(req: NextRequest) {
 
     const pnlMap = new Map<string, { net: number; wins: number; closed: number }>();
     if (strategyIds.length > 0) {
-      // neon tagged template doesn't expand arrays cleanly for IN — query per-user then filter.
       const trades = await sql`
         SELECT "strategyId", profit, status
         FROM "Trade"

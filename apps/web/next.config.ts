@@ -21,23 +21,19 @@ function backendWsOrigin(origin: string): string {
 const backendWs = backendWsOrigin(backendApiOrigin);
 
 const nextConfig: NextConfig = {
-  // Standalone is for self-hosted Docker; Vercel manages output itself.
   ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
   transpilePackages: ["lucide-react"],
   serverExternalPackages: ["pg"],
   reactCompiler: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
-  compress: true, // Enable gzip compression
-  // Allow LAN origin for phone/tablet testing (current Wi‑Fi IP + prior IP).
+  compress: true,
   allowedDevOrigins: ["192.168.1.17", "192.168.1.7"],
-  // Monorepo: pin Turbopack to workspace root so pnpm-hoisted `next` resolves.
   turbopack: {
     root: path.join(__dirname, "../.."),
   },
   outputFileTracingRoot: path.join(__dirname, "../.."),
 
-  // Tree-shake large packages — only import used icons/components
   experimental: {
     optimizePackageImports: [
       "lucide-react",
@@ -55,7 +51,6 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Strip console.* calls in production builds for smaller bundle + no leaking
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
       ? { exclude: ['error', 'warn'] }
@@ -63,9 +58,8 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    // Serve modern formats automatically
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 86400, // Cache images for 24h
+    minimumCacheTTL: 86400,
 
     remotePatterns: [
       { protocol: "https", hostname: "api.dicebear.com", port: "", pathname: "/**" },
@@ -85,19 +79,11 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    // When mock API mode is explicitly enabled, bypass backend rewrites.
     if (process.env.NEXT_PUBLIC_ENABLE_MOCK_API === "true") {
       return [];
     }
 
-    // Keep live MetaAPI routes on Next (Vercel). Unmatched /api/* falls through to Nest.
-    // Only pin paths that have App Router handlers — do not blanket-rewrite /broker or
-    // /market or Nest endpoints (test connection, news, calendar) never reach the API.
     return [
-      {
-        source: "/api/broker/accounts",
-        destination: "/api/broker/accounts",
-      },
       {
         source: "/api/broker/accounts/connect",
         destination: "/api/broker/accounts/connect",
@@ -107,8 +93,28 @@ const nextConfig: NextConfig = {
         destination: "/api/strategies/my",
       },
       {
-        source: "/api/trading/trades/:path*",
-        destination: "/api/trading/trades/:path*",
+        source: "/api/trading/trades/order",
+        destination: "/api/trading/trades/order",
+      },
+      {
+        source: "/api/trading/trades/bulk-close",
+        destination: "/api/trading/trades/bulk-close",
+      },
+      {
+        source: "/api/trading/trades/:id/close",
+        destination: "/api/trading/trades/:id/close",
+      },
+      {
+        source: "/api/trading/trades/:id/modify",
+        destination: "/api/trading/trades/:id/modify",
+      },
+      {
+        source: "/api/trading/trades/:id/break-even",
+        destination: "/api/trading/trades/:id/break-even",
+      },
+      {
+        source: "/api/trading/trades/:id/trailing-stop",
+        destination: "/api/trading/trades/:id/trailing-stop",
       },
       {
         source: "/api/trading/lot-size",
@@ -139,41 +145,12 @@ const nextConfig: NextConfig = {
         destination: "/api/market/news-image",
       },
       {
-        source: "/api/analytics/trades",
-        destination: "/api/analytics/trades",
-      },
-      {
-        source: "/api/analytics/trades/:path*",
-        destination: "/api/analytics/trades/:path*",
-      },
-      {
-        source: "/api/analytics/portfolio",
-        destination: "/api/analytics/portfolio",
-      },
-      {
-        source: "/api/analytics/monthly-returns",
-        destination: "/api/analytics/monthly-returns",
-      },
-      {
-        source: "/api/analytics/strategy-comparison",
-        destination: "/api/analytics/strategy-comparison",
-      },
-      {
-        source: "/api/analytics/risk",
-        destination: "/api/analytics/risk",
-      },
-      {
-        source: "/api/analytics/global",
-        destination: "/api/analytics/global",
-      },
-      {
         source: "/api/:path*",
         destination: `${backendApiOrigin}/v1/:path*`,
       },
     ];
   },
 
-  // Security + caching headers
   async headers() {
     const isProd = process.env.NODE_ENV === 'production';
     
@@ -205,33 +182,13 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              // Next.js (App Router) hydrates via inline bootstrap scripts, so
-              // 'unsafe-inline' is required for the app's own JS to run at all.
-              // Production intentionally omits 'unsafe-eval'. Zod v4's
-              // Function() JIT probe is disabled via `z.config({ jitless: true })`
-              // in src/lib/zod.ts — do not add 'unsafe-eval' for that.
-              // In development, React Refresh / webpack HMR still need
-              // 'unsafe-eval' or client components can render blank.
-              // Payment SDKs are loaded from their own CDNs: Razorpay Checkout
-              // (checkout.razorpay.com) and Stripe.js (js.stripe.com). They must
-              // be whitelisted in script-src or the browser blocks them.
-              // @vercel/analytics (<Analytics /> in layout.tsx) loads its beacon
-              // script from va.vercel-scripts.com — must be whitelisted too.
-              // Firebase Auth's signInWithRedirect/signInWithPopup for Google
-              // loads Google's gapi helper from apis.google.com (distinct from
-              // the *.googleapis.com wildcard below — not a subdomain of it)
-              // and needs www.gstatic.com for its GIS client assets.
               isProd
                 ? "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://va.vercel-scripts.com https://apis.google.com https://www.gstatic.com"
                 : "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://checkout.razorpay.com https://js.stripe.com https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://va.vercel-scripts.com https://apis.google.com https://www.gstatic.com",
-              // unsafe-inline required by Tailwind CSS and CSS-in-JS at runtime
               "style-src 'self' 'unsafe-inline' https://s3.tradingview.com https://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com",
               "img-src 'self' data: https:",
               "font-src 'self' data: https://*.tradingview.com https://*.tradingview-widget.com",
               `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://apis.google.com https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io https://*.tradingview.com https://s3.tradingview.com wss://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com wss://*.tradingview-widget.com`,
-              // Razorpay/Stripe payment UI + TradingView chart embeds (widget host is tradingview-widget.com).
-              // accounts.google.com + *.firebaseapp.com: Firebase Auth's internal
-              // sign-in iframe/handler for Google sign-in.
               "frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://js.stripe.com https://hooks.stripe.com https://*.tradingview.com https://s.tradingview.com https://www.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://accounts.google.com https://*.firebaseapp.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
@@ -254,20 +211,11 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Permissions-Policy",
-            // Razorpay/Stripe checkout use the Payment Request API — blocking
-            // `payment` outright (payment=()) breaks their UPI/wallet fast
-            // checkout and logs a permissions-policy violation on every load.
             value:
               'camera=(), microphone=(), geolocation=(), payment=(self "https://checkout.razorpay.com" "https://api.razorpay.com" "https://js.stripe.com")',
           },
           {
             key: "Cross-Origin-Opener-Policy",
-            // same-origin (rather than same-origin-allow-popups) severs the
-            // window.opener/postMessage channel signInWithPopup() needs to
-            // learn the Google OAuth popup finished — the popup itself
-            // completes fine, but the main window never finds out, so the
-            // sign-in silently fails. allow-popups keeps the same isolation
-            // from cross-origin openers, just permits popups this page opens.
             value: "same-origin-allow-popups",
           },
           {
@@ -301,9 +249,6 @@ const withSentry = process.env.SENTRY_DSN
     })
   : nextConfig;
 
-// Bundle analyzer is opt-in and treated as an OPTIONAL dependency: it is only
-// require()'d when ANALYZE=true, so normal builds and CI (frozen lockfile) are
-// never affected. To use:  pnpm add -D @next/bundle-analyzer && ANALYZE=true pnpm build
 let finalConfig: NextConfig = withSentry;
 if (process.env.ANALYZE === "true") {
   try {

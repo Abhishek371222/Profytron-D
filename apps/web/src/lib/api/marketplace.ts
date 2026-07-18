@@ -57,10 +57,6 @@ export const marketplaceApi = {
     return res.data.data;
   },
 
-  /**
-   * Professional wiring: enable MetaApi SUBSCRIBER + link CopyFactory strategy.
-   * Call after subscribe / payment / broker connect (idempotent).
-   */
   async ensureCopyLink(payload?: { subscriptionId?: string; strategyId?: string }) {
     const res = await apiClient.post('/copy/link', payload ?? {});
     return res.data.data ?? res.data;

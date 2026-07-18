@@ -4,15 +4,12 @@ import { randomUUID } from 'node:crypto';
 import { PLATFORM_PLANS } from '../src/common/constants/pricing.constants';
 import { buildWalletPaymentFields } from '../src/modules/wallet/wallet-payment.util';
 
-// Single source of truth for pricing lives in pricing.constants.ts — seed
-// from it directly so this table can never drift out of sync again.
 const PLATFORM_PLANS_SEED = PLATFORM_PLANS.filter((p) => p.monthlyPrice >= 0);
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('Clearing old data...');
-  // Wipe everything in order of foreign key safety
   await prisma.aITradeExplanation.deleteMany();
   await prisma.strategyReview.deleteMany();
   await prisma.notification.deleteMany();
@@ -33,7 +30,6 @@ async function main() {
   const passwordHash = await bcrypt.hash('Demo@123', 12);
   const password = await bcrypt.hash('Demo@123', 12);
 
-  // Demo user (regular)
   const u1 = await prisma.user.upsert({
     where: { email: 'demo@profytron.com' },
     update: {
@@ -60,7 +56,6 @@ async function main() {
     },
   });
 
-  // Admin user
   const u4 = await prisma.user.upsert({
     where: { email: 'admin@profytron.com' },
     update: {
@@ -108,11 +103,8 @@ async function main() {
     { name: 'NewsTrader', cat: StrategyCategory.SCALPING, rl: RiskLevel.EXPERT, vs: VerificationStatus.UNVERIFIED, price: 7999 }
   ];
 
-  // Deterministic, plausible subscriber counts (free + verified strategies are more popular).
   const COPIES_BY_INDEX = [1284, 947, 612, 438, 2156, 321, 789, 198];
 
-  // Risk-tiered performance profiles so win-rate / Sharpe / drawdown / net P&L all
-  // tell a consistent story per strategy (higher risk → higher return + drawdown).
   const RISK_PROFILES: Record<string, { win: number; annualPct: number; sharpe: number; maxDd: number }> = {
     LOW: { win: 64, annualPct: 14, sharpe: 1.7, maxDd: 6 },
     MEDIUM: { win: 61, annualPct: 26, sharpe: 1.9, maxDd: 11 },
@@ -143,7 +135,6 @@ async function main() {
     });
     strategyIds.push(st.id);
 
-    // Create Marketplace Listing
     await prisma.marketplaceListing.create({
       data: {
         strategyId: st.id,
@@ -155,10 +146,6 @@ async function main() {
       }
     });
 
-    // Seed 365 days of coherent performance: equity grows smoothly toward the
-    // profile's annual return, with mild dips that define the drawdown. The final
-    // record's netPnl equals annualPct% of BASE_EQUITY, so My Bots / Marketplace
-    // show a believable, internally-consistent return.
     const profile = RISK_PROFILES[s.rl] ?? RISK_PROFILES.MEDIUM;
     const targetNetPnl = (BASE_EQUITY * profile.annualPct) / 100;
     const days = 365;
@@ -208,11 +195,10 @@ async function main() {
     'One of the better bots on the marketplace. Sharpe ratio held up even during choppy markets.',
   ];
   for (const sId of strategyIds) {
-    // 2-3 reviews per strategy, each from a distinct reviewer (unique [strategyId, userId])
     const count = 2 + Math.floor(Math.random() * 2);
     for (let r = 0; r < count; r++) {
       const reviewer = reviewers[r % reviewers.length];
-      const rating = 4 + Math.floor(Math.random() * 2); // 4 or 5
+      const rating = 4 + Math.floor(Math.random() * 2);
       await prisma.strategyReview.create({
         data: {
           strategyId: sId,
@@ -260,8 +246,6 @@ async function main() {
   }
 
   console.log('Seeding Trades for Demo User...');
-  // Realistic per-symbol price levels + tick sizes so entry/exit prices look real
-  // and stay consistent with each trade's direction and win/loss outcome.
   const SYMBOL_PRICES: Record<string, number> = {
     EURUSD: 1.0850,
     GBPUSD: 1.2710,
@@ -286,7 +270,7 @@ async function main() {
   const currencies = Object.keys(SYMBOL_PRICES);
   for (let i = 0; i < 200; i++) {
     const symbol = currencies[Math.floor(Math.random() * currencies.length)];
-    const isWin = Math.random() > 0.35; // ~65% win rate
+    const isWin = Math.random() > 0.35;
     const profit = isWin ? 1200 + Math.random() * 200 : -680 - Math.random() * 100;
     const isOpen = i < 5;
     const status = isOpen ? TradeStatus.OPEN : TradeStatus.CLOSED;
@@ -297,7 +281,6 @@ async function main() {
     const decimals = SYMBOL_DECIMALS[symbol];
     const openPrice = Number((base * (1 + (Math.random() - 0.5) * 0.012)).toFixed(decimals));
     const moveTicks = 40 + Math.random() * 140;
-    // Price closes in the trade's favour on a win, against it on a loss.
     const favour = isWin ? 1 : -1;
     const dirSign = direction === TradeDirection.LONG ? 1 : -1;
     const closePrice = isOpen
@@ -324,11 +307,6 @@ async function main() {
   }
 
   console.log('Seeding Wallet Transactions...');
-  // A coherent ledger: opening deposit, recurring strategy-subscription debits,
-  // commission/marketplace credits, then recent activity. balanceAfter is computed
-  // FORWARD over confirmed transactions so the running balance reconciles exactly
-  // with WalletService.getBalance (confirmedIn − confirmedOut). Pending rows are
-  // shown in the list but excluded from the confirmed balance.
   type TxSeed = {
     type: TransactionType;
     direction: TransactionDirection;
@@ -337,11 +315,10 @@ async function main() {
     daysAgo: number;
     description: string;
   };
-  const subStrategyPrices = [2499, 3999, 1499, 1999]; // paid strategy subscriptions
+  const subStrategyPrices = [2499, 3999, 1499, 1999];
   const txSeeds: TxSeed[] = [
     { type: TransactionType.DEPOSIT, direction: TransactionDirection.IN, amount: 150000, status: TransactionStatus.CONFIRMED, daysAgo: 96, description: 'Initial wallet funding (UPI)' },
   ];
-  // Last 3 months of strategy subscription debits
   for (let m = 3; m >= 1; m--) {
     for (const price of subStrategyPrices) {
       txSeeds.push({ type: TransactionType.SUBSCRIPTION_PAYMENT, direction: TransactionDirection.OUT, amount: price, status: TransactionStatus.CONFIRMED, daysAgo: m * 30 + 2, description: 'Strategy subscription renewal' });
@@ -356,7 +333,6 @@ async function main() {
     { type: TransactionType.WITHDRAWAL, direction: TransactionDirection.OUT, amount: 10000, status: TransactionStatus.PENDING, daysAgo: 1, description: 'Withdrawal to bank (processing)' },
     { type: TransactionType.DEPOSIT, direction: TransactionDirection.IN, amount: 5000, status: TransactionStatus.PENDING, daysAgo: 0, description: 'Wallet top-up (awaiting confirmation)' },
   );
-  // Oldest first so the running confirmed balance accumulates correctly.
   txSeeds.sort((a, b) => b.daysAgo - a.daysAgo);
   let confirmedBalance = 0;
   for (let i = 0; i < txSeeds.length; i++) {
@@ -432,7 +408,6 @@ async function main() {
     const startedAt = new Date();
     startedAt.setMonth(startedAt.getMonth() - 2);
 
-    // Three settled monthly payments + one upcoming pending payment.
     const paymentPlan = [
       { daysAgo: 78, status: PaymentStatus.COMPLETED },
       { daysAgo: 48, status: PaymentStatus.COMPLETED },
@@ -455,7 +430,6 @@ async function main() {
       });
       lastCompletedPaymentId = payment.id;
     }
-    // Upcoming renewal (pending)
     await prisma.payment.create({
       data: {
         userId: u1.id,

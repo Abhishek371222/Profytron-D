@@ -33,7 +33,6 @@ export function CoachMessageRow({
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1400);
     } catch {
-      /* ignore */
     }
   };
 

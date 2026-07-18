@@ -36,7 +36,7 @@ function Switch({ checked, onCheckedChange, className }: {
  className
  )}
  >
- {/* Flex-centered thumb; motion only slides X so it stays vertically centered. */}
+ { }
  <motion.span
  aria-hidden
  initial={false}

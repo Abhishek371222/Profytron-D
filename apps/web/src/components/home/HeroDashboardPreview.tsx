@@ -158,7 +158,7 @@ export function HeroDashboardPreview({
         style={{ boxShadow: "0 10px 30px rgba(15,23,42,0.05), 0 20px 60px rgba(71,167,170,0.08)" }}
       >
         <div className="flex min-h-[360px] sm:min-h-[420px]">
-          {/* Sidebar */}
+          { }
           <aside className="hidden w-[132px] shrink-0 flex-col gap-0.5 border-r border-[var(--card-border)] bg-[#EEF2FF]/80 px-2 py-4 dark:bg-[var(--sidebar)] sm:flex">
             {NAV.map(({ id, label, icon: Icon }) => (
               <button
@@ -178,9 +178,9 @@ export function HeroDashboardPreview({
             ))}
           </aside>
 
-          {/* Main */}
+          { }
           <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-2.5 sm:gap-3 sm:p-4">
-            {/* Mobile tab pills */}
+            { }
             <div className="flex sm:hidden gap-1 overflow-x-auto pb-1 scrollbar-hide">
               {NAV.map(({ id, label }) => (
                 <button
@@ -199,7 +199,7 @@ export function HeroDashboardPreview({
               ))}
             </div>
 
-            {/* Header */}
+            { }
             <div className="flex items-start justify-between gap-2">
               <div>
                 <AnimatePresence mode="wait">
@@ -244,7 +244,7 @@ export function HeroDashboardPreview({
               </div>
             </div>
 
-            {/* Top stats */}
+            { }
             <AnimatePresence mode="wait">
               <motion.div
                 key={`top-${tab}`}
@@ -260,7 +260,7 @@ export function HeroDashboardPreview({
               </motion.div>
             </AnimatePresence>
 
-            {/* Chart */}
+            { }
             <div className="flex-1 min-h-[100px] rounded-xl border border-[var(--card-border)] bg-[var(--bg-secondary)] p-3 relative overflow-hidden">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[11px] font-semibold text-foreground">Performance Chart</span>
@@ -271,7 +271,7 @@ export function HeroDashboardPreview({
               </div>
             </div>
 
-            {/* Bottom stats */}
+            { }
             <AnimatePresence mode="wait">
               <motion.div
                 key={`bottom-${tab}`}

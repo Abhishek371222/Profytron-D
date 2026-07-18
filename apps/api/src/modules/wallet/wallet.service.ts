@@ -61,7 +61,7 @@ export class WalletService {
     const otp = randomInt(100000, 1000000).toString();
     const key = `withdrawal_otp:${userId}`;
 
-    await this.redis.set(key, otp, 'EX', 600); // 10 minute TTL
+    await this.redis.set(key, otp, 'EX', 600);
 
     await this.emailService.sendOtpEmail(user.email, otp);
     this.logger.log(`Withdrawal OTP sent to user ${userId}`);
@@ -115,11 +115,6 @@ export class WalletService {
   async getTransactions(userId: string, query: WalletTransactionsQueryDto) {
     const { type, status, dateFrom, dateTo, cursor, limit = 20 } = query;
 
-    // Build a single createdAt filter so the date range AND the pagination
-    // cursor coexist. dateTo is treated as INCLUSIVE end-of-day — otherwise
-    // `new Date('2026-06-22')` is midnight UTC and `lte` silently drops every
-    // transaction made later that same day (the "deposits not showing after
-    // selecting today" bug).
     const createdAt: Prisma.DateTimeFilter = {};
     if (dateFrom) {
       createdAt.gte = new Date(dateFrom);
@@ -152,7 +147,6 @@ export class WalletService {
           userId,
           ...(type ? { type } : {}),
           ...(status ? { status } : {}),
-          // Count ignores the pagination cursor (it's the total for the filter).
           ...(dateFrom || dateTo
             ? {
                 createdAt: {
@@ -342,7 +336,6 @@ export class WalletService {
       throw new BadRequestException('Minimum withdrawal amount is 500');
     }
 
-    // Validate withdrawal OTP
     if (!dto.otp) {
       throw new BadRequestException('OTP is required for withdrawal');
     }
@@ -356,13 +349,8 @@ export class WalletService {
     if (storedOtp !== dto.otp.toString()) {
       throw new BadRequestException('Invalid OTP');
     }
-    // Invalidate OTP after successful validation (one-time use)
     await this.redis.del(otpKey);
 
-    // Atomically check available balance and write the debit row in ONE DB
-    // transaction, serialized per-user with a Postgres advisory lock. This
-    // closes the overdraft race that existed when the only guard was a
-    // best-effort Redis lock (which fails open if Redis is down/evicted).
     const transaction = await this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
 
@@ -423,10 +411,6 @@ export class WalletService {
     };
   }
 
-  /**
-   * Admin-only withdrawal from any user wallet (including deleted accounts).
-   * Skips OTP and KYC — audited via metadata.
-   */
   async adminForceWithdrawal(
     targetUserId: string,
     adminId: string,
@@ -522,10 +506,6 @@ export class WalletService {
     return this.mapTransaction(tx);
   }
 
-  /**
-   * Resolve a payment by canonical billing ID (PRF-WLT-…).
-   * Users may only look up their own; pass `asAdmin` for support tooling.
-   */
   async getTransactionByBillingId(
     billingId: string,
     opts: { userId?: string; asAdmin?: boolean },

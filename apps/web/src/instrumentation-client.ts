@@ -1,8 +1,3 @@
-/**
- * Earliest client bootstrap. Sets Zod jitless before page chunks construct
- * schemas, so Zod never probes `new Function("")` under production CSP.
- * Also initializes the browser Sentry SDK (formerly sentry.client.config.ts).
- */
 import { z } from "zod";
 import { scheduleDevConsoleFilter } from "@/lib/dev-console-filter";
 
@@ -31,6 +26,7 @@ if (SENTRY_DSN) {
         }),
       ],
 
+
       enabled: process.env.NODE_ENV === "production",
 
       beforeSend(event) {
@@ -40,6 +36,7 @@ if (SENTRY_DSN) {
         return event;
       },
     });
+
   });
 }
 

@@ -59,7 +59,6 @@ export async function GET(req: NextRequest) {
     const depositBase = packed?.depositBase ?? 1;
     const liveEquity = packed?.liveEquity ?? 0;
 
-    // Symbol rotation from real closed trades (replaces fake $1M sector rows).
     const bySymbol = new Map<
       string,
       { pnls: number[]; netPnl: number }
@@ -106,7 +105,6 @@ export async function GET(req: NextRequest) {
       closed.length > 0
         ? (closed.filter((t) => t.profit > 0).length / closed.length) * 100
         : 0;
-    // Regime from live account edge (only when closed trades exist).
     let label = 'UNKNOWN';
     let confidence = 0;
     if (closed.length > 0) {
@@ -125,7 +123,6 @@ export async function GET(req: NextRequest) {
 
     const macroEvents = await fetchMacroEvents();
 
-    // Personal leaderboard row from this account (no fake million-dollar peers).
     const leaderboard = closed.length
       ? [
           {

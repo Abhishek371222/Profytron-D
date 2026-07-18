@@ -66,8 +66,8 @@ export function ActivationChecklist() {
 
         <div className="h-1.5 w-full bg-foreground/5 rounded-full overflow-hidden mb-4">
           <div
-            className="h-full bg-primary transition-all duration-500"
-            style={{ width: `${data.progressPct}%` }}
+            className="h-full w-full origin-left bg-primary transition-transform duration-500 will-change-transform"
+            style={{ transform: `scaleX(${Math.min(Math.max(data.progressPct, 0), 100) / 100})` }}
           />
         </div>
 

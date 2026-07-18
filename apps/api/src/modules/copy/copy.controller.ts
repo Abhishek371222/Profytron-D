@@ -29,8 +29,6 @@ const uid = (req: RequestWithUser) => req.user.userId ?? req.user.id;
 export class CopyController {
   constructor(private readonly copyService: CopyTradingService) {}
 
-  // ─── Public master discovery ───────────────────────────────────────────────
-
   @Public()
   @Get('masters')
   @ApiResponse({ status: 200, description: 'OK' })
@@ -47,8 +45,6 @@ export class CopyController {
   async getMaster(@Param('id') id: string) {
     return this.copyService.getMaster(id);
   }
-
-  // ─── Authenticated master profile management ───────────────────────────────
 
   @Get('master/me')
   @UseGuards(JwtAuthGuard)
@@ -70,8 +66,6 @@ export class CopyController {
   ) {
     return this.copyService.upsertMyMaster(uid(req), dto);
   }
-
-  // ─── Follower relationships + sizing ───────────────────────────────────────
 
   @Get('relationships')
   @UseGuards(JwtAuthGuard)

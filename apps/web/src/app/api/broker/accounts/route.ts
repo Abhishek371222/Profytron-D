@@ -38,7 +38,11 @@ function decryptAesGcm(payload: string, keyHex: string): string {
   return out;
 }
 
-async function userIdFromRequest(req: NextRequest): Promise<string | null> {
+type AuthResolve =
+  | { ok: true; userId: string }
+  | { ok: false; reason: 'missing_token' | 'unauthorized' | 'backend_unreachable' };
+
+async function resolveUserId(req: NextRequest): Promise<AuthResolve> {
   const auth = req.headers.get('authorization') || '';
   const bearer = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
   const backend = (
@@ -46,7 +50,7 @@ async function userIdFromRequest(req: NextRequest): Promise<string | null> {
     process.env.NEXT_PUBLIC_BACKEND_URL ||
     'https://profytron-api.onrender.com'
   ).replace(/\/$/, '');
-  if (!bearer) return null;
+  if (!bearer) return { ok: false, reason: 'missing_token' };
   try {
     const ctrl = AbortSignal.timeout(5000);
     const meRes = await fetch(`${backend}/v1/users/me`, {
@@ -57,12 +61,16 @@ async function userIdFromRequest(req: NextRequest): Promise<string | null> {
       cache: 'no-store',
       signal: ctrl,
     });
-    if (!meRes.ok) return null;
+    if (meRes.status === 401 || meRes.status === 403) {
+      return { ok: false, reason: 'unauthorized' };
+    }
+    if (!meRes.ok) return { ok: false, reason: 'backend_unreachable' };
     const body = await meRes.json();
     const user = body?.data ?? body;
-    return typeof user?.id === 'string' ? user.id : null;
+    if (typeof user?.id === 'string') return { ok: true, userId: user.id };
+    return { ok: false, reason: 'unauthorized' };
   } catch {
-    return null;
+    return { ok: false, reason: 'backend_unreachable' };
   }
 }
 
@@ -75,6 +83,8 @@ async function fetchBalance(
   equity: number;
   margin: number;
   freeMargin: number;
+  marginLevel: number;
+  credit: number;
   currency: string;
 } | null> {
   try {
@@ -98,12 +108,18 @@ async function fetchBalance(
     const freeMargin = Number(
       d.freeMargin ?? d.free_margin ?? Math.max(0, equity - margin),
     );
+    const marginLevel = Number(
+      d.marginLevel ?? (margin > 0 ? (equity / margin) * 100 : 0),
+    );
+    const credit = Number(d.credit ?? 0);
     if (!Number.isFinite(balance) || !Number.isFinite(equity)) return null;
     return {
       balance,
       equity,
       margin,
       freeMargin,
+      marginLevel,
+      credit,
       currency: d.currency || 'USD',
     };
   } catch {
@@ -119,8 +135,6 @@ export async function GET(req: NextRequest) {
     'https://profytron-api.onrender.com'
   ).replace(/\/$/, '');
 
-  // Prefer Nest (API .env always has DB + MetaAPI). Avoids Overview "No account"
-  // when the Next process is missing DATABASE_URL / AES / METAAPI_TOKEN.
   if (auth.startsWith('Bearer ')) {
     try {
       const nestRes = await fetch(`${backend}/v1/broker/accounts`, {
@@ -134,16 +148,20 @@ export async function GET(req: NextRequest) {
       });
       if (nestRes.ok) {
         const body = await nestRes.json();
-        // Nest already wraps as { success, data, timestamp }.
         return NextResponse.json(body, { status: nestRes.status });
       }
     } catch {
-      /* fall through to direct Neon path */
     }
   }
 
-  const userId = await userIdFromRequest(req);
-  if (!userId) return error('Unauthorized', 401);
+  const authResult = await resolveUserId(req);
+  if (!authResult.ok) {
+    if (authResult.reason === 'backend_unreachable') {
+      return error('API unavailable', 503);
+    }
+    return error('Unauthorized', 401);
+  }
+  const userId = authResult.userId;
 
   const dbUrl = process.env.DATABASE_URL?.trim();
   const aesKey = process.env.AES_MASTER_KEY?.trim();
@@ -161,8 +179,6 @@ export async function GET(req: NextRequest) {
     ORDER BY "connectedAt" DESC
   `;
 
-  // Parallel MetaAPI balance fetches. Always return a usable number when we have
-  // a stored baseline so Overview never flashes ₹0 after login.
   const accounts = await Promise.all(
     rows.map(async (row) => {
       let creds: Record<string, any> = {};
@@ -193,6 +209,8 @@ export async function GET(req: NextRequest) {
       let equity: number | null = null;
       let margin = 0;
       let freeMargin: number | null = null;
+      let marginLevel: number | null = null;
+      let credit = 0;
       let currency = 'USD';
       let liveSynced = false;
       let connectionStatus = storeOnly ? 'CONNECTED' : 'SYNCING';
@@ -210,10 +228,11 @@ export async function GET(req: NextRequest) {
           equity = live.equity;
           margin = live.margin;
           freeMargin = live.freeMargin;
+          marginLevel = live.marginLevel;
+          credit = live.credit;
           currency = live.currency;
           liveSynced = true;
           connectionStatus = 'CONNECTED';
-          // Persist live cache every sync; seed initialEquity only once.
           if (!hasBaseline) {
             void sql`
               UPDATE "BrokerAccount"
@@ -247,7 +266,6 @@ export async function GET(req: NextRequest) {
           connectionStatus = 'SYNCING';
         }
       } else if (storeOnly) {
-        // Bridge / store-only: show stored baseline until EA reports live.
         if (hasBaseline) {
           balance = baseline;
           equity = baseline;
@@ -266,6 +284,8 @@ export async function GET(req: NextRequest) {
         equity,
         margin,
         freeMargin,
+        marginLevel,
+        credit,
         currency,
         liveSynced,
         connectionStatus,

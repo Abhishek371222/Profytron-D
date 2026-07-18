@@ -32,7 +32,6 @@ import { formatBotName } from '@/lib/bot-labels';
 import { toast } from 'sonner';
 import { persistDashboardQuery } from '@/lib/queries/dashboard-cache';
 
-
 const mapRangeToAnalytics = (range: HistoryDateRange): AnalyticsRange => {
  if (range.type === 'custom') return 'all';
  if (range.preset === '30D') return '1m';
@@ -50,7 +49,6 @@ const mapRangeToAnalytics = (range: HistoryDateRange): AnalyticsRange => {
  return value.toFixed(5).replace(/0+$/, '').replace(/\.$/, '');
 };
 
-/** Compact page list without duplicate last-page numbers (e.g. 9 10 10 … 10). */
 function getHistoryPageItems(current: number, total: number): Array<number | 'ellipsis'> {
  if (total <= 1) return [1];
  if (total <= 5) {
@@ -81,7 +79,6 @@ function getHistoryPageItems(current: number, total: number): Array<number | 'el
  items.push(total);
  return items;
 }
-
 
 export default function HistoryPage() {
  const [searchQuery, setSearchQuery] = useState('');
@@ -148,7 +145,6 @@ export default function HistoryPage() {
   staleTime: 60_000,
  });
 
- // Prefer real purchased bot name over generic "Your bot" / CopyFactory leftovers.
  const preferredBotName = useMemo(() => {
   const fromSubs = myBots.find((n) => n && !/^your bot$/i.test(n));
   return fromSubs || myBots[0] || null;
@@ -191,9 +187,6 @@ export default function HistoryPage() {
   return ['All bots', ...purchasedBots];
  }, [purchasedBots]);
 
- // Keep "All bots" as the default so MetaAPI rows are never hidden by a name mismatch.
-
- // Short placeholders on phone so long bot names in (…) don’t clip.
  React.useEffect(() => {
   if (typeof window === 'undefined') return;
   const mq = window.matchMedia('(max-width: 639px)');
@@ -321,13 +314,12 @@ export default function HistoryPage() {
   </div>
  </div>
 
- {/* Filter bar — icon sits beside text (no absolute overlap) */}
+ { }
  <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
   <label
    className={cn(
     'group flex h-11 min-w-0 flex-1 items-center gap-2.5 rounded-xl border border-[var(--card-border)] bg-card px-3.5',
     'transition-[border-color,box-shadow,outline-color]',
-    // Full-control focus ring (icon + field), not the inner input only.
     'focus-within:border-primary/50',
     'focus-within:outline focus-within:outline-2 focus-within:outline-offset-2',
     'focus-within:outline-[color-mix(in_srgb,var(--ring)_70%,transparent)]',
@@ -376,7 +368,7 @@ export default function HistoryPage() {
   />
  </div>
 
- {/* Main Table */}
+ { }
  <div className="dash-table-wrap overflow-hidden">
  <div className="responsive-table-shell">
  <table className="w-full max-md:min-w-[48rem] border-collapse">

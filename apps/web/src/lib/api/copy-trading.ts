@@ -40,7 +40,6 @@ export const copyTradingApi = {
     return unwrapApiResponse<any>(res.data);
   },
 
-  // ─── Copy domain (/v1/copy) ───────────────────────────────────────────────
   async listMasters(limit = 50): Promise<MasterProfile[]> {
     const res = await apiClient.get('/copy/masters', { params: { limit } });
     return unwrapApiResponse<MasterProfile[]>(res.data);

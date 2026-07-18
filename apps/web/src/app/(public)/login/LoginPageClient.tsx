@@ -80,8 +80,6 @@ function LoginPageContent() {
 
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
-  // Capture one-shot URL notices, clear stale client auth, then strip query
-  // params so a browser reload does not keep re-applying expired/idle state.
   React.useEffect(() => {
     const notice = resolveUrlErrorMessage(searchParams);
     const challenge = searchParams.get('twoFaChallenge');
@@ -91,7 +89,6 @@ function LoginPageContent() {
       try {
         sessionStorage.setItem('profytron_force_login', '1');
       } catch {
-        /* ignore */
       }
       clearAuth();
     }
@@ -135,10 +132,6 @@ function LoginPageContent() {
       const { accessToken, user } = response as { accessToken: string; user: any };
       const dest = resolvePostLoginRedirect(user, redirectTo);
       login(accessToken, user);
-      // Hard navigation: the refresh_token cookie was just set on this
-      // response, and a soft router.replace() can serve a stale (pre-login)
-      // middleware/router-cache result for the destination route before the
-      // cookie is visible to it. A full navigation always re-checks fresh.
       window.location.href = dest;
     } catch (error: unknown) {
       const payload =
@@ -282,6 +275,16 @@ function LoginPageContent() {
             </div>
 
             <div className="p-7 sm:p-10 lg:p-12 [color-scheme:light]">
+              <motion.div variants={itemVariants} className="mb-6 lg:hidden">
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 rounded-button border border-border bg-foreground/5 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75 transition-colors hover:text-foreground"
+                >
+                  <ArrowLeft className="h-4 w-4" aria-hidden />
+                  Back
+                </Link>
+              </motion.div>
+
               <motion.div variants={itemVariants} className="mb-8">
                 <BrandLogo size="xl" className="mb-6" />
                 <h1 className="brand-display-heading text-3xl sm:text-4xl">

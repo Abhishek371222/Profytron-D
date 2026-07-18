@@ -15,7 +15,6 @@ export interface WalletTransaction {
   direction: 'IN' | 'OUT';
   amount: number;
   balanceAfter: number;
-  /** Canonical unique support ID: PRF-WLT-YYYYMMDD-XXXXXXXX */
   billingId: string;
   paymentCategory?: string | null;
   senderAddress?: string | null;

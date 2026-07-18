@@ -4,9 +4,6 @@ import { CryptoService } from '../src/common/crypto.service';
 const prisma = new PrismaClient();
 const cryptoService = new CryptoService();
 
-/** Read-only report: broker accounts showing balance/equity data despite having
- * no genuine MetaApi link, bridge connection, or intentional master_only mode.
- * Paper/demo accounts are excluded — their simulated balance is by design. */
 async function main() {
   const accounts = await prisma.brokerAccount.findMany({
     where: { isActive: true },

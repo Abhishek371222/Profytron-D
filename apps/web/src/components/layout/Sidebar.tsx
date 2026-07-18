@@ -99,7 +99,6 @@ function isItemActive(pathname: string | null, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** Anchors used by the guided product tour (see lib/tours/mainTour.ts) to spotlight nav items. */
 const TOUR_ANCHORS: Record<string, string> = {
   "/connected-accounts": "nav-connected-accounts",
   "/wallet": "nav-wallet",
@@ -143,7 +142,6 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
 
   const handleBrandClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    // Collapsed rail: clicking the mark re-expands the sidebar instead of navigating away.
     if (!expanded && !mobile) {
       toggleSidebar();
       return;
@@ -176,7 +174,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
       suppressHydrationWarning
     >
       <div className="sidebar-panel flex flex-col h-full min-h-0 overflow-hidden">
-        {/* Brand header */}
+        { }
         <div className="sidebar-panel-header">
           <Link
             href="/"
@@ -184,11 +182,9 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
             className={cn(
               "relative flex w-full items-center transition-colors duration-200",
               expanded
-                ? // Logo/text lockup centers in the space left of the collapse
-                  // button (flex-1 below), so it never sits off vertically —
-                  // both stay in normal flow and share the same items-center row.
+                ?
                   "min-h-[clamp(6.5rem,7.5vw,7.25rem)] py-1 px-[calc(var(--sidebar-pad)*0.65)] hover:opacity-90"
-                : // Collapsed: shorter box sized to the small icon; whole rail is an "expand sidebar" hit target.
+                :
                   "min-h-[clamp(4.25rem,5vw,4.75rem)] py-1 justify-center px-2 rounded-xl hover:bg-[color-mix(in_srgb,var(--muted)_45%,transparent)]",
             )}
             aria-label={expanded ? "Profytron Home" : "Expand sidebar"}
@@ -223,9 +219,6 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
               <button
                 type="button"
                 onClick={(e) => {
-                  // Must stop propagation — this button lives inside the brand
-                  // <Link>, and without this the click bubbles up to it and
-                  // navigates home right after toggling the sidebar.
                   e.preventDefault();
                   e.stopPropagation();
                   toggleSidebar();
@@ -239,7 +232,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
           </Link>
         </div>
 
-        {/* Navigation */}
+        { }
         <nav aria-label="Main navigation" className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar px-[calc(var(--sidebar-pad)*0.65)] py-3">
           <div className={cn("space-y-[clamp(1rem,1.2vw,1.25rem)]", !expanded && "space-y-2")}>
             {navGroups.map((group) => (
@@ -298,7 +291,7 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
           </div>
         </nav>
 
-        {/* Profile + collapse — same inset as nav so edges align */}
+        { }
         <div className="shrink-0 px-[calc(var(--sidebar-pad)*0.65)] py-[calc(var(--sidebar-pad)*0.75)] flex flex-col gap-2">
           {user && expanded && (
             <DropdownMenu>

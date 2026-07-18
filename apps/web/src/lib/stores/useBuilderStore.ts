@@ -31,7 +31,6 @@ interface BuilderState {
  strategyName: string;
  isSaving: boolean;
  
- // Actions
  onNodesChange: OnNodesChange;
  onEdgesChange: OnEdgesChange;
  onConnect: OnConnect;
@@ -41,12 +40,10 @@ interface BuilderState {
  updateNodeParams: (id: string, params: Record<string, unknown>) => void;
  setStrategyName: (name: string) => void;
  
- // History Actions
  pushToHistory: () => void;
  undo: () => void;
  redo: () => void;
  
- // Complex Actions
  addNodeFromPalette: (type: string, data: NodeData, position: { x: number; y: number }) => void;
  loadTemplate: (nodes: Node<NodeData>[], edges: Edge[]) => void;
 }
@@ -101,7 +98,6 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
  const newHistory = history.slice(0, historyIndex + 1);
  newHistory.push({ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) });
  
- // Limit history to 20 states
  if (newHistory.length > 20) newHistory.shift();
  
  set({ 

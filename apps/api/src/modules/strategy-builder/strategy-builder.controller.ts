@@ -38,8 +38,6 @@ export class StrategyBuilderController {
     private readonly strategiesService: StrategiesService,
   ) {}
 
-  // ── CRUD ────────────────────────────────────────────────────────────────────
-
   @Post()
   create(@Req() req: RequestWithUser, @Body() dto: CreateBuilderStrategyDto) {
     return this.builderService.createStrategy(
@@ -65,8 +63,6 @@ export class StrategyBuilderController {
     return this.builderService.deleteStrategy(id);
   }
 
-  // ── Nodes ───────────────────────────────────────────────────────────────────
-
   @Post(':id/nodes')
   addNode(@Param('id') id: string, @Body() dto: AddNodeDto) {
     return this.builderService.addNode(
@@ -88,8 +84,6 @@ export class StrategyBuilderController {
     return this.builderService.removeNode(nodeId);
   }
 
-  // ── Edges ───────────────────────────────────────────────────────────────────
-
   @Post(':id/edges')
   addEdge(@Param('id') id: string, @Body() dto: AddEdgeDto) {
     return this.builderService.addEdge(id, dto.fromNodeId, dto.toNodeId);
@@ -100,8 +94,6 @@ export class StrategyBuilderController {
     return this.builderService.removeEdge(edgeId);
   }
 
-  // ── Compile ──────────────────────────────────────────────────────────────────
-
   @Post(':id/compile')
   async compile(@Param('id') id: string) {
     const builder = await this.builderService.getStrategy(id);
@@ -111,8 +103,6 @@ export class StrategyBuilderController {
       builder.edges as any[],
     );
   }
-
-  // ── Backtest ─────────────────────────────────────────────────────────────────
 
   @Post(':id/backtest')
   async backtest(@Param('id') id: string, @Body() dto: RunBuilderBacktestDto) {
@@ -126,8 +116,6 @@ export class StrategyBuilderController {
       dto.initialCapital ?? 10_000,
     );
   }
-
-  // ── Codegen ───────────────────────────────────────────────────────────────────
 
   @Get(':id/codegen')
   async codegen(@Param('id') id: string, @Query() query: CodegenQueryDto) {
@@ -144,8 +132,6 @@ export class StrategyBuilderController {
         : this.backtestService.generatePineScript(definition);
     return { format, code };
   }
-
-  // ── Publish ───────────────────────────────────────────────────────────────────
 
   @Post(':id/publish')
   async publish(@Req() req: RequestWithUser, @Param('id') id: string) {

@@ -15,12 +15,6 @@ import type { SetSizingDto, UpsertMasterProfileDto } from './dto/copy.dto';
 
 const DEFAULT_BASE_EQUITY = 10_000;
 
-/**
- * Owns the first-class copy-trading data model (MasterProfile / CopyRelationship).
- * Reconciles them from the existing Strategy + UserStrategySubscription flow and
- * exposes read/write APIs. The per-follower sizing config written here is what
- * the lot-sizing engine in TradeProcessor reads (via executionProfileJson).
- */
 @Injectable()
 export class CopyTradingService implements OnModuleInit {
   private readonly logger = new Logger(CopyTradingService.name);
@@ -28,8 +22,6 @@ export class CopyTradingService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
-    // One-shot backfill on boot so the new tables are populated from existing
-    // masters/subscriptions. Best-effort: never block startup.
     try {
       await this.backfillAll();
     } catch (err) {
@@ -38,8 +30,6 @@ export class CopyTradingService implements OnModuleInit {
       );
     }
   }
-
-  // ─── Backfill / reconcile ──────────────────────────────────────────────────
 
   @Cron(CronExpression.EVERY_30_MINUTES)
   async reconcile() {
@@ -59,7 +49,6 @@ export class CopyTradingService implements OnModuleInit {
     return { masters, relationships };
   }
 
-  /** Upsert a MasterProfile for every master-source broker account + recompute stats. */
   async syncMasterProfiles(): Promise<number> {
     const masterAccounts = await this.prisma.brokerAccount.findMany({
       where: { isMasterSource: true },
@@ -70,7 +59,6 @@ export class CopyTradingService implements OnModuleInit {
     const accountIds = masterAccounts.map((a) => a.id);
     const userIds = masterAccounts.map((a) => a.userId);
 
-    // Batch: closed trades for every master account in one query, grouped in JS.
     const allTrades = await this.prisma.trade.findMany({
       where: { brokerAccountId: { in: accountIds }, status: 'CLOSED' },
       orderBy: { closedAt: 'asc' },
@@ -84,7 +72,6 @@ export class CopyTradingService implements OnModuleInit {
       profitsByAccount.set(t.brokerAccountId, arr);
     }
 
-    // Batch: follower counts, resolved through strategy -> masterBrokerAccountId.
     const strategies = await this.prisma.strategy.findMany({
       where: { masterBrokerAccountId: { in: accountIds } },
       select: { id: true, masterBrokerAccountId: true },
@@ -113,7 +100,6 @@ export class CopyTradingService implements OnModuleInit {
       );
     }
 
-    // Batch: fallback display names.
     const users = await this.prisma.user.findMany({
       where: { id: { in: userIds } },
       select: { id: true, fullName: true, username: true },
@@ -151,7 +137,6 @@ export class CopyTradingService implements OnModuleInit {
     return count;
   }
 
-  /** Upsert a CopyRelationship for every active copy subscription. */
   async syncCopyRelationships(): Promise<number> {
     const subs = await this.prisma.userStrategySubscription.findMany({
       where: {
@@ -172,8 +157,6 @@ export class CopyTradingService implements OnModuleInit {
       },
     });
 
-    // Batch: master profiles for every distinct master referenced by these
-    // subscriptions, resolved once instead of per-subscription.
     const masterUserIds = [
       ...new Set(
         subs
@@ -238,8 +221,6 @@ export class CopyTradingService implements OnModuleInit {
     return count;
   }
 
-  /** Pure stats computation over a pre-fetched profit list (no DB access) so
-   * callers can batch-fetch trades for many accounts in one query. */
   private computeMasterStatsFromProfits(profits: number[], baseEquity: number) {
     if (profits.length === 0) {
       return { roiPct: 0, winRate: 0, maxDrawdownPct: 0, sharpeRatio: 0 };
@@ -250,7 +231,6 @@ export class CopyTradingService implements OnModuleInit {
     const winRate = (wins / profits.length) * 100;
     const roiPct = baseEquity > 0 ? (totalProfit / baseEquity) * 100 : 0;
 
-    // Max drawdown from running equity.
     let peak = baseEquity;
     let running = baseEquity;
     let maxDd = 0;
@@ -261,7 +241,6 @@ export class CopyTradingService implements OnModuleInit {
       maxDd = Math.max(maxDd, dd);
     }
 
-    // Simplified Sharpe: mean / stddev of per-trade returns.
     const mean = totalProfit / profits.length;
     const variance =
       profits.reduce((s, p) => s + (p - mean) ** 2, 0) / profits.length;
@@ -281,8 +260,6 @@ export class CopyTradingService implements OnModuleInit {
     if (value === 'EQUITY_RATIO') return CopySizingMode.EQUITY_RATIO;
     return CopySizingMode.MULTIPLIER;
   }
-
-  // ─── Master profile API ────────────────────────────────────────────────────
 
   async listPublicMasters(limit = 50) {
     return this.prisma.masterProfile.findMany({
@@ -332,8 +309,6 @@ export class CopyTradingService implements OnModuleInit {
     });
   }
 
-  // ─── Relationships / per-follower sizing ───────────────────────────────────
-
   async getMyRelationships(userId: string) {
     return this.prisma.copyRelationship.findMany({
       where: { followerUserId: userId },
@@ -346,11 +321,6 @@ export class CopyTradingService implements OnModuleInit {
     });
   }
 
-  /**
-   * Set a follower's sizing method. Writes both the canonical CopyRelationship
-   * and the subscription's executionProfileJson + lotMultiplier, which is what
-   * the execution worker reads when sizing each copied trade.
-   */
   async setSizing(userId: string, subscriptionId: string, dto: SetSizingDto) {
     const sub = await this.prisma.userStrategySubscription.findFirst({
       where: { id: subscriptionId, userId },
@@ -387,7 +357,6 @@ export class CopyTradingService implements OnModuleInit {
       select: { id: true, lotMultiplier: true, executionProfileJson: true },
     });
 
-    // Mirror into CopyRelationship when a master profile exists.
     const masterUserId = sub.strategy?.masterBrokerAccount?.userId;
     if (masterUserId) {
       const masterProfile = await this.prisma.masterProfile.findUnique({

@@ -19,6 +19,6 @@ export function useCurrentUser() {
       }
     },
     enabled: sessionReady,
-    staleTime: 5 * 60 * 1000, // 5 minutes cache
+    staleTime: 5 * 60 * 1000,
   });
 }

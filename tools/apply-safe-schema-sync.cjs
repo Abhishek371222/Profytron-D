@@ -1,7 +1,3 @@
-/**
- * Applies Profytron schema additively — never drops legacy tables.
- * Run: pnpm db:sync
- */
 const fs = require('fs');
 const path = require('path');
 const { createRequire } = require('module');

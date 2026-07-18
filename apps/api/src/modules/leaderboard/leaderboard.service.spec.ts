@@ -295,7 +295,6 @@ describe('LeaderboardService', () => {
           where: { isPublished: true, isVerified: true, deletedAt: null },
         }),
       );
-      // Must not pre-limit by revenue in the query
       const findArgs = prisma.strategy.findMany.mock.calls[0][0];
       expect(findArgs.take).toBeUndefined();
       expect(findArgs.orderBy).toBeUndefined();

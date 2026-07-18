@@ -1,7 +1,6 @@
 import type * as THREE from 'three';
 import { BRAND_COLORS, NIGHT_LIGHT_INTENSITY } from './constants';
 
-/** Night city lights — warm amber, only on the dark hemisphere. */
 export function createNightLightsMaterial(
   THREE: typeof import('three'),
   nightMap: THREE.Texture,
@@ -45,7 +44,6 @@ export function createNightLightsMaterial(
   });
 }
 
-/** Soft atmospheric rim on the sphere — complements CSS atmosphere, does not replace it. */
 export function createAtmosphereRimMaterial(THREE: typeof import('three'), isDark: boolean) {
   const secondary = new THREE.Color(BRAND_COLORS.secondary);
   return new THREE.ShaderMaterial({

@@ -70,7 +70,6 @@ export class PaymentsService {
         : null;
   }
 
-  /** Local dev only — RAZORPAY_KEY_ID=DEMO_KEY skips the live Razorpay API. */
   private isRazorpayDemoMode(): boolean {
     return (
       process.env.NODE_ENV !== 'production' &&
@@ -116,14 +115,6 @@ export class PaymentsService {
     return equity;
   }
 
-  // ── Razorpay Standard Checkout ─────────────────────────────────────────────
-
-  /**
-   * Create a Razorpay order for the given user. `amount` is in paise (minimum
-   * 100 = ₹1). The order id is returned to the browser so it can open the
-   * Razorpay Checkout modal; no money moves until the payment is captured and
-   * its signature verified server-side via verifyRazorpayPayment().
-   */
   async createRazorpayOrder(
     userId: string,
     amount: number,
@@ -169,7 +160,6 @@ export class PaymentsService {
       const order = await this.razorpay.orders.create({
         amount,
         currency,
-        // Razorpay caps receipt at 40 chars; keep it short (userId is in notes).
         receipt: (receipt || `wlt_${Date.now()}`).slice(0, 40),
         notes: { userId, ...(extraNotes ?? {}) },
       });
@@ -198,10 +188,6 @@ export class PaymentsService {
     }
   }
 
-  /**
-   * Complete a demo Razorpay order in local development (RAZORPAY_KEY_ID=DEMO_KEY).
-   * Credits the wallet without opening the Razorpay checkout modal.
-   */
   async completeDemoRazorpayOrder(userId: string, orderId: string) {
     if (!this.isRazorpayDemoMode()) {
       throw new BadRequestException(
@@ -337,15 +323,6 @@ export class PaymentsService {
     };
   }
 
-  /**
-   * Verify a completed Razorpay Checkout payment.
-   *
-   * Razorpay signs `${order_id}|${payment_id}` with HMAC-SHA256 using the key
-   * secret. We recompute it and compare in constant time. Only on a match do we
-   * fetch the authoritative paid amount from Razorpay (never trusting the
-   * client) and credit the user's wallet — idempotently, using the same key the
-   * webhook uses so a payment can't be double-credited.
-   */
   async verifyRazorpayPayment(
     userId: string,
     payload: {
@@ -386,8 +363,6 @@ export class PaymentsService {
       throw new BadRequestException('Payment signature verification failed.');
     }
 
-    // Signature is valid — pull the authoritative amount from Razorpay so the
-    // credited value can't be tampered with on the client.
     const order = await this.razorpay.orders.fetch(razorpay_order_id);
     const orderNotes = (order.notes ?? {}) as Record<string, string>;
     const orderUserId = orderNotes.userId;
@@ -483,7 +458,6 @@ export class PaymentsService {
       sendPush: true,
     });
 
-    // Send payment confirmation email (fire-and-forget)
     void this.prisma.user
       .findUnique({
         where: { id: creditUserId },
@@ -693,11 +667,6 @@ export class PaymentsService {
     const refundEntity = payload?.payload?.refund?.entity;
     const subscriptionEntity = payload?.payload?.subscription?.entity;
 
-    // Event-level idempotency: Razorpay retries webhook deliveries and the same
-    // payment also arrives via the client `verify` call. Lock on the stable
-    // (eventType + entityId) pair so concurrent/duplicate deliveries no-op
-    // (mirrors the Stripe handler). Downstream writes are also idempotent, but
-    // this prevents wasteful double-processing and races.
     const entityId =
       paymentEntity?.id ?? refundEntity?.id ?? subscriptionEntity?.id;
     if (eventType && entityId) {
@@ -797,7 +766,6 @@ export class PaymentsService {
         `Razorpay payment failed for user ${userId}, payment ${paymentEntity.id}`,
       );
 
-      // If tied to a strategy subscription, mark it inactive and unlink CF
       if (strategyId) {
         const failedSubs = await this.prisma.userStrategySubscription.findMany({
           where: { userId, strategyId, status: 'ACTIVE' },
@@ -1217,10 +1185,6 @@ export class PaymentsService {
     metadata: Record<string, unknown>,
     idempotencyKey: string,
   ) {
-    // Atomic, per-user serialized credit/debit. The advisory lock + ledger
-    // recompute + insert all run inside one DB transaction so concurrent wallet
-    // writes can't lost-update the balance. The unique `idempotencyKey` is the
-    // ultimate double-credit guard (a duplicate insert rolls the txn back).
     try {
       const transaction = await this.prisma.$transaction(async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
@@ -1251,10 +1215,6 @@ export class PaymentsService {
             ? currentBalance + normalizedAmount
             : currentBalance - normalizedAmount;
 
-        // A refund/clawback (OUT) can legitimately drive the wallet negative if
-        // the user already spent the funds — that's correct accounting (they
-        // owe the platform). But it must never happen silently: flag it so ops
-        // can reconcile/recover instead of it disappearing into the ledger.
         if (direction === 'OUT' && balanceAfter < 0) {
           this.logger.warn(
             `Wallet clawback drove user ${userId} negative: balance ${currentBalance} -> ${balanceAfter} (${type}, key ${idempotencyKey}). Manual reconciliation required.`,
@@ -1290,8 +1250,6 @@ export class PaymentsService {
       }
       return transaction;
     } catch (e: any) {
-      // Concurrent duplicate for the same idempotency key — return the row that
-      // the other writer committed instead of surfacing a 500 to the webhook.
       if (e?.code === 'P2002') {
         const existing = await this.prisma.walletTransaction.findUnique({
           where: { idempotencyKey },
@@ -1342,7 +1300,6 @@ export class PaymentsService {
     }
   }
 
-  // NEW METHODS FOR PAYMENT MODELS
   async createPaymentRecord(
     userId: string,
     amount: number,
@@ -1429,9 +1386,6 @@ export class PaymentsService {
 
   async getCurrentSubscription(userId: string) {
     const sub = await this.prisma.userSubscription.findFirst({
-      // Defensive: only treat as current if the period hasn't lapsed, in case
-      // the expiry cron hasn't run yet. Avoids showing a paid plan as ACTIVE
-      // past its expiry.
       where: { userId, status: 'ACTIVE', expiresAt: { gt: new Date() } },
       include: { plan: true },
       orderBy: { subscribedAt: 'desc' },
@@ -1451,13 +1405,6 @@ export class PaymentsService {
     };
   }
 
-  /**
-   * Platform plans renew via manual re-checkout each cycle (no live Razorpay
-   * recurring subscription to call out to), so "cancel" just stops that
-   * intent — access is kept until `expiresAt`, where the existing
-   * expirePlatformSubscriptions cron (subscription-cleanup.service.ts)
-   * naturally downgrades the user to FREE.
-   */
   async cancelSubscription(userId: string) {
     const sub = await this.prisma.userSubscription.findFirst({
       where: { userId, status: SubscriptionStatus.ACTIVE },
@@ -1527,10 +1474,6 @@ export class PaymentsService {
     });
     if (!plan) return;
 
-    // Idempotency: the same Razorpay payment can arrive via both the client
-    // `verify` call and the `payment.captured` webhook. `Payment.razorpayPaymentId`
-    // is unique, so a second pass would throw P2002 (uncaught → 500 → Razorpay
-    // retries forever). Short-circuit if we've already recorded this payment.
     const alreadyRecorded = await this.prisma.payment.findFirst({
       where: { razorpayPaymentId: paymentRef },
       select: { id: true },
@@ -1545,10 +1488,6 @@ export class PaymentsService {
       (s) => s.planId !== planId && s.plan.monthlyPrice < plan.monthlyPrice,
     );
 
-    // `razorpayPaymentId` is unique. The verify call and the webhook can both
-    // clear the `alreadyRecorded` read above and then race on insert; the loser
-    // hits P2002. Treat that as "already processed" instead of bubbling a 500
-    // (which would make Razorpay retry forever).
     let payment: { id: string };
     try {
       payment = await this.prisma.payment.create({
@@ -1574,9 +1513,6 @@ export class PaymentsService {
       throw err;
     }
 
-    // Issue a tax invoice for the platform purchase. Best-effort: a billing
-    // record must never block subscription activation. paymentId is unique, so
-    // this is naturally idempotent across verify/webhook replays.
     try {
       await this.generateInvoice(payment.id);
     } catch (err) {

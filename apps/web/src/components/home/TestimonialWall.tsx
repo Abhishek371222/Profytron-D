@@ -5,12 +5,6 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { BadgeCheck, ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/* ─────────────────────────────────────────────────────────────
-   Data — factual content preserved from the original section.
-   Stable string IDs are added so duplicated marquee copies can
-   use collision-free React keys.
-───────────────────────────────────────────────────────────── */
-
 export type BadgeTone = "violet" | "emerald" | "rose" | "blue" | "amber";
 
 export type Testimonial = {
@@ -134,7 +128,6 @@ const badgeStyles: Record<BadgeTone, string> = {
   amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
 };
 
-/** Initials for a restrained, non-photographic identity mark. */
 function initials(name: string): string {
   return name
     .split(" ")
@@ -142,12 +135,6 @@ function initials(name: string): string {
     .map((part) => part[0])
     .join("");
 }
-
-/* ─────────────────────────────────────────────────────────────
-   Compact card — subordinate to the focused card. Only one or two
-   credibility indicators, varied by position so the wall doesn't
-   read as ten identical templates.
-───────────────────────────────────────────────────────────── */
 
 type CompactTreatment = "metric" | "verified" | "rating";
 
@@ -202,8 +189,6 @@ function CompactCard({
   return (
     <button
       type="button"
-      // Duplicated visual copies live inside an aria-hidden track, so
-      // these are pointer-only shortcuts and must stay out of the tab order.
       tabIndex={-1}
       onClick={onSelect}
       className={cn(
@@ -238,13 +223,6 @@ function CompactCard({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Marquee row — one seamless, transform-driven loop. Structure
-   mirrors the shared saasfly Marquee (proven seamless) but adds
-   state-driven pause and interactive cards. The whole row is
-   decorative for assistive tech; the focused card is authoritative.
-───────────────────────────────────────────────────────────── */
-
 function MarqueeRow({
   items,
   reverse,
@@ -269,9 +247,6 @@ function MarqueeRow({
       {Array.from({ length: repeat }).map((_, copy) => (
         <div
           key={copy}
-          // Pause is driven entirely by CSS (no React re-render) so pointer
-          // interaction never competes with a state update — hovering the wall
-          // or focusing a control halts both rows.
           className="animate-marquee flex shrink-0 flex-row [gap:var(--gap)] group-hover/wall:[animation-play-state:paused] group-focus-within/wall:[animation-play-state:paused]"
           style={{ animationDirection: reverse ? "reverse" : "normal" }}
         >
@@ -289,11 +264,6 @@ function MarqueeRow({
     </div>
   );
 }
-
-/* ─────────────────────────────────────────────────────────────
-   Focused card — the enlarged, authoritative testimonial with the
-   full hierarchy plus prev/next controls and a position indicator.
-───────────────────────────────────────────────────────────── */
 
 function FocusedCard({
   activeIndex,
@@ -317,7 +287,7 @@ function FocusedCard({
   return (
     <div className="relative mx-auto w-full max-w-[720px]">
       <div className="relative overflow-hidden rounded-[22px] border border-primary/25 bg-[color-mix(in_srgb,var(--primary)_4%,var(--card))] p-6 shadow-[var(--shadow-card-hover)] sm:p-7">
-        {/* Restrained teal wash for the active surface */}
+        { }
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(120%_100%_at_50%_0%,color-mix(in_srgb,var(--primary)_12%,transparent),transparent)]"
@@ -339,8 +309,7 @@ function FocusedCard({
             </span>
           </div>
 
-          {/* aria-live announces the active testimonial without flooding
-              SRs with the duplicated marquee copies. */}
+          { }
           <div className="flex flex-1 flex-col" aria-live="polite">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -371,7 +340,7 @@ function FocusedCard({
             </AnimatePresence>
           </div>
 
-          {/* Controls + position indicator */}
+          { }
           <div className="mt-6 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <button type="button" onClick={onPrev} className={controlClass} aria-label="Previous testimonial">
@@ -404,11 +373,6 @@ function FocusedCard({
     </div>
   );
 }
-
-/* ─────────────────────────────────────────────────────────────
-   Mobile / tablet — deliberate manual scroll-snap carousel. No
-   autoplay, no continuously moving rows.
-───────────────────────────────────────────────────────────── */
 
 function MobileCarousel({
   activeIndex,
@@ -528,11 +492,6 @@ function MobileCarousel({
   );
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Wall — orchestrates state, pause behaviour, and responsive /
-   reduced-motion branches.
-───────────────────────────────────────────────────────────── */
-
 export function TestimonialWall({ headingId }: { headingId?: string }) {
   const reduceMotion = useReducedMotion() ?? false;
   const total = testimonials.length;
@@ -562,7 +521,7 @@ export function TestimonialWall({ headingId }: { headingId?: string }) {
 
   return (
     <div aria-labelledby={headingId}>
-      {/* Desktop wall (≥ lg): two opposing rows + focused card */}
+      { }
       {reduceMotion ? (
         <div className="hidden lg:block">
           <FocusedCard
@@ -572,7 +531,7 @@ export function TestimonialWall({ headingId }: { headingId?: string }) {
             onNext={goNext}
             reduceMotion
           />
-          {/* Static, subordinate set — no marquee under reduced motion */}
+          { }
           <div className="mt-6 grid grid-cols-2 gap-4 xl:grid-cols-3">
             {testimonials.map((t, index) => (
               <CompactCard
@@ -613,7 +572,7 @@ export function TestimonialWall({ headingId }: { headingId?: string }) {
         </div>
       )}
 
-      {/* Mobile / tablet (< lg): manual scroll-snap carousel */}
+      { }
       <div className="lg:hidden">
         <MobileCarousel activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
       </div>

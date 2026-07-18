@@ -143,8 +143,6 @@ export class StrategiesService {
     } as const;
 
     if (performanceSortFields.has(requestedSortBy)) {
-      // Include ALL published strategies — bots with no performance yet must still
-      // appear (sorted as 0). Counting only StrategyPerformance rows hid new bots.
       const perfField = requestedSortBy as
         | 'winRate'
         | 'sharpeRatio'
@@ -223,7 +221,7 @@ export class StrategiesService {
         ...s,
         isSubscribed: (s.subscriptions?.length ?? 0) > 0,
         latestPerformance: s.performance[0] || null,
-        performance: undefined, // Hide performance array in summary
+        performance: undefined,
         subscriptions: undefined,
       })),
       total,
@@ -265,17 +263,12 @@ export class StrategiesService {
     if (!strategy || strategy.deletedAt)
       throw new NotFoundException('Strategy not found');
 
-    // Ownership gate: unpublished strategies (and their configJson) must only be
-    // visible to their creator. The route is public, so without this check any
-    // user could read private strategy logic by guessing/iterating IDs.
     if (!strategy.isPublished && strategy.creatorId !== userId) {
       throw new NotFoundException('Strategy not found');
     }
 
-    // Calculate Monthly Returns
     const monthlyReturns = this.calculateMonthlyReturns(strategy.performance);
 
-    // Format Equity Curve (Last 365 Days)
     const equityCurve = strategy.performance.map((p) => ({
       date: p.date,
       value: p.netPnl,
@@ -291,13 +284,12 @@ export class StrategiesService {
   }
 
   async create(creatorId: string, dto: CreateStrategyDto) {
-    // Validate role/tier (Simplified for now)
     const user = await this.prisma.user.findUnique({
       where: { id: creatorId },
+      select: { role: true, subscriptionTier: true },
     });
     if (!user) throw new NotFoundException('User identity not found');
 
-    // Enforce the plan's strategy quota server-side (admins are exempt).
     if (user.role === UserRole.USER) {
       const { maxStrategies } = getTierLimits(user.subscriptionTier);
       const ownedCount = await this.prisma.strategy.count({
@@ -380,7 +372,6 @@ export class StrategiesService {
 
     const data: any = { ...dto };
 
-    // If config changes and it was verified, drop verification
     if (dto.configJson && strategy.isVerified) {
       data.isVerified = false;
       data.verificationStatus = VerificationStatus.PENDING;
@@ -427,7 +418,6 @@ export class StrategiesService {
       where: { userId_strategyId: { userId, strategyId } },
     });
 
-    // Prefer explicit broker; otherwise attach the user's default live MT5/MT4.
     let brokerAccountId = dto.brokerAccountId ?? null;
     if (!brokerAccountId && !dto.isPaperTrading) {
       const live = await findActiveLiveBroker(this.prisma, userId);
@@ -545,11 +535,6 @@ export class StrategiesService {
     return `subscription:autorenew:${userId}:${strategyId}`;
   }
 
-  /**
-   * Auto-renew is stored in Redis rather than Postgres — see the comment on
-   * getMyStrategies() for why. No TTL: this is a durable user preference,
-   * not a cache entry, so it should not silently expire back to the default.
-   */
   async setAutoRenew(strategyId: string, userId: string, autoRenew: boolean) {
     const sub = await this.prisma.userStrategySubscription.findUnique({
       where: { userId_strategyId: { userId, strategyId } },
@@ -569,7 +554,6 @@ export class StrategiesService {
   }
 
   async getMyStrategies(userId: string) {
-    // Heal existing users: if they have MT5 but bots still show "No broker linked".
     const defaultBroker = await findAnyActiveBroker(this.prisma, userId);
     if (defaultBroker) {
       await linkOrphanStrategySubscriptions(
@@ -637,8 +621,6 @@ export class StrategiesService {
       pnlByStrategy.set(t.strategyId, row);
     }
 
-    // autoRenew lives in Redis, not Postgres — see setAutoRenew(). Missing
-    // key means nobody has ever toggled it, which defaults to true.
     const autoRenewFlags = await Promise.all(
       subs.map((s) => this.redis.get(this.autoRenewKey(userId, s.strategyId))),
     );
@@ -650,7 +632,6 @@ export class StrategiesService {
         wins: 0,
         closed: 0,
       };
-      // Real follower PnL in account currency — never catalog/seed marketing %.
       const currentPnlUsd = Number(stats.net.toFixed(2));
       const equityBase = Number(s.brokerAccount?.initialEquity ?? 0);
       const currentPnlPct =
@@ -679,12 +660,10 @@ export class StrategiesService {
         profitShareAccruedUnsettled: s.profitShareAccruedUnsettled,
         subscribedAt: s.subscribedAt,
         expiresAt: renewalDate,
-        // Card P&L: USD from this user's trades on this bot (0 if none yet).
         currentPnl: currentPnlUsd,
         currentPnlPct,
         pnlUnit: 'usd' as const,
         latestPnl: currentPnlUsd,
-        // Canonical broker object (My Bots)
         brokerAccount: s.brokerAccount
           ? {
               id: s.brokerAccount.id,
@@ -694,7 +673,6 @@ export class StrategiesService {
               isPaper: s.brokerAccount.isPaperTrading,
             }
           : null,
-        // Billing "Upcoming Renewals" aliases
         monthlyFee: s.strategy.monthlyPrice ?? 0,
         renewsAt: renewalDate,
         nextBillingDate: renewalDate,
@@ -704,7 +682,6 @@ export class StrategiesService {
           totalReturn: currentPnlPct,
           netPnl: currentPnlUsd,
         },
-        // Subscriptions page nested shape
         subscription: {
           id: s.id,
           status: s.status,
@@ -717,7 +694,6 @@ export class StrategiesService {
           autoRenew,
           brokerAccount: brokerLabel,
         },
-        // Connected-accounts "linked bots" aliases
         botName: s.strategy.name,
         brokerName: s.brokerAccount?.brokerName ?? null,
         accountNumber: s.brokerAccount?.accountNumberLast4 ?? null,
@@ -822,7 +798,6 @@ export class StrategiesService {
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
-    // Use local engine by default; fall back to external service only when explicitly configured
     if (
       !process.env.BACKTEST_SERVICE_URL ||
       process.env.BACKTEST_USE_LOCAL === 'true'
@@ -1033,10 +1008,6 @@ export class StrategiesService {
     return payload;
   }
 
-  /**
-   * Submit bot for Profytron 1-week real-market review.
-   * Stays private (isPublished=false) until verified + creator publishes live.
-   */
   async publish(id: string, userId: string) {
     const strategy = await this.prisma.strategy.findUnique({ where: { id } });
     if (!strategy || strategy.creatorId !== userId)
@@ -1070,10 +1041,6 @@ export class StrategiesService {
     });
   }
 
-  /**
-   * After team approval, creator publishes the bot to the public marketplace.
-   * Also activates it for the creator under My Bots / Active bots.
-   */
   async publishLive(id: string, userId: string) {
     const strategy = await this.prisma.strategy.findUnique({ where: { id } });
     if (!strategy || strategy.creatorId !== userId)
@@ -1121,13 +1088,11 @@ export class StrategiesService {
         },
       });
 
-      // Make uploaded assets visible on the public bot page
       await tx.strategyDocument.updateMany({
         where: { strategyId: id },
         data: { isPublished: true },
       });
 
-      // Baseline performance so the bot appears in win-rate / sharpe sorts
       await tx.strategyPerformance.upsert({
         where: { strategyId_date: { strategyId: id, date: today } },
         create: {
@@ -1146,7 +1111,6 @@ export class StrategiesService {
         update: {},
       });
 
-      // Creator gets an active subscription so it shows under My Bots / Active bots
       const creatorBroker = await tx.brokerAccount.findFirst({
         where: {
           userId,
@@ -1177,7 +1141,6 @@ export class StrategiesService {
       });
     });
 
-    // Bust listing / strategy caches so the new bot shows immediately
     await Promise.all([
       this.redis.del('cache:mkt:featured'),
       this.redis.delPrefix('cache:mkt:listings:'),
@@ -1196,7 +1159,7 @@ export class StrategiesService {
   private calculateMonthlyReturns(performance: any[]) {
     const returns: Record<string, number> = {};
     performance.forEach((p) => {
-      const monthKey = p.date.toISOString().slice(0, 7); // YYYY-MM
+      const monthKey = p.date.toISOString().slice(0, 7);
       returns[monthKey] = (returns[monthKey] || 0) + p.netPnl;
     });
     return returns;

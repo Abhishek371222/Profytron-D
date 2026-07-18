@@ -28,7 +28,6 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('verificationEmail');
     if (storedEmail) setEmail(storedEmail);
-    // Never autofill OTP — user must enter the code from their email.
     sessionStorage.removeItem('verificationOtp');
   }, []);
 
@@ -118,13 +117,13 @@ export default function VerifyEmailPage() {
  <main className="min-h-screen w-full bg-bg-base overflow-hidden noise relative flex flex-col items-center justify-center p-6">
  <CinematicCursor />
  
- {/* Immersive Background Environment */}
+ { }
  <div className="fixed inset-0 pointer-events-none z-0">
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-250 h-250 bg-primary/10 blur-[180px] rounded-full opacity-40 animate-pulse" />
  <div className="absolute -top-[10%] -left-[10%] w-150 h-150 bg-s/10 blur-[150px] rounded-full opacity-30" />
  </div>
 
- {/* Header / Branding */}
+ { }
  <div className="fixed top-12 left-12 z-50">
  <Magnetic strength={0.2}>
  <Link href="/register" className="flex items-center gap-4 group">
@@ -140,7 +139,7 @@ export default function VerifyEmailPage() {
  <BrandLogo size="xl" />
  </div>
 
- {/* Centered Auth Card */}
+ { }
  <motion.div
  variants={containerVariants}
  initial={false}
@@ -161,7 +160,7 @@ export default function VerifyEmailPage() {
  <Mail className="w-10 h-10 text-primary" />
  )}
  </div>
- {/* Pulsing rings */}
+ { }
  <AnimatePresence>
  {!isSuccess && (
  <>
@@ -214,7 +213,7 @@ export default function VerifyEmailPage() {
  onPaste={handlePaste}
  className="w-full h-16 bg-foreground/3 backdrop-blur-md border border-border rounded-xl text-center text-2xl font-mono font-bold text-foreground outline-none transition-all focus:bg-foreground/8 focus:border-primary focus:ring-1 focus:ring-primary/30"
  />
- {/* Shimmer line on focus */}
+ { }
  <div className="absolute bottom-0 left-2 right-2 h-px bg-linear-to-r from-transparent via-white/5 to-transparent overflow-hidden">
  <motion.div 
  animate={{ x: digit || (typeof document !== 'undefined' && inputRefs.current[index] === document.activeElement) ? '100%' : '-100%' }}

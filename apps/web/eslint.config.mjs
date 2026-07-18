@@ -22,7 +22,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Local MetaApi/ops helpers — not part of the Next app surface.
     "scripts/**",
   ]),
 ]);

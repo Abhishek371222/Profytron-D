@@ -164,7 +164,6 @@ export function runBacktest(
         tradeDir = dir === 'SHORT' ? 'SHORT' : 'LONG';
       }
     } else {
-      // Check SL / TP via intra-candle wicks
       let exitPrice: number | null = null;
 
       if (tradeDir === 'LONG') {
@@ -188,7 +187,6 @@ export function runBacktest(
           tradeDir === 'LONG'
             ? (exitPrice - entryPrice) / entryPrice
             : (entryPrice - exitPrice) / entryPrice;
-        // Risk-normalised PnL: risk 1% of equity per 1% SL move
         const pnlAbs = equity * riskPct * (pnlPct / slPct);
 
         trades.push({
@@ -212,14 +210,12 @@ export function runBacktest(
     equityCurve.push({ idx: i, datetime: c.datetime, equity, drawdown: 0 });
   }
 
-  // Back-fill drawdown on equity curve
   let peak = initialCapital;
   for (const pt of equityCurve) {
     if (pt.equity > peak) peak = pt.equity;
     pt.drawdown = (peak - pt.equity) / peak;
   }
 
-  // Trade PnL distribution (buckets of $100)
   const bucketMap = new Map<string, number>();
   for (const t of trades) {
     const bucket =

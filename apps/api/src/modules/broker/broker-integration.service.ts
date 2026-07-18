@@ -41,7 +41,6 @@ export class BrokerIntegrationService {
     });
   }
 
-  // BINANCE API INTEGRATION (Demo)
   async executeBinanceTrade(
     credential: any,
     symbol: string,
@@ -52,7 +51,6 @@ export class BrokerIntegrationService {
     this.logger.log(
       `[DEMO] Executing Binance trade: ${symbol} ${side} ${quantity} @ ${price}`,
     );
-    // In production, call Binance API with credential.apiKey and credential.secretKey
     return {
       orderId: `DEMO-${Date.now()}`,
       symbol,
@@ -64,7 +62,6 @@ export class BrokerIntegrationService {
     };
   }
 
-  // MT5 API INTEGRATION (Demo)
   async executeMt5Trade(
     credential: any,
     symbol: string,
@@ -73,7 +70,6 @@ export class BrokerIntegrationService {
     slippage = 0.5,
   ) {
     this.logger.log(`[DEMO] Executing MT5 trade: ${symbol} ${side} ${volume}`);
-    // In production, connect via MetaTrader 5 library
     return {
       ticket: Math.floor(Math.random() * 1000000000),
       symbol,
@@ -85,7 +81,6 @@ export class BrokerIntegrationService {
     };
   }
 
-  // BYBIT API INTEGRATION (Demo)
   async executeBybitTrade(
     credential: any,
     symbol: string,
@@ -103,7 +98,6 @@ export class BrokerIntegrationService {
     };
   }
 
-  // KUCOIN API INTEGRATION (Demo)
   async executeKuCoinTrade(
     credential: any,
     symbol: string,

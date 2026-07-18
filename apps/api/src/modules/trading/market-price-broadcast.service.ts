@@ -25,8 +25,6 @@ export class MarketPriceBroadcastService implements OnModuleInit {
     try {
       const quotes = await this.marketService.getAllQuotes();
       if (quotes.length > 0) {
-        // Cache the snapshot so new subscribers are bootstrapped instantly
-        // (TradingGateway.handlePriceSubscription) instead of waiting up to 8s.
         this.gateway.setPriceSnapshot(quotes);
         this.gateway.broadcastPrices(quotes);
       }

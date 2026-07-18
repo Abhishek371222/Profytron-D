@@ -228,7 +228,6 @@ export default function AffiliatePage() {
         toast.message('Link copied for sharing');
       }
     } catch {
-      /* user cancelled share */
     }
   };
 
@@ -332,7 +331,7 @@ export default function AffiliatePage() {
     <DashboardPage>
       <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Affiliate' }]} />
 
-      {/* Hero */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -372,7 +371,7 @@ export default function AffiliatePage() {
             </div>
           </div>
 
-          {/* Network illustration */}
+          { }
           <div className="hidden lg:flex items-center justify-center w-48 h-48 shrink-0">
             <svg viewBox="0 0 160 160" className="w-full h-full text-primary/30">
               <circle cx="80" cy="40" r="14" fill="currentColor" className="text-primary" />
@@ -390,9 +389,9 @@ export default function AffiliatePage() {
       </motion.div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
-        {/* Left column */}
+        { }
         <div className="space-y-4 min-w-0">
-          {/* Stat cards */}
+          { }
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
             {statCards.map((card) => (
               <DashStatCard
@@ -404,7 +403,7 @@ export default function AffiliatePage() {
             ))}
           </div>
 
-          {/* Referral activity chart */}
+          { }
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -504,7 +503,7 @@ export default function AffiliatePage() {
             </div>
           </motion.div>
 
-          {/* Your referrals */}
+          { }
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -566,7 +565,7 @@ export default function AffiliatePage() {
             )}
           </motion.div>
 
-          {/* Funnel */}
+          { }
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -595,7 +594,7 @@ export default function AffiliatePage() {
           </motion.div>
         </div>
 
-        {/* Right column — referral code */}
+        { }
         <div className="space-y-4">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -660,7 +659,7 @@ export default function AffiliatePage() {
             </DashButton>
           </motion.div>
 
-          {/* Network tree */}
+          { }
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}

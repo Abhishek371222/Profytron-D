@@ -1,4 +1,3 @@
-/** Locked Earth composition — do not change position/scale in scene. */
 export const EARTH_RADIUS = 1.9;
 export const EARTH_SEGMENTS = 128;
 export const EARTH_ROTATION = 0.00018;
@@ -8,7 +7,6 @@ export const CLOUD_OPACITY = 0.22;
 export const NIGHT_LIGHT_INTENSITY = 0.3;
 export const PARTICLE_COUNT = 120;
 
-/** Upper-left sun — drives day/night terminator on night lights. */
 export const SUN_DIRECTION = { x: -0.85, y: 0.92, z: 0.38 } as const;
 
 export const BRAND_COLORS = {

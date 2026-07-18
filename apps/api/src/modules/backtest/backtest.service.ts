@@ -81,7 +81,6 @@ export class BacktestService {
     const msPerCandle = this.timeframeToMs(timeframe);
     const totalCandles = Math.min(Math.ceil((end - start) / msPerCandle), 2000);
 
-    // MarketService caps at 500 — loop to gather full range
     const all: OhlcCandle[] = [];
     const batchSize = 500;
     let remaining = totalCandles;
@@ -94,7 +93,6 @@ export class BacktestService {
       if (result.candles.length < limit) break;
     }
 
-    // Filter to requested date range
     return all.filter((c) => {
       const t = new Date(c.datetime).getTime();
       return t >= start && t <= end;

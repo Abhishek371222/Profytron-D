@@ -50,7 +50,7 @@ export function FloatingOrbs3D({ className, variant = "landing" }: FloatingOrbs3
         />
       ))}
 
-      {/* Depth grid plane */}
+      { }
       <div
         className="absolute inset-x-0 bottom-0 h-[45vh] opacity-[0.04]"
         style={{

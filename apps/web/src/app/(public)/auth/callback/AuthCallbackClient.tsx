@@ -75,19 +75,6 @@ async function syncFirebaseSession(payload: {
   throw lastError;
 }
 
-// This page only ever runs for: (1) the legacy NestJS oauthCode exchange, and
-// (2) GitHub's Firebase signInWithRedirect flow (or Google's, if the
-// signInWithPopup fallback in social-oauth.ts had to fall back to a redirect
-// because the popup was blocked). Google's normal path resolves directly in
-// social-oauth.ts's signInWithPopup call and never lands here.
-//
-// For (2), this page runs TWICE: first with a ?startProvider= param — Firebase's
-// signInWithRedirect() always returns to whichever page called it, so it must
-// be called from here (not from /login or /register) for the eventual return
-// trip to land somewhere that actually calls getRedirectResult(). The second
-// visit (after the provider + Firebase's own auth handler round trip) has no
-// startProvider param confusion because getRedirectResult() is checked first —
-// it only resolves on that second visit.
 export default function AuthCallbackClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -99,10 +86,6 @@ export default function AuthCallbackClient() {
       if (syncStartedRef.current) return;
       syncStartedRef.current = true;
 
-      // NestJS OAuth (Google/GitHub) returns a one-time code. Exchanging it here
-      // (on this public route, proxied through our own origin) sets the
-      // refresh_token cookie scoped to the frontend domain, so the middleware
-      // lets the user into protected routes afterwards.
       const oauthCode = searchParams.get('oauthCode');
       if (oauthCode) {
         try {
@@ -119,7 +102,6 @@ export default function AuthCallbackClient() {
           login(accessToken, user);
           const redirectTo = searchParams.get('redirect') || '/dashboard';
           const dest = resolvePostLoginRedirect(user, redirectTo);
-          // Hard navigation — see note on the Firebase success path below.
           window.location.href = dest;
         } catch (e) {
           console.error('OAuth code exchange failed:', e);
@@ -157,11 +139,6 @@ export default function AuthCallbackClient() {
       }
 
       if (!result?.user) {
-        // First visit for a redirect-based sign-in: social-oauth.ts navigates
-        // here with startProvider instead of calling signInWithRedirect()
-        // itself, since that call always returns to whatever page it was
-        // made from — starting it here means the round trip lands back on
-        // this same URL, where getRedirectResult() above will then resolve.
         const startProvider = searchParams.get('startProvider');
         if (startProvider === 'google' || startProvider === 'github') {
           try {
@@ -230,14 +207,6 @@ export default function AuthCallbackClient() {
         login(accessToken, user);
         const redirectTo = searchParams.get('redirect') || '/dashboard';
         const dest = resolvePostLoginRedirect(user, redirectTo);
-        // Hard navigation, not router.replace(): this callback is only
-        // reached via GitHub's redirect flow or Google's popup-blocked
-        // fallback (both common on Safari/iOS — see file header comment).
-        // The refresh_token cookie was just set on the /auth/firebase
-        // response; a client-side transition to the destination can be
-        // served from Next's router cache or race the middleware's cookie
-        // read, bouncing straight back to /login with no error param. A
-        // full navigation always re-fetches through the middleware fresh.
         window.location.href = dest;
       } catch (e) {
         console.error('Backend synchronization failed:', e);

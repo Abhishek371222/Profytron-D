@@ -31,7 +31,6 @@ const navItems = [
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Header/breadcrumb must reflect the active settings section, not a fixed label.
   const activeItem = navItems.find(
     (item) => pathname === item.href || pathname?.startsWith(item.href + '/'),
   );

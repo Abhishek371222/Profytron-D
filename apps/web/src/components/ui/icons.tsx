@@ -1,8 +1,5 @@
 'use client';
 
-// Centralized Icon Registry to resolve Turbopack module factory errors
-// All components should import icons from this file instead of directly from lucide-react.
-
 import { 
  Search, 
  Activity, 

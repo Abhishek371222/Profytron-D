@@ -6,12 +6,6 @@ import { MarketService } from '../market/market.service';
 import { TradeDirection, TradeStatus } from '@prisma/client';
 import { mapTradeSymbolToMarket } from './utils/pnl.util';
 
-/**
- * Polls open trades that have a trailing-stop config in executionMetadataJson
- * and ratchets the stop-loss in the favourable direction only. When the stop
- * should move, it enqueues a `modify_trade` job (reusing the same broker-
- * agnostic path as manual SL modifications) rather than mutating directly.
- */
 @Injectable()
 export class TrailingStopService implements OnModuleDestroy {
   private readonly logger = new Logger(TrailingStopService.name);
@@ -90,7 +84,6 @@ export class TrailingStopService implements OnModuleDestroy {
             ? price - distance
             : price + distance;
 
-        // Only ratchet in the favourable direction (never loosen the stop).
         const improves =
           t.stopLoss == null ||
           (t.direction === TradeDirection.LONG
@@ -110,9 +103,6 @@ export class TrailingStopService implements OnModuleDestroy {
       }
     } catch (err) {
       const message = (err as Error)?.message ?? String(err);
-      // Neon (and other serverless Postgres) can briefly drop idle connections.
-      // Treat transient connectivity blips as warnings so a recoverable DB hiccup
-      // doesn't spam error-level logs; the next tick simply retries.
       const isTransientDbError =
         /can't reach database server|connection.*closed|P10(01|08|17)/i.test(
           message,

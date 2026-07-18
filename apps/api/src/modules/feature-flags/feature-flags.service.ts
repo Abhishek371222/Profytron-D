@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 
-const FLAG_TTL = 60; // seconds
+const FLAG_TTL = 60;
 
 @Injectable()
 export class FeatureFlagsService {
@@ -28,7 +28,6 @@ export class FeatureFlagsService {
     if (flag.rolloutPct >= 100) return true;
     if (flag.rolloutPct <= 0) return false;
 
-    // Deterministic rollout based on userId hash so the same user always gets the same result.
     if (userId) {
       let hash = 0;
       for (let i = 0; i < userId.length; i++) {

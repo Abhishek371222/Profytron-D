@@ -8,21 +8,11 @@ import type { User } from 'firebase/auth';
 type SocialProvider = 'google' | 'github';
 type SocialAuthContext = 'login' | 'register';
 
-/**
- * Firebase's signInWithRedirect() always returns to whatever page it was
- * called from — there's no way to point it at a different URL. Calling it
- * directly from /login or /register means the return trip lands back on
- * that same page, which never checks getRedirectResult(), so the completed
- * sign-in is silently dropped. Instead, navigate to /auth/callback (the one
- * place that does call getRedirectResult()) and let IT start the redirect,
- * so the round trip returns to where the result is actually handled.
- */
 function startRedirectFlow(provider: SocialProvider, redirectTarget: string) {
   const params = new URLSearchParams({ startProvider: provider, redirect: redirectTarget });
   window.location.href = `/auth/callback?${params.toString()}`;
 }
 
-/** Exchanges a signed-in Firebase user for the app's own JWT session and navigates. */
 async function completeFirebaseLogin(fbUser: User, redirectTarget: string) {
   const email = fbUser.email;
   if (!email) throw new Error('Firebase session is missing an email address');
@@ -53,21 +43,6 @@ async function completeFirebaseLogin(fbUser: User, redirectTarget: string) {
   window.location.href = dest;
 }
 
-/**
- * Social sign-in via Firebase Auth (Google/GitHub). Google/GitHub OAuth client
- * IDs are configured in Firebase Console → Authentication → Sign-in method
- * (not in web env). The API uses GOOGLE_CLIENT_ID/SECRET only for the legacy
- * NestJS /v1/auth/google route (used as local fallback).
- *
- * Google runs via a popup (signInWithPopup) so a user who backs out of the
- * account picker just closes the popup and stays on the login page, instead
- * of getting stranded mid-navigation. GitHub keeps the normal top-level
- * redirect (signInWithRedirect), matching prior behavior.
- *
- * On localhost we always use NestJS Google OAuth so the post-login redirect stays
- * on http://localhost:3000 (Firebase's authorized redirect domains are usually
- * the production domain only).
- */
 export async function startSocialOAuth(
   provider: SocialProvider,
   context: SocialAuthContext = 'login',
@@ -105,7 +80,7 @@ export async function startSocialOAuth(
     } catch (err: any) {
       const code = err?.code as string | undefined;
       if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
-        return; // user closed the popup — no error, no fallback
+        return;
       }
       if (code === 'auth/popup-blocked') {
         startRedirectFlow('google', redirectTarget);

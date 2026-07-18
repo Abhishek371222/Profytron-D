@@ -52,10 +52,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [hydrate, login, router]);
 
-  // Prep screen is login/OAuth only — never on F5 / cold restore.
-  // Refreshing /dashboard must reopen the dashboard once hydrate finishes.
-
-  // If hydrate finished unauthenticated, drop any leftover overlay so login can appear.
   useEffect(() => {
     if (!bootstrapActive) return;
     if (isHydrating) return;

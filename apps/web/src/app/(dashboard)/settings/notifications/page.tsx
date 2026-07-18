@@ -94,7 +94,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Channels */}
+      { }
       <SettingsSection title="Notification channels" description="Choose how Profytron reaches you.">
         <div className="grid gap-3 sm:grid-cols-3">
           {CHANNELS.map((ch) => {
@@ -119,7 +119,7 @@ export default function NotificationsPage() {
         </div>
       </SettingsSection>
 
-      {/* Categories */}
+      { }
       <SettingsSection title="Alert categories" description="Control which types of alerts you receive.">
         <div className="space-y-3">
           {CATEGORIES.map((cat) => {
@@ -152,7 +152,7 @@ export default function NotificationsPage() {
         </div>
       </SettingsSection>
 
-      {/* Quiet hours */}
+      { }
       <SettingsSection title="Quiet hours" description="Pause non-critical alerts during set hours.">
         <SettingsToggle
           label="Mute non-critical notifications overnight"
@@ -188,7 +188,7 @@ export default function NotificationsPage() {
         )}
       </SettingsSection>
 
-      {/* Save */}
+      { }
       <div className="flex justify-end pt-2 border-t border-[var(--card-border)]">
         <DashButton onClick={handleSave} disabled={!isDirty || saving} className="gap-2">
           <Bell className="h-4 w-4" />

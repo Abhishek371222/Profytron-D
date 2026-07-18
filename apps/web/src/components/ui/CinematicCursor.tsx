@@ -3,22 +3,9 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import gsap from 'gsap';
 
-/**
- * CinematicCursor – Profytron premium cursor.
- *
- * Three-layer system:
- *  1. Ambient orb  – 500px, ~4 % opacity, screen blend → atmospheric glow
- *                    that enriches dark backgrounds without touching UI.
- *  2. Precision dot – 10px solid indigo, instantaneous follow.
- *  3. Ring          – 22px indigo border, slight lag for a springy feel.
- *
- * No goo filter; no large semi-transparent blobs – those were washing
- * out text and cards.  Renders only on pointer (non-touch) devices.
- */
 export function CinematicCursor() {
   const [isTouchDevice, setIsTouchDevice] = useState(true);
 
-  // Element refs: [0] ambient, [1] dot, [2] ring
   const orbRef  = useRef<HTMLDivElement>(null);
   const dotRef  = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -77,10 +64,7 @@ export function CinematicCursor() {
 
   return (
     <>
-      {/* ── 1. Ambient orb ─────────────────────────────────────────────
-           Very large, nearly transparent. Screen blend = additive light
-           on dark bg only; has zero visual impact on text or UI cards
-           because it's only 4 % opacity.                              ── */}
+      { }
       <div
         ref={orbRef}
         aria-hidden="true"
@@ -93,12 +77,10 @@ export function CinematicCursor() {
           background:
             'radial-gradient(circle, color-mix(in srgb, var(--primary) 13%, transparent) 0%, color-mix(in srgb, var(--chart-5) 6%, transparent) 50%, transparent 70%)',
           mixBlendMode: 'screen',
-          // No filter — keeps it smooth & GPU-friendly
         }}
       />
 
-      {/* ── 2. Precision dot ───────────────────────────────────────────
-           Solid small circle. Sits above everything, always readable. ── */}
+      { }
       <div
         ref={dotRef}
         aria-hidden="true"
@@ -114,9 +96,7 @@ export function CinematicCursor() {
         }}
       />
 
-      {/* ── 3. Ring ────────────────────────────────────────────────────
-           Slightly lagged ring — springy, premium feel. On hover over
-           interactive elements you could expand this (future enhancement). ── */}
+      { }
       <div
         ref={ringRef}
         aria-hidden="true"

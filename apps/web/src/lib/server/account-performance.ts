@@ -1,14 +1,9 @@
-/**
- * Account return / funding-baseline helpers (Next.js server routes).
- * initialEquity is the permanent first-sync baseline — never overwrite after seed.
- */
 
 export function isUnsetBaseline(value: unknown): boolean {
   const n = Number(value);
   return !Number.isFinite(n) || n <= 0;
 }
 
-/** Seed-only: keep existing baseline; set only when unset. */
 export function seedInitialEquity(
   existing: unknown,
   liveEquityOrBalance: unknown,
@@ -22,11 +17,6 @@ export function seedInitialEquity(
   return live;
 }
 
-/**
- * Resolve deposit/funding base for Return %.
- * Priority: net deposits → trusted DB baseline → reconstruct from live − trading PnL.
- * Treats a DB baseline that ≈ live equity as corrupted (was overwritten by sync).
- */
 export function resolveDepositBase(input: {
   netDeposits: number;
   dbInitialEquity: number;
@@ -73,7 +63,6 @@ export function resolveDepositBase(input: {
   };
 }
 
-/** Return % = ((current − initial) / initial) × 100, rounded to 2 decimals. */
 export function computeReturnPct(current: number, initial: number): number {
   if (!Number.isFinite(current) || !Number.isFinite(initial) || initial <= 0) {
     return 0;

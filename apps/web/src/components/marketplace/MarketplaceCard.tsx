@@ -31,7 +31,6 @@ interface MarketplaceCardProps {
     drawdown?: number;
   };
   onSubscribe: (strategy: MarketplaceCardProps["strategy"], billingModel?: SubscriptionBillingModel) => void;
-  /** Marks this card's primary CTA as the guided-tour anchor (see lib/tours/mainTour.ts). */
   tourAnchor?: boolean;
 }
 
@@ -103,15 +102,20 @@ export function MarketplaceCard({ strategy, onSubscribe, tourAnchor }: Marketpla
           <Button
             variant="primary"
             size="sm"
-            className="group/btn w-full uppercase tracking-[0.1em]"
+            className="group/btn h-9 w-full min-w-0 justify-center gap-1 px-2 text-[11px] font-bold uppercase tracking-wide sm:text-xs"
             onClick={() => onSubscribe(strategy, 'FIXED')}
             data-tour={tourAnchor ? 'marketplace-subscribe-cta' : undefined}
           >
-            Buy Subscription
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/btn:translate-x-0.5" />
+            <span className="truncate">Buy Subscription</span>
+            <ArrowRight className="h-3.5 w-3.5 shrink-0 transition-transform group-hover/btn:translate-x-0.5" />
           </Button>
-          <Button variant="outline" size="sm" className="w-full uppercase tracking-[0.1em]" onClick={() => onSubscribe(strategy, 'PROFIT_SHARE')}>
-            Get Profit Sharing · ₹149
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 w-full min-w-0 justify-center px-2 text-[11px] font-bold uppercase tracking-wide sm:text-xs"
+            onClick={() => onSubscribe(strategy, 'PROFIT_SHARE')}
+          >
+            <span className="truncate">Profit Share · ₹149</span>
           </Button>
         </div>
         <Link

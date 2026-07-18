@@ -17,7 +17,6 @@ const PADDING = {
   lg: "p-6",
 };
 
-/** Premium dashboard surface — matches hero preview cards */
 export function DashboardCard({
   children,
   className,

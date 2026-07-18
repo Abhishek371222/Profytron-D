@@ -48,7 +48,6 @@ async function meta(path, opts = {}) {
 }
 
 (async () => {
-  // Place a tiny test trade on master via RPC
   console.log('Placing test BUY 0.01 XAUUSD on master...');
   const trade = await meta(
     `/users/current/accounts/${masterId}/trade`,
@@ -63,7 +62,6 @@ async function meta(path, opts = {}) {
   );
   console.log('master trade result', trade);
 
-  // Wait for CopyFactory
   for (let i = 1; i <= 12; i++) {
     await new Promise((r) => setTimeout(r, 5000));
     const [mPos, sPos] = await Promise.all([
@@ -75,9 +73,7 @@ async function meta(path, opts = {}) {
     console.log(
       `[${i}] master=${mIds.join(',')} sub=${sIds.join(',')} mCount=${mIds.length} sCount=${sIds.length}`,
     );
-    // Detect new sub position after trade stringOrderId
     if (trade?.stringCode || trade?.orderId) {
-      /* continue polling */
     }
   }
 })().catch((e) => {

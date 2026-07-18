@@ -68,7 +68,6 @@ export const tradingApi = {
     return unwrap<OpenTrade[]>(res.data);
   },
 
-  /** Close fully (omit volume) or partially (volume in lots, < position size). */
   async closeTrade(id: string, volume?: number) {
     const res = await apiClient.post(`/trading/trades/${id}/close`, volume != null ? { volume } : {});
     return unwrap<any>(res.data);
@@ -134,7 +133,6 @@ export const tradingApi = {
     }
   },
 
-  /** Live lot calculator (equity-ratio safe for ~$100 accounts). */
   async calculateLotSize(payload: {
     masterVolume: number;
     masterEquity?: number;

@@ -177,6 +177,7 @@ export async function GET(req: NextRequest) {
     .toUpperCase();
   // Overview only needs recent closes — default 30d (was 365d) so MetaAPI is
   // much faster. History page can still pass days=365 explicitly.
+
   const days = Math.min(
     Math.max(Number(req.nextUrl.searchParams.get('days') || 30) || 30, 1),
     730,

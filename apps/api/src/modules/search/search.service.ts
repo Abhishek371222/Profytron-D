@@ -65,8 +65,6 @@ export class SearchService {
         where: {
           OR: [
             { fullName: { contains: q, mode: 'insensitive' } },
-            // Email is intentionally excluded from search — it is PII and the
-            // endpoint is publicly accessible, enabling mass email enumeration.
             { username: { contains: q, mode: 'insensitive' } },
           ],
           isActive: true,

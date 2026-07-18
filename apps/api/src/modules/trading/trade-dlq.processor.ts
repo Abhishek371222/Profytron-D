@@ -4,11 +4,6 @@ import type { Job } from 'bull';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TradingGateway } from './trading.gateway';
 
-/**
- * Terminal sink for trade jobs that exhausted all retries on `trade_execution`.
- * Dead-lettered payloads are persisted to the audit log for manual inspection
- * / replay and the affected user is notified that an action did not go through.
- */
 @Processor('trade_execution_dlq')
 export class TradeDlqProcessor {
   private readonly logger = new Logger(TradeDlqProcessor.name);

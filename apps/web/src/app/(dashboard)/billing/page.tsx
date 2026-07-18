@@ -35,8 +35,6 @@ import {
   Zap,
 } from 'lucide-react';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type PaymentStatus = 'COMPLETED' | 'PENDING' | 'FAILED';
 
 interface Payment {
@@ -67,8 +65,6 @@ interface MyBot {
   nextBillingDate?: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function formatInr(amount: number) {
   return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -91,8 +87,6 @@ const STATUS_DOT: Record<PaymentStatus, string> = {
   PENDING: 'bg-chart-4',
   FAILED: 'bg-destructive',
 };
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function StatCard({
   label,
@@ -126,13 +120,10 @@ function StatCard({
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function BillingPage() {
   const queryClient = useQueryClient();
   const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
 
-  // Fetch current subscription
   const currentQuery = useQuery({
     queryKey: ['subscription-current'],
     queryFn: async () => {
@@ -153,7 +144,6 @@ export default function BillingPage() {
     },
   });
 
-  // Fetch payment history
   const paymentsQuery = useQuery({
     queryKey: ['billing-payments'],
     queryFn: async () => {
@@ -163,7 +153,6 @@ export default function BillingPage() {
     },
   });
 
-  // Fetch active bots for upcoming renewals
   const botsQuery = useQuery({
     queryKey: ['my-bots'],
     queryFn: async () => {
@@ -178,7 +167,6 @@ export default function BillingPage() {
   const payments = paymentsQuery.data?.payments ?? [];
   const bots = botsQuery.data ?? [];
 
-  // Derived stats
   const now = new Date();
   const thisMonth = now.getMonth();
   const thisYear = now.getFullYear();
@@ -205,21 +193,18 @@ export default function BillingPage() {
 
   const upcomingBots = bots.filter((b) => b.renewsAt ?? b.nextBillingDate);
 
-  // No invoice-PDF endpoint exists on the backend yet (only a DB record is
-  // created — see payments.service.ts generateInvoice). Disable the control
-  // rather than fake a download; wire this up once a real PDF route exists.
   const invoiceDownloadUnavailable = true;
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Breadcrumb */}
+      { }
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
         <Link href="/dashboard" className="hover:underline">Dashboard</Link>
         <ChevronRight className="h-3 w-3 text-muted-foreground" />
         <span className="text-foreground">Billing & Payments</span>
       </div>
 
-      {/* Header */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -244,7 +229,7 @@ export default function BillingPage() {
         </Link>
       </motion.div>
 
-      {/* Current Plan Card */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -332,7 +317,7 @@ export default function BillingPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Summary Stats */}
+      { }
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           label="Total Spent This Month"
@@ -370,7 +355,7 @@ export default function BillingPage() {
         />
       </div>
 
-      {/* Payment History */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -466,7 +451,7 @@ export default function BillingPage() {
         </div>
       </motion.div>
 
-      {/* Upcoming Renewals */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -524,9 +509,9 @@ export default function BillingPage() {
         </div>
       </motion.div>
 
-      {/* Payment Methods + Tax */}
+      { }
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* Razorpay */}
+        { }
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -554,7 +539,7 @@ export default function BillingPage() {
           </div>
         </motion.div>
 
-        {/* Stripe */}
+        { }
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -582,7 +567,7 @@ export default function BillingPage() {
           </div>
         </motion.div>
 
-        {/* Tax & Invoices */}
+        { }
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}

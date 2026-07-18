@@ -58,10 +58,6 @@ export class AuthService {
       this.supabase = null as any;
     }
 
-    // Separate named app from FcmService's default app — Auth and FCM
-    // intentionally live in different Firebase projects (FCM keeps the
-    // original project so already-registered push tokens keep working;
-    // Auth uses the project the web app's OAuth config actually points at).
     if (!admin.apps.some((app) => app?.name === FIREBASE_AUTH_APP_NAME)) {
       const projectId = process.env.FIREBASE_AUTH_PROJECT_ID;
       const clientEmail = process.env.FIREBASE_AUTH_CLIENT_EMAIL;
@@ -129,8 +125,6 @@ export class AuthService {
     jti: string,
   ): Promise<void> {
     try {
-      // Per-session key so phone/laptop/tabs can stay logged in together.
-      // The old single-slot `…:default` key kicked every other device on login.
       await this.redisService.set(
         this.refreshSessionKey(userId, jti),
         refreshToken,
@@ -148,7 +142,6 @@ export class AuthService {
     if (jti) {
       await this.redisService.del(this.refreshSessionKey(userId, jti));
     }
-    // Clean legacy single-slot key from older builds.
     await this.redisService.del(`auth:refresh:${userId}:default`);
   }
 
@@ -205,8 +198,6 @@ export class AuthService {
       .create({ data: { userId: user.id } })
       .catch(() => {});
 
-    // Resolve any pending "shared broker account" invites sent to this email
-    // before the invitee had a Profytron account.
     void this.brokerService
       .resolvePendingSharesForEmail(user.id, dto.email)
       .catch(() => {});
@@ -238,11 +229,8 @@ export class AuthService {
       await this.redisService.set(`auth:plan:${dto.email}`, dto.plan, 86400);
     }
 
-    // randomInt(min, max) is cryptographically secure (CSPRNG via OpenSSL).
-    // Math.random() is NOT suitable for security-sensitive tokens.
     const otp = randomInt(100000, 1000000).toString();
     await this.redisService.set(`auth:otp:${dto.email}`, otp, 600);
-    // 60s resend cooldown starts at registration so the UI and API stay aligned.
     await this.redisService.set(`auth:otp:resend:${dto.email}`, '1', 60);
     const emailSent = await this.emailService.sendOtpEmail(
       dto.email,
@@ -276,7 +264,6 @@ export class AuthService {
       message: 'Check your email for verification code',
     };
 
-    // Only expose OTP in automated tests — never in browser/dev flows.
     if (
       process.env.NODE_ENV === 'test' ||
       process.env.EXPOSE_DEV_OTP === 'true'
@@ -294,7 +281,6 @@ export class AuthService {
       10,
     );
     if (attempts >= 5) {
-      // Too many bad guesses — invalidate the OTP to force re-issue
       await this.redisService.del(`auth:otp:${dto.email}`);
       await this.redisService.del(attemptKey);
       appError(
@@ -337,7 +323,6 @@ export class AuthService {
       data: { emailVerified: true },
     });
 
-    // Fire-and-forget welcome email with paper-trading CTA
     this.emailService
       .sendWelcomeEmail(updatedUser.email, updatedUser.fullName)
       .catch(() => {});
@@ -392,7 +377,6 @@ export class AuthService {
     };
   }
 
-  /** 7-day platform trial for Starter/Pro signups — no payment required. */
   private async startPlatformTrial(userId: string, planSlug: string) {
     const slug = planSlug.toLowerCase();
     if (slug === 'free') return;
@@ -446,7 +430,6 @@ export class AuthService {
     const MAX_ATTEMPTS = 5;
     const LOCKOUT_SECONDS = 15 * 60;
 
-    // Check lockout before any DB query to prevent timing-based enumeration
     try {
       const failCount = parseInt(
         (await this.redisService.get(failKey)) ?? '0',
@@ -460,7 +443,6 @@ export class AuthService {
         );
       }
     } catch {
-      // Redis unavailable for fail-counter — allow the request to proceed
       this.logger.warn(
         `Redis unavailable for login fail-counter ${failKey}. Skipping lockout check.`,
       );
@@ -470,10 +452,6 @@ export class AuthService {
       where: { email: dto.email },
     });
 
-    // Always run bcrypt.compare regardless of whether the user exists so that
-    // response time is indistinguishable between "no such user" and "wrong
-    // password". Without this, an attacker can enumerate registered emails via
-    // timing (missing users return ~0 ms; valid users return ~100 ms).
     const DUMMY_HASH =
       '$2b$12$invalidhashpaddingtomakethislooklikearealbcrypthash00000';
 
@@ -493,8 +471,6 @@ export class AuthService {
     );
 
     if (!activeUser || !activeUser.passwordHash || !isMatch) {
-      // Increment fail counter regardless of whether the user exists to prevent
-      // non-existent-email addresses from bypassing rate limiting
       try {
         const current = parseInt(
           (await this.redisService.get(failKey)) ?? '0',
@@ -514,7 +490,6 @@ export class AuthService {
           });
         }
       } catch {
-        // Non-critical
       }
 
       if (!activeUser) {
@@ -544,19 +519,14 @@ export class AuthService {
         ErrorCode.EMAIL_NOT_VERIFIED,
       );
 
-    // Clear fail counter on successful login
     try {
       await this.redisService.del(failKey);
     } catch {
-      // Non-critical
     }
 
     const ip = req.ip || '0.0.0.0';
     const userAgent = req.headers['user-agent'] || 'Unknown';
 
-    // If 2FA is enabled, issue a short-lived challenge token instead of full
-    // session tokens. The client must call POST /auth/2fa/complete-login with
-    // the challenge token + TOTP/backup code to receive a real session.
     if (activeUser.twoFactorEnabled) {
       const challengeToken = randomUUID();
       await this.redisService.set(
@@ -710,7 +680,6 @@ export class AuthService {
         },
       });
     } catch {
-      // Non-critical
     }
 
     return {
@@ -727,7 +696,6 @@ export class AuthService {
     try {
       stored = await this.redisService.get(sessionKey);
 
-      // Migrate legacy single-slot sessions from older builds.
       if (!stored) {
         const legacyKey = `auth:refresh:${userId}:default`;
         const legacy = await this.redisService.get(legacyKey);
@@ -743,8 +711,6 @@ export class AuthService {
       );
     }
 
-    // JWT already verified by JwtRefreshGuard. Redis tracks each browser/device
-    // by jti so logging in elsewhere does not kill this session.
     const usingEphemeralRedis =
       process.env.REDIS_INMEMORY === 'true' || redisSessionsUnavailable;
     if (stored && stored !== refreshToken) {
@@ -856,8 +822,6 @@ export class AuthService {
   }
 
   async resetPassword(token: string, newPassword: string) {
-    // Atomic GETDEL prevents concurrent requests from both consuming the same
-    // reset token and overwriting each other's new password.
     const email = await this.redisService.getdel(`auth:reset:${token}`);
     if (!email)
       appError(
@@ -882,7 +846,6 @@ export class AuthService {
       data: { passwordHash },
     });
 
-    // Invalidate refresh tokens broadly for the user
     await this.revokeAllRefreshSessions(user.id);
 
     await this.prisma.auditLog.create({
@@ -911,8 +874,6 @@ export class AuthService {
   }
 
   async resendOtp(email: string) {
-    // Always return the same generic response to prevent registration-status
-    // enumeration (an attacker could distinguish "has pending OTP" from "not registered").
     const user = await this.prisma.user.findUnique({
       where: { email },
       select: { id: true, emailVerified: true },
@@ -931,7 +892,6 @@ export class AuthService {
       );
     }
 
-    // Always issue a fresh unique OTP and invalidate any previous one.
     const otp = randomInt(100000, 1000000).toString();
     await this.redisService.set(`auth:otp:${email}`, otp, 600);
     await this.redisService.set(cooldownKey, '1', 60);
@@ -996,6 +956,12 @@ export class AuthService {
 
     this.logger.log(`Google user synced: ${user.id} (${user.email})`);
 
+    if (!existingGoogleUser) {
+      void this.brokerService
+        .resolvePendingSharesForEmail(user.id, user.email)
+        .catch(() => {});
+    }
+
     const session = await this.issueSessionOrTwoFaChallenge(user);
     if (session.requiresTwoFa) {
       const oauthCode = await this.storeOAuthExchangePayload({
@@ -1056,8 +1022,6 @@ export class AuthService {
       );
     }
 
-    // New payloads are JSON; fall back to the legacy plain-string format for any
-    // codes minted just before this change (60s TTL means this is short-lived).
     let parsed: any;
     try {
       parsed = JSON.parse(stored);
@@ -1095,7 +1059,6 @@ export class AuthService {
       );
     }
 
-    // 1. Verify token with Supabase
     let data: Awaited<ReturnType<SupabaseClient['auth']['getUser']>>['data'];
     let error: Awaited<ReturnType<SupabaseClient['auth']['getUser']>>['error'];
     try {
@@ -1154,11 +1117,6 @@ export class AuthService {
     });
   }
 
-  /**
-   * Shared by supabaseLogin and firebaseLogin: both verify a third-party
-   * identity token first, then converge here to upsert the local User row
-   * and issue the app's own JWT session (or a 2FA challenge).
-   */
   private async syncVerifiedIdentityAndIssueSession(params: {
     verifiedEmail: string;
     fullName?: string;
@@ -1168,14 +1126,12 @@ export class AuthService {
     provider?: string;
   }) {
     const { verifiedEmail, googleId, provider } = params;
-    // Ensure fullName has a meaningful default
     const fullName = params.fullName?.trim() || 'User';
 
     this.logger.log(
       `Identity verified for ${verifiedEmail}. Provider: ${provider}. Profile: fullName="${fullName}", hasAvatar=${!!params.avatarUrl}`,
     );
 
-    // Sync/create user with profile data
     const existingUser = await this.prisma.user.findUnique({
       where: { email: verifiedEmail },
     });
@@ -1191,7 +1147,7 @@ export class AuthService {
       where: { email: verifiedEmail },
       create: {
         email: verifiedEmail,
-        fullName, // Use the ensured fullName
+        fullName,
         avatarUrl: params.avatarUrl || null,
         bio: params.bio || null,
         googleId,
@@ -1199,7 +1155,7 @@ export class AuthService {
         referralCode: randomUUID(),
       },
       update: {
-        fullName: fullName || undefined, // Update if we have a meaningful name
+        fullName: fullName || undefined,
         avatarUrl: params.avatarUrl || undefined,
         bio: params.bio || undefined,
         googleId: googleId || undefined,
@@ -1211,7 +1167,6 @@ export class AuthService {
       `User profile synced: ${user.id} (${user.email}) - fullName="${user.fullName}", provider=${provider}`,
     );
 
-    // Issue local tokens
     const session = await this.issueSessionOrTwoFaChallenge(user);
     if (session.requiresTwoFa) {
       return {
@@ -1292,8 +1247,6 @@ export class AuthService {
     role: string;
     twoFactorEnabled?: boolean;
   }) {
-    // OAuth/Supabase/magic-link paths reach here; block suspended/closed accounts
-    // so they cannot obtain a session via a non-password login (parity with login).
     const account = await this.prisma.user.findUnique({
       where: { id: user.id },
       select: { isSuspended: true, isActive: true, deletedAt: true },
@@ -1349,10 +1302,6 @@ export class AuthService {
 
   private async generateTokenPair(userId: string, email: string, role: string) {
     const jti = randomUUID();
-    // Sessions must not force a logout before 24h of validity (product
-    // requirement) — the frontend's sessionStorage-cached token is re-checked
-    // on every page load, so a short-lived access token here caused users to
-    // appear "logged out on reload" once it expired mid-session.
     const accessExpiresIn = this.parseExpirySeconds(
       process.env.JWT_ACCESS_EXPIRES,
       24 * 3600,
@@ -1381,10 +1330,9 @@ export class AuthService {
 
   async sendMagicLink(email: string) {
     const user = await this.prisma.user.findUnique({ where: { email } });
-    // Always return success to prevent email enumeration
     if (user && !user.isSuspended && !isClosedAccount(user)) {
       const token = randomUUID();
-      await this.redisService.set(`auth:magic:${token}`, user.id, 900); // 15 min
+      await this.redisService.set(`auth:magic:${token}`, user.id, 900);
       const link = `${process.env.FRONTEND_URL}/auth/magic?token=${token}`;
       await this.emailService.sendMagicLinkEmail(email, user.fullName, link);
     }
@@ -1473,6 +1421,9 @@ export class AuthService {
         },
       });
       this.logger.log(`New GitHub user created: ${user.id}`);
+      void this.brokerService
+        .resolvePendingSharesForEmail(user.id, user.email)
+        .catch(() => {});
     } else {
       user = await this.prisma.user.update({
         where: { id: user.id },

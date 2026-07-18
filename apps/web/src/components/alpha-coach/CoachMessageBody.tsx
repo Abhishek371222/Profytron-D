@@ -3,7 +3,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-/** Readable multi-line / bullet formatting for coach replies. */
 export function CoachMessageBody({
   content,
   className,

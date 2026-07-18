@@ -76,7 +76,6 @@ export const strategiesApi = {
   async createStrategy(data: any) {
     const res = await apiClient.post<Strategy>('/strategies', data);
     const created = unwrapApiResponse<Strategy>(res.data);
-    // Guard against double-wrapped envelopes so callers always get an id
     if (created && typeof created === 'object' && 'id' in created) return created;
     if (
       created &&
@@ -119,13 +118,11 @@ export const strategiesApi = {
     return unwrapApiResponse<any>(res.data);
   },
 
-  /** Submit for 1-week Profytron review (pending approval). */
   async publishStrategy(id: string) {
     const res = await apiClient.post(`/strategies/${id}/publish`);
     return unwrapApiResponse<any>(res.data);
   },
 
-  /** After approval, publish to public marketplace. */
   async publishLive(id: string) {
     const res = await apiClient.post(`/strategies/${id}/publish-live`);
     return unwrapApiResponse<any>(res.data);
@@ -142,7 +139,6 @@ export const strategiesApi = {
     form.append('kind', kind);
     if (title) form.append('title', title);
     const res = await apiClient.post(`/strategies/${strategyId}/documents`, form, {
-      // Let the browser set multipart boundary — do not force application/json
       headers: { 'Content-Type': 'multipart/form-data' },
       transformRequest: [
         (data, headers) => {

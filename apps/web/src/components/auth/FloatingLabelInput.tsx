@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { Eye, EyeOff, LucideIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/** Thin black I-beam — same proportions as the system text cursor, always black. */
 const BLACK_TEXT_CURSOR =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='19' viewBox='0 0 11 19'%3E%3Crect x='0' y='0' width='11' height='1' fill='%23000'/%3E%3Crect x='5' y='0' width='1' height='19' fill='%23000'/%3E%3Crect x='0' y='18' width='11' height='1' fill='%23000'/%3E%3C/svg%3E\") 5 9, text";
 
@@ -56,7 +55,6 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
       }
     }, [value]);
 
-    // Re-apply after type toggles (password ↔ text) — browsers reset caret/cursor then
     useEffect(() => {
       if (localRef.current) forceBlackCaret(localRef.current);
     }, [showPassword]);
@@ -85,9 +83,6 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
         setIsFocused(true);
         const node = e.currentTarget;
         forceBlackCaret(node);
-        // Password fields often flip caret color one frame later. React resets
-        // e.currentTarget to null once the event finishes dispatching, so the
-        // node reference must be captured now rather than read from `e` later.
         requestAnimationFrame(() => forceBlackCaret(node));
         props.onFocus?.(e);
       },

@@ -8,6 +8,8 @@ export interface MTConnectionResult {
   equity?: number;
   margin?: number;
   freeMargin?: number;
+  marginLevel?: number;
+  credit?: number;
   currency?: string;
   leverage?: number;
   accountName?: string;
@@ -19,7 +21,6 @@ export interface MTConnectionResult {
   error?: string;
 }
 
-/** Subset of MetaAPI provisioning account fields used for reuse lookups. */
 interface MetaApiAccountSummary {
   _id?: string;
   id?: string;
@@ -30,36 +31,30 @@ interface MetaApiAccountSummary {
   region?: string;
 }
 
-/**
- * MetaTrader 4 / 5 adapter via MetaAPI.cloud REST API.
- *
- * MetaAPI is a managed bridge that connects to any live/demo MT4 or MT5
- * account using the user's trading credentials. It handles the proprietary
- * MetaQuotes protocol so we never need to run MT terminals locally.
- *
- * Sign up at https://metaapi.cloud — free tier allows up to 5 accounts.
- * Set METAAPI_TOKEN in apps/api/.env to activate real connections.
- *
- * Without the token, the adapter returns a clearly-labelled mock so
- * development still works without credentials.
- *
- * Region handling: a provisioned account is deployed to a MetaAPI-selected
- * region (e.g. "new-york", "vint-hill", "london"). All client/trading API
- * calls MUST target that region's host, so we read the account back after
- * creation to discover its region and cache it per account id.
- */
+export interface MetaApiFullSnapshot {
+  info: any;
+  account: any;
+  positions: any[];
+  pendingOrders: any[];
+  deals: any[];
+  orderHistory: any[];
+  symbols: any[];
+  marketData: any[];
+  terminalState: any;
+  copyTrading: any;
+  latencyMs: number;
+  sectionErrors: Record<string, string>;
+}
+
 @Injectable()
 export class MetaTraderAdapter {
   private readonly logger = new Logger(MetaTraderAdapter.name);
   private readonly token: string | undefined;
   private readonly provisioningUrl =
     'https://mt-provisioning-api-v1.agiliumtrade.agiliumtrade.ai';
-  /** Fallback region used only when an account's real region can't be read. */
   private readonly defaultRegion = process.env.METAAPI_REGION || 'new-york';
   private readonly http: AxiosInstance;
-  /** accountId -> region cache to avoid re-reading the account on every call. */
   private readonly regionCache = new Map<string, string>();
-  /** accountId -> { equity, at } short-lived cache for live equity reads. */
   private readonly equityCache = new Map<
     string,
     { equity: number; at: number }
@@ -143,7 +138,6 @@ export class MetaTraderAdapter {
         status === 502 ||
         status === 503 ||
         status === 504 ||
-        // Network error (no response) that isn't our own client timeout.
         (!error?.response && error?.code && error.code !== 'ECONNABORTED');
 
       if (!config || (!isRateLimit && !isTransient)) {
@@ -172,21 +166,10 @@ export class MetaTraderAdapter {
     });
   }
 
-  /** Returns true when a real MetaAPI token is configured. */
   get isLive(): boolean {
     return !!this.token;
   }
 
-  /**
-   * Provision a new MetaAPI account and verify the credentials are valid.
-   *
-   * Flow: create account -> read it to learn region/state -> deploy if needed
-   * -> wait until the broker terminal connects -> fetch account information.
-   *
-   * If the broker hasn't fully connected within the wait window (demo servers
-   * can be slow), we still return connected:true with pending:true so the
-   * account is saved; live balance is filled in by a later testConnection.
-   */
   async connect(
     login: string,
     password: string,
@@ -198,7 +181,6 @@ export class MetaTraderAdapter {
       return this.mockResult(login, server, platform);
     }
 
-    // Cost guard: SUBSCRIBER seats only when explicitly allowed (copyfactory).
     let roles = options?.copyFactoryRoles
       ? [...options.copyFactoryRoles]
       : undefined;
@@ -218,10 +200,6 @@ export class MetaTraderAdapter {
       let region: string;
       let alreadyConnected = false;
 
-      // 0. Reuse an existing MetaAPI account for this login+server instead of
-      //    provisioning a duplicate every time. The free tier caps accounts at
-      //    5, so re-creating on each connect attempt quickly exhausts quota and
-      //    leaves orphaned duplicates (one per attempt).
       const existing = await this.findExistingAccount(login, server);
       const existingId = existing?._id ?? existing?.id;
       if (existing && existingId) {
@@ -238,11 +216,9 @@ export class MetaTraderAdapter {
           try {
             await this.ensureCopyFactoryRoles(accountId, [...roles]);
           } catch {
-            /* role assignment is best-effort */
           }
         }
       } else {
-        // 1. Create the MetaAPI account (provisioning step)
         const provision = await this.http.post(
           `${this.provisioningUrl}/users/current/accounts`,
           {
@@ -268,26 +244,19 @@ export class MetaTraderAdapter {
 
         accountId = provision.data.id;
 
-        // 2. Read the account back to discover its assigned region + state.
         const account = await this.getAccount(accountId);
         region = account.region || this.defaultRegion;
         this.regionCache.set(accountId, region);
 
-        // 3. Deploy it if MetaAPI created it in an undeployed state.
         if (account.state !== 'DEPLOYED') {
           await this.deploy(accountId);
         }
       }
 
-      // 4. Wait briefly for the terminal to connect. We cap this well under the
-      //    client request timeout — if the broker hasn't streamed yet we return
-      //    pending:true and let a later testConnection fill in live balance,
-      //    rather than holding the HTTP request open until it times out.
       const connected = alreadyConnected
         ? true
         : await this.waitForConnection(accountId, 20_000);
 
-      // 5. Fetch account information from the region-specific client host.
       if (connected) {
         try {
           const d = await this.fetchAccountInformation(accountId, region);
@@ -313,7 +282,6 @@ export class MetaTraderAdapter {
         }
       }
 
-      // Provisioned + deployed but the broker hasn't streamed account info yet.
       return {
         connected: true,
         pending: true,
@@ -329,9 +297,6 @@ export class MetaTraderAdapter {
     }
   }
 
-  /**
-   * Test an already-provisioned account using its stored MetaAPI account ID.
-   */
   async testExisting(
     metaApiAccountId: string,
     region?: string,
@@ -341,6 +306,10 @@ export class MetaTraderAdapter {
         connected: true,
         balance: 100_000,
         equity: 100_000,
+        margin: 0,
+        freeMargin: 100_000,
+        marginLevel: 0,
+        credit: 0,
         currency: 'USD',
       };
     }
@@ -357,6 +326,8 @@ export class MetaTraderAdapter {
         equity: d.equity,
         margin: d.margin,
         freeMargin: d.freeMargin,
+        marginLevel: d.marginLevel,
+        credit: d.credit,
         currency: d.currency,
         leverage: d.leverage,
         accountName: d.name,
@@ -373,10 +344,6 @@ export class MetaTraderAdapter {
     }
   }
 
-  /**
-   * Place a market order on a MetaAPI-provisioned account.
-   * Returns the orderId assigned by the broker.
-   */
   async executeTrade(
     metaApiAccountId: string,
     order: {
@@ -407,7 +374,6 @@ export class MetaTraderAdapter {
     };
   }
 
-  /** Close an open position by its position ID. */
   async closePosition(
     metaApiAccountId: string,
     positionId: string,
@@ -422,7 +388,6 @@ export class MetaTraderAdapter {
     );
   }
 
-  /** Modify the stop-loss / take-profit of an open position. */
   async modifyPosition(
     metaApiAccountId: string,
     positionId: string,
@@ -445,7 +410,6 @@ export class MetaTraderAdapter {
     );
   }
 
-  /** Partially close an open position by closing `volume` lots of it. */
   async closePositionPartial(
     metaApiAccountId: string,
     positionId: string,
@@ -462,7 +426,6 @@ export class MetaTraderAdapter {
     return { orderId: res.data?.orderId };
   }
 
-  /** Fetch a single open position by id (used for break-even / trailing). */
   async getPosition(
     metaApiAccountId: string,
     positionId: string,
@@ -481,10 +444,6 @@ export class MetaTraderAdapter {
     }
   }
 
-  /**
-   * Fetch all currently open positions for an account.
-   * Returns raw MetaAPI position objects.
-   */
   async getPositions(
     metaApiAccountId: string,
     region?: string,
@@ -498,11 +457,200 @@ export class MetaTraderAdapter {
     return Array.isArray(res.data) ? res.data : [];
   }
 
-  /**
-   * Full account snapshot (balance/equity/margin) for a point-in-time
-   * persistence write — unlike getLiveEquity this is not cached, since the
-   * caller (history sync) already throttles its own poll interval.
-   */
+  async getPendingOrders(
+    metaApiAccountId: string,
+    region?: string,
+  ): Promise<any[]> {
+    if (!this.isLive) return [];
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    const res = await this.http.get(
+      `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/orders`,
+      { headers: this.headers() },
+    );
+    return Array.isArray(res.data) ? res.data : [];
+  }
+
+  async getHistoryOrders(
+    metaApiAccountId: string,
+    from: Date,
+    to: Date,
+    region?: string,
+  ): Promise<any[]> {
+    if (!this.isLive || !metaApiAccountId) return [];
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    const res = await this.http.get(
+      `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/history-orders/time/${encodeURIComponent(from.toISOString())}/${encodeURIComponent(to.toISOString())}`,
+      { headers: this.headers() },
+    );
+    return Array.isArray(res.data) ? res.data : [];
+  }
+
+  async getSymbols(
+    metaApiAccountId: string,
+    region?: string,
+  ): Promise<any[]> {
+    if (!this.isLive || !metaApiAccountId) return [];
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    const res = await this.http.get(
+      `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/symbols`,
+      { headers: this.headers() },
+    );
+    return Array.isArray(res.data) ? res.data : [];
+  }
+
+  async getSymbolSpecification(
+    metaApiAccountId: string,
+    symbol: string,
+    region?: string,
+  ): Promise<any | null> {
+    if (!this.isLive || !metaApiAccountId || !symbol) return null;
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    try {
+      const res = await this.http.get(
+        `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/symbols/${encodeURIComponent(symbol)}/specification`,
+        { headers: this.headers() },
+      );
+      return res.data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  async getLatestTick(
+    metaApiAccountId: string,
+    symbol: string,
+    region?: string,
+  ): Promise<any | null> {
+    if (!this.isLive || !metaApiAccountId || !symbol) return null;
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    try {
+      const res = await this.http.get(
+        `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/symbols/${encodeURIComponent(symbol)}/current-tick`,
+        { headers: this.headers() },
+      );
+      return res.data ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  async getTerminalState(
+    metaApiAccountId: string,
+    region?: string,
+  ): Promise<any | null> {
+    if (!this.isLive || !metaApiAccountId) return null;
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    try {
+      const [account, terminal] = await Promise.all([
+        this.getAccount(metaApiAccountId).catch(() => null),
+        this.http
+          .get(
+            `${this.clientUrl(resolvedRegion)}/users/current/accounts/${metaApiAccountId}/terminal-state`,
+            { headers: this.headers() },
+          )
+          .then((res) => res.data)
+          .catch(() => null),
+      ]);
+      return { account, terminal };
+    } catch {
+      return null;
+    }
+  }
+
+  /** Combined account-information + open-positions fetch, run in parallel,
+   * for the DB-first snapshot sync worker. */
+  async getFullSnapshot(
+    metaApiAccountId: string,
+    region?: string,
+    options?: { dealsFrom?: Date; dealsTo?: Date },
+  ): Promise<MetaApiFullSnapshot | null> {
+    if (!this.isLive || !metaApiAccountId) return null;
+    const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+    const start = Date.now();
+    try {
+      const to = options?.dealsTo ?? new Date();
+      const from =
+        options?.dealsFrom ?? new Date(to.getTime() - 3 * 24 * 60 * 60 * 1000);
+      const sectionErrors: Record<string, string> = {};
+      const optional = async <T>(
+        section: string,
+        producer: () => Promise<T>,
+        fallback: T,
+      ): Promise<T> => {
+        try {
+          return await producer();
+        } catch (err: any) {
+          sectionErrors[section] =
+            err?.response?.data?.message || err?.message || 'MetaAPI fetch failed';
+          return fallback;
+        }
+      };
+
+      const [info, account, positions, pendingOrders, deals, orderHistory, symbols, terminalState] = await Promise.all([
+        this.fetchAccountInformation(metaApiAccountId, resolvedRegion),
+        optional('account', () => this.getAccount(metaApiAccountId), null),
+        optional('positions', () => this.getPositions(metaApiAccountId, resolvedRegion), []),
+        optional('pendingOrders', () => this.getPendingOrders(metaApiAccountId, resolvedRegion), []),
+        optional('deals', () => this.getHistoryDeals(metaApiAccountId, from, to, resolvedRegion), []),
+        optional('orderHistory', () => this.getHistoryOrders(metaApiAccountId, from, to, resolvedRegion), []),
+        optional('symbols', () => this.getSymbols(metaApiAccountId, resolvedRegion), []),
+        optional('terminalState', () => this.getTerminalState(metaApiAccountId, resolvedRegion), null),
+      ]);
+
+      const marketSymbols = [
+        ...new Set(
+          [...positions, ...pendingOrders]
+            .map((row) => String(row?.symbol ?? '').trim())
+            .filter(Boolean),
+        ),
+      ].slice(0, 25);
+      const marketData = await optional(
+        'marketData',
+        async () =>
+          (
+            await Promise.all(
+              marketSymbols.map(async (symbol) => ({
+                symbol,
+                tick: await this.getLatestTick(
+                  metaApiAccountId,
+                  symbol,
+                  resolvedRegion,
+                ),
+                specification: await this.getSymbolSpecification(
+                  metaApiAccountId,
+                  symbol,
+                  resolvedRegion,
+                ),
+              })),
+            )
+          ).filter((row) => row.tick || row.specification),
+        [],
+      );
+
+      return {
+        info,
+        account,
+        positions,
+        pendingOrders,
+        deals,
+        orderHistory,
+        symbols,
+        marketData,
+        terminalState,
+        copyTrading: null,
+        latencyMs: Date.now() - start,
+        sectionErrors,
+      };
+    } catch (err: any) {
+      this.logger.warn(
+        `MetaAPI required account snapshot failed for ${metaApiAccountId}: ${
+          err?.response?.data?.message || err?.message || 'unknown error'
+        }`,
+      );
+      return null;
+    }
+  }
+
   async getAccountSnapshot(
     metaApiAccountId: string,
     region?: string,
@@ -511,6 +659,8 @@ export class MetaTraderAdapter {
     equity: number;
     margin: number;
     freeMargin: number;
+    marginLevel: number;
+    credit: number;
     currency?: string;
   } | null> {
     if (!this.isLive || !metaApiAccountId) return null;
@@ -525,6 +675,8 @@ export class MetaTraderAdapter {
         equity: Number(d?.equity ?? d?.balance ?? 0),
         margin: Number(d?.margin ?? 0),
         freeMargin: Number(d?.freeMargin ?? 0),
+        marginLevel: Number(d?.marginLevel ?? 0),
+        credit: Number(d?.credit ?? 0),
         currency: d?.currency,
       };
     } catch {
@@ -532,11 +684,6 @@ export class MetaTraderAdapter {
     }
   }
 
-  /**
-   * Closed + open deals in a time window, for durable Trade-table persistence.
-   * Raw MetaAPI deal objects — grouping into closed positions happens in the
-   * calling service so it can share logic with the manual-close reconciler.
-   */
   async getHistoryDeals(
     metaApiAccountId: string,
     from: Date,
@@ -552,11 +699,6 @@ export class MetaTraderAdapter {
     return Array.isArray(res.data) ? res.data : [];
   }
 
-  /**
-   * Current account equity, cached per account for `EQUITY_TTL_MS` to avoid
-   * hammering the client API during high-frequency copy fan-out. Returns null
-   * when unavailable so callers can fall back to a recorded baseline.
-   */
   async getLiveEquity(
     metaApiAccountId: string,
     region?: string,
@@ -582,7 +724,6 @@ export class MetaTraderAdapter {
     }
   }
 
-  /** Assign CopyFactory PROVIDER or SUBSCRIBER role to an existing MetaAPI account. */
   async ensureCopyFactoryRoles(
     metaApiAccountId: string,
     roles: Array<'PROVIDER' | 'SUBSCRIBER'>,
@@ -608,7 +749,6 @@ export class MetaTraderAdapter {
     }
   }
 
-  /** Wait until MetaAPI reports the account terminal is connected to the broker. */
   async waitForDeployed(
     metaApiAccountId: string,
     maxMs = 90_000,
@@ -617,7 +757,6 @@ export class MetaTraderAdapter {
     return this.waitForConnection(metaApiAccountId, maxMs);
   }
 
-  /** Remove a MetaAPI account when the user disconnects. */
   async deprovision(metaApiAccountId: string): Promise<void> {
     if (!this.isLive || !metaApiAccountId) return;
     try {
@@ -633,18 +772,14 @@ export class MetaTraderAdapter {
     }
   }
 
-  // ── helpers ──────────────────────────────────────────────────────────────
-
   private headers() {
     return { 'auth-token': this.token };
   }
 
-  /** Region-specific MetaAPI client/trading API host. */
   private clientUrl(region: string): string {
     return `https://mt-client-api-v1.${region}.agiliumtrade.ai`;
   }
 
-  /** GET the provisioning record for an account (region, state, etc.). */
   private async getAccount(accountId: string): Promise<any> {
     const res = await this.http.get(
       `${this.provisioningUrl}/users/current/accounts/${accountId}`,
@@ -653,11 +788,6 @@ export class MetaTraderAdapter {
     return res.data;
   }
 
-  /**
-   * Find an already-provisioned MetaAPI account matching this login + server so
-   * we can reuse it instead of creating a duplicate. Prefers an account that is
-   * already deployed/connected to avoid a cold-start wait.
-   */
   private async findExistingAccount(
     login: string,
     server: string,
@@ -689,7 +819,6 @@ export class MetaTraderAdapter {
     }
   }
 
-  /** Resolve an account's region, using the cache, then the account record. */
   private async resolveRegion(
     accountId: string,
     hint?: string,
@@ -729,12 +858,6 @@ export class MetaTraderAdapter {
     return info.data;
   }
 
-  /**
-   * Poll the provisioning record until the account is DEPLOYED and its terminal
-   * reports CONNECTED to the broker. Returns false (without throwing) if the
-   * connection isn't established within the window — the caller then treats the
-   * account as provisioned-but-pending rather than failed.
-   */
   private async waitForConnection(
     accountId: string,
     maxMs = 60_000,
@@ -756,8 +879,6 @@ export class MetaTraderAdapter {
           return true;
         }
       } catch (err: any) {
-        // A transient read error shouldn't abort the whole wait loop, but a
-        // genuine DEPLOY_FAILED (thrown above) should bubble up.
         if (err.message?.includes('deployment failed')) throw err;
       }
       await new Promise((r) => setTimeout(r, interval));

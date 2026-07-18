@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function LeaderboardSkeleton() {
   return (
     <div className="space-y-6 p-6 animate-in fade-in duration-300">
-      {/* Period tabs */}
+      { }
       <div className="flex items-center justify-between">
         <Skeleton className="h-5 w-40" />
         <div className="flex gap-2">
@@ -12,7 +12,7 @@ export function LeaderboardSkeleton() {
         </div>
       </div>
 
-      {/* Top 3 podium */}
+      { }
       <div className="grid grid-cols-3 gap-4">
         {[1, 0, 2].map((i) => (
           <div key={i} className={`rounded-2xl border border-white/[0.06] bg-muted/2 p-4 space-y-3 ${i === 0 ? "mt-0" : "mt-6"}`}>
@@ -23,7 +23,7 @@ export function LeaderboardSkeleton() {
         ))}
       </div>
 
-      {/* Table rows */}
+      { }
       <div className="rounded-2xl border border-white/[0.06] bg-muted/2 overflow-hidden">
         {Array.from({ length: 10 }).map((_, i) => (
           <div key={i} className="flex items-center gap-4 px-5 py-3.5 border-b border-white/[0.04] last:border-0">

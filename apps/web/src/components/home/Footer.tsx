@@ -12,7 +12,6 @@ const InstagramIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-
 const footerLinks = {
   Product: [
     { name: "Features", href: "/#features" },
@@ -41,7 +40,6 @@ const footerLinks = {
   ],
 };
 
-
 export function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-border bg-bg-secondary pb-[calc(3rem+env(safe-area-inset-bottom,0px))] pt-16 sm:pt-24">
@@ -50,7 +48,7 @@ export function Footer() {
           <TrustBadges />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-16 lg:gap-24 mb-12 lg:mb-24">
-          {/* Logo & Foundation */}
+          { }
           <div className="lg:col-span-5">
             <Link href="/" className="flex items-center gap-3 mb-8 group">
               <BrandLogo size="lg" />
@@ -78,7 +76,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Your Navigation */}
+          { }
           <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12">
             {Object.entries(footerLinks).map(([title, links]) => (
               <div key={title} className="flex flex-col gap-3 md:gap-6">
@@ -102,7 +100,7 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Global Status Bar */}
+        { }
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="hidden sm:flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -122,7 +120,7 @@ export function Footer() {
           </p>
         </div>
 
-        {/* Mobile Disclosure */}
+        { }
         <div className="mt-8 pt-8 border-t border-border text-center w-full">
           <p className="text-micro text-foreground/35 leading-relaxed font-mono max-w-4xl mx-auto uppercase tracking-wide">
             Risk Disclosure: Digital asset trading involves substantial risk of

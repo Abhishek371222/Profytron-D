@@ -2,7 +2,6 @@ import { http, HttpResponse } from 'msw';
 import { mockUser, mockStrategies, mockTrades, mockTickerData } from '../data';
 
 export const handlers = [
- // Auth
  http.get('/api/auth/me', () => {
  return HttpResponse.json(mockUser);
  }),
@@ -10,7 +9,6 @@ export const handlers = [
  http.post('/api/auth/login', async ({ request }: { request: Request }) => {
  const { email, password } = await request.json() as any;
  
- // Demo credentials check
  if (email === 'demo@profytron.com' && password === 'Demo@123') {
  return HttpResponse.json({
  user: mockUser,
@@ -27,7 +25,6 @@ export const handlers = [
  http.post('/api/auth/register', async ({ request }: { request: Request }) => {
  const { email } = await request.json() as any;
  
- // Simulate email already exists for one specific case
  if (email === 'voss@profytron.ai') {
  return new HttpResponse(JSON.stringify({ error: 'Email already registered' }), {
  status: 409,
@@ -45,7 +42,6 @@ export const handlers = [
  });
  }),
 
- // Strategies
  http.get('/api/strategies', () => {
  return HttpResponse.json(mockStrategies);
  }),
@@ -56,17 +52,14 @@ export const handlers = [
  return HttpResponse.json(strategy);
  }),
 
- // Trades
  http.get('/api/trades', () => {
  return HttpResponse.json(mockTrades);
  }),
 
- // Market
  http.get('/api/market/ticker', () => {
  return HttpResponse.json(mockTickerData);
  }),
 
- // Trading Actions
  http.post('/api/trades/execute', async ({ request }: { request: Request }) => {
  const data = await request.json();
  const newTrade = {

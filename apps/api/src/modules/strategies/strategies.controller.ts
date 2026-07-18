@@ -284,9 +284,6 @@ export class StrategiesController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),
-      // Ceiling across all kinds — StrategyDocumentsService.uploadDocument
-      // enforces the tighter per-kind limit (image 5MB, PDF/data 10MB) once
-      // it knows which `kind` this upload actually is.
       limits: { fileSize: 10 * 1024 * 1024 },
     }),
   )

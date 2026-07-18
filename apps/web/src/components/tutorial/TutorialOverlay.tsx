@@ -66,8 +66,6 @@ export function TutorialOverlay() {
   const step = steps[currentIndex];
   const isLastStep = currentIndex === steps.length - 1;
 
-  // Finishing the tour should land the user back on the dashboard overview,
-  // regardless of which page the last step happened to be on.
   const handleNext = React.useCallback(() => {
     next();
     if (isLastStep) {
@@ -75,16 +73,8 @@ export function TutorialOverlay() {
     }
   }, [next, isLastStep, router]);
 
-  // Match the application shell breakpoint. Below 1024px the sidebar is
-  // off-canvas, so desktop selector-based spotlights are not meaningful and we
-  // spotlight the bottom-nav icons (or page content) instead.
   const { isLgUp: isDesktop } = useBreakpoint();
 
-  // Device-aware spotlight target:
-  // - desktop: always the sidebar/page selector
-  // - mobile with mobileTarget string: the bottom-nav icon
-  // - mobile with mobileTarget null: no spotlight (card only)
-  // - mobile with mobileTarget undefined: fall back to the page target
   const effectiveTarget = !step
     ? null
     : isDesktop
@@ -103,9 +93,6 @@ export function TutorialOverlay() {
   const [mounted, setMounted] = React.useState(false);
   const cardMeasureRef = React.useRef<HTMLDivElement>(null);
 
-  // Reset immediately whenever the step changes — even before a cross-page
-  // navigation finishes — so the previous step's position/card never bleeds
-  // into the next step while the new page is still loading.
   React.useEffect(() => {
     setRect(null);
     setCardPos(null);
@@ -113,18 +100,14 @@ export function TutorialOverlay() {
     setIsEmptyState(false);
   }, [step]);
 
-  // Portal target only exists client-side, after mount.
   React.useEffect(() => setMounted(true), []);
 
-  // A step that waits for a broker connection is already satisfied if the user
-  // connected one earlier (e.g. replaying the tour) — don't force a reconnect.
   React.useEffect(() => {
     if (active && step?.waitForAction === 'broker-connected' && hasBrokerAccount) {
       notifyAction('broker-connected');
     }
   }, [active, step, hasBrokerAccount, notifyAction]);
 
-  // Navigate to the step's page if we're not already there.
   React.useEffect(() => {
     if (!active || !step) return;
     if (pathname !== step.page) {
@@ -132,12 +115,8 @@ export function TutorialOverlay() {
     }
   }, [active, step, pathname, router]);
 
-  // Locate the target element once on the right page: scroll it into view, measure it,
-  // and keep tracking it on scroll/resize until the step changes.
   React.useEffect(() => {
     if (!active || !step || pathname !== step.page) return;
-    // Steps that explicitly opt out of a mobile spotlight (mobileTarget: null)
-    // render as a card only — nothing to locate.
     if (!effectiveTarget && !step.emptySelector) return;
 
     let cancelled = false;
@@ -149,9 +128,6 @@ export function TutorialOverlay() {
       setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
     };
 
-    // If the step declares an "empty state" indicator (e.g. an empty-results
-    // message) and it's present in the DOM, spotlight that instead of the
-    // normal target — and let the caller know so it can swap in different copy.
     const resolveTarget = (): { el: HTMLElement; empty: boolean } | null => {
       if (step.emptySelector && document.querySelector(step.emptySelector)) {
         const emptyEl = document.querySelector<HTMLElement>(step.emptyTarget ?? step.emptySelector);
@@ -184,9 +160,6 @@ export function TutorialOverlay() {
       if (elapsed < FIND_TARGET_TIMEOUT_MS) {
         pollTimer = window.setTimeout(tryFind, FIND_TARGET_POLL_MS);
       } else if (!cancelled) {
-        // Target never showed up. Rather than silently vanishing the step (which
-        // just looks like the tour skipped itself), fall back to showing the card
-        // with no spotlight so the user can still read it and choose Next/Skip.
         setSearchExhausted(true);
       }
     };
@@ -200,7 +173,6 @@ export function TutorialOverlay() {
     };
   }, [active, step, pathname, effectiveTarget]);
 
-  // Measure the (desktop-only) floating card once we have a target rect, then position it.
   React.useLayoutEffect(() => {
     if (!isDesktop || !rect || !step) return;
     const node = cardMeasureRef.current;
@@ -209,7 +181,6 @@ export function TutorialOverlay() {
     setCardPos(computeCardPosition(rect, step.placement, size));
   }, [isDesktop, rect, step]);
 
-  // Keyboard shortcuts: Esc skips, Enter/→ always advances (recommended actions never block).
   React.useEffect(() => {
     if (!active) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -225,8 +196,6 @@ export function TutorialOverlay() {
 
   if (!active || !step || !mounted) return null;
 
-  // Swap in "empty state" copy when the step detected one (e.g. no strategies
-  // match the marketplace filters) instead of describing content that isn't there.
   const displayStep = isEmptyState && step.emptyBody ? { ...step, body: step.emptyBody } : step;
 
   return createPortal(
@@ -235,7 +204,7 @@ export function TutorialOverlay() {
 
       {isDesktop ? (
         <>
-          {/* Hidden measurement pass so the card can be positioned before it's shown */}
+          { }
           <div ref={cardMeasureRef} className="fixed -top-[9999px] left-0 pointer-events-none opacity-0" aria-hidden>
             <TutorialCard
               step={displayStep}
@@ -270,8 +239,6 @@ export function TutorialOverlay() {
                 />
               </motion.div>
             ) : searchExhausted ? (
-              // Couldn't find this step's target on the page — show the card anyway
-              // (centered, no spotlight) so the step is never silently invisible.
               <motion.div
                 key={step.id}
                 className="fixed z-[47] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"

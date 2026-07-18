@@ -22,9 +22,6 @@ import { toast } from 'sonner';
 const PROVIDERS = ['GCP', 'AWS', 'DIGITALOCEAN', 'LINODE', 'VULTR'] as const;
 type Provider = (typeof PROVIDERS)[number];
 
-// Only GCP is actually wired to real provisioning right now (Google Compute
-// Engine). The others stay visible but disabled rather than removed — no
-// live integration exists for them yet.
 const CONNECTED_PROVIDERS: Provider[] = ['GCP'];
 
 const PROVIDER_LABELS: Record<Provider, string> = {
@@ -160,7 +157,7 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
       className={cn('rounded-2xl border bg-gradient-to-br overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]', gradientClass)}
     >
       <div className="p-5 space-y-4">
-        {/* Header */}
+        { }
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center border', isRunning ? 'bg-chart-3/10 border-chart-3/20' : 'bg-foreground/5 border-border')}>
@@ -174,7 +171,7 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
           <StatusBadge status={vps.status} />
         </div>
 
-        {/* Specs */}
+        { }
         <div className="grid grid-cols-3 gap-3">
           <div className="p-3 rounded-xl bg-foreground/5 border border-[var(--card-border)] text-center">
             <Cpu className="w-4 h-4 text-foreground/25 mx-auto mb-1" />
@@ -193,7 +190,7 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
           </div>
         </div>
 
-        {/* Actions */}
+        { }
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             {isRunning ? (
@@ -242,7 +239,7 @@ function VpsCard({ vps, index }: { vps: VpsAccount; index: number }) {
         </div>
       </div>
 
-      {/* Bot List */}
+      { }
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -440,7 +437,7 @@ export default function BotsPage() {
         <DashStatCard label="Monthly Cost" value={`$${totalCost.toFixed(0)}`} />
       </div>
 
-      {/* VPS Grid */}
+      { }
       {isLoading ? (
         <div className="grid gap-4">
           {Array.from({ length: 2 }).map((_, i) => (

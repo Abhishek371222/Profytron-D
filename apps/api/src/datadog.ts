@@ -1,9 +1,5 @@
 import { Logger } from '@nestjs/common';
 
-/**
- * Datadog APM (dd-trace). Must load before express/nest/http clients.
- * On ECS Fargate, run the Datadog Agent sidecar and set DD_AGENT_HOST=localhost.
- */
 const logger = new Logger('Datadog');
 
 function initDatadogApm(): void {

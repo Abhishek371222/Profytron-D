@@ -21,7 +21,6 @@ async function initPostHog() {
     window.posthog = posthog as PostHogClient;
     posthogInitialized = true;
   } catch {
-    /* optional analytics */
   }
 }
 

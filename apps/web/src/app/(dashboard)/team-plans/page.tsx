@@ -6,8 +6,8 @@ import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { plansApi, type PlatformPlan } from '@/lib/api/plans';
+import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import {
   Bot,
   Check,
@@ -19,13 +19,6 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface CurrentSubscription {
-  plan?: { name?: string };
-  planName?: string;
-}
 
 const TIER_ICON: Record<string, React.ElementType> = {
   FREE: Bot,
@@ -42,8 +35,6 @@ const TIER_ICON_BG: Record<string, string> = {
   BUSINESS: 'bg-chart-2/10 text-chart-2',
   INSTITUTIONAL: 'bg-chart-4/10 text-chart-4',
 };
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatInr(amount: number) {
   if (amount < 0) return 'Custom';
@@ -69,8 +60,6 @@ function CellValue({ value }: { value: number | boolean }) {
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default function TeamPlansPage() {
   const [annual, setAnnual] = React.useState(false);
 
@@ -79,34 +68,27 @@ export default function TeamPlansPage() {
     queryFn: () => plansApi.getPlans(),
   });
 
-  const currentQuery = useQuery({
-    queryKey: ['subscription-current'],
-    queryFn: async () => {
-      const res = await apiClient.get('/subscriptions/current');
-      return unwrapApiResponse<CurrentSubscription>(res.data);
-    },
-  });
+  const { data: currentUser } = useCurrentUser();
 
   const plans = plansQuery.data ?? [];
-  const current = currentQuery.data;
-  const activeTier = (current?.plan?.name ?? current?.planName ?? 'FREE').toUpperCase();
+  const activeTier = String(currentUser?.subscriptionTier ?? 'FREE').toUpperCase();
 
   const handleGetStarted = (plan: PlatformPlan) => {
     if (plan.tier === 'FREE') return;
-    if (plan.ctaHref.startsWith('mailto:')) return; // handled by the anchor itself
+    if (plan.ctaHref.startsWith('mailto:')) return;
     toast.info(`Redirecting to checkout for ${plan.name} plan…`);
   };
 
   return (
     <div className="space-y-10 pb-12">
-      {/* Breadcrumb */}
+      { }
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
         <Link href="/dashboard" className="hover:underline">Dashboard</Link>
         <ChevronRight className="h-3 w-3 text-muted-foreground" />
         <span className="text-foreground">Team Plans</span>
       </div>
 
-      {/* Header */}
+      { }
       <div className="text-center space-y-3 max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -134,7 +116,7 @@ export default function TeamPlansPage() {
           Scale your bot trading with the right plan. Cancel or upgrade anytime.
         </motion.p>
 
-        {/* Monthly / Annual toggle */}
+        { }
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -170,7 +152,7 @@ export default function TeamPlansPage() {
         </motion.div>
       </div>
 
-      {/* Plan Cards Grid */}
+      { }
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
         {plans.map((plan, idx) => {
           const isActive = activeTier === plan.tier;
@@ -288,7 +270,7 @@ export default function TeamPlansPage() {
         })}
       </div>
 
-      {/* Guarantees bar */}
+      { }
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -307,7 +289,7 @@ export default function TeamPlansPage() {
         ))}
       </motion.div>
 
-      {/* Compare Plans Table */}
+      { }
       {plans.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}

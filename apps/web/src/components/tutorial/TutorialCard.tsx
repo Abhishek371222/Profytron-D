@@ -9,7 +9,6 @@ type Props = {
   step: TourStep;
   index: number;
   total: number;
-  /** Whether step.waitForAction has been satisfied. Advisory only — never blocks Next. */
   actionSatisfied: boolean;
   onBack: () => void;
   onNext: () => void;

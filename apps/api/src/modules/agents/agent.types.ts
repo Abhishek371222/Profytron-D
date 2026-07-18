@@ -86,7 +86,6 @@ export const MODEL_TIERS = {
 
 export type ModelTier = keyof typeof MODEL_TIERS;
 
-/** When true, agents use L1 only with tight token/cost caps (default: on). */
 export function isAgentsLowUsage(): boolean {
   return process.env.AGENTS_LOW_USAGE !== 'false';
 }

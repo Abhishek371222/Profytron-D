@@ -11,7 +11,6 @@ import {
 export type BulkCloseScope = 'ALL' | 'BUYS' | 'SELLS' | 'PROFITABLE' | 'LOSING';
 
 export class CloseTradeDto {
-  /** Partial-close volume in lots. Omit (or >= position volume) to close fully. */
   @IsOptional()
   @IsNumber()
   @IsPositive()
@@ -31,7 +30,6 @@ export class ModifyTradeDto {
 }
 
 export class BreakEvenDto {
-  /** Pips of buffer to add beyond entry (default 0 = exact break-even). */
   @IsOptional()
   @IsNumber()
   @Min(0)
@@ -39,7 +37,6 @@ export class BreakEvenDto {
 }
 
 export class TrailingStopDto {
-  /** Price distance the stop trails behind the market. */
   @IsNumber()
   @IsPositive()
   distance!: number;

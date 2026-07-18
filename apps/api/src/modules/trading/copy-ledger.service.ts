@@ -2,10 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TradeEventType, ExecutionStatus, Prisma } from '@prisma/client';
 
-/**
- * Append-only ledger for the copy-trading lifecycle. All writes are
- * best-effort: a logging failure must never break trade execution.
- */
 @Injectable()
 export class CopyLedgerService {
   private readonly logger = new Logger(CopyLedgerService.name);

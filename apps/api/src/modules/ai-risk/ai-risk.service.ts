@@ -10,11 +10,9 @@ import {
   computeMaxDrawdownPct,
 } from '../trading/utils/pnl.util';
 
-/** Cache TTL in seconds */
-const TTL_RISK_SCORE = 2 * 60; // 2 minutes — score is derived from closed trades
-const TTL_RISK_METRICS = 2 * 60; // 2 minutes — same reasoning
+const TTL_RISK_SCORE = 2 * 60;
+const TTL_RISK_METRICS = 2 * 60;
 
-/** Fallback risk response returned when calculation fails */
 const RISK_SCORE_FALLBACK = 0;
 const RISK_METRICS_FALLBACK = {
   totalTrades: 0,
@@ -37,11 +35,9 @@ export interface RiskEvaluation {
   allowed: boolean;
   code?: RiskBreachCode;
   reason?: string;
-  /** True when the breach should halt all trading (close + pause), not just block a new entry. */
   hardStop?: boolean;
 }
 
-/** Equity baseline used when an account has no recorded initial equity. */
 const DEFAULT_BASE_EQUITY = 10_000;
 
 @Injectable()
@@ -128,11 +124,6 @@ export class AiRiskService {
     return false;
   }
 
-  /**
-   * Deterministic pre-trade risk gate. Called from the trade execution worker
-   * BEFORE a position is opened. Returns `{ allowed: false }` with a reason
-   * when a configured limit would be breached. No policy → always allowed.
-   */
   async evaluatePreTrade(
     userId: string,
     subscriptionId?: string,
@@ -155,7 +146,6 @@ export class AiRiskService {
       this.resolveBaseEquity(userId),
     ]);
 
-    // 1. Max open positions
     if (
       policy.maxOpenTrades != null &&
       openTrades.length >= policy.maxOpenTrades
@@ -191,7 +181,6 @@ export class AiRiskService {
       }
     }
 
-    // 2. Daily loss in USD
     if (policy.maxDailyLossUsd != null && dailyLoss >= policy.maxDailyLossUsd) {
       return {
         allowed: false,
@@ -201,7 +190,6 @@ export class AiRiskService {
       };
     }
 
-    // 3. Daily loss as % of equity
     if (policy.maxDailyLossPct != null) {
       const lossPct = baseEquity > 0 ? (dailyLoss / baseEquity) * 100 : 0;
       if (lossPct >= policy.maxDailyLossPct) {
@@ -214,7 +202,6 @@ export class AiRiskService {
       }
     }
 
-    // 4. Daily win target — lock in profit rather than give it back.
     if (policy.autoStopAfterWin && policy.dailyWinTargetUsd != null) {
       const dailyProfit = todaysClosed.reduce(
         (sum, t) => sum + (t.profit ?? 0),
@@ -230,7 +217,6 @@ export class AiRiskService {
       }
     }
 
-    // 5. Max drawdown
     if (policy.maxDrawdownPct != null) {
       const dd = await this.currentDrawdownPct(userId, baseEquity);
       if (dd >= policy.maxDrawdownPct) {
@@ -243,8 +229,6 @@ export class AiRiskService {
       }
     }
 
-    // 6. Rolling win rate floor — same 100-trade window as getRiskScore.
-    // Skip below 5 trades; a win rate over 1-4 trades is noise, not a signal.
     if (policy.minWinRate != null) {
       const recentClosed = await this.prisma.trade.findMany({
         where: { userId, status: 'CLOSED' },
@@ -268,7 +252,6 @@ export class AiRiskService {
     return { allowed: true };
   }
 
-  /** Resolve an equity baseline for % limits from the user's default broker account. */
   private async resolveBaseEquity(userId: string): Promise<number> {
     const account = await this.prisma.brokerAccount.findFirst({
       where: { userId, isActive: true },
@@ -291,10 +274,6 @@ export class AiRiskService {
     return computeMaxDrawdownPct(trades, baseEquity);
   }
 
-  /**
-   * Hard risk stop: pause the user's active copy subscriptions and queue a
-   * close for every open position. Idempotent — safe to call repeatedly.
-   */
   async enforceRiskStop(userId: string, evaluation: RiskEvaluation) {
     const activeSubs = await this.prisma.userStrategySubscription.findMany({
       where: { userId, status: SubscriptionStatus.ACTIVE },
@@ -388,8 +367,6 @@ export class AiRiskService {
 
       for (const policy of policies) {
         const evaluation = await this.evaluatePreTrade(policy.userId);
-        // Only auto-close on hard stops (loss/drawdown), and only when the user
-        // opted into auto-stop. Max-open-trades just blocks new entries.
         if (evaluation.allowed || !evaluation.hardStop) continue;
         if (!policy.autoStopAfterLoss) continue;
         await this.enforceRiskStop(policy.userId, evaluation);
@@ -424,14 +401,12 @@ export class AiRiskService {
 
       let score = 0;
 
-      // Win rate component (max 30 pts)
       const wins = trades.filter((t) => (t.profit ?? 0) > 0).length;
       const winRate = (wins / trades.length) * 100;
       if (winRate < 30) score += 30;
       else if (winRate < 45) score += 20;
       else if (winRate < 55) score += 10;
 
-      // Max drawdown component (max 30 pts)
       let peakBalance = 10000;
       let runningBalance = 10000;
       let maxDrawdown = 0;
@@ -448,7 +423,6 @@ export class AiRiskService {
       else if (maxDrawdown > 15) score += 20;
       else if (maxDrawdown > 5) score += 10;
 
-      // Consecutive loss streak at head of history (max 25 pts)
       let streak = 0;
       for (const t of trades) {
         if ((t.profit ?? 0) < 0) streak++;
@@ -458,7 +432,6 @@ export class AiRiskService {
       else if (streak >= 3) score += 15;
       else if (streak >= 2) score += 5;
 
-      // Overtrading check (max 15 pts) — avg trades/day
       if (trades.length >= 10) {
         const oldest = trades[trades.length - 1].closedAt ?? new Date();
         const newest = trades[0].closedAt ?? new Date();

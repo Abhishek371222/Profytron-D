@@ -129,7 +129,7 @@ export function WorkspaceBootstrapScreen() {
           aria-busy={!exiting}
           role="status"
         >
-          {/* Atmosphere */}
+          { }
           <div className="absolute inset-0 bg-[radial-gradient(1200px_700px_at_50%_-10%,color-mix(in_srgb,var(--primary)_22%,transparent),transparent_60%),linear-gradient(160deg,#f7fbfc_0%,#eef6f8_45%,#f8fafb_100%)] dark:bg-[radial-gradient(1000px_600px_at_50%_-10%,color-mix(in_srgb,var(--primary)_28%,transparent),transparent_55%),linear-gradient(165deg,#0b1214_0%,#101a1d_50%,#0d1416_100%)]" />
           <motion.div
             className="pointer-events-none absolute -left-24 top-1/4 h-72 w-72 rounded-full bg-[color-mix(in_srgb,var(--primary)_18%,transparent)] blur-3xl"
@@ -142,7 +142,7 @@ export function WorkspaceBootstrapScreen() {
             transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
           />
 
-          {/* Soft grid */}
+          { }
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.35] dark:opacity-[0.18]"
             style={{

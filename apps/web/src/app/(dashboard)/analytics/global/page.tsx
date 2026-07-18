@@ -60,7 +60,9 @@ export default function GlobalAnalyticsPage() {
   });
 
   const global =
-    globalQuery.data?.source === 'metaapi' || globalQuery.data?.source === 'empty'
+    globalQuery.data?.source === 'database' ||
+    globalQuery.data?.source === 'snapshot' ||
+    globalQuery.data?.source === 'empty'
       ? globalQuery.data
       : undefined;
   const leaderboard = leaderboardQuery.data;
@@ -73,7 +75,6 @@ export default function GlobalAnalyticsPage() {
     regimeLabel != null ? (global?.marketRegime?.confidence ?? null) : null;
   const macroEvents = global?.macroEvents ?? [];
   const sectorRotation = global?.sectorRotation ?? [];
-  // Prefer MetaAPI-backed account leaderboard from global; Nest DB leaderboard is often empty.
   const leaderRows =
     (global?.leaderboard?.length ? global.leaderboard : null) ??
     leaderboard?.rows ??

@@ -3,15 +3,20 @@
 import React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { invalidateAccountQueries } from '@/lib/queries/account-queries';
+import { invalidateAccountQueries, BROKER_ACCOUNTS_KEY } from '@/lib/queries/account-queries';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import {
   acquireTradingSocket,
   onTradingEvent,
   reconnectTradingSocket,
 } from '@/lib/realtime/trading-socket';
+import {
+  acquireAccountSnapshotSocket,
+  onSnapshotUpdate,
+  reconnectAccountSnapshotSocket,
+  type SnapshotUpdatePayload,
+} from '@/lib/realtime/account-snapshot-socket';
 
-/** Subscribes to trading WebSocket events and invalidates dashboard queries in real time. */
 export function useDashboardRealtime(enabled = true) {
   const queryClient = useQueryClient();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -21,6 +26,7 @@ export function useDashboardRealtime(enabled = true) {
     if (!enabled || !isAuthenticated || !accessToken) return;
 
     const release = acquireTradingSocket(accessToken);
+    const releaseSnapshot = acquireAccountSnapshotSocket(accessToken);
 
     const invalidate = (() => {
       let timer: ReturnType<typeof setTimeout> | null = null;
@@ -69,7 +75,6 @@ export function useDashboardRealtime(enabled = true) {
       ),
       onTradingEvent('new_notification', (payload: any) => {
         invalidate('notifications-unread');
-        // Show a toast for the incoming notification
         if (payload && typeof payload === 'object' && payload.title) {
           const isAlert = payload.priority === 'CRITICAL' || payload.priority === 'HIGH' || payload.category === 'SECURITY';
           if (isAlert) {
@@ -79,13 +84,42 @@ export function useDashboardRealtime(enabled = true) {
           }
         }
       }),
+      onSnapshotUpdate((payload: SnapshotUpdatePayload) => {
+        queryClient.invalidateQueries({
+          queryKey: ['account-snapshot-latest', payload.brokerAccountId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['account-snapshot-positions', payload.brokerAccountId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['account-snapshot-deals', payload.brokerAccountId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['account-snapshot-equity-history', payload.brokerAccountId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['account-snapshot-performance', payload.brokerAccountId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ['account-snapshot-risk', payload.brokerAccountId],
+        });
+        invalidate(
+          BROKER_ACCOUNTS_KEY[0],
+          'portfolio',
+          'open-trades',
+          'trade-history',
+          'dashboard-risk',
+        );
+      }),
     ];
 
     return () => {
       unsubs.forEach((off) => off());
       release();
+      releaseSnapshot();
     };
   }, [enabled, isAuthenticated, accessToken, queryClient]);
 }
 
 export { reconnectTradingSocket };
+export { reconnectAccountSnapshotSocket };

@@ -60,8 +60,6 @@ type PendingFile = {
 const fieldClass =
   'w-full rounded-xl border border-[var(--card-border)] bg-card px-3 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary/40';
 
-// Mirrors KIND_MAX_BYTES in apps/api/.../strategy-documents.service.ts — the
-// server enforces these for real; this is just fast client-side feedback.
 const KIND_MAX_BYTES: Record<StrategyDocumentKind, number> = {
   IMAGE: 5 * 1024 * 1024,
   PDF: 10 * 1024 * 1024,
@@ -222,7 +220,6 @@ export default function AddBotPage() {
         try {
           await strategiesApi.deleteStrategy(created.id);
         } catch {
-          // Best-effort rollback so a broken bot is not left pending
         }
         const firstReason =
           failedUploads[0].status === 'rejected'

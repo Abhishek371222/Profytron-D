@@ -13,7 +13,6 @@ export type BrokerEntry = {
   categories: string[];
   accent: string;
   integration: 'PAPER' | 'MT4' | 'MT5';
-  /** Pre-filled server names shown in the dropdown for this broker */
   servers?: string[];
 };
 
@@ -64,7 +63,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'PAPER',
     servers: [],
   },
-  // ── IC Markets ────────────────────────────────────────────────────────────
   {
     id: 'IC_MARKETS',
     name: 'IC Markets',
@@ -82,7 +80,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['ICMarketsLive3-MT5', 'ICMarketsLive-MT5 3', 'ICMarkets-Live01', 'ICMarkets-Demo01'],
   },
-  // ── Pepperstone ───────────────────────────────────────────────────────────
   {
     id: 'PEPPERSTONE',
     name: 'Pepperstone',
@@ -100,7 +97,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['Pepperstone-Live', 'Pepperstone-Demo01', 'Pepperstone-Edge-Live', 'Pepperstone-Edge-Demo'],
   },
-  // ── Exness ────────────────────────────────────────────────────────────────
   {
     id: 'EXNESS',
     name: 'Exness',
@@ -118,7 +114,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['Exness-Real', 'Exness-Trial', 'ExnessServer', 'ExnessServer-MT5Real'],
   },
-  // ── XM ────────────────────────────────────────────────────────────────────
   {
     id: 'XM',
     name: 'XM',
@@ -136,7 +131,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['XMTrading-MT5', 'XMTrading-MT5 2', 'XMTrading-MT5 3', 'XMTrading-Demo'],
   },
-  // ── FXTM ──────────────────────────────────────────────────────────────────
   {
     id: 'FXTM',
     name: 'FXTM',
@@ -154,7 +148,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['ForexTimeFXTM-Real', 'ForexTimeFXTM-Demo', 'FXTM-Real 2', 'ForexTimeFXTM-Real ECN'],
   },
-  // ── AvaTrade ──────────────────────────────────────────────────────────────
   {
     id: 'AVATRADE',
     name: 'AvaTrade',
@@ -172,7 +165,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['AvaTrade-Real', 'AvaTrade-Demo', 'AvaTrade MT5 Real', 'AvaTrade MT5 Demo'],
   },
-  // ── FP Markets ────────────────────────────────────────────────────────────
   {
     id: 'FP_MARKETS',
     name: 'FP Markets',
@@ -190,7 +182,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['FPMarkets-Live01', 'FPMarkets-Demo', 'FPMarkets-MT5-Real', 'FPMarkets-MT5-Demo'],
   },
-  // ── Tickmill ──────────────────────────────────────────────────────────────
   {
     id: 'TICKMILL',
     name: 'Tickmill',
@@ -208,7 +199,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['Tickmill-Live', 'Tickmill-Demo', 'Tickmill-Live2', 'Tickmill-MT5 Live'],
   },
-  // ── Axi ───────────────────────────────────────────────────────────────────
   {
     id: 'AXI',
     name: 'Axi',
@@ -226,7 +216,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['Axi-Live', 'Axi-Demo', 'AxiTrader-Live', 'AxiTrader-Demo'],
   },
-  // ── HFM ───────────────────────────────────────────────────────────────────
   {
     id: 'HFM',
     name: 'HFM',
@@ -244,7 +233,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['HFMarketsGlobal-Demo02', 'HFMarketsGlobal-Live5', 'HFMarketsGlobal-Live6', 'HFMarketsGlobal-Live 1'],
   },
-  // ── BlackBull ─────────────────────────────────────────────────────────────
   {
     id: 'BLACKBULL',
     name: 'BlackBull Markets',
@@ -262,7 +250,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['BlackBull-Live 1', 'BlackBull-Demo', 'BlackBull Markets Live', 'BlackBull Markets Demo'],
   },
-  // ── RoboForex ─────────────────────────────────────────────────────────────
   {
     id: 'ROBOFOREX',
     name: 'RoboForex',
@@ -280,7 +267,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['RoboForex-Real', 'RoboForex-Demo', 'RoboForex-ECN-Real', 'RoboForex-Pro'],
   },
-  // ── Admirals ──────────────────────────────────────────────────────────────
   {
     id: 'ADMIRALS',
     name: 'Admirals',
@@ -298,7 +284,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['Admirals-Live5', 'Admirals-Demo', 'AdmiralMarkets-Live', 'AdmiralMarkets-Demo'],
   },
-  // ── Vantage ───────────────────────────────────────────────────────────────
   {
     id: 'VANTAGE',
     name: 'Vantage',
@@ -316,7 +301,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['Vantage-Live', 'Vantage-Demo', 'VantageFX-Live', 'VantageFX-Demo'],
   },
-  // ── Eightcap ──────────────────────────────────────────────────────────────
   {
     id: 'EIGHTCAP',
     name: 'Eightcap',
@@ -334,7 +318,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['Eightcap-Live', 'Eightcap-Demo', 'EightcapLive-1', 'EightcapDemo-1'],
   },
-  // ── OANDA ─────────────────────────────────────────────────────────────────
   {
     id: 'OANDA',
     name: 'OANDA',
@@ -352,7 +335,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT4',
     servers: ['OANDA-v20 Live-1', 'OANDA-v20 Live-2', 'OANDA-v20 Practice', 'OANDA-fxTrade Practice'],
   },
-  // ── IG ────────────────────────────────────────────────────────────────────
   {
     id: 'IG',
     name: 'IG',
@@ -370,7 +352,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT4',
     servers: ['IG-demo', 'IG-live', 'IG-live2', 'IG-live3'],
   },
-  // ── Swissquote ────────────────────────────────────────────────────────────
   {
     id: 'SWISSQUOTE',
     name: 'Swissquote',
@@ -388,7 +369,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
     integration: 'MT5',
     servers: ['SWFX Trader', 'Swissquote Bank', 'Swissquote-Demo'],
   },
-  // ── Bitrage Markets ───────────────────────────────────────────────────────
   {
     id: 'BITRAGE',
     name: 'Bitrage Markets',
@@ -413,7 +393,6 @@ export const BROKER_DIRECTORY: BrokerEntry[] = [
   },
 ];
 
-/** Flat list of MT5 servers for connect dropdowns: "Broker — Server". */
 export function getMt5ServerOptions(): Array<{
   brokerId: string;
   brokerName: string;

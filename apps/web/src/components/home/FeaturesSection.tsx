@@ -16,7 +16,6 @@ import {
   LineChart,
 } from "lucide-react";
 import { LandingPrimaryLink, LandingSecondaryLink } from "@/components/home/LandingButtons";
-import { TiltCard3D } from "@/components/animations/TiltCard3D";
 
 function LatencyPill() {
   return (
@@ -30,57 +29,55 @@ function LatencyPill() {
 
 function OrbitVisual() {
   return (
-    <div className="relative w-full max-w-[200px] h-[130px] mx-auto">
+    <div className="relative mx-auto h-[130px] w-full max-w-[200px]">
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="absolute inset-0 rounded-full border border-primary/15"
+          className="absolute rounded-full border border-primary/15"
           style={{ inset: `${i * 14}%` }}
         />
       ))}
-      <motion.div
-        className="absolute w-2 h-2 rounded-full bg-primary top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-        animate={{ x: [0, 42, 0, -42, 0], y: [-44, 0, 44, 0, -44] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-        style={{ boxShadow: "0 0 12px rgba(71,167,170,0.5)" }}
-      />
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-2 h-2 rounded-full bg-primary/40" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10">
+          <span className="text-[10px] font-bold tracking-[0.18em] text-primary">OS</span>
+        </div>
       </div>
+      <div className="absolute left-[18%] top-[24%] h-2 w-2 rounded-full bg-primary/80" />
+      <div className="absolute right-[20%] top-[38%] h-2 w-2 rounded-full bg-[var(--chart-3)]" />
+      <div className="absolute bottom-[28%] left-[46%] h-2 w-2 rounded-full bg-primary/60" />
     </div>
   );
 }
 
 function RadarVis() {
   return (
-    <div className="relative w-[140px] h-[140px] mx-auto">
+    <div className="relative mx-auto h-[140px] w-[140px]">
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="absolute inset-0 rounded-full border border-primary/15"
+          className="absolute rounded-full border border-primary/15"
           style={{ inset: `${i * 18}%` }}
         />
       ))}
-      <motion.div
+      <div
         className="absolute inset-0 rounded-full"
         style={{
           background:
-            "conic-gradient(from 0deg, transparent 70%, rgba(71,167,170,0.2) 88%, transparent 100%)",
+            "conic-gradient(from 210deg, transparent 62%, rgba(71,167,170,0.22) 82%, transparent 100%)",
         }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
       />
       {[
         { top: "22%", left: "62%" },
         { top: "58%", left: "28%" },
         { top: "70%", left: "68%" },
       ].map((pos, i) => (
-        <div
-          key={i}
-          className="absolute w-1.5 h-1.5 rounded-full bg-primary"
-          style={pos}
-        />
+        <div key={i} className="absolute h-1.5 w-1.5 rounded-full bg-primary" style={pos} />
       ))}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="rounded-full border border-primary/20 bg-card/90 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.16em] text-primary">
+          Alpha
+        </span>
+      </div>
     </div>
   );
 }
@@ -163,18 +160,16 @@ function FeatureCard({
       transition={{ duration: 0.5, delay }}
       className="h-full"
     >
-      <TiltCard3D intensity={10} className="h-full">
-        <div className="rounded-[20px] border border-[var(--card-border)] bg-card p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)] h-full flex flex-col">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center mb-4">
-            <Icon className="w-5 h-5 text-primary" />
-          </div>
-          <h3 className="text-base font-bold text-foreground mb-2">{title}</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
-          <div className="mt-auto flex h-[176px] flex-col items-center justify-end gap-3 pt-4">
-            {children}
-          </div>
+      <div className="flex h-full flex-col rounded-[20px] border border-[var(--card-border)] bg-card p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+        <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-primary/15 bg-primary/10">
+          <Icon className="h-5 w-5 text-primary" />
         </div>
-      </TiltCard3D>
+        <h3 className="mb-2 text-base font-bold text-foreground">{title}</h3>
+        <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+        <div className="mt-auto flex h-[176px] flex-col items-center justify-end gap-3 pt-4">
+          {children}
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -185,7 +180,7 @@ export function FeaturesSection() {
       id="features"
       className="landing-section overflow-hidden border-t border-[var(--card-border)]"
     >
-      {/* Faint grid background */}
+      { }
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-[0.35]"
@@ -199,7 +194,7 @@ export function FeaturesSection() {
 
       <div className="page-container relative z-10 w-full">
         <div className="grid grid-cols-1 items-center gap-12 xl:gap-16 lg:grid-cols-2">
-          {/* ── Left column ── */}
+          { }
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -256,7 +251,7 @@ export function FeaturesSection() {
               ))}
             </div>
 
-            {/* Stats floating card + wavy line */}
+            { }
             <div className="relative max-w-md">
               <div className="rounded-[20px] border border-[var(--card-border)] bg-card px-5 py-4 shadow-[0_10px_40px_rgba(15,23,42,0.06)] flex flex-wrap gap-6 sm:gap-10">
                 <div className="flex items-center gap-3">
@@ -290,7 +285,7 @@ export function FeaturesSection() {
             </div>
           </motion.div>
 
-          {/* ── Right: 2×2 feature grid ── */}
+          { }
           <div id="features-grid" className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
             <FeatureCard
               icon={Zap}

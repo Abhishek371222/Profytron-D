@@ -105,12 +105,12 @@ export function GlobalCommandPalette() {
         className="max-w-[600px] bg-popover/97 backdrop-blur-2xl border border-border p-0 shadow-2xl overflow-hidden rounded-2xl"
         showCloseButton={false}
       >
-        {/* Top hairline */}
+        { }
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-        {/* Ambient glow */}
+        { }
         <div className="pointer-events-none absolute -top-12 left-1/2 -translate-x-1/2 w-64 h-24 rounded-full bg-primary/[0.08] blur-2xl" />
 
-        {/* Search input */}
+        { }
         <div className="relative flex items-center gap-3 border-b border-border px-4 py-3.5">
           <div className="relative">
             {loading ? (
@@ -131,7 +131,7 @@ export function GlobalCommandPalette() {
           </div>
         </div>
 
-        {/* Content */}
+        { }
         <div className="max-h-[420px] overflow-y-auto no-scrollbar">
           {showQuickLinks ? (
             <div className="p-3">
@@ -160,7 +160,7 @@ export function GlobalCommandPalette() {
                 })}
               </div>
 
-              {/* Keyboard hint */}
+              { }
               <div className="flex items-center justify-center gap-3 mt-4 pt-3 border-t border-border">
                 <div className="flex items-center gap-1 text-micro text-foreground/15">
                   <Command className="w-2.5 h-2.5" />

@@ -1,10 +1,8 @@
 "use client";
 
-import React from "react";
 import { ArrowRight, Play, Check, Sparkles } from "lucide-react";
 import { TrustBadges } from "@/components/trust/TrustBadges";
 import { StaggerFadeUp, StaggerItem } from "@/components/animations/StaggerFadeUp";
-import { MagneticWrap } from "@/components/animations";
 import { RotatingWords } from "@/components/animations/RotatingWords";
 import { HeroAmbientVisual } from "@/components/home/HeroAmbientVisual";
 import { HeroStatsRow } from "@/components/home/HeroStatsRow";
@@ -18,52 +16,6 @@ const TRIAL_POINTS = ["No Credit Card", "7-Day Trial", "Cancel Anytime"];
 export function HeroSection() {
   const mounted = useMounted();
   const { isAuthenticated } = useAuthStore();
-  const trustScrollRef = React.useRef<HTMLDivElement>(null);
-  const trustTrackRef = React.useRef<HTMLDivElement>(null);
-  const trustDrag = React.useRef<{ pointerId: number; startX: number; startScrollLeft: number } | null>(null);
-  const [trustScroll, setTrustScroll] = React.useState({ thumbWidthPct: 100, thumbLeftPct: 0, scrollable: false });
-
-  const updateTrustScroll = React.useCallback(() => {
-    const el = trustScrollRef.current;
-    if (!el) return;
-    const { scrollWidth, clientWidth, scrollLeft } = el;
-    const scrollable = scrollWidth - clientWidth > 4;
-    const thumbWidthPct = scrollable ? Math.max((clientWidth / scrollWidth) * 100, 20) : 100;
-    const maxScrollLeft = scrollWidth - clientWidth;
-    const thumbLeftPct =
-      scrollable && maxScrollLeft > 0 ? (scrollLeft / maxScrollLeft) * (100 - thumbWidthPct) : 0;
-    setTrustScroll({ thumbWidthPct, thumbLeftPct, scrollable });
-  }, []);
-
-  React.useEffect(() => {
-    updateTrustScroll();
-    window.addEventListener("resize", updateTrustScroll);
-    return () => window.removeEventListener("resize", updateTrustScroll);
-  }, [updateTrustScroll]);
-
-  const handleTrustThumbPointerDown = React.useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    const el = trustScrollRef.current;
-    if (!el) return;
-    trustDrag.current = { pointerId: e.pointerId, startX: e.clientX, startScrollLeft: el.scrollLeft };
-    e.currentTarget.setPointerCapture(e.pointerId);
-  }, []);
-
-  const handleTrustThumbPointerMove = React.useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    const el = trustScrollRef.current;
-    const track = trustTrackRef.current;
-    const drag = trustDrag.current;
-    if (!el || !track || !drag || drag.pointerId !== e.pointerId) return;
-    const maxScrollLeft = el.scrollWidth - el.clientWidth;
-    const thumbTravelPx = track.clientWidth * (1 - trustScroll.thumbWidthPct / 100);
-    if (thumbTravelPx <= 0) return;
-    const deltaX = e.clientX - drag.startX;
-    const scrollRatio = maxScrollLeft / thumbTravelPx;
-    el.scrollLeft = Math.min(Math.max(drag.startScrollLeft + deltaX * scrollRatio, 0), maxScrollLeft);
-  }, [trustScroll.thumbWidthPct]);
-
-  const handleTrustThumbPointerUp = React.useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    if (trustDrag.current?.pointerId === e.pointerId) trustDrag.current = null;
-  }, []);
 
   return (
     <section className="relative w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] pt-28 pb-14 dark:bg-background sm:pt-32 sm:pb-16 lg:pt-36 lg:pb-20">
@@ -101,8 +53,7 @@ export function HeroSection() {
               <StaggerItem>
                 <h1 className="hero-headline mb-5 text-[clamp(2.25rem,4.5vw,4rem)] leading-[1.05] sm:mb-6">
                   <span className="block text-foreground">Stop Trading</span>
-                  {/* Stable, complete accessible name for AT/SEO; the rotating
-                      words below are decorative and marked aria-hidden. */}
+                  { }
                   <span className="sr-only"> manually, emotionally, blindly, or slowly.</span>
                   <RotatingWords
                     block
@@ -122,29 +73,23 @@ export function HeroSection() {
               <StaggerItem>
                 <div className="mb-5 flex flex-col flex-wrap items-stretch gap-3 sm:flex-row sm:items-center">
                   {mounted && isAuthenticated ? (
-                    <MagneticWrap strength={0.22}>
-                      <LandingDashboardLink />
-                    </MagneticWrap>
+                    <LandingDashboardLink />
                   ) : (
-                    <MagneticWrap strength={0.28}>
-                      <LandingPrimaryLink href="/register?plan=starter">
-                        Start 7-Day Free Trial
-                        <ArrowRight className="h-4 w-4 shrink-0" />
-                      </LandingPrimaryLink>
-                    </MagneticWrap>
+                    <LandingPrimaryLink href="/register?plan=starter">
+                      Start 7-Day Free Trial
+                      <ArrowRight className="h-4 w-4 shrink-0" />
+                    </LandingPrimaryLink>
                   )}
-                  <MagneticWrap strength={0.15}>
-                    <LandingSecondaryLink
-                      href="#how-it-works"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
-                      }}
-                    >
-                      <Play className="h-4 w-4 shrink-0 fill-primary text-primary" />
-                      See How It Works
-                    </LandingSecondaryLink>
-                  </MagneticWrap>
+                  <LandingSecondaryLink
+                    href="#how-it-works"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                  >
+                    <Play className="h-4 w-4 shrink-0 fill-primary text-primary" />
+                    See How It Works
+                  </LandingSecondaryLink>
                 </div>
               </StaggerItem>
 
@@ -163,41 +108,7 @@ export function HeroSection() {
               </StaggerItem>
 
               <StaggerItem>
-                {/* data-lenis-prevent stops Lenis from capturing touch/wheel so this row can scroll horizontally on mobile */}
-                <div
-                  id="trust-badges-scroll"
-                  ref={trustScrollRef}
-                  data-lenis-prevent
-                  onScroll={updateTrustScroll}
-                  className="landing-trust-scroll -mx-1 touch-pan-x overflow-x-auto pb-1"
-                >
-                  <TrustBadges compact className="min-w-max px-1 sm:min-w-0 sm:flex-wrap" />
-                </div>
-                {trustScroll.scrollable && (
-                  <div
-                    ref={trustTrackRef}
-                    className="relative mt-1 flex h-5 w-full touch-none items-center"
-                    role="scrollbar"
-                    aria-controls="trust-badges-scroll"
-                    aria-orientation="horizontal"
-                    aria-valuenow={Math.round(trustScroll.thumbLeftPct)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  >
-                    <div className="pointer-events-none absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[var(--card-border)]" />
-                    <div
-                      onPointerDown={handleTrustThumbPointerDown}
-                      onPointerMove={handleTrustThumbPointerMove}
-                      onPointerUp={handleTrustThumbPointerUp}
-                      onPointerCancel={handleTrustThumbPointerUp}
-                      className="absolute top-1/2 h-1.5 -translate-y-1/2 cursor-grab rounded-full bg-primary active:cursor-grabbing"
-                      style={{
-                        width: `${trustScroll.thumbWidthPct}%`,
-                        left: `${trustScroll.thumbLeftPct}%`,
-                      }}
-                    />
-                  </div>
-                )}
+                <TrustBadges compact className="max-w-xl" />
               </StaggerItem>
               </StaggerFadeUp>
             </div>

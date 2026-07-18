@@ -15,7 +15,6 @@ export const maxDuration = 30;
 
 type Ctx = { params: Promise<{ id: string }> };
 
-/** Move SL to open price ± optional pip offset. */
 export async function POST(req: NextRequest, ctx: Ctx) {
   const userId = await userIdFromRequest(req);
   if (!userId) return error('Unauthorized', 401);
@@ -29,7 +28,6 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     const body = await req.json().catch(() => ({}));
     if (body?.offsetPips != null) offsetPips = Number(body.offsetPips) || 0;
   } catch {
-    // ignore
   }
 
   try {
@@ -43,7 +41,6 @@ export async function POST(req: NextRequest, ctx: Ctx) {
     const openPrice = Number(pos.openPrice || pos.priceOpen || 0);
     const type = String(pos.type || pos.side || '').toUpperCase();
     const isBuy = type.includes('BUY') || type.includes('LONG');
-    // Rough pip: 0.01 for XAU, 0.0001 for FX — use symbol digits if present
     const digits = Number(pos.digits ?? (String(pos.symbol || '').includes('XAU') ? 2 : 5));
     const pip = digits <= 3 ? 0.01 : 0.0001;
     const offset = offsetPips * pip;

@@ -1,7 +1,6 @@
 ﻿"use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Database,
   BrainCircuit,
@@ -92,7 +91,7 @@ function TimelineStep({
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className="relative pl-10 sm:pl-12"
     >
-      {/* Timeline node */}
+      { }
       <div
         className={cn(
           "absolute left-[3px] top-8 z-10 h-[18px] w-[18px] rounded-full border-[3px] border-[var(--bg-secondary)] dark:border-background",
@@ -131,19 +130,12 @@ function TimelineStep({
 }
 
 export function HowItWorks() {
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: timelineRef,
-    offset: ["start 0.85", "end 0.35"],
-  });
-  const lineScale = useTransform(scrollYProgress, [0, 1], [0, 1]);
-
   return (
     <section
       id="how-it-works"
       className="landing-section overflow-hidden border-t border-[var(--card-border)]"
     >
-      {/* Ambient blobs */}
+      { }
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute top-20 left-1/4 w-72 h-72 rounded-full bg-primary/10 blur-[100px]" />
         <div className="absolute bottom-10 right-1/4 w-80 h-80 rounded-full bg-[var(--chart-5)]/8 blur-[100px]" />
@@ -151,7 +143,7 @@ export function HowItWorks() {
 
       <div className="page-container relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20 items-start">
-          {/* ── Left ── */}
+          { }
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -173,7 +165,7 @@ export function HowItWorks() {
               {INTRO_COPY}
             </p>
 
-            {/* Testimonial */}
+            { }
             <div className="relative rounded-[20px] border border-primary/15 bg-gradient-to-br from-primary/[0.06] via-card to-card p-6 sm:p-8 shadow-[0_10px_40px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
               <Quote className="w-8 h-8 text-primary/50 mb-4" />
               <p className="text-base sm:text-lg text-foreground/90 leading-relaxed italic">
@@ -191,7 +183,7 @@ export function HowItWorks() {
                 </div>
               </div>
 
-              {/* Wavy data path */}
+              { }
               <svg
                 aria-hidden
                 viewBox="0 0 320 60"
@@ -210,18 +202,17 @@ export function HowItWorks() {
             </div>
           </motion.div>
 
-          {/* ── Right: timeline ── */}
-          <div ref={timelineRef} className="relative">
-            {/* Background track */}
+          { }
+          <div className="relative">
+            { }
             <div
               aria-hidden
               className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-[var(--card-border)]"
             />
-            {/* Animated progress fill */}
-            <motion.div
+            { }
+            <div
               aria-hidden
-              className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-gradient-to-b from-primary via-[var(--chart-5)] to-emerald-500 origin-top"
-              style={{ scaleY: lineScale }}
+              className="absolute left-[11px] top-6 bottom-6 w-[3px] rounded-full bg-gradient-to-b from-primary via-[var(--chart-5)] to-emerald-500"
             />
 
             <div className="space-y-5 sm:space-y-6">

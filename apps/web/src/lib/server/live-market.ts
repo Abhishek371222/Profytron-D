@@ -24,7 +24,6 @@ export type LiveQuote = {
   source: string;
 };
 
-/** Prefer the same venues as the TradingView chart on Markets. */
 const TV_TICKER: Record<MarketSymbol, { market: string; ticker: string }> = {
   XAUUSD: { market: 'cfd', ticker: 'OANDA:XAUUSD' },
   EURUSD: { market: 'forex', ticker: 'OANDA:EURUSD' },
@@ -118,18 +117,15 @@ async function fetchTradingViewQuotes(
           };
         }
       } catch {
-        /* fall through to Yahoo per-symbol */
       }
     }),
   );
   return out;
 }
 
-/** Yahoo works from Vercel; Binance is often blocked on serverless IPs. */
 const YAHOO_SYMBOL: Record<MarketSymbol, string> = {
   BTCUSDT: 'BTC-USD',
   EURUSD: 'EURUSD=X',
-  // XAUUSD=X often 404s; use COMEX futures and overwrite live price via TradingView.
   XAUUSD: 'GC=F',
   US30: '^DJI',
   NAS100: '^NDX',
@@ -214,7 +210,6 @@ function parseYahooCandles(body: any, timeframe: MarketTimeframe, limit: number)
 
   let candles: OhlcCandle[] = [];
   for (let i = 0; i < ts.length; i++) {
-    // Yahoo pads off-session bars with null → Number(null) === 0; skip those.
     const openRaw = opens[i];
     const highRaw = highs[i];
     const lowRaw = lows[i];
@@ -259,7 +254,6 @@ async function fetchYahooOhlc(
     const candles = parseYahooCandles(body, timeframe, limit);
     if (candles.length) return candles;
   } catch {
-    // try fallback ticker
   }
   const fallback = YAHOO_FALLBACK[symbol];
   if (!fallback) throw new Error(`No Yahoo OHLC for ${symbol}`);
@@ -270,7 +264,6 @@ async function fetchYahooOhlc(
 }
 
 async function fetchYahooQuote(symbol: MarketSymbol): Promise<LiveQuote> {
-  // Prefer recent intraday bars so quotes move during the session.
   let candles: OhlcCandle[] = [];
   try {
     candles = await fetchYahooOhlc(symbol, '15m', 40);
@@ -299,7 +292,6 @@ async function fetchYahooQuote(symbol: MarketSymbol): Promise<LiveQuote> {
   };
 }
 
-/** CoinGecko as BTC backup when Yahoo is slow. */
 async function fetchCoinGeckoBtc(): Promise<LiveQuote> {
   const res = await fetch(
     'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true',
@@ -333,7 +325,6 @@ export async function fetchLiveQuote(symbol: MarketSymbol): Promise<LiveQuote> {
   try {
     return await fetchTradingViewQuote(symbol);
   } catch {
-    /* Yahoo / CoinGecko fallback */
   }
   try {
     return await fetchYahooQuote(symbol);
@@ -357,7 +348,6 @@ export async function fetchLiveQuotes(
     try {
       quotes.push(await fetchLiveQuote(symbol));
     } catch {
-      /* skip missing symbol */
     }
   }
 
@@ -365,18 +355,15 @@ export async function fetchLiveQuotes(
     try {
       quotes.unshift(await fetchCoinGeckoBtc());
     } catch {
-      /* ignore */
     }
   }
 
   return quotes;
 }
 
-/** Reject Nest synthetic ticks so WS cannot overwrite live REST prices. */
 export function looksLikeSyntheticQuote(symbol: string, price: number): boolean {
   if (!Number.isFinite(price) || price <= 0) return true;
   const s = symbol.toUpperCase();
-  // Known Nest demo bands from market.service basePriceBySymbol ± drift
   if (s === 'BTCUSDT' || s === 'BTCUSD') {
     return price > 65000 && price < 69000;
   }

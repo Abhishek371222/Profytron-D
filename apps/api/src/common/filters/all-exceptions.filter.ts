@@ -62,19 +62,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
       );
     }
 
-    // Hide stack trace and internal details in production
     if (process.env.NODE_ENV === 'production' && httpStatus === 500) {
       responseBody.error = 'Internal server error';
     }
 
-    // Passport can add WWW-Authenticate on 401, which triggers browser auth popups.
-    // Remove it so auth failures are handled by app UI instead of native prompt dialogs.
     if (httpStatus === 401) {
       try {
         response.removeHeader('WWW-Authenticate');
         response.removeHeader('www-authenticate');
       } catch {
-        // Ignore header removal issues and continue sending structured error response.
       }
     }
 

@@ -124,9 +124,6 @@ export default function RiskOnboardingPage() {
       if (typeof document !== 'undefined') {
         document.cookie = 'onboarding_completed=1; path=/; max-age=7776000; samesite=lax';
       }
-      // One-shot signal so the dashboard shows the tutorial prompt only for users who
-      // just finished onboarding — not for existing users whose tutorial status simply
-      // defaults to NOT_STARTED because the feature is new.
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('profytron_just_onboarded', '1');
       }
@@ -191,7 +188,7 @@ export default function RiskOnboardingPage() {
               transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
               className="dashboard-card p-6 sm:p-8 lg:p-10 space-y-8"
             >
-              {/* Header */}
+              { }
               <div className="text-center space-y-4">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-primary/5 px-3 py-1 text-caption font-medium text-primary">
                   <Sparkles className="h-3.5 w-3.5" />
@@ -213,7 +210,7 @@ export default function RiskOnboardingPage() {
                 </div>
               </div>
 
-              {/* Progress */}
+              { }
               <div className="space-y-2">
                 <div className="flex justify-between text-caption text-muted-foreground">
                   <span>Profile completion</span>
@@ -229,7 +226,7 @@ export default function RiskOnboardingPage() {
                 </div>
               </div>
 
-              {/* Questions */}
+              { }
               <div className="space-y-8">
                 {step.questions.map((q) => (
                   <div key={q.id} className="space-y-3">
@@ -248,7 +245,7 @@ export default function RiskOnboardingPage() {
                 ))}
               </div>
 
-              {/* Actions */}
+              { }
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 {currentStep > 0 && (
                   <Button
@@ -308,7 +305,7 @@ export default function RiskOnboardingPage() {
         </AnimatePresence>
       </div>
 
-      {/* Footer */}
+      { }
       <div className="relative z-10 mt-10 flex flex-wrap items-center justify-center gap-6 text-caption text-muted-foreground">
         <span className="flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-primary" />

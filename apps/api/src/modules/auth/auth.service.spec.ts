@@ -14,7 +14,6 @@ import { HttpException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 
-// Mock bcrypt
 jest.mock('bcrypt');
 const mockedBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
 
@@ -34,10 +33,8 @@ describe('AuthService (UNIT TESTS)', () => {
   };
 
   beforeEach(async () => {
-    // Reset all mocks
     jest.clearAllMocks();
 
-    // Setup bcrypt mock
     const hashedPasswords = new Map<string, string>();
     mockedBcrypt.hash.mockImplementation(async (plain, rounds) => {
       const hash = `$2b$${rounds}$abcdefghijklmnopqrstuvwx`;
@@ -236,8 +233,6 @@ describe('AuthService (UNIT TESTS)', () => {
     it('should verify email with correct OTP', async () => {
       const dto = { email: 'test@example.com', otp: '123456' };
 
-      // verifyEmail first reads an OTP-attempts counter; return the stored OTP for
-      // the OTP key and a clean (null) counter for the attempts key.
       (redisService.get as jest.Mock).mockImplementation((key: string) =>
         Promise.resolve(key.includes('attempts') ? null : '123456'),
       );
@@ -279,7 +274,6 @@ describe('AuthService (UNIT TESTS)', () => {
       } as Partial<Request> as Request;
       const hashedPassword = '$2b$12$abcdefghijklmnopqrstuvwx';
 
-      // Mock bcrypt.compare for this specific test
       (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue({
@@ -301,7 +295,6 @@ describe('AuthService (UNIT TESTS)', () => {
         headers: { 'user-agent': 'jest-test' },
       } as Partial<Request> as Request;
 
-      // Mock bcrypt.compare for this specific test
       (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
 
       (prismaService.user.findUnique as jest.Mock).mockResolvedValue({

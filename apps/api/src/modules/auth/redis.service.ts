@@ -3,9 +3,6 @@ import type { IORedis } from '../../config/redis.config';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 
-// Keys with these prefixes store security state (blacklists, OTPs, reset tokens).
-// If Redis is unavailable for these keys, we must fail hard — falling back to
-// in-memory would allow revoked tokens to be reused across process restarts.
 const SECURITY_CRITICAL_PREFIXES = [
   'auth:blacklist:',
   'auth:otp:',
@@ -27,9 +24,6 @@ export class RedisService {
   private readonly logger = new Logger(RedisService.name);
   private readonly memoryStore = new Map<string, string>();
   private readonly memoryTimers = new Map<string, NodeJS.Timeout>();
-  // Single-flight guard: dedupes concurrent cache-miss producer calls for the
-  // same key within this process (e.g. a burst of requests for a popular
-  // strategy's analytics all missing cache at once).
   private readonly inFlight = new Map<string, Promise<unknown>>();
 
   constructor(@Inject(REDIS_CLIENT) private readonly redis: IORedis) {}
@@ -61,8 +55,6 @@ export class RedisService {
       } else {
         await this.redis.set(key, value);
       }
-      // Mirror locally so same-process reads still work if Redis briefly
-      // returns null (common with flaky managed Redis / reconnect windows).
       this.memoryStore.set(key, value);
       if (ttlSeconds) {
         this.setMemoryTtl(key, ttlSeconds);
@@ -75,9 +67,6 @@ export class RedisService {
       }
       return;
     } catch (error) {
-      // Prefer process-local mirror over hard 500s — Upstash blips were
-      // failing /auth/refresh (blacklist + session keys) and cascading into
-      // app-wide 401 storms. Multi-instance revocation is best-effort until Redis recovers.
       if (isSecurityCriticalKey(key)) {
         this.logger.error(
           `Redis unavailable for security-critical set(${key}); using in-process mirror. ${
@@ -100,7 +89,6 @@ export class RedisService {
     try {
       const value = await this.redis.get(key);
       if (value != null) return value;
-      // Redis miss → fall back to process memory mirror (same TTL).
       return this.memoryStore.get(key) ?? null;
     } catch (error) {
       const mirrored = this.memoryStore.get(key);
@@ -146,7 +134,6 @@ export class RedisService {
     }
   }
 
-  /** Delete all keys that start with prefix (Redis + in-memory fallback). */
   async delPrefix(prefix: string): Promise<void> {
     try {
       const keys = await this.redis.keys(`${prefix}*`);
@@ -170,13 +157,6 @@ export class RedisService {
       if (result > 0) return true;
       return this.memoryStore.has(key);
     } catch (error) {
-      // `exists()` backs the blacklist check that runs on EVERY authenticated
-      // request (JwtStrategy + JwtRefreshStrategy). Throwing here used to
-      // "fail hard to protect auth state", but a single Upstash blip during a
-      // burst of parallel dashboard requests would then 401/500-storm the
-      // entire app. Degrade like get()/set()/del(): trust the in-process
-      // mirror (populated by set() when THIS instance blacklists a token),
-      // otherwise treat as "not blacklisted" until Redis recovers.
       if (isSecurityCriticalKey(key)) {
         if (this.memoryStore.has(key)) {
           this.logger.warn(
@@ -238,13 +218,11 @@ export class RedisService {
     }
   }
 
-  /** Atomically gets and removes a key. Falls back to GET+DEL for Redis < 6.2 which lacks GETDEL. */
   async getdel(key: string): Promise<string | null> {
     try {
       return await this.redis.getdel(key);
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
-      // Redis 5 doesn't have GETDEL — emulate with GET then DEL (acceptable for dev)
       if (
         msg.includes('unknown command') &&
         msg.toLowerCase().includes('getdel')
@@ -268,13 +246,6 @@ export class RedisService {
     }
   }
 
-  /**
-   * Renewable leader lease. Returns true if this caller holds the lock for
-   * `key` (either freshly acquired or renewed because it already owns it).
-   * Used so that only one API instance runs singleton work (e.g. master-trade
-   * polling) when the app is scaled horizontally. If Redis is unavailable we
-   * assume a single instance and grant the lock.
-   */
   async tryRenewableLock(
     key: string,
     token: string,
@@ -294,10 +265,6 @@ export class RedisService {
     }
   }
 
-  /**
-   * Read a JSON value from cache. Returns null on miss, unreachable Redis, or
-   * malformed payload — callers should treat null as "recompute".
-   */
   async getJson<T>(key: string): Promise<T | null> {
     const raw = await this.get(key);
     if (raw == null) return null;
@@ -308,7 +275,6 @@ export class RedisService {
     }
   }
 
-  /** Store a JSON-serialisable value with an optional TTL (seconds). */
   async setJson(
     key: string,
     value: unknown,
@@ -317,11 +283,6 @@ export class RedisService {
     await this.set(key, JSON.stringify(value), ttlSeconds);
   }
 
-  /**
-   * Cache-aside helper: return the cached value if present, otherwise run
-   * `producer`, cache the result for `ttlSeconds`, and return it. Never throws
-   * for cache failures — a Redis outage degrades to always calling `producer`.
-   */
   async cached<T>(
     key: string,
     ttlSeconds: number,

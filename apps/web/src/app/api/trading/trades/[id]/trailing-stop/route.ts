@@ -15,7 +15,6 @@ export const maxDuration = 30;
 
 type Ctx = { params: Promise<{ id: string }> };
 
-/** Set SL at current price ± distance (price units). */
 export async function POST(req: NextRequest, ctx: Ctx) {
   const userId = await userIdFromRequest(req);
   if (!userId) return error('Unauthorized', 401);

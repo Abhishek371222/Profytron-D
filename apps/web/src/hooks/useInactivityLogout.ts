@@ -4,8 +4,7 @@ import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 
-/** Logout after this much continuous inactivity. Matches the 24h session policy. */
-export const INACTIVITY_LOGOUT_MS = 24 * 60 * 60 * 1000; // 24 hours
+export const INACTIVITY_LOGOUT_MS = 24 * 60 * 60 * 1000;
 
 const LAST_ACTIVITY_KEY = 'profytron_last_activity_at';
 const ACTIVITY_THROTTLE_MS = 1000;
@@ -32,11 +31,6 @@ function writeLastActivity(at: number) {
   window.localStorage.setItem(LAST_ACTIVITY_KEY, String(at));
 }
 
-/**
- * Logs the user out after 24 hours with no mouse/keyboard/touch/scroll activity.
- * Activity in any tab resets the timer (via localStorage).
- * Does not log out based on JWT access-token age while the user is active.
- */
 export function useInactivityLogout(enabled: boolean) {
   const logout = useAuthStore((s) => s.logout);
   const loggingOutRef = useRef(false);
@@ -99,7 +93,6 @@ export function useInactivityLogout(enabled: boolean) {
       scheduleCheck();
     };
 
-    // Seed activity on mount so a fresh login does not inherit a stale idle stamp.
     writeLastActivity(Date.now());
     scheduleCheck();
 
@@ -109,8 +102,6 @@ export function useInactivityLogout(enabled: boolean) {
 
     const onVisibility = () => {
       if (document.visibilityState === 'visible') {
-        // Returning to the tab is not enough by itself — only real input resets.
-        // Re-check in case the idle window already elapsed while hidden.
         scheduleCheck();
       }
     };

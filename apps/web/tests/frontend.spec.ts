@@ -7,7 +7,6 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
       await page.goto('/');
       await expect(page).toHaveTitle(/PROFYTRON/i);
 
-      // Check main navigation
       const nav = page.locator('nav');
       await expect(nav).toBeVisible();
     });
@@ -17,7 +16,6 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
       await page.goto('/');
       await expect(page).toHaveTitle(/PROFYTRON/i);
 
-      // Check mobile menu exists
       const mobileMenu = page.locator('button[aria-label*="menu"]');
       await expect(mobileMenu).toBeVisible();
     });
@@ -27,7 +25,6 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
       await page.goto('/');
       await expect(page).toHaveTitle(/PROFYTRON/i);
 
-      // Check layout adapts
       const main = page.locator('main');
       await expect(main).toBeVisible();
     });
@@ -89,7 +86,6 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
 
       await expect(page.locator('main')).toBeVisible();
 
-      // Check no JavaScript errors
       const errors: Error[] = [];
       page.on('pageerror', error => errors.push(error));
       await page.waitForTimeout(2000);
@@ -100,12 +96,10 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
       const startTime = Date.now();
       await page.goto('/');
 
-      // Wait for page to stabilize
       await page.waitForLoadState('networkidle');
       const loadTime = Date.now() - startTime;
 
-      // Should load within reasonable time
-      expect(loadTime).toBeLessThan(10000); // 10 seconds
+      expect(loadTime).toBeLessThan(10000);
     });
   });
 
@@ -134,7 +128,6 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
     test('should navigate between pages', async ({ page }) => {
       await page.goto('/');
 
-      // Click on navigation links
       const loginLink = page.locator('[href="/login"]').first();
       if (await loginLink.isVisible()) {
         await loginLink.click();
@@ -414,14 +407,11 @@ test.describe('🎨 FRONTEND TESTING - UI & UX (CRITICAL)', () => {
 
       await expect(counter).toHaveText('01 / 10');
 
-      // Retry the first click until it registers (guards against the section
-      // still hydrating when the very first click lands).
       await expect(async () => {
         await next.click();
         await expect(counter).toHaveText('02 / 10', { timeout: 800 });
       }).toPass({ timeout: 8000 });
 
-      // From 02, stepping back twice wraps 02 → 01 → 10.
       await prev.click();
       await expect(counter).toHaveText('01 / 10');
       await prev.click();

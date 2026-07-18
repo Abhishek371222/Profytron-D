@@ -4,7 +4,6 @@ import { Injectable } from '@nestjs/common';
 export class PaperBrokerAdapter {
   async connect(account: string, _password?: string, _server?: string) {
     await new Promise((resolve) => setTimeout(resolve, 50));
-    // Each paper account gets its own 100k demo balance — not shared state
     const seed = account
       ? account.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
       : 0;

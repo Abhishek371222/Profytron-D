@@ -65,9 +65,6 @@ export class WalletTransactionsQueryDto {
   @IsDateString()
   cursor?: string;
 
-  // Query params arrive as strings; coerce to a number before @IsInt runs,
-  // otherwise "15" fails validation and the whole transactions request 400s
-  // (which is why the history list and summary showed nothing).
   @IsOptional()
   @Type(() => Number)
   @IsInt()

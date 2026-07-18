@@ -16,7 +16,7 @@ const companies = [
 
 function CompanyChip({ name }: { name: string }) {
   return (
-    <span className="mx-6 shrink-0 whitespace-nowrap text-sm font-semibold tracking-wide text-muted-foreground/70 transition-colors duration-300 hover:text-foreground sm:text-base">
+    <span className="shrink-0 whitespace-nowrap rounded-full border border-primary/15 bg-primary/[0.06] px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/30 hover:bg-primary/10 sm:px-5 sm:text-base">
       {name}
     </span>
   );
@@ -31,11 +31,15 @@ export function SocialProofBar() {
         </p>
       </div>
 
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden" aria-label="Supported trading platforms">
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-[var(--bg-secondary)] to-transparent dark:from-[var(--background)]" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-[var(--bg-secondary)] to-transparent dark:from-[var(--background)]" />
 
-        <Marquee pauseOnHover repeat={4} className="[--duration:40s]">
+        <Marquee
+          pauseOnHover
+          repeat={3}
+          className="profytron-auto-scroll [--duration:34s] [--gap:0.75rem] sm:[--gap:1rem]"
+        >
           {companies.map((name, i) => (
             <CompanyChip key={`${name}-${i}`} name={name} />
           ))}

@@ -156,7 +156,6 @@ export async function GET(req: NextRequest) {
       })
       .sort((a, b) => b.netPnl - a.netPnl);
 
-    // If no symbol breakdown, expose a single Account row from all closed trades.
     if (strategies.length === 0 && closed.length > 0) {
       const pnls = closed.map((c) => c.profit);
       const netPnl = pnls.reduce((s, p) => s + p, 0);

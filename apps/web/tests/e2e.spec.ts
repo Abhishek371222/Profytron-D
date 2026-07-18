@@ -14,7 +14,6 @@ test.describe('🔄 END-TO-END TESTING - Full User Journey (CRITICAL)', () => {
     await expect(
       page.getByRole('heading', { name: /simple pricing for every trader/i }),
     ).toBeVisible();
-    // Plan cards render register CTAs, e.g. /register?plan=pro&billing=yearly
     await expect(
       page.locator('a[href*="/register?plan="]').first(),
     ).toBeVisible();

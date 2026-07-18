@@ -10,8 +10,7 @@ export default function PricingPage() {
   return (
     <PublicPageLayout>
       <JsonLd type="product" />
-      {/* PublicPageLayout already provides the <main> landmark — use a section
-          here to avoid nested/duplicate <main> elements (WCAG landmark rule). */}
+      { }
       <section className="page-container min-h-screen w-full py-24 text-foreground">
         <div className="w-full">
           <h1 className="brand-display-heading text-4xl md:text-5xl">

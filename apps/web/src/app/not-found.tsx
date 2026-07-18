@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 export default function NotFound() {
  return (
  <div className="min-h-screen bg-bg-base flex items-center justify-center p-6 relative overflow-hidden">
- {/* Background Effects */}
+ { }
  <div className="absolute inset-0 pointer-events-none">
  <div className="absolute top-1/4 left-1/4 w-150 h-150 bg-primary/5 rounded-full blur-[150px]" />
  <div className="absolute bottom-1/4 right-1/4 w-[400px] h-100 bg-s/5 rounded-full blur-[120px]" />
@@ -20,7 +20,7 @@ export default function NotFound() {
  transition={{ duration: 0.6 }}
  className="relative z-10 text-center max-w-2xl"
  >
- {/* Error Code */}
+ { }
  <motion.div 
  initial={{ opacity: 0, scale: 0.8 }}
  animate={{ opacity: 1, scale: 1 }}
@@ -35,7 +35,7 @@ export default function NotFound() {
  </div>
  </motion.div>
 
- {/* Content */}
+ { }
  <motion.div
  initial={{ opacity: 0, y: 20 }}
  animate={{ opacity: 1, y: 0 }}
@@ -48,7 +48,7 @@ export default function NotFound() {
  The neural pathway you&apos;re searching for doesn&apos;t exist or has been decommissioned.
  </p>
 
- {/* Action Buttons */}
+ { }
  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
  <Link href="/">
  <Button className="h-14 px-8 rounded-2xl bg-primary text-primary-foreground font-semibold uppercase tracking-widest gap-3 hover:bg-primary/90 transition-all">
@@ -66,7 +66,7 @@ export default function NotFound() {
  </Button>
  </div>
 
- {/* Decorative Elements */}
+ { }
  <div className="mt-16 flex items-center justify-center gap-2 text-foreground/20">
  <Search className="w-4 h-4" />
  <span className="text-xs font-bold uppercase tracking-[0.3em]">Lost in the void</span>

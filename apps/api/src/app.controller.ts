@@ -8,11 +8,6 @@ import { RedisService } from './modules/auth/redis.service';
 import { TradingGateway } from './modules/trading/trading.gateway';
 import { Public } from './modules/auth/guards/auth.guard';
 
-/**
- * Resolve `promise` but never hang the health check: a stalled dependency
- * (e.g. an unreachable Redis still retrying its connection) rejects after
- * `ms` so the probe reports "degraded" instead of timing out the request.
- */
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
     promise,
@@ -73,13 +68,8 @@ export class AppController {
       queueResult.status === 'fulfilled' && queueResult.value === 'PONG'
         ? 'healthy'
         : 'degraded';
-    // socket.io server is attached to the gateway once the HTTP server starts
-    // listening; its presence means the WebSocket transport is accepting clients.
     const websocket = this.tradingGateway?.server ? 'healthy' : 'degraded';
 
-    // Database is the only hard dependency: without it the API cannot serve
-    // meaningful traffic, so we return 503 to keep it out of the load balancer.
-    // Redis/queue/WebSocket degrade gracefully and stay in rotation.
     if (database !== 'connected') {
       res.status(503);
     }

@@ -13,11 +13,6 @@ import { invalidateAccountQueries } from '@/lib/queries/account-queries';
 const errText = (e: any) =>
   e?.response?.data?.error || e?.response?.data?.message || e?.message || 'Something went wrong';
 
-/**
- * React Query mutations for every trade action exposed by the backend
- * trading controller. All mutations refresh account-scoped queries
- * (open trades, portfolio, risk, wallet) on success.
- */
 export function useTradeActions() {
   const qc = useQueryClient();
   const refresh = () => invalidateAccountQueries(qc);

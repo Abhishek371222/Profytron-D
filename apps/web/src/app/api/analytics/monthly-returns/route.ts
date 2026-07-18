@@ -112,7 +112,6 @@ export async function GET(req: NextRequest) {
     const totalProfit = closed.reduce((s, t) => s + t.profit, 0);
     const depositBase =
       netDeposits > 1 ? netDeposits : Math.max(1, liveEquity - totalProfit);
-    // Start rolling from deposit base so monthly % = PnL / capital (e.g. $20 on $100 = 20%).
     let rollingEquity = depositBase;
 
     const monthly = new Map<string, number>();

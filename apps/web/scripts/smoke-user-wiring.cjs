@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const { neon } = require('@neondatabase/serverless');
 
-// Inline minimal copy of link helpers for smoke test (uses same MetaApi calls)
 const { createDecipheriv, createCipheriv, randomBytes, randomUUID } = require('crypto');
 
 const env = fs.readFileSync(path.join(__dirname, '../../../render.env'), 'utf8');
@@ -47,7 +46,6 @@ async function main() {
   `;
   console.log('brokers', brokers);
 
-  // Confirm CF subscriber still linked
   const metaId = 'ac010ea8-d527-4984-bba9-d7e148ee2892';
   const res = await fetch(
     `${CF_API}/users/current/configuration/subscribers/${metaId}`,

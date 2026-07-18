@@ -1,7 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-/** Contained horizontal scroll for wide tables — never breaks page layout */
 export function ResponsiveTableShell({
   children,
   className,
@@ -16,7 +15,6 @@ export function ResponsiveTableShell({
   );
 }
 
-/** Standard responsive stat / card grid */
 export function ResponsiveCardGrid({
   children,
   className,

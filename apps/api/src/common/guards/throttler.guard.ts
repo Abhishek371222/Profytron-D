@@ -13,8 +13,6 @@ import { Reflector } from '@nestjs/core';
 import { AgentEventService } from '../../modules/agents/agent-event.service';
 import { AGENT_EVENTS } from '../../modules/agents/agent.types';
 
-// Per-minute request budgets. Authenticated dashboards make many calls, so they
-// get a much higher ceiling than anonymous traffic (the configured base limit).
 const AUTHENTICATED_LIMIT = 1000;
 
 @Injectable()
@@ -29,16 +27,11 @@ export class AppThrottlerGuard extends ThrottlerGuard {
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Rate limiting is disabled under test: the e2e/integration suites fire many
-    // auth requests from a single loopback IP and would otherwise trip the
-    // per-IP budget (429). Production/staging behaviour is unaffected.
     if (process.env.NODE_ENV === 'test') return true;
     if (context.getType() !== 'http') return true;
     return super.canActivate(context);
   }
 
-  // Track authenticated callers by user id (so one user's quota follows them
-  // across IPs / NAT), and anonymous callers by IP.
   protected getTracker(req: Record<string, any>): Promise<string> {
     const userId = req?.user?.userId ?? req?.user?.id;
     return Promise.resolve(
@@ -46,8 +39,6 @@ export class AppThrottlerGuard extends ThrottlerGuard {
     );
   }
 
-  // Raise the limit for authenticated requests; anonymous requests keep the
-  // base limit configured on the module.
   protected async handleRequest(
     requestProps: ThrottlerRequest,
   ): Promise<boolean> {

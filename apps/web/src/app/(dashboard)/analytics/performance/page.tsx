@@ -73,18 +73,21 @@ export default function PerformanceAnalyticsPage() {
   });
 
   const portfolio =
-    portfolioQuery.data?.source === 'metaapi' || portfolioQuery.data?.source === 'empty'
+    portfolioQuery.data?.source === 'database' ||
+    portfolioQuery.data?.source === 'snapshot' ||
+    portfolioQuery.data?.source === 'empty'
       ? portfolioQuery.data
       : undefined;
   const bots =
-    botQuery.data?.source === 'metaapi' || botQuery.data?.source === 'empty'
+    botQuery.data?.source === 'database' ||
+    botQuery.data?.source === 'snapshot' ||
+    botQuery.data?.source === 'empty'
       ? botQuery.data
       : undefined;
   const botChartData = React.useMemo(
     () =>
       (bots?.strategies ?? []).map((item) => ({
         ...item,
-        // Dollar scale for small accounts (not thousands).
         netPnlBar: Number(item.netPnl.toFixed(2)),
       })),
     [bots],

@@ -345,7 +345,6 @@ export class EmailService {
     });
   }
 
-  /** Get full email history for a user or address. */
   async getEmailHistory(filter: {
     userId?: string;
     to?: string;
@@ -442,8 +441,6 @@ export class EmailService {
       }
     } else {
       this.logger.warn(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
-      // Without RESEND_API_KEY, OTP emails are not delivered — log the OTP
-      // body only for local debugging when explicitly allowed.
       if (
         meta.type === 'OTP' &&
         (process.env.NODE_ENV === 'test' ||
@@ -455,7 +452,6 @@ export class EmailService {
       }
     }
 
-    // Log every email attempt to the DB for full history.
     try {
       await this.prisma.emailLog.create({
         data: {

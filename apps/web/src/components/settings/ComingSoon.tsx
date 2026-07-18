@@ -17,7 +17,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
  className
 }) => (
  <div className={cn("h-[500px] flex flex-col items-center justify-center space-y-10 text-center relative overflow-hidden", className)}>
- {/* Background Ambiance */}
+ { }
  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
  
  <div className="relative group">
@@ -26,7 +26,7 @@ const ComingSoon: React.FC<ComingSoonProps> = ({
  <div className="absolute inset-0 animate-scanline bg-gradient-to-b from-transparent via-primary/10 to-transparent h-[200%] pointer-events-none" />
  <Sparkles className="w-10 h-10 text-primary animate-hologram" />
  
- {/* Corner brackets */}
+ { }
  <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-primary/40" />
  <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-primary/40" />
  <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-primary/40" />

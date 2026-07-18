@@ -52,7 +52,6 @@ function dealType(deal: any): string {
   return String(deal?.type || deal?.dealType || '').toUpperCase();
 }
 
-/** Cash movements: deposits, withdrawals, credits, bonuses — not trading P/L. */
 function isBalanceDeal(deal: any): boolean {
   const type = dealType(deal);
   if (
@@ -65,7 +64,6 @@ function isBalanceDeal(deal: any): boolean {
   ) {
     return true;
   }
-  // MT deal type ints: 2=balance … 6=bonus
   const n = Number(deal?.type ?? deal?.dealType);
   return Number.isFinite(n) && n >= 2 && n <= 6;
 }
@@ -131,10 +129,18 @@ async function fetchDeals(
   });
 }
 
+function isDealOut(deal: any): boolean {
+  const entry = String(deal?.entryType || deal?.entry || '').toUpperCase();
+  if (entry.includes('OUT')) return true;
+  const n = Number(deal?.entryType ?? deal?.entry);
+  // MetaAPI: 0=IN, 1=OUT, 2=INOUT, 3=OUT_BY
+  return n === 1 || n === 2 || n === 3;
+}
+
 function closedTradesFromDeals(tradingDeals: any[]) {
   const byPosition = new Map<string, any[]>();
   for (const d of tradingDeals) {
-    const pid = String(d.positionId || '');
+    const pid = String(d.positionId || d.position || '');
     if (!pid) continue;
     if (!byPosition.has(pid)) byPosition.set(pid, []);
     byPosition.get(pid)!.push(d);
@@ -142,21 +148,12 @@ function closedTradesFromDeals(tradingDeals: any[]) {
 
   const closed: { profit: number; closedAt: string; symbol: string }[] = [];
   for (const [, group] of byPosition) {
-    const hasOut = group.some((d) =>
-      String(d.entryType || '')
-        .toUpperCase()
-        .includes('OUT'),
-    );
+    const hasOut = group.some((d) => isDealOut(d));
     if (!hasOut) continue;
     const profit = group.reduce((sum, d) => sum + dealPnl(d), 0);
     const closedAt =
-      [...group]
-        .reverse()
-        .find((d) =>
-          String(d.entryType || '')
-            .toUpperCase()
-            .includes('OUT'),
-        )?.time || group[group.length - 1]?.time;
+      [...group].reverse().find((d) => isDealOut(d))?.time ||
+      group[group.length - 1]?.time;
     closed.push({
       profit,
       closedAt: closedAt || new Date().toISOString(),
@@ -167,6 +164,30 @@ function closedTradesFromDeals(tradingDeals: any[]) {
     (a, b) => new Date(a.closedAt).getTime() - new Date(b.closedAt).getTime(),
   );
   return closed;
+}
+
+async function closedTradesFromDb(
+  live: NonNullable<Awaited<ReturnType<typeof loadLiveBroker>>>,
+  rangeStart: Date,
+): Promise<{ profit: number; closedAt: string; symbol: string }[]> {
+  try {
+    const rows = await live.sql`
+      SELECT profit, "closedAt", symbol
+      FROM "Trade"
+      WHERE "brokerAccountId" = ${live.brokerAccountId}
+        AND status = 'CLOSED'
+        AND "closedAt" IS NOT NULL
+        AND "closedAt" >= ${rangeStart}
+      ORDER BY "closedAt" ASC
+    `;
+    return (rows as any[]).map((r) => ({
+      profit: Number(r.profit ?? 0),
+      closedAt: new Date(r.closedAt).toISOString(),
+      symbol: String(r.symbol || 'UNKNOWN'),
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -199,7 +220,6 @@ export async function GET(req: NextRequest) {
 
     const end = new Date();
     const rangeStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-    // 1y lookback is enough for deposits; shorter = much faster MetaAPI history.
     const historyStart = new Date(
       Date.now() - Math.max(days, 365) * 24 * 60 * 60 * 1000,
     );
@@ -208,13 +228,33 @@ export async function GET(req: NextRequest) {
     const balanceDeals = allDeals.filter((d) => isBalanceDeal(d));
     const tradingDealsAll = allDeals.filter((d) => !isNonTradingDeal(d));
 
-    // What the user funded: deposits − withdrawals. $100 in → base 100.
     const netDeposits = balanceDeals.reduce((sum, d) => sum + dealPnl(d), 0);
 
     const closedAll = closedTradesFromDeals(tradingDealsAll);
-    const closed = closedAll.filter(
+    let closed = closedAll.filter(
       (t) => new Date(t.closedAt).getTime() >= rangeStart.getTime(),
     );
+
+    // If MetaAPI deal grouping yields nothing, use DB Trade rows (already synced).
+    if (closed.length === 0) {
+      const fromDb = await closedTradesFromDb(live, rangeStart);
+      if (fromDb.length > 0) {
+        closed = fromDb;
+        for (const t of fromDb) {
+          if (
+            !closedAll.some(
+              (c) => c.closedAt === t.closedAt && c.profit === t.profit,
+            )
+          ) {
+            closedAll.push(t);
+          }
+        }
+        closedAll.sort(
+          (a, b) =>
+            new Date(a.closedAt).getTime() - new Date(b.closedAt).getTime(),
+        );
+      }
+    }
 
     const tradingPnLAll = closedAll.reduce((s, t) => s + t.profit, 0);
     const totalProfit = closed.reduce((s, t) => s + t.profit, 0);
@@ -227,7 +267,6 @@ export async function GET(req: NextRequest) {
         tradingPnLAll,
       });
 
-    // One-time repair when sync previously overwrote the return baseline.
     if (
       shouldRepairBaseline &&
       repairedBaseline != null &&
@@ -250,6 +289,7 @@ export async function GET(req: NextRequest) {
     // and always use depositBase (net deposits / trusted initialEquity), never
     // a period-relative baseline.
     const returnReference = liveEquity > 0 ? liveEquity : liveBalance;
+
     const totalReturnPct = computeReturnPct(returnReference, depositBase);
 
     const wins = closed.filter((t) => t.profit > 0);
@@ -262,7 +302,6 @@ export async function GET(req: NextRequest) {
     const avgWin = wins.length ? grossWin / wins.length : 0;
     const avgLoss = losses.length ? grossLoss / losses.length : 0;
 
-    // Curve from deposits + trades (no cliff from $20 → $120).
     type Ev = { at: number; date: string; delta: number; kind: 'cash' | 'trade' };
     const events: Ev[] = [];
     for (const d of balanceDeals) {
@@ -292,7 +331,6 @@ export async function GET(req: NextRequest) {
     const dailyReturns: number[] = [];
     let prevForSharpe = 0;
 
-    // If no cash events, seed with reconstructed deposit base.
     if (balanceDeals.length === 0 && depositBase > 0) {
       running = depositBase;
       peak = depositBase;
@@ -341,8 +379,6 @@ export async function GET(req: NextRequest) {
       ...equityCurve,
     ];
 
-    // Final point = live equity (floating P/L). Keep it only if jump is modest;
-    // otherwise rebuild as deposit → cumulative trades → live.
     const lastEq = equityCurve[equityCurve.length - 1]?.equity ?? seedEquity;
     const jumpPct = lastEq > 0 ? Math.abs(liveEquity - lastEq) / lastEq : 1;
     if (jumpPct > 0.35 && depositBase > 0) {
@@ -430,6 +466,92 @@ export async function GET(req: NextRequest) {
   } catch (e: any) {
     const message = e?.message || 'Failed to load portfolio analytics';
     console.error('[analytics/portfolio]', message);
+
+    // Last resort: build portfolio from DB trades + initialEquity so the chart still shows.
+    try {
+      const userIdRetry = await userIdFromRequest(req);
+      if (userIdRetry) {
+        const live = await loadLiveBroker(userIdRetry);
+        if (live) {
+          const days = rangeDays(range);
+          const rangeStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+          const closed = await closedTradesFromDb(live, rangeStart);
+          let depositBase = 0;
+          try {
+            const rows = await live.sql`
+              SELECT "initialEquity", "lastKnownEquity", "lastKnownBalance"
+              FROM "BrokerAccount"
+              WHERE id = ${live.brokerAccountId}
+              LIMIT 1
+            `;
+            depositBase = Number(rows[0]?.initialEquity ?? 0) || 0;
+            const liveEquity =
+              Number(rows[0]?.lastKnownEquity ?? rows[0]?.lastKnownBalance ?? 0) ||
+              depositBase;
+            if (closed.length > 0 && depositBase > 0) {
+              const wins = closed.filter((t) => t.profit > 0);
+              const totalProfit = closed.reduce((s, t) => s + t.profit, 0);
+              let eq = depositBase;
+              let peak = depositBase;
+              let maxDrawdown = 0;
+              const equityCurve = [
+                {
+                  date: rangeStart.toISOString(),
+                  equity: Number(depositBase.toFixed(2)),
+                  drawdownPct: 0,
+                },
+              ];
+              for (const t of closed) {
+                eq += t.profit;
+                peak = Math.max(peak, eq);
+                const dd = peak > 0 ? ((peak - eq) / peak) * 100 : 0;
+                maxDrawdown = Math.max(maxDrawdown, dd);
+                equityCurve.push({
+                  date: t.closedAt,
+                  equity: Number(eq.toFixed(2)),
+                  drawdownPct: Number(dd.toFixed(2)),
+                });
+              }
+              equityCurve.push({
+                date: new Date().toISOString(),
+                equity: Number(liveEquity.toFixed(2)),
+                drawdownPct: 0,
+              });
+              return json({
+                range,
+                totalProfit: Number(totalProfit.toFixed(2)),
+                totalReturnPct: Number(
+                  computeReturnPct(liveEquity, depositBase).toFixed(2),
+                ),
+                winRate: Number(
+                  ((wins.length / closed.length) * 100).toFixed(2),
+                ),
+                totalTrades: closed.length,
+                sharpeRatio: 0,
+                sortinoRatio: 0,
+                profitFactor: 0,
+                avgWin: 0,
+                avgLoss: 0,
+                maxDrawdown: Number(maxDrawdown.toFixed(2)),
+                allTimeHigh: Number(Math.max(peak, liveEquity).toFixed(2)),
+                bestMonth: 0,
+                equityBase: Number(depositBase.toFixed(2)),
+                depositBase: Number(depositBase.toFixed(2)),
+                equityCurve,
+                source: 'database',
+                liveEquity: Number(liveEquity.toFixed(2)),
+                message,
+              });
+            }
+          } catch {
+            /* fall through */
+          }
+        }
+      }
+    } catch {
+      /* fall through */
+    }
+
     return emptyPortfolio(range, {
       syncError: isMetaApiUnauthorized(message)
         ? 'METAAPI_UNAUTHORIZED'

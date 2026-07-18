@@ -112,7 +112,6 @@ export async function GET(req: NextRequest) {
 
     const sql = pgSql(dbUrl);
 
-    // Resolve the bot name the user actually subscribed to (never show "CopyFactory").
     const botRows = await sql`
       SELECT st.name
       FROM "UserStrategySubscription" s

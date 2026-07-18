@@ -388,6 +388,8 @@ model BrokerAccount {
   masterProfile       MasterProfile?
   bridgeOrders        CopyBridgeOrder[]
   equitySnapshots     EquitySnapshot[]
+  accountSnapshots    AccountSnapshot[]
+  latestSnapshot      AccountLatestSnapshot?
   shares              BrokerAccountShare[]
 
   @@index([userId])
@@ -434,6 +436,395 @@ model EquitySnapshot {
   capturedAt      DateTime      @default(now())
 
   @@index([brokerAccountId, capturedAt])
+}
+
+/// Full MetaAPI account snapshot, appended every background-sync cycle (see
+/// AccountHistorySyncService). This is the DB-first read model for the
+/// dashboard — the API layer serves the newest row here instead of calling
+/// MetaAPI per-request. One row per sync per account; never updated in place,
+/// so the full sync history is queryable. Open positions are denormalized as
+/// JSON here rather than a separate per-position history table, since their
+/// durable record is the Trade table once closed — position-level history
+/// independent of the parent snapshot isn't otherwise useful and would
+/// multiply row count by open-position count on every cycle.
+model AccountSnapshot {
+  id              String        @id @default(uuid())
+  brokerAccountId String
+  brokerAccount   BrokerAccount @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
+
+  // Account info
+  login                 String?
+  broker                String?
+  server                String?
+  platform              String?
+  currency              String?
+  leverage              Float?
+  connectionStatus      String
+  synchronizationStatus String?
+
+  // Account metrics
+  balance      Float
+  equity       Float
+  credit       Float  @default(0)
+  margin       Float  @default(0)
+  freeMargin   Float  @default(0)
+  marginLevel  Float?
+  floatingPnl  Float  @default(0)
+
+  // Open positions, denormalized (see model doc comment)
+  positionsJson Json?
+  positionsCount Int   @default(0)
+  pendingOrdersJson Json?
+  dealsJson Json?
+  orderHistoryJson Json?
+  symbolsJson Json?
+  marketDataJson Json?
+  accountStatusJson Json?
+  copyTradingJson Json?
+  performanceJson Json?
+  riskJson Json?
+  eventsJson Json?
+
+  realizedProfit   Float @default(0)
+  unrealizedProfit Float @default(0)
+  todayProfit      Float @default(0)
+  todayLoss        Float @default(0)
+  weeklyProfit     Float @default(0)
+  monthlyProfit    Float @default(0)
+  netProfit        Float @default(0)
+
+  // Sync metadata
+  syncStatus       String  @default("SUCCESS")
+  syncDurationMs    Int?
+  metaApiLatencyMs  Int?
+  apiVersion        String?
+  errorMessage      String?
+  lastSuccessfulSync DateTime?
+
+  capturedAt DateTime @default(now())
+
+  latestPointer AccountLatestSnapshot?
+  positionRows AccountSnapshotPosition[]
+  pendingOrderRows AccountSnapshotPendingOrder[]
+  dealRows AccountSnapshotDeal[]
+  orderHistoryRows AccountSnapshotOrderHistory[]
+  symbolRows AccountSnapshotSymbol[]
+  marketDataRows AccountSnapshotMarketData[]
+  statusRows AccountSnapshotStatus[]
+  copyTradingRows AccountSnapshotCopyTrading[]
+  performanceRows AccountSnapshotPerformance[]
+  riskRows AccountSnapshotRisk[]
+  eventRows AccountSnapshotEvent[]
+
+  @@index([brokerAccountId, capturedAt])
+}
+
+model AccountLatestSnapshot {
+  brokerAccountId    String          @id
+  brokerAccount      BrokerAccount   @relation(fields: [brokerAccountId], references: [id], onDelete: Cascade)
+  snapshotId         String          @unique
+  snapshot           AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  lastSyncedAt       DateTime
+  lastSuccessfulSync DateTime
+  syncDurationMs     Int?
+  syncStatus         String          @default("SUCCESS")
+  metaApiLatencyMs   Int?
+  apiVersion         String?
+  updatedAt          DateTime        @updatedAt
+
+  @@index([lastSyncedAt])
+  @@index([syncStatus])
+}
+
+model AccountSnapshotPosition {
+  id                String          @id @default(uuid())
+  snapshotId        String
+  snapshot          AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId   String
+  positionId        String?
+  ticket            String?
+  symbol            String
+  side              String?
+  volume            Float           @default(0)
+  openPrice         Float?
+  currentPrice      Float?
+  stopLoss          Float?
+  takeProfit        Float?
+  commission        Float           @default(0)
+  swap              Float           @default(0)
+  profit            Float           @default(0)
+  comment           String?
+  magicNumber       String?
+  openTime          DateTime?
+  durationSeconds   Int?
+  currentPips       Float?
+  risk              Float?
+  reward            Float?
+  status            String?
+  rawJson           Json?
+  capturedAt        DateTime        @default(now())
+
+  @@index([brokerAccountId, capturedAt])
+  @@index([snapshotId])
+  @@index([symbol])
+  @@index([ticket])
+}
+
+model AccountSnapshotPendingOrder {
+  id              String          @id @default(uuid())
+  snapshotId      String
+  snapshot        AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId String
+  orderId         String?
+  symbol          String
+  orderType       String?
+  volume          Float           @default(0)
+  entryPrice      Float?
+  stopLoss        Float?
+  takeProfit      Float?
+  expiration      DateTime?
+  comment         String?
+  status          String?
+  createdTime     DateTime?
+  rawJson         Json?
+  capturedAt      DateTime        @default(now())
+
+  @@index([brokerAccountId, capturedAt])
+  @@index([snapshotId])
+  @@index([orderId])
+  @@index([symbol])
+}
+
+model AccountSnapshotDeal {
+  id              String          @id @default(uuid())
+  snapshotId      String
+  snapshot        AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId String
+  dealId          String?
+  positionId      String?
+  orderId         String?
+  symbol          String?
+  price           Float?
+  volume          Float           @default(0)
+  commission      Float           @default(0)
+  swap            Float           @default(0)
+  fee             Float           @default(0)
+  profit          Float           @default(0)
+  time            DateTime?
+  executionType   String?
+  rawJson         Json?
+  capturedAt      DateTime        @default(now())
+
+  @@index([brokerAccountId, time])
+  @@index([snapshotId])
+  @@index([dealId])
+  @@index([positionId])
+}
+
+model AccountSnapshotOrderHistory {
+  id              String          @id @default(uuid())
+  snapshotId      String
+  snapshot        AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId String
+  ticket          String?
+  positionId      String?
+  symbol          String?
+  openPrice       Float?
+  closePrice      Float?
+  openTime        DateTime?
+  closeTime       DateTime?
+  profit          Float           @default(0)
+  swap            Float           @default(0)
+  commission      Float           @default(0)
+  netProfit       Float           @default(0)
+  holdingSeconds  Int?
+  exitReason      String?
+  rawJson         Json?
+  capturedAt      DateTime        @default(now())
+
+  @@index([brokerAccountId, closeTime])
+  @@index([snapshotId])
+  @@index([ticket])
+}
+
+model AccountSnapshotSymbol {
+  id              String          @id @default(uuid())
+  snapshotId      String
+  snapshot        AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId String
+  symbol          String
+  bid             Float?
+  ask             Float?
+  spread          Float?
+  digits          Int?
+  contractSize    Float?
+  tickSize        Float?
+  tickValue       Float?
+  minLot          Float?
+  maxLot          Float?
+  lotStep         Float?
+  tradingEnabled  Boolean?
+  rawJson         Json?
+  capturedAt      DateTime        @default(now())
+
+  @@index([brokerAccountId, symbol, capturedAt])
+  @@index([snapshotId])
+}
+
+model AccountSnapshotMarketData {
+  id              String          @id @default(uuid())
+  snapshotId      String
+  snapshot        AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId String
+  symbol          String
+  bid             Float?
+  ask             Float?
+  spread          Float?
+  open            Float?
+  high            Float?
+  low             Float?
+  close           Float?
+  volume          Float?
+  timeframe       String?
+  tickTimestamp   DateTime?
+  rawJson         Json?
+  capturedAt      DateTime        @default(now())
+
+  @@index([brokerAccountId, symbol, tickTimestamp])
+  @@index([snapshotId])
+}
+
+model AccountSnapshotStatus {
+  id                   String          @id @default(uuid())
+  snapshotId           String
+  snapshot             AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId      String
+  connected            Boolean?
+  connectionStatus     String?
+  synchronizationState String?
+  terminalState        String?
+  lastHeartbeat        DateTime?
+  lastConnected        DateTime?
+  lastDisconnected     DateTime?
+  rawJson              Json?
+  capturedAt           DateTime        @default(now())
+
+  @@index([brokerAccountId, capturedAt])
+  @@index([snapshotId])
+}
+
+model AccountSnapshotCopyTrading {
+  id                 String          @id @default(uuid())
+  snapshotId         String
+  snapshot           AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId    String
+  masterAccountId    String?
+  followerAccountIds Json?
+  subscriptionStatus String?
+  lotMultiplier      Float?
+  riskMultiplier     Float?
+  copyDelayMs        Int?
+  copyStatus         String?
+  syncStatus         String?
+  rawJson            Json?
+  capturedAt         DateTime        @default(now())
+
+  @@index([brokerAccountId, capturedAt])
+  @@index([snapshotId])
+}
+
+model AccountSnapshotPerformance {
+  id                              String          @id @default(uuid())
+  snapshotId                      String          @unique
+  snapshot                        AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId                 String
+  totalReturn                     Float           @default(0)
+  absoluteReturn                  Float           @default(0)
+  roi                             Float           @default(0)
+  dailyReturn                     Float           @default(0)
+  weeklyReturn                    Float           @default(0)
+  monthlyReturn                   Float           @default(0)
+  yearlyReturn                    Float           @default(0)
+  cagr                            Float           @default(0)
+  profitFactor                    Float           @default(0)
+  expectancy                      Float           @default(0)
+  recoveryFactor                  Float           @default(0)
+  sharpeRatio                     Float           @default(0)
+  sortinoRatio                    Float           @default(0)
+  calmarRatio                     Float           @default(0)
+  winRate                         Float           @default(0)
+  lossRate                        Float           @default(0)
+  averageWin                      Float           @default(0)
+  averageLoss                     Float           @default(0)
+  largestWin                      Float           @default(0)
+  largestLoss                     Float           @default(0)
+  averageHoldingSeconds           Float           @default(0)
+  maxDrawdown                     Float           @default(0)
+  relativeDrawdown                Float           @default(0)
+  floatingDrawdown                Float           @default(0)
+  balanceDrawdown                 Float           @default(0)
+  currentDrawdown                 Float           @default(0)
+  maximumConsecutiveWins          Int             @default(0)
+  maximumConsecutiveLosses        Int             @default(0)
+  averageTradeDurationSeconds     Float           @default(0)
+  averagePips                     Float           @default(0)
+  averageRiskReward               Float           @default(0)
+  bestDay                         Float           @default(0)
+  worstDay                        Float           @default(0)
+  bestWeek                        Float           @default(0)
+  worstWeek                       Float           @default(0)
+  bestMonth                       Float           @default(0)
+  worstMonth                      Float           @default(0)
+  totalLots                       Float           @default(0)
+  averageLotSize                  Float           @default(0)
+  tradesToday                     Int             @default(0)
+  tradesThisWeek                  Int             @default(0)
+  tradesThisMonth                 Int             @default(0)
+  rawJson                         Json?
+  capturedAt                      DateTime        @default(now())
+
+  @@index([brokerAccountId, capturedAt])
+}
+
+model AccountSnapshotRisk {
+  id                         String          @id @default(uuid())
+  snapshotId                 String          @unique
+  snapshot                   AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId            String
+  currentExposure            Float           @default(0)
+  portfolioExposure          Float           @default(0)
+  marginUsage                Float           @default(0)
+  freeMarginPct              Float           @default(0)
+  riskPerTrade               Float           @default(0)
+  riskPct                    Float           @default(0)
+  largestPosition            Float           @default(0)
+  largestExposure            Float           @default(0)
+  currencyExposureJson       Json?
+  symbolExposureJson         Json?
+  estimatedValueAtRisk       Float           @default(0)
+  maximumAdverseExcursion    Float           @default(0)
+  maximumFavorableExcursion  Float           @default(0)
+  rawJson                    Json?
+  capturedAt                 DateTime        @default(now())
+
+  @@index([brokerAccountId, capturedAt])
+}
+
+model AccountSnapshotEvent {
+  id              String          @id @default(uuid())
+  snapshotId      String
+  snapshot        AccountSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  brokerAccountId String
+  eventType       String
+  entityType      String?
+  entityId        String?
+  detailsJson     Json?
+  occurredAt      DateTime        @default(now())
+  capturedAt      DateTime        @default(now())
+
+  @@index([brokerAccountId, occurredAt])
+  @@index([snapshotId])
+  @@index([eventType])
 }
 
 model Strategy {

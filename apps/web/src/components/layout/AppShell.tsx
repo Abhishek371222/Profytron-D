@@ -54,7 +54,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
   }, [isMobile, sidebarOpen]);
 
-  // Alpha Coach: lock document scroll so chat + main nav never fight on phones.
   React.useEffect(() => {
     if (!isCoach) return;
     const prevHtml = document.documentElement.style.overflow;
@@ -81,8 +80,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       className="flex overflow-x-hidden relative min-w-0 brand-surface-bg h-[100dvh] max-h-[100dvh] overflow-hidden"
       suppressHydrationWarning
     >
-      {/* Skip link — first focusable element so keyboard users can bypass the
-          sidebar nav on every dashboard page (WCAG 2.4.1 Bypass Blocks). */}
+      { }
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -106,10 +104,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           "transition-transform duration-300 ease-out flex z-40 shrink-0 will-change-transform",
-          // Positioning is CSS-gated (not JS-gated) so the pre-hydration paint
-          // is already correct on mobile: the drawer starts fixed + off-canvas
-          // instead of flashing the in-flow desktop rail while isMobile is
-          // still its initial `false`.
           "max-lg:fixed max-lg:inset-y-0 max-lg:left-0",
           "lg:h-[100dvh] lg:py-[var(--sidebar-pad)] lg:pl-[var(--sidebar-pad)]",
           isMobile && "pt-safe pb-safe pl-safe",
@@ -127,7 +121,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className={cn(
           "flex-1 min-w-0 relative z-20 w-full flex flex-col focus:outline-none",
           "min-h-0 h-[100dvh] max-h-[100dvh] overflow-hidden",
-          // CSS-gated so mobile pre-hydration paint has no phantom right pad.
           "lg:pr-[var(--sidebar-pad)]",
         )}
       >

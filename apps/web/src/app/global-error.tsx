@@ -3,12 +3,6 @@
 import { useEffect } from 'react';
 import * as Sentry from '@sentry/nextjs';
 
-/**
- * global-error replaces the ROOT layout when the layout itself throws, so it
- * renders outside every provider and without globals.css/fonts. Everything here
- * must therefore be fully self-contained: its own <html>/<body> and inline,
- * theme-aware styles (via a scoped <style> using prefers-color-scheme).
- */
 export default function GlobalError({
   error,
   reset,
@@ -108,9 +102,7 @@ export default function GlobalError({
             >
               Try again
             </button>
-            {/* Intentionally a plain <a>, not next/link: a global error means the
-                React tree/router is broken, so we want a full-document reload to
-                escape the crashed state rather than a client-side transition. */}
+            { }
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/"

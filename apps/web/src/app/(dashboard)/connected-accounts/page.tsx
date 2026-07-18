@@ -45,8 +45,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type AccountStatus = 'CONNECTED' | 'DISCONNECTED' | 'SYNCING';
 type AccountType = 'Live' | 'Demo' | 'Paper';
 
@@ -57,6 +55,11 @@ interface BrokerAccount {
   accountType: AccountType;
   status: AccountStatus;
   balance?: number;
+  equity?: number;
+  margin?: number;
+  freeMargin?: number;
+  marginLevel?: number;
+  credit?: number;
   currency?: string;
   lastSyncedAt?: string;
   activeBotCount?: number;
@@ -84,8 +87,6 @@ interface LinkedBot {
   pnl?: number;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const STATUS_STYLE: Record<AccountStatus, string> = {
   CONNECTED: 'bg-chart-3/10 text-chart-3 border-chart-3/20',
   DISCONNECTED: 'bg-destructive/10 text-destructive border-destructive/20',
@@ -109,8 +110,6 @@ const SUPPORTED_BROKERS = [
   'Interactive Brokers', 'Alpaca', 'Binance',
   'MetaTrader 4', 'MetaTrader 5',
 ];
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function maskAccount(num?: string) {
   if (!num) return '****';
@@ -145,8 +144,6 @@ function timeAgo(dateStr: string) {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 function mapBrokerAccountRow(a: BrokerAccountRow): BrokerAccount {
   const liveSynced = Boolean(a.liveSynced) || Boolean(a.isPaperTrading);
   const live =
@@ -168,6 +165,17 @@ function mapBrokerAccountRow(a: BrokerAccountRow): BrokerAccount {
     accountType: a.isPaperTrading ? 'Paper' : 'Live',
     status,
     balance: live != null && Number.isFinite(live) ? live : undefined,
+    equity: a.equity != null && Number.isFinite(Number(a.equity)) ? Number(a.equity) : undefined,
+    margin: a.margin != null && Number.isFinite(Number(a.margin)) ? Number(a.margin) : undefined,
+    freeMargin:
+      a.freeMargin != null && Number.isFinite(Number(a.freeMargin))
+        ? Number(a.freeMargin)
+        : undefined,
+    marginLevel:
+      a.marginLevel != null && Number.isFinite(Number(a.marginLevel))
+        ? Number(a.marginLevel)
+        : undefined,
+    credit: a.credit != null && Number.isFinite(Number(a.credit)) ? Number(a.credit) : undefined,
     currency: a.currency ?? 'USD',
     lastSyncedAt: a.lastConnectedAt ?? a.connectedAt ?? undefined,
     isPaperTrading: Boolean(a.isPaperTrading),
@@ -192,11 +200,9 @@ export default function ConnectedAccountsPage() {
   const [showModal, setShowModal] = React.useState(false);
   const [detailsAccount, setDetailsAccount] = React.useState<BrokerAccount | null>(null);
 
-  // Shared broker-accounts cache (raw rows) — never remapped in queryFn.
   const { accounts: rawAccounts, brokerAccountsQuery: accountsQuery } =
     useAccountContext();
 
-  // Fetch linked bots (same source as My Bots — strategy id is marketplace detail id)
   const botsQuery = useQuery({
     queryKey: ['connected-bots'],
     queryFn: async () => {
@@ -271,7 +277,6 @@ export default function ConnectedAccountsPage() {
     router.push(`/marketplace/${bot.id}`);
   };
 
-  // Account health status
   const totalAccounts = accounts.length;
   const connectedCount = accounts.filter((a) => a.status === 'CONNECTED').length;
   const disconnectedCount = accounts.filter((a) => a.status === 'DISCONNECTED').length;
@@ -306,7 +311,6 @@ export default function ConnectedAccountsPage() {
         try {
           await navigator.clipboard.writeText(token);
         } catch {
-          /* ignore */
         }
         toast.success('Bridge token rotated (copied)', {
           description: token.slice(0, 12) + '… — paste into ProfytronCopyBridge EA',
@@ -332,7 +336,6 @@ export default function ConnectedAccountsPage() {
     if (!ok) return;
     setDisconnectingId(account.id);
 
-    // Optimistic remove so the card disappears immediately
     const previous = queryClient.getQueryData<BrokerAccountRow[]>(BROKER_ACCOUNTS_KEY);
     queryClient.setQueryData<BrokerAccountRow[]>(BROKER_ACCOUNTS_KEY, (old) =>
       (old ?? []).filter((a) => a.id !== account.id),
@@ -369,8 +372,6 @@ export default function ConnectedAccountsPage() {
     queryClient.invalidateQueries({ queryKey: ['connected-bots'] });
     toast.success('Accounts refreshed');
   };
-
-  // ─── Team sharing ──────────────────────────────────────────────────────────
 
   const [shareDialogAccount, setShareDialogAccount] = React.useState<BrokerAccount | null>(null);
   const [shareEmail, setShareEmail] = React.useState('');
@@ -499,14 +500,14 @@ export default function ConnectedAccountsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Breadcrumb */}
+      { }
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
         <Link href="/dashboard" className="hover:underline">Dashboard</Link>
         <ChevronRight className="h-3 w-3 text-muted-foreground" />
         <span className="text-foreground">Connected Accounts</span>
       </div>
 
-      {/* Header */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -545,7 +546,7 @@ export default function ConnectedAccountsPage() {
         </div>
       </motion.div>
 
-      {/* Account Health Banner */}
+      { }
       {!accountsQuery.isLoading && totalAccounts > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -574,7 +575,7 @@ export default function ConnectedAccountsPage() {
         </motion.div>
       )}
 
-      {/* Broker Accounts Grid */}
+      { }
       {accountsQuery.isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -586,7 +587,6 @@ export default function ConnectedAccountsPage() {
           ))}
         </div>
       ) : accounts.length === 0 ? (
-        // Empty state
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -622,7 +622,7 @@ export default function ConnectedAccountsPage() {
               whileHover={{ y: -4 }}
               className="group dashboard-card p-5 flex flex-col gap-4 transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)] hover:border-[color-mix(in_srgb,var(--primary)_18%,var(--card-border))]"
             >
-              {/* Header */}
+              { }
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-200 group-hover:scale-105">
@@ -646,7 +646,7 @@ export default function ConnectedAccountsPage() {
                 </div>
               </div>
 
-              {/* Details */}
+              { }
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg bg-muted/20 border border-[var(--card-border)] p-2.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Type</p>
@@ -776,7 +776,7 @@ export default function ConnectedAccountsPage() {
         </div>
       )}
 
-      {/* Connected Bots Table */}
+      { }
       {(botsQuery.isLoading || bots.length > 0) && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -917,7 +917,7 @@ export default function ConnectedAccountsPage() {
         </motion.div>
       )}
 
-      {/* Team Access */}
+      { }
       {sharesQuery.data &&
         (sharesQuery.data.owned.length > 0 || sharesQuery.data.received.length > 0) && (
           <motion.div
@@ -1008,7 +1008,7 @@ export default function ConnectedAccountsPage() {
           </motion.div>
         )}
 
-      {/* Supported Brokers */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}

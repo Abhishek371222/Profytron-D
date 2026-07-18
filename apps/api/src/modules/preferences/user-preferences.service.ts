@@ -50,7 +50,6 @@ export class UserPreferencesService {
     return this.updatePreferences(userId, { pushNotifications: enabled });
   }
 
-  // i18n translations - demo with English and Hindi
   getTranslations(language: string) {
     const translations: Record<string, Record<string, string>> = {
       en: {

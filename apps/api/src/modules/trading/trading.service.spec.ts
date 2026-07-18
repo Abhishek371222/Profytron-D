@@ -97,8 +97,6 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
     tradingGateway = module.get<TradingGateway>(TradingGateway);
   });
 
-  // Helper producing a fully-shaped active subscription row as returned by the
-  // single `findMany` the service now issues (it partitions by expiresAt in JS).
   const makeSub = (overrides: Record<string, unknown> = {}) => ({
     id: 'sub-1',
     userId: 'user-1',
@@ -147,8 +145,6 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
           triggeredBy: strategyId,
         }),
       });
-      // Service now fetches all ACTIVE subscriptions in one query and partitions
-      // expired vs. live in memory (no OR clause).
       expect(
         prismaService.userStrategySubscription.findMany,
       ).toHaveBeenCalledWith(
@@ -185,7 +181,6 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
 
       await tradingService.processSignal(strategyId, 'BUY', 'BTCUSD', 45000);
 
-      // Should queue execution for each subscriber
       expect(mockQueue.add).toHaveBeenCalledTimes(2);
     });
 
@@ -271,7 +266,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
 
       const profit = (exitPrice - entryPrice) * quantity;
 
-      expect(profit).toBe(200); // (120 - 100) * 10 = 200
+      expect(profit).toBe(200);
     });
 
     it('should calculate loss correctly for losing trade', () => {
@@ -281,7 +276,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
 
       const loss = (exitPrice - entryPrice) * quantity;
 
-      expect(loss).toBe(-200); // (80 - 100) * 10 = -200
+      expect(loss).toBe(-200);
     });
 
     it('should calculate win rate from trade history', () => {
@@ -295,7 +290,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
       const winningTrades = trades.filter((t) => t.profit > 0).length;
       const winRate = (winningTrades / trades.length) * 100;
 
-      expect(winRate).toBe(75); // 3 out of 4 trades won
+      expect(winRate).toBe(75);
     });
 
     it('should calculate average profit per trade', () => {
@@ -322,7 +317,7 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
       }
 
       expect(maxDrawdown).toBeGreaterThan(0);
-      expect(maxDrawdown).toBeLessThan(20); // Should be less than 20% in this case
+      expect(maxDrawdown).toBeLessThan(20);
     });
 
     it('should calculate risk-reward ratio', () => {
@@ -332,9 +327,9 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         takeProfit: 110,
       };
 
-      const risk = trade.entry - trade.stopLoss; // 5
-      const reward = trade.takeProfit - trade.entry; // 10
-      const riskRewardRatio = reward / risk; // 2:1
+      const risk = trade.entry - trade.stopLoss;
+      const reward = trade.takeProfit - trade.entry;
+      const riskRewardRatio = reward / risk;
 
       expect(riskRewardRatio).toBe(2);
     });
@@ -358,22 +353,22 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
   describe('4. POSITION SIZING', () => {
     it('should calculate position size based on risk percentage', () => {
       const accountBalance = 10000;
-      const riskPercent = 0.02; // 2% risk
+      const riskPercent = 0.02;
       const entryPrice = 100;
       const stopLoss = 95;
 
-      const riskAmount = accountBalance * riskPercent; // 200
-      const riskPerShare = entryPrice - stopLoss; // 5
-      const positionSize = riskAmount / riskPerShare; // 40 shares
+      const riskAmount = accountBalance * riskPercent;
+      const riskPerShare = entryPrice - stopLoss;
+      const positionSize = riskAmount / riskPerShare;
 
       expect(positionSize).toBe(40);
     });
 
     it('should not allow position size exceeding account balance', () => {
       const accountBalance = 10000;
-      const positionValue = accountBalance * 1.5; // 150% - exceeds balance
+      const positionValue = accountBalance * 1.5;
 
-      const isValid = positionValue <= accountBalance * 1.1; // Allow max 110% with margin
+      const isValid = positionValue <= accountBalance * 1.1;
 
       expect(isValid).toBe(false);
     });
@@ -383,7 +378,6 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
     it('should trigger emergency stop for user', async () => {
       const userId = 'user-123';
 
-      // One open paper trade (no broker ticket) so the stop closes it -> SUCCESS.
       (prismaService.trade.findMany as jest.Mock).mockResolvedValueOnce([
         {
           id: 'trade-1',
@@ -410,7 +404,6 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
     it('should close all open positions on emergency stop', async () => {
       const userId = 'user-123';
 
-      // In real implementation, should verify all positions are closed
       await tradingService.emergencyStop(userId);
 
       expect(tradingGateway.sendToUser).toHaveBeenCalled();
@@ -439,8 +432,8 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
     it('should reject invalid entry parameters', () => {
       const trade = {
         entry: 100,
-        stopLoss: 100, // Same as entry - invalid
-        takeProfit: 90, // Below entry - invalid
+        stopLoss: 100,
+        takeProfit: 90,
       };
 
       const isValid =

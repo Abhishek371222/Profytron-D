@@ -19,7 +19,6 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
               if (status && NON_RETRYABLE_STATUSES.has(status)) return false;
               return failureCount < 1;
             },
-            // Refetch stale queries on mount; avoid "always" stampedes that race token refresh.
             refetchOnWindowFocus: false,
             refetchOnReconnect: true,
             refetchOnMount: true,

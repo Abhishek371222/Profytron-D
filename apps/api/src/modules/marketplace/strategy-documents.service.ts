@@ -40,7 +40,6 @@ const KIND_MIME: Record<StrategyDocumentKind, string[]> = {
   ],
 };
 
-/** No legitimate strategy asset needs more than this; larger is a mistake or abuse. */
 const KIND_MAX_BYTES: Record<StrategyDocumentKind, number> = {
   IMAGE: 5 * 1024 * 1024,
   PDF: 10 * 1024 * 1024,
@@ -63,8 +62,6 @@ export class StrategyDocumentsService {
     try {
       fs.mkdirSync(this.localRoot, { recursive: true });
     } catch (err: any) {
-      // Prefer Supabase in production; local disk is a fallback. Never crash boot
-      // if the container filesystem is read-only for this path (e.g. Render).
       this.logger.warn(
         `Local upload dir unavailable (${err?.code || err?.message}); using Supabase-only storage when configured`,
       );
@@ -90,14 +87,6 @@ export class StrategyDocumentsService {
     return 'bin';
   }
 
-  /**
-   * Verifies the file's actual bytes match its claimed kind — not just the
-   * client-supplied mimetype, which is trivially spoofable (a renamed .php
-   * file can still declare Content-Type: image/jpeg). For images, also
-   * returns a re-encoded buffer with EXIF/metadata stripped so location
-   * data doesn't leak through marketplace thumbnails. Throws
-   * BadRequestException on anything that fails validation.
-   */
   private async validateAndSanitize(
     file: Express.Multer.File,
     kind: StrategyDocumentKind,
@@ -123,9 +112,6 @@ export class StrategyDocumentsService {
         throw new BadRequestException('Unsupported image format');
       }
       try {
-        // Re-encoding (no .withMetadata()) strips EXIF/ICC/GPS metadata by
-        // default and doubles as content validation — sharp already threw
-        // above if the bytes weren't a genuine image of that format.
         return await sharp(file.buffer).rotate().toFormat(format).toBuffer();
       } catch {
         throw new BadRequestException('Could not process image file');
@@ -141,7 +127,6 @@ export class StrategyDocumentsService {
       return file.buffer;
     }
 
-    // DATA
     if (file.mimetype === 'application/json') {
       try {
         JSON.parse(file.buffer.toString('utf8'));
@@ -162,9 +147,6 @@ export class StrategyDocumentsService {
         );
       }
     } else {
-      // xlsx is a zip container ('PK'), legacy xls is an OLE container —
-      // check the real container magic bytes rather than trusting the
-      // extension/declared mimetype.
       const header = file.buffer.subarray(0, 4);
       const isZip = header[0] === 0x50 && header[1] === 0x4b;
       const isOle = header[0] === 0xd0 && header[1] === 0xcf;
@@ -213,9 +195,6 @@ export class StrategyDocumentsService {
       );
     }
 
-    // Real content check (size cap, magic bytes / actual parse — not just the
-    // declared mimetype) — returns the buffer to actually store, which for
-    // images is a re-encoded copy with EXIF/metadata stripped.
     const sanitizedBuffer = await this.validateAndSanitize(file, kind);
 
     const docId = randomUUID();

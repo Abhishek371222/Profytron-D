@@ -18,8 +18,6 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type SubscriptionStatus = 'ACTIVE' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE' | 'BLOCKED';
 type ProfitShareState = 'PROFIT_SHARE_OK' | 'PROFIT_SHARE_DUE' | 'PROFIT_SHARE_PAUSED' | 'PROFIT_SHARE_SETTLING';
 
@@ -47,8 +45,6 @@ interface SubscribedBot {
     autoRenew?: boolean;
   };
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const STATUS_FILTER_TABS: Array<{ label: string; value: SubscriptionStatus | 'ALL' }> = [
   { label: 'All', value: 'ALL' },
@@ -89,8 +85,6 @@ function formatDate(dateStr?: string) {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
 function FilterPill({
   active,
@@ -169,8 +163,6 @@ function SummaryCard({
   );
 }
 
-// ─── Table skeleton ────────────────────────────────────────────────────────────
-
 function TableSkeleton() {
   return (
     <tbody className="divide-y divide-[var(--card-border)]">
@@ -186,8 +178,6 @@ function TableSkeleton() {
     </tbody>
   );
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function SubscriptionsPage() {
   const queryClient = useQueryClient();
@@ -208,7 +198,6 @@ export default function SubscriptionsPage() {
   const autoRenewMutation = useMutation({
     mutationFn: ({ id, autoRenew }: { id: string; autoRenew: boolean }) =>
       apiClient.patch(`/strategies/${id}/auto-renew`, { autoRenew }),
-    // Optimistic — a slider should flip instantly, not wait on a round trip.
     onMutate: async ({ id, autoRenew }) => {
       await queryClient.cancelQueries({ queryKey: ['subscriptions'] });
       const previous = queryClient.getQueryData<SubscribedBot[]>(['subscriptions']);
@@ -228,7 +217,6 @@ export default function SubscriptionsPage() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['subscriptions'] }),
   });
 
-  // Computed stats
   const activeBots = React.useMemo(
     () => rawBots.filter((b) => getStatusFromBot(b) === 'ACTIVE'),
     [rawBots],
@@ -267,14 +255,14 @@ export default function SubscriptionsPage() {
 
   return (
     <div className="space-y-5 pb-8" data-tour="subscriptions-overview">
-      {/* Breadcrumbs */}
+      { }
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
         <Link href="/dashboard" className="hover:underline">Dashboard</Link>
         <ChevronRight className="h-3 w-3 text-muted-foreground" />
         <span className="text-foreground">Subscriptions</span>
       </div>
 
-      {/* Header */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -308,7 +296,7 @@ export default function SubscriptionsPage() {
         </div>
       </motion.div>
 
-      {/* Summary cards */}
+      { }
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <SummaryCard
           label="Active Subscriptions"
@@ -344,14 +332,14 @@ export default function SubscriptionsPage() {
         />
       </div>
 
-      {/* Table card */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
         className="dashboard-card overflow-hidden"
       >
-        {/* Filter bar */}
+        { }
         <div className="px-5 py-3.5 border-b border-[var(--card-border)] flex flex-wrap items-center gap-2">
           {STATUS_FILTER_TABS.map(({ label, value }) => (
             <FilterPill
@@ -368,7 +356,7 @@ export default function SubscriptionsPage() {
           </span>
         </div>
 
-        {/* Table */}
+        { }
         <div className="responsive-table-shell">
           <table className="w-full min-w-[860px]">
             <thead>
@@ -406,7 +394,7 @@ export default function SubscriptionsPage() {
                       transition={{ delay: idx * 0.04 }}
                       className="group hover:bg-muted/10 transition-colors"
                     >
-                      {/* Bot */}
+                      { }
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2.5">
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -419,14 +407,14 @@ export default function SubscriptionsPage() {
                         </div>
                       </td>
 
-                      {/* Plan */}
+                      { }
                       <td className="px-4 py-3.5">
                         <span className="text-xs font-medium text-muted-foreground capitalize">
                           {plan.charAt(0) + plan.slice(1).toLowerCase()}
                         </span>
                       </td>
 
-                      {/* Status */}
+                      { }
                       <td className="px-4 py-3.5">
                         <span
                           className={cn(
@@ -444,21 +432,21 @@ export default function SubscriptionsPage() {
                         ) : null}
                       </td>
 
-                      {/* Price/mo */}
+                      { }
                       <td className="px-4 py-3.5">
                         <span className="text-sm font-bold tabular-nums text-foreground">
                           {formatINR(bot.monthlyPrice)}
                         </span>
                       </td>
 
-                      {/* Next Billing */}
+                      { }
                       <td className="px-4 py-3.5">
                         <span className="text-xs text-muted-foreground">
                           {formatDate(bot.subscription?.renewalDate)}
                         </span>
                       </td>
 
-                      {/* Broker */}
+                      { }
                       <td className="px-4 py-3.5">
                         <span className="text-xs text-muted-foreground max-w-[120px] truncate block">
                           {bot.subscription?.brokerAccount ?? (
@@ -467,7 +455,7 @@ export default function SubscriptionsPage() {
                         </span>
                       </td>
 
-                      {/* Auto-Renewal */}
+                      { }
                       <td className="px-4 py-3.5">
                         <button
                           type="button"
@@ -490,7 +478,7 @@ export default function SubscriptionsPage() {
                         </button>
                       </td>
 
-                      {/* Upgrade */}
+                      { }
                       <td className="px-4 py-3.5 text-right">
                         <Link
                           href={`/marketplace/${bot.id}`}
@@ -508,7 +496,7 @@ export default function SubscriptionsPage() {
           </table>
         </div>
 
-        {/* Empty state */}
+        { }
         {!isLoading && filtered.length === 0 && (
           <div className="py-16 flex flex-col items-center gap-4 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted border border-[var(--card-border)]">

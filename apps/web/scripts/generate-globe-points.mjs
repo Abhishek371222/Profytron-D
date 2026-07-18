@@ -1,7 +1,3 @@
-/**
- * Pre-generates continent dot coordinates for the 3D marketplace globe.
- * Run: node scripts/generate-globe-points.mjs
- */
 import { writeFileSync, mkdirSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";

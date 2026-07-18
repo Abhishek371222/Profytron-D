@@ -209,7 +209,7 @@ export default function SupportPage() {
       </AnimatePresence>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6">
-        {/* Ticket List */}
+        { }
         <div className="space-y-3">
           <div className="text-micro font-bold text-foreground/20 uppercase tracking-widest">
             {tickets.length} ticket{tickets.length !== 1 ? 's' : ''}
@@ -258,7 +258,7 @@ export default function SupportPage() {
           )}
         </div>
 
-        {/* Ticket Detail */}
+        { }
         <div className="rounded-2xl bg-foreground/2 border border-border flex flex-col min-h-[400px]">
           {!selectedTicket ? (
             <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center">

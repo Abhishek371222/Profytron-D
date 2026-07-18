@@ -86,7 +86,7 @@ export function DataTable<T extends object>({
 
   return (
     <div className={cn("w-full min-w-0", className)}>
-      {/* Mobile card stack */}
+      { }
       <div className="space-y-3 md:hidden">
         {isLoading
           ? Array.from({ length: 4 }).map((_, i) => (
@@ -130,7 +130,7 @@ export function DataTable<T extends object>({
               ))}
       </div>
 
-      {/* Desktop table */}
+      { }
       <div className="hidden overflow-x-auto rounded-card border border-card-border md:block">
         <table className="w-full text-sm">
           <thead>

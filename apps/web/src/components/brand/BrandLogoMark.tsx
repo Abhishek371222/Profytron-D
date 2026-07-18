@@ -5,13 +5,11 @@ import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-/** Canonical Profytron assets from /logo folder */
 export const BRAND_MARK_SRC = '/brand-mark.png';
 /** Tight crop of brand-mark.png — only the P glyph, no empty padding */
 export const BRAND_MARK_TIGHT_SRC = '/brand-mark-tight.png';
 export const BRAND_LOCKUP_DARK_SRC = '/brand-lockup.png';
 export const BRAND_LOCKUP_LIGHT_SRC = '/brand-lockup-light.png';
-/** @deprecated use BRAND_LOCKUP_DARK_SRC */
 export const BRAND_LOCKUP_SRC = BRAND_LOCKUP_DARK_SRC;
 
 const AMBIENT_SIZES = {
@@ -49,7 +47,6 @@ export function BrandLogoMark({
   );
 }
 
-/** Ambient logo visual — pulsing rings + soft glow, blends into any surface */
 export function BrandLogoAmbient({
   size = 'lg',
   className,

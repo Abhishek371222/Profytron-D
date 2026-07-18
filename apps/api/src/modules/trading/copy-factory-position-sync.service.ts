@@ -24,10 +24,6 @@ interface BrokerPosition {
   profit?: number;
 }
 
-/**
- * When CopyFactory executes copies at the broker, MasterSync polling is off.
- * This service reconciles follower MetaAPI positions into Trade rows for UI/WS.
- */
 @Injectable()
 export class CopyFactoryPositionSyncService implements OnModuleDestroy {
   private readonly logger = new Logger(CopyFactoryPositionSyncService.name);
@@ -35,10 +31,6 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
   private polling = false;
   private readonly instanceId = `${process.pid}-${Math.random().toString(36).slice(2, 10)}`;
 
-  // Per broker-account throttle: decouples how often we hit MetaAPI per account
-  // from the (fast) tick interval, so adding followers doesn't linearly inflate
-  // MetaAPI REST volume and trip rate limits. Also de-dups accounts shared by
-  // multiple subscriptions within a single cycle.
   private readonly lastPolledAt = new Map<string, number>();
   private readonly consecutiveFailures = new Map<string, number>();
   private readonly minPollIntervalMs =
@@ -110,12 +102,9 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
         if (!sub.brokerAccountId || !sub.brokerAccount) continue;
         activeAccountIds.add(sub.brokerAccountId);
 
-        // De-dup: poll each broker account at most once per cycle.
         if (seenAccounts.has(sub.brokerAccountId)) continue;
         seenAccounts.add(sub.brokerAccountId);
 
-        // Throttle: skip accounts polled within the minimum interval so REST
-        // volume stays bounded regardless of follower count / tick speed.
         const last = this.lastPolledAt.get(sub.brokerAccountId) ?? 0;
         if (now - last < this.minPollIntervalMs) continue;
         this.lastPolledAt.set(sub.brokerAccountId, now);
@@ -131,8 +120,6 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
           const fails =
             (this.consecutiveFailures.get(sub.brokerAccountId) ?? 0) + 1;
           this.consecutiveFailures.set(sub.brokerAccountId, fails);
-          // Surface a persistent stall loudly instead of warning every cycle
-          // forever, so degraded follower sync is actionable.
           const log = fails >= 3 ? 'error' : 'warn';
           this.logger[log](
             `Position sync failed for user ${sub.userId} (account ${sub.brokerAccountId}, ${fails} consecutive): ${(err as Error).message}`,
@@ -145,8 +132,6 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
         }
       }
 
-      // Prune throttle/failure state for accounts no longer active so the maps
-      // don't grow unbounded across deploys.
       for (const key of this.lastPolledAt.keys()) {
         if (!activeAccountIds.has(key)) {
           this.lastPolledAt.delete(key);
@@ -154,8 +139,6 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
         }
       }
     } catch (err) {
-      // A DB blip (e.g. Neon closing an idle connection — P1017) must not crash
-      // the process. Prisma reconnects on the next cycle.
       this.logger.warn(
         `CopyFactory follower sync cycle failed: ${(err as Error).message}`,
       );

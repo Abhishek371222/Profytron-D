@@ -20,7 +20,6 @@ export function MobileBottomNav() {
   const isBuilder = pathname?.includes('/strategies/builder');
   const isCoach = pathname?.includes('/alpha-coach');
 
-  // Chat occupies the full phone viewport — hide bottom nav so it doesn't collide.
   if (isBuilder || isCoach) return null;
 
   return (

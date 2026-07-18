@@ -10,11 +10,9 @@ declare global {
 
 export function MSWProvider({ children }: { children: React.ReactNode }) {
  useEffect(() => {
- // Respect the environment variable to disable/enable mocks
  const isMockEnabled = process.env.NEXT_PUBLIC_ENABLE_MOCK_API === 'true';
 
  if (typeof window !== "undefined" && isMockEnabled) {
- // Force unregister all existing service workers to clear any stale Next.js chunks
  if ('serviceWorker' in navigator) {
  navigator.serviceWorker.getRegistrations().then((registrations) => {
  for (const registration of registrations) {

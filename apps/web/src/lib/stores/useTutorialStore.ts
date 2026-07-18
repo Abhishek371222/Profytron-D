@@ -5,7 +5,6 @@ import { trackEvent } from '@/lib/analytics/track';
 
 function persist(tourId: string, status: TutorialStatus, currentStepId?: string | null) {
   tutorialApi.updateProgress(tourId, status, currentStepId ?? null).catch(() => {
-    /* best-effort — tour still runs client-side even if this fails */
   });
 }
 

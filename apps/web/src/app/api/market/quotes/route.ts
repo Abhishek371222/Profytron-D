@@ -16,10 +16,19 @@ function noStore(data: unknown, status = 200) {
   });
 }
 
+function edgeCached(data: unknown) {
+  return NextResponse.json(data, {
+    status: 200,
+    headers: {
+      'Cache-Control': 'public, max-age=0, s-maxage=5, stale-while-revalidate=20',
+    },
+  });
+}
+
 export async function GET() {
   try {
     const quotes = await fetchLiveQuotes();
-    return noStore({
+    return edgeCached({
       success: true,
       data: quotes,
       timestamp: new Date().toISOString(),

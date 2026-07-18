@@ -35,18 +35,14 @@ const SUPPORTED: SupportedSymbol[] = [
   'SPX500',
 ];
 
-/** Nest stuck-API demo bands — never show these in the UI. */
 export function isFakeNestQuote(symbol: string, price: number, source?: string): boolean {
   if (!Number.isFinite(price) || price <= 0) return true;
   const src = String(source || '').toLowerCase();
   if (src.includes('profytron-market') || src.includes('synthetic')) return true;
 
   const s = symbol.toUpperCase();
-  // Live BTC is ~64k; Nest demo sits ~66.5–68k
   if (s.startsWith('BTC')) return price >= 65000 && price <= 69500;
-  // Live EUR ~1.14; Nest demo ~1.08x
   if (s === 'EURUSD') return price >= 1.078 && price <= 1.095;
-  // Live gold ~4100; Nest demo ~2300–2400
   if (s.startsWith('XAU') || s === 'GOLD') return price >= 2200 && price <= 2500;
   return false;
 }
@@ -62,7 +58,6 @@ function isLiveSource(source?: string) {
 }
 
 async function fetchLiveQuotesFromVercel(): Promise<LiveQuoteMap> {
-  // Same-origin only — never hit Render for market data.
   const url = `/api/market/quotes?_=${Date.now()}`;
   const res = await fetch(url, {
     cache: 'no-store',
@@ -122,6 +117,7 @@ async function fetchLiveQuotesFromVercel(): Promise<LiveQuoteMap> {
     }),
   );
 
+
   return next;
 }
 
@@ -168,7 +164,6 @@ export function useLiveMarketFeed(
     });
   }, [query.data, query.dataUpdatedAt]);
 
-  // Trading socket for orders only — never for market prices.
   React.useEffect(() => {
     if (!enabled) return;
     const token = accessToken ?? useAuthStore.getState().accessToken;

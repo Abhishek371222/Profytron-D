@@ -9,14 +9,6 @@ import {
   isInMemoryRedis,
 } from '../config/redis.config';
 
-/**
- * Socket.IO adapter backed by Redis Pub/Sub so WebSocket events fan out across
- * every API replica (required for horizontal scaling — without it, a client
- * connected to replica A never receives events emitted from replica B).
- *
- * Falls back to the default in-memory adapter when Redis is in-memory (local
- * dev) or unavailable, so single-instance setups are unaffected.
- */
 export class RedisIoAdapter extends IoAdapter {
   private readonly logger = new Logger(RedisIoAdapter.name);
   private adapterConstructor?: ReturnType<typeof createAdapter>;
@@ -43,8 +35,6 @@ export class RedisIoAdapter extends IoAdapter {
         this.logger.warn(`Socket.IO sub client error: ${err.message}`),
       );
 
-      // Verify the wire protocol before attaching — a REST/HTTPS URL yields
-      // "Protocol error, got H" and would otherwise spam errors forever.
       await pubClient.ping();
 
       this.adapterConstructor = createAdapter(pubClient, subClient);

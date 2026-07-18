@@ -21,7 +21,6 @@ export async function createSupabaseServerClient() {
             cookieStore.set(name, value, options);
           });
         } catch {
-          // Server Components can expose a read-only cookie store.
         }
       },
     },

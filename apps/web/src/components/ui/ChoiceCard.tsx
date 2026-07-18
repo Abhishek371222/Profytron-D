@@ -14,7 +14,6 @@ type ChoiceCardProps = {
   icon?: React.ReactNode;
 };
 
-/** Premium selectable option — used in onboarding, settings, filters */
 export function ChoiceCard({
   label,
   selected = false,

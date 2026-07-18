@@ -57,8 +57,8 @@ function ProgressBar({ value }: { value: number }) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/70">
       <div
-        className="h-full rounded-full bg-primary transition-[width] duration-500"
-        style={{ width: `${pct}%` }}
+        className="h-full w-full origin-left rounded-full bg-primary transition-transform duration-500 will-change-transform"
+        style={{ transform: `scaleX(${pct / 100})` }}
       />
     </div>
   );
@@ -102,7 +102,6 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
     refreshing,
   } = metrics;
 
-  // Always USD on Overview — matches MT5 / Connected Accounts, no locale FX.
   const currency = 'USD';
 
   const marginUsedPct = equity > 0 ? (margin / equity) * 100 : 0;

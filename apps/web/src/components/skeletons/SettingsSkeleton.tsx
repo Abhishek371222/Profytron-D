@@ -3,14 +3,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function SettingsSkeleton() {
   return (
     <div className="space-y-6 p-6 animate-in fade-in duration-300">
-      {/* Settings nav tabs */}
+      { }
       <div className="flex gap-2 border-b border-white/[0.06] pb-4">
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} className="h-8 w-20 rounded-lg" />
         ))}
       </div>
 
-      {/* Form sections */}
+      { }
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="rounded-2xl border border-white/[0.06] bg-muted/2 p-6 space-y-5">
           <div className="space-y-1.5">

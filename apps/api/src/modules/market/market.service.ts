@@ -62,10 +62,9 @@ const twelveDataIntervalMap: Record<MarketTimeframe, string> = {
   '1d': '1day',
 };
 
-/** TTL constants (seconds) */
-const TTL_QUOTE = 30; // price quotes — refresh every 30 s
-const TTL_OHLC_SHORT = 30; // 1m/5m/15m candles — short TTL, data changes fast
-const TTL_OHLC_LONG = 5 * 60; // 1h/4h/1d candles — slower cadence, cache 5 min
+const TTL_QUOTE = 30;
+const TTL_OHLC_SHORT = 30;
+const TTL_OHLC_LONG = 5 * 60;
 
 @Injectable()
 export class MarketService {
@@ -136,7 +135,6 @@ export class MarketService {
   ): Promise<any> {
     const safeLimit = Math.max(20, Math.min(500, Math.floor(limit || 220)));
 
-    // Use shorter TTL for high-frequency timeframes
     const isShortTimeframe = ['1m', '5m', '15m'].includes(timeframe);
     const ttl = isShortTimeframe ? TTL_OHLC_SHORT : TTL_OHLC_LONG;
     const cacheKey = `market:ohlc:${symbol}:${timeframe}:${safeLimit}`;
@@ -171,6 +169,7 @@ export class MarketService {
       // Cache synthetic data with the same TTL to avoid re-generating on every request.
       return this.buildSyntheticOHLC(symbol, timeframe, safeLimit);
     });
+
   }
 
   private async fetchTwelveDataOHLC(
@@ -392,7 +391,6 @@ export class MarketService {
         url: item.url || '',
       }));
 
-    // Prefer real article photos so UIs can show image-only feeds.
     const withImages = mapped.filter((item) => isArticleImage(item.image));
     const withoutImages = mapped.filter((item) => !isArticleImage(item.image));
     const items = [...withImages, ...withoutImages].slice(0, 60);
@@ -404,7 +402,6 @@ export class MarketService {
       source: 'finnhub',
       serverTime: new Date().toISOString(),
     };
-    // Cache 2 minutes to stay within free-tier rate limits for many users.
     await this.redis.set(cacheKey, JSON.stringify(result), 120);
     return result;
   }
@@ -493,14 +490,12 @@ export class MarketService {
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
 
-    // 1) Finnhub (paid plans only — free tier returns 403)
     const finnhub = await this.fetchFinnhubEconomicCalendar(fromDate, toDate);
     if (finnhub) {
       await this.redis.set(cacheKey, JSON.stringify(finnhub), 300);
       return finnhub;
     }
 
-    // 2) Free Forex Factory feed via Fair Economy (this week)
     const ff = await this.fetchForexFactoryCalendar(fromDate, toDate);
     if (ff) {
       await this.redis.set(cacheKey, JSON.stringify(ff), 300);
@@ -575,7 +570,6 @@ export class MarketService {
     }
   }
 
-  /** Free public Forex Factory calendar (Fair Economy NFS). */
   private async fetchForexFactoryCalendar(fromDate: string, toDate: string) {
     try {
       const response = await fetch(
@@ -631,8 +625,6 @@ export class MarketService {
         .filter((e) => {
           const t = new Date(e.time).getTime();
           if (!Number.isFinite(t)) return false;
-          // Keep this-week feed rows that fall in the requested window,
-          // plus anything still upcoming.
           return t >= fromMs && t <= toMs;
         })
         .sort((a, b) => {

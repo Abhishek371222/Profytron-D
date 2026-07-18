@@ -1,4 +1,3 @@
-/** Realistic OHLC market data: trend → pullback → continuation */
 export type Candle = {
   o: number;
   h: number;

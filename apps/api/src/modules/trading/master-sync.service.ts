@@ -26,30 +26,16 @@ interface MasterSyncHealth {
   lastError: string | null;
 }
 
-const SNAPSHOT_TTL_SECONDS = 60 * 60 * 24; // keep snapshots a day
+const SNAPSHOT_TTL_SECONDS = 60 * 60 * 24;
 const snapshotKey = (accountId: string) => `mastersync:positions:${accountId}`;
 
-/**
- * Real-time master-trade detection.
- *
- * Detects OPEN, CLOSE and MODIFY (SL/TP/volume) changes on each master account
- * and fans the change out to paid followers. Snapshot state is persisted to
- * Redis so detection survives process restarts and can run behind multiple
- * instances without losing closes or re-firing opens.
- *
- * This polls the MetaApi REST positions endpoint. To upgrade to true websocket
- * streaming, swap `mtAdapter.getPositions` for a streaming connection's
- * synchronization listener — the diff/fan-out logic below stays identical.
- */
 @Injectable()
 export class MasterSyncService implements OnModuleDestroy {
   private readonly logger = new Logger(MasterSyncService.name);
   private lastPositions = new Map<string, Map<string, CachedPosition>>();
-  /** Per-master connection health so a silent stall is visible to ops/admin. */
   private syncHealth = new Map<string, MasterSyncHealth>();
   private pollTimer: NodeJS.Timeout | null = null;
   private polling = false;
-  /** Unique per-process token for the master-poll leader lease. */
   private readonly instanceId = `${process.pid}-${Math.random().toString(36).slice(2, 10)}`;
 
   constructor(
@@ -65,7 +51,6 @@ export class MasterSyncService implements OnModuleDestroy {
     if (this.pollTimer) clearInterval(this.pollTimer);
   }
 
-  /** Start polling all master broker accounts every 3 seconds. */
   startPolling(intervalMs = 3000) {
     if (this.pollTimer) return;
     this.pollTimer = setInterval(() => this.pollAllMasters(), intervalMs);
@@ -76,6 +61,7 @@ export class MasterSyncService implements OnModuleDestroy {
     if (this.polling) return;
     if (this.mtAdapter.isRateLimited()) return;
     // Only one instance polls masters when scaled horizontally (leader lease).
+
     const isLeader = await this.redis.tryRenewableLock(
       'mastersync:leader',
       this.instanceId,
@@ -100,7 +86,6 @@ export class MasterSyncService implements OnModuleDestroy {
     }
   }
 
-  /** Load a master's last snapshot, preferring memory then Redis. */
   private async loadSnapshot(
     accountId: string,
   ): Promise<Map<string, CachedPosition>> {
@@ -184,9 +169,6 @@ export class MasterSyncService implements OnModuleDestroy {
       health.lastError = (err as Error).message;
       this.syncHealth.set(account.id, health);
 
-      // Escalate a persistent stall: while a master can't be read, follower
-      // copies silently stop — make that loud after a few cycles instead of an
-      // endless stream of identical warnings.
       const level = health.consecutiveFailures >= 5 ? 'error' : 'warn';
       this.logger[level](
         `Failed to fetch positions for master ${account.id} ` +
@@ -195,7 +177,6 @@ export class MasterSyncService implements OnModuleDestroy {
       return;
     }
 
-    // Healthy read — reset stall state.
     this.syncHealth.set(account.id, {
       consecutiveFailures: 0,
       lastSuccessAt: new Date().toISOString(),
@@ -208,14 +189,12 @@ export class MasterSyncService implements OnModuleDestroy {
 
     await this.saveSnapshot(account.id, currentMap);
 
-    // Opened on master
     for (const [id, pos] of currentMap) {
       if (!prev.has(id)) {
         await this.fanOutOpenSignal(account.id, pos);
       }
     }
 
-    // Modified on master (SL / TP / volume change to an existing position)
     for (const [id, pos] of currentMap) {
       const before = prev.get(id);
       if (before && this.isModified(before, pos)) {
@@ -223,7 +202,6 @@ export class MasterSyncService implements OnModuleDestroy {
       }
     }
 
-    // Closed on master
     for (const [id, pos] of prev) {
       if (!currentMap.has(id)) {
         await this.fanOutCloseSignal(account.id, id, pos);
@@ -342,7 +320,6 @@ export class MasterSyncService implements OnModuleDestroy {
       },
     });
 
-    // Volume decrease → partial/full close on followers; SL/TP propagate separately.
     const slTpUnchanged =
       (before.stopLoss ?? null) === (after.stopLoss ?? null) &&
       (before.takeProfit ?? null) === (after.takeProfit ?? null);
@@ -371,7 +348,6 @@ export class MasterSyncService implements OnModuleDestroy {
           {
             tradeId: trade.id,
             userId: trade.userId,
-            // TradeProcessor reads `volume` for partial closes (not closeVolume).
             ...(isFullClose ? {} : { volume: closeVolume }),
           },
           {
@@ -419,7 +395,6 @@ export class MasterSyncService implements OnModuleDestroy {
       symbol: pos?.symbol ?? null,
     });
 
-    // Find all open trades that were copy-opened from this master position
     const openTrades = await this.prisma.trade.findMany({
       where: {
         status: 'OPEN',
@@ -441,7 +416,6 @@ export class MasterSyncService implements OnModuleDestroy {
     }
   }
 
-  /** Returns current poll status for admin dashboard */
   getMasterStatus() {
     const accounts: Record<
       string,

@@ -34,7 +34,7 @@ export class CoachGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   private readonly logger = new Logger(CoachGateway.name);
-  private connectedClients = new Map<string, string>(); // socketId -> userId
+  private connectedClients = new Map<string, string>();
 
   constructor(
     private readonly jwtService: JwtService,

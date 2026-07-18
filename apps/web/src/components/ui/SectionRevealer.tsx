@@ -7,7 +7,6 @@ interface SectionRevealerProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
-  /** Slight horizontal slide direction for variety */
   direction?: "up" | "left" | "right";
 }
 

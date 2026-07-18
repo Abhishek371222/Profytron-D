@@ -23,6 +23,15 @@ function noStore(data: unknown, status = 200) {
   });
 }
 
+function edgeCached(data: unknown) {
+  return NextResponse.json(data, {
+    status: 200,
+    headers: {
+      'Cache-Control': 'public, max-age=0, s-maxage=15, stale-while-revalidate=60',
+    },
+  });
+}
+
 export async function GET(req: NextRequest) {
   const symbol = String(
     req.nextUrl.searchParams.get('symbol') || 'BTCUSDT',
@@ -41,7 +50,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const { candles, source } = await fetchLiveOhlc(symbol, timeframe, limit);
-    return noStore({
+    return edgeCached({
       success: true,
       data: {
         symbol,

@@ -16,12 +16,6 @@ type EventHandler = (payload: unknown) => void;
 let socket: Socket | null = null;
 let refCount = 0;
 let activeToken: string | null = null;
-// React Strict Mode double-effects, Fast Refresh remounts, and quick
-// component churn cause refCount to bounce 1 -> 0 -> 1 within a tick.
-// Without a grace period we'd call socket.disconnect() on a socket whose
-// native WebSocket handshake hasn't finished yet — hence the "WebSocket is
-// closed before the connection is established" console warning — and then
-// immediately reopen a brand new connection for the re-mount.
 let disconnectTimer: ReturnType<typeof setTimeout> | null = null;
 const TEARDOWN_GRACE_MS = 500;
 
@@ -47,6 +41,7 @@ function bindSocketEvents(sock: Socket) {
     'emergency_stop_triggered',
     'strategy_activated',
     'new_notification',
+    'transaction_update',
   ] as const;
 
   for (const event of tradeEvents) {
@@ -79,7 +74,6 @@ function connectSocket(token: string) {
     reconnectionDelay: 1000,
     reconnectionDelayMax: 8000,
     timeout: 12_000,
-    // Avoid spamming the console when the API is briefly restarting.
     autoConnect: true,
   });
   activeToken = token;
@@ -90,13 +84,11 @@ function connectSocket(token: string) {
   });
 
   socket.on('connect_error', () => {
-    // Intentionally quiet — Overview still works over HTTP polling.
   });
 
   return socket;
 }
 
-/** Acquire a shared trading socket reference. Returns release function. */
 export function acquireTradingSocket(token: string): () => void {
   refCount += 1;
   connectSocket(token);
@@ -106,8 +98,6 @@ export function acquireTradingSocket(token: string): () => void {
     if (disconnectTimer) clearTimeout(disconnectTimer);
     disconnectTimer = setTimeout(() => {
       disconnectTimer = null;
-      // A re-acquire within the grace window bumped refCount back up —
-      // keep the (possibly still-connecting) socket alive.
       if (refCount !== 0 || !socket) return;
       socket.emit('unsubscribe_prices');
       socket.removeAllListeners();
@@ -133,7 +123,6 @@ export function isTradingSocketConnected(): boolean {
   return Boolean(socket?.connected);
 }
 
-/** Reconnect the shared socket when the JWT is rotated (e.g. after refresh). */
 export function reconnectTradingSocket(token: string): void {
   if (!token) return;
   if (refCount > 0) {

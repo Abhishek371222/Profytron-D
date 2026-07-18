@@ -11,7 +11,6 @@ const PROMPTS = [
   { label: 'Drawdown fix', q: 'Review drawdown' },
 ];
 
-/** Idle canvas unique to Alpha Coach — compact, not a stretched widget. */
 export function CoachIdleCanvas({
   onPick,
 }: {
@@ -57,11 +56,12 @@ export function CoachIdleCanvas({
 
       <div className="mt-3 flex h-10 max-w-[220px] items-end gap-[3px]">
         {bars.map((h, i) => (
-          <div
-            key={i}
-            className="w-2 rounded-sm bg-primary/70 transition-[height] duration-500"
-            style={{ height: `${h}%`, opacity: 0.4 + (i % 4) * 0.12 }}
-          />
+          <div key={i} className="h-full w-2" style={{ opacity: 0.4 + (i % 4) * 0.12 }}>
+            <div
+              className="h-full w-full origin-bottom rounded-sm bg-primary/70 transition-transform duration-500 will-change-transform"
+              style={{ transform: `scaleY(${Math.min(Math.max(h, 0), 100) / 100})` }}
+            />
+          </div>
         ))}
       </div>
 

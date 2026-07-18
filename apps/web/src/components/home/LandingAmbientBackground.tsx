@@ -1,6 +1,3 @@
-/**
- * Clean enterprise backdrop — subtle gradient, no neon orbs.
- */
 export function LandingAmbientBackground() {
   return (
     <div

@@ -33,10 +33,6 @@ type ActiveSub = {
   subscribedAt: Date;
 };
 
-/**
- * Keeps DB Trade rows + broker equity in sync with MetaAPI for every active bot.
- * Attributes positions to the correct strategy so My Bots PnL / totals stay real.
- */
 @Injectable()
 export class BotTradeSyncService implements OnModuleDestroy {
   private readonly logger = new Logger(BotTradeSyncService.name);
@@ -72,11 +68,9 @@ export class BotTradeSyncService implements OnModuleDestroy {
     this.logger.log(
       `Bot trade / PnL sync started (${intervalMs}ms tick, ${this.minPollIntervalMs}ms per-account min)`,
     );
-    // Kick once on boot so My Bots is not empty until the first interval.
     void this.syncAllAccounts();
   }
 
-  /** On-demand sync for one user (My Bots refresh). Throttled to 8s. */
   async syncUser(
     userId: string,
   ): Promise<{ synced: number; tradesTouched: number }> {
@@ -255,7 +249,6 @@ export class BotTradeSyncService implements OnModuleDestroy {
       }
     }
 
-    // Newest active subscription on this account (TrendRider etc.)
     return subscriptions[0]?.strategyId ?? null;
   }
 
@@ -316,7 +309,6 @@ export class BotTradeSyncService implements OnModuleDestroy {
     const brokerIds = new Set(brokerPositions.map((p) => p.id));
     let touched = 0;
 
-    // Create / update open positions
     for (const pos of brokerPositions) {
       const existing = dbByTicket.get(pos.id);
       if (existing) {
@@ -399,7 +391,6 @@ export class BotTradeSyncService implements OnModuleDestroy {
       this.gateway.sendToUser(input.userId, 'trade_opened', trade);
     }
 
-    // Close trades that disappeared from MetaAPI — keep last known profit
     for (const trade of openDbTrades) {
       if (!trade.brokerTicket) continue;
       if (brokerIds.has(trade.brokerTicket)) continue;
@@ -409,7 +400,6 @@ export class BotTradeSyncService implements OnModuleDestroy {
         data: {
           status: TradeStatus.CLOSED,
           closedAt: new Date(),
-          // Keep profit as last floating value (best available without deal history)
           profit: trade.profit ?? 0,
           ...(trade.strategyId
             ? {}
@@ -433,7 +423,6 @@ export class BotTradeSyncService implements OnModuleDestroy {
       this.gateway.sendToUser(input.userId, 'trade_closed', closed);
     }
 
-    // Heal orphan OPEN trades with null strategyId when only one bot is linked
     if (input.subscriptions.length === 1) {
       const healed = await this.prisma.trade.updateMany({
         where: {
@@ -447,7 +436,6 @@ export class BotTradeSyncService implements OnModuleDestroy {
       touched += healed.count;
     }
 
-    // Persist live equity so bot % / Overview stay aligned
     const live = await this.mtAdapter.getLiveEquity(
       creds.metaApiAccountId,
       creds.metaApiRegion,
@@ -459,7 +447,6 @@ export class BotTradeSyncService implements OnModuleDestroy {
           lastConnectedAt: new Date(),
           lastKnownEquity: live,
           lastKnownBalance: live,
-          // Keep initialEquity if unset; otherwise leave baseline — live is for status.
           ...((await this.shouldSeedEquity(input.brokerAccountId))
             ? { initialEquity: live }
             : {}),

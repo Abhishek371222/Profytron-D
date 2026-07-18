@@ -75,7 +75,6 @@ function ChartTooltip({ active, payload, label }: any) {
   );
 }
 
-/** Renders a bar that grows slightly (scaled from its own center) when hovered, with no background cursor highlight. */
 function GrowBar({ x, y, width, height, fill, index, hoveredIndex }: any) {
   const scale = index === hoveredIndex ? 1.12 : 1;
   const w = width * scale;
@@ -152,7 +151,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      { }
       <motion.section
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -182,7 +181,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
         </div>
       </motion.section>
 
-      {/* Core metrics */}
+      { }
       <section>
         <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30 mb-3">
           Core Performance & Risk
@@ -227,7 +226,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
         </div>
       </section>
 
-      {/* Advanced analytics */}
+      { }
       <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/20 p-5">
         <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30 mb-1">
           Advanced Trading Analytics
@@ -276,7 +275,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
         </div>
       </section>
 
-      {/* Charts */}
+      { }
       <div className="grid gap-4 xl:grid-cols-2">
         <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/25 p-5">
           <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30">Equity vs Balance</p>
@@ -363,7 +362,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
         </section>
       </div>
 
-      {/* Asset distribution */}
+      { }
       <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/25 p-5">
         <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30">Volume / Asset Mix</p>
         <p className="text-base font-bold text-foreground mt-1 mb-4">Symbol Concentration</p>
@@ -409,7 +408,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
         </div>
       </section>
 
-      {/* Verification hub */}
+      { }
       <section className="rounded-[22px] border border-chart-3/15 bg-chart-3/[0.03] p-5">
         <div className="flex items-center gap-3 mb-4">
           <Shield className="w-5 h-5 text-chart-3" />
@@ -471,7 +470,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
         </div>
       </section>
 
-      {/* Strategic recommendations */}
+      { }
       <section className="rounded-[22px] border border-chart-4/15 bg-chart-4/[0.03] p-5">
         <div className="flex items-center gap-3 mb-4">
           <AlertTriangle className="w-5 h-5 text-chart-4" />
@@ -499,7 +498,7 @@ export function StrategyAnalyticsDashboard({ strategyId }: { strategyId: string 
         </div>
       </section>
 
-      {/* Trade history */}
+      { }
       <section className="rounded-[22px] border border-[var(--card-border)] bg-muted/20 p-5 sm:p-6">
         <p className="text-micro font-bold uppercase tracking-[0.3em] text-foreground/30">Trading History</p>
         <p className="text-base font-bold text-foreground mt-1 mb-4">Closed Trades Log</p>

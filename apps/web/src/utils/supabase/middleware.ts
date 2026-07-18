@@ -7,7 +7,6 @@ const supabaseKey =
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
   '';
 
-/** Paths where Supabase session refresh is required (OAuth flows). */
 const SUPABASE_SESSION_PATHS = ['/auth', '/login', '/register', '/signup', '/onboarding'];
 
 function hasSupabaseAuthCookie(request: NextRequest): boolean {
@@ -22,15 +21,9 @@ function shouldRefreshSupabaseSession(request: NextRequest): boolean {
     return true;
   }
 
-  // JWT cookie auth covers dashboard routes — skip remote getUser() on every navigation.
   return hasSupabaseAuthCookie(request);
 }
 
-// In-process cache of "this exact sb- cookie set was verified recently" so
-// back-to-back navigations in the same session skip the remote getUser()
-// round trip. Doesn't weaken security: this call only refreshes the Supabase
-// session cookie as a side effect and never gates access on its result —
-// actual authorization happens via the API's JWT guard.
 const SESSION_CACHE_TTL_MS = 30_000;
 const SESSION_CACHE_MAX_SIZE = 5000;
 const recentlyVerified = new Map<string, number>();

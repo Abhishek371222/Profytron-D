@@ -65,6 +65,7 @@ export class TwoFaService {
       SETUP_SECRET_TTL,
     );
 
+
     return { qrCode: qrCodeDataUrl, secret, otpUri };
   }
 
@@ -152,7 +153,6 @@ export class TwoFaService {
       );
     }
 
-    // Null out secret and codes so they cannot be reused after 2FA is off
     await this.prisma.user.update({
       where: { id: userId },
       data: {
@@ -196,10 +196,6 @@ export class TwoFaService {
     return { backupCodes: newBackupCodes };
   }
 
-  /**
-   * Called during the 2FA login challenge. Verifies TOTP or consumes a
-   * one-time backup code. Rate-limited to prevent brute-force.
-   */
   async verifyForLogin(userId: string, token: string): Promise<boolean> {
     const attemptKey = TOTP_ATTEMPT_KEY(userId);
     const attempts = parseInt(
@@ -229,7 +225,6 @@ export class TwoFaService {
     const backupCodes = (user.twoFactorBackupCodes as string[]) ?? [];
     const codeIndex = backupCodes.indexOf(token.toUpperCase());
     if (codeIndex !== -1) {
-      // Consume the backup code — remove it so it cannot be reused
       const remaining = backupCodes.filter((_, i) => i !== codeIndex);
       await this.prisma.user.update({
         where: { id: userId },
@@ -239,7 +234,6 @@ export class TwoFaService {
       return true;
     }
 
-    // Wrong code — increment attempt counter (15-minute window)
     await this.redisService.set(attemptKey, String(attempts + 1), 15 * 60);
     return false;
   }

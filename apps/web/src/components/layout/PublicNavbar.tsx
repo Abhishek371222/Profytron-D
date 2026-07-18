@@ -143,9 +143,15 @@ export function PublicNavbar() {
 
   useEffect(() => {
     if (!mounted) return;
-    const handler = () => setIsScrolled(window.scrollY > 16);
+    let lastValue = window.scrollY > 16;
+    const handler = () => {
+      const nextValue = window.scrollY > 16;
+      if (nextValue === lastValue) return;
+      lastValue = nextValue;
+      setIsScrolled(nextValue);
+    };
     window.addEventListener('scroll', handler, { passive: true });
-    handler();
+    setIsScrolled(lastValue);
     return () => window.removeEventListener('scroll', handler);
   }, [mounted]);
 

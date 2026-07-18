@@ -8,14 +8,6 @@ export type SpotlightRect = { top: number; left: number; width: number; height: 
 const PAD = 8;
 const BLUR_PX = 3;
 
-/** Full-viewport dim (+ optional blur) with a rectangular cutout around the active
- * tour target, using a two-layer mask (mask-composite: exclude) so the cutout
- * affects both the tint and the blur. Purely decorative — pointer-events stay off
- * so the real spotlighted element (and anything else on the page) stays clickable.
- *
- * The `mobile` variant drops the blur (phones found the whole page blurring
- * distracting) and lifts the glow ring above the bottom navigation (z-50) so the
- * highlighted bottom-nav icon reads clearly. */
 export function TutorialSpotlight({ rect, mobile = false }: { rect: SpotlightRect | null; mobile?: boolean }) {
   if (!rect) return null;
 

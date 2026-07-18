@@ -25,11 +25,6 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isHydrating: boolean;
-  /** True once auth is confirmed AND has held for SESSION_SETTLE_MS.
-   * A freshly-issued token can be momentarily rejected by other endpoints
-   * while the backend's session/cache state finishes propagating — gating
-   * dashboard queries on this instead of isAuthenticated directly avoids
-   * that first-request-401-then-silent-retry flash across every widget. */
   sessionReady: boolean;
   setAuth: (user: User, accessToken: string) => void;
   setToken: (token: string) => void;
@@ -102,8 +97,6 @@ export const useAuthStore = create<AuthState>()(
           document.cookie = 'user_role=; path=/; max-age=0; samesite=lax';
           setSessionHintCookie(false);
         }
-        // Drop Overview / broker snapshots so the next login never paints
-        // another user's balance for 1–2s.
         purgeWorkspaceCaches();
         set({
           user: null,
@@ -130,7 +123,6 @@ export const useAuthStore = create<AuthState>()(
             window.posthog.identify(user.id, { email: user.email, name: user.fullName });
           }
         }
-        // Bind (or wipe) workspace caches to this user before any hydrate.
         if (user?.id) ensureWorkspaceCacheOwner(user.id);
         set({ user, accessToken, isAuthenticated: true, isLoading: false, isHydrating: false });
       },
@@ -178,7 +170,6 @@ export const useAuthStore = create<AuthState>()(
         const tryMe = async (token: string, opts?: { allowRefresh?: boolean }) => {
           const meRes = await apiClient.get('/users/me', {
             headers: { Authorization: `Bearer ${token}` },
-            // After a successful cookie refresh, don't rotate again on /me failure.
             _retry: !opts?.allowRefresh,
           } as any);
           return unwrapApiResponse<User>(meRes.data);
@@ -189,7 +180,6 @@ export const useAuthStore = create<AuthState>()(
           typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_TOKEN_KEY) : null;
         const bootstrapToken = memoryToken || sessionToken;
 
-        // Fresh access token → validate profile without rotating cookies.
         if (bootstrapToken && !isAccessTokenStale(bootstrapToken)) {
           try {
             const user = await tryMe(bootstrapToken, { allowRefresh: true });
@@ -211,7 +201,6 @@ export const useAuthStore = create<AuthState>()(
           }
         }
 
-        // Stale/missing access token — single-flight cookie refresh (no expired-JWT 401 flash).
         try {
           const accessToken = await refreshSession();
           let user = get().user;
@@ -219,16 +208,10 @@ export const useAuthStore = create<AuthState>()(
             user = await tryMe(accessToken);
             syncUserCookies(user);
           } catch (meError) {
-            // A freshly-refreshed token that /users/me itself rejects (401/403)
-            // is not authenticated, whatever the API said a moment ago — treat
-            // it as a failed hydrate so we don't mark isAuthenticated true and
-            // let every session-gated query on the page fire against a token
-            // the API is going to reject anyway.
             const status = (meError as { response?: { status?: number } })?.response?.status;
             if (status === 401 || status === 403) {
               throw meError;
             }
-            /* transient /me failure (network/5xx) — keep whatever user we have */
           }
           if (typeof window !== 'undefined') {
             sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
@@ -288,12 +271,6 @@ export const useAuthStore = create<AuthState>()(
   ),
 );
 
-// A freshly-confirmed token can still be momentarily rejected by other
-// endpoints while the backend's session/cache state finishes propagating.
-// Derive `sessionReady` centrally (rather than in every consumer) so it only
-// flips true SESSION_SETTLE_MS after auth is confirmed, and flips false
-// immediately the moment auth drops — every dashboard query should gate on
-// this instead of computing its own isAuthenticated && !isHydrating check.
 const SESSION_SETTLE_MS = 400;
 let sessionSettleTimer: ReturnType<typeof setTimeout> | null = null;
 

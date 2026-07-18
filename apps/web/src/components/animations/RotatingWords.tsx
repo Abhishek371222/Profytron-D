@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +8,6 @@ type RotatingWordsProps = {
   words: string[];
   interval?: number;
   className?: string;
-  /** Render on its own line (recommended for hero headlines). */
   block?: boolean;
 };
 
@@ -19,6 +18,7 @@ export function RotatingWords({
   block = false,
 }: RotatingWordsProps) {
   const [index, setIndex] = useState(0);
+  const reduceMotion = useReducedMotion();
 
   const longest = useMemo(
     () => words.reduce((a, b) => (a.length >= b.length ? a : b), words[0] ?? ""),
@@ -26,12 +26,12 @@ export function RotatingWords({
   );
 
   useEffect(() => {
-    if (words.length <= 1) return;
+    if (reduceMotion || words.length <= 1) return;
     const id = setInterval(() => {
       setIndex((i) => (i + 1) % words.length);
     }, interval);
     return () => clearInterval(id);
-  }, [words.length, interval]);
+  }, [words.length, interval, reduceMotion]);
 
   return (
     <span

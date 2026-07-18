@@ -1,7 +1,3 @@
-/**
- * Shared MetaAPI history-deal → closed trade mapping.
- * Used by Overview recent trades and related routes.
- */
 
 export function isBalanceOrNonTradingDeal(deal: any): boolean {
   const type = String(deal?.type || deal?.dealType || '').toUpperCase();
@@ -17,7 +13,6 @@ export function isBalanceOrNonTradingDeal(deal: any): boolean {
     return true;
   }
   const n = Number(deal?.type ?? deal?.dealType);
-  // MT deal type ints: 2=balance … 6=bonus
   return Number.isFinite(n) && n >= 2 && n <= 6;
 }
 
@@ -57,10 +52,6 @@ export type ClosedHistoryRow = {
   isPaper: false;
 };
 
-/**
- * Group MetaAPI deals into closed positions.
- * Prefer positionId; fall back to time-ordered IN/OUT pairing per symbol.
- */
 export function closedTradesFromMetaDeals(
   deals: any[],
   opts?: { symbolFilter?: string; idPrefix?: string },
@@ -86,7 +77,6 @@ export function closedTradesFromMetaDeals(
         new Date(b.time || b.brokerTime || 0).getTime(),
     );
     const hasOut = sorted.some((d) => entryKind(d) === 'out');
-    // Need an exit (or at least 2 deals that look like a round-trip).
     if (!hasOut && sorted.length < 2) return;
 
     const entry =
@@ -123,7 +113,6 @@ export function closedTradesFromMetaDeals(
     pushGroup(group);
   }
 
-  // Deals without positionId: pair consecutive IN→OUT on same symbol.
   const orphans = trading.filter((d) => !String(d.positionId || '').trim());
   if (orphans.length > 0) {
     const bySymbol = new Map<string, any[]>();

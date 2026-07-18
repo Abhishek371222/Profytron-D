@@ -3,12 +3,9 @@ import { PLATFORM_PLANS } from '../src/common/constants/pricing.constants';
 
 const prisma = new PrismaClient();
 
-/** Non-destructive sync: upserts SubscriptionPlan rows (by name) to match
- * the canonical PLATFORM_PLANS pricing/feature/limit data. Does not touch
- * any other table. Safe to re-run any time pricing.constants.ts changes. */
 async function main() {
   for (const plan of PLATFORM_PLANS) {
-    if (plan.monthlyPrice < 0) continue; // Enterprise: contact-sales, not seeded
+    if (plan.monthlyPrice < 0) continue;
     const row = await prisma.subscriptionPlan.upsert({
       where: { name: plan.name },
       create: {

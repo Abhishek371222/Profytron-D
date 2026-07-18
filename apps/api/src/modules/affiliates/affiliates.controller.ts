@@ -111,11 +111,6 @@ export class AffiliatesController {
     return this.affiliatesService.requestWithdrawal(req.user.id, body.amount);
   }
 
-  /**
-   * Optionally identify an authenticated viewer from the forwarded refresh_token
-   * cookie. Invalid/missing/expired tokens must never make this public endpoint
-   * return 401 — genuine receivers are typically logged out.
-   */
   private tryResolveViewerUserId(req: Request): string | undefined {
     const refreshToken = req.cookies?.refresh_token;
     if (!refreshToken || typeof refreshToken !== 'string') {
@@ -136,7 +131,6 @@ export class AffiliatesController {
         return payload.sub;
       }
     } catch {
-      // Expired, malformed, or wrong-secret tokens are ignored.
     }
 
     return undefined;

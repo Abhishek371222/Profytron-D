@@ -81,7 +81,7 @@ function TradeAnalysisTabView() {
  className="space-y-12 pb-24"
  >
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
- {/* Your Outcome hardware distribution */}
+ { }
  <motion.div variants={itemVariants}>
  <Card className="p-12 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden group rounded-[48px]">
  <div className="absolute top-0 left-0 w-full h-0.75 bg-linear-to-r from-transparent via-white/40 to-transparent animate-scanline" />
@@ -146,7 +146,7 @@ function TradeAnalysisTabView() {
  </Card>
  </motion.div>
 
- {/* Your Execution hardware core */}
+ { }
  <motion.div variants={itemVariants}>
  <Card className="p-12 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center justify-center relative overflow-hidden rounded-[48px] group/core">
  <div className="absolute top-0 right-0 w-full h-0.75 bg-linear-to-r from-transparent via-chart-3/40 to-transparent animate-scanline" />
@@ -200,7 +200,7 @@ function TradeAnalysisTabView() {
  </PieChart>
  </ResponsiveContainer>
  
- {/* Central Smart Hardware Readout */}
+ { }
  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
  <motion.div 
  initial={{ scale: 0.8, opacity: 0 }}
@@ -245,7 +245,7 @@ function TradeAnalysisTabView() {
  </div>
 
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
- {/* Hardware Symbol Performance matrix */}
+ { }
  <motion.div variants={itemVariants}>
  <Card className="p-12 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[48px]">
  <div className="absolute top-0 right-0 w-full h-0.75 bg-linear-to-r from-transparent via-chart-5/40 to-transparent animate-scanline" />
@@ -292,7 +292,7 @@ function TradeAnalysisTabView() {
  </Card>
  </motion.div>
 
- {/* Temporal Holding Duration Intelligence */}
+ { }
  <motion.div variants={itemVariants}>
  <Card className="p-12 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] relative overflow-hidden rounded-[48px] group/temp">
  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[120px] -mr-32 -mt-32 opacity-0 group-hover/temp:opacity-100 transition-opacity duration-1000" />

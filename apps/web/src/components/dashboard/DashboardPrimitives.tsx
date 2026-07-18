@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import { ChevronRight, AlertTriangle, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/** Standard dashboard page wrapper — same spacing on every tab */
 export function DashboardPage({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={cn('dash-page relative', className)}>{children}</div>;
 }
@@ -86,7 +85,6 @@ export function DashboardPageHeader({
   );
 }
 
-/** Shared "failed to load" state with a retry action — use whenever a query's isError is true. */
 export function DashErrorState({
   message = "Couldn't load this data.",
   onRetry,
@@ -224,7 +222,7 @@ export function DashStatCard({
         className,
       )}
     >
-      {/* Subtle top-left teal glow */}
+      { }
       <div className="pointer-events-none absolute -top-6 -left-6 w-24 h-24 rounded-full bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] blur-2xl" />
 
       <div className="relative flex items-start justify-between gap-2 mb-3">
@@ -282,7 +280,6 @@ export function DashMetricTile({
   );
 }
 
-/** Secondary nav — settings sub-pages, same visual language as main sidebar */
 export function DashboardSubNav({
   items,
   pathname,
@@ -314,7 +311,6 @@ export function DashboardSubNav({
   );
 }
 
-/** Standard empty state block */
 export function DashboardEmptyState({
   icon: Icon,
   title,

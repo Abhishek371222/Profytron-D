@@ -17,10 +17,6 @@ export const unwrapApiResponse = <T>(payload: any): T => {
   return payload as T;
 };
 
-// Endpoints that must NOT carry a Bearer token (they're called before the user
-// has a session, or explicitly use the httpOnly refresh cookie instead).
-// `logout` is deliberately excluded — the backend's JwtAuthGuard requires the
-// current access token to identify which session/refresh-token to revoke.
 const isAuthBootstrapEndpoint = (url?: string): boolean => {
   if (!url) return false;
   return /\/auth\/(login|register|supabase|firebase|verify-email|forgot-password|reset-password|refresh|oauth-token-exchange)/.test(
@@ -54,7 +50,6 @@ function readJwtExpMs(token: string | null | undefined): number | null {
   }
 }
 
-/** True when access JWT is missing or expires within the next 60s. */
 export function isAccessTokenStale(token: string | null | undefined): boolean {
   const exp = readJwtExpMs(token);
   if (exp == null) return true;
@@ -90,9 +85,6 @@ apiClient.interceptors.request.use(
   (error: AxiosError) => Promise.reject(error),
 );
 
-// Single-flight refresh + grace window.
-// Backend rotates refresh cookies; a second concurrent refresh with the old
-// cookie returns 401/SESSION_SUPERSEDED and would wipe a healthy session.
 let refreshPromise: Promise<string> | null = null;
 let lastRefreshAt = 0;
 let logoutInFlight = false;
@@ -111,7 +103,6 @@ function isMissingRefreshSessionError(error: unknown): boolean {
   const status = axiosErr?.response?.status;
   if (status !== 401 && status !== 403) return false;
   const code = axiosErr?.response?.data?.code;
-  // No cookie / invalid JWT — not a rotation race worth retrying.
   return (
     code === 'INTERNAL_ERROR' ||
     code === 'INVALID_REFRESH_SESSION' ||
@@ -143,13 +134,16 @@ async function applyRefreshedAccessToken(accessToken: string): Promise<string> {
     );
     reconnectTradingSocket(accessToken);
   } catch {
-    /* socket optional */
   }
 
-  // Confirm the freshly-refreshed token actually authenticates before
-  // broadcasting isAuthenticated: true — every sessionReady-gated query in
-  // the app reacts to that flag, so flipping it on a token /users/me is
-  // about to reject fires a wave of 401s across every widget at once.
+  try {
+    const { reconnectAccountSnapshotSocket } = await import(
+      '@/lib/realtime/account-snapshot-socket'
+    );
+    reconnectAccountSnapshotSocket(accessToken);
+  } catch {
+  }
+
   try {
     const meRes = await apiClient.get('/users/me', {
       headers: { Authorization: `Bearer ${accessToken}` },
@@ -168,12 +162,8 @@ async function applyRefreshedAccessToken(accessToken: string): Promise<string> {
   } catch (meError) {
     const status = (meError as AxiosError)?.response?.status;
     if (status === 401 || status === 403) {
-      // The refresh cookie was valid but the issued token isn't accepted —
-      // don't mark the app authenticated on it. Let the original caller's
-      // own retry/error handling decide what happens next.
       throw meError;
     }
-    // Transient /me failure (network/5xx) — trust the refresh itself.
     useAuthStore.getState().setToken(accessToken);
   }
 
@@ -181,12 +171,8 @@ async function applyRefreshedAccessToken(accessToken: string): Promise<string> {
 }
 
 export function refreshSession(): Promise<string> {
-  // Assign immediately so parallel 401 handlers share one flight.
   if (refreshPromise) return refreshPromise;
 
-  // Fast paths stay outside the async IIFE. Referencing `pending` inside a
-  // synchronously-completing async function hits TDZ ("Cannot access 'pending'
-  // before initialization") and breaks Alpha Coach + auth refresh.
   const existing = useAuthStore.getState().accessToken;
   if (
     existing &&
@@ -207,7 +193,6 @@ export function refreshSession(): Promise<string> {
       const status = (err as AxiosError)?.response?.status;
       const code = (err as AxiosError<{ code?: string }>)?.response?.data?.code;
 
-      // Cold start / logged out — no refresh cookie. Don't retry (avoids overlay noise).
       if (
         (status === 401 || status === 403) &&
         !useAuthStore.getState().accessToken &&
@@ -216,7 +201,6 @@ export function refreshSession(): Promise<string> {
         throw err;
       }
 
-      // Another request won the cookie rotation — reuse its token if present.
       if (
         status === 401 &&
         (code === 'SESSION_SUPERSEDED' || code === 'INVALID_REFRESH_SESSION')
@@ -226,13 +210,11 @@ export function refreshSession(): Promise<string> {
         if (winner && Date.now() - lastRefreshAt < REFRESH_GRACE_MS) {
           return winner;
         }
-        // Cookie jar may have the new refresh now — one more try.
         response = await postRefreshOnce();
       } else if (status === 401 || status === 403) {
         await new Promise((r) => setTimeout(r, 600));
         response = await postRefreshOnce();
       } else if (isTransientRefreshFailure(err)) {
-        // API restart / Redis blip — retry once before cascading 401s.
         await new Promise((r) => setTimeout(r, 800));
         response = await postRefreshOnce();
       } else {
@@ -251,8 +233,6 @@ export function refreshSession(): Promise<string> {
         refreshPromise = null;
       }
     })
-    // Prevent unhandledRejection when hydrate/callers catch the same promise
-    // (void finally() re-rejects and Next.js flashes a runtime overlay).
     .catch(() => undefined);
   return pending;
 }
@@ -263,8 +243,6 @@ function isSessionSupersededError(error: unknown): boolean {
 }
 
 function forceLoginRedirect(reason: 'expired' | 'superseded' = 'expired') {
-  // Never bounce during hydrate — AuthProvider finishes the overlay and
-  // routes to login without a hard redirect race.
   if (useAuthStore.getState().isHydrating) return;
 
   if (logoutInFlight) return;
@@ -274,7 +252,6 @@ function forceLoginRedirect(reason: 'expired' | 'superseded' = 'expired') {
   try {
     sessionStorage.setItem('profytron_force_login', '1');
   } catch {
-    /* ignore */
   }
   const currentPath = window.location.pathname;
   if (!currentPath.startsWith('/login') && !currentPath.startsWith('/register')) {
@@ -289,7 +266,6 @@ function forceLoginRedirect(reason: 'expired' | 'superseded' = 'expired') {
   }, 5000);
 }
 
-/** Quiet reject so Next.js doesn't flash a Runtime AxiosError overlay on logout. */
 function silentAuthReject(error: AxiosError) {
   const quiet = new Error(
     (error.response?.data as { message?: string })?.message ||
@@ -312,8 +288,6 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config as any;
     const requestUrl = originalRequest?.url as string | undefined;
 
-    // Logged-out hydrate hits /auth/refresh with no cookie — expected 401.
-    // Reject quietly so Next.js does not flash a Runtime AxiosError overlay.
     if (
       (error.response?.status === 401 || error.response?.status === 403) &&
       isAuthBootstrapEndpoint(requestUrl)
@@ -330,10 +304,6 @@ apiClient.interceptors.response.use(
             ...originalRequest.headers,
             Authorization: `Bearer ${accessToken}`,
           };
-          // Awaited so a 401 on the retry itself is caught here instead of
-          // leaking past this try/catch as an unhandled AxiosError — a bare
-          // `return apiClient(...)` resolves this async function directly,
-          // skipping the catch below entirely.
           return await apiClient(originalRequest);
         } catch {
           forceLoginRedirect('superseded');
@@ -357,11 +327,6 @@ apiClient.interceptors.response.use(
           ...originalRequest.headers,
           Authorization: `Bearer ${accessToken}`,
         };
-        // Awaited (see comment above) so a 401 on the retry — e.g. a
-        // freshly-issued token momentarily rejected while the backend's
-        // session/cache finishes propagating right after login — is caught
-        // and handled below instead of crashing the caller with a raw
-        // AxiosError.
         return await apiClient(originalRequest);
       } catch (refreshError) {
         const refreshStatus = (refreshError as AxiosError)?.response?.status;

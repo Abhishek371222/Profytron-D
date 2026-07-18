@@ -66,15 +66,10 @@ export class AuthController {
     role?: string,
     onboardingCompleted?: boolean,
   ) {
-    // Secure in production, or whenever COOKIE_SECURE=true (e.g. an HTTPS
-    // staging env that doesn't run with NODE_ENV=production).
     const isSecure =
       process.env.NODE_ENV === 'production' ||
       process.env.COOKIE_SECURE === 'true';
 
-    // Match the refresh-token cookie lifetime to the token's own 7-day TTL.
-    // The old 90-day cookie outlived the token, so the client believed it was
-    // still logged in long after refresh would fail.
     const refreshMaxAgeMs = 7 * 24 * 60 * 60 * 1000;
 
     res.cookie('refresh_token', refreshToken, {
@@ -106,13 +101,6 @@ export class AuthController {
     }
   }
 
-  /**
-   * Always return OAuth users to the PUBLIC /auth/callback page (never straight
-   * to a protected route like /dashboard). The frontend middleware gates
-   * protected routes on the refresh_token cookie, which only gets scoped to the
-   * frontend domain once the one-time code is exchanged there. Landing directly
-   * on a protected route would bounce to /login before the exchange could run.
-   */
   private buildOAuthCallbackUrl(result: {
     oauthCode?: string;
     user?: { onboardingCompleted?: boolean };
@@ -224,7 +212,6 @@ export class AuthController {
   @Public()
   @Post('supabase')
   @HttpCode(HttpStatus.OK)
-  // OAuth callbacks can fire twice (React Strict Mode) and users retry quickly.
   @Throttle({ default: { ttl: 60000, limit: 30 } })
   @ApiResponse({ status: 200, description: 'Synchronized — tokens issued' })
   @ApiResponse({ status: 401, description: 'Invalid Supabase token' })
@@ -255,7 +242,6 @@ export class AuthController {
   @Public()
   @Post('firebase')
   @HttpCode(HttpStatus.OK)
-  // OAuth callbacks can fire twice (React Strict Mode) and users retry quickly.
   @Throttle({ default: { ttl: 60000, limit: 30 } })
   @ApiResponse({ status: 200, description: 'Synchronized — tokens issued' })
   @ApiResponse({ status: 401, description: 'Invalid Firebase token' })
@@ -283,10 +269,6 @@ export class AuthController {
     return { accessToken: result.accessToken, user: result.user };
   }
 
-  // Public: a refresh call is by definition made without a valid access
-  // token (that's the whole point of it), so it must not be blocked by the
-  // global JwtAuthGuard's Bearer-token requirement. JwtRefreshGuard below
-  // independently validates the refresh-token cookie regardless.
   @Public()
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
@@ -383,8 +365,6 @@ export class AuthController {
     return this.authService.resendOtp(dto.email);
   }
 
-  // ──────────────────────────── MAGIC LINK ────────────────────────────
-
   @Public()
   @Post('magic-link')
   @HttpCode(HttpStatus.OK)
@@ -421,8 +401,6 @@ export class AuthController {
     );
     return { accessToken: result.accessToken, user: result.user };
   }
-
-  // ──────────────────────────── 2FA ────────────────────────────
 
   @UseGuards(JwtAuthGuard)
   @Post('2fa/setup')
@@ -488,8 +466,6 @@ export class AuthController {
     return this.twoFaService.regenerateBackupCodes(req.user.userId, token);
   }
 
-  // ──────────────────────────── GITHUB OAuth ────────────────────────────
-
   @Public()
   @Get('github')
   @UseGuards(AuthGuard('github'))
@@ -518,15 +494,12 @@ export class AuthController {
     res.redirect(this.buildOAuthCallbackUrl(result));
   }
 
-  // ──────────────────────────── GOOGLE OAuth ────────────────────────────
-
   @Public()
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   @ApiResponse({ status: 302, description: 'Redirect to Google OAuth2' })
   @ApiOperation({ summary: 'Initiate Google OAuth2 SSO' })
   async googleAuth() {
-    // Initiates redirect
   }
 
   @Public()
@@ -579,11 +552,6 @@ export class AuthController {
     if ('requiresTwoFa' in result) {
       return result;
     }
-    // This request is proxied through the web app's own origin, so setting the
-    // session cookies here scopes refresh_token (+ role/onboarding) to the
-    // frontend domain — which the middleware reads to gate protected routes.
-    // (The OAuth callback runs on the API's own domain, so the cookie it sets
-    // there is unusable by the frontend.)
     if (result.refreshTokenForCookie) {
       this.setSessionCookies(
         res,

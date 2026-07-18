@@ -1,24 +1,17 @@
-/** Forex/crypto session helpers for adaptive Markets polling. */
 
 export type MarketSessionState = {
   open: boolean;
-  /** True in the first ~90 minutes after the weekly open (Sun 21:00 UTC). */
   mondayOpenWindow: boolean;
-  /** Milliseconds until the next weekly open if currently closed. */
   msUntilOpen: number | null;
-  /** Suggested quote poll interval. */
   quotePollMs: number;
-  /** Suggested OHLC poll interval. */
   ohlcPollMs: number;
-  /** Suggested AI bias poll interval. */
   biasPollMs: number;
   label: string;
 };
 
-/** Weekly FX open: Sunday 21:00 UTC (Sydney). Close: Friday 21:00 UTC. */
-const WEEKLY_OPEN_UTC_DAY = 0; // Sunday
+const WEEKLY_OPEN_UTC_DAY = 0;
 const WEEKLY_OPEN_UTC_HOUR = 21;
-const WEEKLY_CLOSE_UTC_DAY = 5; // Friday
+const WEEKLY_CLOSE_UTC_DAY = 5;
 const WEEKLY_CLOSE_UTC_HOUR = 21;
 
 function utcParts(d: Date) {
@@ -41,7 +34,6 @@ function nextWeeklyOpen(from: Date): Date {
   open.setUTCMinutes(0);
   open.setUTCHours(WEEKLY_OPEN_UTC_HOUR);
 
-  // Move to this week's Sunday 21:00, or next week if already past.
   const day = from.getUTCDay();
   const daysUntilSunday = (WEEKLY_OPEN_UTC_DAY - day + 7) % 7;
   open.setUTCDate(from.getUTCDate() + daysUntilSunday);
@@ -54,9 +46,8 @@ function nextWeeklyOpen(from: Date): Date {
 
 export function isForexMarketOpen(now = new Date()): boolean {
   const { day, hour } = utcParts(now);
-  // Closed: Friday after 21:00 UTC through Sunday before 21:00 UTC.
   if (day === WEEKLY_CLOSE_UTC_DAY && hour >= WEEKLY_CLOSE_UTC_HOUR) return false;
-  if (day === 6) return false; // Saturday
+  if (day === 6) return false;
   if (day === WEEKLY_OPEN_UTC_DAY && hour < WEEKLY_OPEN_UTC_HOUR) return false;
   return true;
 }
@@ -67,13 +58,11 @@ export function getMarketSessionState(now = new Date()): MarketSessionState {
   const msUntilOpen = open ? null : Math.max(0, nextOpen.getTime() - now.getTime());
   const { day, hour } = utcParts(now);
 
-  // Monday open window: first ~4h after weekly open (Sun 21:00 → Mon 01:00 UTC).
   const mondayOpenWindow =
     open &&
     ((day === 0 && hour >= WEEKLY_OPEN_UTC_HOUR) ||
       (day === 1 && hour < 1));
 
-  // Crypto trades 24/7 — keep a moderate floor even on FX weekend.
   if (!open) {
     return {
       open: false,

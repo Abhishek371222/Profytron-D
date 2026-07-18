@@ -163,7 +163,7 @@ export default function StrategyDetailPage() {
         <span className={cn('dash-badge dash-badge-category border', catStyle)}>{strategy.category}</span>
       </div>
 
-      {/* KPI row */}
+      { }
       <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <DashStatCard label="30D Return" value={`+${perf.winRate ?? 0}%`} icon={TrendingUp} className="[&_p:last-child]:text-chart-3" />
         <DashStatCard label="Sharpe Ratio" value={perf.sharpeRatio ?? 0} icon={Zap} />
@@ -173,7 +173,7 @@ export default function StrategyDetailPage() {
 
       <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-12">
         <div className="space-y-5 xl:col-span-8">
-          {/* Equity chart */}
+          { }
           <DashboardCard className="p-5">
             <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
               <div>
@@ -226,7 +226,7 @@ export default function StrategyDetailPage() {
             </div>
           </DashboardCard>
 
-          {/* Tabs */}
+          { }
           <DashboardCard className="overflow-hidden p-0">
             <div className="flex gap-1 border-b border-[var(--card-border)] px-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {[
@@ -317,7 +317,7 @@ export default function StrategyDetailPage() {
           </DashboardCard>
         </div>
 
-        {/* Sidebar */}
+        { }
         <div className="space-y-5 xl:col-span-4">
           <DashboardCard className="p-5">
             <p className="dash-eyebrow mb-4 text-[11px]">Creator</p>

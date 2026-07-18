@@ -62,7 +62,6 @@ export class CoachService {
     private readonly aiService: AIService,
     private readonly gateway: CoachGateway,
   ) {
-    // Pre-warm FAQ cache so the first user message is not blocked on a large DB read.
     void this.loadFaqCandidates().catch((err: Error) =>
       this.logger.warn(`FAQ prewarm failed: ${err.message}`),
     );
@@ -128,7 +127,6 @@ export class CoachService {
       this.logger.error(
         `listConversations failed for ${userId}: ${(error as Error).message}`,
       );
-      // Missing migrations / transient DB errors must not 500 the whole shell.
       return [];
     }
   }
@@ -234,7 +232,6 @@ export class CoachService {
       },
     });
 
-    // Title from first user message (default sessions start with "Coach · …")
     if (
       conversation.title === 'New coaching session' ||
       /^Coach · /.test(conversation.title)
@@ -267,9 +264,6 @@ export class CoachService {
       userId,
     });
 
-    // If escalated and claimed, wait for human — still allow AI/FAQ for user questions
-    // unless status is ESCALATED and we prefer human-only. Plan: still answer via FAQ/AI,
-    // executive can also reply.
     this.gateway.emitToUser(userId, 'typing', {
       conversationId,
       userId: 'assistant',
@@ -604,10 +598,6 @@ User: ${text}`;
     return { systemPrompt, prompt };
   }
 
-  /**
-   * Streaming send: persists user message, streams Gemini tokens via callback,
-   * then persists the final assistant message.
-   */
   async sendMessageStream(
     userId: string,
     conversationId: string,
@@ -813,7 +803,6 @@ User: ${text}`;
       }),
     ]);
 
-    // Notify admins + user wait UI in real time — no system chat bubble for the trader.
     this.gateway.emitToAdmins('escalation:new', escalation);
     this.gateway.emitToUser(userId, 'escalation:new', escalation);
 
@@ -981,7 +970,6 @@ User: ${text}`;
     return updated;
   }
 
-  /** Admin can load any conversation for an escalation. */
   async getConversationForAdmin(conversationId: string) {
     const conversation = await this.prisma.coachConversation.findUnique({
       where: { id: conversationId },

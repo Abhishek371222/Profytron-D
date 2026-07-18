@@ -8,7 +8,6 @@ import React, { useEffect, useRef } from"react";
 import { motion, useInView } from"framer-motion";
 import { cn } from"@/lib/utils";
 
-// 1. FadeUp Wrapper
 export const FadeUp = ({ 
  children, 
  delay = 0, 
@@ -33,7 +32,6 @@ export const FadeUp = ({
  );
 };
 
-// 2. GlowPulse Wrapper
 export const GlowPulse = ({ 
  children, 
  color ="color-mix(in srgb, var(--primary) 15%, transparent)",
@@ -64,7 +62,6 @@ export const GlowPulse = ({
  );
 };
 
-// 3. StaggerList Wrapper
 export const StaggerList = ({ 
  children, 
  stagger = 0.1,
@@ -105,7 +102,6 @@ export const StaggerItem = ({ children, className }: { children: React.ReactNode
  return <motion.div variants={item} className={className}>{children}</motion.div>;
 };
 
-// 4. MagneticWrap
 export const MagneticWrap = ({
  children,
  strength = 0.3
@@ -117,7 +113,6 @@ export const MagneticWrap = ({
  const rafRef = useRef<number | null>(null);
  const [position, setPosition] = React.useState({ x: 0, y: 0 });
 
- // Throttle to one rAF per frame — prevents 60+ re-renders/sec on mousemove.
  const handleMouseMove = (e: React.MouseEvent) => {
   if (rafRef.current !== null) return;
   const { clientX, clientY } = e;
@@ -156,7 +151,6 @@ export const MagneticWrap = ({
  );
 };
 
-// 5. CountUp Animation
 export const CountUp = ({ 
  value, 
  duration = 2,
@@ -202,7 +196,6 @@ export const CountUp = ({
  );
 };
 
-// 6. DrawPath (for SVG)
 export const DrawPath = ({ 
  children,
  duration = 2
@@ -221,7 +214,6 @@ export const DrawPath = ({
  );
 };
 
-// 7. Reveal (Side Reveal)
 export const Reveal = ({ 
  children,
  width ="fit-content",

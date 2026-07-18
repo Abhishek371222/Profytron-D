@@ -1,4 +1,3 @@
-// jest.setup.js
 process.env.NODE_ENV = 'test';
 process.env.DATABASE_URL =
   process.env.DATABASE_URL ||
@@ -9,7 +8,6 @@ process.env.DIRECT_URL =
 if (!process.env.REDIS_URL) {
   if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
     const redisHost = new URL(process.env.UPSTASH_REDIS_REST_URL).hostname;
-    // Upstash REST is HTTPS on 443; Redis wire protocol is TLS on 6379.
     process.env.REDIS_URL = `rediss://default:${process.env.UPSTASH_REDIS_REST_TOKEN}@${redisHost}:6379`;
   } else {
     process.env.REDIS_URL = 'redis://redis-test:6379';
@@ -37,9 +35,4 @@ process.env.SUPABASE_ANON_KEY =
 process.env.SUPABASE_SERVICE_ROLE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test-service-role-key';
-// Infra-gated suites (API_TEST_WITH_INFRA=true) boot the full AppModule —
-// Sentry, OpenTelemetry, BullMQ, scheduler and a real Redis/TLS handshake —
-// which can take well over the default 30s on a cold local machine, tripping
-// "Exceeded timeout for a hook". Give those runs a generous boot window while
-// keeping fast unit runs strict so genuine hangs still surface quickly.
 jest.setTimeout(process.env.API_TEST_WITH_INFRA === 'true' ? 120000 : 30000);

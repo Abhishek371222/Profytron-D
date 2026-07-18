@@ -9,7 +9,6 @@ import { isFakeNestQuote } from "@/hooks/useLiveMarketFeed";
 const BULL = "#348398";
 const BEAR = "#973336";
 
-/** Builds a jagged sparkline — uses live history when varied, else a natural zigzag from 24h change. */
 export function buildSparklinePoints(
   history: number[] | undefined,
   price: number,

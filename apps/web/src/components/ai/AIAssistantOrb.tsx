@@ -10,7 +10,6 @@ type AIAssistantOrbProps = {
   hasUnread?: boolean;
 };
 
-/** Floating AI assistant orb — soft pulsing glow, opens dashboard AI chat */
 export function AIAssistantOrb({ className, hasUnread = false }: AIAssistantOrbProps) {
   const aiChatOpen = useUIStore((s) => s.aiChatOpen);
   const toggleAIChat = useUIStore((s) => s.toggleAIChat);

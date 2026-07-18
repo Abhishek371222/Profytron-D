@@ -5,7 +5,6 @@ import { useAuthStore } from '@/lib/stores/useAuthStore';
 export const BROKER_ACCOUNTS_KEY = ['broker-accounts'] as const;
 export const BROKER_LIVE_SNAPSHOT_KEY = ['broker-live-snapshot'] as const;
 
-// v2: drop any locale-FX-corrupted snapshots (e.g. USD equity shown as INR × 83.5).
 const SNAPSHOT_STORAGE_KEY = 'profytron.broker-live-snapshot.v2';
 const ACCOUNTS_STORAGE_KEY = 'profytron.broker-accounts-lite.v2';
 
@@ -23,7 +22,6 @@ export const ACCOUNT_QUERY_KEYS = [
   'activation-progress',
 ] as const;
 
-/** Canonical broker account row from GET /broker/accounts (Next or Nest). */
 export type BrokerAccountRow = {
   id: string;
   brokerName: string;
@@ -37,9 +35,16 @@ export type BrokerAccountRow = {
   equity?: number | null;
   margin?: number | null;
   freeMargin?: number | null;
+  marginLevel?: number | null;
+  credit?: number | null;
   currency?: string | null;
   connectionStatus?: string | null;
   liveSynced?: boolean;
+  lastSyncedAt?: string | null;
+  syncStatus?: string | null;
+  syncDurationMs?: number | null;
+  metaApiLatencyMs?: number | null;
+  apiVersion?: string | null;
   serverName?: string | null;
   storeOnly?: boolean;
   balanceNote?: string | null;
@@ -48,9 +53,7 @@ export type BrokerAccountRow = {
   isMasterSource?: boolean;
   lastConnectedAt?: string | null;
   connectedAt?: string | null;
-  /** True when this account is viewed via a teammate's share grant, not owned. */
   sharedAccess?: boolean;
-  /** False for shared-in accounts — hides Disconnect/Reconnect/Rotate token actions. */
   canManage?: boolean;
   sharedByName?: string | null;
 };
@@ -75,7 +78,6 @@ function positiveNumber(value: unknown): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-/** Broker balances are always in the MT account currency — never locale display FX. */
 function normalizeBrokerCurrency(value: unknown): string {
   const code = String(value || 'USD').trim().toUpperCase();
   return /^[A-Z]{3}$/.test(code) ? code : 'USD';
@@ -97,38 +99,29 @@ function writeStorage(key: string, value: unknown) {
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    /* quota / private mode */
   }
 }
 
-/** Paint Overview instantly on reload from last successful session. */
 export function hydrateBrokerCacheFromStorage(
   qc: QueryClient,
   expectedUserId?: string | null,
 ) {
-  // Drop legacy locale-FX snapshots so Overview cannot revive INR-scaled balances.
   if (typeof window !== 'undefined') {
     try {
       window.localStorage.removeItem('profytron.broker-live-snapshot.v1');
       window.localStorage.removeItem('profytron.broker-accounts-lite.v1');
     } catch {
-      /* ignore */
     }
   }
 
   const snapshot = readStorage<LiveAccountSnapshot & { userId?: string }>(
     SNAPSHOT_STORAGE_KEY,
   );
-  if (
-    snapshot?.userId &&
-    expectedUserId &&
-    snapshot.userId !== expectedUserId
-  ) {
+  if (snapshot && expectedUserId && snapshot.userId !== expectedUserId) {
     try {
       window.localStorage.removeItem(SNAPSHOT_STORAGE_KEY);
       window.localStorage.removeItem(ACCOUNTS_STORAGE_KEY);
     } catch {
-      /* ignore */
     }
     return;
   }
@@ -149,17 +142,22 @@ export function hydrateBrokerCacheFromStorage(
 
   let accounts: BrokerAccountRow[] | null = null;
   if (Array.isArray(cachedAccounts)) {
-    accounts = cachedAccounts;
+    if (expectedUserId) {
+      try {
+        window.localStorage.removeItem(ACCOUNTS_STORAGE_KEY);
+      } catch {
+      }
+    } else {
+      accounts = cachedAccounts;
+    }
   } else if (cachedAccounts && Array.isArray((cachedAccounts as any).accounts)) {
     if (
       expectedUserId &&
-      (cachedAccounts as any).userId &&
       (cachedAccounts as any).userId !== expectedUserId
     ) {
       try {
         window.localStorage.removeItem(ACCOUNTS_STORAGE_KEY);
       } catch {
-        /* ignore */
       }
       return;
     }
@@ -172,7 +170,6 @@ export function hydrateBrokerCacheFromStorage(
   }
 }
 
-/** Prefer fresh live numbers; keep last-good when MetaAPI returns null/0. */
 export function mergeBrokerAccountsWithSnapshot(
   accounts: BrokerAccountRow[],
   snapshot: LiveAccountSnapshot | null | undefined,
@@ -268,6 +265,9 @@ export function rememberAccountsLite(
     currency: a.currency,
     connectionStatus: a.connectionStatus,
     liveSynced: a.liveSynced,
+    sharedAccess: a.sharedAccess,
+    canManage: a.canManage,
+    sharedByName: a.sharedByName,
   }));
   const userId = useAuthStore.getState().user?.id;
   writeStorage(
@@ -276,7 +276,6 @@ export function rememberAccountsLite(
   );
 }
 
-/** Shared queryFn so bootstrap and hooks write the same merged cache. */
 export async function loadBrokerAccountsQuery(
   qc: QueryClient,
 ): Promise<BrokerAccountRow[]> {

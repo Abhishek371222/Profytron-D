@@ -1,6 +1,3 @@
-/**
- * Shared MetaAPI deal parsing for analytics Next routes.
- */
 import {
   loadLiveBroker,
   clientHost,

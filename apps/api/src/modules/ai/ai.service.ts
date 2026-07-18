@@ -13,9 +13,8 @@ interface AIChatRequest {
   context?: string;
 }
 
-/** TTL constants (seconds) */
-const TTL_AI_RESPONSE = 5 * 60; // 5 minutes — same prompt/context can be reused briefly
-const TTL_COACHING_REPORT = 2 * 60; // 2 minutes — aggregate stats change slowly
+const TTL_AI_RESPONSE = 5 * 60;
+const TTL_COACHING_REPORT = 2 * 60;
 
 @Injectable()
 export class AIService {
@@ -40,7 +39,6 @@ export class AIService {
     );
   }
 
-  /** Lighter sanitize for Alpha Coach — strip compliance dumps Gemini sometimes adds. */
   private sanitizeCoachResponse(text: string): string {
     return text
       .replace(/\bI (predict|forecast)\b/gi, 'setups often resolve when')
@@ -170,10 +168,6 @@ export class AIService {
     return response.data.choices[0]?.message?.content || '';
   }
 
-  /**
-   * Single LLM entry-point for the platform.
-   * Prefer Gemini → OpenRouter → OpenAI, with retries and graceful fallback.
-   */
   private async callLLM(
     systemPrompt: string,
     userPrompt: string,
@@ -229,7 +223,6 @@ export class AIService {
     throw lastError || new Error('No AI API key configured');
   }
 
-  /** @deprecated use callLLM — kept as alias for internal call sites */
   private async callOpenAI(
     systemPrompt: string,
     userPrompt: string,
@@ -238,7 +231,6 @@ export class AIService {
     return this.callLLM(systemPrompt, userPrompt, maxTokens);
   }
 
-  /** Public wrapper for Alpha Coach (Gemini-first via callLLM). */
   async generateCoachReply(
     systemPrompt: string,
     userPrompt: string,
@@ -248,10 +240,6 @@ export class AIService {
     return this.sanitizeCoachResponse(reply);
   }
 
-  /**
-   * Stream Gemini tokens for Alpha Coach. Falls back to one-shot callLLM
-   * when Gemini streaming is unavailable.
-   */
   async *streamCoachReply(
     systemPrompt: string,
     userPrompt: string,
@@ -322,7 +310,6 @@ export class AIService {
               yield { type: 'token', text: piece };
             }
           } catch {
-            /* ignore partial SSE */
           }
         }
       }
@@ -405,15 +392,9 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
     }
   }
 
-  /**
-   * Returns cached explanation immediately, or queues a background job and returns
-   * { status: 'pending' } so the caller can poll. This prevents the 25s blocking
-   * request that previously froze the response thread.
-   */
   async explainTradeById(userId: string, tradeId: string) {
     const cacheKey = `ai:trade-explain:${tradeId}`;
 
-    // Fast path: return cached result if available (closed trades are immutable).
     const cached = await this.redis.get(cacheKey);
     if (cached) {
       this.logger.log(`Cache hit: trade explanation for ${tradeId}`);
@@ -444,17 +425,14 @@ Strategy: ${tradeData.reason || 'Manual entry'}`;
 
     if (!trade) throw new NotFoundException('Trade not found');
 
-    // If already computing (pending key in Redis), return pending status immediately.
     const pendingKey = `ai:trade-explain-pending:${tradeId}`;
     const isPending = await this.redis.get(pendingKey);
     if (isPending) {
       return { status: 'pending', tradeId, symbol: trade.symbol };
     }
 
-    // Mark as pending (5-min TTL — job should complete well within this).
     await this.redis.set(pendingKey, '1', 30 * 60);
 
-    // Fire AI call in background — do NOT await.
     this.runExplainInBackground(trade, cacheKey, pendingKey).catch(
       (err: Error) =>
         this.logger.error(
@@ -646,7 +624,6 @@ Recent context about the user's trades is provided below.`;
         const parsed = JSON.parse(raw.trim());
         if (Array.isArray(parsed)) aiSuggestions = parsed.slice(0, 3);
       } catch {
-        // fall through to defaults
       }
     }
 

@@ -96,16 +96,6 @@ export class SubscriptionCleanupService {
     }
   }
 
-  /**
-   * Expire lapsed PLATFORM subscriptions (UserSubscription) and downgrade the
-   * user's tier back to FREE when they have no remaining active plan.
-   *
-   * Previously nothing acted on `UserSubscription.expiresAt`, so a paid tier
-   * (ELITE/PRO/INSTITUTIONAL) was retained indefinitely after the billing
-   * period ended — a real revenue leak. A successful renewal pushes `expiresAt`
-   * forward via the payment webhook, so anything still <= now has genuinely
-   * lapsed.
-   */
   @Cron(CronExpression.EVERY_MINUTE)
   async expirePlatformSubscriptions(): Promise<void> {
     try {
@@ -126,8 +116,6 @@ export class SubscriptionCleanupService {
         data: { status: SubscriptionStatus.EXPIRED, cancelledAt: now },
       });
 
-      // Downgrade each affected user to FREE only if they have no other plan
-      // still active (a user may hold multiple plan rows).
       const affectedUserIds = [...new Set(lapsed.map((s) => s.userId))];
       const stillActiveCounts = await this.prisma.userSubscription.groupBy({
         by: ['userId'],
@@ -174,7 +162,6 @@ export class SubscriptionCleanupService {
     }
   }
 
-  /** Revoke CopyFactory links for unpaid / expired copy subscriptions. */
   @Cron(CronExpression.EVERY_5_MINUTES)
   async reconcileCopyFactoryLinks(): Promise<void> {
     try {

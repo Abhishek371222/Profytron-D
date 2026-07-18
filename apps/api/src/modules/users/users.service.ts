@@ -26,7 +26,6 @@ const PASSWORD_RESET_VERIFIED_TTL = 300;
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
   private supabase: any;
-  /** Process-local OTP mirror so verify still works if Redis read is flaky. */
   private readonly deleteAccountOtps = new Map<
     string,
     { otp: string; expiresAt: number }
@@ -288,19 +287,12 @@ export class UsersService {
       await this.prisma.userSession.delete({
         where: { id: sessionId },
       });
-      // We'd also ideally want to remove the specific refresh token related to this session from Redis
-      // But Redis currently stores strings (userId: jti).
-      // If sessionId was saved with JTI, we could sync it perfectly.
     } catch {
-      // Ignore if doesn't exist
     }
     return { success: true };
   }
 
   async revokeAllOtherSessions(userId: string, currentJti: string) {
-    // Current backend deletes all refresh tokens except the one with currentJti?
-    // UserSession table currently doesn't map directly to JTI, but you could delete everything that doesn't match the current request IP/Device.
-    // Simplifying this for now since RedisService lacks getActiveSessions
     return { success: true };
   }
 
@@ -403,7 +395,6 @@ export class UsersService {
     await this.redisService.del(`auth:reset:otp:${userId}`);
     this.clearRememberedPasswordResetOtp(userId);
 
-    // Revoke every device session after a password change.
     await this.redisService.delPrefix(`auth:refresh:${userId}:`);
     await this.prisma.userSession.deleteMany({ where: { userId } });
 
@@ -434,7 +425,6 @@ export class UsersService {
     return { kycStatus: user?.kycStatus ?? 'NOT_STARTED', documents };
   }
 
-  /** Admin-only: short-lived signed URL to view a submitted KYC document. */
   async getKycDocumentSignedUrl(docId: string) {
     const doc = await this.prisma.kycDocument.findUnique({
       where: { id: docId },
@@ -490,7 +480,6 @@ export class UsersService {
       data: { userId, docType, storagePath: filePath, status: 'PENDING' },
     });
 
-    // Set user KYC status to PENDING if not already verified
     await this.prisma.user.update({
       where: { id: userId },
       data: { kycStatus: 'PENDING' },
@@ -512,7 +501,6 @@ export class UsersService {
     const otpKey = `auth:delete:otp:${userId}`;
     const ttlSeconds = 600;
 
-    // Reuse an unexpired OTP on resend/double-click so the email code still matches.
     const existingRedis = this.normalizeOtp(
       await this.redisService.get(otpKey),
     );
@@ -526,7 +514,6 @@ export class UsersService {
 
     this.rememberDeleteOtp(userId, otp, ttlSeconds);
     await this.redisService.set(otpKey, otp, ttlSeconds);
-    // Clear any prior verification so OTP must be re-entered.
     await this.redisService.del(`auth:delete:verified:${userId}`);
 
     await this.emailService.sendOtpEmail(user.email, otp, userId);
@@ -557,7 +544,6 @@ export class UsersService {
 
     await this.redisService.del(otpKey);
     this.clearRememberedDeleteOtp(userId);
-    // Short window to complete the final confirmation step.
     await this.redisService.set(`auth:delete:verified:${userId}`, '1', 300);
 
     return { verified: true };
@@ -585,7 +571,6 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    // Soft-delete: user cannot log in or re-register this email; admin retains access.
     await closeUserAccount(this.prisma, this.redisService, user);
 
     await this.redisService.del(`auth:delete:verified:${userId}`);

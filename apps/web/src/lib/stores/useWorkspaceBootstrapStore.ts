@@ -9,7 +9,6 @@ export type BootstrapStepId =
   | 'ready';
 
 type WorkspaceBootstrapState = {
-  /** Full-screen prep is showing — app shell stays unmounted so loading is visible, not hidden. */
   active: boolean;
   exiting: boolean;
   destination: string | null;
@@ -36,7 +35,6 @@ export function bootstrapProgress(completed: BootstrapStepId[]): number {
   return Math.min(96, Math.round((unique.size / (ALL_STEPS.length - 1)) * 92));
 }
 
-/** True while the prep screen owns the viewport (app UI should not mount yet). */
 export function selectBootstrapBlocksApp(s: WorkspaceBootstrapState) {
   return s.active;
 }

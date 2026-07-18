@@ -64,7 +64,6 @@ export function ManualOrderModal({
       });
       onOpenChange(false);
     } catch {
-      /* toast handled in hook */
     }
   };
 
@@ -77,7 +76,7 @@ export function ManualOrderModal({
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Side toggle */}
+          { }
           <div className="grid grid-cols-2 gap-2">
             {(['BUY', 'SELL'] as const).map((s) => {
               const active = side === s;

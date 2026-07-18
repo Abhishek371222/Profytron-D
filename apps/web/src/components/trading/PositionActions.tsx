@@ -85,7 +85,6 @@ export function BulkCloseBar() {
     try {
       await bulkClose.mutateAsync(confirmScope);
     } catch {
-      /* toast handled in hook */
     } finally {
       setConfirmScope(null);
     }

@@ -47,19 +47,15 @@ export class TradingService {
     const trailingTickDefault = isDev ? 15_000 : 5_000;
 
     // Always sync follower bot trades → DB PnL when MetaAPI is configured.
+
     if (hasMetaApiToken) {
       this.botTradeSync.startPolling(
         Number(process.env.BOT_TRADE_SYNC_TICK_MS) || botTickDefault,
       );
     }
 
-    // Option 1: MetaApi master bridge only — detect master fills via MasterSync.
-    // Never start CopyFactory subscriber sync; never require CF in production.
     if (masterOnly) {
       if (!hasMetaApiToken) {
-        // Fail-fast only on real production boots — unit/integration Jest runs
-        // (and local dev) must not require a live MetaApi token to construct
-        // TradingService.
         const isRealProductionBoot =
           process.env.NODE_ENV === 'production' && !process.env.JEST_WORKER_ID;
         if (isRealProductionBoot) {
@@ -132,7 +128,6 @@ export class TradingService {
 
     const signalId = randomUUID();
 
-    // Persist signal audit off the critical path — fire-and-forget.
     this.prisma.auditLog
       .create({
         data: {
@@ -155,7 +150,6 @@ export class TradingService {
 
     const now = new Date();
 
-    // Single query for ALL active subscriptions — then partition in JS (avoids double scan).
     const allActiveSubs = await this.prisma.userStrategySubscription.findMany({
       where: { strategyId, status: SubscriptionStatus.ACTIVE },
       select: {
@@ -207,8 +201,6 @@ export class TradingService {
       (a, b) => (b.executionPriority ?? 0) - (a.executionPriority ?? 0),
     );
 
-    // Pre-compute drawdowns for ALL subscribers in a single DB round-trip,
-    // eliminating the N+1 query that previously hit the DB once per subscriber.
     const userIdsNeedingDrawdown = orderedSubscriptions
       .filter((s) => s.riskOverrideEnabled && s.maxDrawdownPct != null)
       .map((s) => s.userId);
@@ -298,7 +290,6 @@ export class TradingService {
       });
     }
 
-    // Fan out queue jobs in parallel so all eligible subscribers get execution quickly.
     await Promise.all(queueJobs);
 
     return {
@@ -395,8 +386,6 @@ export class TradingService {
 
     let closedCount = 0;
     if (openTrades.length > 0) {
-      // For real broker positions: queue close_copy jobs so MetaAPI actually closes them
-      // For paper/no-ticket trades: mark cancelled directly
       const realTrades = openTrades.filter(
         (t) => t.brokerAccountId && t.brokerTicket,
       );
@@ -404,7 +393,6 @@ export class TradingService {
         (t) => !t.brokerAccountId || !t.brokerTicket,
       );
 
-      // Queue MetaAPI close for real positions
       await Promise.all(
         realTrades.map((trade) =>
           this.tradeQueue.add(
@@ -419,7 +407,6 @@ export class TradingService {
         ),
       );
 
-      // Immediately cancel paper trades in DB
       if (paperTrades.length > 0) {
         await this.prisma.trade.updateMany({
           where: { id: { in: paperTrades.map((t) => t.id) } },
@@ -571,7 +558,6 @@ export class TradingService {
         const q = await this.marketService.getQuote(marketSymbol);
         price = typeof q?.price === 'number' ? q.price : 0;
       } catch {
-        /* best-effort fill price; processor will still record the order */
       }
     }
 
@@ -696,7 +682,6 @@ export class TradingService {
           quoteBySymbol.set(q.symbol, q.price);
         }
       } catch {
-        // Fall through — unrealized PnL defaults to 0 per trade.
       }
     }
 
@@ -757,13 +742,18 @@ export class TradingService {
         closedAt: true,
         strategyId: true,
         isPaper: true,
+        strategy: { select: { id: true, name: true } },
       },
       orderBy: { closedAt: 'desc' },
       take: options.limit + 1,
     });
 
     const hasMore = rows.length > options.limit;
-    const data = hasMore ? rows.slice(0, options.limit) : rows;
+    const sliced = hasMore ? rows.slice(0, options.limit) : rows;
+    const data = sliced.map(({ strategy, ...row }) => ({
+      ...row,
+      strategyName: strategy?.name ?? null,
+    }));
     return {
       rows: data,
       nextCursor: hasMore
@@ -790,10 +780,6 @@ export class TradingService {
     return this.round(baseSlippageBps + 1 + crowdingFactor + slicePressure, 4);
   }
 
-  /**
-   * Synchronous risk check — drawdown is pre-fetched via buildDrawdownMap().
-   * No DB call here; eliminates the N+1 query from processSignal().
-   */
   private getRiskBlockReason(
     userId: string,
     input: {
@@ -823,10 +809,6 @@ export class TradingService {
     return null;
   }
 
-  /**
-   * Batch-fetch max drawdown for multiple users in a single DB query.
-   * Returns a map of userId → drawdownPct.
-   */
   private async buildDrawdownMap(
     userIds: string[],
   ): Promise<Map<string, number>> {

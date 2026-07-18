@@ -7,9 +7,8 @@ import { computeReturnPct } from '../../common/utils/account-performance.util';
 
 type RangeKey = '1d' | '1w' | '1m' | '3m' | '1y' | 'all';
 
-/** Cache TTL in seconds — analytics aggregations are expensive but tolerate slight staleness */
-const TTL_ANALYTICS = 2 * 60; // 2 minutes
-const TTL_LEADERBOARD = 60; // 1 minute — leaderboard changes frequently
+const TTL_ANALYTICS = 2 * 60;
+const TTL_LEADERBOARD = 60;
 
 interface ClosedTradeRow {
   id: string;
@@ -63,6 +62,38 @@ export class AnalyticsService {
     const wallet = await this.walletService.getBalance(userId);
     if (wallet.total > 0) return wallet.total;
     return 0;
+  }
+
+  private async latestSnapshotMeta(userId: string) {
+    const accountId = await this.getDefaultBrokerAccountId(userId);
+    if (!accountId) return { source: 'database' };
+    const db = this.prisma as any;
+    const latest = await db.accountLatestSnapshot.findUnique({
+      where: { brokerAccountId: accountId },
+      include: { snapshot: true },
+    });
+    const snapshot =
+      latest?.snapshot ??
+      (await db.accountSnapshot.findFirst({
+        where: { brokerAccountId: accountId },
+        orderBy: { capturedAt: 'desc' },
+      }));
+    if (!snapshot) return { source: 'database', brokerAccountId: accountId };
+    return {
+      source: 'database',
+      brokerAccountId: accountId,
+      liveBalance: snapshot.balance,
+      liveEquity: snapshot.equity,
+      liveMargin: snapshot.margin,
+      liveFreeMargin: snapshot.freeMargin,
+      liveCurrency: snapshot.currency,
+      lastSyncedAt: snapshot.capturedAt,
+      lastSuccessfulSync: snapshot.lastSuccessfulSync ?? snapshot.capturedAt,
+      syncDuration: snapshot.syncDurationMs,
+      syncStatus: snapshot.syncStatus,
+      metaApiLatency: snapshot.metaApiLatencyMs,
+      apiVersion: snapshot.apiVersion,
+    };
   }
 
   private rangeStart(range: RangeKey): Date | null {
@@ -164,6 +195,45 @@ export class AnalyticsService {
     return maxLosses;
   }
 
+  private computeMaxConsecutiveWins(values: number[]): number {
+    let maxWins = 0;
+    let currentWins = 0;
+    for (const value of values) {
+      if (value > 0) {
+        currentWins += 1;
+        maxWins = Math.max(maxWins, currentWins);
+      } else {
+        currentWins = 0;
+      }
+    }
+    return maxWins;
+  }
+
+  private dailyReturnPctSeries(
+    curve: { equity: number }[],
+  ): number[] {
+    const returns: number[] = [];
+    for (let i = 1; i < curve.length; i++) {
+      const prev = curve[i - 1].equity;
+      const cur = curve[i].equity;
+      if (prev > 0) returns.push(((cur - prev) / prev) * 100);
+    }
+    return returns;
+  }
+
+  private downsideDeviation(values: number[]): number {
+    const downside = values.filter((v) => v < 0).map((v) => v * v);
+    if (!downside.length) return 0;
+    return Math.sqrt(this.mean(downside));
+  }
+
+  /** UTC-hour session bands — a standard approximation, not exact exchange hours. */
+  private sessionForHour(hour: number): 'Asia' | 'London' | 'New York' {
+    if (hour >= 0 && hour < 8) return 'Asia';
+    if (hour >= 8 && hour < 16) return 'London';
+    return 'New York';
+  }
+
   private getDurationBucket(hours: number): string {
     if (hours < 1) return '<1H';
     if (hours < 4) return '1-4H';
@@ -187,8 +257,6 @@ export class AnalyticsService {
         ...(defaultAccount?.id ? { brokerAccountId: defaultAccount.id } : {}),
       },
       orderBy: { closedAt: 'asc' },
-      // Explicit select — excludes executionMetadataJson, aiExplanation,
-      // socialComments, journalEntry which are not needed for analytics.
       select: {
         id: true,
         userId: true,
@@ -218,16 +286,68 @@ export class AnalyticsService {
       return JSON.parse(cached);
     }
 
-    const [trades, baseEquity] = await Promise.all([
+    const [trades, baseEquity, snapshotMeta] = await Promise.all([
       this.getClosedTrades(userId, range),
       this.resolveEquityBase(userId),
+      this.latestSnapshotMeta(userId),
     ]);
 
     if (trades.length === 0) {
-      return {
+      const start = this.rangeStart(range);
+      const accountId = await this.getDefaultBrokerAccountId(userId);
+      const snaps = accountId
+        ? await this.prisma.equitySnapshot.findMany({
+            where: {
+              brokerAccountId: accountId,
+              ...(start ? { capturedAt: { gte: start } } : {}),
+            },
+            orderBy: { capturedAt: 'asc' },
+            select: { capturedAt: true, equity: true },
+            take: 500,
+          })
+        : [];
+
+      const liveEquity = Number(
+        (snapshotMeta as any)?.liveEquity ??
+          snaps[snaps.length - 1]?.equity ??
+          baseEquity,
+      );
+      const equityCurve =
+        snaps.length >= 1
+          ? snaps.map((s) => ({
+              date: s.capturedAt.toISOString(),
+              equity: this.round(Number(s.equity)),
+              drawdownPct: 0,
+            }))
+          : baseEquity > 0 && liveEquity > 0
+            ? [
+                {
+                  date: (
+                    start ?? new Date(Date.now() - 30 * 86400000)
+                  ).toISOString(),
+                  equity: this.round(baseEquity),
+                  drawdownPct: 0,
+                },
+                {
+                  date: new Date().toISOString(),
+                  equity: this.round(liveEquity),
+                  drawdownPct: 0,
+                },
+              ]
+            : [];
+
+      if (equityCurve.length === 1 && liveEquity > 0) {
+        equityCurve.push({
+          date: new Date().toISOString(),
+          equity: this.round(liveEquity),
+          drawdownPct: 0,
+        });
+      }
+
+      const emptyStats = {
         range,
-        totalProfit: 0,
-        totalReturnPct: 0,
+        totalProfit: this.round(liveEquity - baseEquity),
+        totalReturnPct: computeReturnPct(liveEquity, baseEquity),
         winRate: 0,
         totalTrades: 0,
         sharpeRatio: 0,
@@ -236,12 +356,15 @@ export class AnalyticsService {
         avgWin: 0,
         avgLoss: 0,
         maxDrawdown: 0,
-        equityCurve: [],
-        allTimeHigh: baseEquity,
+        equityCurve,
+        allTimeHigh: this.round(Math.max(baseEquity, liveEquity)),
         bestMonth: 0,
         equityBase: this.round(baseEquity),
         depositBase: this.round(baseEquity),
+        ...snapshotMeta,
       };
+      await this.redis.set(cacheKey, JSON.stringify(emptyStats), TTL_ANALYTICS);
+      return emptyStats;
     }
 
     const pnlSeries = trades.map((t) => t.profit ?? 0);
@@ -302,6 +425,7 @@ export class AnalyticsService {
       equityCurve,
       equityBase: this.round(baseEquity),
       depositBase: this.round(baseEquity),
+      ...snapshotMeta,
     };
 
     await this.redis.set(cacheKey, JSON.stringify(stats), TTL_ANALYTICS);
@@ -520,6 +644,112 @@ export class AnalyticsService {
       TTL_ANALYTICS,
     );
     return riskAnalytics;
+  }
+
+  async getAdvancedMetrics(userId: string, range: RangeKey = '3m') {
+    const cacheKey = `analytics:advanced:${userId}:${range}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.logger.debug(`Cache hit: advanced metrics ${userId}/${range}`);
+      return JSON.parse(cached);
+    }
+
+    const [trades, baseEquity] = await Promise.all([
+      this.getClosedTrades(userId, range),
+      this.resolveEquityBase(userId),
+    ]);
+    const pnl = trades.map((t) => t.profit ?? 0);
+    const wins = pnl.filter((v) => v > 0);
+    const losses = pnl.filter((v) => v < 0);
+
+    const curve = this.buildEquityCurve(trades, baseEquity);
+    const dailyReturns = this.dailyReturnPctSeries(curve);
+    const meanDaily = this.mean(dailyReturns);
+    const stdDaily = this.stdDev(dailyReturns);
+    const downsideDaily = this.downsideDeviation(dailyReturns);
+    const annualizer = Math.sqrt(252);
+
+    const holdingHours = trades
+      .filter((t) => t.closedAt)
+      .map(
+        (t) =>
+          (t.closedAt!.getTime() - t.openedAt.getTime()) / (1000 * 60 * 60),
+      );
+
+    const rMultiples = trades
+      .filter((t) => t.stopLoss != null && t.profit != null)
+      .map((t) => {
+        const riskPerUnit = Math.abs(t.openPrice - (t.stopLoss as number));
+        const risk = riskPerUnit * t.volume;
+        return risk > 0 ? (t.profit as number) / risk : null;
+      })
+      .filter((v): v is number => v != null);
+
+    const sessionMap = new Map<
+      string,
+      { pnl: number; wins: number; trades: number }
+    >();
+    for (const trade of trades) {
+      const session = this.sessionForHour(trade.openedAt.getUTCHours());
+      const row = sessionMap.get(session) ?? { pnl: 0, wins: 0, trades: 0 };
+      row.pnl += trade.profit ?? 0;
+      row.trades += 1;
+      if ((trade.profit ?? 0) > 0) row.wins += 1;
+      sessionMap.set(session, row);
+    }
+    const sessionPerformance = ['Asia', 'London', 'New York'].map((name) => {
+      const row = sessionMap.get(name) ?? { pnl: 0, wins: 0, trades: 0 };
+      return {
+        session: name,
+        pnl: this.round(row.pnl),
+        trades: row.trades,
+        winRatePct: row.trades > 0 ? this.round((row.wins / row.trades) * 100) : 0,
+      };
+    });
+
+    const dowMap = new Map<number, { pnl: number; trades: number }>();
+    for (const trade of trades) {
+      const dow = trade.openedAt.getUTCDay();
+      const row = dowMap.get(dow) ?? { pnl: 0, trades: 0 };
+      row.pnl += trade.profit ?? 0;
+      row.trades += 1;
+      dowMap.set(dow, row);
+    }
+    const dayOfWeekPerformance = [
+      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+    ].map((name, idx) => {
+      const row = dowMap.get(idx) ?? { pnl: 0, trades: 0 };
+      return { day: name, pnl: this.round(row.pnl), trades: row.trades };
+    });
+
+    const advancedMetrics = {
+      range,
+      sharpeRatio: this.round(
+        stdDaily > 0 ? (meanDaily / stdDaily) * annualizer : 0,
+      ),
+      sortinoRatio: this.round(
+        downsideDaily > 0 ? (meanDaily / downsideDaily) * annualizer : 0,
+      ),
+      maxConsecutiveWins: this.computeMaxConsecutiveWins(pnl),
+      maxConsecutiveLosses: this.computeMaxConsecutiveLosses(pnl),
+      avgWin: this.round(this.mean(wins)),
+      avgLoss: this.round(this.mean(losses)),
+      largestWin: this.round(wins.length ? Math.max(...wins) : 0),
+      largestLoss: this.round(losses.length ? Math.min(...losses) : 0),
+      avgHoldingTimeHours: this.round(this.mean(holdingHours)),
+      avgRMultiple: this.round(this.mean(rMultiples), 2),
+      rMultipleSampleSize: rMultiples.length,
+      sessionPerformance,
+      dayOfWeekPerformance,
+      sampleSize: trades.length,
+    };
+
+    await this.redis.set(
+      cacheKey,
+      JSON.stringify(advancedMetrics),
+      TTL_ANALYTICS,
+    );
+    return advancedMetrics;
   }
 
   async getTradeAnalytics(userId: string, range: RangeKey = '3m') {
@@ -817,7 +1047,7 @@ export class AnalyticsService {
 
   private async fetchMacroEvents(): Promise<any[]> {
     const cacheKey = 'analytics:macro-events';
-    const TTL_MACRO = 60 * 60; // 1 hour cache — economic calendar changes infrequently
+    const TTL_MACRO = 60 * 60;
 
     const cached = await this.redis.get(cacheKey);
     if (cached) return JSON.parse(cached);

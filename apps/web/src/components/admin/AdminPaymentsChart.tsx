@@ -12,10 +12,6 @@ import {
 
 export type AdminPaymentsChartDatum = { label: string; value: number };
 
-/**
- * Recharts payments bar chart, isolated into its own module so the admin
- * dashboard can defer the charting bundle via next/dynamic (ssr: false).
- */
 export default function AdminPaymentsChart({
   data,
 }: {

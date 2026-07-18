@@ -1,8 +1,5 @@
 'use client';
 
-// Deliberately separate from hooks/useFcmToken.ts (FCM): this is a different
-// Firebase project than push notifications use. FCM stays on the original
-// project so already-registered push tokens keep working; login moved here.
 const FIREBASE_LOGIN_CONFIG = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_LOGIN_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_LOGIN_AUTH_DOMAIN,

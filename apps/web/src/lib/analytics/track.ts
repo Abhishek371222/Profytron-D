@@ -27,13 +27,11 @@ export function trackEvent(event: string, properties?: AnalyticsPayload) {
   try {
     window.posthog?.capture(event, properties);
   } catch {
-    /* optional */
   }
 
   try {
     window.gtag?.('event', event, properties);
   } catch {
-    /* optional */
   }
 
   if (process.env.NODE_ENV !== 'production') {
@@ -41,7 +39,6 @@ export function trackEvent(event: string, properties?: AnalyticsPayload) {
   }
 }
 
-/** Sends product analytics to PostHog and the backend activation engine. */
 export async function trackActivation(
   event: string,
   properties?: AnalyticsPayload,
@@ -51,7 +48,6 @@ export async function trackActivation(
     const { growthApi } = await import('@/lib/api/growth');
     await growthApi.track(event, properties);
   } catch {
-    /* optional — user may be logged out */
   }
 }
 

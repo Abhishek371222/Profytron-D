@@ -122,10 +122,6 @@ export const coachApi = {
     }>(res.data);
   },
 
-  /**
-   * Stream coach reply via SSE (Gemini-first on backend).
-   * onEvent receives user / token / faq / done / error payloads.
-   */
   async sendMessageStream(
     conversationId: string,
     content: string,
@@ -179,12 +175,10 @@ export const coachApi = {
             if (event.type === 'close') continue;
             onEvent(event);
           } catch {
-            /* ignore */
           }
         }
       }
     } catch {
-      // Non-stream fallback keeps chat usable if SSE proxy fails.
       try {
         const result = await coachApi.sendMessage(conversationId, content);
         onEvent({ type: 'user', message: result.userMessage });

@@ -152,7 +152,6 @@ export default function AlphaCoachPage() {
       .getCoachingReport()
       .then(setReport)
       .catch(() => {
-        /* non-blocking */
       });
   }, []);
 
@@ -194,7 +193,6 @@ export default function AlphaCoachPage() {
     setFeed(items);
   }, [hasBrokerAccount, winRate, openTrades.length, portfolio?.maxDrawdown, report]);
 
-  // Coach websocket
   React.useEffect(() => {
     if (!accessToken) return;
     const release = acquireCoachSocket(accessToken);
@@ -285,7 +283,6 @@ export default function AlphaCoachPage() {
     };
   }, [accessToken, refreshList]);
 
-  // Trading socket → refresh open trades + feed
   React.useEffect(() => {
     if (!accessToken) return;
     const release = acquireTradingSocket(accessToken);
@@ -484,7 +481,7 @@ export default function AlphaCoachPage() {
     <DashboardPage className="!gap-0 !pb-0 !pt-0 flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--card-border)] bg-card shadow-sm">
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)_272px]">
-          {/* Desktop history */}
+          { }
           <div className="hidden min-h-0 overflow-hidden border-r border-[var(--card-border)] lg:block">
             <ChatHistorySidebar
               conversations={conversations}
@@ -529,7 +526,7 @@ export default function AlphaCoachPage() {
             />
           </div>
 
-          {/* Desktop live desk */}
+          { }
           <div className="hidden min-h-0 overflow-hidden border-l border-[var(--card-border)] xl:block">
             <LiveTradesRail
               openTrades={openTrades as any[]}

@@ -1,4 +1,3 @@
-/** User-facing labels: never show "copy trading" or "strategy" in the product UI. */
 
 export function formatBotName(name: string): string {
   if (!name) return name;
@@ -27,12 +26,10 @@ export function formatBotDescription(text: string): string {
     .replace(/\bcopy\b/gi, 'bot');
 }
 
-/** Sanitize API error messages for user-facing display. */
 export function formatApiErrorMessage(message: string): string {
   return formatBotDescription(message);
 }
 
-/** Resolve marketplace strategy for a plan tier (matches Bot or legacy Copy names). */
 export function findBotStrategy(
   items: Array<{ name?: string; strategy?: { name?: string; id?: string } }>,
   tier: string,

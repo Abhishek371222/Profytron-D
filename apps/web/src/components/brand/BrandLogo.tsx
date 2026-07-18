@@ -5,12 +5,8 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { BRAND_MARK_SRC, BRAND_MARK_TIGHT_SRC } from '@/components/brand/BrandLogoMark';
 
+
 type BrandLogoProps = {
-  /**
-   * sm/md = compact, lg = legacy sidebar (unused), xl = auth pages,
-   * home = homepage navbar, sidebar = dashboard sidebar (expanded),
-   * sidebarCollapsed = dashboard sidebar (collapsed, icon only)
-   */
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'home' | 'sidebar' | 'sidebarCollapsed';
   showWordmark?: boolean;
   className?: string;
@@ -18,7 +14,6 @@ type BrandLogoProps = {
   offsetX?: number;
 };
 
-/** Transparent P mark + HTML wordmark — blends on any surface (no opaque PNG box) */
 const SIZE = {
   sm: {
     markH: 38,
@@ -45,32 +40,22 @@ const SIZE = {
     taglineMt: 6,
   },
   lg: {
-    // Footer / auth hero panels / workspace-bootstrap screen — tight-cropped
-    // P (no empty padding) so it sits flush against the wordmark instead of
-    // trailing left-padding making it look off-balance.
     markH: 54,
     cropW: 50,
     nudgeX: 0,
     markScale: 1,
     gap: 12,
 
-    // Slightly larger wordmark without clipping
     word: 'text-[28px] sm:text-[30px] md:text-[31px]',
 
-    // Elegant tagline
     tag: 'text-[11px] sm:text-[12px]',
     tagTracking: '0.34em',
 
-    // Longer divider look
     ruleGap: 6,
 
-    // Bring tagline closer to the wordmark
     taglineMt: 6,
   },
   xl: {
-    // Login / register / auth pages — tight-cropped P (no empty padding),
-    // bigger + clear gap to the wordmark so it lines up flush-left with
-    // the heading/inputs below it instead of trailing off to the right.
     markH: 50,
     cropW: 46,
     nudgeX: 0,
@@ -83,7 +68,6 @@ const SIZE = {
     taglineMt: 8,
   },
   home: {
-    // Uses brand-mark-tight.png (P only, no empty padding).
     markH: 42,
     cropW: 38,
     nudgeX: 0,
@@ -96,8 +80,6 @@ const SIZE = {
     taglineMt: 8,
   },
   sidebar: {
-    // Dashboard sidebar, expanded — tight-cropped P (no empty padding),
-    // left-aligned lockup with a modest gap to the wordmark.
     markH: 40,
     cropW: 36,
     nudgeX: 0,
@@ -110,7 +92,6 @@ const SIZE = {
     taglineMt: 5,
   },
   sidebarCollapsed: {
-    // Dashboard sidebar, collapsed — icon only, sized to match the expanded P for consistency.
     markH: 34,
     cropW: 31,
     nudgeX: 0,

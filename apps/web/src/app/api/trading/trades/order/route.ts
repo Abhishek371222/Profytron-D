@@ -23,7 +23,6 @@ export async function POST(req: NextRequest) {
     volume?: number;
     stopLoss?: number;
     takeProfit?: number;
-    /** Optional: auto-size from master lot using equity ratio */
     masterVolume?: number;
     masterEquity?: number;
     sizingMode?: 'FIXED' | 'MULTIPLIER' | 'EQUITY_RATIO' | 'BALANCE';

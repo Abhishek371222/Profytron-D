@@ -112,12 +112,12 @@ function NotificationCard({
           : cn('bg-muted/25', cfg.border, cfg.hoverBorder, cfg.glow),
       )}
     >
-      {/* Unread left accent */}
+      { }
       {!notification.isRead && (
         <div className={cn('absolute left-0 top-4 bottom-4 w-0.5 rounded-full', cfg.dot)} />
       )}
 
-      {/* Icon */}
+      { }
       <div
         className={cn(
           'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105',
@@ -127,7 +127,7 @@ function NotificationCard({
         <IconComp className={cn('w-4 h-4', cfg.color)} />
       </div>
 
-      {/* Content */}
+      { }
       <div className="flex-1 min-w-0 space-y-1">
         <div className="flex items-start justify-between gap-2">
           <p className={cn('text-sm font-bold leading-snug', notification.isRead ? 'text-foreground/50' : 'text-foreground')}>
@@ -229,7 +229,7 @@ export default function NotificationsPage() {
         }
       />
 
-      {/* ── Notification List ── */}
+      { }
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -271,7 +271,7 @@ export default function NotificationsPage() {
         </div>
       )}
 
-      {/* ── Pagination ── */}
+      { }
       {(hasMore || page > 1) && (
         <div className="flex items-center justify-center gap-3 pt-2">
           <DashButton variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>

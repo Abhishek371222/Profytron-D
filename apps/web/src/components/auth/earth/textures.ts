@@ -74,7 +74,6 @@ async function loadEnvironmentMap(
   return null;
 }
 
-/** Loads all production Earth textures with local-first paths and CDN fallbacks. */
 export async function loadEarthTextures(
   THREE: typeof import('three'),
   renderer: THREE.WebGLRenderer,

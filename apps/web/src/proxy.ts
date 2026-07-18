@@ -4,7 +4,7 @@ import { updateSession } from '@/utils/supabase/middleware';
 import { PRIVATE_ROUTE_PREFIXES } from '@/lib/seo/private-routes';
 
 const AFFILIATE_VISITOR_COOKIE = 'affiliate_visitor_id';
-const AFFILIATE_VISITOR_MAX_AGE = 60 * 60 * 24 * 365; // ~1 year
+const AFFILIATE_VISITOR_MAX_AGE = 60 * 60 * 24 * 365;
 
 export function proxy(request: NextRequest) {
   return handleProxy(request);
@@ -47,21 +47,17 @@ async function handleProxy(request: NextRequest) {
       headers.cookie = cookieHeader;
     }
 
-    // Await so the capture is not abandoned when the proxy response finishes.
-    // Fail-open: navigation and referral cookie must still succeed.
     try {
       await fetch(
         `${backend}/v1/affiliates/capture/${encodeURIComponent(code)}`,
         { method: 'POST', headers },
       );
     } catch {
-      /* capture failures must not break registration flow */
     }
 
     return response;
   };
 
-  // Canonical register URL — preserve ?ref= and referral cookie (next.config redirect dropped both).
   if (pathname === '/signup') {
     const url = request.nextUrl.clone();
     url.pathname = '/register';

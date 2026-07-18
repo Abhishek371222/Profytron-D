@@ -17,12 +17,12 @@ export const AuthVisualPanel = ({
 }: AuthVisualPanelProps) => {
   return (
     <div className="relative h-full w-full bg-bg-secondary overflow-hidden hidden lg:flex flex-col border-r border-border">
-      {/* Ambient background */}
+      { }
       <AmbientBackground variant="auth" position="absolute" />
 
- {/* Content Layer */}
+ { }
  <div className="relative z-10 flex-1 flex flex-col p-16">
- {/* Branding */}
+ { }
  <motion.div 
  initial={{ opacity: 0, y: -20 }}
  animate={{ opacity: 1, y: 0 }}
@@ -43,7 +43,7 @@ export const AuthVisualPanel = ({
  </div>
  </motion.div>
 
- {/* Hero Visual Section */}
+ { }
  <div className="flex-1 flex flex-col justify-center relative">
  <motion.div
  initial={{ opacity: 0, scale: 0.9 }}
@@ -51,7 +51,7 @@ export const AuthVisualPanel = ({
  transition={{ duration: 1, delay: 0.2 }}
  className="relative"
  >
- {/* Neural Core Effect */}
+ { }
  <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-[100px]" />
  <FloatingCards type={type === 'register' ? 'achievements' : 'strategies'} />
  
@@ -70,7 +70,7 @@ export const AuthVisualPanel = ({
  </motion.div>
  </div>
 
- {/* Footer Trust Section */}
+ { }
  <div className="mt-auto pt-8 border-t border-border">
  <TrustBadges compact className="mb-6" />
  <div className="flex items-center gap-6">

@@ -38,7 +38,6 @@ export class CreateTicketDto {
   })
   category: string;
 
-  /** Canonical wallet Billing ID (PRF-WLT-YYYYMMDD-XXXXXXXX) for payment complaints */
   @IsOptional()
   @Transform(({ value }) =>
     typeof value === 'string' ? value.trim().toUpperCase() : value,

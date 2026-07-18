@@ -11,7 +11,6 @@ const PREFIXES = ['', 'how do i ', 'what is ', 'tell me about ', 'help with '];
 
 const SUFFIXES = ['', '?', ' in profytron'];
 
-/** Core FAQ groups — variants expand these to 400–500 questions. */
 const CORE_GROUPS: Array<{
   category: string;
   answer: string;
@@ -491,7 +490,6 @@ export function buildCoachFaqSeedGroups(): FaqSeedGroup[] {
   }));
 }
 
-/** Upsert FAQ bank. Safe to re-run (clears FAQ tables then inserts). */
 export async function seedCoachFaq(prisma: PrismaClient): Promise<{
   answers: number;
   questions: number;
@@ -525,7 +523,6 @@ export async function seedCoachFaq(prisma: PrismaClient): Promise<{
       };
     });
 
-    // batch create
     const chunk = 100;
     for (let i = 0; i < rows.length; i += chunk) {
       await prisma.coachFaqQuestion.createMany({ data: rows.slice(i, i + chunk) });
@@ -536,7 +533,6 @@ export async function seedCoachFaq(prisma: PrismaClient): Promise<{
   return { answers: groups.length, questions: questionCount };
 }
 
-/** Standalone runner when this file is executed directly. */
 async function main() {
   const prisma = new PrismaClient();
   try {

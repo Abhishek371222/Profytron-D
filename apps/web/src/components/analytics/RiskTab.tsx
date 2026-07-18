@@ -70,9 +70,9 @@ export default function RiskTab() {
  animate="visible"
  className="space-y-10 pb-20"
  >
- {/* ── Top Row: Gauge + Losing period Chart ── */}
+ { }
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
- {/* VaR Gauge */}
+ { }
  <motion.div variants={itemVariants}>
  <Card className="p-10 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center h-full relative overflow-hidden group rounded-[40px]">
  <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-chart-4/60 to-transparent" />
@@ -86,7 +86,7 @@ export default function RiskTab() {
  <p className="text-xs text-foreground/20 font-semibold uppercase tracking-[0.3em] leading-relaxed">95% Confidence Interval — Daily VaR Probe</p>
  </div>
 
- {/* SVG Gauge */}
+ { }
  <div className="relative w-64 h-36 mt-4 overflow-visible">
  <svg className="w-full h-full" viewBox="0 0 200 110">
  <defs>
@@ -96,9 +96,9 @@ export default function RiskTab() {
  <stop offset="100%" stopColor="var(--chart-bull)" />
  </linearGradient>
  </defs>
- {/* Background track */}
+ { }
  <path d="M 20 95 A 80 80 0 0 1 180 95" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="14" strokeLinecap="round" />
- {/* Gradient fill */}
+ { }
  <motion.path
  d="M 20 95 A 80 80 0 0 1 180 95"
  fill="none" stroke="url(#gaugeGrad)" strokeWidth="14" strokeLinecap="round"
@@ -107,7 +107,7 @@ export default function RiskTab() {
  animate={{ strokeDashoffset: 130 }}
  transition={{ duration: 2.5, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
  />
- {/* Tick marks */}
+ { }
  {[...Array(9)].map((_, idx) => {
  const angle = -180 + idx * 22.5;
  const r = (angle * Math.PI) / 180;
@@ -121,7 +121,7 @@ export default function RiskTab() {
  );
  })}
  </svg>
- {/* Needle */}
+ { }
  <motion.div
  initial={{ rotate: -90 }} animate={{ rotate: 10 }}
  transition={{ type: 'spring', damping: 15, stiffness: 40, delay: 0.7 }}
@@ -142,7 +142,7 @@ export default function RiskTab() {
  <span className="text-xs font-semibold text-chart-4 uppercase tracking-[0.3em]">BUFFER: 85%_ACTIVE</span>
  </div>
 
- {/* Mini risk zone bars */}
+ { }
  <div className="space-y-2 mt-6 text-left">
  {riskZones.map((z) => (
  <div key={z.label} className="space-y-1">
@@ -166,7 +166,7 @@ export default function RiskTab() {
  </Card>
  </motion.div>
 
- {/* Losing period Chart */}
+ { }
  <motion.div variants={itemVariants} className="lg:col-span-2">
  <Card className="p-10 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_50px_100px_rgba(0,0,0,0.8)] h-full relative overflow-hidden group rounded-[40px]">
  <div className="absolute top-0 left-0 w-full h-0.5 bg-linear-to-r from-transparent via-destructive/50 to-transparent" />
@@ -190,7 +190,7 @@ export default function RiskTab() {
  </div>
  </div>
 
- {/* Explicit height */}
+ { }
  <div style={{ width: '100%', height: 300 }} role="img" aria-label="Portfolio drawdown over time chart">
  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
  <AreaChart data={drawdownData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
@@ -222,7 +222,7 @@ export default function RiskTab() {
  </motion.div>
  </div>
 
- {/* ── Risk Metrics Grid ── */}
+ { }
  <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
  {riskMetrics.map((m, i) => (
  <motion.div key={i} variants={itemVariants}>
@@ -243,7 +243,7 @@ export default function RiskTab() {
  ))}
  </div>
 
- {/* ── Scenario Stress Tests ── */}
+ { }
  <motion.div variants={itemVariants}>
  <Card className="p-10 border-2 border-border bg-black/40 backdrop-blur-3xl shadow-[0_40px_80px_rgba(0,0,0,0.6)] relative overflow-hidden group rounded-[40px]">
  <div className="mb-8 relative z-10">

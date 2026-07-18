@@ -69,8 +69,6 @@ function ReviewStarRating({
   );
 }
 
-// Heavy recharts-based analytics panel — defer it so the strategy detail route
-// doesn't ship the charting bundle until this section actually renders.
 const StrategyAnalyticsDashboard = dynamic(
   () =>
     import('@/components/marketplace/StrategyAnalyticsDashboard').then(
@@ -139,7 +137,6 @@ export default function MarketplaceStrategyDetailPage() {
   const isStrategyTransientError = strategyQuery.isError && !isStrategyNotFound;
 
   React.useEffect(() => {
-    // Only warn about a transient outage — a real 404 shows a dedicated state.
     if (isStrategyTransientError) {
       toast.error('Strategy details unavailable', {
         description: 'The marketplace API is recovering — retrying automatically.',
@@ -148,7 +145,6 @@ export default function MarketplaceStrategyDetailPage() {
   }, [isStrategyTransientError]);
 
   React.useEffect(() => {
-    // Don't nag about reviews when the strategy itself failed/was not found.
     if (reviewsQuery.isError && !strategyQuery.isError) {
       toast.error('Reviews feed unavailable', {
         description: 'Review history may be incomplete until sync recovers.',
@@ -175,8 +171,6 @@ export default function MarketplaceStrategyDetailPage() {
   const strategy = detail?.strategy;
   const reviews = reviewsQuery.data?.pages.flatMap((page: any) => page.items || []) || [];
 
-  // Transient failure (network / API restart / 5xx): offer a retry instead of
-  // implying the strategy doesn't exist.
   if (isStrategyTransientError) {
     return (
       <DashboardPage>
@@ -251,34 +245,39 @@ export default function MarketplaceStrategyDetailPage() {
         }
       />
 
-      <DashboardCard className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+      <DashboardCard className="flex flex-col gap-3 p-4 sm:p-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">Ready to copy this strategy?</p>
           <p className="mt-1 text-xs text-muted-foreground">
             Buy a fixed subscription or use profit sharing to activate it on your MT5.
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 min-[420px]:grid-cols-2 lg:flex lg:w-auto lg:flex-wrap lg:justify-end">
           <DashButton
             variant="primary"
+            className="w-full min-w-0 justify-center lg:w-auto"
             onClick={() => {
               setBillingModel('FIXED');
               setSubscribeOpen(true);
             }}
           >
-            Buy Subscription
+            <span className="truncate">Buy Subscription</span>
           </DashButton>
           <DashButton
             variant="outline"
+            className="w-full min-w-0 justify-center lg:w-auto"
             onClick={() => {
               setBillingModel('PROFIT_SHARE');
               setSubscribeOpen(true);
             }}
           >
-            Get Profit Sharing · ₹149
+            <span className="truncate sm:hidden">Profit Share · ₹149</span>
+            <span className="hidden truncate sm:inline">Get Profit Sharing · ₹149</span>
           </DashButton>
-          <Link href="/get-bots">
-            <DashButton variant="outline">Open Get Bots</DashButton>
+          <Link href="/get-bots" className="min-[420px]:col-span-2 lg:col-span-1">
+            <DashButton variant="outline" className="w-full lg:w-auto">
+              Open Get Bots
+            </DashButton>
           </Link>
         </div>
       </DashboardCard>

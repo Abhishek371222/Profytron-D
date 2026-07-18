@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { z } from '@/lib/zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Sparkles, Lock, Mail, User, Shield, Check, Tag } from 'lucide-react';
+import { ArrowLeft, Sparkles, Lock, Mail, User, Shield, Check, Tag } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -166,6 +166,16 @@ export default function RegisterPage() {
             <RegisterVisualPanel />
 
             <div className="flex flex-col justify-center bg-card px-7 py-10 sm:px-10 sm:py-12 lg:px-12 lg:py-14">
+              <div className="mb-6 lg:hidden">
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 rounded-button border border-border bg-foreground/5 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-foreground/75 transition-colors hover:text-foreground"
+                >
+                  <ArrowLeft className="h-4 w-4" aria-hidden />
+                  Back
+                </Link>
+              </div>
+
               <div className="mb-8">
                 <BrandLogo size="xl" className="mb-6" />
                 <h1 className="brand-display-heading text-2xl sm:text-3xl">
@@ -297,12 +307,6 @@ export default function RegisterPage() {
                 </Link>
               </p>
 
-              <Link
-                href="/"
-                className="mt-5 inline-flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground lg:hidden"
-              >
-                ← Back to home
-              </Link>
             </div>
           </div>
         </motion.div>

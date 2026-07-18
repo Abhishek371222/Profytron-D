@@ -17,7 +17,6 @@ export class AgentOutboxPoller {
     private readonly events: AgentEventService,
   ) {}
 
-  /** Poll outbox every 30s — not agents themselves */
   @Interval(30_000)
   async poll() {
     if (!this.events.isEnabled()) return;
@@ -41,9 +40,6 @@ export class AgentOutboxPoller {
         }
       }
     } catch (error) {
-      // Neon (serverless Postgres) can drop idle connections; treat a failed
-      // poll cycle as a warning and let the next interval retry instead of
-      // surfacing an unhandled error every 30s.
       const message = (error as Error)?.message ?? String(error);
       const isTransientDbError =
         /can't reach database server|connection.*closed|P10(01|08|17)/i.test(
@@ -129,7 +125,6 @@ export class AgentSchedulerService {
     });
   }
 
-  /** Emit inactive-user events once daily — incremental, indexed query */
   @Cron('0 18 * * *')
   async detectInactiveUsers() {
     if (!this.events.isEnabled()) return;

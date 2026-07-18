@@ -64,7 +64,9 @@ export default function TradeAnalyticsPage() {
   });
 
   const trade =
-    tradeQuery.data?.source === 'metaapi' || tradeQuery.data?.source === 'empty'
+    tradeQuery.data?.source === 'database' ||
+    tradeQuery.data?.source === 'snapshot' ||
+    tradeQuery.data?.source === 'empty'
       ? tradeQuery.data
       : undefined;
   const hasData = Boolean(

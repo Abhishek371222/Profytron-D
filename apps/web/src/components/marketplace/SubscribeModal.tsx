@@ -21,7 +21,6 @@ interface SubscribeModalProps {
   initialBillingModel?: SubscriptionBillingModel;
 }
 
-/** Marketplace prices are stored in INR — display as rupees, no USD conversion. */
 function formatInr(amount: number) {
   if (!amount || amount <= 0) return 'FREE';
   return `₹${Number(amount).toLocaleString('en-IN')}`;
@@ -66,8 +65,6 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
     }
   }, [isOpen, initialBillingModel]);
 
-  // Portal to body so z-index isn't trapped under AppShell main (z-20) while
-  // MobileBottomNav sits at root z-50 and covers Cancel / Continue on phones.
   React.useEffect(() => {
     if (!isOpen) return;
     const prev = document.body.style.overflow;
@@ -133,10 +130,8 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
     });
   };
 
-  /** MetaApi SUBSCRIBER + CopyFactory strategy link (Vercel — Render stuck). */
   const wireLiveCopy = async () => {
     try {
-      // Nest may still be writing the subscription row — brief retry.
       for (let i = 0; i < 4; i++) {
         if (i > 0) await new Promise((r) => setTimeout(r, 1500));
         const link = await marketplaceApi.ensureCopyLink({

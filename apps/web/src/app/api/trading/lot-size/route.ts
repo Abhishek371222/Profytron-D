@@ -12,10 +12,6 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 20;
 
-/**
- * Lot size calculator for ~$100 accounts.
- * POST { masterVolume, masterEquity?, multiplier?, mode?, fixedLot?, skipIfBelowMin? }
- */
 export async function POST(req: NextRequest) {
   const userId = await userIdFromRequest(req);
   if (!userId) return error('Unauthorized', 401);

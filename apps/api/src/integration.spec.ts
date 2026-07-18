@@ -100,14 +100,11 @@ describeIfApiInfra('Integration flows', () => {
         monthlyPrice: 29,
         annualPrice: 199,
         lifetimePrice: 499,
-        // Pin the revenue split so the expected creator credit (29 * 0.7 = 20.3)
-        // is deterministic and independent of the schema default.
         creatorSharePct: 0.7,
         platformSharePct: 0.3,
       },
     });
 
-    // Checkout activation requires an active live MT5 broker (428 otherwise).
     await prisma.brokerAccount.create({
       data: {
         userId: buyer.id,
@@ -155,7 +152,6 @@ describeIfApiInfra('Integration flows', () => {
       },
     });
 
-    // Activation lands in PROVISIONING until CopyFactory/MetaApi finish linking.
     expect(subscription?.status).toBe('PROVISIONING');
     expect(subscription?.stripeSubId).toBe('sub_checkout_123');
     expect(creatorCredit?.amount).toBeCloseTo(20.3, 5);

@@ -1,7 +1,3 @@
-/**
- * Direct store-only connect test (bypasses HTTP auth).
- * Proves MetaApi/CopyFactory is not called for end users.
- */
 const { PrismaClient } = require('@prisma/client');
 const { createHash, randomBytes, createCipheriv } = require('crypto');
 
@@ -12,7 +8,6 @@ async function main() {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) throw new Error('user not found: ' + email);
 
-    // Soft-disconnect existing so quota doesn't block
     await prisma.brokerAccount.updateMany({
       where: { userId: user.id, isActive: true, isMasterSource: false },
       data: { isActive: false },
@@ -22,15 +17,12 @@ async function main() {
     const serverName = 'BitrageCapitalMarkets-Server';
     const last4 = login.slice(-4).padStart(4, '0');
 
-    // Mimic store-only path: encrypt minimal creds without MetaApi
     const keyHex = process.env.AES_MASTER_KEY;
     if (!keyHex || keyHex.length < 64) {
       console.log('AES_MASTER_KEY missing — writing plaintext marker only for test');
     }
 
     const CryptoJS = null;
-    // Use same approach as app: just create row with dummy encrypted blob if needed
-    // Prefer calling through a minimal encrypt matching CryptoService
     const cryptoServicePath = require('path').join(
       __dirname,
       '../dist/common/crypto.service.js',
@@ -38,7 +30,6 @@ async function main() {
 
     let credentialsEncrypted = 'test-placeholder';
     try {
-      // Load env
       require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
       const { CryptoService } = require('../dist/common/crypto.service');
       const crypto = new CryptoService();
@@ -86,7 +77,6 @@ async function main() {
         ),
       );
     } catch (e) {
-      // Fallback without CryptoService dist
       console.error('CryptoService path failed, using prisma-only:', e.message);
       const account = await prisma.brokerAccount.create({
         data: {

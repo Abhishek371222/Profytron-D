@@ -2,7 +2,7 @@ export interface CurrencyInfo {
   code: string;
   symbol: string;
   locale: string;
-  rate: number; // multiplier from USD
+  rate: number;
 }
 
 export const CURRENCY_MAP: Record<string, CurrencyInfo> = {
@@ -35,11 +35,6 @@ export const CURRENCY_MAP: Record<string, CurrencyInfo> = {
 
 export const DEFAULT_CURRENCY: CurrencyInfo = { code: 'USD', symbol: '$', locale: 'en-US', rate: 1 };
 
-/**
- * Formats an amount already denominated in `currency` (no rate conversion) —
- * for wallet balances/transactions, which are stored in their real currency,
- * unlike `formatPrice` below which converts a USD marketplace price.
- */
 export function formatWalletAmount(amount: number, currency: string): string {
   const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : `${currency} `;
   return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

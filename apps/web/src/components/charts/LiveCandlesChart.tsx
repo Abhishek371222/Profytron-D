@@ -81,7 +81,6 @@ const formatTimeLabel = (unix: number, timeframe: MarketTimeframe): string => {
 	return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false });
 };
 
-/** Evenly spaced, human-readable Y-axis ticks. */
 function nicePriceTicks(min: number, max: number, target = 5): number[] {
 	if (!Number.isFinite(min) || !Number.isFinite(max) || min === max) {
 		return [min];
@@ -287,7 +286,7 @@ export function LiveCandlesChart({
 				!embedded && 'rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-3',
 			)}
 		>
-			{/* Toolbar — sits above chart, never overlays candles */}
+			{ }
 			<div className="flex flex-wrap items-center justify-between gap-2 shrink-0 mb-3 px-1">
 				<div className="flex items-center gap-2 flex-wrap">
 					<div className="flex items-center gap-1 rounded-xl border border-[var(--card-border)] bg-muted/40 p-1">
@@ -363,7 +362,7 @@ export function LiveCandlesChart({
 				</div>
 			</div>
 
-			{/* Chart canvas — uniform scale, no axis stretch */}
+			{ }
 			<div
 				ref={containerRef}
 				className="flex-1 min-h-[280px] max-h-[360px] w-full relative rounded-xl bg-bg-secondary overflow-hidden"
@@ -415,7 +414,7 @@ export function LiveCandlesChart({
 							</g>
 						))}
 
-						{/* Volume separator */}
+						{ }
 						<line
 							x1={layout.margin.left}
 							y1={layout.volTop - 2}
@@ -424,7 +423,7 @@ export function LiveCandlesChart({
 							stroke="rgba(15,23,42,0.08)"
 						/>
 
-						{/* Candles + volume */}
+						{ }
 						{candles.map((candle, index) => {
 							const cx = layout.margin.left + index * layout.step + layout.step / 2;
 							const bullish = candle.close >= candle.open;
@@ -460,7 +459,7 @@ export function LiveCandlesChart({
 							);
 						})}
 
-						{/* Current price line */}
+						{ }
 						{lastClose != null && (
 							<g>
 								<line

@@ -8,7 +8,6 @@ const { PrismaClient } = apiRequire('@prisma/client');
 async function main() {
   const p = new PrismaClient();
   try {
-    // 1. Durable equity/balance history table.
     await p.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "EquitySnapshot" (
         "id" TEXT NOT NULL,
@@ -38,9 +37,6 @@ async function main() {
       `);
     }
 
-    // 2. Guard the Trade table's broker-ticket upsert key — but only add the
-    //    unique constraint if no existing duplicate (brokerAccountId, brokerTicket)
-    //    pairs would violate it (defensive for pre-existing/dirty local data).
     const dupes = await p.$queryRawUnsafe(`
       SELECT "brokerAccountId", "brokerTicket", COUNT(*) c
       FROM "Trade"

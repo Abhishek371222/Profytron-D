@@ -49,15 +49,10 @@ import { PlansModule } from './modules/plans/plans.module';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 import { JwtAuthGuard } from './modules/auth/guards/auth.guard';
 
-/** Always resolve apps/api/.env regardless of process cwd (pnpm filter / nest watch). */
 const API_ENV_FILE = join(__dirname, '..', '..', '.env');
 const API_ENV_LOCAL_FILE = join(__dirname, '..', '..', '.env.local');
 
 const parseRedisConfig = () => {
-  // Dev without a real Redis server: point BullMQ at a local (unreachable)
-  // Redis. ioredis emits handled connection errors and retries with backoff;
-  // queue jobs won't process, but the API boots and all read/write HTTP flows
-  // work. (The auth/cache client uses an in-memory mock — see redis.config.ts.)
   if (isInMemoryRedis()) {
     return {
       host: '127.0.0.1',
@@ -78,15 +73,12 @@ const parseRedisConfig = () => {
       return {
         host: parsed.hostname,
         port: Number(parsed.port || 6379),
-        // Only include auth when a password is present; Redis 5 (single-arg AUTH)
-        // rejects connections that send both username + password.
         ...(password
           ? { username: parsed.username || 'default', password }
           : {}),
         tls: parsed.protocol === 'rediss:' ? {} : undefined,
       };
     } catch {
-      // Fall back to host/port configuration when URL parsing fails.
     }
   }
 
@@ -106,10 +98,8 @@ const parseRedisConfig = () => {
         process.env.NODE_ENV === 'test'
           ? ['.env.test']
           : [
-              // Absolute paths first so cwd (repo root vs apps/api) never matters
               API_ENV_LOCAL_FILE,
               API_ENV_FILE,
-              // Render Secret Files (filename must match upload)
               '/etc/secrets/.env',
               '/etc/secrets/render.env',
               '.env.local',
@@ -117,15 +107,10 @@ const parseRedisConfig = () => {
               'render.env',
             ],
     }),
-    // Base limit = anonymous (100 req/min). Authenticated callers are bumped to
-    // 1000 req/min in AppThrottlerGuard.
-    // Use in-process memory storage — Redis throttler storage burns Upstash
-    // command quota on every request (free tier 500k/mo). Auth/Bull still use Redis.
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60_000, limit: 100 }],
     }),
     BullModule.forRoot({ redis: parseRedisConfig() }),
-    // Registered here so the health controller can probe queue connectivity.
     BullModule.registerQueue({ name: 'trade_execution' }),
     ScheduleModule.forRoot(),
     PrismaModule,

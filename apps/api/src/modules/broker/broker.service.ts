@@ -35,12 +35,10 @@ export class BrokerService {
     private readonly copyFactoryQueue: Queue,
   ) {}
 
-  /** True when this connect is for the operator master (MetaApi allowed). */
   private isProviderConnect(dto: { copyFactoryRole?: string }): boolean {
     return dto.copyFactoryRole === 'PROVIDER';
   }
 
-  /** Local validation only — never calls MetaApi (no per-user seat cost). */
   private validateUserMt5Input(
     login: string,
     password: string,
@@ -73,13 +71,6 @@ export class BrokerService {
     }
   }
 
-  /**
-   * A single real MT5 login must not be linked to more than one Profytron user
-   * at a time. Checked BEFORE calling out to MetaApi so a duplicate attempt
-   * never provisions (and pays for) a seat that will just be rejected. Paper/
-   * demo logins are exempt — they aren't real MT5 accounts and are commonly
-   * reused (e.g. the literal "PAPER" quick-connect login).
-   */
   private async assertMt5NotLinkedToAnotherUser(
     userId: string,
     login: string,
@@ -109,7 +100,6 @@ export class BrokerService {
         }
       } catch (e) {
         if (e instanceof BadRequestException) throw e;
-        // Undecryptable row — ignore, don't block on it.
       }
     }
   }
@@ -120,9 +110,6 @@ export class BrokerService {
     const providerConnect = this.isProviderConnect(dto);
 
     try {
-      // Enforce the plan's broker-account quota BEFORE provisioning anything at
-      // MetaAPI, so an over-quota attempt never leaves an orphaned account.
-      // Reconnecting an existing login+server reuses its row, so it's exempt.
       const last4Pre = login ? login.slice(-4).padStart(4, '0') : '0000';
       const resolvedNamePre =
         brokerName === 'PAPER' ? 'PAPER' : platform === 'mt4' ? 'MT4' : 'MT5';
@@ -169,10 +156,6 @@ export class BrokerService {
       if (brokerName === 'PAPER') {
         connectionResult = await this.paperAdapter.connect(login);
       } else if (!providerConnect) {
-        // G2 cloud seat WITHOUT CopyFactory roles.
-        // CopyFactory SUBSCRIBER requires a separate MetaApi wallet top-up and
-        // fails with "please top up your account". MasterSync + MetaApi RPC
-        // places copies on the G2 seat (~$2.34/mo) instead.
         const mt = platform === 'mt4' ? 'mt4' : 'mt5';
         this.logger.log(
           `MetaApi G2 connect (no CopyFactory role) for user ${userId}`,
@@ -195,7 +178,6 @@ export class BrokerService {
           executionPath: 'metaapi_rpc',
         };
       } else {
-        // Operator master / PROVIDER — MetaApi G2; CF PROVIDER only if allowed.
         const mt = platform === 'mt4' ? 'mt4' : 'mt5';
         const allowCf = process.env.ALLOW_METAAPI_SUBSCRIBERS === 'true';
         connectionResult = await this.mtAdapter.connect(
@@ -214,7 +196,6 @@ export class BrokerService {
         );
       }
 
-      // Mint bridge EA token for master_only live accounts (no MetaApi seat).
       const bridgeToken =
         connectionResult.masterOnly && brokerName !== 'PAPER'
           ? CopyBridgeService.mintToken()
@@ -223,7 +204,6 @@ export class BrokerService {
         ? CopyBridgeService.hashToken(bridgeToken)
         : null;
 
-      // Encrypt credentials (login + password)
       const encrypted = this.cryptoService.encrypt(
         JSON.stringify({
           login,
@@ -244,8 +224,6 @@ export class BrokerService {
       const resolvedBrokerName =
         brokerName === 'PAPER' ? 'PAPER' : platform === 'mt4' ? 'MT4' : 'MT5';
 
-      // Reuse an existing row for the same login+server instead of stacking a
-      // new "connected account" on every reconnect.
       const existingAccount = await this.prisma.brokerAccount.findFirst({
         where: {
           userId,
@@ -254,6 +232,7 @@ export class BrokerService {
           brokerName: resolvedBrokerName,
           isActive: true,
         },
+        select: { id: true, initialEquity: true },
       });
 
       const existingCount = await this.prisma.brokerAccount.count({
@@ -275,7 +254,6 @@ export class BrokerService {
             data: {
               credentialsEncrypted: encrypted,
               ...(bridgeTokenHash ? { bridgeTokenHash } : {}),
-              // Never overwrite a stored return baseline on reconnect.
               ...(seeded != null ? { initialEquity: seeded } : {}),
               ...(liveAtConnect > 0
                 ? {
@@ -309,8 +287,6 @@ export class BrokerService {
             },
           });
 
-      // Re-encrypt with metaApiAccountId + region included so later trade and
-      // account-info calls hit the correct region-specific MetaAPI host.
       if (connectionResult.metaApiAccountId) {
         const enriched = this.cryptoService.encrypt(
           JSON.stringify({
@@ -342,9 +318,6 @@ export class BrokerService {
         },
       });
 
-      // CopyFactory strategy link runs via copyfactory_sync when the user
-      // subscribes to a bot (subscription-cleanup / CopyFactorySyncService).
-
       await this.activationService.track(
         userId,
         ACTIVATION_EVENTS.BROKER_CONNECTED,
@@ -358,7 +331,6 @@ export class BrokerService {
         );
       }
 
-      // Link any bots that were activated before a broker existed (or after disconnect).
       if (brokerName !== 'PAPER') {
         const linked = await linkOrphanStrategySubscriptions(
           this.prisma,
@@ -375,13 +347,9 @@ export class BrokerService {
       const { credentialsEncrypted: _, ...safe } = account as any;
       return {
         ...safe,
-        // pending=true means the account is provisioned and deploying, but the
-        // broker terminal hasn't streamed live balance yet (demo servers can be
-        // slow). The account is saved; balance appears on the next test/refresh.
         pending: connectionResult.pending ?? false,
         masterOnly: Boolean(connectionResult.masterOnly),
         executionPath: connectionResult.executionPath ?? null,
-        // Shown once — paste into ProfytronCopyBridge EA. Rotate via bridge-token endpoint.
         ...(bridgeToken ? { bridgeToken } : {}),
         accountInfo: {
           balance: connectionResult.balance,
@@ -401,15 +369,16 @@ export class BrokerService {
   }
 
   async getBrokerAccounts(userId: string) {
-    const ownedAccounts = await this.prisma.brokerAccount.findMany({
-      where: { userId, isActive: true },
-      orderBy: { connectedAt: 'desc' },
-    });
-
-    const activeShares = await this.prisma.brokerAccountShare.findMany({
-      where: { memberUserId: userId, status: 'ACTIVE' },
-      include: { owner: { select: { fullName: true } } },
-    });
+    const [ownedAccounts, activeShares] = await Promise.all([
+      this.prisma.brokerAccount.findMany({
+        where: { userId, isActive: true },
+        orderBy: { connectedAt: 'desc' },
+      }),
+      this.prisma.brokerAccountShare.findMany({
+        where: { memberUserId: userId, status: 'ACTIVE' },
+        include: { owner: { select: { fullName: true } } },
+      }),
+    ]);
     const sharedAccountIds = activeShares.map((s) => s.brokerAccountId);
     const sharedAccounts = sharedAccountIds.length
       ? await this.prisma.brokerAccount.findMany({
@@ -421,10 +390,6 @@ export class BrokerService {
       activeShares.map((s) => [s.brokerAccountId, s.owner.fullName]),
     );
 
-    // Enrich each account with its live balance/equity from MetaAPI so the
-    // "Connected Accounts" page shows real-time numbers instead of the value
-    // captured at connect time. Each live read is time-boxed and failures fall
-    // back to the stored baseline so the list never hangs or 500s.
     const [enrichedOwned, enrichedShared] = await Promise.all([
       Promise.all(ownedAccounts.map((a) => this.enrichAccount(a))),
       Promise.all(sharedAccounts.map((a) => this.enrichAccount(a))),
@@ -436,12 +401,15 @@ export class BrokerService {
         sharedAccess: false,
         canManage: true,
       })),
-      ...enrichedShared.map((a, i) => ({
-        ...a,
-        sharedAccess: true,
-        canManage: false,
-        sharedByName: ownerNameByAccountId.get(sharedAccounts[i].id) ?? null,
-      })),
+      ...enrichedShared.map((a, i) => {
+        const { login: _login, ...viewOnly } = a;
+        return {
+          ...viewOnly,
+          sharedAccess: true,
+          canManage: false,
+          sharedByName: ownerNameByAccountId.get(sharedAccounts[i].id) ?? null,
+        };
+      }),
     ];
   }
 
@@ -453,6 +421,10 @@ export class BrokerService {
         ...safe,
         balance: safe.initialEquity ?? null,
         equity: safe.initialEquity ?? null,
+        margin: 0,
+        freeMargin: safe.initialEquity ?? null,
+        marginLevel: null,
+        credit: 0,
         currency: 'USD',
         connectionStatus: 'CONNECTED',
         liveSynced: Number(safe.initialEquity ?? 0) > 0,
@@ -474,12 +446,15 @@ export class BrokerService {
       creds.executionMode === 'master_only' ||
       Boolean(account.bridgeTokenHash);
 
-    // Store-only / bridge accounts: never wait on MetaApi — they are linked.
     if (storeOnly) {
       return {
         ...safe,
         balance: safe.initialEquity ?? null,
         equity: safe.initialEquity ?? null,
+        margin: 0,
+        freeMargin: safe.initialEquity ?? null,
+        marginLevel: null,
+        credit: 0,
         currency: 'USD',
         leverage: null,
         connectionStatus: 'CONNECTED',
@@ -494,43 +469,54 @@ export class BrokerService {
       };
     }
 
+    // DB-first: read the newest background-synced snapshot instead of
+    // calling MetaAPI live on every dashboard/account-list request. The
+    // AccountHistorySyncService worker keeps this row fresh (~40s cadence);
+    // if no snapshot exists yet (account just connected, first cycle
+    // pending), fall through to the seeded lastKnownEquity/initialEquity
+    // below — exactly as before this change.
     let live: any = null;
     let connectionStatus = 'CONNECTING';
     let liveSynced = false;
+    let lastSyncedAt: Date | null = null;
+    let syncStatus: string | null = null;
+    let syncDurationMs: number | null = null;
+    let metaApiLatencyMs: number | null = null;
+    let apiVersion: string | null = null;
 
-    if (this.mtAdapter.isLive) {
-      try {
-        const info = await this.withTimeout(
-          this.mtAdapter.testExisting(metaApiId, creds.metaApiRegion),
-          8_000,
-          { connected: false } as any,
-        );
-        if (info?.connected) {
-          live = info;
-          connectionStatus = 'CONNECTED';
-          const liveEquity = Number(info.equity ?? info.balance ?? 0);
-          const liveBalance = Number(info.balance ?? info.equity ?? 0);
-          liveSynced = liveEquity > 0;
-          if (liveSynced) {
-            // Persist live cache every sync; seed initialEquity only once.
-            const seed = seedInitialEquity(account.initialEquity, liveEquity);
-            void this.prisma.brokerAccount
-              .update({
-                where: { id: account.id },
-                data: {
-                  lastKnownEquity: liveEquity,
-                  lastKnownBalance: liveBalance,
-                  lastConnectedAt: new Date(),
-                  ...(seed != null ? { initialEquity: seed } : {}),
-                },
-              })
-              .catch(() => undefined);
-          }
-        }
-      } catch {
-        /* keep CONNECTING + stored baseline */
-      }
-    } else {
+    const db = this.prisma as any;
+    const latest = await db.accountLatestSnapshot.findUnique({
+      where: { brokerAccountId: account.id },
+      include: { snapshot: true },
+    });
+    const snapshot =
+      latest?.snapshot ??
+      (await db.accountSnapshot.findFirst({
+        where: { brokerAccountId: account.id },
+        orderBy: { capturedAt: 'desc' },
+      }));
+    if (snapshot) {
+      live = {
+        balance: snapshot.balance,
+        equity: snapshot.equity,
+        margin: snapshot.margin,
+        freeMargin: snapshot.freeMargin,
+        marginLevel: snapshot.marginLevel,
+        credit: snapshot.credit,
+        currency: snapshot.currency,
+        leverage: snapshot.leverage,
+      };
+      lastSyncedAt = snapshot.capturedAt;
+      syncStatus = snapshot.syncStatus;
+      syncDurationMs = snapshot.syncDurationMs;
+      metaApiLatencyMs = snapshot.metaApiLatencyMs;
+      apiVersion = snapshot.apiVersion;
+      liveSynced = snapshot.equity > 0;
+      const ageMs = Date.now() - snapshot.capturedAt.getTime();
+      // Fresh within ~3 sync cycles — otherwise flag as syncing while still
+      // showing the last stored database values.
+      connectionStatus = ageMs < 3 * 10_000 ? 'CONNECTED' : 'SYNCING';
+    } else if (!this.mtAdapter.isLive) {
       connectionStatus = 'CONNECTED';
       liveSynced = true;
     }
@@ -544,31 +530,37 @@ export class BrokerService {
       safe.initialEquity ??
       null;
 
+    const margin = live?.margin ?? 0;
+    const freeMargin =
+      live?.freeMargin ??
+      (equity != null ? Math.max(0, Number(equity) - Number(margin)) : null);
+    const marginLevel =
+      live?.marginLevel ??
+      (margin > 0 && equity != null
+        ? (Number(equity) / margin) * 100
+        : null);
+
     return {
       ...safe,
       balance,
       equity,
-      margin: live?.margin ?? 0,
-      freeMargin:
-        live?.freeMargin ??
-        (equity != null
-          ? Math.max(0, Number(equity) - Number(live?.margin ?? 0))
-          : null),
+      margin,
+      freeMargin,
+      marginLevel,
+      credit: live?.credit ?? 0,
       currency: live?.currency ?? 'USD',
       leverage: live?.leverage ?? null,
       connectionStatus,
       liveSynced: liveSynced || Boolean(safe.initialEquity),
+      lastSyncedAt,
+      syncStatus,
+      syncDurationMs,
+      metaApiLatencyMs,
+      apiVersion,
+      source: live ? 'database' : 'last_known',
       fillMode: 'metaapi',
       storeOnly: false,
     };
-  }
-
-  /** Resolve `p`, or `fallback` if it doesn't settle within `ms`. */
-  private withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
-    return Promise.race([
-      p.catch(() => fallback),
-      new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
-    ]);
   }
 
   async disconnectBroker(userId: string, accountId: string) {
@@ -577,8 +569,6 @@ export class BrokerService {
     });
     if (!account) throw new BadRequestException('Account not found');
 
-    // Soft-delete FIRST so the UI always frees the slot, even if MetaApi / Redis
-    // cleanup hangs or fails (common on localhost without a healthy queue).
     await this.prisma.$transaction([
       this.prisma.brokerAccount.update({
         where: { id: accountId },
@@ -590,7 +580,6 @@ export class BrokerService {
       }),
     ]);
 
-    // Best-effort background cleanup — never fail the disconnect response.
     void this.cleanupDisconnectedAccount(account).catch((err) => {
       this.logger.warn(
         `Post-disconnect cleanup failed for ${accountId}: ${(err as Error).message}`,
@@ -621,7 +610,6 @@ export class BrokerService {
           },
         );
       } catch {
-        /* Redis unavailable — ignore */
       }
     }
 
@@ -634,7 +622,6 @@ export class BrokerService {
           await this.mtAdapter.deprovision(creds.metaApiAccountId);
         }
       } catch {
-        /* non-fatal */
       }
     }
   }
@@ -655,11 +642,6 @@ export class BrokerService {
         this.cryptoService.decrypt(account.credentialsEncrypted),
       );
 
-      // Only test an already-provisioned MetaAPI account. NEVER call connect()
-      // here — connect() provisions a NEW MetaAPI account, so doing it on a
-      // (potentially polled) test endpoint would spawn duplicate accounts and
-      // exhaust the MetaAPI quota. Legacy/mock accounts without a real id must
-      // be reconnected instead.
       const metaApiId: string | undefined = creds.metaApiAccountId;
       if (!metaApiId || metaApiId.startsWith('mock-')) {
         if (creds.executionMode === 'master_only' || account.bridgeTokenHash) {
@@ -691,13 +673,33 @@ export class BrokerService {
   }
 
   async getAccountInfo(userId: string, accountId: string) {
-    const test = await this.testConnection(userId, accountId);
-    if (!test.connected)
-      throw new BadRequestException('Cannot fetch account info; disconnected');
-    return test.accountInfo;
+    const account = await this.prisma.brokerAccount.findFirst({
+      where: { id: accountId, userId, isActive: true },
+    });
+    if (!account) throw new BadRequestException('Account not found');
+    const enriched = await this.enrichAccount(account);
+    return {
+      source: enriched.source ?? 'database',
+      connected:
+        enriched.connectionStatus === 'CONNECTED' ||
+        enriched.connectionStatus === 'SYNCING',
+      balance: enriched.balance,
+      equity: enriched.equity,
+      margin: enriched.margin,
+      freeMargin: enriched.freeMargin,
+      marginLevel: enriched.marginLevel,
+      credit: enriched.credit,
+      currency: enriched.currency,
+      leverage: enriched.leverage,
+      connectionStatus: enriched.connectionStatus,
+      lastSyncedAt: enriched.lastSyncedAt,
+      syncStatus: enriched.syncStatus,
+      syncDurationMs: enriched.syncDurationMs,
+      metaApiLatencyMs: enriched.metaApiLatencyMs,
+      apiVersion: enriched.apiVersion,
+    };
   }
 
-  /** Rotate the bridge EA token. Plaintext is returned once. */
   async rotateBridgeToken(userId: string, accountId: string) {
     const account = await this.prisma.brokerAccount.findFirst({
       where: { id: accountId, userId, isActive: true },
@@ -738,13 +740,6 @@ export class BrokerService {
     };
   }
 
-  /**
-   * Grant a teammate view-only access to one of the caller's broker accounts.
-   * Gated behind the owner's plan (getTierLimits().maxTeamMembers). If the
-   * invitee doesn't have a Profytron account yet, the share is created against
-   * inviteEmail alone (memberUserId null) and resolved later by
-   * resolvePendingSharesForEmail() when they register.
-   */
   async shareBrokerAccount(
     ownerUserId: string,
     accountId: string,
@@ -759,6 +754,7 @@ export class BrokerService {
 
     const account = await this.prisma.brokerAccount.findFirst({
       where: { id: accountId, userId: ownerUserId, isActive: true },
+      select: { id: true, brokerName: true, accountNumberLast4: true },
     });
     if (!account) throw new BadRequestException('Account not found');
 
@@ -896,7 +892,6 @@ export class BrokerService {
     });
   }
 
-  /** Callable by either the owner or the member — either side can end a share. */
   async revokeShare(userId: string, shareId: string) {
     const share = await this.prisma.brokerAccountShare.findFirst({
       where: {
@@ -939,11 +934,6 @@ export class BrokerService {
     return { owned, received };
   }
 
-  /**
-   * Called from AuthService.register() right after a new user is created —
-   * resolves any pending email-only share invites (sent before the invitee had
-   * a Profytron account) by linking them to the new user and notifying them.
-   */
   async resolvePendingSharesForEmail(userId: string, email: string) {
     const normalizedEmail = String(email ?? '')
       .trim()

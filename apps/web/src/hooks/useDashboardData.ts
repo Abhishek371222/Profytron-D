@@ -3,7 +3,8 @@
 import React from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { analyticsApi } from '@/lib/api/analytics';
-import { tradingApi } from '@/lib/api/trading';
+import { snapshotApi } from '@/lib/api/snapshot';
+import { tradingApi, type TradeHistoryRow } from '@/lib/api/trading';
 import { strategiesApi } from '@/lib/api/strategies';
 import { riskApi } from '@/lib/api/risk';
 import { useLiveMarketFeed, isFakeNestQuote } from '@/hooks/useLiveMarketFeed';
@@ -35,8 +36,7 @@ const RANGE_MAP: Record<string, AnalyticsRange> = {
   ALL: 'all',
 };
 
-/** Poll live MetaAPI-backed widgets once per minute. */
-const LIVE_POLL_MS = 60_000;
+const LIVE_POLL_MS = 10_000;
 
 type LiveAccountInfo = {
   balance: number;
@@ -77,7 +77,6 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   } = useAccountContext();
   const apiRange = RANGE_MAP[chartRange] ?? '1m';
 
-  // Paint last-good localStorage values before any network round-trip.
   const userId = useAuthStore((s) => s.user?.id);
   React.useEffect(() => {
     if (!sessionReady) return;
@@ -99,12 +98,73 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   });
 
   const accountQueriesEnabled = sessionReady && hasBrokerAccount;
+  const defaultAccountId = defaultAccount?.id;
+
+  const snapshotQuery = useQuery({
+    queryKey: ['account-snapshot-latest', defaultAccountId],
+    queryFn: () => snapshotApi.getLatest(defaultAccountId!),
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: accountQueriesEnabled && Boolean(defaultAccountId) && !isPaper,
+  });
+
+  const snapshotPositionsQuery = useQuery({
+    queryKey: ['account-snapshot-positions', defaultAccountId],
+    queryFn: () => snapshotApi.getPositions(defaultAccountId!),
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: accountQueriesEnabled && Boolean(defaultAccountId) && !isPaper,
+  });
+
+  const snapshotDealsQuery = useQuery({
+    queryKey: ['account-snapshot-deals', defaultAccountId, 'overview'],
+    queryFn: () => snapshotApi.getDeals(defaultAccountId!, 50),
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: accountQueriesEnabled && Boolean(defaultAccountId) && !isPaper,
+  });
+
+  const snapshotEquityHistoryQuery = useQuery({
+    queryKey: ['account-snapshot-equity-history', defaultAccountId, 'overview'],
+    queryFn: () => snapshotApi.getEquityHistory(defaultAccountId!, 500),
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: accountQueriesEnabled && Boolean(defaultAccountId) && !isPaper,
+  });
+
+  const snapshotPerformanceQuery = useQuery({
+    queryKey: ['account-snapshot-performance', defaultAccountId],
+    queryFn: () => snapshotApi.getPerformance(defaultAccountId!),
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: accountQueriesEnabled && Boolean(defaultAccountId) && !isPaper,
+  });
+
+  const snapshotRiskQuery = useQuery({
+    queryKey: ['account-snapshot-risk', defaultAccountId],
+    queryFn: () => snapshotApi.getRisk(defaultAccountId!),
+    staleTime: LIVE_POLL_MS,
+    refetchInterval: LIVE_POLL_MS,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    enabled: accountQueriesEnabled && Boolean(defaultAccountId) && !isPaper,
+  });
 
   const portfolioQuery = useQuery({
     queryKey: ['portfolio', apiRange],
     queryFn: async () => {
       const data = await analyticsApi.getPortfolio(apiRange);
-      if (data?.source === 'metaapi') {
+      if (data?.source === 'database' || data?.source === 'snapshot') {
         persistDashboardQuery(['portfolio', apiRange], data);
       }
       return data;
@@ -119,6 +179,25 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   const openTradesQuery = useQuery({
     queryKey: ['open-trades'],
     queryFn: async () => {
+      if (defaultAccountId && snapshotPositionsQuery.data?.positions) {
+        const mappedFromSnapshot = snapshotPositionsQuery.data.positions.map((r) => ({
+          id: String(r.id ?? r.positionId ?? r.ticket ?? `${r.symbol}-${r.openTime ?? ''}`),
+          asset: r.symbol,
+          type:
+            String(r.side ?? r.type ?? '').toUpperCase().includes('SELL') ||
+            String(r.side ?? r.type ?? '').toUpperCase().includes('SHORT')
+              ? ('Short' as const)
+              : ('Long' as const),
+          amount: Number(r.volume ?? 0),
+          entry: Number(r.openPrice ?? 0),
+          pnl: Number(r.profit ?? 0),
+          timestamp: String(r.openTime ?? r.time ?? new Date().toISOString()),
+          strategyId: '',
+          isPaper: false,
+        }));
+        persistDashboardQuery(['open-trades'], mappedFromSnapshot);
+        return mappedFromSnapshot;
+      }
       const rows = await tradingApi.getOpenTrades();
       const mapped = rows.map((r) => ({
         id: r.id,
@@ -190,11 +269,76 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     enabled: accountQueriesEnabled,
   });
 
+  const snapshotTradeHistory = React.useMemo<TradeHistoryRow[]>(() => {
+    const deals = Array.isArray(snapshotDealsQuery.data?.deals)
+      ? snapshotDealsQuery.data.deals
+      : [];
+    const seen = new Set<string>();
+    return deals
+      .filter((deal: any) => deal?.symbol)
+      .filter((deal: any) => {
+        const key = String(
+          deal.dealId ??
+            deal.orderId ??
+            deal.positionId ??
+            `${deal.symbol}-${deal.time}-${deal.price}-${deal.volume}-${deal.profit}`,
+        );
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .map((deal: any) => {
+        const rawType = String(deal.executionType ?? deal.type ?? '').toUpperCase();
+        const isSell = rawType.includes('SELL') || rawType.includes('SHORT');
+        const time = deal.time ?? deal.capturedAt ?? new Date().toISOString();
+        return {
+          id: String(
+            deal.dealId ??
+              deal.id ??
+              deal.positionId ??
+              `${deal.symbol}-${time}`,
+          ),
+          symbol: String(deal.symbol),
+          direction: isSell ? ('SHORT' as const) : ('LONG' as const),
+          volume: Number(deal.volume ?? 0),
+          openPrice: Number(deal.price ?? 0),
+          closePrice: deal.price != null ? Number(deal.price) : null,
+          profit: Number(deal.profit ?? 0),
+          status: 'CLOSED',
+          openedAt: String(time),
+          closedAt: String(time),
+          strategyId: null,
+          isPaper: false,
+        };
+      });
+  }, [snapshotDealsQuery.data]);
+
+  const snapshotEquityCurve = React.useMemo(() => {
+    const points = Array.isArray(snapshotEquityHistoryQuery.data?.points)
+      ? snapshotEquityHistoryQuery.data.points
+      : [];
+    return points
+      .filter((point: any) => Number(point?.equity) > 0)
+      .map((point: any) => ({
+        date: String(point.capturedAt),
+        equity: Number(point.equity),
+        drawdownPct: 0,
+      }));
+  }, [snapshotEquityHistoryQuery.data]);
+
+  const snapshotPerformance =
+    (snapshotPerformanceQuery.data?.performance as any) ??
+    (snapshotQuery.data?.snapshot?.performanceJson as any) ??
+    null;
+  const snapshotRisk =
+    (snapshotRiskQuery.data?.risk as any) ??
+    (snapshotQuery.data?.snapshot?.riskJson as any) ??
+    null;
+
   const [stickyAccount, setStickyAccount] =
     React.useState<LiveAccountInfo | null>(null);
 
   React.useEffect(() => {
-    // Only restore sticky metrics once we know a broker account exists.
     if (!hasBrokerAccount) return;
     const cached = toLiveAccountInfo(
       readOverviewAccountCache(useAuthStore.getState().user?.id),
@@ -205,8 +349,6 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
   const accountsSettled =
     brokerAccountsQuery.isFetched && !brokerAccountsQuery.isPending;
 
-  // No linked broker → drop sticky + hydrated portfolio/trades so Overview
-  // cannot paint orphan MetaAPI figures from a previous session.
   React.useEffect(() => {
     if (!sessionReady || !accountsSettled || hasBrokerAccount) return;
     setStickyAccount(null);
@@ -260,10 +402,33 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     };
   }, [hasBrokerAccount, defaultAccount, brokerAccountsQuery.isError]);
 
+  const databaseSnapshotAccount = React.useMemo((): LiveAccountInfo | null => {
+    if (!hasBrokerAccount) return null;
+    const snapshot = snapshotQuery.data?.snapshot;
+    if (!snapshot) return null;
+    const equity = Number(snapshot.equity ?? snapshot.balance ?? 0);
+    const balance = Number(snapshot.balance ?? snapshot.equity ?? 0);
+    if (!(equity > 0 && balance > 0)) return null;
+    const margin = Number(snapshot.margin ?? 0);
+    const freeMargin = Number(
+      snapshot.freeMargin ?? Math.max(0, equity - margin),
+    );
+    return {
+      balance,
+      equity,
+      margin: Number.isFinite(margin) ? margin : 0,
+      freeMargin: Number.isFinite(freeMargin) ? freeMargin : equity,
+      currency: String(snapshot.currency ?? 'USD'),
+      leverage: snapshot.leverage ?? null,
+      connected: true,
+      liveSynced: true,
+    };
+  }, [hasBrokerAccount, snapshotQuery.data]);
+
   const portfolioLiveSnapshot = React.useMemo((): LiveAccountInfo | null => {
     if (!hasBrokerAccount) return null;
     const p = portfolioQuery.data;
-    if (!p || p.source !== 'metaapi') return null;
+    if (!p || (p.source !== 'database' && p.source !== 'snapshot')) return null;
     const equity = Number(p.liveEquity ?? p.liveBalance ?? 0);
     const balance = Number(p.liveBalance ?? p.liveEquity ?? 0);
     if (!(equity > 0 && balance > 0)) return null;
@@ -296,7 +461,8 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
 
   React.useEffect(() => {
     if (!hasBrokerAccount) return;
-    const next = liveAccountSnapshot ?? portfolioLiveSnapshot;
+    const next =
+      databaseSnapshotAccount ?? liveAccountSnapshot ?? portfolioLiveSnapshot;
     if (next) {
       setStickyAccount(next);
       writeOverviewAccountCache({
@@ -317,6 +483,7 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     }
   }, [
     hasBrokerAccount,
+    databaseSnapshotAccount,
     liveAccountSnapshot,
     portfolioLiveSnapshot,
     accountDisconnected,
@@ -325,13 +492,59 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
 
   const accountInfo = !hasBrokerAccount
     ? null
-    : liveAccountSnapshot ?? portfolioLiveSnapshot ?? stickyAccount;
+    : databaseSnapshotAccount ??
+      liveAccountSnapshot ??
+      portfolioLiveSnapshot ??
+      stickyAccount;
 
+  const portfolioSource = String(portfolioQuery.data?.source ?? '');
   const portfolio = !hasBrokerAccount
     ? undefined
-    : portfolioQuery.data?.source === 'metaapi' ||
-        portfolioQuery.data?.source === 'empty'
-      ? portfolioQuery.data
+    : portfolioQuery.data &&
+        (portfolioSource === 'database' ||
+          portfolioSource === 'snapshot' ||
+          portfolioSource === 'metaapi' ||
+          portfolioSource === 'empty')
+      ? {
+          ...portfolioQuery.data,
+          source:
+            portfolioSource === 'empty' && snapshotQuery.data?.snapshot
+              ? 'snapshot'
+              : portfolioQuery.data.source,
+          equityCurve:
+            portfolioQuery.data.equityCurve?.length > 1
+              ? portfolioQuery.data.equityCurve
+              : snapshotEquityCurve.length > 1
+                ? snapshotEquityCurve
+                : portfolioQuery.data.equityCurve ?? [],
+          totalTrades: Math.max(
+            Number(portfolioQuery.data.totalTrades ?? 0),
+            snapshotTradeHistory.length,
+          ),
+          profitFactor:
+            Number(portfolioQuery.data.profitFactor ?? 0) ||
+            Number(snapshotPerformance?.profitFactor ?? 0),
+          sharpeRatio:
+            Number(portfolioQuery.data.sharpeRatio ?? 0) ||
+            Number(snapshotPerformance?.sharpeRatio ?? 0),
+          sortinoRatio:
+            Number(portfolioQuery.data.sortinoRatio ?? 0) ||
+            Number(snapshotPerformance?.sortinoRatio ?? 0),
+          winRate:
+            Number(portfolioQuery.data.winRate ?? 0) ||
+            Number(snapshotPerformance?.winRate ?? 0),
+          maxDrawdown:
+            Number(portfolioQuery.data.maxDrawdown ?? 0) ||
+            Number(
+              snapshotPerformance?.maxDrawdown ??
+                snapshotPerformance?.currentDrawdown ??
+                0,
+            ),
+          totalReturnPct:
+            portfolioQuery.data.totalReturnPct ??
+            snapshotPerformance?.totalReturn ??
+            snapshotPerformance?.roi,
+        }
       : undefined;
 
   const portfolioValue = accountInfo?.equity ?? 0;
@@ -417,6 +630,26 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     void queryClient.invalidateQueries({ queryKey: ['trade-history'] });
     void queryClient.invalidateQueries({ queryKey: ['open-trades'] });
     void queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+    if (defaultAccountId) {
+      void queryClient.invalidateQueries({
+        queryKey: ['account-snapshot-latest', defaultAccountId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['account-snapshot-positions', defaultAccountId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['account-snapshot-deals', defaultAccountId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['account-snapshot-equity-history', defaultAccountId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['account-snapshot-performance', defaultAccountId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: ['account-snapshot-risk', defaultAccountId],
+      });
+    }
     refreshQuotes();
   };
 
@@ -433,15 +666,22 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
       (brokerAccountsQuery.isPending || brokerAccountsQuery.isLoading)) ||
     accountsLoading;
   const portfolioInitialLoading =
-    hasBrokerAccount && sessionReady && portfolioQuery.isPending && !portfolio;
+    hasBrokerAccount &&
+    sessionReady &&
+    portfolioQuery.isPending &&
+    !portfolio &&
+    snapshotEquityCurve.length === 0 &&
+    !snapshotPerformance;
   const openTradesInitialLoading =
     hasBrokerAccount &&
     openTradesQuery.isPending &&
-    openTradesQuery.data === undefined;
+    openTradesQuery.data === undefined &&
+    !snapshotPositionsQuery.data;
   const tradeHistoryInitialLoading =
     hasBrokerAccount &&
     tradeHistoryQuery.isPending &&
-    tradeHistoryQuery.data === undefined;
+    tradeHistoryQuery.data === undefined &&
+    snapshotTradeHistory.length === 0;
   const quotesInitialLoading =
     quotesLoading && Object.keys(stableQuotes).length === 0;
   const accountsRefreshing =
@@ -458,14 +698,48 @@ export function useDashboardData(chartRange: keyof typeof RANGE_MAP = '1M') {
     equityBase,
     winRate,
     bestMonth,
-    openTrades: hasBrokerAccount ? openTradesQuery.data ?? [] : [],
-    tradeHistory: hasBrokerAccount ? tradeHistoryQuery.data?.rows ?? [] : [],
+    openTrades: hasBrokerAccount
+      ? snapshotPositionsQuery.data?.positions?.length
+        ? snapshotPositionsQuery.data.positions.map((r) => ({
+            id: String(
+              r.id ?? r.positionId ?? r.ticket ?? `${r.symbol}-${r.openTime ?? ''}`,
+            ),
+            asset: r.symbol,
+            type:
+              String(r.side ?? r.type ?? '').toUpperCase().includes('SELL') ||
+              String(r.side ?? r.type ?? '').toUpperCase().includes('SHORT')
+                ? ('Short' as const)
+                : ('Long' as const),
+            amount: Number(r.volume ?? 0),
+            entry: Number(r.openPrice ?? 0),
+            pnl: Number(r.profit ?? 0),
+            timestamp: String(r.openTime ?? r.time ?? new Date().toISOString()),
+            strategyId: '',
+            isPaper: false,
+          }))
+        : openTradesQuery.data ?? []
+      : [],
+    tradeHistory: hasBrokerAccount
+      ? tradeHistoryQuery.data?.rows?.length
+        ? tradeHistoryQuery.data.rows
+        : snapshotTradeHistory
+      : [],
     tradeHistoryQuery,
     accountInfo,
     brokerAccountInfoQuery,
     activeStrategies,
     performanceBars,
-    risk: hasBrokerAccount ? riskQuery.data : undefined,
+    risk: hasBrokerAccount
+      ? {
+          ...(riskQuery.data ?? {}),
+          ...(snapshotRisk ?? {}),
+          drawdownPct:
+            (riskQuery.data as any)?.drawdownPct ??
+            snapshotPerformance?.currentDrawdown ??
+            snapshotPerformance?.maxDrawdown ??
+            0,
+        }
+      : undefined,
     riskQuery,
     hasBrokerAccount,
     defaultBrokerAccount: defaultAccount,

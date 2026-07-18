@@ -90,7 +90,7 @@ export class UsersController {
   @Post('me/avatar')
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+      limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
   @ApiConsumes('multipart/form-data')
@@ -148,7 +148,6 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Revoke all other sessions' })
   async revokeAllOtherSessions(@Req() req: AuthenticatedRequest) {
-    // Current session ID passed from JWT payload
     if (!req.user.jti) {
       throw new BadRequestException(
         'Current session token identifier is missing',
@@ -260,8 +259,6 @@ export class UsersController {
 
     return result;
   }
-
-  // ──────────────────────────── KYC ────────────────────────────
 
   @Get('me/kyc')
   @ApiResponse({ status: 200, description: 'OK' })

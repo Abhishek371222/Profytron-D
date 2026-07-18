@@ -7,7 +7,6 @@ type BrandGradientTextProps = {
   as?: "span" | "strong" | "em";
 };
 
-/** Premium teal → crimson → teal accent text (brand signature). */
 export function BrandGradientText({
   children,
   className,
@@ -25,7 +24,6 @@ type BrandDisplayHeadingProps = {
   block?: boolean;
 };
 
-/** Split headline: solid lead + gradient accent (testimonials / auth style). */
 export function BrandDisplayHeading({
   lead,
   accent,

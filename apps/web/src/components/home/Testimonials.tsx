@@ -12,9 +12,7 @@ export function Testimonials() {
     >
       <div className="page-container w-full">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(280px,320px)_1fr] gap-8 xl:gap-10 2xl:gap-12 items-start">
-          {/* Left — trust column. The whole section already reveals on scroll
-              via SectionRevealer, so this column needs no motion wrapper of its
-              own (a nested framer reveal here can leave it stuck hidden). */}
+          { }
           <div className="lg:sticky lg:top-28">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/[0.06] px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-6">
               <BadgeCheck className="w-3.5 h-3.5" />
@@ -61,7 +59,7 @@ export function Testimonials() {
             </div>
           </div>
 
-          {/* Right — infinite credibility wall */}
+          { }
           <div className="min-w-0">
             <TestimonialWall headingId="testimonials-heading" />
           </div>

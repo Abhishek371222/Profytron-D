@@ -22,7 +22,7 @@ function readApiError(err: unknown, fallback: string): string {
 
 export interface RazorpayOrder {
   orderId: string;
-  amount: number; // paise
+  amount: number;
   currency: string;
   keyId: string;
   demo?: boolean;
@@ -32,12 +32,11 @@ export interface RazorpayVerifyResult {
   success: boolean;
   orderId: string;
   paymentId: string;
-  amount: number; // rupees
+  amount: number;
   currency: string;
 }
 
 export const razorpayApi = {
-  /** Create a Razorpay order. `amount` is in paise (min 100). */
   async createOrder(amount: number, currency = 'INR') {
     const res = await apiClient.post('/payments/razorpay/order', {
       amount,
@@ -46,7 +45,6 @@ export const razorpayApi = {
     return unwrapApiResponse<RazorpayOrder>(res.data);
   },
 
-  /** Verify a completed payment's signature server-side. */
   async verifyPayment(payload: {
     razorpay_order_id: string;
     razorpay_payment_id: string;
@@ -56,7 +54,6 @@ export const razorpayApi = {
     return unwrapApiResponse<RazorpayVerifyResult>(res.data);
   },
 
-  /** Dev-only: credit wallet for a DEMO_KEY order without Razorpay checkout. */
   async completeDemoOrder(orderId: string) {
     const res = await apiClient.post('/payments/razorpay/demo-complete', {
       orderId,

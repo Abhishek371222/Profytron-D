@@ -5,6 +5,8 @@ import { brokerApi } from '@/lib/api/broker';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { persistDashboardQuery } from '@/lib/queries/dashboard-cache';
 
+const ACCOUNT_CONTEXT_REFRESH_MS = 10_000;
+
 export type BrokerAccountSummary = {
   id: string;
   brokerName: string;
@@ -19,6 +21,7 @@ export type BrokerAccountSummary = {
   currency?: string | null;
   connectionStatus?: string | null;
   liveSynced?: boolean;
+  sharedAccess?: boolean;
 };
 
 function normalizeAccounts(raw: unknown): BrokerAccountSummary[] {
@@ -36,16 +39,11 @@ export function useAccountContext() {
     queryKey: ['broker-accounts'],
     queryFn: async () => {
       const raw = await brokerApi.getBrokerAccounts();
-      // Keep the localStorage snapshot fresh on every 1-minute poll, not just
-      // at login bootstrap — otherwise a reload can re-hydrate React Query
-      // from a snapshot that's minutes/hours stale (e.g. balance before the
-      // last few trades), briefly flashing an old number before the next
-      // live fetch corrects it.
       persistDashboardQuery(['broker-accounts'], raw);
       return normalizeAccounts(raw);
     },
-    staleTime: 60_000,
-    refetchInterval: 60_000,
+    staleTime: ACCOUNT_CONTEXT_REFRESH_MS,
+    refetchInterval: ACCOUNT_CONTEXT_REFRESH_MS,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     retry: (count, err: any) => {
@@ -58,9 +56,10 @@ export function useAccountContext() {
   });
 
   const accounts = normalizeAccounts(brokerAccountsQuery.data);
+  const ownedAccounts = accounts.filter((a) => !a.sharedAccess);
   const defaultAccount =
-    accounts.find((a) => a.isDefault) ?? accounts[0] ?? null;
-  const hasBrokerAccount = accounts.length > 0;
+    ownedAccounts.find((a) => a.isDefault) ?? ownedAccounts[0] ?? null;
+  const hasBrokerAccount = ownedAccounts.length > 0;
   const isPaper = defaultAccount?.isPaperTrading ?? false;
   const accountsLoading =
     sessionReady &&

@@ -1,4 +1,3 @@
-/** Unified Profytron pricing — mirrors API PLATFORM_PLANS (INR). */
 export const PLATFORM_PLANS = [
   {
     slug: 'free',

@@ -191,7 +191,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-5 pb-8">
-      {/* Header */}
+      { }
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Analytics</h1>
@@ -218,7 +218,7 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Range selector */}
+      { }
       <div className="flex flex-wrap gap-1.5">
         {RANGE_OPTIONS.map(({ key, label }) => (
           <button
@@ -237,7 +237,7 @@ export default function AnalyticsPage() {
         ))}
       </div>
 
-      {/* KPI cards */}
+      { }
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         {KPI_CONFIG.map((kpi, idx) => {
           const rawVal = portfolio
@@ -300,7 +300,7 @@ export default function AnalyticsPage() {
         })}
       </div>
 
-      {/* Info banner */}
+      { }
       {!isLoading && !hasTrades && (
         <div className="rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)] px-4 py-3 flex items-start gap-3">
           <Info className="h-4 w-4 text-[var(--info)] shrink-0 mt-0.5" />
@@ -311,7 +311,7 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      {/* Equity + sidebar */}
+      { }
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-3 items-start">
         <div className="dashboard-card p-4 relative overflow-hidden min-h-[300px] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]">
           <div className="flex items-start justify-between gap-3 mb-3">

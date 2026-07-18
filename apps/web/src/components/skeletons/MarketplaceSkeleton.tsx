@@ -10,11 +10,10 @@ export function MarketplaceSkeleton() {
           <Skeleton className="h-full min-h-[24rem] rounded-[var(--radius-card)]" />
         </div>
         <div className="flex-1 space-y-5 p-[var(--dashboard-p)]">
-          {/* Height matches FeaturedRow's real card (min-h-[22rem]) to avoid a
-              layout jump when data loads. */}
+          { }
           <div className="grid gap-4 lg:grid-cols-2">
-            <Skeleton className="min-h-[22rem] rounded-[var(--radius-card)]" />
-            <Skeleton className="min-h-[22rem] rounded-[var(--radius-card)]" />
+            <Skeleton className="min-h-[16rem] rounded-[var(--radius-card)] sm:min-h-[18rem]" />
+            <Skeleton className="min-h-[16rem] rounded-[var(--radius-card)] sm:min-h-[18rem]" />
           </div>
           <Skeleton className="h-8 w-48" />
           <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--card-border)]">

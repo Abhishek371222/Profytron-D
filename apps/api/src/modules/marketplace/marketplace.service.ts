@@ -33,9 +33,6 @@ import { SubscriptionProvisioningService } from '../provisioning/subscription-pr
 import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
 import { StrategyDocumentsService } from './strategy-documents.service';
 
-// Short TTLs keep public marketplace reads fast without serving badly stale
-// data. Listings change rarely; subscription/price edits surface within a
-// minute (and listing mutations actively bust the relevant keys).
 const FEATURED_TTL = 60;
 const LISTINGS_TTL = 30;
 const STRATEGY_ANALYTICS_TTL = 60;
@@ -63,9 +60,6 @@ export class MarketplaceService {
   }
 
   async findAll(query: MarketplaceQueryDto, userId?: string) {
-    // Anonymous browsing is identical for every visitor, so it is safe to
-    // cache by query. Authenticated requests overlay per-user subscription
-    // state and are computed fresh.
     if (!userId) {
       const cacheKey = `cache:mkt:listings:${this.listingsCacheKey(query)}`;
       return this.redis.cached(cacheKey, LISTINGS_TTL, () =>
@@ -138,7 +132,6 @@ export class MarketplaceService {
                 },
               },
               performance: { take: 1, orderBy: { date: 'desc' } },
-              // Load only ratings for visible reviews — no text/author fields needed for list view.
               reviews: { where: { isVisible: true }, select: { rating: true } },
             },
           },
@@ -363,7 +356,6 @@ export class MarketplaceService {
             lifetimePrice: Number(strategy.listing.lifetimePrice ?? 0),
           }
         : {
-            // Owner preview for pending bots without a public listing yet
             strategyId: strategy.id,
             monthlyPrice,
             annualPrice,
@@ -583,6 +575,7 @@ export class MarketplaceService {
       this.redis.delPrefix(`cache:mkt:analytics:${strategyId}:`),
     ]);
 
+
     return listing;
   }
 
@@ -617,7 +610,6 @@ export class MarketplaceService {
       throw new BadRequestException('Already subscribed to this bot');
     }
 
-    // Enforce the plan's concurrent bot subscription quota (server-side).
     const activeCopies = await this.prisma.userStrategySubscription.count({
       where: {
         userId,

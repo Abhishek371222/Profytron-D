@@ -62,13 +62,13 @@ export function AlertDialog({
       aria-describedby={description ? "alert-dialog-desc" : undefined}
       className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
     >
-      {/* Backdrop */}
+      { }
       <div
         className="absolute inset-0 bg-[var(--overlay)] backdrop-blur-sm animate-in fade-in duration-200"
         onClick={() => !isLoading && onOpenChange(false)}
       />
 
-      {/* Panel */}
+      { }
       <div className="relative z-10 w-full max-w-md rounded-modal border border-card-border bg-card p-6 shadow-[var(--shadow-modal)] animate-in zoom-in-95 fade-in duration-200">
         <h2 id="alert-dialog-title" className="text-base font-semibold text-foreground mb-2">
           {title}

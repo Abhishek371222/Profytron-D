@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { randomUUID } = require('crypto');
 
-// Load .env without dotenv package
 const envPath = path.join(__dirname, '..', '.env');
 for (const line of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
   const m = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
@@ -177,7 +176,6 @@ function encrypt(plaintext) {
         trialDays: 0,
         isActive: true,
       };
-      // schema may use different listing fields — try minimal then enrich
       try {
         await prisma.marketplaceListing.create({ data: listingData });
       } catch (e) {

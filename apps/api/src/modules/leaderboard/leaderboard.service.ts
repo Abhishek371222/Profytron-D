@@ -3,8 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../auth/redis.service';
 
-const LEADERBOARD_TTL = 300; // 5 minutes
-/** Canonical strategy base equity — same as marketplace analytics. */
+const LEADERBOARD_TTL = 300;
 export const STRATEGY_BASE_EQUITY = 100_000;
 const STRATEGIES_CACHE_PREFIX = 'cache:leaderboard:strategies:v2:';
 
@@ -17,7 +16,6 @@ export class LeaderboardService {
     private redis: RedisService,
   ) {}
 
-  /** Clamp requested limits to a safe 1–100 range. */
   clampLimit(limit: number, fallback: number): number {
     const n = Number.isFinite(limit) ? Math.trunc(limit) : fallback;
     if (!Number.isFinite(n) || n < 1) return fallback;
@@ -102,7 +100,6 @@ export class LeaderboardService {
     if (!entries.length) {
       try {
         await this.recalculatePeriod(period, since);
-        // Drop stale limit-specific caches for this period after a rebuild.
         await this.redis.delPrefix(
           period === 'all'
             ? 'cache:leaderboard:all:'
@@ -140,10 +137,6 @@ export class LeaderboardService {
     });
   }
 
-  /**
-   * Profit Rate = cumulative net P&L / STRATEGY_BASE_EQUITY * 100.
-   * Matches marketplace strategy-analytics totalReturnPct convention.
-   */
   profitRateFromNetPnl(netPnl: number): number {
     const rate = (netPnl / STRATEGY_BASE_EQUITY) * 100;
     if (!Number.isFinite(rate)) return 0;
@@ -169,11 +162,8 @@ export class LeaderboardService {
       .filter((s) => !s.performance[0])
       .map((s) => s.id);
 
-    /** Cumulative net P&L from closed trades when no StrategyPerformance row exists. */
     const tradeNetByStrategy = new Map<string, number>();
     if (withoutPerfIds.length) {
-      // profit already reflects closed P&L in trading accounting; do not
-      // subtract commission/swap again (same convention as marketplace analytics).
       const trades = await this.prisma.trade.groupBy({
         by: ['strategyId'],
         where: {

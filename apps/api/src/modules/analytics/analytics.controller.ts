@@ -97,6 +97,25 @@ export class AnalyticsController {
 
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({
+    summary:
+      'Get advanced performance metrics: Sharpe/Sortino, streaks, R-multiple, session and day-of-week performance',
+  })
+  @Get('advanced')
+  async getAdvanced(@Req() req: any, @Query('range') range?: string) {
+    const normalizedRange = this.normalizeRange(range);
+    return this.withCache(
+      `analytics:advanced:${req.user.id}:${normalizedRange}`,
+      120,
+      () =>
+        this.analyticsService.getAdvancedMetrics(
+          req.user.id,
+          normalizedRange,
+        ),
+    );
+  }
+
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({
     summary: 'Get trade distribution, duration, and symbol analytics',
   })
   @Get('trades')

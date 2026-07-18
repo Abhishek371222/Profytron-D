@@ -35,7 +35,6 @@ export function getInitials(name: string) {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
-/** Instant local avatar — no external API. Uses real `src` when provided; falls back to initials. */
 export function UserAvatar({
   name,
   src,

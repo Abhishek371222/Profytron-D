@@ -27,7 +27,6 @@ export function OverviewRecentTrades({
   syncMessage,
 }: Props) {
   const currency = 'USD';
-  // Never replace real rows with a skeleton while a background refresh runs.
   const showSkeleton = Boolean(loading) && trades.length === 0;
 
   return (

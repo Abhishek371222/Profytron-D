@@ -13,7 +13,6 @@ const LOW_USAGE_BUDGET = {
   dailyCostCapUsd: 0.05,
 };
 
-/** One smoke event per agent — rules/SQL first, AI only if gate requires it. */
 const AGENT_SMOKE_EVENTS: Record<
   AgentType,
   {

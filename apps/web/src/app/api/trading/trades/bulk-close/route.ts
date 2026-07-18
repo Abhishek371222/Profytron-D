@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     if (body?.scope) scope = String(body.scope).toUpperCase() as Scope;
   } catch {
-    // default ALL
   }
 
   try {

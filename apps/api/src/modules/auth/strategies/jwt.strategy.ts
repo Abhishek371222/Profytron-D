@@ -4,9 +4,6 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { RedisService } from '../redis.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 
-/** How long a live user-state lookup is cached (seconds). Short enough that a
- * suspension/role change takes effect within seconds, long enough to avoid a DB
- * read on every authenticated request. */
 const USER_STATE_TTL_SECONDS = 30;
 
 @Injectable()
@@ -29,9 +26,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: any) {
     if (payload.jti) {
-      // Always check the blacklist — never cache a "this token is valid" result.
-      // A positive cache would allow revoked tokens (logout, password-reset) to
-      // remain usable until the cache TTL expired, defeating token revocation.
       const isBlacklisted = await this.redisService.exists(
         `auth:blacklist:${payload.jti}`,
       );
@@ -39,9 +33,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         throw new UnauthorizedException('Token has been revoked');
     }
 
-    // Re-validate live user state (role/suspension/deletion) rather than
-    // trusting the ~1h-stale token claims. Cached briefly so a suspended or
-    // demoted user loses access within seconds — not on token expiry.
     const state = await this.getUserState(payload.sub);
     if (!state || !state.isActive || state.isSuspended || state.deletedAt) {
       throw new UnauthorizedException('Account is not active');
@@ -51,7 +42,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       id: payload.sub,
       userId: payload.sub,
       email: payload.email,
-      role: state.role, // authoritative, from DB (not the token)
+      role: state.role,
       jti: payload.jti,
     };
   }
@@ -67,7 +58,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       const cached = await this.redisService.get(cacheKey);
       if (cached) return JSON.parse(cached);
     } catch {
-      /* cache miss / parse error → fall through to DB */
     }
 
     const user = await this.prisma.user.findUnique({
@@ -94,7 +84,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         USER_STATE_TTL_SECONDS,
       );
     } catch {
-      /* non-fatal: proceed without caching */
     }
     return state;
   }

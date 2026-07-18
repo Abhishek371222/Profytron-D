@@ -297,7 +297,7 @@ export default function FloatingLines({
     if (transparent) {
       renderer.setClearColor(0x000000, 0);
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.domElement.style.width = '100%';
     renderer.domElement.style.height = '100%';
     container.appendChild(renderer.domElement);
@@ -406,9 +406,25 @@ export default function FloatingLines({
       renderer.domElement.addEventListener('pointerleave', handlePointerLeave);
     }
 
+    let onScreen = true;
+    const io = typeof IntersectionObserver !== 'undefined'
+      ? new IntersectionObserver(
+          (entries) => { onScreen = entries[0]?.isIntersecting ?? true; },
+          { rootMargin: '100px' },
+        )
+      : null;
+    if (io) io.observe(container);
+
     let raf = 0;
     const renderLoop = () => {
       if (!active) return;
+      const paused =
+        !onScreen ||
+        (typeof document !== 'undefined' && document.visibilityState === 'hidden');
+      if (paused) {
+        raf = requestAnimationFrame(renderLoop);
+        return;
+      }
       clock.update();
       uniforms.iTime.value = clock.getElapsed();
       if (interactive) {
@@ -430,6 +446,7 @@ export default function FloatingLines({
       active = false;
       cancelAnimationFrame(raf);
       if (ro) ro.disconnect();
+      if (io) io.disconnect();
       if (interactive) {
         renderer.domElement.removeEventListener('pointermove', handlePointerMove);
         renderer.domElement.removeEventListener('pointerleave', handlePointerLeave);

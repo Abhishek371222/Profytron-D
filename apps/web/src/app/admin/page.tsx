@@ -17,7 +17,6 @@ import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-// Defer recharts off the admin dashboard's initial bundle.
 const AdminPaymentsChart = dynamic(
   () => import('@/components/admin/AdminPaymentsChart'),
   {

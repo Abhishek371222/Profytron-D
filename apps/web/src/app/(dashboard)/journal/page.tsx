@@ -279,12 +279,12 @@ export default function JournalPage() {
         icon={BookOpen}
       />
 
-      {/* -- Insights bar -- */}
+      { }
       <InsightsBar />
 
-      {/* -- Main split panel -- */}
+      { }
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.35fr] gap-4">
-        {/* Entry List */}
+        { }
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
             <p className="text-micro text-foreground/20 uppercase tracking-widest font-bold">
@@ -328,7 +328,7 @@ export default function JournalPage() {
           )}
         </div>
 
-        {/* -- Detail Panel -- */}
+        { }
         <motion.div
           layout
           className="rounded-[24px] border border-[var(--card-border)] bg-muted/505 flex flex-col min-h-[520px] overflow-hidden"
@@ -358,7 +358,7 @@ export default function JournalPage() {
                 exit={{ opacity: 0, x: -10 }}
                 className="flex flex-col h-full"
               >
-                {/* Trade header */}
+                { }
                 <div className="p-5 border-b border-[var(--card-border)] bg-muted/50">
                   <div className="flex items-center justify-between gap-3">
                     <div className="space-y-1">
@@ -397,9 +397,9 @@ export default function JournalPage() {
                   </div>
                 </div>
 
-                {/* Body */}
+                { }
                 <div className="flex-1 p-5 space-y-5 overflow-y-auto">
-                  {/* Emotions */}
+                  { }
                   <div className="space-y-2.5">
                     <label className="text-micro font-bold text-foreground/25 uppercase tracking-[0.3em] block">
                       Emotions During Trade
@@ -432,7 +432,7 @@ export default function JournalPage() {
                     )}
                   </div>
 
-                  {/* Lesson */}
+                  { }
                   <div className="space-y-2.5">
                     <label className="text-micro font-bold text-foreground/25 uppercase tracking-[0.3em] block">
                       Lesson Learned
@@ -452,7 +452,7 @@ export default function JournalPage() {
                     )}
                   </div>
 
-                  {/* AI Analysis */}
+                  { }
                   {selectedEntry.aiAnalysis && (
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-2">
@@ -470,7 +470,7 @@ export default function JournalPage() {
                   )}
                 </div>
 
-                {/* Actions */}
+                { }
                 <div className="p-5 border-t border-[var(--card-border)] flex gap-3">
                   {isEditing ? (
                     <>

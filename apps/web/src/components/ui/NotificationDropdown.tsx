@@ -27,7 +27,6 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
   DEFAULT:      Bell,
 };
 
-// Use concrete Tailwind classes so the JIT scanner picks them up
 const CATEGORY_STYLES: Record<string, {
   iconColor: string;
   iconBg: string;
@@ -77,7 +76,6 @@ export function NotificationDropdown() {
       setItems(list.items || []);
       setUnreadCount(unread.count || 0);
     } catch {
-      // Swallow 401/network — never surface as an unhandled runtime overlay.
       setItems([]);
       setUnreadCount(0);
     } finally {
@@ -159,7 +157,7 @@ export function NotificationDropdown() {
         align="end"
         className="w-[calc(100vw-2rem)] max-w-[380px] max-sm:right-[-2.75rem] bg-popover border border-card-border shadow-[var(--shadow-lg)] rounded-card p-0 overflow-hidden"
       >
-        {/* Header */}
+        { }
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-border">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
@@ -182,7 +180,7 @@ export function NotificationDropdown() {
           </button>
         </div>
 
-        {/* List */}
+        { }
         <div className="max-h-[420px] overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
           {loading ? (
             <div className="space-y-px p-2">
@@ -238,7 +236,7 @@ export function NotificationDropdown() {
                         type="button"
                       >
                         <div className="flex items-start gap-3">
-                          {/* Icon */}
+                          { }
                           <div className={cn(
                             'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5',
                             item.isRead ? 'bg-foreground/[0.06]' : style.iconBg,
@@ -246,7 +244,7 @@ export function NotificationDropdown() {
                             <Icon className={cn('w-4 h-4', item.isRead ? 'text-foreground/30' : style.iconColor)} />
                           </div>
 
-                          {/* Content */}
+                          { }
                           <div className="flex-1 min-w-0 pr-6">
                             <div className="flex items-start justify-between gap-2">
                               <p className={cn(
@@ -281,7 +279,7 @@ export function NotificationDropdown() {
                         </div>
                       </button>
 
-                      {/* Delete */}
+                      { }
                       <button
                         onClick={(e) => onDelete(e, item.id)}
                         className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity p-2.5 rounded-lg hover:bg-destructive/15 text-text-muted hover:text-destructive outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -298,7 +296,7 @@ export function NotificationDropdown() {
           )}
         </div>
 
-        {/* Footer */}
+        { }
         <div className="border-t border-border px-4 py-3">
           <button
             onClick={() => { window.location.href = '/notifications'; }}

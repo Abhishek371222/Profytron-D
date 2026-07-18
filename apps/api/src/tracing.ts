@@ -1,18 +1,5 @@
 import { Logger } from '@nestjs/common';
 
-/**
- * OpenTelemetry bootstrap.
- *
- * This module is imported *first* in main.ts (before NestFactory / express /
- * pg / ioredis are required) so the auto-instrumentations can patch those
- * libraries as they load. It is a no-op unless OTEL_EXPORTER_OTLP_ENDPOINT is
- * set, and the heavy SDK is only `require`d when enabled — so a default deploy
- * pays zero cold-start cost.
- *
- * Enable with:
- *   OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
- *   OTEL_SERVICE_NAME=profytron-api   (optional)
- */
 const logger = new Logger('Tracing');
 
 function initTracing(): void {
@@ -42,7 +29,6 @@ function initTracing(): void {
       }),
       instrumentations: [
         getNodeAutoInstrumentations({
-          // fs spans are extremely noisy and rarely actionable.
           '@opentelemetry/instrumentation-fs': { enabled: false },
         }),
       ],
@@ -65,7 +51,6 @@ function initTracing(): void {
     process.once('SIGTERM', shutdown);
     process.once('SIGINT', shutdown);
   } catch (err) {
-    // Never let observability wiring crash the API.
     logger.warn(
       `Failed to initialise OpenTelemetry: ${
         err instanceof Error ? err.message : String(err)

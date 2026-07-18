@@ -1,12 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
+import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
-
-const FloatingLines = dynamic(() => import("@/components/ui/FloatingLines"), {
-  ssr: false,
-});
 
 const PRIMARY_PATH =
   "M 0 210 C 45 198, 95 182, 145 162 S 215 118, 275 88 S 335 52, 400 28";
@@ -49,27 +44,8 @@ const CTA_CHIPS = [
   { label: "Sharpe", value: "2.14", top: "52%", left: "62%", delay: 0.5 },
 ] as const;
 
-const DARK_GRADIENT = ["#5FB2C4", "#348398", "#71C0D1", "#1E6D48", "#2D7284"];
-const LIGHT_GRADIENT = ["#348398", "#2D7284", "#1E6D48", "#255F6C", "#5FB2C4"];
-
-function useIsDark() {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const sync = () => setIsDark(root.classList.contains("dark"));
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
-
-  return isDark;
-}
-
 export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "cta" }) {
   const reduceMotion = useReducedMotion();
-  const isDark = useIsDark();
   const chips = variant === "cta" ? CTA_CHIPS : LIVE_CHIPS;
   const showScan = variant === "hero";
 
@@ -84,29 +60,6 @@ export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "ct
       <div className="hero-ambient-core">
         <div className="hero-ambient-mesh" />
         <div className="hero-ambient-mesh hero-ambient-mesh-b" />
-
-        <div
-          className={`hero-ambient-lines ${isDark ? "hero-ambient-lines-dark" : "hero-ambient-lines-light"}`}
-        >
-          <FloatingLines
-            transparent
-            linesGradient={isDark ? DARK_GRADIENT : LIGHT_GRADIENT}
-            enabledWaves={["top", "middle", "bottom"]}
-            lineCount={[5, 7, 4]}
-            lineDistance={[4, 3, 5]}
-            animationSpeed={0.85}
-            interactive
-            parallax
-            parallaxStrength={0.14}
-            bendRadius={6}
-            bendStrength={-0.35}
-            mouseDamping={0.04}
-            topWavePosition={{ x: 8, y: 0.4, rotate: -0.35 }}
-            middleWavePosition={{ x: 4, y: -0.1, rotate: 0.15 }}
-            bottomWavePosition={{ x: 1.5, y: -0.65, rotate: 0.3 }}
-            mixBlendMode={isDark ? "screen" : "multiply"}
-          />
-        </div>
 
         <svg
           viewBox="0 0 400 260"

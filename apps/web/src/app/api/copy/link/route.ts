@@ -13,12 +13,6 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-/**
- * Professional CopyFactory wiring for every new user.
- * Call after broker connect and after marketplace subscribe / payment.
- *
- * POST body (optional): { subscriptionId?, strategyId? }
- */
 export async function POST(req: NextRequest) {
   const userId = await userIdFromRequest(req);
   if (!userId) return error('Unauthorized', 401);

@@ -46,8 +46,6 @@ export function SettingsField({
   const fieldId = React.useId();
   const hintId = hint ? `${fieldId}-hint` : undefined;
 
-  // Associate the label (and any hint) with the control so clicking the label
-  // focuses it and screen readers announce both.
   let control = children;
   let controlId: string | undefined;
   if (React.isValidElement(children)) {

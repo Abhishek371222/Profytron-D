@@ -140,7 +140,7 @@ export default function CopyTradingPage() {
         icon={Zap}
       />
 
-      {/* Broker connection banner */}
+      { }
       {!hasConnectedBroker && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -215,6 +215,7 @@ export default function CopyTradingPage() {
 
       {/* Plan cards */}
       <section className="w-full min-w-0 pl-1 sm:pl-2">
+
         <DashSectionTitle className="mb-4">Buy a Bot Plan</DashSectionTitle>
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3">
           {planWithStrategy.map((plan) => {
@@ -305,7 +306,7 @@ export default function CopyTradingPage() {
         </div>
       </section>
 
-      {/* Active subscriptions */}
+      { }
       <div>
         <DashSectionTitle className="mb-4">My Active Bots</DashSectionTitle>
         {subLoading ? (
@@ -358,7 +359,7 @@ export default function CopyTradingPage() {
         )}
       </div>
 
-      {/* Modals */}
+      { }
       {connectOpen && (
         <BrokerConnectModal
           open={connectOpen}

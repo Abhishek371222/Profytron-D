@@ -156,10 +156,6 @@ export type LinkResult = {
   message?: string;
 };
 
-/**
- * Professional wiring for every new user:
- * MetaApi SUBSCRIBER role + CopyFactory strategy link + ACTIVE status + sizing defaults.
- */
 export async function linkUserCopySubscriptions(input: {
   sql: Sql;
   userId: string;
@@ -228,7 +224,6 @@ export async function linkUserCopySubscriptions(input: {
   const results: LinkResult[] = [];
 
   for (const sub of subs) {
-    // Non-copy bots (no master) — just mark ACTIVE.
     if (!sub.masterBrokerAccountId) {
       if (sub.status === 'PROVISIONING') {
         await sql`
@@ -326,7 +321,6 @@ export async function linkUserCopySubscriptions(input: {
         name: `${creds.login || 'user'} Profytron`,
       });
 
-      // Persist professional defaults on the subscription + creds.
       const profile =
         typeof sub.executionProfileJson === 'object' &&
         sub.executionProfileJson != null
@@ -364,7 +358,6 @@ export async function linkUserCopySubscriptions(input: {
         `;
       }
 
-      // Ensure Strategy row has CF id for future users.
       if (!sub.copyFactoryStrategyId) {
         await sql`
           UPDATE "Strategy"

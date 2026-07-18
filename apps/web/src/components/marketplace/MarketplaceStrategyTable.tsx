@@ -48,7 +48,7 @@ export function MarketplaceStrategyTable({
 
   return (
     <>
-      {/* Mobile: card layout */}
+      { }
       <div className="space-y-3 md:hidden">
         {strategies.map((s, rowIndex) => {
           const score = aiScore(s);
@@ -102,31 +102,31 @@ export function MarketplaceStrategyTable({
                 </div>
               </div>
 
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 grid grid-cols-1 gap-2">
                 <Link
                   href={`/marketplace/${s.id}`}
-                  className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-[10px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-xs font-bold text-primary transition-colors hover:bg-[color-mix(in_srgb,var(--primary)_14%,transparent)]"
+                  className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-[10px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-xs font-bold text-primary transition-colors hover:bg-[color-mix(in_srgb,var(--primary)_14%,transparent)]"
                 >
                   View Strategy
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                 </Link>
-                <div className="grid flex-1 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="primary"
                     size="sm"
-                    className="min-h-[var(--touch-min)]"
+                    className="h-9 min-w-0 px-2 text-[11px] font-bold uppercase tracking-wide"
                     onClick={() => onSubscribe(s, 'FIXED')}
                     data-tour={rowIndex === 0 ? 'marketplace-subscribe-cta' : undefined}
                   >
-                    Buy Subscription
+                    <span className="truncate">Subscribe</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="min-h-[var(--touch-min)]"
+                    className="h-9 min-w-0 px-2 text-[11px] font-bold uppercase tracking-wide"
                     onClick={() => onSubscribe(s, 'PROFIT_SHARE')}
                   >
-                    Get Profit Sharing · ₹149
+                    <span className="truncate">Share · ₹149</span>
                   </Button>
                 </div>
               </div>
@@ -135,7 +135,7 @@ export function MarketplaceStrategyTable({
         })}
       </div>
 
-      {/* Desktop: table layout */}
+      { }
       <div className="marketplace-elevation-table marketplace-table responsive-table-shell hidden rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card shadow-[var(--shadow-card)] md:block">
       <div className="responsive-table-inner overflow-x-auto">
         <table className="w-full min-w-[56rem]">
@@ -268,10 +268,10 @@ export function MarketplaceStrategyTable({
                       <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                         <div
                           className={cn(
-                            "h-full rounded-full transition-all duration-500",
+                            "h-full w-full origin-left rounded-full transition-transform duration-500 will-change-transform",
                             risk.pct > 70 ? "bg-destructive" : risk.pct > 45 ? "bg-primary" : "bg-secondary",
                           )}
-                          style={{ width: `${risk.pct}%` }}
+                          style={{ transform: `scaleX(${Math.min(Math.max(risk.pct, 0), 100) / 100})` }}
                         />
                       </div>
                     </div>
@@ -280,8 +280,8 @@ export function MarketplaceStrategyTable({
                     <div className="w-24">
                       <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                         <div
-                          className="h-full rounded-full bg-gradient-to-r from-primary to-secondary"
-                          style={{ width: `${Math.max(popPct, 8)}%` }}
+                          className="h-full w-full origin-left rounded-full bg-gradient-to-r from-primary to-secondary will-change-transform"
+                          style={{ transform: `scaleX(${Math.min(Math.max(popPct, 8), 100) / 100})` }}
                         />
                       </div>
                       <p className="mt-1 text-[10px] font-semibold tabular-nums text-muted-foreground">
@@ -292,31 +292,31 @@ export function MarketplaceStrategyTable({
                   <td className="px-4 py-4 text-right text-sm font-bold text-foreground">
                     {s.price > 0 ? `₹${s.price.toLocaleString('en-IN')}` : "FREE"}
                   </td>
-                  <td className="px-4 py-4 text-right">
-                    <div className="inline-flex items-center gap-2">
+                  <td className="px-3 py-4 text-right lg:px-4">
+                    <div className="inline-flex max-w-[22rem] flex-wrap items-center justify-end gap-1.5 lg:gap-2">
                       <Link
                         href={`/marketplace/${s.id}`}
-                        className="btn-premium-ghost inline-flex h-8 items-center rounded-[12px] border border-[var(--card-border)] px-3 text-[11px] font-bold uppercase tracking-wide text-foreground transition-colors hover:text-primary"
+                        className="btn-premium-ghost inline-flex h-8 items-center rounded-[12px] border border-[var(--card-border)] px-2.5 text-[10px] font-bold uppercase tracking-wide text-foreground transition-colors hover:text-primary lg:px-3 lg:text-[11px]"
                       >
-                        View Strategy
+                        View
                         <ArrowRight className="ml-1 h-3 w-3" />
                       </Link>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="rounded-[12px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] text-[11px] font-bold uppercase tracking-wide text-primary"
+                        className="h-8 rounded-[12px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] px-2.5 text-[10px] font-bold uppercase tracking-wide text-primary lg:px-3 lg:text-[11px]"
                         onClick={() => onSubscribe(s, 'FIXED')}
                         data-tour={rowIndex === 0 ? 'marketplace-subscribe-cta' : undefined}
                       >
-                        Buy Subscription
+                        Subscribe
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="rounded-[12px] border border-chart-3/30 text-[11px] font-bold uppercase tracking-wide text-chart-3"
+                        className="h-8 rounded-[12px] border border-chart-3/30 px-2.5 text-[10px] font-bold uppercase tracking-wide text-chart-3 lg:px-3 lg:text-[11px]"
                         onClick={() => onSubscribe(s, 'PROFIT_SHARE')}
                       >
-                        Profit Sharing · ₹149
+                        Share · ₹149
                       </Button>
                     </div>
                   </td>

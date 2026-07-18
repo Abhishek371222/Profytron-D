@@ -1,11 +1,5 @@
 import { Pool } from 'pg';
 
-// Drop-in replacement for @neondatabase/serverless's `neon(dbUrl)` tagged-
-// template query function. Neon's driver speaks Neon's own HTTP/WebSocket
-// proxy protocol and cannot connect to a standard Postgres server (e.g.
-// Cloud SQL) — this uses the regular wire protocol via `pg` instead, with
-// the same `` sql`SELECT ...` `` calling convention so call sites don't
-// need to change beyond the import.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SqlFunction = (
   strings: TemplateStringsArray,

@@ -1,6 +1,5 @@
 "use client";
 
-/** Enterprise backdrop — clean gradient */
 export function AmbientBackground({
   variant = "landing",
   position = "fixed",

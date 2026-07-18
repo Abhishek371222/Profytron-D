@@ -1,7 +1,3 @@
-/**
- * Soft-disconnect all active broker accounts for a user (local/dev helper).
- * Usage: node scripts/force-disconnect-user-brokers.cjs abhiaj371@gmail.com
- */
 const { PrismaClient } = require('@prisma/client');
 
 async function main() {

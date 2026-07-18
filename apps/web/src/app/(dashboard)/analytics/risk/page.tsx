@@ -5,7 +5,7 @@ import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YA
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { analyticsApi, type AnalyticsRange, type RiskAnalytics } from '@/lib/api/analytics';
 import { cn } from '@/lib/utils';
-import { Shield, AlertTriangle, TrendingDown, Target, Activity } from 'lucide-react';
+import { Shield, AlertTriangle, TrendingDown, Target, Activity, Flame, Snowflake, Crosshair, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   AnalyticsInfoBanner,
@@ -81,8 +81,21 @@ export default function RiskAnalyticsPage() {
     enabled: sessionReady,
   });
 
+  const advancedQuery = useQuery({
+    queryKey: ['analytics', 'advanced', range],
+    queryFn: () => analyticsApi.getAdvanced(range),
+    staleTime: 120_000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    enabled: sessionReady,
+  });
+  const advanced = advancedQuery.data;
+  const hasAdvancedData = Boolean(advanced && advanced.sampleSize > 0);
+
   const risk =
-    riskQuery.data?.source === 'metaapi' || riskQuery.data?.source === 'empty'
+    riskQuery.data?.source === 'database' ||
+    riskQuery.data?.source === 'snapshot' ||
+    riskQuery.data?.source === 'empty'
       ? riskQuery.data
       : undefined;
   const maxDrawdownPct =
@@ -92,7 +105,7 @@ export default function RiskAnalyticsPage() {
         ? Math.max(...risk.drawdownCurve.map((d) => d.val))
         : null;
   const hasData = Boolean(
-    risk?.source === 'metaapi' &&
+    (risk?.source === 'database' || risk?.source === 'snapshot') &&
       ((risk.drawdownCurve?.length ?? 0) > 1 ||
         risk.bestSingleWin > 0 ||
         risk.largestLoss > 0 ||
@@ -109,6 +122,7 @@ export default function RiskAnalyticsPage() {
 
   const refreshData = () => {
     queryClient.invalidateQueries({ queryKey: ['analytics', 'risk'] });
+    queryClient.invalidateQueries({ queryKey: ['analytics', 'advanced'] });
     toast.success('Risk refreshed');
   };
 
@@ -273,6 +287,92 @@ export default function RiskAnalyticsPage() {
                 <p className="text-xs text-foreground/80">No risk statistics yet.</p>
               </div>
             )}
+          </div>
+        </ChartCard>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <StatCard
+          label="Sharpe Ratio"
+          value={hasAdvancedData ? advanced!.sharpeRatio.toFixed(2) : '—'}
+          icon={Activity}
+          iconBg="bg-primary/10 text-primary"
+          valueClass="text-primary"
+        />
+        <StatCard
+          label="Sortino Ratio"
+          value={hasAdvancedData ? advanced!.sortinoRatio.toFixed(2) : '—'}
+          icon={Target}
+          iconBg="bg-primary/10 text-primary"
+          valueClass="text-primary"
+          delay={0.05}
+        />
+        <StatCard
+          label="Max Consec Wins"
+          value={hasAdvancedData ? `${advanced!.maxConsecutiveWins}` : '—'}
+          icon={Flame}
+          iconBg="bg-chart-3/10 text-chart-3"
+          valueClass="text-chart-3"
+          delay={0.1}
+        />
+        <StatCard
+          label="Avg R-Multiple"
+          value={
+            hasAdvancedData && advanced!.rMultipleSampleSize > 0
+              ? `${advanced!.avgRMultiple.toFixed(2)}R`
+              : '—'
+          }
+          icon={Crosshair}
+          iconBg="bg-chart-5/10 text-chart-5"
+          valueClass="text-chart-5"
+          delay={0.15}
+        />
+      </div>
+
+      {!hasAdvancedData && !advancedQuery.isLoading && (
+        <AnalyticsInfoBanner message="Advanced performance metrics populate once closed trades exist in your connected account history." />
+      )}
+
+      <div className="grid gap-3 lg:grid-cols-2">
+        <ChartCard eyebrow="By Session" title="Session Performance" subtitle="UTC-hour session bands (approximate)" delay={0.2}>
+          <div className="space-y-2">
+            {hasAdvancedData
+              ? advanced!.sessionPerformance.map((s) => (
+                  <MetricRow
+                    key={s.session}
+                    label={`${s.session} · ${s.trades} trades`}
+                    value={`${s.pnl >= 0 ? '+' : ''}${s.pnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · ${s.winRatePct.toFixed(0)}% win`}
+                    valueClass={s.pnl >= 0 ? 'text-chart-3' : 'text-destructive'}
+                  />
+                ))
+              : (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)]">
+                  <Clock className="h-3.5 w-3.5 text-[var(--info)] shrink-0" />
+                  <p className="text-xs text-foreground/80">No session data yet.</p>
+                </div>
+              )}
+          </div>
+        </ChartCard>
+
+        <ChartCard eyebrow="By Day" title="Day of Week Performance" delay={0.25}>
+          <div className="space-y-2">
+            {hasAdvancedData
+              ? advanced!.dayOfWeekPerformance
+                  .filter((d) => d.trades > 0)
+                  .map((d) => (
+                    <MetricRow
+                      key={d.day}
+                      label={`${d.day} · ${d.trades} trades`}
+                      value={`${d.pnl >= 0 ? '+' : ''}${d.pnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                      valueClass={d.pnl >= 0 ? 'text-chart-3' : 'text-destructive'}
+                    />
+                  ))
+              : (
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-[color-mix(in_srgb,var(--info)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--info)_10%,transparent)]">
+                  <Snowflake className="h-3.5 w-3.5 text-[var(--info)] shrink-0" />
+                  <p className="text-xs text-foreground/80">No day-of-week data yet.</p>
+                </div>
+              )}
           </div>
         </ChartCard>
       </div>

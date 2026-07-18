@@ -23,7 +23,6 @@ export function Magnetic({ children, strength = 0.5 }: MagneticProps) {
  const centerX = left + width / 2;
  const centerY = top + height / 2;
  
- // Calculate distance from center
  const distanceX = clientX - centerX;
  const distanceY = clientY - centerY;
 

@@ -71,20 +71,14 @@ const OHLC_FRAMES: { id: MarketTimeframe; label: string }[] = [
 
 const IST = 'Asia/Kolkata';
 
-/**
- * Major FX sessions expressed in IST (UTC+5:30).
- * Windows match standard UTC session hours converted to India time.
- */
 const SESSIONS: {
   name: string;
   city: string;
-  /** Minutes from midnight IST — inclusive open, exclusive close (may wrap). */
   openIstMin: number;
   closeIstMin: number;
   openLabel: string;
   closeLabel: string;
 }[] = [
-  // UTC 21:00–06:00 → IST 02:30–11:30
   {
     name: 'Sydney',
     city: 'AUD',
@@ -93,7 +87,6 @@ const SESSIONS: {
     openLabel: '02:30',
     closeLabel: '11:30',
   },
-  // UTC 00:00–09:00 → IST 05:30–14:30
   {
     name: 'Tokyo',
     city: 'Asia',
@@ -102,7 +95,6 @@ const SESSIONS: {
     openLabel: '05:30',
     closeLabel: '14:30',
   },
-  // UTC 07:00–16:00 → IST 12:30–21:30
   {
     name: 'London',
     city: 'Europe',
@@ -111,7 +103,6 @@ const SESSIONS: {
     openLabel: '12:30',
     closeLabel: '21:30',
   },
-  // UTC 12:00–21:00 → IST 17:30–02:30 (next day)
   {
     name: 'New York',
     city: 'US',
@@ -142,7 +133,6 @@ function sessionOpenIst(
   if (openIstMin < closeIstMin) {
     return nowIstMin >= openIstMin && nowIstMin < closeIstMin;
   }
-  // Wraps midnight (e.g. New York 17:30 → 02:30 IST).
   return nowIstMin >= openIstMin || nowIstMin < closeIstMin;
 }
 
@@ -215,7 +205,6 @@ function cleanSummary(item: MarketNewsItem) {
 
 function lastCandleStats(candles: MarketOhlcCandle[] | undefined) {
   if (!candles?.length) return null;
-  // Skip Yahoo off-session zero bars that can trail the series.
   const valid = candles.filter((c) => c.close > 0 && c.open > 0);
   const last = valid[valid.length - 1];
   if (!last) return null;
@@ -255,7 +244,6 @@ function ZoomedMiniChart({
     max = Math.max(max, livePrice);
   }
   const span = max - min || Math.abs(max) * 0.001 || 1;
-  // Tight vertical zoom (small padding → taller price moves).
   const yMin = min - span * 0.04;
   const yMax = max + span * 0.04;
   const ySpan = yMax - yMin || 1;
@@ -464,7 +452,6 @@ function QuoteCard({
 }
 
 function SessionBoard() {
-  // Null until mount so SSR and first client paint match (avoids clock hydration mismatch).
   const [now, setNow] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
@@ -788,7 +775,6 @@ export default function MarketsPage() {
     refetchInterval: session.biasPollMs,
   });
 
-  // Wake the board exactly when the weekly FX open hits (Sunday 21:00 UTC / Monday session).
   React.useEffect(() => {
     if (session.open || session.msUntilOpen == null) return;
     const wait = Math.min(session.msUntilOpen + 1_500, 2_147_000_000);
@@ -800,7 +786,6 @@ export default function MarketsPage() {
       void newsQuery.refetch();
     }, wait);
     return () => window.clearTimeout(timer);
-    // Intentionally only re-arm when the open countdown changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.open, session.msUntilOpen]);
 

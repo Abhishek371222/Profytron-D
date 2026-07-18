@@ -4,7 +4,6 @@ import { SubscriptionStatus } from '@prisma/client';
 
 const LIVE_BROKER_NAMES = ['MT4', 'MT5'] as const;
 
-/** Active live MT4/MT5 for the user (default preferred). Does not throw. */
 export async function findActiveLiveBroker(
   prisma: PrismaService,
   userId: string,
@@ -29,7 +28,6 @@ export async function findActiveLiveBroker(
   });
 }
 
-/** Any active broker (live first, then paper) — for display backfill. */
 export async function findAnyActiveBroker(
   prisma: PrismaService,
   userId: string,
@@ -51,7 +49,6 @@ export async function findAnyActiveBroker(
   });
 }
 
-/** Returns the user's active live MT5/MT4 broker account or throws 428. */
 export async function requireActiveMt5Broker(
   prisma: PrismaService,
   userId: string,
@@ -65,10 +62,6 @@ export async function requireActiveMt5Broker(
   return broker;
 }
 
-/**
- * Attach a broker to every subscription that still has brokerAccountId = null.
- * Fixes reconnect / activate-without-broker cases for existing and new users.
- */
 export async function linkOrphanStrategySubscriptions(
   prisma: PrismaService,
   userId: string,

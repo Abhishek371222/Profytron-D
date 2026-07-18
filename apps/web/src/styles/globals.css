@@ -1,19 +1,8 @@
 @import "tailwindcss";
 
-/* Tailwind v4 defaults dark: to prefers-color-scheme; this makes it follow the
-   manually-toggled .dark class on <html> (see ThemeProvider.tsx) instead, so
-   dark: utilities stay in sync with the in-app theme toggle regardless of OS
-   preference. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ═══════════════════════════════════════════════════════
-   PROFYTRON — ENTERPRISE SAAS DESIGN SYSTEM
-   Stripe · Linear · Notion · Vercel inspired
-   Light-first · Dark mode toggle
-═══════════════════════════════════════════════════════ */
-
 :root {
-  /* Brand — Profytron (Pacific Cyan + Brown Red, locked brand palette) */
   --primary: #348398;
   --primary-hover: #2D7284;
   --primary-active: #255F6C;
@@ -21,7 +10,6 @@
   --primary-foreground: #FFFFFF;
   --ring: #348398;
 
-  /* Brand depth palette */
   --brand-green: #2A6F7C;
   --brand-darkgreen: #1A4550;
   --brand-teal: #348398;
@@ -29,7 +17,6 @@
   --brand-crimson: #973336;
   --brand-crimson-dark: #5D1919;
 
-  /* Frosted-teal tint ramp (brand-supplied) — hover/highlight surfaces */
   --teal-tint-1: #ADFFFC;
   --teal-tint-2: #B1FAF8;
   --teal-tint-3: #B6F5F3;
@@ -37,15 +24,12 @@
   --teal-tint-5: #BFECEB;
   --teal-tint-6: #C4E8E7;
 
-  /* Legacy accent shims */
   --indigo: #348398;
   --violet: #973336;
   --purple: #5D1919;
 
-  /* Secondary — neutral low-emphasis UI role (shadcn convention), NOT a brand hue */
   --secondary: #E9EAED;
   --secondary-foreground: #1E252B;
-  /* Brand secondary hue (Brown Red) — for deliberate brand-accent contexts, distinct from the neutral --secondary role */
   --brand-secondary: #973336;
   --brand-secondary-hover: #7F2B2E;
   --brand-secondary-foreground: #FFFFFF;
@@ -59,7 +43,6 @@
   --info: #1D7A94;
   --info-foreground: #FFFFFF;
 
-  /* Surfaces — Light (Platinum canvas, white elevated surfaces) */
   --background: #F4F4F6;
   --bg-secondary: #ECEDF0;
   --card: #FFFFFF;
@@ -74,21 +57,18 @@
   --input: #FFFFFF;
   --overlay: rgba(30, 37, 43, 0.45);
 
-  /* Text — Light */
   --foreground: #1E252B;
   --muted-foreground: #64707A;
   --text-muted: #8A939C;
   --text-disabled: #C2C8CE;
   --placeholder: #8A939C;
 
-  /* Borders */
   --border: #E7ECEF;
   --card-border: #E7ECEF;
   --hover-surface: #ADFFFC15;
   --input-border: #D8DBE0;
   --divider: #E4E6EA;
 
-  /* Charts */
   --chart-1: #348398;
   --chart-2: #973336;
   --chart-3: #348398;
@@ -98,7 +78,6 @@
   --chart-bear: #973336;
   --chart-volume: color-mix(in srgb, var(--primary) 20%, transparent);
 
-  /* Sidebar tokens */
   --sidebar-foreground: #1E252B;
   --sidebar-primary: #348398;
   --sidebar-primary-foreground: #FFFFFF;
@@ -107,7 +86,6 @@
   --sidebar-border: #E4E6EA;
   --sidebar-ring: #348398;
 
-  /* z-index scale (documented, single source of truth) */
   --z-base: 0;
   --z-sidebar: 40;
   --z-topbar: 30;
@@ -116,13 +94,11 @@
   --z-modal: 70;
   --z-toast: 80;
 
-  /* Typography */
   --font-sans: var(--font-geist, "Geist"), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-heading: var(--font-geist, "Geist"), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-jetbrains, "JetBrains Mono"), ui-monospace, monospace;
   --font-serif: var(--font-sans);
 
-  /* Type scale — fluid (responsive) */
   --text-hero: clamp(2.625rem, 5vw + 1rem, 4.5rem);
   --text-display-2: clamp(2rem, 4.5vw + 0.75rem, 4.5rem);
   --text-display-1: clamp(1.875rem, 4vw + 0.5rem, 3.5rem);
@@ -146,7 +122,6 @@
   --tracking-wide: 0.025em;
   --tracking-widest: 0.08em;
 
-  /* Radius */
   --radius: 0.75rem;
   --radius-button: 16px;
   --radius-card: 20px;
@@ -161,7 +136,6 @@
   --r-2xl: 24px;
   --r-full: 9999px;
 
-  /* Shadows */
   --shadow-sm: 0 1px 3px rgba(30, 37, 43, 0.07), 0 1px 2px rgba(30, 37, 43, 0.05);
   --shadow-md: 0 4px 12px rgba(30, 37, 43, 0.09), 0 2px 4px rgba(30, 37, 43, 0.04);
   --shadow-lg: 0 12px 40px rgba(30, 37, 43, 0.11), 0 4px 8px rgba(30, 37, 43, 0.05);
@@ -172,7 +146,6 @@
   --shadow-cta-hover: 0 16px 48px rgba(52, 131, 152, 0.40);
   --theme-shadow: var(--shadow-sm);
 
-  /* Spacing scale */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -184,7 +157,6 @@
   --space-24: 96px;
   --space-32: 128px;
 
-  /* Motion */
   --duration-page: 300ms;
   --duration-hover: 150ms;
   --duration-modal: 250ms;
@@ -197,7 +169,6 @@
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
 
-  /* Gradients */
   --gradient-hero: linear-gradient(135deg, #348398 0%, #9FE1F3 100%);
   --gradient-hero-word: linear-gradient(90deg, #348398 0%, #9FE1F3 100%);
   --gradient-brand-word: linear-gradient(
@@ -214,7 +185,6 @@
   --glow-hero: radial-gradient(circle at top center, rgba(52, 131, 152, 0.12), transparent 60%);
   --glow-teal: radial-gradient(circle at center, rgba(52, 131, 152, 0.16), transparent 60%);
 
-  /* Legacy bridge */
   --bg-base: var(--background);
   --bg-card: var(--card);
   --bg-elevated: var(--bg-secondary);
@@ -244,7 +214,6 @@
   --dashboard-rail-w: clamp(18rem, 22vw, 23.75rem);
   --chart-h-lg: clamp(22.5rem, 42vh, 32.5rem);
   --chart-h-md: clamp(18rem, 34vh, 26rem);
-  /* +24px on both clamp ends vs. 15rem/17.5rem — gives the brand lockup room without touching collapsed width. */
   --sidebar-w: clamp(16.5rem, 17vw, 19rem);
   --sidebar-w-collapsed: clamp(4.5rem, 5vw, 5.5rem);
   --sidebar-pad: clamp(0.75rem, 1vw, 1rem);
@@ -289,7 +258,6 @@
   --info: #8FD3E6;
   --info-foreground: #0B1418;
 
-  /* Brand dark canvas (Jet Black) with proper elevation ramp */
   --background: #1E252B;
   --bg-secondary: #232B32;
   --card: #242D35;
@@ -450,7 +418,6 @@
   --font-size-caption: var(--text-caption);
 }
 
-
 @media (max-width: 1023px) {
   :root {
     --dashboard-p: 1rem;
@@ -490,15 +457,10 @@
   }
 }
 
-/* ── Base ──────────────────────────────────────────────── */
 html {
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  /* framer-motion's useScroll() measures offsets against document.documentElement
-     by default and warns in dev if it's position: static. This doesn't affect
-     fixed-position descendants (viewport remains their containing block) or
-     layout — it only gives framer-motion a stable positioning context. */
   position: relative;
 }
 
@@ -509,7 +471,6 @@ body {
   padding-right: var(--safe-right);
 }
 
-/* Safe-area utilities */
 .pb-safe {
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
 }
@@ -523,7 +484,6 @@ body {
   padding-right: env(safe-area-inset-right, 0px);
 }
 
-/* Responsive auto-fit grid for cards/widgets */
 .responsive-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr));
@@ -536,7 +496,6 @@ body {
   gap: clamp(0.75rem, 2vw, 1rem);
 }
 
-/* Prevent iOS input zoom */
 @media (max-width: 639px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
@@ -545,7 +504,6 @@ body {
   }
 }
 
-/* Touch devices: disable hover lift, keep press feedback */
 @media (hover: none) and (pointer: coarse) {
   .btn-premium:hover,
   .btn-premium-ghost:hover,
@@ -559,7 +517,6 @@ body {
   }
 }
 
-/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -589,7 +546,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Base element typography ───────────────────────────── */
 @layer base {
   h1, .type-h1 {
     font-family: var(--font-heading);
@@ -669,10 +625,6 @@ img, svg, canvas, video { max-width: 100%; }
   color: var(--primary-foreground);
 }
 
-/* ── Custom Scrollbar ──────────────────────────────────── */
-/* Width kept generous enough to actually grab and drag — a too-thin thumb
-   makes clicks miss it and land on the track instead, which jump-scrolls
-   the page and reads as the thumb "disappearing" from under the cursor. */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -720,7 +672,6 @@ body::before {
       linear-gradient(180deg, var(--background) 0%, color-mix(in srgb, var(--background) 90%, var(--primary)) 45%, var(--background) 100%);
   }
 
-  /* Dashboard / marketplace content plane — brand teal wash over base */
   .brand-surface-bg {
     position: relative;
     isolation: isolate;
@@ -787,7 +738,6 @@ body::before {
     box-shadow: var(--shadow-card);
   }
 
-  /* Primary surfaces must always use high-contrast label color */
   .bg-primary:not([class*="bg-primary/"]),
   .bg-gradient-cta {
     color: var(--primary-foreground);
@@ -804,7 +754,6 @@ body::before {
     color: var(--primary-foreground) !important;
   }
 
-  /* ── Unified dashboard UI (every page / button / label) ── */
   .dash-page {
     display: flex;
     flex-direction: column;
@@ -1002,7 +951,6 @@ body::before {
     box-shadow: 0 0 10px color-mix(in srgb, var(--primary) 45%, transparent);
   }
 
-  /* ── Premium floating sidebar ── */
   .sidebar-panel {
     background: color-mix(in srgb, var(--card) 88%, transparent);
     border: 1px solid var(--card-border);
@@ -1161,8 +1109,6 @@ body::before {
     background: color-mix(in srgb, var(--card) 75%, transparent);
     box-shadow: 0 1px 4px color-mix(in srgb, var(--foreground) 6%, transparent);
     transition: color 0.22s ease-out, background 0.22s ease-out, border-color 0.22s ease-out, box-shadow 0.22s ease-out, transform 0.15s ease-out;
-    /* Invisible hit-area extension to the 44px touch-target minimum
-       (visual stays 40px) — matters for touch-capable devices ≥1024px. */
     position: relative;
   }
 
@@ -1225,7 +1171,6 @@ body::before {
     }
   }
 
-  /* Wide table shell — scroll inside card, not the page */
   .responsive-table-shell {
     width: 100%;
     min-width: 0;
@@ -1244,7 +1189,6 @@ body::before {
     }
   }
 
-  /* Trade / data rows */
   .trade-row-desktop {
     display: none;
   }
@@ -1259,7 +1203,6 @@ body::before {
     }
   }
 
-  /* Settings / analytics sub-nav horizontal on small screens */
   .dash-subnav-horizontal {
     display: flex;
     gap: 0.375rem;
@@ -1350,7 +1293,6 @@ body::before {
     overflow-x: hidden;
   }
 
-  /* ── Landing page design system (light + dark) ── */
   .landing-section {
     position: relative;
     width: 100%;
@@ -1455,9 +1397,57 @@ body::before {
     display: none;
   }
 
-  /* Testimonial wall edge fade — masks rows toward both ends so cards
-     dissolve into the section background in either theme (mask alpha is
-     theme-agnostic; it reveals whatever surface sits behind the row). */
+  .landing-page-root {
+    touch-action: pan-y;
+    overscroll-behavior-y: auto;
+  }
+
+  @media (max-width: 1023px) {
+    .landing-page-root *,
+    .landing-page-root *::before,
+    .landing-page-root *::after {
+      animation: none !important;
+    }
+
+    .landing-page-root .profytron-auto-scroll > div {
+      animation: marquee var(--duration, 32s) linear infinite !important;
+      will-change: transform;
+    }
+
+    .landing-page-root .profytron-auto-scroll {
+      contain: layout paint;
+      touch-action: pan-y;
+    }
+
+    .landing-page-root .landing-section {
+      content-visibility: auto;
+      contain-intrinsic-size: auto 760px;
+    }
+
+    .landing-page-root [class*="blur-"] {
+      filter: none !important;
+    }
+
+    .landing-page-root [class*="backdrop-blur"] {
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+
+    .landing-page-root .hero-ambient-layer {
+      height: 13rem;
+      margin-top: 0;
+    }
+
+    .landing-page-root .hero-ambient-layer-cta {
+      height: 11rem;
+    }
+
+    .landing-page-root .hero-ambient-particles,
+    .landing-page-root .hero-ambient-scan {
+      display: none;
+    }
+  }
+
   .testimonial-fade-mask {
     -webkit-mask-image: linear-gradient(
       to right,
@@ -1494,7 +1484,6 @@ body::before {
     }
   }
 
-  /* Hero ambient animation — mask fade only, no box/vignette */
   .hero-main {
     position: relative;
     width: 100%;
@@ -1627,9 +1616,6 @@ body::before {
     inset: -8% -12% -8% -5%;
     z-index: 0;
     opacity: 0.72;
-    /* auto only on desktop, where the layer sits beside the copy; on mobile the
-       layout stacks and this decorative layer bleeds upward over the trust
-       badges row, so pointer-events:auto there silently blocks its scroll/swipe */
     pointer-events: none;
     -webkit-mask-image: linear-gradient(
       to right,
@@ -1894,7 +1880,6 @@ body::before {
     }
   }
 
-  /* Value pillars — soft decorative backgrounds, no hard edges */
   .value-pillars-dots {
     background-image: radial-gradient(
       circle,
@@ -1926,7 +1911,6 @@ body::before {
     opacity: 0.9;
   }
 
-  /* Public pages */
   .public-page-shell {
     min-width: 0;
     overflow-x: hidden;
@@ -1939,7 +1923,6 @@ body::before {
     padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Marketing / legal pages — match landing brand */
   .marketing-hero {
     padding-block: clamp(3rem, 7vw, 5rem);
     background: var(--bg-secondary);
@@ -2017,7 +2000,6 @@ body::before {
     filter: brightness(1.06) contrast(1.02);
   }
 
-  /* Normalize legacy public page dark patches */
   .public-page-shell .bg-black\/20,
   .public-page-shell .bg-black\/30,
   .public-page-shell .bg-foreground\/2 {
@@ -2030,7 +2012,6 @@ body::before {
     color: var(--muted-foreground) !important;
   }
 
-  /* Marketing subpages — full-width like dashboard (override narrow section containers) */
   .public-page-shell .container {
     width: 100%;
     max-width: 1920px;
@@ -2073,7 +2054,6 @@ body::before {
     border-bottom: 1px solid color-mix(in srgb, var(--card-border) 65%, transparent);
   }
 
-  /* ── Marketplace ── */
   .marketplace-hero-premium-bg {
     background:
       radial-gradient(ellipse 90% 70% at 72% 55%, rgba(52, 131, 152, 0.18), transparent 65%),
@@ -2470,7 +2450,6 @@ body::before {
     border: 1px solid var(--border-subtle);
   }
 
-  /* ── Premium card with hover lift ─────────────────────── */
   .card-hover {
     transition:
       transform 0.25s var(--ease-smooth),
@@ -2484,7 +2463,6 @@ body::before {
     border-color: color-mix(in srgb, var(--primary) 20%, var(--card-border));
   }
 
-  /* ── Button micro-interactions ─────────────────────────── */
   .btn-lift {
     transition:
       transform 0.15s var(--ease-spring),
@@ -2501,7 +2479,6 @@ body::before {
     box-shadow: var(--shadow-sm);
   }
 
-  /* ── Input focus glow ──────────────────────────────────── */
   .input-glow {
     transition:
       border-color 0.2s ease,
@@ -2515,7 +2492,6 @@ body::before {
     outline: none;
   }
 
-  /* ── Gradient text utility ─────────────────────────────── */
   .text-gradient-brand,
   .text-gradient-hero {
     background: var(--gradient-hero-word);
@@ -2540,7 +2516,6 @@ body::before {
     line-height: 1.08;
   }
 
-  /* ── Glow badge / chip ─────────────────────────────────── */
   .badge-brand {
     display: inline-flex;
     align-items: center;
@@ -2555,7 +2530,6 @@ body::before {
     border: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
   }
 
-  /* ── Shimmer skeleton ──────────────────────────────────── */
   .skeleton-shimmer {
     background: linear-gradient(
       90deg,
@@ -2567,7 +2541,6 @@ body::before {
     animation: shimmer 1.8s ease-in-out infinite;
   }
 
-  /* ── Ambient glow orb (decorative) ────────────────────── */
   .orb-teal {
     border-radius: 9999px;
     background: radial-gradient(circle, rgba(71, 167, 170, 0.35) 0%, transparent 70%);
@@ -2582,7 +2555,6 @@ body::before {
     pointer-events: none;
   }
 
-  /* ── KPI stat card ─────────────────────────────────────── */
   .kpi-card {
     background: var(--card);
     border: 1px solid var(--card-border, var(--border));
@@ -2599,7 +2571,6 @@ body::before {
     box-shadow: var(--shadow-card-hover);
   }
 
-  /* ── Premium surface with subtle inner glow ────────────── */
   .surface-glow {
     box-shadow:
       var(--shadow-card),
@@ -2611,7 +2582,6 @@ body::before {
       inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
-  /* ── Focus ring (global override for teal) ─────────────── */
   .focus-ring:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
@@ -2863,7 +2833,6 @@ body::before {
   .tilt-card { transition: transform 0.1s ease-out; }
   .perspective-container { perspective: 1500px; transform-style: preserve-3d; }
 
-  /* ── 3D scene utilities ───────────────────────────────── */
   .scene-3d {
     perspective: 1200px;
     transform-style: preserve-3d;
@@ -3072,7 +3041,6 @@ body::before {
   .animate-fade-up-sm  { animation: fade-up-sm  0.45s var(--ease-smooth) forwards; }
   .animate-scale-pop   { animation: scale-pop   0.4s  var(--ease-spring)  forwards; }
 
-  /* ── Typography utilities ─────────────────────────────── */
   .text-display-2 { font-family: var(--font-heading); font-size: var(--text-display-2); line-height: var(--leading-display); letter-spacing: var(--tracking-tight); font-weight: 800; }
   .text-display-1 { font-family: var(--font-heading); font-size: var(--text-display-1); line-height: var(--leading-display); letter-spacing: var(--tracking-tight); font-weight: 700; }
   .text-hero      { font-family: var(--font-heading); font-size: var(--text-hero); line-height: var(--leading-display); letter-spacing: var(--tracking-tight); font-weight: 700; }
@@ -3164,7 +3132,6 @@ input.auth-field:-webkit-autofill:focus {
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='19' viewBox='0 0 11 19'%3E%3Crect x='0' y='0' width='11' height='1' fill='%23000'/%3E%3Crect x='5' y='0' width='1' height='19' fill='%23000'/%3E%3Crect x='0' y='18' width='11' height='1' fill='%23000'/%3E%3C/svg%3E") 5 9, text !important;
 }
 
-/* Hide Edge/IE native password reveal — we use a custom eye toggle */
 input[type='password']::-ms-reveal,
 input[type='password']::-ms-clear {
   display: none;

@@ -29,7 +29,6 @@ function TradingViewAdvancedChart({
   const numericHeight = typeof height === 'number' ? height : 620;
   const chartBodyHeight = Math.max(400, numericHeight - 36);
 
-  // Avoid mounting the widget before theme is known (prevents blank white chart).
   useEffect(() => {
     const t = window.setTimeout(() => setReady(true), 50);
     return () => window.clearTimeout(t);
@@ -48,7 +47,6 @@ function TradingViewAdvancedChart({
     script.type = 'text/javascript';
     script.async = true;
     script.dataset.tvWidget = instanceId;
-    // TradingView reads JSON from the script text node (not a JS object attribute).
     script.text = JSON.stringify({
       allow_symbol_change: true,
       calendar: false,
@@ -58,7 +56,6 @@ function TradingViewAdvancedChart({
       hide_legend: false,
       hide_volume: false,
       hotlist: false,
-      // Zoomed-in start: 15m bars over ~5 trading days.
       interval: '15',
       locale: 'en',
       save_image: false,
@@ -78,7 +75,6 @@ function TradingViewAdvancedChart({
       popup_height: '650',
       popup_width: '1000',
       studies: [],
-      // Fixed size — autosize often renders a blank body in nested dashboards.
       autosize: false,
       height: chartBodyHeight,
       width: '100%',

@@ -16,8 +16,6 @@ export class CopyFactoryService {
   }
 
   isEnabled(): boolean {
-    // Architecture 2 default: CopyFactory subscriber linking is off unless
-    // explicitly forced (expensive). Master detection uses MasterSync instead.
     if (process.env.ALLOW_METAAPI_SUBSCRIBERS === 'true') {
       return (
         !!this.client &&
@@ -49,10 +47,6 @@ export class CopyFactoryService {
     await this.mtAdapter.waitForDeployed(metaApiAccountId);
   }
 
-  /**
-   * Register the admin MetaAPI account as a CopyFactory provider strategy.
-   * Returns the CopyFactory strategy id (e.g. "AbCd").
-   */
   async provisionProviderStrategy(input: {
     profytronStrategyId: string;
     providerMetaApiAccountId: string;
@@ -77,8 +71,6 @@ export class CopyFactoryService {
       name: input.name,
       description: input.description,
       accountId: input.providerMetaApiAccountId,
-      // 1:1 lots — required for ~$100 accounts when master trades 0.01.
-      // Balance scaling rounds 0.01*(120/300) below min lot and skips the copy.
       tradeSizeScaling: { mode: 'none' },
       copyStopLoss: true,
       copyTakeProfit: true,

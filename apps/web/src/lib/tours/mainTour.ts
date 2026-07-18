@@ -5,17 +5,8 @@ export type TourStep = {
   title: string;
   body: string;
   placement?: 'top' | 'bottom' | 'left' | 'right';
-  /**
-   * Mobile/tablet (<1024px) spotlight target. The desktop sidebar is off-canvas
-   * on phones, so nav steps point at the bottom-nav icons instead.
-   * - string: highlight this selector on mobile
-   * - null:   no spotlight on mobile (show the card only)
-   * - undefined: fall back to `target` (page content renders on mobile too)
-   */
   mobileTarget?: string | null;
-  /** actionId reported via useTutorialStore.notifyAction() — advisory only, never blocks Next */
   waitForAction?: string;
-  /** If this selector matches, spotlight emptyTarget (defaults to itself) and swap in emptyBody. */
   emptySelector?: string;
   emptyTarget?: string;
   emptyBody?: string;
@@ -38,7 +29,6 @@ export const mainTourSteps: TourStep[] = [
     id: 'nav-connected-accounts',
     page: '/dashboard',
     target: '[data-tour="nav-connected-accounts"]',
-    // No bottom-nav entry on mobile — just explain what's coming next.
     mobileTarget: null,
     title: 'Connected Accounts',
     body: 'Nothing can trade until a broker account is linked here — that’s our very next step.',

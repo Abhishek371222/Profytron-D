@@ -49,7 +49,6 @@ function BrokerRow({
   onDisconnected?: () => void;
 }) {
   const [disconnecting, setDisconnecting] = React.useState(false);
-  // Manual refresh only — do not poll testConnection on mount (that made connections feel very slow).
   const query = useQuery({
     queryKey: ['broker-info', account.id],
     queryFn: () => brokerApi.testConnection(account.id),

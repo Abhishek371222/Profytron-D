@@ -1,10 +1,5 @@
 import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 
-/**
- * Validated body for POST /ai/explain. Previously this endpoint accepted an
- * untyped `any`, so arbitrary/oversized payloads flowed straight into the AI
- * prompt and the external AI call.
- */
 export class ExplainTradeDto {
   @IsString()
   @MaxLength(50)

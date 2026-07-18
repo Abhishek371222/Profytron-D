@@ -62,7 +62,6 @@ export function AnalyticsEquityChart({ data }: { data: EquityPoint[] }) {
   const max = equities.length ? Math.max(...equities) : 1;
   const pad = Math.max((max - min) * 0.08, max * 0.01, 1);
 
-  // Thin dense timestamps so X labels don't overlap.
   const tickInterval = Math.max(0, Math.floor(data.length / 6) - 1);
 
   const ariaLabel =

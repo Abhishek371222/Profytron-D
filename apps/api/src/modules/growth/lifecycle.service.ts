@@ -23,11 +23,6 @@ export class LifecycleService {
     return Boolean(await this.redis.get(`lifecycle:${campaign}:${userId}`));
   }
 
-  /**
-   * Runs `handler` over `items` in concurrency-limited batches instead of one
-   * at a time — these cron jobs were doing sequential per-user Redis/DB round
-   * trips, which scales linearly (and slowly) with signup volume.
-   */
   private async processInBatches<T>(
     items: T[],
     batchSize: number,
@@ -42,7 +37,6 @@ export class LifecycleService {
     return sent;
   }
 
-  /** Day 1 — portfolio waiting nudge */
   @Cron(CronExpression.EVERY_DAY_AT_9AM)
   async sendDay1Nudges() {
     const start = new Date();
@@ -80,7 +74,6 @@ export class LifecycleService {
     }
   }
 
-  /** Day 3 — broker connect prompt */
   @Cron(CronExpression.EVERY_DAY_AT_10AM)
   async sendDay3BrokerNudges() {
     const start = new Date();
@@ -131,7 +124,6 @@ export class LifecycleService {
     }
   }
 
-  /** Day 7 — trial summary for users without marketplace sub */
   @Cron(CronExpression.EVERY_DAY_AT_11AM)
   async sendDay7TrialSummary() {
     const start = new Date();
@@ -182,7 +174,6 @@ export class LifecycleService {
     }
   }
 
-  /** Re-engagement — inactive 7 days */
   @Cron(CronExpression.EVERY_DAY_AT_6PM)
   async sendReengagementEmails() {
     const cutoff = new Date();

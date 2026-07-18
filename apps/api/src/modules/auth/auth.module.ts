@@ -12,17 +12,11 @@ import { AffiliatesModule } from '../affiliates/affiliates.module';
 import { GrowthModule } from '../growth/growth.module';
 import { AgentsModule } from '../agents/agents.module';
 
-// Strategies
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
 
-// Register each OAuth strategy only when its credentials are present. The
-// strategies throw in production if their keys are missing, so gating
-// registration here lets the API boot with whichever providers are configured
-// (e.g. Google login simply stays disabled until GOOGLE_CLIENT_ID/SECRET are
-// set) instead of crashing the whole app on startup.
 const oauthProviders = [
   ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
     ? [GoogleStrategy]

@@ -10,11 +10,6 @@ import { Reflector } from '@nestjs/core';
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
-/**
- * Global JWT guard. @Public() routes stay open to anonymous users, but if a
- * Bearer token is present we still populate req.user so owners can preview
- * unpublished bots on marketplace detail pages.
- */
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(private reflector: Reflector) {
@@ -22,7 +17,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   canActivate(context: ExecutionContext) {
-    // Always run Passport so public handlers can receive req.user when logged in.
     return super.canActivate(context);
   }
 

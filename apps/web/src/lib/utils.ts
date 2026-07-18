@@ -5,7 +5,6 @@ export function cn(...inputs: ClassValue[]) {
  return twMerge(clsx(inputs))
 }
 
-/** Returns a safe same-origin redirect path; falls back to /dashboard for external or invalid URLs. */
 export function safeRedirect(url: string | null | undefined): string {
   const fallback = '/dashboard';
   if (!url) return fallback;
@@ -25,7 +24,6 @@ export function isAdminUser(
   return role === 'ADMIN' || role === 'SUPER_ADMIN';
 }
 
-/** After login: admins → /admin; regular users → onboarding or requested path. */
 export function resolvePostLoginRedirect(
   user: { onboardingCompleted?: boolean; role?: string } | null | undefined,
   redirectTo: string | null | undefined,

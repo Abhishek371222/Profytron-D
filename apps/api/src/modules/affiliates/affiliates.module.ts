@@ -7,8 +7,6 @@ import { AffiliatesController } from './affiliates.controller';
 @Module({
   imports: [
     ConfigModule,
-    // Minimal JWT support for optional refresh-token verification on public
-    // capture. Do not import AuthModule (AuthModule already imports this module).
     JwtModule.register({}),
   ],
   controllers: [AffiliatesController],

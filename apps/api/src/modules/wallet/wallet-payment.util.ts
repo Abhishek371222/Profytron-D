@@ -1,18 +1,7 @@
 import { randomBytes } from 'crypto';
 
-/** Fake company settlement account used until real payout rails are wired. */
 export const COMPANY_RECEIVER_ADDRESS = 'PRF-CO-ACCT-IN91-000987654321';
 
-/**
- * Canonical support-facing billing ID.
- * Format: PRF-WLT-YYYYMMDD-XXXXXXXX (8 hex chars)
- * Example: PRF-WLT-20260712-A1B2C3D4
- *
- * Rules:
- * - Generated once at WalletTransaction create time
- * - Never regenerated on status updates (pending → confirmed/failed)
- * - Globally unique (@unique in DB) — quote this ID to support for the exact txn
- */
 export const BILLING_ID_REGEX = /^PRF-WLT-\d{8}-[A-F0-9]{8}$/i;
 
 export type WalletPaymentCategory =
@@ -45,9 +34,9 @@ export function billingIdFromTransactionId(
   id: string,
   createdAt: Date,
 ): string {
+
   const stamp = createdAt.toISOString().slice(0, 10).replace(/-/g, '');
   const hex = id.replace(/-/g, '').toUpperCase();
-  // Use chars 0-7 + 8-11 mixed for 8 hex that stay unique per UUID
   const suffix = (hex.slice(0, 6) + hex.slice(-2)).padEnd(8, '0').slice(0, 8);
   return `PRF-WLT-${stamp}-${suffix}`;
 }
@@ -91,8 +80,6 @@ export function buildWalletPaymentFields(input: {
   const userAddress =
     input.userAccountAddress?.trim() || fakeUserAccountAddress(input.userId);
 
-  // Deposit / credit: user sends → company receives
-  // Withdrawal / debit: company sends → user receives
   const isCredit = input.direction === 'IN';
   const billingId = generateBillingId(input.createdAt ?? new Date());
 

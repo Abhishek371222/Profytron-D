@@ -154,7 +154,6 @@ export class CopyFactoryProcessor {
 
     if (!sub) return;
 
-    // Bots without a hidden operator account activate immediately.
     if (!sub.strategy.masterBrokerAccountId) {
       if (sub.status === SubscriptionStatus.PROVISIONING) {
         await this.provisioning.completeProvisioning(

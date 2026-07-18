@@ -39,7 +39,6 @@ export function calculateMetrics(
   const avgLoss = losses.length > 0 ? grossLoss / losses.length : 0;
   const expectancy = winRate * avgWin - (1 - winRate) * avgLoss;
 
-  // Equity curve for max drawdown + Sharpe
   let equity = initialCapital;
   let peak = initialCapital;
   let maxDDPct = 0;
@@ -54,7 +53,6 @@ export function calculateMetrics(
     if (prev > 0) periodicReturns.push((equity - prev) / prev);
   }
 
-  // Annualised Sharpe (assume ~252 trading sessions/year)
   const avgRet =
     periodicReturns.reduce((s, r) => s + r, 0) / (periodicReturns.length || 1);
   const variance =
@@ -80,7 +78,6 @@ export function calculateMetrics(
     expectancy,
     avgWin,
     avgLoss,
-    // snake_case aliases for walk-forward / sensitivity scorer
     total_pnl: netProfit,
     win_rate: winRate,
     max_drawdown: maxDDPct,

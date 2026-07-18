@@ -9,16 +9,14 @@ import {
 } from '@/lib/currency';
 
 const STORAGE_KEY = 'profytron_currency_v1';
-const TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+const TTL_MS = 24 * 60 * 60 * 1000;
 
 interface CachedEntry {
   currency: CurrencyInfo;
   ts: number;
 }
 
-/** Parse a BCP-47 locale string (e.g. "en-IN", "pt-BR") into a CURRENCY_MAP country key. */
 function countryFromLocale(locale: string): string | null {
-  // navigator.language can be "en-IN", "en-GB", "pt-BR", etc.
   const parts = locale.split('-');
   if (parts.length >= 2) {
     const region = parts[parts.length - 1].toUpperCase();
@@ -47,7 +45,6 @@ function writeCache(currency: CurrencyInfo): void {
     const entry: CachedEntry = { currency, ts: Date.now() };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(entry));
   } catch {
-    // ignore quota / SSR errors
   }
 }
 
@@ -60,7 +57,6 @@ export function useCurrency(): {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Try cache first (instant)
     const cached = readCache();
     if (cached) {
       setCurrency(cached);
@@ -71,9 +67,6 @@ export function useCurrency(): {
     let cancelled = false;
 
     async function detect() {
-      // Currency is derived from navigator.language — no third-party
-      // geo-IP lookup, which would need a CSP connect-src exception and
-      // leaks the visitor's IP to an external service for no real gain.
       const locales = [
         navigator.language,
         ...(Array.isArray(navigator.languages) ? navigator.languages : []),
@@ -90,7 +83,6 @@ export function useCurrency(): {
         }
       }
 
-      // Ultimate fallback: USD
       if (!cancelled) {
         writeCache(DEFAULT_CURRENCY);
         setCurrency(DEFAULT_CURRENCY);

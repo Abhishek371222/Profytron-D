@@ -29,11 +29,6 @@ const BrokerConnectModal = dynamic(
   { ssr: false },
 );
 
-/**
- * Must render UNDER AppProviders / QueryClientProvider.
- * Calling useQuery* in the outer layout (above AppProviders) crashes with
- * "No QueryClient set".
- */
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);

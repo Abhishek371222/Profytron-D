@@ -12,7 +12,7 @@ export default function StrategyBuilderPage() {
   return (
     <DashboardPage className="!gap-0 !p-0 !m-0 flex h-full min-h-0 flex-1 flex-col">
       <div className="flex h-full min-h-0 flex-1 overflow-hidden rounded-none border-0 bg-bg-secondary md:rounded-2xl md:border md:border-[var(--card-border)]">
-        {/* Preview sidebar — matches mockup */}
+        { }
         <aside className="hidden md:flex w-[280px] shrink-0 flex-col border-r border-[var(--card-border)] bg-card text-foreground">
           <div className="p-4 border-b border-[var(--card-border)] space-y-3">
             <div>
@@ -84,7 +84,7 @@ export default function StrategyBuilderPage() {
               </Link>
             </div>
 
-            {/* Preview system panel */}
+            { }
             <div className="hidden lg:block absolute top-5 right-5 w-52 dashboard-card p-4 opacity-60 pointer-events-none">
               <p className="text-sm font-bold text-foreground">Backtest Preview</p>
               <p className="text-xs text-chart-3 font-medium mt-1">Available at launch</p>

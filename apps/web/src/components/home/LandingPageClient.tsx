@@ -1,11 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { MotionConfig } from "framer-motion";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SectionRevealer } from "@/components/ui/SectionRevealer";
-import { LenisProvider } from "@/components/providers/LenisProvider";
 
 const LiveTicker = dynamic(
   () => import("@/components/home/StatsSection").then((m) => ({ default: m.LiveTicker })),
@@ -65,8 +65,8 @@ const Footer = dynamic(
 export function LandingPageClient() {
   return (
     <AppProviders>
-    <LenisProvider>
-      <main className="relative min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background">
+      <MotionConfig reducedMotion="always">
+      <main className="landing-page-root relative min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background">
         <div className="relative z-10">
           <PublicNavbar />
           <HeroSection />
@@ -114,7 +114,7 @@ export function LandingPageClient() {
           <Footer />
         </div>
       </main>
-    </LenisProvider>
+      </MotionConfig>
     </AppProviders>
   );
 }

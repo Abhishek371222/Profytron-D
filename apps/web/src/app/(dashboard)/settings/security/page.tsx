@@ -287,7 +287,6 @@ export default function SecuritySettingsPage() {
     try {
       await authApi.cancelTwoFactorSetup();
     } catch {
-      // Local UI should still reset even if cancel fails.
     } finally {
       clear2faSetupUi();
       setIs2faSetupLoading(false);
@@ -337,8 +336,6 @@ export default function SecuritySettingsPage() {
   };
 
   const setupInProgress = Boolean(setupQr) || is2faSetupLoading;
-  // Option C: password reset is only for email/password accounts.
-  // Prefer explicit hasPassword from API; fall back to googleId when unknown.
   const canResetPassword =
     user?.hasPassword === true ||
     (user?.hasPassword !== false && !user?.googleId);

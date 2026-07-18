@@ -1,9 +1,5 @@
 import type { MarketSymbol } from '../../market/market.service';
 
-/**
- * Map a broker trade symbol (e.g. "EURUSD.pro", "XAUUSD", "BTCUSD") to one of
- * the market symbols we have quotes for. Returns null when unsupported.
- */
 export function mapTradeSymbolToMarket(
   symbol: string,
   supportedSymbols: readonly MarketSymbol[],
@@ -19,9 +15,6 @@ export function mapTradeSymbolToMarket(
   return null;
 }
 
-/**
- * Estimate unrealized PnL for an open trade given the current market price.
- */
 export function estimateUnrealizedPnl(
   trade: {
     direction: string;
@@ -40,7 +33,6 @@ export function estimateUnrealizedPnl(
   );
 }
 
-/** Sum of absolute realized losses from closed trades (today or all-time). */
 export function computeDailyLossUsd(
   closedTrades: Array<{ profit: number | null }>,
 ): number {
@@ -49,10 +41,6 @@ export function computeDailyLossUsd(
     .reduce((sum, t) => sum + Math.abs(t.profit ?? 0), 0);
 }
 
-/**
- * Peak-to-trough drawdown percentage from a chronological PnL series.
- * `startingEquity` is the balance before the first trade in the series.
- */
 export function computeMaxDrawdownPct(
   trades: Array<{ profit: number | null }>,
   startingEquity: number,

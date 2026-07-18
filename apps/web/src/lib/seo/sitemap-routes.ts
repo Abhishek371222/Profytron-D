@@ -7,7 +7,6 @@ export type SitemapEntry = {
   priority: number;
 };
 
-/** Public marketing & legal pages — indexable, no auth required */
 export const PUBLIC_SITEMAP_ROUTES: SitemapEntry[] = [
   { path: '/', changeFrequency: 'weekly', priority: 1.0 },
   { path: '/pricing', changeFrequency: 'weekly', priority: 0.95 },

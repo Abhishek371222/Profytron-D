@@ -77,7 +77,7 @@ export class NotificationProcessor {
         this.logger.error(
           `Email dispatch failed for user ${userId}: ${(err as Error).message}`,
         );
-        throw err; // triggers BullMQ retry
+        throw err;
       }
     }
 
@@ -105,16 +105,10 @@ export class NotificationProcessor {
         this.logger.warn(
           `FCM dispatch failed for user ${userId}: ${(err as Error).message}`,
         );
-        // Don't rethrow — FCM failure shouldn't block email
       }
     }
   }
 
-  /**
-   * Fires when a dispatch job exhausts all retries. The job stays in the Bull
-   * "failed" set (removeOnFail: false) so it can be inspected/replayed; this
-   * just makes the dead-letter event loud for alerting.
-   */
   @OnQueueFailed()
   onFailed(job: Job<DispatchJob>, err: Error) {
     if (job.attemptsMade >= (job.opts.attempts ?? 1)) {

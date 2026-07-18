@@ -15,9 +15,6 @@ import { TradingModule } from '../trading/trading.module';
       defaultJobOptions: {
         attempts: 3,
         backoff: { type: 'exponential', delay: 5000 },
-        // Trim succeeded jobs but KEEP failed ones so the Bull "failed" set acts
-        // as a dead-letter queue — failed sends are inspectable and replayable
-        // instead of vanishing.
         removeOnComplete: 1000,
         removeOnFail: false,
       },

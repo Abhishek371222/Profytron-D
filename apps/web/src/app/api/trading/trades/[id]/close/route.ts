@@ -32,7 +32,6 @@ export async function POST(req: NextRequest, ctx: Ctx) {
       }
     }
   } catch {
-    // empty body = full close
   }
 
   try {

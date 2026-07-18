@@ -5,7 +5,6 @@ function localeForCurrency(currency: string): string {
   return hit?.locale ?? (currency === 'INR' ? 'en-IN' : 'en-US');
 }
 
-/** Convert an amount from one ISO currency into another using USD-relative rates. */
 export function convertMoney(
   amount: number,
   fromCode: string,
@@ -24,7 +23,6 @@ export function formatMoney(
   _currency = 'USD',
   decimals = 2,
 ): string {
-  // Overview money is always USD (MetaAPI account currency for this product).
   const abs = Math.abs(value);
   const locale = localeForCurrency(_currency);
   try {

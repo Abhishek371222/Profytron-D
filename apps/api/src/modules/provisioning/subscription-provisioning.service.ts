@@ -4,10 +4,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TradingGateway } from '../trading/trading.gateway';
 import { NotificationsService } from '../notifications/notifications.service';
 
-/**
- * Manages bot subscription provisioning after payment or free activation.
- * User-facing status: PROVISIONING → ACTIVE | FAILED.
- */
 @Injectable()
 export class SubscriptionProvisioningService {
   private readonly logger = new Logger(SubscriptionProvisioningService.name);
@@ -18,7 +14,6 @@ export class SubscriptionProvisioningService {
     private readonly notifications: NotificationsService,
   ) {}
 
-  /** Begin provisioning: set status PROVISIONING and notify the user. */
   async startProvisioning(
     subscriptionId: string,
     userId: string,
@@ -55,7 +50,6 @@ export class SubscriptionProvisioningService {
     );
   }
 
-  /** Mark provisioning complete after CopyFactory link succeeds. */
   async completeProvisioning(
     subscriptionId: string,
     userId: string,
@@ -96,7 +90,6 @@ export class SubscriptionProvisioningService {
     );
   }
 
-  /** Mark provisioning failed after retries exhausted. */
   async failProvisioning(
     subscriptionId: string,
     userId: string,

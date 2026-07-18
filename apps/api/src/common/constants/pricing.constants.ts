@@ -1,4 +1,3 @@
-/** Canonical Profytron platform pricing — single source of truth for seed + API. */
 export const PLATFORM_PLANS = [
   {
     slug: 'free',
@@ -137,11 +136,6 @@ export type PlanLimits = {
   maxTeamMembers: number;
 };
 
-/**
- * Resolve the quota limits for a user's subscription tier. If multiple plans
- * ever share a tier, we take the most generous limit at the tier so paying
- * customers are never under-provisioned. Unknown tiers fall back to FREE.
- */
 export function getTierLimits(tier: string | null | undefined): PlanLimits {
   const matches = PLATFORM_PLANS.filter((p) => p.tier === tier);
   const source = matches.length

@@ -198,7 +198,10 @@ export class AdminService {
   }
 
   async updateUserStatus(userId: string, isSuspended: boolean) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
     if (!user) throw new NotFoundException('User not found');
 
     return this.prisma.user.update({
@@ -213,10 +216,12 @@ export class AdminService {
     role: UserRole,
     requestingAdminId: string,
   ) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, role: true },
+    });
     if (!user) throw new NotFoundException('User not found');
 
-    // Prevent an ADMIN from modifying another ADMIN's role (only self-service allowed).
     if (user.role === 'ADMIN' && userId !== requestingAdminId) {
       throw new BadRequestException('Cannot modify another admin account');
     }
@@ -296,10 +301,6 @@ export class AdminService {
     });
   }
 
-  /**
-   * One-time setup: connect admin MT5 (from env), mark as master, publish copy strategy.
-   * Requires ADMIN_MT5_LOGIN, ADMIN_MT5_PASSWORD, METAAPI_TOKEN in apps/api/.env
-   */
   async provisionMasterCopyTrading(adminEmail?: string) {
     const login = process.env.ADMIN_MT5_LOGIN;
     const password = process.env.ADMIN_MT5_PASSWORD;
@@ -523,7 +524,6 @@ export class AdminService {
       data: {
         verificationStatus: status,
         isVerified: approve,
-        // Stay off public marketplace until creator explicitly publishes after approval
         isPublished: approve ? false : false,
         reviewNotes:
           notes?.trim() ||

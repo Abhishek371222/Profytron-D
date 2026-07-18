@@ -68,7 +68,7 @@ export function AuthTerminalMarketChart() {
           </linearGradient>
         </defs>
 
-        {/* Grid */}
+        { }
         {gridLines.map(({ price, py }) => (
           <g key={price} opacity="0.35">
             <line x1="24" y1={py} x2={width - 36} y2={py} stroke="#AAB6BE" strokeWidth="0.5" opacity="0.12" />
@@ -78,7 +78,7 @@ export function AuthTerminalMarketChart() {
           </g>
         ))}
 
-        {/* Volume */}
+        { }
         {CANDLES.map((c, i) => {
           const x = 30 + i * (candleW + gap);
           const vh = (c.v / maxVol) * volH;
@@ -97,7 +97,7 @@ export function AuthTerminalMarketChart() {
           );
         })}
 
-        {/* Candles */}
+        { }
         {CANDLES.map((c, i) => {
           const x = 30 + i * (candleW + gap);
           const up = c.c >= c.o;
@@ -120,7 +120,7 @@ export function AuthTerminalMarketChart() {
           );
         })}
 
-        {/* Moving averages */}
+        { }
         <motion.path
           d={maPath(ma20)}
           fill="none"
@@ -132,7 +132,7 @@ export function AuthTerminalMarketChart() {
         />
         <path d={maPath(ma8)} fill="none" stroke="#348398" strokeWidth="1" opacity="0.3" />
 
-        {/* Time labels */}
+        { }
         {['08 Apr', '09 Apr', '10 Apr', '11 Apr', '12 Apr'].map((label, i) => (
           <text
             key={label}

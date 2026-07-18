@@ -88,7 +88,6 @@ export interface BacktestMetrics {
   expectancy: number;
   avgWin: number;
   avgLoss: number;
-  // snake_case aliases kept for walk-forward / sensitivity scorer compatibility
   total_pnl: number;
   win_rate: number;
   max_drawdown: number;

@@ -14,7 +14,6 @@ export class TradingJournalService {
     emotions?: string,
     lessonLearned?: string,
   ) {
-    // Ownership: only allow journaling a trade that belongs to the caller.
     if (tradeId) {
       const trade = await this.prisma.trade.findFirst({
         where: { id: tradeId, userId },
@@ -32,10 +31,6 @@ export class TradingJournalService {
     });
   }
 
-  /**
-   * Loads an entry only if it belongs to `userId`. Throws NotFound otherwise so
-   * callers never operate on another user's journal entry (IDOR protection).
-   */
   private async getOwnedEntry(entryId: string, userId: string) {
     const entry = await this.prisma.tradeJournalEntry.findFirst({
       where: { id: entryId, userId },
@@ -57,7 +52,6 @@ export class TradingJournalService {
 
   async updateJournalEntry(entryId: string, userId: string, updates: any) {
     await this.getOwnedEntry(entryId, userId);
-    // Only allow user-editable fields; never let the body override ownership.
     const { emotions, lessonLearned, screenshotUrl, rating, aiAnalysis } =
       updates ?? {};
     return this.prisma.tradeJournalEntry.update({

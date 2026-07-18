@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
  return (
  <main className="min-h-screen w-full bg-bg-base overflow-hidden relative flex flex-col items-center justify-center p-6">
 
- {/* Header / Branding */}
+ { }
  <div className="fixed top-12 left-12 z-50">
  <Magnetic strength={0.2}>
  <Link href="/login" className="flex items-center gap-4 group">
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
  <BrandLogo size="xl" />
  </div>
 
- {/* Centered Auth Card */}
+ { }
  <motion.div
  variants={containerVariants}
  initial={false}

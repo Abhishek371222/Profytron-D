@@ -43,7 +43,7 @@ function mapOpenTrades(rows: Awaited<ReturnType<typeof tradingApi.getOpenTrades>
 }
 
 function accountsLiveReady(accounts: any[] | null | undefined): boolean {
-  if (!accounts || accounts.length === 0) return true; // no broker — dashboard can open
+  if (!accounts || accounts.length === 0) return true;
   return accounts.some((a) => {
     if (a?.isPaperTrading === true || a?.isPaperTrading === 1) return true;
     if (a?.liveSynced === true) return true;
@@ -55,10 +55,6 @@ function accountsLiveReady(accounts: any[] | null | undefined): boolean {
   });
 }
 
-/**
- * Keeps the premium prep screen up until dashboard-critical data is fully warm
- * in the React Query cache — then shows "Welcome" and reveals the app.
- */
 export function WorkspaceBootstrapController() {
   const active = useWorkspaceBootstrapStore((s) => s.active);
   const exiting = useWorkspaceBootstrapStore((s) => s.exiting);
@@ -89,19 +85,17 @@ export function WorkspaceBootstrapController() {
       const started = Date.now();
       const hardCapMs = 12_000;
       completeStep('session');
-      // Never hydrate another user's leftover snapshots into this session.
       ensureWorkspaceCacheOwner(userId);
       hydrateDashboardCache(queryClient, userId);
-      await hold(350);
+      await hold(150);
       if (!still()) return;
 
       completeStep('profile');
-      await hold(250);
+      await hold(120);
       if (!still()) return;
 
       completeStep('preferences');
 
-      // Kick all dashboard-critical fetches in parallel.
       const accountsP = queryClient.fetchQuery({
         queryKey: ['broker-accounts'],
         queryFn: async () => {
@@ -116,7 +110,7 @@ export function WorkspaceBootstrapController() {
         queryKey: ['portfolio', '1m'],
         queryFn: async () => {
           const data = await analyticsApi.getPortfolio('1m');
-          if (data?.source === 'metaapi') {
+          if (data?.source === 'database' || data?.source === 'snapshot') {
             persistDashboardQuery(['portfolio', '1m'], data);
           }
           return data;
@@ -189,10 +183,9 @@ export function WorkspaceBootstrapController() {
       const accounts = await settle(accountsP);
       if (!still()) return;
       completeStep('accounts');
-      await hold(200);
+      await hold(120);
 
-      // Brief live sync wait — never block login forever.
-      const liveDeadline = Math.min(Date.now() + 6_000, started + hardCapMs);
+      const liveDeadline = Math.min(Date.now() + 3_000, started + hardCapMs);
       let liveAccounts = accounts;
       while (still() && Date.now() < liveDeadline && !accountsLiveReady(liveAccounts as any[])) {
         liveAccounts = await settle(
@@ -202,7 +195,7 @@ export function WorkspaceBootstrapController() {
             staleTime: 0,
           }),
         );
-        await sleep(500);
+        await sleep(350);
       }
 
       if (!still()) return;
@@ -219,14 +212,14 @@ export function WorkspaceBootstrapController() {
 
       if (!still()) return;
 
-      // Open as soon as we have something useful, or hit the hard cap.
       const hardDeadline = started + hardCapMs;
       while (still() && Date.now() < hardDeadline) {
         const cachedAccounts = queryClient.getQueryData<any[]>(['broker-accounts']);
         const portfolio = queryClient.getQueryData<any>(['portfolio', '1m']);
         const portfolioOk =
           portfolio != null &&
-          (portfolio.source === 'metaapi' ||
+          (portfolio.source === 'database' ||
+            portfolio.source === 'snapshot' ||
             portfolio.source === 'empty' ||
             portfolio.source === 'error' ||
             typeof portfolio.totalTrades === 'number');
@@ -256,13 +249,13 @@ export function WorkspaceBootstrapController() {
             staleTime: 0,
           }),
         );
-        await sleep(500);
+        await sleep(350);
       }
 
       if (!still()) return;
 
       completeStep('ready');
-      await hold(450);
+      await hold(200);
       if (!still()) return;
       beginExit();
     };

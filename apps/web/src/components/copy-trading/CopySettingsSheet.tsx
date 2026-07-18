@@ -39,10 +39,6 @@ const PLAN_MAX_LOT: Record<string, number> = {
 
 export function CopySettingsSheet({ subscription, onClose }: Props) {
   const maxLot = PLAN_MAX_LOT[subscription.strategy?.name ?? ''] ?? 2.0;
-  // Below sm (640px) the panel presents as a bottom sheet, so it should slide
-  // up (y), not sideways (x). Mounted only on user interaction, so reading
-  // window at mount is safe; captured once — the enter/exit animation axis
-  // shouldn't flip mid-flight on resize.
   const [isBottomSheet] = React.useState(
     () => typeof window !== 'undefined' && window.innerWidth < 640,
   );
@@ -63,7 +59,6 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
         multiplier: lotMultiplier,
         fixedLot: sizingMode === 'FIXED' ? fixedLot : undefined,
       });
-      // Pause/resume is owned by the subscription endpoint.
       if (isPaused !== (subscription.status === 'PAUSED')) {
         await copyTradingApi.updateSubscription(subscription.id, { isPaused });
       }
@@ -91,7 +86,7 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
           exit={{ opacity: 0, ...panelOffset }}
           className="w-full sm:w-96 h-full sm:max-h-[100dvh] flex flex-col border-l border-border-default bg-bg-elevated glass shadow-2xl"
         >
-          {/* Header */}
+          { }
           <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
             <div>
               <h2 className="text-base font-semibold text-text-primary">Bot Settings</h2>
@@ -109,7 +104,7 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
           </div>
 
           <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-            {/* Sizing mode */}
+            { }
             <div>
               <label className="text-sm font-medium text-text-primary">Position sizing</label>
               <div className="grid grid-cols-3 gap-1.5 mt-2 p-1 rounded-xl border border-border-default bg-foreground/5">
@@ -133,7 +128,7 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
               </p>
             </div>
 
-            {/* Fixed lot input */}
+            { }
             {sizingMode === 'FIXED' ? (
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -154,7 +149,6 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
                 </p>
               </div>
             ) : (
-              /* Lot multiplier (MULTIPLIER + EQUITY_RATIO) */
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-sm font-medium text-text-primary">
@@ -183,7 +177,7 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
               </div>
             )}
 
-            {/* Pause toggle */}
+            { }
             <div className="flex items-center justify-between p-4 rounded-xl border border-border-default">
               <div>
                 <p className="text-sm font-medium text-text-primary">Pause bot</p>
@@ -206,7 +200,7 @@ export function CopySettingsSheet({ subscription, onClose }: Props) {
             </div>
           </div>
 
-          {/* Footer */}
+          { }
           <div className="p-6 border-t border-border-default flex gap-3">
             <Button variant="ghost" className="flex-1" onClick={onClose} disabled={saving}>
               Cancel

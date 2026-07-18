@@ -8,7 +8,6 @@ import {
 } from 'class-validator';
 
 export class CreateRazorpayOrderDto {
-  /** Amount in paise (minimum 100 = ₹1). */
   @IsInt()
   @Min(100)
   @IsPositive()

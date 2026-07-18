@@ -46,7 +46,6 @@ export default function DashboardPage() {
     React.useState<MarketNewsCategory>('forex');
 
   const { data: currentUser } = useCurrentUser();
-  // Always USD on Overview so live MetaAPI figures match MT5 Account Details.
   const currency = 'USD';
   const userId = currentUser?.id;
 
@@ -83,7 +82,6 @@ export default function DashboardPage() {
   const calendarQuery = useQuery({
     queryKey: ['economic-calendar', 'overview'],
     queryFn: () => {
-      // Align with Forex Factory "this week" window (Mon–Sun UTC-ish).
       const now = new Date();
       const day = now.getUTCDay();
       const mondayOffset = day === 0 ? -6 : 1 - day;
@@ -103,19 +101,12 @@ export default function DashboardPage() {
   const liveFromAccounts = Boolean(accountInfo?.balance && accountInfo.balance > 0);
   const liveReady = liveFromAccounts;
 
-  // Fast path: live /broker/accounts, else sticky session cache — never invent zeros.
-  // Keep raw MetaAPI USD amounts (no locale FX).
   const balance = accountInfo?.balance ?? 0;
   const equity = accountInfo?.equity ?? accountInfo?.balance ?? 0;
   const margin = accountInfo?.margin ?? 0;
   const freeMargin =
     accountInfo?.freeMargin ?? Math.max(0, equity - margin);
 
-  // Gates the sessionStorage read below to client-only renders: reading it
-  // straight in the useMemo ran during SSR too (where it's always empty) and
-  // disagreed with the client's first hydration pass (already-cached value),
-  // causing a hydration mismatch — same class of bug as stickyAccount in
-  // useDashboardData.ts.
   const [mountedForCache, setMountedForCache] = React.useState(false);
   React.useEffect(() => setMountedForCache(true), []);
 
@@ -164,9 +155,6 @@ export default function DashboardPage() {
   ]);
 
   const equityCurve = hasBrokerAccount ? portfolio?.equityCurve ?? [] : [];
-  // Real MetaAPI equity points only — no invented deltas. With <2 points there
-  // is nothing to plot yet, so render a flat line at the live balance rather
-  // than fabricating a fake dip/rise.
   const sparkline =
     !hasBrokerAccount || equityCurve.length < 2
       ? hasBrokerAccount && balance > 0
@@ -194,19 +182,29 @@ export default function DashboardPage() {
     : 0;
   const totalReturnPct = !hasBrokerAccount
     ? 0
-    : depositBase > 0 && currentEquity > 0
-      ? Number((((currentEquity - depositBase) / depositBase) * 100).toFixed(2))
-      : portfolio?.source === 'metaapi' &&
-          portfolio.totalReturnPct != null &&
-          Number.isFinite(portfolio.totalReturnPct)
-        ? portfolio.totalReturnPct
-        : Number.isFinite(cachedReturnPct)
-          ? cachedReturnPct
-          : 0;
+    : portfolio?.totalReturnPct != null &&
+        Number.isFinite(portfolio.totalReturnPct) &&
+        (portfolio.source === 'database' ||
+          portfolio.source === 'snapshot' ||
+          portfolio.source === 'metaapi')
+      ? portfolio.totalReturnPct
+      : (() => {
+          const base = Number(
+            portfolio?.depositBase ??
+              portfolio?.equityBase ??
+              defaultBrokerAccount?.initialEquity ??
+              0,
+          );
+          const current = equity > 0 ? equity : balance;
+          if (base > 0 && current > 0) {
+            return ((current - base) / base) * 100;
+          }
+          return Number.isFinite(cachedReturnPct) ? cachedReturnPct : 0;
+        })();
+
 
   const change24hPct = totalReturnPct;
 
-  // Keep PnL companions in the same session cache for next reload.
   React.useEffect(() => {
     if (!hasBrokerAccount || !accountInfo || accountInfo.balance <= 0) return;
     writeOverviewAccountCache({
@@ -256,7 +254,6 @@ export default function DashboardPage() {
     portfolio?.syncError || tradeHistoryQuery.data?.syncError;
   const metaApiBroken = syncError === 'METAAPI_UNAUTHORIZED';
 
-  // Skeleton only when we have nothing to show — never zero-out a cached snapshot.
   const metricsLoading =
     (hasBrokerAccount && accountsInitialLoading && !liveReady) ||
     (!hasBrokerAccount && accountsStillLoading);
@@ -265,11 +262,7 @@ export default function DashboardPage() {
   const profitFactor = Number(portfolio?.profitFactor ?? 0);
   const sharpeRatio = Number(portfolio?.sharpeRatio ?? 0);
   const hasClosedTrades = (portfolio?.totalTrades ?? 0) > 0;
-  // Map drawdown to health needle: 0% DD → healthy (8%), 25%+ DD → elevated (92%).
   const healthPct = Math.max(8, Math.min(92, 8 + drawdownPct * 3.2));
-  // Composite of all three live MetaAPI-derived metrics, not drawdown alone —
-  // a losing edge (profit factor < 1) or negative risk-adjusted return
-  // (Sharpe < 0) is elevated risk even with a small drawdown so far.
   const riskScoreLabel = !hasClosedTrades
     ? 'No Data'
     : drawdownPct >= 12 || profitFactor < 1 || sharpeRatio < 0
@@ -288,7 +281,7 @@ export default function DashboardPage() {
       suppressHydrationWarning
       data-tour="dashboard-overview"
     >
-      {/* Page header — compact chips, not oversized cards */}
+      { }
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
@@ -388,7 +381,7 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Row: Open Positions | Performance | Market Watch */}
+      { }
       <div className="grid grid-cols-1 items-stretch gap-3 xl:grid-cols-12">
         {(hasBrokerAccount || accountsStillLoading) && (
           <>
@@ -428,7 +421,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Row: Recent Trades | Economic Calendar | Market News */}
+      { }
       <div
         className={
           hasBrokerAccount || accountsStillLoading
@@ -466,7 +459,7 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Footer: Quick Actions | Account Health */}
+      { }
       <div
         className={
           hasBrokerAccount || accountsStillLoading

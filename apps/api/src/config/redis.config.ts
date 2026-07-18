@@ -4,14 +4,8 @@ import { Logger } from '@nestjs/common';
 
 const logger = new Logger('RedisConnection');
 
-/** Upstash (and most managed Redis) expose the wire protocol on 6379 with TLS. */
 export const UPSTASH_REDIS_TLS_PORT = 6379;
 
-/**
- * In-memory Redis is used when REDIS_INMEMORY=true (local dev without a Redis
- * server) or in unit tests. It keeps auth state, caching and BullMQ working
- * within the process lifetime without requiring Docker/Upstash credentials.
- */
 export const isInMemoryRedis = (): boolean => {
   if (process.env.REDIS_INMEMORY === 'true') return true;
   return (
@@ -20,13 +14,6 @@ export const isInMemoryRedis = (): boolean => {
   );
 };
 
-/**
- * Convert an Upstash REST URL (https://…upstash.io) or a misconfigured
- * rediss:// URL to the Redis RESP/TLS endpoint on port 6379.
- *
- * Connecting ioredis to port 443 speaks HTTP and yields:
- *   Protocol error, got "H" as reply type byte  (HTTP/1.1 400 Bad Request)
- */
 export function resolveUpstashRedisUrl(
   restOrRedisUrl: string,
   token: string,
@@ -47,7 +34,6 @@ function normalizeRedisUrl(url: string): string {
     return url;
   }
 
-  // HTTP(S) endpoints are Upstash REST — not the Redis wire protocol.
   if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
     const token =
       process.env.UPSTASH_REDIS_REST_TOKEN?.trim() ||
@@ -67,7 +53,6 @@ function normalizeRedisUrl(url: string): string {
     return resolveUpstashRedisUrl(url, token);
   }
 
-  // Common misconfiguration: rediss://…upstash.io:443 (HTTPS port, not Redis).
   if (
     isUpstashHost(parsed.hostname) &&
     (parsed.port === '443' || parsed.port === '80')
@@ -113,7 +98,6 @@ export function buildRedisUrlFromEnv(): string {
   return `redis://${redisHost}:${redisPort}`;
 }
 
-/** Shared ioredis options for the main client, BullMQ, and Socket.IO adapter. */
 export function getRedisClientOptions(): RedisOptions {
   const url = buildRedisUrlFromEnv();
   const options: RedisOptions = {

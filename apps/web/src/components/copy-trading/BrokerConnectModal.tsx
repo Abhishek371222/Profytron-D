@@ -54,7 +54,6 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
       brokerFilter === ALL_BROKERS
         ? allServerOptions
         : allServerOptions.filter((s) => s.brokerId === brokerFilter);
-    // Keep Bitrage servers at the top for Profytron users.
     return [...list].sort((a, b) => {
       const aBit = a.brokerId === 'BITRAGE' ? 0 : 1;
       const bBit = b.brokerId === 'BITRAGE' ? 0 : 1;

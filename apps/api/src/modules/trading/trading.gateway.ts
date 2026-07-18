@@ -33,9 +33,7 @@ export class TradingGateway
   server: Server;
 
   private readonly logger = new Logger(TradingGateway.name);
-  private connectedClients: Map<string, string> = new Map(); // socketId -> userId
-  // Last full price snapshot — sent to clients on subscribe so they have a
-  // complete picture, while the periodic broadcast only pushes deltas.
+  private connectedClients: Map<string, string> = new Map();
   private lastPriceSnapshot: unknown[] | null = null;
 
   constructor(
@@ -58,7 +56,6 @@ export class TradingGateway
         algorithms: ['HS256'],
       });
 
-      // Reject tokens that have been explicitly revoked (post-logout, password-reset)
       if (payload.jti) {
         const isBlacklisted = await this.redisService.exists(
           `auth:blacklist:${payload.jti}`,
@@ -88,8 +85,6 @@ export class TradingGateway
   @SubscribeMessage('subscribe_prices')
   handlePriceSubscription(client: Socket) {
     client.join('market_prices');
-    // Immediately hand the new subscriber the full snapshot so it isn't left
-    // waiting for the next delta on symbols that haven't changed recently.
     if (this.lastPriceSnapshot) {
       client.emit('price_update', this.lastPriceSnapshot);
     }
@@ -100,7 +95,6 @@ export class TradingGateway
     client.leave('market_prices');
   }
 
-  /** Cache the latest full snapshot so new subscribers get prices instantly. */
   setPriceSnapshot(snapshot: unknown[]) {
     this.lastPriceSnapshot = snapshot;
   }

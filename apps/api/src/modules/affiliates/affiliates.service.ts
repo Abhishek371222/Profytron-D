@@ -111,7 +111,6 @@ export class AffiliatesService {
           referralCode: record.user.referralCode,
         }));
     } catch (error: any) {
-      // Concurrent first-load race: another request created the row first.
       if (error?.code === 'P2002') {
         const existing = await this.prisma.affiliate.findUnique({
           where: { userId },
@@ -161,7 +160,6 @@ export class AffiliatesService {
     };
   }
 
-  /** First name + last initial only — real ranking, without exposing full names publicly. */
   private maskAffiliateName(fullName: string | null | undefined): string {
     const parts = (fullName ?? '').trim().split(/\s+/).filter(Boolean);
     if (parts.length === 0) return 'Affiliate';
@@ -241,6 +239,7 @@ export class AffiliatesService {
 
     const referrer = await this.prisma.user.findUnique({
       where: { referralCode: code },
+      select: { id: true },
     });
 
     if (!referrer || referrer.id === newUserId) return;
@@ -359,7 +358,6 @@ export class AffiliatesService {
 
     const visitorId = context.visitorId?.trim() ?? '';
     if (!VISITOR_ID_RE.test(visitorId)) {
-      // Still report code validity for cookie/registration flows, but do not count.
       const user = await this.prisma.user.findUnique({
         where: { referralCode: code },
         select: { id: true },
@@ -376,13 +374,10 @@ export class AffiliatesService {
       return { valid: false, counted: false };
     }
 
-    // Authenticated affiliate opening their own link must not inflate clicks.
     if (context.viewerUserId && context.viewerUserId === user.id) {
       return { valid: true, counted: false };
     }
 
-    // Deterministic per (referrer, visitor) — survives /signup→/register double capture
-    // and concurrent requests via unique(sourceRef) + P2002 handling.
     const sourceRef = `click_${user.id}_${visitorId}`;
 
     let counted = false;
@@ -409,7 +404,6 @@ export class AffiliatesService {
         counted = true;
       } catch (error: any) {
         if (error?.code === 'P2002') {
-          // Same visitor already recorded for this referrer — no increment.
           return;
         }
         throw error;

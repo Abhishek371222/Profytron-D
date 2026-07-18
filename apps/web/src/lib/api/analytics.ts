@@ -83,6 +83,29 @@ export interface RiskAnalytics {
   source?: string;
 }
 
+export interface AdvancedMetrics {
+  range: AnalyticsRange;
+  sharpeRatio: number;
+  sortinoRatio: number;
+  maxConsecutiveWins: number;
+  maxConsecutiveLosses: number;
+  avgWin: number;
+  avgLoss: number;
+  largestWin: number;
+  largestLoss: number;
+  avgHoldingTimeHours: number;
+  avgRMultiple: number;
+  rMultipleSampleSize: number;
+  sessionPerformance: Array<{
+    session: string;
+    pnl: number;
+    trades: number;
+    winRatePct: number;
+  }>;
+  dayOfWeekPerformance: Array<{ day: string; pnl: number; trades: number }>;
+  sampleSize: number;
+}
+
 export interface TradeAnalytics {
   range: AnalyticsRange;
   distribution: Array<{ range: string; count: number }>;
@@ -166,6 +189,11 @@ export const analyticsApi = {
   async getTrades(range: AnalyticsRange = '3m') {
     const res = await apiClient.get('/analytics/trades', { params: { range } });
     return unwrap<TradeAnalytics>(res.data);
+  },
+
+  async getAdvanced(range: AnalyticsRange = '3m') {
+    const res = await apiClient.get('/analytics/advanced', { params: { range } });
+    return unwrap<AdvancedMetrics>(res.data);
   },
 
   async getTradeExport(range: AnalyticsRange = '3m') {

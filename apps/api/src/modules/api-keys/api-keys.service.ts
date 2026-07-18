@@ -24,7 +24,6 @@ export class ApiKeysService {
       data: { userId, name, keyHash, keyPrefix, scopes },
     });
 
-    // Return the full key only once — it cannot be retrieved again.
     return { key: rawKey, prefix: keyPrefix, name, scopes };
   }
 
@@ -75,7 +74,6 @@ export class ApiKeysService {
     for (const candidate of candidates) {
       const match = await bcrypt.compare(rawKey, candidate.keyHash);
       if (match) {
-        // Update lastUsedAt without awaiting to keep the hot path fast.
         this.prisma.apiKey
           .update({
             where: { id: candidate.id },

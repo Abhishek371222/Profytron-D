@@ -39,8 +39,6 @@ export class TelegramController {
     @Headers('x-telegram-bot-api-secret-token') secretToken?: string,
   ) {
     const expected = process.env.TELEGRAM_WEBHOOK_SECRET;
-    // Fail closed: an unconfigured secret used to leave this endpoint fully
-    // open (anyone could POST forged Telegram updates). Require the secret.
     if (!expected) {
       this.logger.warn(
         'Rejected Telegram webhook: TELEGRAM_WEBHOOK_SECRET is not configured',

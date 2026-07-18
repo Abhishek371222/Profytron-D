@@ -20,12 +20,6 @@ import { isAdminUser } from '@/lib/utils';
 const TUTORIAL_QUERY_KEY = ['tutorial-progress', 'main'];
 const JUST_ONBOARDED_KEY = 'profytron_just_onboarded';
 
-/** First-visit prompt: "want a tour?" Shown once, on the dashboard overview —
- * only for a user who just finished onboarding in this browser session (see the
- * sessionStorage signal set in onboarding/risk/page.tsx). This deliberately does
- * NOT trigger for existing users whose tour status merely defaults to NOT_STARTED
- * because the tutorial feature is new — they can still start it manually from
- * Settings or the account menu. */
 export function TutorialPrompt() {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);

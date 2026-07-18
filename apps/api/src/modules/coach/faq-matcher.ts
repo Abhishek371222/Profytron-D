@@ -70,10 +70,6 @@ function jaccard(a: Set<string>, b: Set<string>): number {
   return union === 0 ? 0 : inter / union;
 }
 
-/**
- * Score FAQ candidates against a user message.
- * Threshold ~0.55 for a confident canned answer.
- */
 export function matchFaq(
   message: string,
   candidates: FaqCandidate[],
@@ -85,7 +81,6 @@ export function matchFaq(
   return best;
 }
 
-/** Rank FAQ candidates for RAG context (even when below canned threshold). */
 export function rankFaq(
   message: string,
   candidates: FaqCandidate[],
@@ -132,7 +127,6 @@ export function rankFaq(
 
   scored.sort((a, b) => b.score - a.score);
 
-  // Deduplicate by answerId so RAG gets unique knowledge snippets
   const seen = new Set<string>();
   const unique: FaqMatchResult[] = [];
   for (const item of scored) {

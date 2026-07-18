@@ -15,7 +15,6 @@ export const usersApi = {
     const formData = new FormData();
     formData.append('file', file);
     
-    // Override default JSON headers for this request
     const res = await apiClient.post('/users/me/avatar', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -106,7 +105,6 @@ export const usersApi = {
   },
 
   async checkUsername(username: string) {
-     // A mock endpoint or logic right now just simulating
      return { available: true };
   }
 };

@@ -105,7 +105,6 @@ export function TradeActionsModal({
       }
       onClose();
     } catch {
-      /* toast handled in hook */
     }
   };
 
@@ -122,7 +121,7 @@ export function TradeActionsModal({
           <DialogDescription>{meta.desc}</DialogDescription>
         </DialogHeader>
 
-        {/* Trade summary */}
+        { }
         <div className="flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="font-mono font-bold text-foreground">{trade.asset}</span>
@@ -144,7 +143,7 @@ export function TradeActionsModal({
           </span>
         </div>
 
-        {/* Mode-specific inputs */}
+        { }
         <div className="space-y-3">
           {mode === 'close' && (
             <p className="text-sm text-muted-foreground">

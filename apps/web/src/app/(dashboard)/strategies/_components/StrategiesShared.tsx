@@ -75,7 +75,7 @@ export function StrategiesPageHeader({
             Discover, compare, and activate trading bots from verified creators.
           </p>
         </div>
-        {/* Decorative illustration */}
+        { }
         <div className="hidden lg:flex relative h-24 w-28 shrink-0 items-end justify-center" aria-hidden>
           <motion.div
             className="absolute bottom-0 left-2 h-14 w-16 rounded-xl bg-primary/20 border border-primary/30 shadow-lg"

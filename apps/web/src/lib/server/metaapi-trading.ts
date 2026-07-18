@@ -123,7 +123,6 @@ export function metaHeaders(token: string) {
   };
 }
 
-/** Accepts `meta:12345`, raw ticket, or UUID-looking ids. */
 export function parsePositionId(id: string): string {
   const raw = String(id || '').trim();
   if (raw.startsWith('meta:')) return raw.slice(5);
@@ -227,6 +226,7 @@ export function sleep(ms: number) {
  * Do not fan out across regions on auth or rate-limit failures — that
  * multiplies 429s and makes Overview trade history fail louder.
  */
+
 export async function withResolvedRegion<T>(
   live: LiveBroker,
   fn: (live: LiveBroker) => Promise<T>,
@@ -249,7 +249,6 @@ export async function withResolvedRegion<T>(
   throw lastError || new Error('MetaApi request failed');
 }
 
-/** Deterministic lot calculator for ~$100 accounts (equity-ratio safe). */
 export function computeLotSize(input: {
   mode?: 'FIXED' | 'MULTIPLIER' | 'EQUITY_RATIO' | 'BALANCE';
   masterVolume: number;

@@ -30,13 +30,10 @@ export interface CreateNotificationDto {
   actionUrl?: string;
   icon?: string;
   metadata?: Record<string, any>;
-  /** Fire email via queue (respects user preferences) */
   sendEmail?: boolean;
-  /** Fire FCM push via queue (respects user preferences) */
   sendPush?: boolean;
 }
 
-// Category → preference field mapping
 const CATEGORY_PREF_MAP: Record<NotificationCategory, string> = {
   SECURITY: 'securityAlerts',
   TRADING: 'tradingAlerts',
@@ -62,7 +59,6 @@ export class NotificationsService {
   ) {}
 
   async create(dto: CreateNotificationDto): Promise<any>;
-  /** Legacy overload kept for backward compat with existing callers */
   async create(
     userId: string,
     title: string,
@@ -79,7 +75,6 @@ export class NotificationsService {
     actionUrl?: string,
     sendEmail = false,
   ) {
-    // Normalise both call signatures into a single DTO
     const dto: CreateNotificationDto =
       typeof dtoOrUserId === 'string'
         ? {
@@ -106,7 +101,6 @@ export class NotificationsService {
       sendPush: doPush = false,
     } = dto;
 
-    // Check user preferences — skip in-app creation for suppressed categories
     const prefs = await this.getPreferences(userId);
     const prefField = CATEGORY_PREF_MAP[category] ?? 'systemAlerts';
     const categoryEnabled = prefs[prefField] ?? true;
@@ -118,22 +112,16 @@ export class NotificationsService {
       return null;
     }
 
-    // Check quiet hours (non-critical only)
     if (priority !== 'CRITICAL' && priority !== 'HIGH') {
       if (
         prefs.quietHoursEnabled &&
         this.isQuietHours(prefs.quietHoursStart, prefs.quietHoursEnd)
       ) {
-        // Still persist it, just don't send push/email
         if (doEmail) dto.sendEmail = false;
         if (doPush) dto.sendPush = false;
       }
     }
 
-    // Persist in-app notification. A notification is a non-critical side-effect:
-    // if the target user no longer exists (FK violation P2003) or the write
-    // otherwise fails, log and skip rather than propagating the error up into
-    // the caller's flow (payment, auth, etc.).
     let notification: any = null;
     if (prefs.inAppEnabled || priority === 'CRITICAL') {
       try {
@@ -153,7 +141,6 @@ export class NotificationsService {
           },
         });
 
-        // Real-time delivery via WebSocket
         this.gateway.sendToUser(userId, 'new_notification', {
           ...notification,
           unreadCount: await this.prisma.notification.count({
@@ -161,12 +148,10 @@ export class NotificationsService {
           }),
         });
 
-        // Log in-app delivery
         void this.logDelivery(notification.id, userId, 'IN_APP', 'SENT');
       } catch (err) {
         const code = (err as { code?: string })?.code;
         if (code === 'P2003' || code === 'P2025') {
-          // User row is gone (deleted/never persisted) — nothing to notify.
           this.logger.warn(
             `Skipping in-app notification for missing user ${userId} (${code})`,
           );
@@ -181,7 +166,6 @@ export class NotificationsService {
       }
     }
 
-    // Enqueue async channels (fire-and-forget via BullMQ)
     const shouldEmail = doEmail && prefs.emailEnabled;
     const shouldPush = doPush && prefs.pushEnabled;
 
@@ -210,22 +194,16 @@ export class NotificationsService {
     return notification;
   }
 
-  // ── Preferences ────────────────────────────────────────────────────────────
-
   async getPreferences(userId: string) {
     const existing = await this.prisma.notificationPreference.findUnique({
       where: { userId },
     });
     if (existing) return existing;
-    // Auto-create defaults on first access
     try {
       return await this.prisma.notificationPreference.create({
         data: { userId },
       });
     } catch (err) {
-      // User row may have been deleted between the lookup and the insert
-      // (FK P2003). Fall back to transient defaults so notification delivery
-      // degrades gracefully instead of throwing into the caller's flow.
       const code = (err as { code?: string })?.code;
       if (code !== 'P2003' && code !== 'P2025') throw err;
       this.logger.warn(
@@ -298,8 +276,6 @@ export class NotificationsService {
     });
   }
 
-  // ── CRUD ───────────────────────────────────────────────────────────────────
-
   async findAll(
     userId: string,
     page = 1,
@@ -346,8 +322,6 @@ export class NotificationsService {
       where: { id, userId },
       data: { isRead: true, isSeen: true },
     });
-    // Scope the read-back to the owner so this never returns another user's
-    // notification when the id/userId pair doesn't match (IDOR protection).
     return this.prisma.notification.findFirst({ where: { id, userId } });
   }
 
@@ -379,8 +353,6 @@ export class NotificationsService {
     return { deleted: count };
   }
 
-  // ── Delivery log ───────────────────────────────────────────────────────────
-
   async logDelivery(
     notificationId: string | null,
     userId: string,
@@ -399,11 +371,8 @@ export class NotificationsService {
         },
       });
     } catch {
-      // Non-critical — never block the main flow
     }
   }
-
-  // ── Helpers ────────────────────────────────────────────────────────────────
 
   private isQuietHours(start: string, end: string): boolean {
     try {
@@ -413,7 +382,7 @@ export class NotificationsService {
       const nowMin = now.getHours() * 60 + now.getMinutes();
       const startMin = sh * 60 + sm;
       const endMin = eh * 60 + em;
-      if (startMin > endMin) return nowMin >= startMin || nowMin <= endMin; // crosses midnight
+      if (startMin > endMin) return nowMin >= startMin || nowMin <= endMin;
       return nowMin >= startMin && nowMin <= endMin;
     } catch {
       return false;

@@ -6,11 +6,6 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-/**
- * MetaApi G2 connect on Vercel — bypasses stuck Render deploys.
- * Does NOT request CopyFactory roles (those need a separate MetaApi wallet top-up).
- */
-
 const PROVISIONING =
   'https://mt-provisioning-api-v1.agiliumtrade.agiliumtrade.ai';
 
@@ -72,10 +67,6 @@ function decryptAesGcm(payload: string, keyHex: string): string {
   return out;
 }
 
-/**
- * One real MT5 login ↔ one Profytron user. Teammate "sharing" is a separate
- * Business+ invite flow — not dual ownership of the same credentials.
- */
 async function assertMt5NotLinkedToAnotherUser(
   sql: ReturnType<typeof pgSql>,
   userId: string,
@@ -110,7 +101,6 @@ async function assertMt5NotLinkedToAnotherUser(
       ) {
         throw e;
       }
-      // Undecryptable row — ignore.
     }
   }
 }
@@ -275,7 +265,6 @@ export async function POST(req: NextRequest) {
   const resolvedBrokerName = platform === 'mt4' ? 'MT4' : 'MT5';
 
   try {
-    // One MT5 login cannot be owned by two Profytron users.
     await assertMt5NotLinkedToAnotherUser(
       sql,
       userId,
@@ -285,7 +274,6 @@ export async function POST(req: NextRequest) {
       aesKey,
     );
 
-    // Quota: FREE plan allows 5 (match API pricing.constants)
     const existing = await sql`
       SELECT id, "initialEquity" FROM "BrokerAccount"
       WHERE "userId" = ${userId}
@@ -325,8 +313,6 @@ export async function POST(req: NextRequest) {
       accountId = existingMeta._id || existingMeta.id;
       region = existingMeta.region || region;
 
-      // MetaAPI reuses one cloud seat for the same login+server. If another
-      // Profytron user already stored that seat id, refuse to link it again.
       const seatHolders = await sql`
         SELECT "credentialsEncrypted" FROM "BrokerAccount"
         WHERE "userId" <> ${userId}
@@ -345,7 +331,6 @@ export async function POST(req: NextRequest) {
             );
           }
         } catch {
-          /* undecryptable — ignore */
         }
       }
 
@@ -353,7 +338,6 @@ export async function POST(req: NextRequest) {
         await deployAccount(metaToken, accountId);
       }
     } else {
-      // Plain G2 — NO application/CopyFactory roles (avoids CF top-up error)
       const createRes = await fetch(`${PROVISIONING}/users/current/accounts`, {
         method: 'POST',
         headers: metaHeaders(metaToken),
@@ -467,7 +451,6 @@ export async function POST(req: NextRequest) {
       accountRow = created[0];
     }
 
-    // Link ALL orphan bot subscriptions (not only copy bots) to this MT5 account.
     try {
       await sql`
         UPDATE "UserStrategySubscription"
@@ -483,7 +466,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Checklist + auto-link any pending copy subscriptions for this user.
     let copyLink: unknown = null;
     try {
       const { trackActivation, linkUserCopySubscriptions } = await import(
@@ -498,7 +480,6 @@ export async function POST(req: NextRequest) {
         userId,
         metaToken,
         aesKey,
-        // link all pending/active copy bots now that MT5 is live
       });
     } catch (linkErr: any) {
       console.warn('[broker/connect] copy link:', linkErr?.message || linkErr);

@@ -1,10 +1,11 @@
 ﻿"use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence, useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useLiveMarketFeed } from "@/hooks/useLiveMarketFeed";
 import { DollarSign, Users, TrendingUp, Timer } from "lucide-react";
+import { Marquee } from "@/components/saasfly/marquee";
 
 function AnimatedStat({
   value,
@@ -168,19 +169,21 @@ export function LiveTicker() {
             <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-card border border-[var(--card-border)] shadow-sm">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-xs text-muted-foreground font-mono uppercase tracking-wide">
-                {wsConnected ? "Streaming live (WS)" : "Live market data"}
+                {wsConnected ? "Profytron Live Pulse" : "Profytron Market Pulse"}
               </span>
             </div>
           </div>
 
-          <div className="flex-1 flex items-center gap-8 sm:gap-14 z-20 overflow-x-auto scrollbar-hide w-full">
-            <AnimatePresence mode="popLayout">
+          <div className="relative z-20 w-full min-w-0 flex-1 overflow-hidden">
+            <Marquee
+              repeat={3}
+              className="profytron-auto-scroll !p-0 [--duration:24s] [--gap:2rem] sm:[--gap:3.5rem]"
+            >
               {trades.map((trade) => (
                 <motion.div
                   key={trade.id}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
                   className="flex items-center gap-4 text-sm whitespace-nowrap"
                 >
                   <span className="font-bold text-foreground tracking-tight uppercase">{trade.pair}</span>
@@ -204,7 +207,7 @@ export function LiveTicker() {
                   <div className="w-px h-5 bg-border mx-1" />
                 </motion.div>
               ))}
-            </AnimatePresence>
+            </Marquee>
           </div>
         </div>
       </div>

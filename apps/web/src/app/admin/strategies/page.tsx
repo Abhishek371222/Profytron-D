@@ -77,11 +77,6 @@ type FormState = {
   configJson: string;
 } & VerificationFields;
 
-// These map directly to the keys strategy-analytics.builder.ts (apps/api) reads
-// out of Strategy.configJson to populate the marketplace detail page's
-// "Verification hub" and "Strategic recommendations" sections. Exposing them as
-// named fields (instead of requiring admins to hand-edit raw JSON) is what lets
-// admin actually fill these in.
 type VerificationFields = {
   backtestReportUrl: string;
   externalVerificationUrl: string;
@@ -104,9 +99,6 @@ const emptyVerificationFields: VerificationFields = {
   minRecommendedCapital: '',
 };
 
-// Pulls the verification/recommendation keys out of a strategy's configJson so
-// they can be edited as named fields, leaving the remaining (technical) config
-// — model, universe, timeframe, risk, etc. — in the raw JSON textarea.
 function splitConfigJson(config: Record<string, unknown>): {
   fields: VerificationFields;
   rest: Record<string, unknown>;
@@ -145,9 +137,6 @@ function splitConfigJson(config: Record<string, unknown>): {
   return { fields, rest };
 }
 
-// Layers the named verification fields back onto the rest of configJson before
-// saving. Blank fields are omitted so they don't overwrite existing values with
-// empty strings.
 function mergeVerificationFields(
   rest: Record<string, unknown>,
   fields: VerificationFields,

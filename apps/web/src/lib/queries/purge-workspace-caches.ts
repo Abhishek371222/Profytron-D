@@ -11,10 +11,6 @@ const WORKSPACE_STORAGE_KEYS = [
 
 const WORKSPACE_OWNER_KEY = 'profytron.workspace-cache-owner';
 
-/**
- * Wipe every browser + React Query snapshot that can paint another user's
- * Overview (balance, portfolio, broker list) after logout / account switch.
- */
 export function purgeWorkspaceCaches() {
   if (typeof window !== 'undefined') {
     try {
@@ -23,7 +19,6 @@ export function purgeWorkspaceCaches() {
       }
       window.localStorage.removeItem(WORKSPACE_OWNER_KEY);
     } catch {
-      /* quota / private mode */
     }
     clearOverviewAccountCache();
   }
@@ -48,11 +43,9 @@ export function writeWorkspaceCacheOwner(userId: string) {
   try {
     window.localStorage.setItem(WORKSPACE_OWNER_KEY, userId);
   } catch {
-    /* ignore */
   }
 }
 
-/** Call before hydrate: drop caches if they belong to a different user. */
 export function ensureWorkspaceCacheOwner(userId: string | null | undefined) {
   if (!userId || typeof window === 'undefined') return;
   const owner = readWorkspaceCacheOwner();

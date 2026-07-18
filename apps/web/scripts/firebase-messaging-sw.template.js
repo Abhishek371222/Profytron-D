@@ -1,9 +1,6 @@
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
-// Generated into public/firebase-messaging-sw.js by scripts/generate-firebase-sw.mjs
-// (runs via the predev/prebuild hooks) — service workers are static files, so
-// Next.js's NEXT_PUBLIC_* build-time inlining never touches anything under public/.
 firebase.initializeApp({
   apiKey: '__NEXT_PUBLIC_FIREBASE_API_KEY__',
   authDomain: '__NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN__',

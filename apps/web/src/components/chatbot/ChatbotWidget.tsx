@@ -21,15 +21,8 @@ const APP_SHELL_ROUTES = [
   '/my-bots', '/subscriptions', '/billing', '/team-plans', '/connected-accounts',
 ];
 
-// Routes that render the mobile bottom nav (via AppShell/MobileBottomNav) but
-// aren't in APP_SHELL_ROUTES above — that list also controls chat state
-// sharing + hides this widget's own trigger (assumes AIAssistantOrb/inline
-// entry points cover it). /markets has neither on mobile, so it still needs
-// its own trigger — just positioned high enough to clear the bottom nav.
 const EXTRA_BOTTOM_NAV_ROUTES = ['/markets'];
 
-// Focused conversion / auth flows — a floating launcher just overlaps the
-// primary CTAs (esp. on mobile), so we hide it entirely on these routes.
 const HIDDEN_ROUTES = [
   '/login', '/register', '/signup', '/verify-email',
   '/reset-password', '/forgot-password', '/auth', '/onboarding',
@@ -116,9 +109,10 @@ function MessageBubble({ msg }: { msg: Message }) {
 
 export function ChatbotWidget() {
   const pathname = usePathname();
-  const isHidden = HIDDEN_ROUTES.some(
-    (r) => pathname === r || pathname?.startsWith(`${r}/`),
-  );
+  const isLanding = pathname === '/';
+  const isHidden =
+    isLanding ||
+    HIDDEN_ROUTES.some((r) => pathname === r || pathname?.startsWith(`${r}/`));
   const isAppShell = APP_SHELL_ROUTES.some((r) => pathname?.startsWith(r));
   const clearsBottomNav =
     isAppShell || EXTRA_BOTTOM_NAV_ROUTES.some((r) => pathname?.startsWith(r));
@@ -138,7 +132,6 @@ export function ChatbotWidget() {
   const messagesScrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Keep wheel events inside the chat panel (Lenis on the landing page hijacks page scroll).
   useEffect(() => {
     const el = messagesScrollRef.current;
     if (!el || !isOpen) return;
@@ -239,7 +232,7 @@ export function ChatbotWidget() {
       'fixed z-[9999] flex flex-col items-end gap-3 select-none',
       clearsBottomNav ? 'bottom-24 right-6 sm:bottom-28 sm:right-8' : 'bottom-6 right-6',
     )}>
-      {/* Chat window */}
+      { }
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -250,13 +243,13 @@ export function ChatbotWidget() {
             style={{ transformOrigin: 'bottom right' }}
             className="w-[min(370px,calc(100vw-1.5rem))] max-w-[calc(100vw-24px)] rounded-[20px] overflow-hidden flex flex-col bg-card backdrop-blur-xl border border-[var(--card-border)] shadow-card-premium h-[min(540px,calc(100dvh-7rem))] max-h-[calc(100dvh-5rem-env(safe-area-inset-bottom,0px))]"
           >
-            {/* Header */}
+            { }
             <div className="bg-gradient-to-r from-primary via-primary to-chart-2 px-5 py-4 flex items-center justify-between shrink-0 relative overflow-hidden">
               <div className="absolute inset-0 opacity-10 mix-blend-overlay bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJuIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC45IiBudW1PY3RhdmVzPSI0IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWx0ZXI9InVybCgjbikiIG9wYWNpdHk9IjEiLz48L3N2Zz4=')]" />
 
-              {/* Left: icon + title */}
+              { }
               <div className="relative flex items-center gap-3">
-                {/* Icon with online badge */}
+                { }
                 <div className="relative shrink-0">
                   <div className="w-10 h-10 rounded-2xl bg-white/15 flex items-center justify-center border border-white/20 backdrop-blur-sm shadow-inner">
                     <Zap className="w-5 h-5 text-white" />
@@ -264,7 +257,7 @@ export function ChatbotWidget() {
                   <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-chart-3 border-2 border-primary shadow-sm" />
                 </div>
 
-                {/* Name + status — both left-aligned */}
+                { }
                 <div>
                   <p className="text-sm font-bold text-white tracking-wide leading-tight">
                     Profytron AI
@@ -275,7 +268,7 @@ export function ChatbotWidget() {
                 </div>
               </div>
 
-              {/* Right: close button */}
+              { }
               <div className="relative">
                 <button
                   onClick={() => setIsOpen(false)}
@@ -286,7 +279,7 @@ export function ChatbotWidget() {
               </div>
             </div>
 
-            {/* Messages — data-lenis-prevent stops Lenis from capturing wheel on landing */}
+            { }
             <div
               ref={messagesScrollRef}
               data-lenis-prevent
@@ -306,7 +299,7 @@ export function ChatbotWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick suggestions — visible only at conversation start */}
+            { }
             {messages.length <= 1 && (
               <div className="px-4 pb-3 flex flex-wrap gap-1.5">
                 {QUICK_SUGGESTIONS.map((s) => (
@@ -321,7 +314,7 @@ export function ChatbotWidget() {
               </div>
             )}
 
-            {/* New chat */}
+            { }
             {messages.length > 1 && !loading && (
               <div className="px-4 pb-2 flex justify-end">
                 <button
@@ -334,7 +327,7 @@ export function ChatbotWidget() {
               </div>
             )}
 
-            {/* Input */}
+            { }
             <div className="px-4 pb-4 shrink-0">
               <div className="flex items-center gap-2 bg-foreground/5 border border-border rounded-2xl px-4 py-3 focus-within:border-primary/50 transition-colors">
                 <input
@@ -368,7 +361,7 @@ export function ChatbotWidget() {
         )}
       </AnimatePresence>
 
-      {/* Trigger button (public pages only) */}
+      { }
       {!isAppShell && (
         <div className="relative">
           {hasUnread && (

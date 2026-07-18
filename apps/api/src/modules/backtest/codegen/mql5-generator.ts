@@ -32,7 +32,6 @@ export function generateMql5(def: StrategyDefinition): string {
   );
   lines.push('');
 
-  // Indicator handles
   for (const [refId, cfg] of Object.entries(def.indicators)) {
     const v = sym(refId);
     switch (cfg.type) {
@@ -60,7 +59,6 @@ export function generateMql5(def: StrategyDefinition): string {
   lines.push('CTrade trade;');
   lines.push('');
 
-  // OnInit
   lines.push('int OnInit()');
   lines.push('{');
   for (const [refId, cfg] of Object.entries(def.indicators)) {
@@ -102,7 +100,6 @@ export function generateMql5(def: StrategyDefinition): string {
   lines.push('}');
   lines.push('');
 
-  // OnDeinit
   lines.push('void OnDeinit(const int reason)');
   lines.push('{');
   for (const [refId] of Object.entries(def.indicators)) {
@@ -111,7 +108,6 @@ export function generateMql5(def: StrategyDefinition): string {
   lines.push('}');
   lines.push('');
 
-  // OnTick
   lines.push('void OnTick()');
   lines.push('{');
   lines.push('   if(PositionsTotal() > 0) return;');

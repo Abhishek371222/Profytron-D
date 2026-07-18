@@ -30,13 +30,6 @@ import { EmailService } from '../email/email.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { CopyBridgeService } from '../copy-bridge/copy-bridge.service';
 
-/**
- * How many trade jobs a single worker processes in parallel. Bull defaults to
- * 1 (fully serial), which makes copy fan-out latency grow linearly with the
- * follower count — at 1000+ followers a single master open would drain one job
- * at a time. These jobs are I/O-bound (MetaApi REST + DB), so a higher
- * concurrency dramatically cuts fan-out latency. Tunable via env.
- */
 const TRADE_CONCURRENCY = Number(process.env.TRADE_QUEUE_CONCURRENCY) || 15;
 const TRADE_MODIFY_CONCURRENCY =
   Number(process.env.TRADE_MODIFY_CONCURRENCY) || 8;
@@ -60,14 +53,10 @@ export class TradeProcessor {
     @InjectQueue('trade_execution_dlq') private dlq: Queue,
   ) {}
 
-  /**
-   * Routes jobs that have exhausted all retries to the dead-letter queue so
-   * they can be inspected / replayed and the user notified.
-   */
   @OnQueueFailed()
   async onJobFailed(job: Job, err: Error) {
     const maxAttempts = job.opts?.attempts ?? 1;
-    if (job.attemptsMade < maxAttempts) return; // more retries pending
+    if (job.attemptsMade < maxAttempts) return;
     try {
       await this.dlq.add('dead_letter', {
         originalName: job.name,
@@ -107,9 +96,6 @@ export class TradeProcessor {
     this.logger.log(`Executing trade for user ${userId} on ${pair}`);
 
     try {
-      // ── Pre-trade risk gate ──────────────────────────────────────────────
-      // Enforced for every entry (copy, signal, manual). Blocks the trade when
-      // a configured limit is breached; hard breaches also halt + close.
       const risk = await this.aiRisk.evaluatePreTrade(userId, subscriptionId);
       if (!risk.allowed) {
         await this.prisma.auditLog
@@ -217,10 +203,6 @@ export class TradeProcessor {
         slippageBps ?? 0,
       );
 
-      // Volume: manual orders carry an explicit volume; copy/signal trades are
-      // sized by the follower's configured method (fixed / multiplier /
-      // equity-ratio) via the deterministic lot-sizing engine.
-      // Default EQUITY_RATIO + skip-below-min keeps ~$100 accounts safe.
       let volume: number;
       if (explicitVolume != null && masterVolume == null) {
         volume = Math.max(0.01, parseFloat(Number(explicitVolume).toFixed(2)));
@@ -280,8 +262,6 @@ export class TradeProcessor {
         brokerAccount.isPaperTrading ? 'paper' : 'ledger_mirror';
       let queueBridgeOpen = false;
 
-      // Real execution via MetaAPI only when a seat exists (CopyFactory mode).
-      // master_only: queue bridge EA order for live accounts (no MetaApi seat).
       if (!brokerAccount.isPaperTrading && this.mtAdapter.isLive) {
         try {
           const creds = JSON.parse(
@@ -340,7 +320,6 @@ export class TradeProcessor {
             volume,
             details: { error: err?.message ?? 'metaapi_error' },
           });
-          // Rethrow so Bull retries and ultimately dead-letters the job.
           throw err;
         }
       } else if (!brokerAccount.isPaperTrading) {
@@ -456,7 +435,6 @@ export class TradeProcessor {
         `Trade ${trade.id} opened for ${userId} (paper=${brokerAccount.isPaperTrading})`,
       );
 
-      // In-app + email notification (fire-and-forget)
       void this.notificationsService.create({
         userId,
         title: `Trade Opened — ${pair}`,
@@ -489,7 +467,6 @@ export class TradeProcessor {
           }
         });
 
-      // Auto-close paper trades after 10s for simulation
       if (brokerAccount.isPaperTrading) {
         setTimeout(async () => {
           try {
@@ -500,7 +477,6 @@ export class TradeProcessor {
               (direction === TradeDirection.LONG ? 1 : -1) *
               1000;
 
-            // Only close if still OPEN — it may have been cancelled by an emergency stop.
             const { count } = await this.prisma.trade.updateMany({
               where: { id: trade.id, status: TradeStatus.OPEN },
               data: {
@@ -525,7 +501,6 @@ export class TradeProcessor {
       }
     } catch (error) {
       this.logger.error(`Failed to execute trade: ${error.message}`);
-      // Rethrow so Bull can retry and ultimately dead-letter the job.
       throw error;
     }
   }
@@ -726,7 +701,6 @@ export class TradeProcessor {
         return;
       }
 
-      // Full close
       if (isLiveBroker && creds?.metaApiAccountId && trade.brokerTicket) {
         await this.mtAdapter.closePosition(
           creds.metaApiAccountId,
@@ -761,7 +735,6 @@ export class TradeProcessor {
           where: { id: trade.id },
         });
         this.gateway.sendToUser(userId, 'trade_closed', closed);
-        // In-app + email (fire-and-forget)
         if (closed) {
           const isProfit = (closed.profit ?? 0) > 0;
           void this.notificationsService.create({
@@ -911,10 +884,6 @@ export class TradeProcessor {
     }
   }
 
-  /**
-   * Resolve an account's equity for equity-ratio sizing: prefer live equity
-   * from the broker (cached), fall back to the recorded initial equity.
-   */
   private async resolveEquity(account: {
     credentialsEncrypted: string;
     isPaperTrading: boolean;
@@ -933,7 +902,6 @@ export class TradeProcessor {
           if (eq != null && eq > 0) return eq;
         }
       } catch {
-        /* fall back to recorded equity */
       }
     }
     return account.initialEquity ?? null;

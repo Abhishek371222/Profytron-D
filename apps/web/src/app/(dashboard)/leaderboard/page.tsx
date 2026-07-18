@@ -28,7 +28,6 @@ function profitRateClassName(value: number): string {
   return value > 0 ? 'text-chart-3' : 'text-destructive';
 }
 
-/* ── Podium config for rank 1-3 ── */
 const PODIUM = [
   {
     rank: 1,
@@ -88,17 +87,17 @@ function PodiumCard({ entry, config, myUserId }: { entry: LeaderboardEntry; conf
         isMe ? 'ring-2 ' + config.ring : '',
       )}
     >
-      {/* Rank icon */}
+      { }
       <div className={cn('w-10 h-10 rounded-2xl border flex items-center justify-center', config.iconBg)}>
         <config.Icon className={cn('w-5 h-5', config.iconColor)} />
       </div>
 
-      {/* Avatar */}
+      { }
       <div className={cn('w-14 h-14 rounded-full border-2 overflow-hidden', config.border)}>
         <Avatar user={entry.user} />
       </div>
 
-      {/* Name */}
+      { }
       <div className="text-center space-y-0.5">
         <p className="text-sm font-bold text-foreground truncate max-w-[120px]">{entry.user.fullName}</p>
         {entry.user.username && (
@@ -111,7 +110,7 @@ function PodiumCard({ entry, config, myUserId }: { entry: LeaderboardEntry; conf
         )}
       </div>
 
-      {/* Stats row */}
+      { }
       <div className="flex items-center gap-3 text-center">
         <div>
           <p className={cn('text-base font-bold', entry.totalPnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
@@ -126,7 +125,7 @@ function PodiumCard({ entry, config, myUserId }: { entry: LeaderboardEntry; conf
         </div>
       </div>
 
-      {/* Podium bar */}
+      { }
       <div className={cn('w-full rounded-full overflow-hidden bg-foreground/5', config.height)}>
         <motion.div
           initial={{ scaleY: 0 }}
@@ -151,7 +150,6 @@ function TraderRow({
 }) {
   const isMe = entry.userId === myUserId;
   const isTop3 = entry.rank <= 3;
-  // Only animate the first 20 rows to prevent layout thrash on large lists
   const shouldAnimate = index < 20;
 
   return (
@@ -169,7 +167,7 @@ function TraderRow({
       )}
     >
       <div className="flex items-center gap-3 sm:gap-4">
-      {/* Rank number */}
+      { }
       <div
         className={cn(
           'w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 text-xs font-bold',
@@ -189,12 +187,12 @@ function TraderRow({
         )}
       </div>
 
-      {/* Avatar */}
+      { }
       <div className="w-10 h-10 rounded-full border border-border overflow-hidden shrink-0">
         <Avatar user={entry.user} />
       </div>
 
-      {/* Name */}
+      { }
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <p className="text-sm font-bold text-foreground truncate">{entry.user.fullName}</p>
@@ -209,7 +207,7 @@ function TraderRow({
         )}
       </div>
 
-      {/* Stats — desktop */}
+      { }
       <div className="hidden shrink-0 items-center gap-4 text-right sm:flex sm:gap-6">
         <div>
           <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Win Rate</p>
@@ -228,7 +226,7 @@ function TraderRow({
       </div>
       </div>
 
-      {/* Stats — mobile */}
+      { }
       <div className="grid grid-cols-3 gap-2 border-t border-[var(--card-border)] pt-3 sm:hidden">
         <div className="min-w-0 text-center">
           <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Win Rate</p>
@@ -372,7 +370,7 @@ export default function LeaderboardPage() {
         iconClassName="bg-amber-500/10 text-amber-600 border border-amber-500/20"
       />
 
-      {/* ── My Rank Cards ── */}
+      { }
       {myRank && (myRank.monthly || myRank.allTime) && (
         <div className="grid grid-cols-2 gap-4">
           {myRank.monthly && (
@@ -406,10 +404,10 @@ export default function LeaderboardPage() {
 
       <DashboardTabs tabs={TABS} active={tab} onChange={setTab} />
 
-      {/* ── Content ── */}
+      { }
       {isLoading ? (
         <div className="space-y-3" aria-busy="true" aria-label="Loading leaderboard">
-          {/* Podium skeleton */}
+          { }
           <div className="grid grid-cols-3 gap-3">
             {Array.from({ length: 3 }).map((_, i) => (
               <div
@@ -423,7 +421,7 @@ export default function LeaderboardPage() {
               <div key={i} className="h-40 animate-pulse rounded-[26px] border border-white/[0.05] bg-muted/25" />
             ))}
           </div>
-          {/* Row skeletons */}
+          { }
           <div className="space-y-2 pt-2">
             {Array.from({ length: 7 }).map((_, i) => (
               <div
@@ -455,7 +453,7 @@ export default function LeaderboardPage() {
       ) : (
         <AnimatePresence mode="wait">
           <div className="space-y-5">
-            {/* Podium — top 3 */}
+            { }
             {top3.length > 0 && (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {top3.map((entry) => {
@@ -465,7 +463,7 @@ export default function LeaderboardPage() {
               </div>
             )}
 
-            {/* Rest of list */}
+            { }
             <div className="space-y-2">
               {rest.length === 0 && entries.length === 0 ? (
                 <div className="py-20 text-center space-y-4">

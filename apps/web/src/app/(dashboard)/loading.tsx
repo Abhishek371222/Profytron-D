@@ -11,7 +11,7 @@ function Shimmer({ className }: { className?: string }) {
 export default function DashboardLoading() {
   return (
     <div className="space-y-5 pb-10 animate-in fade-in duration-300">
-      {/* Header skeleton */}
+      { }
       <div className="rounded-[26px] border border-[var(--card-border)] bg-muted/505 p-5 md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
@@ -30,7 +30,7 @@ export default function DashboardLoading() {
         </div>
       </div>
 
-      {/* KPI cards skeleton */}
+      { }
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="rounded-[22px] border border-[var(--card-border)] bg-muted/505 p-5 space-y-3">
@@ -44,7 +44,7 @@ export default function DashboardLoading() {
         ))}
       </div>
 
-      {/* Chart area skeleton */}
+      { }
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="rounded-[22px] border border-[var(--card-border)] bg-muted/505 p-5 space-y-4">
           <div className="space-y-1.5">

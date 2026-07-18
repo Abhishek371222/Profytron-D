@@ -16,6 +16,11 @@ export interface AccountDetailsData {
   serverName?: string;
   currency?: string;
   balance?: number;
+  equity?: number;
+  margin?: number;
+  freeMargin?: number;
+  marginLevel?: number;
+  credit?: number;
   initialEquity?: number;
   isDefault?: boolean;
   isMasterSource?: boolean;
@@ -73,7 +78,6 @@ export function AccountDetailsModal({
   const [testResult, setTestResult] = React.useState<{ connected: boolean; error?: string } | null>(null);
 
   React.useEffect(() => {
-    // Reset the live-check result whenever a different account is opened.
     setTestResult(null);
     setTesting(false);
   }, [account?.id]);
@@ -114,7 +118,7 @@ export function AccountDetailsModal({
             exit={{ opacity: 0, scale: 0.95, y: 12 }}
             className="w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl border border-[var(--card-border)] bg-card shadow-2xl"
           >
-            {/* Header */}
+            { }
             <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--card-border)]">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -134,7 +138,7 @@ export function AccountDetailsModal({
               </button>
             </div>
 
-            {/* Body */}
+            { }
             <div className="px-6 py-5 space-y-4">
               <SectionCard title="Account Information">
                 <Row label="Account Number">{maskAccount(account.accountNumber)}</Row>
@@ -165,8 +169,17 @@ export function AccountDetailsModal({
               <SectionCard title="Balance Details">
                 <Row label="Balance">{account.balance != null ? formatAmount(account.balance, account.currency) : '—'}</Row>
                 <Row label="Initial Equity">{account.initialEquity != null ? formatAmount(account.initialEquity, account.currency) : '—'}</Row>
-                <Row label="Current Equity">{account.balance != null ? formatAmount(account.balance, account.currency) : '—'}</Row>
+                <Row label="Current Equity">{(account.equity ?? account.balance) != null ? formatAmount(account.equity ?? account.balance!, account.currency) : '—'}</Row>
                 <Row label="Currency">{account.currency || '—'}</Row>
+              </SectionCard>
+
+              <SectionCard title="Margin">
+                <Row label="Margin Used">{account.margin != null ? formatAmount(account.margin, account.currency) : '—'}</Row>
+                <Row label="Free Margin">{account.freeMargin != null ? formatAmount(account.freeMargin, account.currency) : '—'}</Row>
+                <Row label="Margin Level">{account.margin != null && account.margin > 0 && account.marginLevel != null ? `${account.marginLevel.toFixed(2)}%` : '—'}</Row>
+                {Boolean(account.credit) && (
+                  <Row label="Credit">{formatAmount(account.credit!, account.currency)}</Row>
+                )}
               </SectionCard>
 
               <SectionCard title="Activity Details">
@@ -179,7 +192,7 @@ export function AccountDetailsModal({
                 </Row>
               </SectionCard>
 
-              {/* Live Connection Check */}
+              { }
               <div className="rounded-xl border border-[var(--card-border)] bg-muted/10 px-4 py-3">
                 <p className="text-[11px] font-bold uppercase tracking-wider text-primary mb-1">Live Connection Check</p>
                 <p className="text-xs text-muted-foreground mb-3">Test connection with the broker right now.</p>
@@ -210,7 +223,7 @@ export function AccountDetailsModal({
               </div>
             </div>
 
-            {/* Footer */}
+            { }
             <div className="flex items-center gap-2 px-6 py-4 border-t border-[var(--card-border)]">
               <button
                 type="button"

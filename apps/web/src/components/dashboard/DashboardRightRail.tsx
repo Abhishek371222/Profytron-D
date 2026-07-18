@@ -188,8 +188,8 @@ export function DashboardRightRail({
                 </div>
                 <div className="h-1.5 rounded-full bg-primary/10 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-700 ease-out"
-                    style={{ width: `${strat.winRate}%` }}
+                    className="h-full w-full origin-left rounded-full bg-gradient-to-r from-primary to-secondary transition-transform duration-700 ease-out will-change-transform"
+                    style={{ transform: `scaleX(${Math.min(Math.max(strat.winRate, 0), 100) / 100})` }}
                   />
                 </div>
               </div>

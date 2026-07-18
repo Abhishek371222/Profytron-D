@@ -2,8 +2,6 @@ import { apiClient, unwrapApiResponse } from './client';
 
 export const brokerApi = {
   async connectBroker(data: any) {
-    // Real MetaAPI provisioning + broker connection can take up to ~60s for a
-    // fresh demo account, so override the default 30s client timeout here.
     const res = await apiClient.post('/broker/accounts/connect', data, {
       timeout: 90_000,
     });

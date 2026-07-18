@@ -39,7 +39,6 @@ export async function GET(req: NextRequest) {
     const losses = pnls.filter((p) => p < 0).map((p) => Math.abs(p));
     const wins = pnls.filter((p) => p > 0);
 
-    // Historical VaR 95%: 95th percentile of loss magnitude (absolute).
     const sortedLosses = [...losses].sort((a, b) => a - b);
     const var95 =
       sortedLosses.length === 0
@@ -63,7 +62,6 @@ export async function GET(req: NextRequest) {
     const avgLoss = losses.length ? losses.reduce((a, b) => a + b, 0) / losses.length : 0;
     const avgRiskReward = avgLoss > 0 ? avgWin / avgLoss : avgWin > 0 ? avgWin : 0;
 
-    // Equity + drawdown curve from deposit base + chronological trades.
     let equity = depositBase;
     let peak = depositBase;
     const drawdownCurve: Array<{ time: number; val: number }> = [
@@ -81,7 +79,6 @@ export async function GET(req: NextRequest) {
         val: Number(dd.toFixed(2)),
       });
     }
-    // Snap end to live floating.
     peak = Math.max(peak, liveEquity);
     const endDd = peak > 0 ? ((peak - liveEquity) / peak) * 100 : 0;
     maxDd = Math.max(maxDd, endDd);
@@ -91,7 +88,6 @@ export async function GET(req: NextRequest) {
       depositBase > 0 ? ((liveEquity - depositBase) / depositBase) * 100 : 0;
     const calmarRatio = maxDd > 0 ? annualizedReturn / maxDd : 0;
 
-    // Hour × weekday heatmap from trade outcomes (intensity = |pnl|).
     const heatMap = new Map<string, number>();
     for (const t of closed) {
       const d = new Date(t.closedAt);

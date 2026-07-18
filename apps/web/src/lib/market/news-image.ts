@@ -1,6 +1,5 @@
 import type { MarketNewsItem } from '@/lib/api/market';
 
-/** True when Finnhub (or similar) returned a real article photo, not a source logo. */
 export function isUsableNewsImageUrl(url: string | null | undefined): boolean {
   if (!url || typeof url !== 'string') return false;
   const trimmed = url.trim();
@@ -22,7 +21,6 @@ export function isUsableNewsImageUrl(url: string | null | undefined): boolean {
   return true;
 }
 
-/** Same-origin proxy so publisher hotlink blocks don't blank the UI. */
 export function newsImageSrc(url: string): string {
   return `/api/market/news-image?url=${encodeURIComponent(url)}`;
 }

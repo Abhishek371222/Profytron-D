@@ -79,9 +79,6 @@ export class UpdateProfileDto {
   @MaxLength(500)
   bio?: string;
 
-  // Only allow https:// URLs to block javascript: and data: URI injection.
-  // avatarUrl set via this field should still be validated server-side to
-  // prevent SSRF; prefer using the dedicated /me/avatar upload endpoint instead.
   @ApiPropertyOptional()
   @IsUrl({ protocols: ['https'], require_protocol: true })
   @IsOptional()
@@ -165,8 +162,6 @@ export class ConfirmPasswordResetDto {
 
 export class VerifyDeleteAccountOtpDto {
   @ApiProperty({ description: '6-digit OTP sent to the user email' })
-  // enableImplicitConversion can turn digit-only strings into numbers;
-  // force a trimmed string before validation/compare.
   @Transform(({ value }) => String(value ?? '').trim())
   @IsString()
   @Length(6, 6)

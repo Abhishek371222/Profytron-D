@@ -50,7 +50,6 @@ export function generatePine(def: StrategyDefinition): string {
   );
   lines.push('');
 
-  // Indicator declarations
   for (const [refId, cfg] of Object.entries(def.indicators)) {
     const v = sym(refId);
     const src = cfg.source ?? 'close';

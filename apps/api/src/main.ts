@@ -1,5 +1,3 @@
-// Must be the first imports: Datadog APM, error tracking, and tracing before
-// instrumented libraries load.
 import './datadog';
 import './instrument';
 import './tracing';
@@ -27,8 +25,6 @@ async function isPortInUse(port: number): Promise<boolean> {
 }
 
 async function resolveApiPort(requestedPort: number): Promise<number> {
-  // In production, never silently move to a different port — fail fast so the
-  // container orchestrator knows the pod failed to bind and can reschedule it.
   if (process.env.NODE_ENV === 'production') {
     return requestedPort;
   }
@@ -46,13 +42,9 @@ async function resolveApiPort(requestedPort: number): Promise<number> {
 
 function validateEnv() {
   const logger = new Logger('EnvValidation');
-  // "Strict" environments (production + staging) fail fast on any missing or
-  // malformed variable so a broken deploy never starts serving traffic. Local
-  // dev/test only logs warnings so partial configs (e.g. in-memory Redis) boot.
   const nodeEnv = process.env.NODE_ENV;
   const isStrict = nodeEnv === 'production' || nodeEnv === 'staging';
 
-  // Always required
   const required = [
     'DATABASE_URL',
     'DIRECT_URL',
@@ -60,7 +52,6 @@ function validateEnv() {
     'JWT_REFRESH_SECRET',
     'AES_MASTER_KEY',
   ];
-  // Required in strict (production/staging) environments only
   const prodRequired = [
     'STRIPE_SECRET_KEY',
     'STRIPE_WEBHOOK_SECRET',
@@ -90,7 +81,6 @@ function validateEnv() {
     }
   }
 
-  // ─── Format / strength validation (only for values that are present) ───────
   const dbUrl = process.env.DATABASE_URL?.trim();
   if (dbUrl && !/^postgres(ql)?:\/\//i.test(dbUrl)) {
     invalid.push('DATABASE_URL must be a postgres:// or postgresql:// URL');
@@ -190,7 +180,6 @@ function validateEnv() {
     process.exit(1);
   }
 
-  // Warn about demo/placeholder values in strict environments
   if (isStrict) {
     if (!process.env.METAAPI_TOKEN) {
       logger.warn(
@@ -217,11 +206,6 @@ function validateEnv() {
 
 function installProcessSafetyNet() {
   const logger = new Logger('ProcessSafety');
-  // Background pollers (copy-factory sync, market price broadcast, master sync)
-  // run on timers and issue Prisma queries. A transient DB disconnect (e.g. Neon
-  // closing an idle serverless connection — P1017) surfaces as an unhandled
-  // rejection that would otherwise crash the whole API. Prisma reconnects on the
-  // next query, so we log and keep the process alive instead of exiting.
   process.on('unhandledRejection', (reason) => {
     logger.error(
       `Unhandled promise rejection (process kept alive): ${
@@ -249,26 +233,13 @@ async function bootstrap() {
 
   configureApp(app);
 
-  // ─── WebSocket horizontal scaling ─────────────────────────────────────────
-  // Attach the Redis Pub/Sub adapter when a real Redis is configured so events
-  // fan out across all API replicas. No-op (default adapter) in single-instance
-  // / in-memory-Redis dev.
   const redisIoAdapter = new RedisIoAdapter(app);
   if (await redisIoAdapter.connectToRedis()) {
     app.useWebSocketAdapter(redisIoAdapter);
   }
 
-  // ─── Graceful shutdown ────────────────────────────────────────────────────
-  // enableShutdownHooks() causes NestJS to listen for SIGTERM / SIGINT and
-  // call onModuleDestroy() / beforeApplicationShutdown() on providers.
-  // This lets Prisma, Redis, and Bull flush in-flight work before the process
-  // exits, preventing data loss during rolling restarts or container eviction.
   app.enableShutdownHooks();
 
-  // Hosts like Render/Heroku inject the port to bind via PORT and route traffic
-  // to it; prefer that, then our own API_PORT, then the local default. Binding
-  // anything other than the platform-assigned port shows up as
-  // "No open ports detected" and the service never goes live.
   const requestedPort = Number(
     process.env.PORT || process.env.API_PORT || 4000,
   );
@@ -295,10 +266,6 @@ async function bootstrap() {
     process.env.API_PUBLIC_URL ||
     `http://${host === '0.0.0.0' ? 'api' : host}:${port}`;
 
-  // ─── Root path handler ───────────────────────────────────────────────────
-  // NestJS global prefix is `/v1`, so the NestJS AppController's @Get() maps
-  // to `/v1`, not `/`. Register a raw Express route before NestJS takes over
-  // so that GET / returns a proper JSON status response instead of a 404.
   const httpAdapter = app.getHttpAdapter();
   httpAdapter.get('/', (_req: Request, res: Response) => {
     res.json({ status: 'ok', version: '1.0.4' });
@@ -307,7 +274,6 @@ async function bootstrap() {
   await app.listen(port, host);
   logger.log(`API is running on: ${apiPublicUrl}`);
 
-  // Only log Swagger URL in non-production to avoid advertising the docs path
   if (process.env.NODE_ENV !== 'production') {
     logger.log(`Documentation: ${apiPublicUrl}/api/docs`);
   }

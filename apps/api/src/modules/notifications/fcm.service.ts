@@ -67,8 +67,6 @@ export class FcmService implements OnModuleInit {
   }
 
   async removeToken(userId: string, token: string) {
-    // Scope deletion to the requesting user — prevents any authenticated user
-    // from removing another user's push token (silencing their notifications).
     await this.prisma.userFcmToken.deleteMany({ where: { token, userId } });
   }
 
@@ -97,7 +95,6 @@ export class FcmService implements OnModuleInit {
 
     try {
       const result = await admin.messaging().sendEachForMulticast(message);
-      // Clean up invalid tokens
       const invalidTokens: string[] = [];
       result.responses.forEach((resp, idx) => {
         if (!resp.success) {

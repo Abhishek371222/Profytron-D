@@ -4,7 +4,6 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-/** Solid brand mark — Target on teal, matches sidebar Alpha Coach. */
 export function CoachBrandMark({
   size = 28,
   pulse = false,

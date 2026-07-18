@@ -4,9 +4,6 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Radio } from 'lucide-react';
 
-/**
- * Compact Alpha Coach–only AI meter. Fixed-width waveform — never full-bleed.
- */
 export function CoachAiPulseStrip({
   active,
   winRate,
@@ -42,14 +39,15 @@ export function CoachAiPulseStrip({
     <div className="relative z-10 flex shrink-0 items-center gap-3 border-b border-[var(--card-border)] bg-card/70 px-3 py-1.5 sm:px-4">
       <div className="flex h-8 w-[88px] shrink-0 items-end gap-[2px] rounded-md bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] px-1.5 py-1">
         {bars.map((h, i) => (
-          <div
-            key={i}
-            className={cn(
-              'w-[4px] rounded-sm transition-[height] duration-500',
-              active ? 'bg-primary' : 'bg-primary/45',
-            )}
-            style={{ height: `${h}%` }}
-          />
+          <div key={i} className="h-full w-[4px]">
+            <div
+              className={cn(
+                'h-full w-full origin-bottom rounded-sm transition-transform duration-500 will-change-transform',
+                active ? 'bg-primary' : 'bg-primary/45',
+              )}
+              style={{ transform: `scaleY(${Math.min(Math.max(h, 0), 100) / 100})` }}
+            />
+          </div>
         ))}
       </div>
 
@@ -86,8 +84,8 @@ export function CoachAiPulseStrip({
               </div>
               <div className="h-1 overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-primary transition-[width] duration-500"
-                  style={{ width: `${m.value}%` }}
+                  className="h-full w-full origin-left rounded-full bg-primary transition-transform duration-500 will-change-transform"
+                  style={{ transform: `scaleX(${Math.min(Math.max(m.value, 0), 100) / 100})` }}
                 />
               </div>
             </div>

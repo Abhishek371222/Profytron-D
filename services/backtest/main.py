@@ -17,8 +17,6 @@ class BacktestRequest(BaseModel):
 
 @app.post("/backtest/run")
 async def run_backtest(req: BacktestRequest):
-    # Mocking high-frequency bar simulation logic
-    # In production, this would fetch from Alpha Vantage and run pandas iteration
     
     dates = pd.date_range(start="2024-01-01", periods=100, freq="D")
     equity_curve = np.cumsum(np.random.normal(0.01, 0.05, 100)) + 1
@@ -38,7 +36,6 @@ async def run_backtest(req: BacktestRequest):
 
 @app.post("/backtest/monte-carlo")
 async def run_monte_carlo(req: dict):
-    # Simulate 1000 outcomes
     return {
         "strategy_id": req.get("strategy_id"),
         "simulations": 1000,

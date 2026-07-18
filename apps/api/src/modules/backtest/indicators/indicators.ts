@@ -60,7 +60,6 @@ export function macd(
   const macdLine = values.map((_, i) =>
     isNaN(fastEma[i]) || isNaN(slowEma[i]) ? NaN : fastEma[i] - slowEma[i],
   );
-  // Build signal from valid MACD values
   const validMacd: number[] = [];
   const validIndices: number[] = [];
   for (let i = 0; i < macdLine.length; i++) {
@@ -165,7 +164,6 @@ export function adx(
     dxArr[i] = dSum !== 0 ? (Math.abs(pdi[i] - mdi[i]) / dSum) * 100 : 0;
   }
 
-  // Smooth DX → ADX (Wilder's smoothing)
   let dxSum = 0;
   let cnt = 0;
   for (let i = 1; i < n; i++) {

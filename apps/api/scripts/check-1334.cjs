@@ -34,7 +34,6 @@ const sql = neon(dbUrl);
       raw.includes('metaApiAccountId') ||
       raw.includes('metaapi') ||
       raw.includes('executionMode');
-    // credentials are encrypted JSON blob — just report length
     console.log(
       `account ${row.accountNumberLast4} active=${row.isActive} equity=${row.initialEquity} encLen=${raw.length}`,
     );

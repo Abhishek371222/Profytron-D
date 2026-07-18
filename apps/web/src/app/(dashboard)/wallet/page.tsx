@@ -98,18 +98,24 @@ function BalanceCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.35, ease: 'easeOut' }}
       whileHover={{ y: -4 }}
-      className={cn('dashboard-card relative overflow-hidden p-5 min-h-[140px] transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]', gradient)}
+      className={cn(
+        'dashboard-card relative overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]',
+        'p-3 sm:p-4',
+        gradient,
+      )}
     >
-      <div className={cn('absolute -right-2 -bottom-2 opacity-[0.12] pointer-events-none', decorClass)}>
-        <DecorIcon className="h-24 w-24" strokeWidth={1.25} />
+      <div className={cn('absolute -right-1 -bottom-1 sm:-right-2 sm:-bottom-2 opacity-[0.12] pointer-events-none', decorClass)}>
+        <DecorIcon className="h-12 w-12 sm:h-24 sm:w-24" strokeWidth={1.25} />
       </div>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground relative z-10">{label}</p>
-      <p className={cn('text-3xl font-bold tabular-nums mt-2 relative z-10', valueClass ?? 'text-foreground')}>
-        {loading ? <span className="inline-block h-9 w-28 rounded-lg bg-muted animate-pulse" /> : value}
+      <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-muted-foreground relative z-10 leading-tight">
+        {label}
       </p>
-      <div className={cn('flex items-center gap-1.5 mt-3 relative z-10', footerClass)}>
-        <FooterIcon className="h-3 w-3 shrink-0" />
-        <span className="text-[11px] font-semibold uppercase tracking-wide">{footer}</span>
+      <p className={cn('text-lg sm:text-3xl font-bold tabular-nums mt-1 sm:mt-2 relative z-10 leading-tight', valueClass ?? 'text-foreground')}>
+        {loading ? <span className="inline-block h-6 w-16 sm:h-9 sm:w-28 rounded-lg bg-muted animate-pulse" /> : value}
+      </p>
+      <div className={cn('flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-3 relative z-10', footerClass)}>
+        <FooterIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+        <span className="text-[9px] sm:text-[11px] font-semibold uppercase tracking-wide truncate">{footer}</span>
       </div>
     </motion.div>
   );
@@ -205,12 +211,16 @@ export default function WalletPage() {
   // Wallet page visit. Removed; balance/transactions refresh via the
   // existing React Query polling and the manual refresh button below.
 
+
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   const balanceQuery = useQuery({
     queryKey: ['wallet-balance'],
     queryFn: () => walletApi.getBalance(),
     enabled: isAuthenticated,
+    refetchInterval: 60_000,
+    refetchOnWindowFocus: true,
+    retry: 2,
   });
 
   const transactionsQuery = useInfiniteQuery({
@@ -304,6 +314,14 @@ export default function WalletPage() {
     toast.success('Wallet refreshed');
   };
 
+  const balanceError =
+    balanceQuery.isError && !balanceQuery.isFetching
+      ? ((balanceQuery.error as { response?: { status?: number }; message?: string })
+          ?.response?.status === 401
+          ? 'Session expired — sign in again to load your wallet.'
+          : 'Could not load wallet balance. Check that the API is running, then refresh.')
+      : null;
+
   const downloadStatement = async () => {
     if (!canDownloadStatement) {
       toast.message('No transactions this month', {
@@ -361,7 +379,7 @@ export default function WalletPage() {
 
   return (
     <div className="space-y-5 pb-8">
-      {/* Breadcrumbs */}
+      { }
       <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
         <Link href="/dashboard" className="hover:underline">
           Dashboard
@@ -370,7 +388,7 @@ export default function WalletPage() {
         <span className="text-foreground">Wallet</span>
       </div>
 
-      {/* Header */}
+      { }
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -386,11 +404,11 @@ export default function WalletPage() {
             <p className="text-sm text-muted-foreground mt-1">Ledger • Deposits • Withdrawals</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 w-full sm:w-auto sm:shrink-0">
           <button
             type="button"
             onClick={refreshWallet}
-            className="btn-premium-ghost inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground"
+            className="btn-premium-ghost inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground"
             aria-label="Refresh wallet"
           >
             <RefreshCcw className="h-4 w-4" />
@@ -399,25 +417,41 @@ export default function WalletPage() {
             type="button"
             onClick={() => setIsDepositOpen(true)}
             data-tour="wallet-deposit-cta"
-            className="btn-premium h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide"
+            className="btn-premium h-9 flex-1 sm:flex-none px-3 sm:px-4 gap-1 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-[11px] sm:text-xs font-bold uppercase tracking-wide"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
             Deposit
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() => setIsWithdrawOpen(true)}
-            className="btn-premium-ghost h-9 px-4 rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30"
+            className="btn-premium-ghost h-9 flex-1 sm:flex-none px-3 sm:px-4 gap-1 rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-[11px] sm:text-xs font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30"
           >
-            <ArrowUpRight className="h-4 w-4" />
+            <ArrowUpRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
             Withdraw
           </Button>
         </div>
       </motion.div>
 
-      {/* Balance Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {balanceError ? (
+        <div
+          role="alert"
+          className="rounded-[var(--radius-button)] border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          <p className="font-medium">{balanceError}</p>
+          <button
+            type="button"
+            onClick={() => void balanceQuery.refetch()}
+            className="mt-2 text-xs font-semibold uppercase tracking-wide underline underline-offset-2"
+          >
+            Retry
+          </button>
+        </div>
+      ) : null}
+
+      { }
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
         <BalanceCard
           label="Total Balance"
           value={formatCurrency(total, currency)}
@@ -457,7 +491,7 @@ export default function WalletPage() {
         />
       </div>
 
-      {/* Transaction History */}
+      { }
       <div className="dashboard-card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--card-border)] flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-muted-foreground">
@@ -631,7 +665,7 @@ export default function WalletPage() {
         )}
       </div>
 
-      {/* Bottom widgets */}
+      { }
       <div className="grid gap-5 lg:grid-cols-2">
         <div className="dashboard-card p-5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-4">Monthly Statement</p>

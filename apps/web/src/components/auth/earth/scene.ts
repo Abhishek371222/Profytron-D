@@ -19,7 +19,6 @@ export type EarthMeshes = {
   materials: THREE.Material[];
 };
 
-/** Builds the Earth mesh stack — position/scale locked to existing composition. */
 export function buildEarthMeshes(
   THREE: typeof import('three'),
   textures: EarthTextureSet,

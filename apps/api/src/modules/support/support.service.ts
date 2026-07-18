@@ -114,7 +114,6 @@ export class SupportService {
         },
       });
     } catch (error) {
-      // Ticket is already saved — email failure should not roll back the request.
       this.logger.error(
         `Failed to email support inbox for ticket ${ticket.id}: ${
           error instanceof Error ? error.message : 'unknown error'
@@ -192,7 +191,6 @@ export class SupportService {
         ErrorCode.VALIDATION_ERROR,
       );
 
-    // Only the ticket owner or admins can respond
     if (!isAdmin && ticket.userId !== userId) {
       throw new ForbiddenException('You do not have access to this ticket');
     }
@@ -264,7 +262,6 @@ export class SupportService {
     });
   }
 
-  /** Admin: resolve exact user + payment from a Billing ID */
   async getPaymentByBillingId(billingId: string) {
     const normalized = billingId.trim().toUpperCase();
     const tx = await this.prisma.walletTransaction.findUnique({

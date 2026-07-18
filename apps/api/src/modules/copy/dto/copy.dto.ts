@@ -35,13 +35,11 @@ export class SetSizingDto {
   @IsIn(['FIXED', 'MULTIPLIER', 'EQUITY_RATIO'])
   sizingMode!: SizingModeInput;
 
-  /** Multiplier for MULTIPLIER / EQUITY_RATIO modes (clamped 0.01–5). */
   @IsOptional()
   @IsNumber()
   @IsPositive()
   multiplier?: number;
 
-  /** Lot size for FIXED mode. */
   @IsOptional()
   @IsNumber()
   @IsPositive()

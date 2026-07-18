@@ -175,12 +175,6 @@ function MarketplacePageInner() {
       const strategy = item.strategy as Record<string, unknown>;
       const perf = (strategy.performance as Record<string, unknown>[])?.[0] ?? {};
       const assetClass = strategy.assetClass ? String(strategy.assetClass) : 'Unknown';
-      // A strategy can trade several markets (creator's Add Bot form is
-      // multi-select), but Strategy.assetClass only stores the first one.
-      // Fall back to the full list stashed in configJson.markets so the
-      // asset-class filter matches every market this strategy actually
-      // trades, not just its primary one — keeps this list consistent with
-      // the strategy detail page, which already shows all configJson.markets.
       const configMarkets = (strategy.configJson as Record<string, unknown> | undefined)?.markets;
       const allMarkets = Array.isArray(configMarkets) && configMarkets.length > 0
         ? configMarkets.map(String)
@@ -288,7 +282,7 @@ function MarketplacePageInner() {
     try {
       const parsed = JSON.parse(preset);
       setFilters((c) => ({ ...c, ...parsed }));
-    } catch { /* ignore */ }
+    } catch {   }
   }, []);
 
   const resetFilters = () => {

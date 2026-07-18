@@ -7,10 +7,6 @@ const templatePath = join(__dirname, 'firebase-messaging-sw.template.js');
 const outputPath = join(__dirname, '..', 'public', 'firebase-messaging-sw.js');
 const webRoot = join(__dirname, '..');
 
-// Plain `node` scripts (unlike `next dev`/`next build`) don't auto-load
-// .env.local — that loading is internal to the Next.js CLI. Load it here too,
-// mirroring Next's precedence (.env.local overrides .env), without clobbering
-// real env vars already set by the platform (Docker/Vercel/CI).
 function loadEnvFile(filename) {
   const filePath = join(webRoot, filename);
   if (!existsSync(filePath)) return;
@@ -34,10 +30,6 @@ function loadEnvFile(filename) {
 loadEnvFile('.env.local');
 loadEnvFile('.env');
 
-// Firebase's web apiKey/authDomain/projectId etc. are not secrets — they are
-// meant to ship in public client code (access is governed by Firebase Security
-// Rules / App Check, not by hiding these values). Baking them into this static
-// file is the standard, expected way to configure an FCM service worker.
 const REPLACEMENTS = {
   __NEXT_PUBLIC_FIREBASE_API_KEY__: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   __NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN__: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,

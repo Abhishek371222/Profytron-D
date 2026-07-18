@@ -1,6 +1,3 @@
-/* ═══════════════════════════════════════════════════════
-   AUTH EXPERIENCE — Screenshot-matched login & register
-═══════════════════════════════════════════════════════ */
 
 .ax-page {
   --ax-primary: #348398;
@@ -53,7 +50,6 @@
   --ax-chart-up: #3d9aad;
 }
 
-/* ── Background layers ── */
 .ax-bg {
   position: fixed;
   inset: 0;
@@ -189,7 +185,6 @@
   background-image: radial-gradient(circle, rgba(159, 225, 243, 0.14) 1px, transparent 1px);
 }
 
-/* Shield login card zone from background chart */
 .ax-bg-card-shield {
   position: absolute;
   inset: 0;
@@ -330,17 +325,14 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-/* Centered login — edge-anchored telemetry */
 .ax-bg-pill--edge-tl { top: 10%; left: 4.5%; }
 .ax-bg-pill--edge-ml { top: 66%; left: 3.5%; }
 .ax-bg-pill--edge-br { bottom: 16%; right: 4.5%; }
 
-/* Split register — hero-adjacent telemetry */
 .ax-bg-pill--split-tl { top: 14%; left: 6%; }
 .ax-bg-pill--split-mid { top: 48%; left: 28%; }
 .ax-bg-pill--split-tr { top: 20%; right: 8%; }
 
-/* ── Page shell ── */
 .ax-page-inner {
   position: relative;
   z-index: 2;
@@ -358,7 +350,6 @@
   z-index: 1;
 }
 
-/* ── Header ── */
 .ax-header {
   display: flex;
   align-items: center;
@@ -412,7 +403,6 @@
   color: var(--ax-muted);
 }
 
-/* Theme toggle pill */
 .ax-theme-toggle {
   position: relative;
   display: grid;
@@ -461,7 +451,6 @@
   max-width: 1440px;
 }
 
-/* ── Centered login layout ── */
 .ax-centered-main {
   flex: 1;
   display: flex;
@@ -512,7 +501,6 @@
   color: var(--ax-muted);
 }
 
-/* ── Glass card ── */
 .ax-glass-card {
   width: 100%;
   max-width: 480px;
@@ -573,7 +561,6 @@
   color: var(--ax-muted);
 }
 
-/* ── Base field primitives (AuthField) ── */
 .auth-field-wrap {
   position: relative;
   height: 64px;
@@ -688,7 +675,6 @@
   opacity: 0.55;
 }
 
-/* ── Fields ── */
 .ax-field {
   margin-bottom: 20px;
 }
@@ -725,7 +711,6 @@
   margin-bottom: 4px;
 }
 
-/* ── Buttons ── */
 .ax-btn-primary {
   display: flex;
   align-items: center;
@@ -780,7 +765,6 @@
   transition: transform 220ms var(--ax-ease);
 }
 
-/* ── Divider ── */
 .ax-divider {
   display: flex;
   align-items: center;
@@ -803,7 +787,6 @@
   white-space: nowrap;
 }
 
-/* ── Social row ── */
 .ax-social-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -841,7 +824,6 @@
   pointer-events: none;
 }
 
-/* ── Footer links ── */
 .ax-switch-link {
   margin-top: 22px;
   text-align: center;
@@ -894,7 +876,6 @@
   accent-color: var(--ax-primary);
 }
 
-/* ── Feature strip (login) ── */
 .ax-feature-strip {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -945,7 +926,6 @@
   color: var(--ax-muted);
 }
 
-/* ── Trust bar ── */
 .ax-trust {
   width: 100%;
   text-align: center;
@@ -970,7 +950,6 @@
   opacity: 0.55;
 }
 
-/* ── Split register layout ── */
 .ax-split-main {
   flex: 1;
   display: grid;
@@ -1057,7 +1036,6 @@
   align-items: center;
 }
 
-/* Terms checkbox */
 .ax-terms {
   display: flex;
   align-items: flex-start;
@@ -1083,7 +1061,6 @@
   text-decoration: underline;
 }
 
-/* Alerts */
 .ax-alert {
   border-radius: 14px;
   padding: 12px 14px;
@@ -1109,7 +1086,6 @@
   color: #15803d;
 }
 
-/* ── Responsive ── */
 @media (max-width: 1023px) {
   .ax-split-main {
     grid-template-columns: 1fr;

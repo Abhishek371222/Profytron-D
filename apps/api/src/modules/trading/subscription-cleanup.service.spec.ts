@@ -82,8 +82,6 @@ describe('SubscriptionCleanupService', () => {
       },
     });
 
-    // Copy strategies are detached from CopyFactory rather than deactivating the
-    // broker account directly.
     expect(copyFactorySync.enqueueUnlinkSubscription).toHaveBeenCalledWith(
       'sub-1',
     );

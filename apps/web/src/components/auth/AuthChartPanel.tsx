@@ -11,8 +11,6 @@ interface AuthChartPanelProps {
   description: string;
 }
 
-// Badges live in the top band (top <= 26%); the curve is confined to the
-// lower band (y >= 43% of the chart height) — the two never overlap.
 const STAT_BADGES: {
   label: string;
   value: string;
@@ -31,8 +29,6 @@ const TRUST_ITEMS = [
   { icon: Cloud, label: '99.9% uptime' },
 ] as const;
 
-// Smooth upward equity curve, confined to y ∈ [78, 142] (viewBox height 180)
-// so it never enters the top ~43% where the floating badges live.
 const CURVE_PATH = 'M10,140 C55,134 78,120 128,114 C168,110 186,122 218,110 C252,98 274,88 310,78';
 const CURVE_FILL = `${CURVE_PATH} L310,180 L10,180 Z`;
 
