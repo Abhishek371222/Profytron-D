@@ -86,7 +86,6 @@ export class AccountHistorySyncService
     this.startPolling(
       Number(process.env.ACCOUNT_HISTORY_SYNC_INTERVAL_MS) || defaultMs,
     );
-
   }
 
   onModuleDestroy() {
@@ -185,10 +184,14 @@ export class AccountHistorySyncService
     const syncStarted = Date.now();
     const to = new Date();
     const from = new Date(Date.now() - this.dealsLookbackMs);
-    const full = await this.mtAdapter.getFullSnapshot(metaApiAccountId, region, {
-      dealsFrom: from,
-      dealsTo: to,
-    });
+    const full = await this.mtAdapter.getFullSnapshot(
+      metaApiAccountId,
+      region,
+      {
+        dealsFrom: from,
+        dealsTo: to,
+      },
+    );
     const syncDurationMs = Date.now() - syncStarted;
 
     if (full) {
@@ -424,7 +427,9 @@ export class AccountHistorySyncService
     if (!Number.isFinite(equity) || equity <= 0) return null;
 
     const margin = this.num(info?.margin);
-    const freeMargin = this.num(info?.freeMargin ?? Math.max(0, equity - margin));
+    const freeMargin = this.num(
+      info?.freeMargin ?? Math.max(0, equity - margin),
+    );
     const marginLevel = this.num(
       info?.marginLevel ?? (margin > 0 ? (equity / margin) * 100 : 0),
     );
@@ -433,7 +438,8 @@ export class AccountHistorySyncService
       0,
     );
     const realizedProfit = full.deals.reduce(
-      (sum, d) => sum + this.num(d?.profit) + this.num(d?.commission) + this.num(d?.swap),
+      (sum, d) =>
+        sum + this.num(d?.profit) + this.num(d?.commission) + this.num(d?.swap),
       0,
     );
     const now = new Date();
@@ -457,8 +463,12 @@ export class AccountHistorySyncService
       connectionStatus:
         full.account?.connectionStatus ?? info?.connectionStatus ?? 'CONNECTED',
       synchronizationState:
-        info?.state ?? full.account?.state ?? info?.connectionStatus ?? 'SYNCHRONIZED',
-      terminalState: full.terminalState?.terminal?.state ?? full.account?.state ?? null,
+        info?.state ??
+        full.account?.state ??
+        info?.connectionStatus ??
+        'SYNCHRONIZED',
+      terminalState:
+        full.terminalState?.terminal?.state ?? full.account?.state ?? null,
       lastHeartbeat:
         full.terminalState?.terminal?.lastUpdated ||
         full.account?.lastConnectedToBrokerTime ||
@@ -642,7 +652,10 @@ export class AccountHistorySyncService
           commission: this.num(o?.commission),
           netProfit:
             this.num(o?.profit) + this.num(o?.swap) + this.num(o?.commission),
-          holdingSeconds: this.holdingSeconds(o?.openTime ?? o?.time, o?.closeTime ?? o?.doneTime),
+          holdingSeconds: this.holdingSeconds(
+            o?.openTime ?? o?.time,
+            o?.closeTime ?? o?.doneTime,
+          ),
           exitReason: this.text(o?.reason ?? o?.state),
           rawJson: o,
         })),
@@ -705,7 +718,9 @@ export class AccountHistorySyncService
         brokerAccountId,
         connected: Boolean(normalized.status?.connected),
         connectionStatus: this.text(normalized.status?.connectionStatus),
-        synchronizationState: this.text(normalized.status?.synchronizationState),
+        synchronizationState: this.text(
+          normalized.status?.synchronizationState,
+        ),
         terminalState: this.text(normalized.status?.terminalState),
         lastHeartbeat: this.dateOrNull(normalized.status?.lastHeartbeat),
         lastConnected: this.dateOrNull(normalized.status?.lastConnected),
@@ -721,9 +736,13 @@ export class AccountHistorySyncService
           brokerAccountId,
           masterAccountId: this.text(normalized.copyTrading?.masterAccountId),
           followerAccountIds: normalized.copyTrading?.followerAccountIds ?? [],
-          subscriptionStatus: this.text(normalized.copyTrading?.subscriptionStatus),
+          subscriptionStatus: this.text(
+            normalized.copyTrading?.subscriptionStatus,
+          ),
           lotMultiplier: this.numOrNull(normalized.copyTrading?.lotMultiplier),
-          riskMultiplier: this.numOrNull(normalized.copyTrading?.riskMultiplier),
+          riskMultiplier: this.numOrNull(
+            normalized.copyTrading?.riskMultiplier,
+          ),
           copyDelayMs: this.intOrNull(normalized.copyTrading?.copyDelayMs),
           copyStatus: this.text(normalized.copyTrading?.copyStatus),
           syncStatus: this.text(normalized.copyTrading?.syncStatus),
@@ -733,10 +752,20 @@ export class AccountHistorySyncService
     }
 
     await tx.accountSnapshotPerformance.create({
-      data: { snapshotId, brokerAccountId, ...normalized.performance, rawJson: normalized.performance },
+      data: {
+        snapshotId,
+        brokerAccountId,
+        ...normalized.performance,
+        rawJson: normalized.performance,
+      },
     });
     await tx.accountSnapshotRisk.create({
-      data: { snapshotId, brokerAccountId, ...normalized.risk, rawJson: normalized.risk },
+      data: {
+        snapshotId,
+        brokerAccountId,
+        ...normalized.risk,
+        rawJson: normalized.risk,
+      },
     });
 
     if (normalized.events.length) {
@@ -767,11 +796,15 @@ export class AccountHistorySyncService
     const grossProfit = wins.reduce((s, v) => s + v, 0);
     const grossLoss = Math.abs(losses.reduce((s, v) => s + v, 0));
     const net = pnls.reduce((s, v) => s + v, 0);
-    const maxDrawdown = Math.max(0, baseBalance > 0 ? ((baseBalance - equity) / baseBalance) * 100 : 0);
+    const maxDrawdown = Math.max(
+      0,
+      baseBalance > 0 ? ((baseBalance - equity) / baseBalance) * 100 : 0,
+    );
     const avg = (values: number[]) =>
       values.length ? values.reduce((s, v) => s + v, 0) / values.length : 0;
     return {
-      totalReturn: baseBalance > 0 ? ((equity - baseBalance) / baseBalance) * 100 : 0,
+      totalReturn:
+        baseBalance > 0 ? ((equity - baseBalance) / baseBalance) * 100 : 0,
       absoluteReturn: equity - baseBalance,
       roi: baseBalance > 0 ? (net / baseBalance) * 100 : 0,
       dailyReturn: 0,
@@ -779,7 +812,8 @@ export class AccountHistorySyncService
       monthlyReturn: 0,
       yearlyReturn: 0,
       cagr: 0,
-      profitFactor: grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? 99 : 0,
+      profitFactor:
+        grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? 99 : 0,
       expectancy: avg(pnls),
       recoveryFactor: maxDrawdown > 0 ? net / maxDrawdown : 0,
       sharpeRatio: 0,
@@ -800,8 +834,14 @@ export class AccountHistorySyncService
       maximumConsecutiveWins: this.maxStreak(pnls, (v) => v > 0),
       maximumConsecutiveLosses: this.maxStreak(pnls, (v) => v < 0),
       averageTradeDurationSeconds: 0,
-      averagePips: avg(positions.map((p) => this.num(p?.currentPips ?? p?.pips))),
-      averageRiskReward: avg(positions.map((p) => this.num(p?.reward) / Math.max(this.num(p?.risk), 1))),
+      averagePips: avg(
+        positions.map((p) => this.num(p?.currentPips ?? p?.pips)),
+      ),
+      averageRiskReward: avg(
+        positions.map(
+          (p) => this.num(p?.reward) / Math.max(this.num(p?.risk), 1),
+        ),
+      ),
       bestDay: wins.length ? Math.max(...wins) : 0,
       worstDay: losses.length ? Math.min(...losses) : 0,
       bestWeek: wins.length ? Math.max(...wins) : 0,
@@ -855,13 +895,19 @@ export class AccountHistorySyncService
 
   private detectEvents(
     full: MetaApiFullSnapshot,
-    previous: { balance: number; equity: number; margin: number; positionsJson: any } | null | undefined,
+    previous:
+      | { balance: number; equity: number; margin: number; positionsJson: any }
+      | null
+      | undefined,
     balance: number,
     equity: number,
     margin: number,
   ): NormalizedSnapshot['events'] {
     const events: NormalizedSnapshot['events'] = [
-      { eventType: 'SYNCHRONIZATION_FINISHED', detailsJson: { sectionErrors: full.sectionErrors } },
+      {
+        eventType: 'SYNCHRONIZATION_FINISHED',
+        detailsJson: { sectionErrors: full.sectionErrors },
+      },
     ];
     const prevPositions = Array.isArray(previous?.positionsJson)
       ? previous?.positionsJson
@@ -877,19 +923,38 @@ export class AccountHistorySyncService
         .filter((value: string | null): value is string => Boolean(value)),
     );
     for (const id of nextIds) {
-      if (!prevIds.has(id)) events.push({ eventType: 'POSITION_OPENED', entityType: 'position', entityId: id });
+      if (!prevIds.has(id))
+        events.push({
+          eventType: 'POSITION_OPENED',
+          entityType: 'position',
+          entityId: id,
+        });
     }
     for (const id of prevIds) {
-      if (!nextIds.has(id)) events.push({ eventType: 'POSITION_CLOSED', entityType: 'position', entityId: id });
+      if (!nextIds.has(id))
+        events.push({
+          eventType: 'POSITION_CLOSED',
+          entityType: 'position',
+          entityId: id,
+        });
     }
     if (previous && previous.balance !== balance) {
-      events.push({ eventType: 'BALANCE_CHANGED', detailsJson: { previous: previous.balance, current: balance } });
+      events.push({
+        eventType: 'BALANCE_CHANGED',
+        detailsJson: { previous: previous.balance, current: balance },
+      });
     }
     if (previous && previous.equity !== equity) {
-      events.push({ eventType: 'EQUITY_CHANGED', detailsJson: { previous: previous.equity, current: equity } });
+      events.push({
+        eventType: 'EQUITY_CHANGED',
+        detailsJson: { previous: previous.equity, current: equity },
+      });
     }
     if (previous && previous.margin !== margin) {
-      events.push({ eventType: 'MARGIN_CHANGED', detailsJson: { previous: previous.margin, current: margin } });
+      events.push({
+        eventType: 'MARGIN_CHANGED',
+        detailsJson: { previous: previous.margin, current: margin },
+      });
     }
     for (const order of full.pendingOrders) {
       events.push({
@@ -905,11 +970,19 @@ export class AccountHistorySyncService
     return deals.reduce((sum, deal) => {
       const time = this.dateOrNull(deal?.time);
       if (!time || time < since) return sum;
-      return sum + this.num(deal?.profit) + this.num(deal?.commission) + this.num(deal?.swap);
+      return (
+        sum +
+        this.num(deal?.profit) +
+        this.num(deal?.commission) +
+        this.num(deal?.swap)
+      );
     }, 0);
   }
 
-  private maxStreak(values: number[], predicate: (value: number) => boolean): number {
+  private maxStreak(
+    values: number[],
+    predicate: (value: number) => boolean,
+  ): number {
     let max = 0;
     let current = 0;
     for (const value of values) {
@@ -948,14 +1021,29 @@ export class AccountHistorySyncService
 
   private text(value: unknown): string | null {
     if (value == null) return null;
-    const text = String(value).trim();
-    return text ? text : null;
+    if (typeof value === 'string') {
+      const text = value.trim();
+      return text ? text : null;
+    }
+    if (
+      typeof value === 'number' ||
+      typeof value === 'boolean' ||
+      typeof value === 'bigint'
+    ) {
+      return String(value);
+    }
+    return null;
   }
 
   private dateOrNull(value: unknown): Date | null {
-    if (!value) return null;
-    const date = value instanceof Date ? value : new Date(String(value));
-    return Number.isFinite(date.getTime()) ? date : null;
+    if (value == null || value === false) return null;
+    const date =
+      value instanceof Date
+        ? value
+        : typeof value === 'string' || typeof value === 'number'
+          ? new Date(value)
+          : null;
+    return date && Number.isFinite(date.getTime()) ? date : null;
   }
 
   private durationSeconds(start: unknown): number | null {
@@ -1052,7 +1140,12 @@ export class AccountHistorySyncService
     const from = new Date(Date.now() - this.dealsLookbackMs);
     const deals =
       prefetchedDeals ??
-      (await this.mtAdapter.getHistoryDeals(metaApiAccountId, from, to, region));
+      (await this.mtAdapter.getHistoryDeals(
+        metaApiAccountId,
+        from,
+        to,
+        region,
+      ));
     if (!deals.length) return;
 
     const groups = this.groupClosedPositions(deals);

@@ -490,6 +490,7 @@ export class AuthService {
           });
         }
       } catch {
+        /* ignore */
       }
 
       if (!activeUser) {
@@ -522,6 +523,7 @@ export class AuthService {
     try {
       await this.redisService.del(failKey);
     } catch {
+      /* ignore */
     }
 
     const ip = req.ip || '0.0.0.0';
@@ -680,6 +682,7 @@ export class AuthService {
         },
       });
     } catch {
+      /* ignore */
     }
 
     return {

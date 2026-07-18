@@ -71,6 +71,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         response.removeHeader('WWW-Authenticate');
         response.removeHeader('www-authenticate');
       } catch {
+        /* ignore */
       }
     }
 

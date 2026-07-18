@@ -536,9 +536,7 @@ export class BrokerService {
       (equity != null ? Math.max(0, Number(equity) - Number(margin)) : null);
     const marginLevel =
       live?.marginLevel ??
-      (margin > 0 && equity != null
-        ? (Number(equity) / margin) * 100
-        : null);
+      (margin > 0 && equity != null ? (Number(equity) / margin) * 100 : null);
 
     return {
       ...safe,
@@ -610,6 +608,7 @@ export class BrokerService {
           },
         );
       } catch {
+        /* ignore */
       }
     }
 
@@ -622,6 +621,7 @@ export class BrokerService {
           await this.mtAdapter.deprovision(creds.metaApiAccountId);
         }
       } catch {
+        /* ignore */
       }
     }
   }

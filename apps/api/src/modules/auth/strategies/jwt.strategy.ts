@@ -58,6 +58,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       const cached = await this.redisService.get(cacheKey);
       if (cached) return JSON.parse(cached);
     } catch {
+      /* ignore */
     }
 
     const user = await this.prisma.user.findUnique({
@@ -84,6 +85,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         USER_STATE_TTL_SECONDS,
       );
     } catch {
+      /* ignore */
     }
     return state;
   }

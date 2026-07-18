@@ -43,6 +43,7 @@ export function resolveFrontendUrl(): string {
       return url.toString().replace(/\/$/, '');
     }
   } catch {
+    /* ignore */
   }
   return raw;
 }

@@ -902,6 +902,7 @@ export class TradeProcessor {
           if (eq != null && eq > 0) return eq;
         }
       } catch {
+        /* ignore */
       }
     }
     return account.initialEquity ?? null;

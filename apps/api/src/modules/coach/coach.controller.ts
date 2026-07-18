@@ -111,6 +111,7 @@ export class CoachController {
         res.write('data: {"type":"close"}\n\n');
         res.end();
       } catch {
+        /* ignore */
       }
     }
   }

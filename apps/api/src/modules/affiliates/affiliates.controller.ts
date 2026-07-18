@@ -131,6 +131,7 @@ export class AffiliatesController {
         return payload.sub;
       }
     } catch {
+      /* ignore */
     }
 
     return undefined;

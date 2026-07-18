@@ -310,6 +310,7 @@ export class AIService {
               yield { type: 'token', text: piece };
             }
           } catch {
+            /* ignore */
           }
         }
       }
@@ -624,6 +625,7 @@ Recent context about the user's trades is provided below.`;
         const parsed = JSON.parse(raw.trim());
         if (Array.isArray(parsed)) aiSuggestions = parsed.slice(0, 3);
       } catch {
+        /* ignore */
       }
     }
 

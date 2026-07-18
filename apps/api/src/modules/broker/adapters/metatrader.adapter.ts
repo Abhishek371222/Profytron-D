@@ -216,6 +216,7 @@ export class MetaTraderAdapter {
           try {
             await this.ensureCopyFactoryRoles(accountId, [...roles]);
           } catch {
+            /* ignore */
           }
         }
       } else {
@@ -485,10 +486,7 @@ export class MetaTraderAdapter {
     return Array.isArray(res.data) ? res.data : [];
   }
 
-  async getSymbols(
-    metaApiAccountId: string,
-    region?: string,
-  ): Promise<any[]> {
+  async getSymbols(metaApiAccountId: string, region?: string): Promise<any[]> {
     if (!this.isLive || !metaApiAccountId) return [];
     const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
     const res = await this.http.get(
@@ -502,7 +500,7 @@ export class MetaTraderAdapter {
     metaApiAccountId: string,
     symbol: string,
     region?: string,
-  ): Promise<any | null> {
+  ): Promise<any> {
     if (!this.isLive || !metaApiAccountId || !symbol) return null;
     const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
     try {
@@ -520,7 +518,7 @@ export class MetaTraderAdapter {
     metaApiAccountId: string,
     symbol: string,
     region?: string,
-  ): Promise<any | null> {
+  ): Promise<any> {
     if (!this.isLive || !metaApiAccountId || !symbol) return null;
     const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
     try {
@@ -537,7 +535,7 @@ export class MetaTraderAdapter {
   async getTerminalState(
     metaApiAccountId: string,
     region?: string,
-  ): Promise<any | null> {
+  ): Promise<any> {
     if (!this.isLive || !metaApiAccountId) return null;
     const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
     try {
@@ -581,20 +579,57 @@ export class MetaTraderAdapter {
           return await producer();
         } catch (err: any) {
           sectionErrors[section] =
-            err?.response?.data?.message || err?.message || 'MetaAPI fetch failed';
+            err?.response?.data?.message ||
+            err?.message ||
+            'MetaAPI fetch failed';
           return fallback;
         }
       };
 
-      const [info, account, positions, pendingOrders, deals, orderHistory, symbols, terminalState] = await Promise.all([
+      const [
+        info,
+        account,
+        positions,
+        pendingOrders,
+        deals,
+        orderHistory,
+        symbols,
+        terminalState,
+      ] = await Promise.all([
         this.fetchAccountInformation(metaApiAccountId, resolvedRegion),
         optional('account', () => this.getAccount(metaApiAccountId), null),
-        optional('positions', () => this.getPositions(metaApiAccountId, resolvedRegion), []),
-        optional('pendingOrders', () => this.getPendingOrders(metaApiAccountId, resolvedRegion), []),
-        optional('deals', () => this.getHistoryDeals(metaApiAccountId, from, to, resolvedRegion), []),
-        optional('orderHistory', () => this.getHistoryOrders(metaApiAccountId, from, to, resolvedRegion), []),
-        optional('symbols', () => this.getSymbols(metaApiAccountId, resolvedRegion), []),
-        optional('terminalState', () => this.getTerminalState(metaApiAccountId, resolvedRegion), null),
+        optional(
+          'positions',
+          () => this.getPositions(metaApiAccountId, resolvedRegion),
+          [],
+        ),
+        optional(
+          'pendingOrders',
+          () => this.getPendingOrders(metaApiAccountId, resolvedRegion),
+          [],
+        ),
+        optional(
+          'deals',
+          () =>
+            this.getHistoryDeals(metaApiAccountId, from, to, resolvedRegion),
+          [],
+        ),
+        optional(
+          'orderHistory',
+          () =>
+            this.getHistoryOrders(metaApiAccountId, from, to, resolvedRegion),
+          [],
+        ),
+        optional(
+          'symbols',
+          () => this.getSymbols(metaApiAccountId, resolvedRegion),
+          [],
+        ),
+        optional(
+          'terminalState',
+          () => this.getTerminalState(metaApiAccountId, resolvedRegion),
+          null,
+        ),
       ]);
 
       const marketSymbols = [

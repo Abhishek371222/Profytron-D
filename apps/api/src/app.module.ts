@@ -79,6 +79,7 @@ const parseRedisConfig = () => {
         tls: parsed.protocol === 'rediss:' ? {} : undefined,
       };
     } catch {
+      /* ignore */
     }
   }
 

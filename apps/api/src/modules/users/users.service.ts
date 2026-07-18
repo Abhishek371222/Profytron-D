@@ -288,6 +288,7 @@ export class UsersService {
         where: { id: sessionId },
       });
     } catch {
+      /* ignore */
     }
     return { success: true };
   }

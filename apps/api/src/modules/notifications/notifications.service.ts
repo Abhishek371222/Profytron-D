@@ -371,6 +371,7 @@ export class NotificationsService {
         },
       });
     } catch {
+      /* ignore */
     }
   }
 

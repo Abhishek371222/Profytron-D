@@ -558,6 +558,7 @@ export class TradingService {
         const q = await this.marketService.getQuote(marketSymbol);
         price = typeof q?.price === 'number' ? q.price : 0;
       } catch {
+        /* ignore */
       }
     }
 
@@ -682,6 +683,7 @@ export class TradingService {
           quoteBySymbol.set(q.symbol, q.price);
         }
       } catch {
+        /* ignore */
       }
     }
 
