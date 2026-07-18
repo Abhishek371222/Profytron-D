@@ -1,0 +1,4005 @@
+{
+  "mode": "dpi",
+  "base": "http://localhost:3000",
+  "count": 210,
+  "ok": 210,
+  "failed": 0,
+  "skipped": 0,
+  "overflowX": 0,
+  "authJwtPresent": false,
+  "adminJwtPresent": false,
+  "dry": false,
+  "ts": "2026-07-18T17:39:10.607Z",
+  "results": [
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "about",
+      "path": "/about",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\about__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "admin",
+      "path": "/admin",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\admin__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "alpha-coach",
+      "path": "/alpha-coach",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\alpha-coach__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics-performance",
+      "path": "/analytics/performance",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics-performance__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "analytics",
+      "path": "/analytics",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\analytics__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "dashboard",
+      "path": "/dashboard",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\dashboard__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "home",
+      "path": "/",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\home__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "login",
+      "path": "/login",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\login__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "marketplace",
+      "path": "/marketplace",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\marketplace__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "pricing",
+      "path": "/pricing",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\pricing__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "register",
+      "path": "/register",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\register__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "settings-profile",
+      "path": "/settings/profile",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\settings-profile__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "strategies",
+      "path": "/strategies",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\strategies__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__1920x1080__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__1920x1080__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__1920x1080__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__1920x1080__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__1920x1080__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__390x844__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__390x844__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__390x844__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__390x844__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__390x844__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.25,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__768x1024__chromium__dpr1p25__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1.5,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__768x1024__chromium__dpr1p5__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__768x1024__chromium__dpr1__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 2,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__768x1024__chromium__dpr2__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    },
+    {
+      "slug": "wallet",
+      "path": "/wallet",
+      "browser": "chromium",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      },
+      "dpr": 3,
+      "zoom": 1,
+      "ok": true,
+      "status": 200,
+      "overflowX": 0,
+      "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__768x1024__chromium__dpr3__z100.png",
+      "error": null,
+      "skipped": false,
+      "skipReason": null
+    }
+  ]
+}

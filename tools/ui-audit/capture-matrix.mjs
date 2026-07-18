@@ -14,6 +14,7 @@
  *   COMPAT_ADMIN_JWT — seed admin routes
  *   UI_AUDIT_MODE — viewport | browser | dpi | zoom | all
  *   UI_AUDIT_LIMIT — optional max captures (smoke/debug)
+ *   UI_AUDIT_PATHS — comma-separated route paths to include (incremental)
  *   UI_AUDIT_DRY — 1 = metrics only, no PNGs
  *   UI_AUDIT_OUT — override output root (default docs/ui-audit/phase1)
  */
@@ -36,6 +37,10 @@ const BASE =
 const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'routes.json'), 'utf8'));
 const MODE = (process.env.UI_AUDIT_MODE || 'viewport').toLowerCase();
 const LIMIT = process.env.UI_AUDIT_LIMIT ? Number(process.env.UI_AUDIT_LIMIT) : Infinity;
+const PATH_FILTER = (process.env.UI_AUDIT_PATHS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 const DRY = process.env.UI_AUDIT_DRY === '1';
 const AUDIT_JWT = process.env.AUDIT_JWT || '';
 const ADMIN_JWT = process.env.COMPAT_ADMIN_JWT || AUDIT_JWT || '';
@@ -231,6 +236,7 @@ async function captureOne({
 function selectRoutes(mode) {
   const routes = [];
   for (const route of manifest.routes) {
+    if (PATH_FILTER.length && !PATH_FILTER.includes(route.path)) continue;
     const resolved = resolvePath(route);
     if (route.dynamic && !resolved) {
       routes.push({ route, resolvedPath: null, skip: true, skipReason: route.skipReason });
@@ -382,6 +388,10 @@ async function runBrowser() {
   const gaps = [];
 
   for (const browserName of manifest.browsers) {
+    if (process.env.UI_AUDIT_BROWSERS) {
+      const allow = process.env.UI_AUDIT_BROWSERS.split(',').map((s) => s.trim());
+      if (!allow.includes(browserName)) continue;
+    }
     const browserOrErr = await launchBrowser(browserName);
     if (browserOrErr.error) {
       gaps.push({ browser: browserName, reason: browserOrErr.error });
@@ -487,7 +497,23 @@ async function runZoom() {
   return results;
 }
 
-function writeIndex(mode, results) {
+function loadMatrixResults(dir) {
+  const abs = path.join(OUT_ROOT, dir);
+  if (!fs.existsSync(abs)) return [];
+  return fs
+    .readdirSync(abs)
+    .filter((f) => f.endsWith('.json') && f !== 'index.json' && f !== 'gaps.json')
+    .map((f) => {
+      try {
+        return JSON.parse(fs.readFileSync(path.join(abs, f), 'utf8'));
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+}
+
+function writeIndex(mode, results, { mergeFromDisk = true } = {}) {
   const dir =
     mode === 'viewport'
       ? 'viewport-matrix'
@@ -496,19 +522,52 @@ function writeIndex(mode, results) {
         : mode === 'dpi'
           ? 'dpi-matrix'
           : 'zoom-matrix';
+
+  let merged = results;
+  if (mergeFromDisk) {
+    const byKey = new Map();
+    for (const r of loadMatrixResults(dir)) {
+      const key = [
+        r.slug,
+        r.browser,
+        r.viewport?.w,
+        r.viewport?.h,
+        r.dpr,
+        r.zoom,
+      ].join('|');
+      byKey.set(key, r);
+    }
+    for (const r of results) {
+      if (r.skipped && !r.viewport) {
+        byKey.set(`skip|${r.slug}`, r);
+        continue;
+      }
+      const key = [
+        r.slug,
+        r.browser,
+        r.viewport?.w,
+        r.viewport?.h,
+        r.dpr,
+        r.zoom,
+      ].join('|');
+      byKey.set(key, r);
+    }
+    merged = [...byKey.values()];
+  }
+
   const summary = {
     mode,
     base: BASE,
-    count: results.length,
-    ok: results.filter((r) => r.ok).length,
-    failed: results.filter((r) => r.error).length,
-    skipped: results.filter((r) => r.skipped).length,
-    overflowX: results.filter((r) => r.metrics?.scroll?.overflowX > 1).length,
+    count: merged.length,
+    ok: merged.filter((r) => r.ok).length,
+    failed: merged.filter((r) => r.error).length,
+    skipped: merged.filter((r) => r.skipped).length,
+    overflowX: merged.filter((r) => r.metrics?.scroll?.overflowX > 1).length,
     authJwtPresent: Boolean(AUDIT_JWT),
     adminJwtPresent: Boolean(ADMIN_JWT),
     dry: DRY,
     ts: new Date().toISOString(),
-    results: results.map((r) => ({
+    results: merged.map((r) => ({
       slug: r.slug,
       path: r.path,
       browser: r.browser,

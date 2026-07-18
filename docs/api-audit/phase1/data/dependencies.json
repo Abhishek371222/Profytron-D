@@ -1,0 +1,701 @@
+{
+  "at": "2026-07-18T20:12:11.981Z",
+  "edges": [
+    {
+      "from": "AppController",
+      "to": "AppService",
+      "module": "app"
+    },
+    {
+      "from": "AppController",
+      "to": "PrismaService",
+      "module": "app"
+    },
+    {
+      "from": "AppController",
+      "to": "RedisService",
+      "module": "app"
+    },
+    {
+      "from": "AppController",
+      "to": "TradingGateway",
+      "module": "app"
+    },
+    {
+      "from": "AdminController",
+      "to": "AdminService",
+      "module": "admin"
+    },
+    {
+      "from": "AdminController",
+      "to": "TradingService",
+      "module": "admin"
+    },
+    {
+      "from": "AdminController",
+      "to": "StrategyDocumentsService",
+      "module": "admin"
+    },
+    {
+      "from": "AdminController",
+      "to": "WalletService",
+      "module": "admin"
+    },
+    {
+      "from": "AdminController",
+      "to": "UsersService",
+      "module": "admin"
+    },
+    {
+      "from": "AffiliatesController",
+      "to": "AffiliatesService",
+      "module": "affiliates"
+    },
+    {
+      "from": "AffiliatesController",
+      "to": "JwtService",
+      "module": "affiliates"
+    },
+    {
+      "from": "AffiliatesController",
+      "to": "ConfigService",
+      "module": "affiliates"
+    },
+    {
+      "from": "AgentsController",
+      "to": "PrismaService",
+      "module": "agents"
+    },
+    {
+      "from": "AgentsController",
+      "to": "AgentEventService",
+      "module": "agents"
+    },
+    {
+      "from": "AgentsController",
+      "to": "AgentOutboxPoller",
+      "module": "agents"
+    },
+    {
+      "from": "AgentsController",
+      "to": "RedisService",
+      "module": "agents"
+    },
+    {
+      "from": "AIController",
+      "to": "AIService",
+      "module": "ai"
+    },
+    {
+      "from": "AiRiskController",
+      "to": "AiRiskService",
+      "module": "ai-risk"
+    },
+    {
+      "from": "AnalyticsController",
+      "to": "AnalyticsService",
+      "module": "analytics"
+    },
+    {
+      "from": "ApiKeysController",
+      "to": "ApiKeysService",
+      "module": "api-keys"
+    },
+    {
+      "from": "AuthController",
+      "to": "AuthService",
+      "module": "auth"
+    },
+    {
+      "from": "AuthController",
+      "to": "TwoFaService",
+      "module": "auth"
+    },
+    {
+      "from": "AccountSnapshotController",
+      "to": "AccountSnapshotService",
+      "module": "broker"
+    },
+    {
+      "from": "BrokerController",
+      "to": "BrokerService",
+      "module": "broker"
+    },
+    {
+      "from": "CoachController",
+      "to": "CoachService",
+      "module": "coach"
+    },
+    {
+      "from": "CopyController",
+      "to": "CopyTradingService",
+      "module": "copy"
+    },
+    {
+      "from": "CopyBridgeController",
+      "to": "CopyBridgeService",
+      "module": "copy-bridge"
+    },
+    {
+      "from": "FeatureFlagsController",
+      "to": "FeatureFlagsService",
+      "module": "feature-flags"
+    },
+    {
+      "from": "GrowthController",
+      "to": "ActivationService",
+      "module": "growth"
+    },
+    {
+      "from": "JournalController",
+      "to": "TradingJournalService",
+      "module": "journal"
+    },
+    {
+      "from": "LeaderboardController",
+      "to": "LeaderboardService",
+      "module": "leaderboard"
+    },
+    {
+      "from": "MarketController",
+      "to": "MarketService",
+      "module": "market"
+    },
+    {
+      "from": "MarketplaceController",
+      "to": "MarketplaceService",
+      "module": "marketplace"
+    },
+    {
+      "from": "NotificationsController",
+      "to": "NotificationsService",
+      "module": "notifications"
+    },
+    {
+      "from": "NotificationsController",
+      "to": "FcmService",
+      "module": "notifications"
+    },
+    {
+      "from": "PaymentsController",
+      "to": "PaymentsService",
+      "module": "payments"
+    },
+    {
+      "from": "RazorpayController",
+      "to": "PaymentsService",
+      "module": "payments"
+    },
+    {
+      "from": "SearchController",
+      "to": "SearchService",
+      "module": "search"
+    },
+    {
+      "from": "StrategiesController",
+      "to": "StrategiesService",
+      "module": "strategies"
+    },
+    {
+      "from": "StrategiesController",
+      "to": "StrategyDocumentsService",
+      "module": "strategies"
+    },
+    {
+      "from": "StrategyBuilderController",
+      "to": "StrategyBuilderService",
+      "module": "strategy-builder"
+    },
+    {
+      "from": "StrategyBuilderController",
+      "to": "BacktestService",
+      "module": "strategy-builder"
+    },
+    {
+      "from": "StrategyBuilderController",
+      "to": "StrategiesService",
+      "module": "strategy-builder"
+    },
+    {
+      "from": "SubscriptionsController",
+      "to": "PaymentsService",
+      "module": "subscriptions"
+    },
+    {
+      "from": "SupportController",
+      "to": "SupportService",
+      "module": "support"
+    },
+    {
+      "from": "TelegramController",
+      "to": "TelegramBotService",
+      "module": "telegram"
+    },
+    {
+      "from": "TradingController",
+      "to": "TradingService",
+      "module": "trading"
+    },
+    {
+      "from": "TutorialController",
+      "to": "TutorialService",
+      "module": "tutorial"
+    },
+    {
+      "from": "UsersController",
+      "to": "UsersService",
+      "module": "users"
+    },
+    {
+      "from": "UsersController",
+      "to": "EmailService",
+      "module": "users"
+    },
+    {
+      "from": "VpsController",
+      "to": "VpsService",
+      "module": "vps"
+    },
+    {
+      "from": "WalletController",
+      "to": "WalletService",
+      "module": "wallet"
+    }
+  ],
+  "edgeCount": 52,
+  "largestServices": [
+    {
+      "file": "apps/api/src/modules/payments/payments.service.ts",
+      "className": "PaymentsService",
+      "lines": 1657,
+      "prismaCalls": 46,
+      "redisCalls": 10
+    },
+    {
+      "file": "apps/api/src/modules/auth/auth.service.ts",
+      "className": "AuthService",
+      "lines": 1491,
+      "prismaCalls": 38,
+      "redisCalls": 41
+    },
+    {
+      "file": "apps/api/src/modules/broker/account-history-sync.service.ts",
+      "className": "AccountHistorySyncService",
+      "lines": 1324,
+      "prismaCalls": 13,
+      "redisCalls": 1
+    },
+    {
+      "file": "apps/api/src/modules/strategies/strategies.service.ts",
+      "className": "StrategiesService",
+      "lines": 1269,
+      "prismaCalls": 35,
+      "redisCalls": 14
+    },
+    {
+      "file": "apps/api/src/modules/analytics/analytics.service.ts",
+      "className": "AnalyticsService",
+      "lines": 1191,
+      "prismaCalls": 10,
+      "redisCalls": 19
+    },
+    {
+      "file": "apps/api/src/modules/marketplace/marketplace.service.ts",
+      "className": "MarketplaceService",
+      "lines": 1064,
+      "prismaCalls": 36,
+      "redisCalls": 6
+    },
+    {
+      "file": "apps/api/src/modules/admin/admin.service.ts",
+      "className": "AdminService",
+      "lines": 1011,
+      "prismaCalls": 50,
+      "redisCalls": 0
+    },
+    {
+      "file": "apps/api/src/modules/coach/coach.service.ts",
+      "className": "CoachService",
+      "lines": 996,
+      "prismaCalls": 46,
+      "redisCalls": 0
+    },
+    {
+      "file": "apps/api/src/modules/broker/broker.service.ts",
+      "className": "BrokerService",
+      "lines": 974,
+      "prismaCalls": 42,
+      "redisCalls": 0
+    },
+    {
+      "file": "apps/api/src/modules/wallet/wallet.service.ts",
+      "className": "WalletService",
+      "lines": 931,
+      "prismaCalls": 21,
+      "redisCalls": 5
+    },
+    {
+      "file": "apps/api/src/modules/trading/trading.service.ts",
+      "className": "TradingService",
+      "lines": 876,
+      "prismaCalls": 19,
+      "redisCalls": 0
+    },
+    {
+      "file": "apps/api/src/modules/affiliates/affiliates.service.ts",
+      "className": "AffiliatesService",
+      "lines": 810,
+      "prismaCalls": 24,
+      "redisCalls": 0
+    },
+    {
+      "file": "apps/api/src/modules/ai/ai.service.ts",
+      "className": "AIService",
+      "lines": 702,
+      "prismaCalls": 4,
+      "redisCalls": 9
+    },
+    {
+      "file": "apps/api/src/modules/market/market.service.ts",
+      "className": "MarketService",
+      "lines": 673,
+      "prismaCalls": 0,
+      "redisCalls": 9
+    },
+    {
+      "file": "apps/api/src/modules/agents/agent-executor.service.ts",
+      "className": "AgentExecutorService",
+      "lines": 649,
+      "prismaCalls": 8,
+      "redisCalls": 3
+    },
+    {
+      "file": "apps/api/src/modules/users/users.service.ts",
+      "className": "UsersService",
+      "lines": 585,
+      "prismaCalls": 21,
+      "redisCalls": 21
+    },
+    {
+      "file": "apps/api/src/modules/ai-risk/ai-risk.service.ts",
+      "className": "AiRiskService",
+      "lines": 572,
+      "prismaCalls": 21,
+      "redisCalls": 5
+    },
+    {
+      "file": "apps/api/src/modules/trading/profit-share.service.ts",
+      "className": "ProfitShareService",
+      "lines": 539,
+      "prismaCalls": 15,
+      "redisCalls": 0
+    },
+    {
+      "file": "apps/api/src/modules/trading/bot-trade-sync.service.ts",
+      "className": "BotTradeSyncService",
+      "lines": 524,
+      "prismaCalls": 9,
+      "redisCalls": 1
+    },
+    {
+      "file": "apps/api/src/modules/email/email.service.ts",
+      "className": "EmailService",
+      "lines": 473,
+      "prismaCalls": 2,
+      "redisCalls": 0
+    }
+  ],
+  "mutualInjections": [],
+  "cacheHits": [
+    {
+      "file": "apps/api/src/modules/ai/ai.service.ts",
+      "ttls": [
+        {
+          "name": "TTL_AI_RESPONSE",
+          "seconds": 5
+        },
+        {
+          "name": "TTL_COACHING_REPORT",
+          "seconds": 2
+        }
+      ],
+      "setExSeconds": []
+    },
+    {
+      "file": "apps/api/src/modules/ai-risk/ai-risk.service.ts",
+      "ttls": [
+        {
+          "name": "TTL_RISK_SCORE",
+          "seconds": 2
+        },
+        {
+          "name": "TTL_RISK_METRICS",
+          "seconds": 2
+        }
+      ],
+      "setExSeconds": []
+    },
+    {
+      "file": "apps/api/src/modules/analytics/analytics.service.ts",
+      "ttls": [
+        {
+          "name": "TTL_ANALYTICS",
+          "seconds": 2
+        },
+        {
+          "name": "TTL_LEADERBOARD",
+          "seconds": 60
+        },
+        {
+          "name": "TTL_MACRO",
+          "seconds": 60
+        }
+      ],
+      "setExSeconds": []
+    },
+    {
+      "file": "apps/api/src/modules/leaderboard/leaderboard.service.ts",
+      "ttls": [],
+      "setExSeconds": []
+    },
+    {
+      "file": "apps/api/src/modules/market/market.service.ts",
+      "ttls": [
+        {
+          "name": "TTL_QUOTE",
+          "seconds": 30
+        },
+        {
+          "name": "TTL_OHLC_SHORT",
+          "seconds": 30
+        },
+        {
+          "name": "TTL_OHLC_LONG",
+          "seconds": 5
+        }
+      ],
+      "setExSeconds": []
+    },
+    {
+      "file": "apps/api/src/modules/marketplace/marketplace.service.ts",
+      "ttls": [],
+      "setExSeconds": []
+    },
+    {
+      "file": "apps/api/src/modules/payments/payments.service.ts",
+      "ttls": [],
+      "setExSeconds": [
+        3600,
+        86400,
+        86400,
+        86400
+      ]
+    },
+    {
+      "file": "apps/api/src/modules/sync/sync-state.service.ts",
+      "ttls": [
+        {
+          "name": "TTL_SEC",
+          "seconds": 60
+        }
+      ],
+      "setExSeconds": []
+    },
+    {
+      "file": "apps/api/src/modules/wallet/wallet.service.ts",
+      "ttls": [],
+      "setExSeconds": [
+        600
+      ]
+    }
+  ],
+  "throttleUsages": [
+    {
+      "file": "apps/api/src/common/guards/throttler.guard.ts",
+      "throttles": []
+    },
+    {
+      "file": "apps/api/src/modules/ai/ai.controller.ts",
+      "throttles": []
+    },
+    {
+      "file": "apps/api/src/modules/auth/auth.controller.ts",
+      "throttles": []
+    },
+    {
+      "file": "apps/api/src/modules/coach/coach.controller.ts",
+      "throttles": []
+    },
+    {
+      "file": "apps/api/src/modules/trading/trading.controller.ts",
+      "throttles": []
+    },
+    {
+      "file": "apps/api/src/modules/wallet/wallet.controller.ts",
+      "throttles": []
+    }
+  ],
+  "pagination": [
+    {
+      "file": "apps/api/src/modules/admin/admin.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/affiliates/affiliates.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/agents/agent-scheduler.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/agents/core/agent-rollups.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/ai/ai.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/ai-risk/ai-risk.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/analytics/analytics.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/broker/account-snapshot.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/coach/coach.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/copy/copy.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/email/email.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/growth/lifecycle.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/journal/trading-journal.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/leaderboard/leaderboard.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/marketplace/marketplace.service.ts",
+      "cursor": true,
+      "offsetPage": true,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/notifications/notifications.service.ts",
+      "cursor": false,
+      "offsetPage": true,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/payments/payments.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/search/search.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/social/social-trading.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/strategies/strategies.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/support/support.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/telegram/telegram-bot.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/trading/trading.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/users/users.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/wallet/wallet.service.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    },
+    {
+      "file": "apps/api/src/modules/agents/agents.controller.ts",
+      "cursor": false,
+      "offsetPage": false,
+      "take": true
+    }
+  ],
+  "throttlerDefault": {
+    "ttlMs": 60000,
+    "limit": 100,
+    "authenticatedBump": 1000
+  }
+}

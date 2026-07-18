@@ -1,0 +1,545 @@
+{
+  "ts": "2026-07-18T18:01:07.433Z",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "path": "/",
+      "samples": [
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 365,
+          "overflowX": 0,
+          "scrollHeight": 6784,
+          "shiftCount": 2,
+          "shiftSum": 0.19247575275514103,
+          "longTaskCount": 2,
+          "longTaskMs": 270
+        },
+        {
+          "w": 1280,
+          "h": 720,
+          "landscape": false,
+          "elapsedMs": 808,
+          "overflowX": 0,
+          "scrollHeight": 6768,
+          "shiftCount": 3,
+          "shiftSum": 0.39834136690444655,
+          "longTaskCount": 2,
+          "longTaskMs": 270
+        },
+        {
+          "w": 768,
+          "h": 1024,
+          "landscape": false,
+          "elapsedMs": 382,
+          "overflowX": 0,
+          "scrollHeight": 8747,
+          "shiftCount": 4,
+          "shiftSum": 0.8152585158819646,
+          "longTaskCount": 3,
+          "longTaskMs": 787
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "landscape": false,
+          "elapsedMs": 440,
+          "overflowX": 0,
+          "scrollHeight": 11702,
+          "shiftCount": 6,
+          "shiftSum": 1.0184671569289512,
+          "longTaskCount": 5,
+          "longTaskMs": 912
+        },
+        {
+          "w": 844,
+          "h": 390,
+          "landscape": true,
+          "elapsedMs": 341,
+          "overflowX": 0,
+          "scrollHeight": 8656,
+          "shiftCount": 7,
+          "shiftSum": 1.5691889882090866,
+          "longTaskCount": 5,
+          "longTaskMs": 912
+        },
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 2943,
+          "overflowX": 0,
+          "scrollHeight": 6784,
+          "shiftCount": 8,
+          "shiftSum": 2.2002848319912367,
+          "longTaskCount": 5,
+          "longTaskMs": 912
+        }
+      ]
+    },
+    {
+      "path": "/pricing",
+      "samples": [
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 611,
+          "overflowX": 0,
+          "scrollHeight": 1897,
+          "shiftCount": 3,
+          "shiftSum": 0.29601089007079356,
+          "longTaskCount": 2,
+          "longTaskMs": 589
+        },
+        {
+          "w": 1280,
+          "h": 720,
+          "landscape": false,
+          "elapsedMs": 329,
+          "overflowX": 0,
+          "scrollHeight": 1907,
+          "shiftCount": 4,
+          "shiftSum": 0.6324195816889712,
+          "longTaskCount": 2,
+          "longTaskMs": 589
+        },
+        {
+          "w": 768,
+          "h": 1024,
+          "landscape": false,
+          "elapsedMs": 334,
+          "overflowX": 0,
+          "scrollHeight": 3161,
+          "shiftCount": 5,
+          "shiftSum": 0.8832984894290873,
+          "longTaskCount": 2,
+          "longTaskMs": 589
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "landscape": false,
+          "elapsedMs": 338,
+          "overflowX": 0,
+          "scrollHeight": 4501,
+          "shiftCount": 6,
+          "shiftSum": 1.355468766121475,
+          "longTaskCount": 2,
+          "longTaskMs": 589
+        },
+        {
+          "w": 844,
+          "h": 390,
+          "landscape": true,
+          "elapsedMs": 328,
+          "overflowX": 0,
+          "scrollHeight": 3143,
+          "shiftCount": 7,
+          "shiftSum": 1.7451363212697515,
+          "longTaskCount": 2,
+          "longTaskMs": 589
+        },
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 323,
+          "overflowX": 0,
+          "scrollHeight": 1897,
+          "shiftCount": 8,
+          "shiftSum": 2.4479448056650965,
+          "longTaskCount": 2,
+          "longTaskMs": 589
+        }
+      ]
+    },
+    {
+      "path": "/login",
+      "samples": [
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 549,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 2,
+          "shiftSum": 0.11796686983402864,
+          "longTaskCount": 2,
+          "longTaskMs": 453
+        },
+        {
+          "w": 1280,
+          "h": 720,
+          "landscape": false,
+          "elapsedMs": 333,
+          "overflowX": 0,
+          "scrollHeight": 720,
+          "shiftCount": 3,
+          "shiftSum": 0.39062311983402864,
+          "longTaskCount": 2,
+          "longTaskMs": 453
+        },
+        {
+          "w": 768,
+          "h": 1024,
+          "landscape": false,
+          "elapsedMs": 318,
+          "overflowX": 0,
+          "scrollHeight": 1024,
+          "shiftCount": 4,
+          "shiftSum": 0.9394715083953866,
+          "longTaskCount": 2,
+          "longTaskMs": 453
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "landscape": false,
+          "elapsedMs": 319,
+          "overflowX": 0,
+          "scrollHeight": 844,
+          "shiftCount": 5,
+          "shiftSum": 1.3541634515233487,
+          "longTaskCount": 2,
+          "longTaskMs": 453
+        },
+        {
+          "w": 844,
+          "h": 390,
+          "landscape": true,
+          "elapsedMs": 332,
+          "overflowX": 0,
+          "scrollHeight": 757,
+          "shiftCount": 6,
+          "shiftSum": 1.8895287847368882,
+          "longTaskCount": 2,
+          "longTaskMs": 453
+        },
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 317,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 7,
+          "shiftSum": 2.1527390832515487,
+          "longTaskCount": 2,
+          "longTaskMs": 453
+        }
+      ]
+    },
+    {
+      "path": "/dashboard",
+      "samples": [
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 333,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 2,
+          "shiftSum": 0.11796686983402864,
+          "longTaskCount": 0,
+          "longTaskMs": 0
+        },
+        {
+          "w": 1280,
+          "h": 720,
+          "landscape": false,
+          "elapsedMs": 674,
+          "overflowX": 0,
+          "scrollHeight": 720,
+          "shiftCount": 3,
+          "shiftSum": 0.35937311983402864,
+          "longTaskCount": 0,
+          "longTaskMs": 0
+        },
+        {
+          "w": 768,
+          "h": 1024,
+          "landscape": false,
+          "elapsedMs": 322,
+          "overflowX": 0,
+          "scrollHeight": 1024,
+          "shiftCount": 4,
+          "shiftSum": 0.9044157130213708,
+          "longTaskCount": 1,
+          "longTaskMs": 424
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "landscape": false,
+          "elapsedMs": 326,
+          "overflowX": 0,
+          "scrollHeight": 844,
+          "shiftCount": 5,
+          "shiftSum": 1.319107656149333,
+          "longTaskCount": 1,
+          "longTaskMs": 424
+        },
+        {
+          "w": 844,
+          "h": 390,
+          "landscape": true,
+          "elapsedMs": 325,
+          "overflowX": 0,
+          "scrollHeight": 757,
+          "shiftCount": 6,
+          "shiftSum": 1.8544729893628724,
+          "longTaskCount": 1,
+          "longTaskMs": 424
+        },
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 319,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 7,
+          "shiftSum": 2.117683287877533,
+          "longTaskCount": 1,
+          "longTaskMs": 424
+        }
+      ]
+    },
+    {
+      "path": "/marketplace",
+      "samples": [
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 524,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 2,
+          "shiftSum": 0.11796686983402864,
+          "longTaskCount": 1,
+          "longTaskMs": 405
+        },
+        {
+          "w": 1280,
+          "h": 720,
+          "landscape": false,
+          "elapsedMs": 326,
+          "overflowX": 0,
+          "scrollHeight": 720,
+          "shiftCount": 3,
+          "shiftSum": 0.39062311983402864,
+          "longTaskCount": 1,
+          "longTaskMs": 405
+        },
+        {
+          "w": 768,
+          "h": 1024,
+          "landscape": false,
+          "elapsedMs": 316,
+          "overflowX": 0,
+          "scrollHeight": 1024,
+          "shiftCount": 4,
+          "shiftSum": 0.9394715083953866,
+          "longTaskCount": 1,
+          "longTaskMs": 405
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "landscape": false,
+          "elapsedMs": 327,
+          "overflowX": 0,
+          "scrollHeight": 844,
+          "shiftCount": 5,
+          "shiftSum": 1.3541634515233487,
+          "longTaskCount": 1,
+          "longTaskMs": 405
+        },
+        {
+          "w": 844,
+          "h": 390,
+          "landscape": true,
+          "elapsedMs": 324,
+          "overflowX": 0,
+          "scrollHeight": 757,
+          "shiftCount": 6,
+          "shiftSum": 1.8895287847368882,
+          "longTaskCount": 1,
+          "longTaskMs": 405
+        },
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 315,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 7,
+          "shiftSum": 2.1527390832515487,
+          "longTaskCount": 1,
+          "longTaskMs": 405
+        }
+      ]
+    },
+    {
+      "path": "/analytics",
+      "samples": [
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 334,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 2,
+          "shiftSum": 0.11796686983402864,
+          "longTaskCount": 0,
+          "longTaskMs": 0
+        },
+        {
+          "w": 1280,
+          "h": 720,
+          "landscape": false,
+          "elapsedMs": 669,
+          "overflowX": 0,
+          "scrollHeight": 720,
+          "shiftCount": 3,
+          "shiftSum": 0.35937311983402864,
+          "longTaskCount": 0,
+          "longTaskMs": 0
+        },
+        {
+          "w": 768,
+          "h": 1024,
+          "landscape": false,
+          "elapsedMs": 347,
+          "overflowX": 0,
+          "scrollHeight": 1024,
+          "shiftCount": 4,
+          "shiftSum": 0.9044157130213708,
+          "longTaskCount": 1,
+          "longTaskMs": 409
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "landscape": false,
+          "elapsedMs": 327,
+          "overflowX": 0,
+          "scrollHeight": 844,
+          "shiftCount": 5,
+          "shiftSum": 1.319107656149333,
+          "longTaskCount": 1,
+          "longTaskMs": 409
+        },
+        {
+          "w": 844,
+          "h": 390,
+          "landscape": true,
+          "elapsedMs": 329,
+          "overflowX": 0,
+          "scrollHeight": 757,
+          "shiftCount": 6,
+          "shiftSum": 1.8544729893628724,
+          "longTaskCount": 1,
+          "longTaskMs": 409
+        },
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 326,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 7,
+          "shiftSum": 2.117683287877533,
+          "longTaskCount": 1,
+          "longTaskMs": 409
+        }
+      ]
+    },
+    {
+      "path": "/alpha-coach",
+      "samples": [
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 510,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 2,
+          "shiftSum": 0.11796686983402864,
+          "longTaskCount": 1,
+          "longTaskMs": 396
+        },
+        {
+          "w": 1280,
+          "h": 720,
+          "landscape": false,
+          "elapsedMs": 323,
+          "overflowX": 0,
+          "scrollHeight": 720,
+          "shiftCount": 3,
+          "shiftSum": 0.39062311983402864,
+          "longTaskCount": 1,
+          "longTaskMs": 396
+        },
+        {
+          "w": 768,
+          "h": 1024,
+          "landscape": false,
+          "elapsedMs": 314,
+          "overflowX": 0,
+          "scrollHeight": 1024,
+          "shiftCount": 4,
+          "shiftSum": 0.9394715083953866,
+          "longTaskCount": 1,
+          "longTaskMs": 396
+        },
+        {
+          "w": 390,
+          "h": 844,
+          "landscape": false,
+          "elapsedMs": 324,
+          "overflowX": 0,
+          "scrollHeight": 844,
+          "shiftCount": 5,
+          "shiftSum": 1.3541634515233487,
+          "longTaskCount": 1,
+          "longTaskMs": 396
+        },
+        {
+          "w": 844,
+          "h": 390,
+          "landscape": true,
+          "elapsedMs": 315,
+          "overflowX": 0,
+          "scrollHeight": 757,
+          "shiftCount": 6,
+          "shiftSum": 1.8895287847368882,
+          "longTaskCount": 1,
+          "longTaskMs": 396
+        },
+        {
+          "w": 1920,
+          "h": 1080,
+          "landscape": false,
+          "elapsedMs": 330,
+          "overflowX": 0,
+          "scrollHeight": 1080,
+          "shiftCount": 7,
+          "shiftSum": 2.1527390832515487,
+          "longTaskCount": 1,
+          "longTaskMs": 396
+        }
+      ]
+    }
+  ]
+}

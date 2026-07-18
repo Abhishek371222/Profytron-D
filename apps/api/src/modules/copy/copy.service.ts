@@ -18,6 +18,13 @@ const DEFAULT_BASE_EQUITY = 10_000;
 @Injectable()
 export class CopyTradingService implements OnModuleInit {
   private readonly logger = new Logger(CopyTradingService.name);
+  /** In-process cache for public masters list (Phase 2 API-P1 latency). */
+  private mastersListCache: {
+    at: number;
+    limit: number;
+    data: unknown;
+  } | null = null;
+  private static readonly MASTERS_CACHE_TTL_MS = 30_000;
 
   constructor(private prisma: PrismaService) {}
 
@@ -46,6 +53,7 @@ export class CopyTradingService implements OnModuleInit {
     this.logger.log(
       `Copy backfill: ${masters} master profile(s), ${relationships} relationship(s)`,
     );
+    this.mastersListCache = null;
     return { masters, relationships };
   }
 
@@ -107,32 +115,36 @@ export class CopyTradingService implements OnModuleInit {
     const userById = new Map(users.map((u) => [u.id, u]));
 
     let count = 0;
-    for (const account of masterAccounts) {
-      const stats = this.computeMasterStatsFromProfits(
-        profitsByAccount.get(account.id) ?? [],
-        account.initialEquity ?? DEFAULT_BASE_EQUITY,
-      );
-      const followersCount = followersByAccount.get(account.id) ?? 0;
-      const user = userById.get(account.userId);
-      const fallbackName =
-        user?.fullName || user?.username || 'Profytron Trader';
+    if (masterAccounts.length) {
+      await this.prisma.$transaction(
+        masterAccounts.map((account) => {
+          const stats = this.computeMasterStatsFromProfits(
+            profitsByAccount.get(account.id) ?? [],
+            account.initialEquity ?? DEFAULT_BASE_EQUITY,
+          );
+          const followersCount = followersByAccount.get(account.id) ?? 0;
+          const user = userById.get(account.userId);
+          const fallbackName =
+            user?.fullName || user?.username || 'Profytron Trader';
 
-      await this.prisma.masterProfile.upsert({
-        where: { userId: account.userId },
-        create: {
-          userId: account.userId,
-          brokerAccountId: account.id,
-          displayName: fallbackName,
-          ...stats,
-          followersCount,
-        },
-        update: {
-          brokerAccountId: account.id,
-          ...stats,
-          followersCount,
-        },
-      });
-      count++;
+          return this.prisma.masterProfile.upsert({
+            where: { userId: account.userId },
+            create: {
+              userId: account.userId,
+              brokerAccountId: account.id,
+              displayName: fallbackName,
+              ...stats,
+              followersCount,
+            },
+            update: {
+              brokerAccountId: account.id,
+              ...stats,
+              followersCount,
+            },
+          });
+        }),
+      );
+      count = masterAccounts.length;
     }
     return count;
   }
@@ -172,7 +184,7 @@ export class CopyTradingService implements OnModuleInit {
       : [];
     const profileIdByUserId = new Map(profiles.map((p) => [p.userId, p.id]));
 
-    let count = 0;
+    const ops = [];
     for (const sub of subs) {
       const masterUserId = sub.strategy?.masterBrokerAccount?.userId;
       if (!masterUserId) continue;
@@ -186,39 +198,43 @@ export class CopyTradingService implements OnModuleInit {
           ? CopyRelationshipStatus.PAUSED
           : CopyRelationshipStatus.ACTIVE;
 
-      await this.prisma.copyRelationship.upsert({
-        where: {
-          masterProfileId_followerUserId: {
+      ops.push(
+        this.prisma.copyRelationship.upsert({
+          where: {
+            masterProfileId_followerUserId: {
+              masterProfileId,
+              followerUserId: sub.userId,
+            },
+          },
+          create: {
             masterProfileId,
             followerUserId: sub.userId,
+            subscriptionId: sub.id,
+            followerAccountId: sub.brokerAccountId ?? null,
+            status,
+            sizingMode,
+            lotMultiplier: sub.lotMultiplier ?? 1.0,
+            fixedLot:
+              typeof profile.fixedLot === 'number' ? profile.fixedLot : null,
+            maxDrawdownPct: sub.maxDrawdownPct ?? null,
           },
-        },
-        create: {
-          masterProfileId,
-          followerUserId: sub.userId,
-          subscriptionId: sub.id,
-          followerAccountId: sub.brokerAccountId ?? null,
-          status,
-          sizingMode,
-          lotMultiplier: sub.lotMultiplier ?? 1.0,
-          fixedLot:
-            typeof profile.fixedLot === 'number' ? profile.fixedLot : null,
-          maxDrawdownPct: sub.maxDrawdownPct ?? null,
-        },
-        update: {
-          subscriptionId: sub.id,
-          followerAccountId: sub.brokerAccountId ?? null,
-          status,
-          sizingMode,
-          lotMultiplier: sub.lotMultiplier ?? 1.0,
-          fixedLot:
-            typeof profile.fixedLot === 'number' ? profile.fixedLot : null,
-          maxDrawdownPct: sub.maxDrawdownPct ?? null,
-        },
-      });
-      count++;
+          update: {
+            subscriptionId: sub.id,
+            followerAccountId: sub.brokerAccountId ?? null,
+            status,
+            sizingMode,
+            lotMultiplier: sub.lotMultiplier ?? 1.0,
+            fixedLot:
+              typeof profile.fixedLot === 'number' ? profile.fixedLot : null,
+            maxDrawdownPct: sub.maxDrawdownPct ?? null,
+          },
+        }),
+      );
     }
-    return count;
+    if (ops.length) {
+      await this.prisma.$transaction(ops);
+    }
+    return ops.length;
   }
 
   private computeMasterStatsFromProfits(profits: number[], baseEquity: number) {
@@ -262,11 +278,22 @@ export class CopyTradingService implements OnModuleInit {
   }
 
   async listPublicMasters(limit = 50) {
-    return this.prisma.masterProfile.findMany({
+    const capped = Math.min(limit, 100);
+    const cached = this.mastersListCache;
+    if (
+      cached &&
+      cached.limit === capped &&
+      Date.now() - cached.at < CopyTradingService.MASTERS_CACHE_TTL_MS
+    ) {
+      return cached.data;
+    }
+    const data = await this.prisma.masterProfile.findMany({
       where: { isPublic: true },
       orderBy: [{ isVerified: 'desc' }, { roiPct: 'desc' }],
-      take: Math.min(limit, 100),
+      take: capped,
     });
+    this.mastersListCache = { at: Date.now(), limit: capped, data };
+    return data;
   }
 
   async getMaster(id: string) {
@@ -289,7 +316,7 @@ export class CopyTradingService implements OnModuleInit {
       select: { id: true },
     });
 
-    return this.prisma.masterProfile.upsert({
+    const result = await this.prisma.masterProfile.upsert({
       where: { userId },
       create: {
         userId,
@@ -307,6 +334,8 @@ export class CopyTradingService implements OnModuleInit {
         ...(masterAccount?.id ? { brokerAccountId: masterAccount.id } : {}),
       },
     });
+    this.mastersListCache = null;
+    return result;
   }
 
   async getMyRelationships(userId: string) {

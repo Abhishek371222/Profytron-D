@@ -1,0 +1,40 @@
+{
+  "date": "2026-07-18T19:14:41.062Z",
+  "base": "http://127.0.0.1:3000",
+  "host": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.18.0",
+    "cwd": "D:\\Profytron-D-main\\Profytron-D-main"
+  },
+  "auth": {
+    "AUDIT_JWT": false,
+    "COMPAT_ADMIN_JWT": false
+  },
+  "matrix": {
+    "viewportCount": 23,
+    "routeCount": 76,
+    "dpiScales": [
+      1,
+      1.25,
+      1.5,
+      2,
+      3
+    ],
+    "zoomLevels": [
+      0.8,
+      0.9,
+      1,
+      1.1,
+      1.25,
+      1.5
+    ],
+    "browsers": [
+      "chromium",
+      "firefox",
+      "webkit",
+      "msedge"
+    ]
+  },
+  "note": "OS matrix uses lab host + Playwright device emulation; true multi-OS CI is out of band."
+}

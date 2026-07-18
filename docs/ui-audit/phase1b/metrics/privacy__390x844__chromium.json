@@ -1,0 +1,114 @@
+{
+  "slug": "privacy",
+  "path": "/privacy",
+  "auth": "public",
+  "shell": "marketing",
+  "browser": "chromium",
+  "viewport": {
+    "w": 390,
+    "h": 844,
+    "label": "mobile-390"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/privacy",
+    "title": "Privacy Policy | Profytron",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 3708,
+      "first-contentful-paint": 3708
+    },
+    "lcp": {
+      "startTime": 3708,
+      "size": 41265,
+      "url": null
+    },
+    "cls": 0.08686245334238697,
+    "inpProxyMs": null,
+    "longTaskCount": 2,
+    "longTaskTotalMs": 459,
+    "tbtProxyMs": 459,
+    "navigation": {
+      "domContentLoaded": 3680,
+      "loadEventEnd": 4332.4000000059605,
+      "responseEnd": 2394.2999999970198,
+      "transferSize": 16333
+    },
+    "memory": {
+      "usedJSHeapSize": 97400000,
+      "totalJSHeapSize": 116000000
+    },
+    "domNodes": 341,
+    "js": {
+      "scriptCount": 8,
+      "scriptTransferKB": 5846
+    },
+    "network": {
+      "apiCount": 0,
+      "duplicates": [],
+      "sample": []
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 38,
+          "displayH": 42,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 50,
+          "displayH": 54,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": 48.5,
+      "droppedFrames": 4,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 1,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 46,
+      "smallTouchTargetCount": 33
+    },
+    "settled": {
+      "main": true,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 6226.29999999702
+  },
+  "networkLog": {
+    "responses": [],
+    "failed": 0
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:41:26.584Z"
+}

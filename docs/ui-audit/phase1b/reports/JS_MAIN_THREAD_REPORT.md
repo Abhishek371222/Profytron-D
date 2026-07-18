@@ -1,0 +1,44 @@
+# JS Main Thread Report
+
+| Route | VP | Long tasks | Total ms | Script KB |
+| --- | --- | --- | --- | --- |
+| alpha-coach | 390×844 | 4 | 1122 | 11420 |
+| press | 390×844 | 4 | 699 | 8962 |
+| api-reference | 768×1024 | 2 | 619 | 5850 |
+| verify-email | 768×1024 | 3 | 595 | 9533 |
+| onboarding-risk | 1920×1080 | 1 | 583 | 6120 |
+| wallet | 390×844 | 2 | 581 | 5465 |
+| settings-support | 1920×1080 | 3 | 579 | 9702 |
+| help | 1920×1080 | 2 | 543 | 5839 |
+| documentation | 390×844 | 2 | 541 | 5849 |
+| analytics | 768×1024 | 2 | 536 | 5465 |
+| docs | 768×1024 | 2 | 535 | 5849 |
+| analytics-performance | 390×844 | 2 | 534 | 5465 |
+| analytics-performance | 768×1024 | 2 | 533 | 5465 |
+| analytics-performance | 1920×1080 | 2 | 532 | 5465 |
+| admin | 768×1024 | 2 | 530 | 5465 |
+| settings-billing | 390×844 | 2 | 530 | 9702 |
+| documentation | 1920×1080 | 2 | 525 | 5849 |
+| blog | 768×1024 | 2 | 520 | 5858 |
+| pricing | 1920×1080 | 2 | 519 | 5771 |
+| marketplace | 768×1024 | 2 | 515 | 5465 |
+| settings-profile | 768×1024 | 2 | 513 | 5465 |
+| analytics | 1920×1080 | 2 | 510 | 5465 |
+| settings-profile | 390×844 | 2 | 510 | 5465 |
+| settings-profile | 1920×1080 | 2 | 509 | 5465 |
+| admin | 1920×1080 | 2 | 508 | 5465 |
+| marketplace | 1920×1080 | 2 | 500 | 5465 |
+| documentation | 768×1024 | 2 | 499 | 5849 |
+| guides | 1920×1080 | 2 | 499 | 5849 |
+| careers | 768×1024 | 2 | 497 | 5843 |
+| community | 390×844 | 2 | 497 | 6102 |
+| admin | 390×844 | 2 | 494 | 5465 |
+| cookies | 768×1024 | 2 | 490 | 5848 |
+| about | 768×1024 | 2 | 489 | 5848 |
+| about | 1920×1080 | 2 | 483 | 5848 |
+| community | 768×1024 | 2 | 483 | 6102 |
+| docs | 1920×1080 | 2 | 479 | 5849 |
+| contact | 768×1024 | 2 | 477 | 5863 |
+| help | 390×844 | 2 | 477 | 5839 |
+| analytics | 390×844 | 2 | 476 | 5465 |
+| marketplace | 390×844 | 2 | 475 | 5465 |

@@ -1,0 +1,14 @@
+{
+  "date": "2026-07-18T18:37:13.546Z",
+  "base": "http://localhost:3000",
+  "host": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.18.0"
+  },
+  "auth": {
+    "AUDIT_JWT": false,
+    "COMPAT_ADMIN_JWT": false
+  },
+  "note": "Phase 1B runtime UX quality — measure only"
+}

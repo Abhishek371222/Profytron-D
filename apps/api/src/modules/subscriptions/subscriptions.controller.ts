@@ -16,6 +16,7 @@ export class SubscriptionsController {
   @Public()
   @Get('plans')
   @ApiOperation({ summary: 'List platform subscription plans' })
+  @ApiResponse({ status: 200, description: 'Platform subscription plans' })
   getPlans() {
     return this.paymentsService.getSubscriptionPlans();
   }

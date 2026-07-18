@@ -1,0 +1,217 @@
+{
+  "version": 1,
+  "description": "Product Excellence Phase 1 — customer journeys (measure-only)",
+  "journeys": [
+    {
+      "id": "visitor",
+      "name": "Visitor marketing",
+      "domain": "visitor",
+      "steps": [
+        { "id": "home", "path": "/", "requiresAuth": false, "expect": "body" },
+        { "id": "pricing", "path": "/pricing", "requiresAuth": false, "expect": "body" },
+        { "id": "about", "path": "/about", "requiresAuth": false, "expect": "body" },
+        { "id": "help", "path": "/help", "requiresAuth": false, "expect": "body" }
+      ]
+    },
+    {
+      "id": "auth",
+      "name": "Authentication surfaces",
+      "domain": "auth",
+      "steps": [
+        { "id": "register", "path": "/register", "requiresAuth": false, "expect": "form|input|button" },
+        { "id": "login", "path": "/login", "requiresAuth": false, "expect": "form|input|button" },
+        { "id": "forgot", "path": "/forgot-password", "requiresAuth": false, "expect": "form|input|button" },
+        { "id": "reset", "path": "/reset-password", "requiresAuth": false, "expect": "body" },
+        { "id": "verify", "path": "/verify-email", "requiresAuth": false, "expect": "body" },
+        {
+          "id": "oauth_buttons",
+          "path": "/login",
+          "requiresAuth": false,
+          "expect": "oauth|google|github|button",
+          "note": "UI presence only — no live OAuth"
+        },
+        {
+          "id": "logout",
+          "path": "/dashboard",
+          "requiresAuth": true,
+          "expect": "log out|logout|sign out",
+          "note": "Logout control discoverability (sidebar/topbar)"
+        },
+        {
+          "id": "live_otp",
+          "path": "/register",
+          "requiresAuth": false,
+          "skipIf": "live_email_otp",
+          "statusHint": "Blocked",
+          "note": "Live email OTP deferred — Phase 2 product UX only"
+        }
+      ]
+    },
+    {
+      "id": "onboarding",
+      "name": "Onboarding",
+      "domain": "onboarding",
+      "steps": [
+        {
+          "id": "welcome",
+          "path": "/onboarding",
+          "requiresAuth": true,
+          "expect": "body|continue|risk|welcome|get started",
+          "allowRedirect": true,
+          "note": "Welcome shell or redirect to /onboarding/risk — body must stay visible"
+        },
+        { "id": "risk", "path": "/onboarding/risk", "requiresAuth": true, "expect": "body" },
+        { "id": "terms", "path": "/terms", "requiresAuth": false, "expect": "body" },
+        { "id": "risk_disclosure", "path": "/risk-disclosure", "requiresAuth": false, "expect": "body" }
+      ]
+    },
+    {
+      "id": "broker",
+      "name": "Broker connection",
+      "domain": "broker",
+      "steps": [
+        { "id": "accounts", "path": "/connected-accounts", "requiresAuth": true, "expect": "body" },
+        {
+          "id": "connect_cta",
+          "path": "/connected-accounts",
+          "requiresAuth": true,
+          "expect": "connect|broker|button|link",
+          "note": "CTA visibility only"
+        },
+        {
+          "id": "live_metaapi",
+          "path": "/connected-accounts",
+          "requiresAuth": true,
+          "skipIf": "live_metaapi",
+          "statusHint": "Blocked",
+          "note": "Live MetaAPI connect skipped — measure-only"
+        }
+      ]
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "domain": "dashboard",
+      "steps": [
+        { "id": "overview", "path": "/dashboard", "requiresAuth": true, "expect": "body" },
+        { "id": "analytics", "path": "/analytics", "requiresAuth": true, "expect": "body" },
+        { "id": "markets", "path": "/markets", "requiresAuth": true, "expect": "body" }
+      ]
+    },
+    {
+      "id": "strategies",
+      "name": "Strategies",
+      "domain": "strategies",
+      "steps": [
+        { "id": "browse", "path": "/strategies", "requiresAuth": true, "expect": "body" },
+        { "id": "builder", "path": "/strategies/builder", "requiresAuth": true, "expect": "body" },
+        { "id": "my_bots", "path": "/my-bots", "requiresAuth": true, "expect": "body" }
+      ]
+    },
+    {
+      "id": "ai_coach",
+      "name": "AI Coach",
+      "domain": "ai_coach",
+      "steps": [
+        { "id": "open", "path": "/alpha-coach", "requiresAuth": true, "expect": "body" },
+        {
+          "id": "input",
+          "path": "/alpha-coach",
+          "requiresAuth": true,
+          "expect": "textarea|input|textbox|form",
+          "note": "Composer presence"
+        },
+        {
+          "id": "live_stream",
+          "path": "/alpha-coach",
+          "requiresAuth": true,
+          "skipIf": "live_ai_stream",
+          "statusHint": "Partial",
+          "note": "Live model streaming not exercised"
+        }
+      ]
+    },
+    {
+      "id": "billing",
+      "name": "Billing & subscriptions",
+      "domain": "billing",
+      "steps": [
+        { "id": "pricing", "path": "/pricing", "requiresAuth": false, "expect": "body" },
+        { "id": "billing", "path": "/billing", "requiresAuth": true, "expect": "body" },
+        { "id": "subscriptions", "path": "/subscriptions", "requiresAuth": true, "expect": "body" },
+        { "id": "wallet", "path": "/wallet", "requiresAuth": true, "expect": "body" },
+        { "id": "settings_billing", "path": "/settings/billing", "requiresAuth": true, "expect": "body" },
+        {
+          "id": "live_checkout",
+          "path": "/billing",
+          "requiresAuth": true,
+          "skipIf": "live_payment",
+          "statusHint": "Blocked",
+          "note": "Real Razorpay/Stripe checkout skipped"
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "domain": "settings",
+      "steps": [
+        { "id": "root", "path": "/settings", "requiresAuth": true, "expect": "body" },
+        { "id": "profile", "path": "/settings/profile", "requiresAuth": true, "expect": "body" },
+        { "id": "security", "path": "/settings/security", "requiresAuth": true, "expect": "body" },
+        { "id": "notifications", "path": "/settings/notifications", "requiresAuth": true, "expect": "body" },
+        { "id": "trading", "path": "/settings/trading", "requiresAuth": true, "expect": "body" },
+        { "id": "api_keys", "path": "/settings/api-keys", "requiresAuth": true, "expect": "body" },
+        { "id": "support", "path": "/settings/support", "requiresAuth": true, "expect": "body" }
+      ]
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "domain": "marketplace",
+      "steps": [
+        { "id": "browse", "path": "/marketplace", "requiresAuth": true, "expect": "body" },
+        { "id": "success", "path": "/marketplace/success", "requiresAuth": true, "expect": "body" }
+      ]
+    },
+    {
+      "id": "error_recovery",
+      "name": "Error recovery probes",
+      "domain": "errors",
+      "steps": [
+        {
+          "id": "not_found",
+          "path": "/this-route-does-not-exist-product-audit",
+          "requiresAuth": false,
+          "expect": "body",
+          "allowNotFound": true
+        },
+        {
+          "id": "authed_without_jwt",
+          "path": "/dashboard",
+          "requiresAuth": false,
+          "forceNoAuth": true,
+          "expect": "body",
+          "note": "Expect redirect or login gate"
+        }
+      ]
+    }
+  ],
+  "features": [
+    { "id": "landing", "name": "Landing / marketing", "domain": "visitor" },
+    { "id": "auth_register", "name": "Register UI", "domain": "auth" },
+    { "id": "auth_login", "name": "Login UI", "domain": "auth" },
+    { "id": "auth_oauth", "name": "OAuth buttons", "domain": "auth" },
+    { "id": "onboarding", "name": "Onboarding flow", "domain": "onboarding" },
+    { "id": "broker_connect", "name": "Broker connect", "domain": "broker" },
+    { "id": "dashboard", "name": "Dashboard", "domain": "dashboard" },
+    { "id": "strategies", "name": "Strategies", "domain": "strategies" },
+    { "id": "ai_coach", "name": "AI Coach", "domain": "ai_coach" },
+    { "id": "marketplace", "name": "Marketplace", "domain": "marketplace" },
+    { "id": "wallet", "name": "Wallet", "domain": "billing" },
+    { "id": "billing", "name": "Billing / subscriptions", "domain": "billing" },
+    { "id": "notifications", "name": "Notifications settings", "domain": "settings" },
+    { "id": "api_keys", "name": "API keys", "domain": "settings" },
+    { "id": "support", "name": "In-app support", "domain": "settings" }
+  ]
+}

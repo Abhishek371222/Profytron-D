@@ -12,6 +12,12 @@ import {
 } from '@/lib/broker/broker-directory';
 import { cn } from '@/lib/utils';
 import { useModalMotionProps } from '@/platform/motion';
+import { useQueryClient } from '@tanstack/react-query';
+import { celebrateSuccessMoment } from '@/lib/activation/success-moments';
+import {
+  ADOPTION_EVENTS,
+  trackAdoptionEvent,
+} from '@/lib/analytics/track-adoption';
 
 interface Props {
   open: boolean;
@@ -38,6 +44,7 @@ function extractErrorMessage(err: any): string {
 }
 
 export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
+  const queryClient = useQueryClient();
   const [step, setStep] = React.useState<Step>('form');
   const [mode, setMode] = React.useState<ConnectMode>('live');
   const [error, setError] = React.useState('');
@@ -105,10 +112,28 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
         typeof result?.bridgeToken === 'string' ? result.bridgeToken : '',
       );
       setStep('success');
+      celebrateSuccessMoment(
+        'broker_connected',
+        mode === 'paper' ? 'Paper account ready' : 'Broker connected',
+        'Next: ask Alpha Coach or activate a strategy from the checklist.',
+      );
+      trackAdoptionEvent(ADOPTION_EVENTS.RECOVERY_SUCCESS, {
+        step: 'broker',
+        metadata: { mode, recovered: false },
+      });
+      trackAdoptionEvent(ADOPTION_EVENTS.STEP_COMPLETE, {
+        step: 'broker',
+        href: '/connected-accounts',
+      });
+      void queryClient.invalidateQueries({ queryKey: ['activation-progress'] });
       onConnected?.();
     } catch (err: any) {
       setError(extractErrorMessage(err));
       setStep('error');
+      trackAdoptionEvent(ADOPTION_EVENTS.RETRY, {
+        step: 'broker',
+        metadata: { phase: 'failed' },
+      });
     }
   };
 
@@ -174,7 +199,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                   {step === 'error' && (
                     <div className="flex items-start gap-3 p-3 rounded-xl bg-destructive/10 border border-destructive/20">
                       <AlertCircle className="w-4 h-4 text-destructive mt-0.5 shrink-0" />
-                      <div className="text-sm text-destructive space-y-1">
+                      <div className="text-sm text-destructive space-y-2">
                         <p>{error}</p>
                         {isQuotaError && (
                           <p className="text-destructive/90">
@@ -189,6 +214,24 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                             .
                           </p>
                         )}
+                        <ul className="list-disc pl-4 text-destructive/85 text-xs space-y-1">
+                          <li>Confirm login, password, and MT5 server spelling.</li>
+                          <li>Try paper mode first if you only need to explore bots.</li>
+                          <li>
+                            Still stuck? Open{' '}
+                            <Link
+                              href="/connected-accounts"
+                              className="underline font-medium"
+                              onClick={handleClose}
+                            >
+                              Connected Accounts
+                            </Link>{' '}
+                            for reconnect and sync status.
+                          </li>
+                        </ul>
+                        <p className="text-xs text-destructive/80">
+                          Fix the fields below and submit again to retry.
+                        </p>
                       </div>
                     </div>
                   )}
@@ -411,7 +454,16 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                       </button>
                     </div>
                   )}
-                  <Button className="w-full" onClick={handleClose}>
+                  <Button
+                    className="w-full"
+                    onClick={() => {
+                      handleClose();
+                      window.location.href = '/alpha-coach';
+                    }}
+                  >
+                    Ask Alpha Coach next
+                  </Button>
+                  <Button variant="outline" className="w-full" onClick={handleClose}>
                     Done
                   </Button>
                 </div>

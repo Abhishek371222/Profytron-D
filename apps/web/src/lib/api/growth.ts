@@ -1,17 +1,23 @@
 import { apiClient, unwrapApiResponse } from './client';
 
+export type ActivationChecklistItem = {
+  id: string;
+  label: string;
+  event: string;
+  href: string;
+  done: boolean;
+  required?: boolean;
+};
+
 export type ActivationProgress = {
-  checklist: {
-    id: string;
-    label: string;
-    event: string;
-    href: string;
-    done: boolean;
-  }[];
+  checklist: ActivationChecklistItem[];
   progressPct: number;
   completed: number;
   total: number;
   isActivated: boolean;
+  optionalCompleted?: number;
+  nextStep?: ActivationChecklistItem | null;
+  events?: Array<{ event: string; createdAt: string; metadata?: unknown }>;
 };
 
 export const growthApi = {

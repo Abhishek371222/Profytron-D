@@ -12,6 +12,13 @@ import {
   type CoachConversationSummary,
   type CoachMessage,
 } from '@/lib/api/coach';
+import {
+  classifyIntent,
+  isMvpIntent,
+  runMvpExplain,
+  type SessionMemory,
+} from '@/lib/ai-coach/run-mvp-explain';
+import type { UiCoachMessage } from '@/components/alpha-coach/CoachMessageRow';
 import { useCoachContext } from '@/hooks/useCoachContext';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import {
@@ -23,6 +30,13 @@ import { acquireTradingSocket, onTradingEvent } from '@/lib/realtime/trading-soc
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { aiApi, type CoachingReport } from '@/lib/api/ai';
+import { COACH_EVENTS, trackCoachEvent } from '@/lib/analytics/track-coach';
+import {
+  ACTIVATION_EVENTS,
+  trackActivation,
+} from '@/lib/analytics/track';
+import { celebrateSuccessMoment } from '@/lib/activation/success-moments';
+import { ADOPTION_EVENTS, trackAdoptionEvent } from '@/lib/analytics/track-adoption';
 
 type FeedItem = { id: string; text: string; tone?: 'info' | 'good' | 'warn' };
 
@@ -52,8 +66,12 @@ export default function AlphaCoachPage() {
     CoachConversationSummary[]
   >([]);
   const [activeId, setActiveId] = React.useState<string | null>(null);
-  const [messages, setMessages] = React.useState<CoachMessage[]>([]);
+  const [messages, setMessages] = React.useState<UiCoachMessage[]>([]);
   const [inputValue, setInputValue] = React.useState('');
+  const [sessionMemory, setSessionMemory] = React.useState<SessionMemory>({});
+  const [selectedTradeId, setSelectedTradeId] = React.useState<string | null>(
+    null,
+  );
   const [isTyping, setIsTyping] = React.useState(false);
   const [streamingText, setStreamingText] = React.useState('');
   const [listLoading, setListLoading] = React.useState(true);
@@ -80,10 +98,42 @@ export default function AlphaCoachPage() {
   const [errorText, setErrorText] = React.useState<string | null>(null);
   const [lastFailedText, setLastFailedText] = React.useState<string | null>(null);
   const activeIdRef = React.useRef<string | null>(null);
+  const pendingReplyRef = React.useRef<{
+    conversationId: string;
+    startedAt: number;
+  } | null>(null);
+  const lastAssistantAtRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
     activeIdRef.current = activeId;
   }, [activeId]);
+
+  React.useEffect(() => {
+    trackCoachEvent(COACH_EVENTS.SESSION_START, {
+      conversationId: activeIdRef.current,
+    });
+  }, []);
+
+  React.useEffect(() => {
+    const onHide = () => {
+      const pending = pendingReplyRef.current;
+      if (!pending) return;
+      trackCoachEvent(COACH_EVENTS.CONVERSATION_ABANDONED, {
+        conversationId: pending.conversationId,
+        metadata: { waitMs: Date.now() - pending.startedAt },
+      });
+      pendingReplyRef.current = null;
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') onHide();
+    };
+    window.addEventListener('pagehide', onHide);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', onHide);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
 
   const refreshList = React.useCallback(async () => {
     try {
@@ -363,9 +413,13 @@ export default function AlphaCoachPage() {
     }
   };
 
-  const handleSend = async (override?: string) => {
+  const handleSend = async (
+    override?: string,
+    opts?: { source?: 'typed' | 'suggestion' | 'retry' },
+  ) => {
     const text = (override ?? inputValue).trim();
     if (!text || sending) return;
+    const source = opts?.source || (override ? 'suggestion' : 'typed');
     setSending(true);
     setInputValue('');
     setErrorText(null);
@@ -375,7 +429,33 @@ export default function AlphaCoachPage() {
     try {
       const id = await ensureConversation();
       if (!id) throw new Error('No active conversation');
-      const optimistic: CoachMessage = {
+
+      const isFollowUp =
+        lastAssistantAtRef.current != null &&
+        Date.now() - lastAssistantAtRef.current < 30 * 60 * 1000;
+
+      trackCoachEvent(COACH_EVENTS.MESSAGE_SENT, {
+        conversationId: id,
+        questionPreview: text,
+        metadata: { source, isFollowUp },
+      });
+
+      void trackActivation(ACTIVATION_EVENTS.FIRST_COACH_INTERACTION, {
+        source,
+      }).then((_) => {
+        celebrateSuccessMoment(
+          'first_coach_interaction',
+          'First Coach insight unlocked',
+          'Keep asking — grounded answers cite your account data.',
+        );
+        trackAdoptionEvent(ADOPTION_EVENTS.STEP_COMPLETE, {
+          step: 'coach',
+          href: '/alpha-coach',
+        });
+        void queryClient.invalidateQueries({ queryKey: ['activation-progress'] });
+      });
+
+      const optimistic: UiCoachMessage = {
         id: `tmp-${Date.now()}`,
         conversationId: id,
         role: 'USER',
@@ -386,8 +466,61 @@ export default function AlphaCoachPage() {
       optimisticId = optimistic.id;
       setMessages((prev) => [...prev, optimistic]);
       setIsTyping(true);
+      pendingReplyRef.current = { conversationId: id, startedAt: Date.now() };
+
+      const intent = classifyIntent(text);
+      trackCoachEvent(COACH_EVENTS.INTENT_CLASSIFIED, {
+        conversationId: id,
+        intent,
+        questionPreview: text,
+        metadata: { supported: isMvpIntent(intent) },
+      });
+
+      if (isMvpIntent(intent)) {
+        const result = await runMvpExplain({
+          message: text,
+          session: {
+            ...sessionMemory,
+            selectedTradeId: selectedTradeId || sessionMemory.selectedTradeId,
+            lastIntent: intent,
+          },
+          tradeIdHint: selectedTradeId,
+        });
+        setSessionMemory((s) => ({ ...s, lastIntent: intent }));
+        setIsTyping(false);
+        pendingReplyRef.current = null;
+        lastAssistantAtRef.current = Date.now();
+        trackCoachEvent(COACH_EVENTS.RESPONSE_RECEIVED, {
+          conversationId: id,
+          intent: result.intent,
+          metadata: {
+            mode: 'grounded',
+            confidence: result.confidence,
+            citationCount: result.citations.length,
+            toolErrorCount: result.evidence.toolErrors.length,
+            failedTools: result.evidence.toolErrors.map((e) => e.tool).join(','),
+            toolsUsed: result.toolsUsed.join(','),
+          },
+        });
+        const assistant: UiCoachMessage = {
+          id: `explain-${Date.now()}`,
+          conversationId: id,
+          role: 'ASSISTANT',
+          content: result.plainText,
+          source: 'AI',
+          createdAt: new Date().toISOString(),
+          explainability: result,
+        };
+        setMessages((prev) => {
+          const withoutTmp = prev.filter((m) => m.id !== optimisticId);
+          return [...withoutTmp, { ...optimistic, id: `user-${Date.now()}` }, assistant];
+        });
+        await refreshList();
+        return;
+      }
 
       let streamBuf = '';
+      let streamMode: 'stream' | 'faq' = 'stream';
       await coachApi.sendMessageStream(id, text, (event) => {
         if (event.type === 'user' && event.message) {
           setMessages((prev) => {
@@ -400,8 +533,16 @@ export default function AlphaCoachPage() {
           streamBuf += event.text;
           setStreamingText(streamBuf);
         } else if (event.type === 'faq' && event.message) {
+          streamMode = 'faq';
           setIsTyping(false);
           setStreamingText('');
+          pendingReplyRef.current = null;
+          lastAssistantAtRef.current = Date.now();
+          trackCoachEvent(COACH_EVENTS.RESPONSE_RECEIVED, {
+            conversationId: id,
+            intent: 'unknown',
+            metadata: { mode: 'faq' },
+          });
           setMessages((prev) => {
             const withoutTmp = prev.filter((m) => m.id !== optimisticId);
             if (withoutTmp.some((m) => m.id === event.message!.id)) return withoutTmp;
@@ -410,6 +551,15 @@ export default function AlphaCoachPage() {
         } else if (event.type === 'done' && event.message) {
           setIsTyping(false);
           setStreamingText('');
+          pendingReplyRef.current = null;
+          lastAssistantAtRef.current = Date.now();
+          if (streamMode === 'stream') {
+            trackCoachEvent(COACH_EVENTS.RESPONSE_RECEIVED, {
+              conversationId: id,
+              intent: 'unknown',
+              metadata: { mode: 'stream' },
+            });
+          }
           setMessages((prev) => {
             const withoutTmp = prev.filter((m) => m.id !== optimisticId);
             const next = [...withoutTmp];
@@ -419,6 +569,11 @@ export default function AlphaCoachPage() {
             return next;
           });
         } else if (event.type === 'error') {
+          pendingReplyRef.current = null;
+          trackCoachEvent(COACH_EVENTS.RESPONSE_ERROR, {
+            conversationId: id,
+            metadata: { reason: event.text || 'stream_error' },
+          });
           setErrorText(event.text || 'AI stream error');
           setLastFailedText(text);
         }
@@ -426,6 +581,7 @@ export default function AlphaCoachPage() {
 
       await refreshList();
     } catch (err: unknown) {
+      pendingReplyRef.current = null;
       if (optimisticId) {
         setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
       }
@@ -442,6 +598,10 @@ export default function AlphaCoachPage() {
         (ax?.code === 'ECONNABORTED' ? 'Request timed out — try again' : null) ||
         ax?.message ||
         'Gemini unavailable — try again';
+      trackCoachEvent(COACH_EVENTS.RESPONSE_ERROR, {
+        conversationId: activeIdRef.current,
+        metadata: { reason: apiMsg.slice(0, 120) },
+      });
       setErrorText(apiMsg);
       toast.error(`Can't send message — ${apiMsg}`);
     } finally {
@@ -502,14 +662,39 @@ export default function AlphaCoachPage() {
               streamingText={streamingText}
               inputValue={inputValue}
               onInputChange={setInputValue}
-              onSend={() => void handleSend()}
-              onSuggestion={(label) => void handleSend(label)}
+              onSend={() => void handleSend(undefined, { source: 'typed' })}
+              onSuggestion={(label) => {
+                trackCoachEvent(COACH_EVENTS.SUGGESTION_CLICKED, {
+                  conversationId: activeIdRef.current,
+                  questionPreview: label,
+                  metadata: { label },
+                });
+                void handleSend(label, { source: 'suggestion' });
+              }}
+              onFeedback={(message, value) => {
+                trackCoachEvent(COACH_EVENTS.FEEDBACK, {
+                  conversationId: message.conversationId || activeIdRef.current,
+                  intent: message.explainability?.intent,
+                  metadata: {
+                    value,
+                    confidence: message.explainability?.confidence,
+                    mode: message.explainability ? 'grounded' : 'stream',
+                  },
+                });
+              }}
               onEscalate={() => void handleEscalate()}
               onNewChat={() => void handleNew()}
               onOpenHistory={() => setHistoryOpen(true)}
               onOpenDesk={() => setDeskOpen(true)}
               creatingChat={creatingChat}
-              onRetry={() => lastFailedText && void handleSend(lastFailedText)}
+              onRetry={() => {
+                trackAdoptionEvent(ADOPTION_EVENTS.RETRY, {
+                  step: 'coach',
+                  metadata: { reason: 'response_error' },
+                });
+                lastFailedText &&
+                  void handleSend(lastFailedText, { source: 'retry' });
+              }}
               lastFailedText={lastFailedText}
               escalating={escalating}
               canEscalate={Boolean(activeId)}
@@ -535,6 +720,16 @@ export default function AlphaCoachPage() {
               alphaScore={alphaScore}
               feed={feed}
               hasBrokerAccount={hasBrokerAccount}
+              selectedTradeId={selectedTradeId}
+              onSelectTrade={(id) => {
+                setSelectedTradeId(id);
+                setSessionMemory((s) => ({ ...s, selectedTradeId: id }));
+                trackCoachEvent(COACH_EVENTS.TRADE_SELECTED, {
+                  conversationId: activeIdRef.current,
+                  metadata: { hasTradeId: Boolean(id) },
+                });
+                toast.message('Trade selected for Coach explainability');
+              }}
             />
           </div>
         </div>
@@ -586,6 +781,16 @@ export default function AlphaCoachPage() {
                 feed={feed}
                 hasBrokerAccount={hasBrokerAccount}
                 onClose={() => setDeskOpen(false)}
+                selectedTradeId={selectedTradeId}
+                onSelectTrade={(id) => {
+                  setSelectedTradeId(id);
+                  setSessionMemory((s) => ({ ...s, selectedTradeId: id }));
+                  trackCoachEvent(COACH_EVENTS.TRADE_SELECTED, {
+                    conversationId: activeIdRef.current,
+                    metadata: { hasTradeId: Boolean(id) },
+                  });
+                  toast.message('Trade selected for Coach explainability');
+                }}
               />
             </div>
           </div>

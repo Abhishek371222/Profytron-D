@@ -1,0 +1,72 @@
+{
+  "id": "onboarding",
+  "name": "Onboarding",
+  "domain": "onboarding",
+  "steps": [
+    {
+      "id": "welcome",
+      "path": "/onboarding",
+      "requiresAuth": true,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/onboarding",
+      "wallMs": 6417,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=reOMVpS0hT4amUUJbrnew' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/onboarding/welcome.png",
+      "note": "Welcome shell or redirect to /onboarding/risk — body must stay visible",
+      "evidence": "journeys/onboarding/welcome.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "risk",
+      "path": "/onboarding/risk",
+      "requiresAuth": true,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/onboarding/risk",
+      "wallMs": 5896,
+      "consoleErrors": [],
+      "screenshot": "journeys/onboarding/risk.png",
+      "note": null,
+      "evidence": "journeys/onboarding/risk.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "terms",
+      "path": "/terms",
+      "requiresAuth": false,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/terms",
+      "wallMs": 7298,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=7F5CNJnIKgzWEBNWrxyMO' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/onboarding/terms.png",
+      "note": null,
+      "evidence": "journeys/onboarding/terms.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "risk_disclosure",
+      "path": "/risk-disclosure",
+      "requiresAuth": false,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/risk-disclosure",
+      "wallMs": 5659,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=uxHiqvjKvxoCXWttZAZAV' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/onboarding/risk_disclosure.png",
+      "note": null,
+      "evidence": "journeys/onboarding/risk_disclosure.png",
+      "httpStatus": 200
+    }
+  ],
+  "clicks": 4,
+  "wallMs": 25287,
+  "consoleErrors": [
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=reOMVpS0hT4amUUJbrnew' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=7F5CNJnIKgzWEBNWrxyMO' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=uxHiqvjKvxoCXWttZAZAV' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+  ]
+}

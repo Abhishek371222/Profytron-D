@@ -1,0 +1,110 @@
+[
+  {
+    "name": "explain_SELECT id FROM \"Trade\" WHERE \"userId\" IS",
+    "ms": 592.2,
+    "ok": true,
+    "result": {
+      "sql": "SELECT id FROM \"Trade\" WHERE \"userId\" IS NOT NULL AND status = 'CLOSED' ORDER BY \"closedAt\" DESC NULLS LAST LIMIT 200",
+      "PlanningTime": 0.195,
+      "ExecutionTime": 0.117,
+      "Plan": {
+        "NodeType": "Limit",
+        "TotalCost": 15.73,
+        "ActualTotalTime": 0.094,
+        "ActualRows": 151,
+        "SharedHitBlocks": 8,
+        "SharedReadBlocks": 0
+      }
+    }
+  },
+  {
+    "name": "explain_SELECT COUNT(*) FROM \"Trade\"",
+    "ms": 590.2,
+    "ok": true,
+    "result": {
+      "sql": "SELECT COUNT(*) FROM \"Trade\"",
+      "PlanningTime": 0.138,
+      "ExecutionTime": 0.066,
+      "Plan": {
+        "NodeType": "Aggregate",
+        "TotalCost": 9.9,
+        "ActualTotalTime": 0.039,
+        "ActualRows": 1,
+        "SharedHitBlocks": 8,
+        "SharedReadBlocks": 0
+      }
+    }
+  },
+  {
+    "name": "explain_SELECT * FROM \"BrokerAccount\" LIMIT 20",
+    "ms": 597.5,
+    "ok": true,
+    "result": {
+      "sql": "SELECT * FROM \"BrokerAccount\" LIMIT 20",
+      "PlanningTime": 0.074,
+      "ExecutionTime": 0.033,
+      "Plan": {
+        "NodeType": "Limit",
+        "TotalCost": 1.04,
+        "ActualTotalTime": 0.018,
+        "ActualRows": 4,
+        "SharedHitBlocks": 1,
+        "SharedReadBlocks": 0
+      }
+    }
+  },
+  {
+    "name": "explain_SELECT * FROM \"EquitySnapshot\" ORDER BY ",
+    "ms": 575.7,
+    "ok": true,
+    "result": {
+      "sql": "SELECT * FROM \"EquitySnapshot\" ORDER BY \"capturedAt\" DESC LIMIT 100",
+      "PlanningTime": 0.115,
+      "ExecutionTime": 0.218,
+      "Plan": {
+        "NodeType": "Limit",
+        "TotalCost": 39.83,
+        "ActualTotalTime": 0.201,
+        "ActualRows": 100,
+        "SharedHitBlocks": 16,
+        "SharedReadBlocks": 0
+      }
+    }
+  },
+  {
+    "name": "explain_SELECT status, COUNT(*), COALESCE(SUM(pr",
+    "ms": 568.3,
+    "ok": true,
+    "result": {
+      "sql": "SELECT status, COUNT(*), COALESCE(SUM(profit),0) FROM \"Trade\" GROUP BY status",
+      "PlanningTime": 0.162,
+      "ExecutionTime": 0.127,
+      "Plan": {
+        "NodeType": "Aggregate",
+        "TotalCost": 10.65,
+        "ActualTotalTime": 0.101,
+        "ActualRows": 1,
+        "SharedHitBlocks": 8,
+        "SharedReadBlocks": 0
+      }
+    }
+  },
+  {
+    "name": "explain_SELECT * FROM \"Trade\" WHERE status = 'OP",
+    "ms": 575.8,
+    "ok": true,
+    "result": {
+      "sql": "SELECT * FROM \"Trade\" WHERE status = 'OPEN' LIMIT 50",
+      "PlanningTime": 0.246,
+      "ExecutionTime": 0.06,
+      "Plan": {
+        "NodeType": "Limit",
+        "TotalCost": 9.89,
+        "ActualTotalTime": 0.037,
+        "ActualRows": 0,
+        "SharedHitBlocks": 8,
+        "SharedReadBlocks": 0
+      }
+    }
+  }
+]

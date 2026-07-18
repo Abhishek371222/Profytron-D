@@ -1,0 +1,114 @@
+{
+  "slug": "community",
+  "path": "/community",
+  "auth": "public",
+  "shell": "marketing",
+  "browser": "chromium",
+  "viewport": {
+    "w": 768,
+    "h": 1024,
+    "label": "tablet-768"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/community",
+    "title": "Community — Traders & Strategy Creators | Profytron",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 1816,
+      "first-contentful-paint": 1816
+    },
+    "lcp": {
+      "startTime": 3224,
+      "size": 53136,
+      "url": null
+    },
+    "cls": 0.00004136962040017048,
+    "inpProxyMs": null,
+    "longTaskCount": 2,
+    "longTaskTotalMs": 483,
+    "tbtProxyMs": 483,
+    "navigation": {
+      "domContentLoaded": 1790.3999999910593,
+      "loadEventEnd": 2869.8999999910593,
+      "responseEnd": 375.69999998807907,
+      "transferSize": 13477
+    },
+    "memory": {
+      "usedJSHeapSize": 103000000,
+      "totalJSHeapSize": 123000000
+    },
+    "domNodes": 353,
+    "js": {
+      "scriptCount": 8,
+      "scriptTransferKB": 6102
+    },
+    "network": {
+      "apiCount": 0,
+      "duplicates": [],
+      "sample": []
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 38,
+          "displayH": 42,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 50,
+          "displayH": 54,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": 51.5,
+      "droppedFrames": 4,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 1,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 39,
+      "smallTouchTargetCount": 25
+    },
+    "settled": {
+      "main": true,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 4709.79999999702
+  },
+  "networkLog": {
+    "responses": [],
+    "failed": 0
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:39:10.867Z"
+}

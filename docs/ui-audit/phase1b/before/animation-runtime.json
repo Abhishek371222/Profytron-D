@@ -1,0 +1,23 @@
+{
+  "ts": "2026-07-18T19:01:09.807Z",
+  "interruptNavMs": 1420,
+  "marketing": {
+    "avgFps": 32,
+    "droppedFrames": 3,
+    "marks": []
+  },
+  "dashboard": {
+    "avgFps": 40,
+    "droppedFrames": 2,
+    "marks": []
+  },
+  "scroll": {
+    "distance": 2000,
+    "durationMs": 498.40000000596046,
+    "avgFps": 60,
+    "longTasksDuring": 0,
+    "droppedFramesDuring": 1,
+    "stickyFixed": 1
+  },
+  "note": "Queue depth / motion quality require NEXT_PUBLIC_PLATFORM_METRICS=1 (captured via console marks when present)."
+}

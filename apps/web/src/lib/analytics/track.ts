@@ -39,11 +39,12 @@ export function trackEvent(event: string, properties?: AnalyticsPayload) {
   }
 }
 
+/** Durable activation milestones — must match API ACTIVATION_EVENTS (UPPER_SNAKE). */
 export async function trackActivation(
   event: string,
   properties?: AnalyticsPayload,
 ) {
-  trackEvent(event, properties);
+  trackEvent(event.toLowerCase(), properties);
   try {
     const { growthApi } = await import('@/lib/api/growth');
     await growthApi.track(event, properties);
@@ -52,12 +53,15 @@ export async function trackActivation(
 }
 
 export const ACTIVATION_EVENTS = {
-  FIRST_LOGIN: 'first_login',
-  ONBOARDING_COMPLETED: 'onboarding_completed',
-  BROKER_CONNECTED: 'broker_connected',
-  FIRST_PAPER_TRADE: 'first_paper_trade',
-  FIRST_WALLET_DEPOSIT: 'first_wallet_deposit',
-  FIRST_MARKETPLACE_SUB: 'first_marketplace_sub',
+  FIRST_LOGIN: 'FIRST_LOGIN',
+  ONBOARDING_COMPLETED: 'ONBOARDING_COMPLETED',
+  BROKER_CONNECTED: 'BROKER_CONNECTED',
+  FIRST_PAPER_TRADE: 'FIRST_PAPER_TRADE',
+  FIRST_WALLET_DEPOSIT: 'FIRST_WALLET_DEPOSIT',
+  FIRST_MARKETPLACE_SUB: 'FIRST_MARKETPLACE_SUB',
+  FIRST_REAL_TRADE: 'FIRST_REAL_TRADE',
+  FIRST_COACH_INTERACTION: 'FIRST_COACH_INTERACTION',
+  /** PostHog-only (not stored in UserActivationEvent) */
   SIGNUP: 'signup',
   PLAN_SELECTED: 'plan_selected',
   CHECKOUT_STARTED: 'checkout_started',

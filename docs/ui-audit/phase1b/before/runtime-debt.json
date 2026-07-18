@@ -1,0 +1,2400 @@
+[
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "about",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "about",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=22"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "about",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=23"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-agents",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-agents",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-coach",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-coach",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-coach",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-kyc",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-kyc",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-kyc",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-strategies",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-strategies",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-strategies",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-system",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-system",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-system",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-users",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-users",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin-users",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "admin",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "totalMs=508"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "admin",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "totalMs=530"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "admin",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "affiliate-best",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "affiliate-best",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "affiliate-best",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "affiliate",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "affiliate",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "affiliate",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "alpha-coach",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "alpha-coach",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "totalMs=1122"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "alpha-coach",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "low",
+    "type": "duplicate-requests",
+    "slug": "alpha-coach",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "n=1"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "alpha-coach",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-global",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-global",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-global",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "analytics-performance",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "totalMs=532"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-performance",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "analytics-performance",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "totalMs=534"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-performance",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "analytics-performance",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "totalMs=533"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-performance",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-risk",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-risk",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-risk",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-trade",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-trade",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics-trade",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "analytics",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "totalMs=510"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "analytics",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "totalMs=536"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "analytics",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "api-reference",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "api-reference",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=22"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "api-reference",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "totalMs=619"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "api-reference",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=23"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "billing",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "billing",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "billing",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "blog",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "blog",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=22"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "blog",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "totalMs=520"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "blog",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=23"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "bots",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "bots",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "bots",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "careers",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=27"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "careers",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=23"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "careers",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=24"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "community",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=28"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "community",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=24"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "community",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "connected-accounts",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "connected-accounts",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "connected-accounts",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "contact",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=30"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "contact",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "contact",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=27"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "cookies",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=27"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "cookies",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=23"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "cookies",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=24"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "copy-trading",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "copy-trading",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "copy-trading",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "creator-add-bot",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "creator-add-bot",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "creator-add-bot",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "creator",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "creator",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "creator",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "dashboard",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "dashboard",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "dashboard",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "docs",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=27"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "docs",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=23"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "docs",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "totalMs=535"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "docs",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=24"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "documentation",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "totalMs=525"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "documentation",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=27"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "documentation",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "totalMs=541"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "documentation",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=23"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "documentation",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=24"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "get-bots",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "get-bots",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "get-bots",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "guides",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "guides",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=22"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "guides",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=23"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "help",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "totalMs=543"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "help",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=36"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "help",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=32"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "help",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=33"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "history",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "history",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "history",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "home",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "home",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "home",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "journal",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "journal",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "journal",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "leaderboard",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "leaderboard",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "leaderboard",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "login",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "login",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "login",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "marketplace-success",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "marketplace-success",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "marketplace-success",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "marketplace",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "marketplace",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "marketplace",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "totalMs=515"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "marketplace",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "markets",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "markets",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "markets",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "my-bots",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "my-bots",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "my-bots",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "notifications",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "notifications",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "notifications",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "onboarding-risk",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "totalMs=583"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "press",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "press",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "totalMs=699"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "press",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "press",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "pricing",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "totalMs=519"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "pricing",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=28"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "pricing",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=24"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "pricing",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "privacy",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=37"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "privacy",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=33"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "privacy",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=34"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "register",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "register",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "register",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "risk-disclosure",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=34"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "risk-disclosure",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=30"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "risk-disclosure",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=31"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-api-keys",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-api-keys",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-api-keys",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-billing",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "settings-billing",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "totalMs=530"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-billing",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-kyc",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-kyc",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-kyc",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-notifications",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-notifications",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-notifications",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "settings-profile",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "totalMs=509"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-profile",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "settings-profile",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "totalMs=510"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-profile",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "settings-profile",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "totalMs=513"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-profile",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-security",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-security",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-security",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "settings-support",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "totalMs=579"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-support",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-support",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-trading",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-trading",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings-trading",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "settings",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "signup",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "signup",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "signup",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "strategies-builder",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "strategies-builder",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "strategies-builder",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "strategies",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "strategies",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "strategies",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "subscriptions",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "subscriptions",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "subscriptions",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "team-plans",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "team-plans",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "team-plans",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "terms",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=40"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "terms",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=36"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "terms",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=37"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "verify-email",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "totalMs=595"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "wallet",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "label": "desktop-1920"
+    },
+    "detail": "count=29"
+  },
+  {
+    "severity": "medium",
+    "type": "long-tasks",
+    "slug": "wallet",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "totalMs=581"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "wallet",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "detail": "count=25"
+  },
+  {
+    "severity": "medium",
+    "type": "small-touch-targets",
+    "slug": "wallet",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "detail": "count=26"
+  }
+]

@@ -1,0 +1,75 @@
+{
+  "id": "visitor",
+  "name": "Visitor marketing",
+  "domain": "visitor",
+  "steps": [
+    {
+      "id": "home",
+      "path": "/",
+      "requiresAuth": false,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/",
+      "wallMs": 8356,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=hy7mJw7JSvL-_S0JDz4Ga' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/visitor/home.png",
+      "note": null,
+      "evidence": "journeys/visitor/home.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "pricing",
+      "path": "/pricing",
+      "requiresAuth": false,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/pricing",
+      "wallMs": 7863,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=O6AI9OklaiTeI390EtF7D' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/visitor/pricing.png",
+      "note": null,
+      "evidence": "journeys/visitor/pricing.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "about",
+      "path": "/about",
+      "requiresAuth": false,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/about",
+      "wallMs": 8097,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=E1_NneClbLLy1VkNfDETJ' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/visitor/about.png",
+      "note": null,
+      "evidence": "journeys/visitor/about.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "help",
+      "path": "/help",
+      "requiresAuth": false,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/help",
+      "wallMs": 5946,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=ZFEAjoy-Zl11TzZU2QgO-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/visitor/help.png",
+      "note": null,
+      "evidence": "journeys/visitor/help.png",
+      "httpStatus": 200
+    }
+  ],
+  "clicks": 4,
+  "wallMs": 30301,
+  "consoleErrors": [
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=hy7mJw7JSvL-_S0JDz4Ga' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=O6AI9OklaiTeI390EtF7D' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=E1_NneClbLLy1VkNfDETJ' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=ZFEAjoy-Zl11TzZU2QgO-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+  ]
+}

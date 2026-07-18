@@ -13,8 +13,19 @@ const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'routes.json'),
 
 function readIndex(name) {
   const p = path.join(OUT, name, 'index.json');
-  if (!fs.existsSync(p)) return null;
-  return JSON.parse(fs.readFileSync(p, 'utf8'));
+  if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, 'utf8'));
+  // Synthesize from on-disk metrics when index was never written (partial prior runs)
+  const files = loadMetricFiles(name);
+  if (!files.length) return null;
+  return {
+    mode: name.replace('-matrix', ''),
+    count: files.length,
+    ok: files.filter((r) => r.ok).length,
+    failed: files.filter((r) => r.error).length,
+    skipped: files.filter((r) => r.skipped).length,
+    overflowX: files.filter((r) => r.metrics?.scroll?.overflowX > 1).length,
+    synthesized: true,
+  };
 }
 
 function loadMetricFiles(dir) {
@@ -31,6 +42,17 @@ function loadMetricFiles(dir) {
       }
     })
     .filter(Boolean);
+}
+
+function debtDetail(d) {
+  const x = d.detail || {};
+  const hits = d.viewportsHit ? ` · ${d.viewportsHit} viewports` : '';
+  if (x.type === 'small-touch-targets' || d.type === 'small-touch-targets') {
+    return 'count=' + (x.count ?? '') + hits;
+  }
+  if (x.value != null) return 'value=' + x.value + hits;
+  if (x.width != null) return 'width=' + x.width + hits;
+  return JSON.stringify(x).slice(0, 80).replace(/\|/g, '/') + hits;
 }
 
 function severityRank(s) {
@@ -68,10 +90,26 @@ function collectDebt(files) {
       });
     }
   }
+  // Prefer unique route+type for noisy a11y samples; keep per-viewport for layout overflow.
   const map = new Map();
   for (const d of debt) {
-    if (!map.has(d.id) || severityRank(d.severity) < severityRank(map.get(d.id).severity)) {
-      map.set(d.id, d);
+    const rollup =
+      d.type === 'small-touch-targets' || d.type === 'narrow-card' || d.type === 'extreme-scroll-height'
+        ? `${d.type}__${d.slug}`
+        : d.id;
+    const prev = map.get(rollup);
+    if (!prev) {
+      map.set(rollup, { ...d, id: rollup, viewportsHit: 1 });
+      continue;
+    }
+    prev.viewportsHit = (prev.viewportsHit || 1) + 1;
+    if (severityRank(d.severity) < severityRank(prev.severity)) {
+      prev.severity = d.severity;
+      prev.viewport = d.viewport;
+      prev.detail = d.detail;
+    } else if ((d.detail?.count || 0) > (prev.detail?.count || 0)) {
+      prev.detail = d.detail;
+      prev.viewport = d.viewport;
     }
   }
   return [...map.values()].sort(
@@ -524,7 +562,7 @@ function main() {
           d.type,
           d.slug,
           d.viewport ? d.viewport.w + '×' + d.viewport.h : '—',
-          JSON.stringify(d.detail).slice(0, 100).replace(/|/g, '/'),
+          debtDetail(d),
         ]),
       ),
       '',
@@ -563,7 +601,7 @@ function main() {
             d.slug,
             d.viewport ? d.viewport.w + '×' + d.viewport.h : '—',
             d.type,
-            JSON.stringify(d.detail).slice(0, 80).replace(/|/g, '/'),
+            debtDetail(d),
           ]),
       ),
       '',

@@ -1,0 +1,119 @@
+{
+  "slug": "settings-billing",
+  "path": "/settings/billing",
+  "auth": "user",
+  "shell": "dashboard",
+  "browser": "chromium",
+  "viewport": {
+    "w": 390,
+    "h": 844,
+    "label": "mobile-390"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/login?redirect=%2Fsettings%2Fbilling",
+    "title": "Sign In | Profytron",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 1648,
+      "first-contentful-paint": 1648
+    },
+    "lcp": {
+      "startTime": 1648,
+      "size": 5180,
+      "url": null
+    },
+    "cls": 0.0003256426000025053,
+    "inpProxyMs": 16,
+    "longTaskCount": 2,
+    "longTaskTotalMs": 530,
+    "tbtProxyMs": 530,
+    "navigation": {
+      "domContentLoaded": 1582.7999999970198,
+      "loadEventEnd": 2505.5,
+      "responseEnd": 384.09999999403954,
+      "transferSize": 12776
+    },
+    "memory": {
+      "usedJSHeapSize": 148000000,
+      "totalJSHeapSize": 157000000
+    },
+    "domNodes": 241,
+    "js": {
+      "scriptCount": 11,
+      "scriptTransferKB": 9702
+    },
+    "network": {
+      "apiCount": 1,
+      "duplicates": [],
+      "sample": [
+        {
+          "name": "http://localhost:3000/api/auth/refresh",
+          "initiatorType": "xmlhttprequest",
+          "duration": 79.40000000596046,
+          "transferSize": 446,
+          "encodedBodySize": 146,
+          "startTime": 2792.699999988079
+        }
+      ]
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 46,
+          "displayH": 50,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": 45.5,
+      "droppedFrames": 4,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 0,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 10,
+      "smallTouchTargetCount": 4
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 4012.7999999970198
+  },
+  "networkLog": {
+    "responses": [
+      {
+        "url": "http://localhost:3000/api/auth/refresh",
+        "status": 401,
+        "ok": false
+      }
+    ],
+    "failed": 1
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:50:28.570Z"
+}

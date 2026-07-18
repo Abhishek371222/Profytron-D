@@ -10,15 +10,20 @@ const phase1 = path.resolve(__dirname, '../../../../docs/ui-audit/phase1');
 test.describe('UI Excellence Phase 1 artifacts', () => {
   test('phase1 directory scaffold exists', () => {
     expect(fs.existsSync(path.join(phase1, 'README.md'))).toBeTruthy();
+    expect(fs.existsSync(path.join(phase1, 'EXIT_CRITERIA.md'))).toBeTruthy();
+    expect(fs.existsSync(path.join(phase1, 'IMPLEMENTATION_SUMMARY.md'))).toBeTruthy();
+    expect(fs.existsSync(path.join(phase1, 'RESPONSIVE_RULE_BOOK.md'))).toBeTruthy();
     expect(fs.existsSync(path.join(phase1, 'diagrams', 'display-matrix.md'))).toBeTruthy();
     expect(fs.existsSync(path.join(phase1, 'before', 'OS_MANUAL_CHECKLIST.md'))).toBeTruthy();
+    expect(fs.existsSync(path.join(phase1, 'reports', 'RESPONSIVE_AUDIT_REPORT.md'))).toBeTruthy();
+    expect(fs.existsSync(path.join(phase1, 'reports', 'PHASE2_RECOMMENDATIONS.md'))).toBeTruthy();
   });
 
   test('route manifest exists', () => {
     const manifest = path.resolve(__dirname, '../../../../tools/ui-audit/routes.json');
     expect(fs.existsSync(manifest)).toBeTruthy();
     const data = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-    expect(data.routes.length).toBeGreaterThan(50);
+    expect(data.routes.length).toBeGreaterThanOrEqual(76);
     expect(data.viewports.mobile.length).toBe(7);
   });
 

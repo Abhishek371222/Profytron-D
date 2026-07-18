@@ -13,6 +13,7 @@ import { BROKER_ACCOUNTS_KEY, type BrokerAccountRow } from '@/lib/queries/accoun
 import { useAccountContext } from '@/hooks/useAccountContext';
 import { BrokerConnectModal } from '@/components/copy-trading/BrokerConnectModal';
 import { AccountDetailsModal } from '@/components/broker/AccountDetailsModal';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import {
   AlertTriangle,
   Bot,
@@ -576,6 +577,7 @@ export default function ConnectedAccountsPage() {
       )}
 
       { }
+      {/* ERROR_GUIDE / EMPTY_STATE_GUIDE — do not show empty copy on load failure */}
       {accountsQuery.isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -586,6 +588,13 @@ export default function ConnectedAccountsPage() {
             </div>
           ))}
         </div>
+      ) : accountsQuery.isError ? (
+        <DashErrorState
+          message="Couldn't load connected accounts."
+          onRetry={() => {
+            void accountsQuery.refetch();
+          }}
+        />
       ) : accounts.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -793,6 +802,7 @@ export default function ConnectedAccountsPage() {
           </div>
 
           <div className="responsive-table-shell">
+            <div className="responsive-table-inner">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[var(--card-border)] bg-muted/20">
@@ -802,6 +812,7 @@ export default function ConnectedAccountsPage() {
                       className={cn(
                         'px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground',
                         i >= 2 ? 'text-right' : 'text-left',
+                        i === 1 && 'col-priority-md',
                       )}
                     >
                       {h}
@@ -829,17 +840,17 @@ export default function ConnectedAccountsPage() {
                         className="hover:bg-muted/10 transition-colors"
                       >
                         <td className="px-5 py-4">
-                          <div className="flex items-center gap-2.5">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                               <Bot className="h-3.5 w-3.5" />
                             </div>
-                            <span className="text-sm font-semibold text-foreground">{bot.botName}</span>
+                            <span className="text-sm font-semibold text-foreground shell-title">{bot.botName}</span>
                           </div>
                         </td>
-                        <td className="px-5 py-4">
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <td className="col-priority-md px-5 py-4">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-0">
                             <Building2 className="h-3 w-3 shrink-0" />
-                            {bot.brokerName} — <span className="font-mono">{maskAccount(bot.accountNumber)}</span>
+                            <span className="truncate">{bot.brokerName} — <span className="font-mono">{maskAccount(bot.accountNumber)}</span></span>
                           </div>
                         </td>
                         <td className="px-5 py-4 text-right">
@@ -874,7 +885,7 @@ export default function ConnectedAccountsPage() {
                                 type="button"
                                 onClick={() => pauseMut.mutate(bot.id)}
                                 disabled={pauseMut.isPending}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-50"
+                                className="inline-flex items-center gap-1 min-h-[var(--touch-min)] px-2.5 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-50"
                               >
                                 {pauseMut.isPending ? (
                                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -889,7 +900,7 @@ export default function ConnectedAccountsPage() {
                                 type="button"
                                 onClick={() => resumeMut.mutate(bot.id)}
                                 disabled={resumeMut.isPending}
-                                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-primary/25 bg-primary/10 text-[11px] font-semibold text-primary hover:bg-primary/15 transition-colors disabled:opacity-50"
+                                className="inline-flex items-center gap-1 min-h-[var(--touch-min)] px-2.5 py-1.5 rounded-lg border border-primary/25 bg-primary/10 text-[11px] font-semibold text-primary hover:bg-primary/15 transition-colors disabled:opacity-50"
                               >
                                 {resumeMut.isPending ? (
                                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -902,7 +913,7 @@ export default function ConnectedAccountsPage() {
                             <button
                               type="button"
                               onClick={() => handleViewBot(bot)}
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                              className="inline-flex items-center gap-1 min-h-[var(--touch-min)] px-3 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
                             >
                               <ExternalLink className="h-3 w-3" />
                               View
@@ -913,6 +924,7 @@ export default function ConnectedAccountsPage() {
                     ))}
               </tbody>
             </table>
+            </div>
           </div>
         </motion.div>
       )}

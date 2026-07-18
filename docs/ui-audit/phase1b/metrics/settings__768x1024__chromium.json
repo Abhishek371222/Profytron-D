@@ -1,0 +1,114 @@
+{
+  "slug": "settings",
+  "path": "/settings",
+  "auth": "user",
+  "shell": "dashboard",
+  "browser": "chromium",
+  "viewport": {
+    "w": 768,
+    "h": 1024,
+    "label": "tablet-768"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/",
+    "title": "Profytron — Algorithmic Trading Platform for Indian Traders",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 320,
+      "first-contentful-paint": 320
+    },
+    "lcp": {
+      "startTime": 320,
+      "size": 5180,
+      "url": null
+    },
+    "cls": 0,
+    "inpProxyMs": 40,
+    "longTaskCount": 1,
+    "longTaskTotalMs": 109,
+    "tbtProxyMs": 109,
+    "navigation": {
+      "domContentLoaded": 177.69999998807907,
+      "loadEventEnd": 0,
+      "responseEnd": 140.09999999403954,
+      "transferSize": 28513
+    },
+    "memory": {
+      "usedJSHeapSize": 116000000,
+      "totalJSHeapSize": 131000000
+    },
+    "domNodes": 1041,
+    "js": {
+      "scriptCount": 2,
+      "scriptTransferKB": 116
+    },
+    "network": {
+      "apiCount": 0,
+      "duplicates": [],
+      "sample": []
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 38,
+          "displayH": 42,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 50,
+          "displayH": 54,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": null,
+      "droppedFrames": 3,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 0,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 55,
+      "smallTouchTargetCount": 26
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 367.69999998807907
+  },
+  "networkLog": {
+    "responses": [],
+    "failed": 0
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:49:05.106Z"
+}

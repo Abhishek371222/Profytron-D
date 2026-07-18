@@ -315,10 +315,16 @@ export function DashboardEmptyState({
   icon: Icon,
   title,
   description,
+  actionLabel,
+  actionHref,
+  onAction,
 }: {
   icon: React.ElementType;
   title: string;
   description?: string;
+  actionLabel?: string;
+  actionHref?: string;
+  onAction?: () => void;
 }) {
   return (
     <div className="dashboard-card py-16 px-6 text-center space-y-3">
@@ -326,7 +332,27 @@ export function DashboardEmptyState({
         <Icon className="h-6 w-6 text-muted-foreground" />
       </div>
       <p className="dash-eyebrow">{title}</p>
-      {description ? <p className="text-sm text-muted-foreground max-w-sm mx-auto">{description}</p> : null}
+      {description ? (
+        <p className="text-sm text-muted-foreground max-w-sm mx-auto">{description}</p>
+      ) : null}
+      {actionLabel && actionHref ? (
+        <a
+          href={actionHref}
+          onClick={onAction}
+          className="inline-flex mt-2 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+        >
+          {actionLabel}
+        </a>
+      ) : null}
+      {actionLabel && !actionHref && onAction ? (
+        <button
+          type="button"
+          onClick={onAction}
+          className="inline-flex mt-2 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+        >
+          {actionLabel}
+        </button>
+      ) : null}
     </div>
   );
 }

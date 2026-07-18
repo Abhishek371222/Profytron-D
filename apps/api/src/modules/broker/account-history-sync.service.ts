@@ -257,10 +257,10 @@ export class AccountHistorySyncService
     const freeMargin = Number(info?.freeMargin ?? 0);
 
     const equityPayload = {
-      balance: snap.balance,
-      equity: snap.equity,
-      margin: snap.margin,
-      freeMargin: snap.freeMargin,
+      balance,
+      equity,
+      margin,
+      freeMargin,
     };
     // Watermark first — skip PG write when equity unchanged since last sync.
     const delta = await this.syncEngine.commitEquity(

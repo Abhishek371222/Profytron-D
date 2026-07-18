@@ -14,6 +14,7 @@ import { WalletDatePicker } from '@/components/wallet/WalletDatePicker';
 import { TransactionDetailModal } from '@/components/wallet/TransactionDetailModal';
 import type { WalletTransaction } from '@/lib/api/wallet';
 import { Button } from '@/components/ui/button';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
@@ -388,6 +389,15 @@ export default function WalletPage() {
         <ChevronRight className="h-3 w-3 text-muted-foreground" />
         <span className="text-foreground">Wallet</span>
       </div>
+
+      {balanceQuery.isError && (
+        <DashErrorState
+          message="Couldn't load wallet balance."
+          onRetry={() => {
+            void balanceQuery.refetch();
+          }}
+        />
+      )}
 
       {/* Header */}
       <motion.div

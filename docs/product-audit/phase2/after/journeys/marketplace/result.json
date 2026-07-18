@@ -1,0 +1,43 @@
+{
+  "id": "marketplace",
+  "name": "Marketplace",
+  "domain": "marketplace",
+  "steps": [
+    {
+      "id": "browse",
+      "path": "/marketplace",
+      "requiresAuth": true,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fmarketplace",
+      "wallMs": 3595,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=JOA3Na76TtcK_0aAdic3-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/marketplace/browse.png",
+      "note": null,
+      "evidence": "journeys/marketplace/browse.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "success",
+      "path": "/marketplace/success",
+      "requiresAuth": true,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fmarketplace%2Fsuccess",
+      "wallMs": 3629,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=CWw1A7QSRr0pakCj_w85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/marketplace/success.png",
+      "note": null,
+      "evidence": "journeys/marketplace/success.png",
+      "httpStatus": 200
+    }
+  ],
+  "clicks": 2,
+  "wallMs": 7231,
+  "consoleErrors": [
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=JOA3Na76TtcK_0aAdic3-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=CWw1A7QSRr0pakCj_w85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+  ]
+}

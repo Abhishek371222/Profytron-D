@@ -1,0 +1,7855 @@
+{
+  "ts": "2026-07-18T19:09:12.029Z",
+  "summary": {
+    "P0": 151,
+    "P1": 4,
+    "P2": 198,
+    "P3": 26
+  },
+  "items": [
+    {
+      "id": "small-touch-targets__about",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "about",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 27,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "admin",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-agents",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "admin-agents",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-coach",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "admin-coach",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-kyc",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "admin-kyc",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-strategies",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "admin-strategies",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-system",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "admin-system",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-users",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "admin-users",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__affiliate",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "affiliate",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__affiliate-best",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "affiliate-best",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__alpha-coach",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "alpha-coach",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "analytics",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-global",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "analytics-global",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-performance",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "analytics-performance",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-risk",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "analytics-risk",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-trade",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "analytics-trade",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__api-reference",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "api-reference",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 27,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__billing",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 24,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 40,
+            "h": 40,
+            "tag": "button"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "table-overflow-x__billing__320x568",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 158
+      },
+      "viewport": {
+        "w": 320,
+        "h": 568,
+        "label": "mobile-320"
+      }
+    },
+    {
+      "id": "table-overflow-x__billing__360x640",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 118
+      },
+      "viewport": {
+        "w": 360,
+        "h": 640,
+        "label": "mobile-360"
+      }
+    },
+    {
+      "id": "table-overflow-x__billing__375x812",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 103
+      },
+      "viewport": {
+        "w": 375,
+        "h": 812,
+        "label": "mobile-375"
+      }
+    },
+    {
+      "id": "table-overflow-x__billing__390x844",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 88
+      },
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "table-overflow-x__billing__412x915",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 66
+      },
+      "viewport": {
+        "w": 412,
+        "h": 915,
+        "label": "mobile-412"
+      }
+    },
+    {
+      "id": "table-overflow-x__billing__430x932",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 48
+      },
+      "viewport": {
+        "w": 430,
+        "h": 932,
+        "label": "mobile-430"
+      }
+    },
+    {
+      "id": "small-touch-targets__blog",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "blog",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 27,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__bots",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "bots",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__careers",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "careers",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 28,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__community",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "community",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 29,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__connected-accounts",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "connected-accounts",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 25,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 40,
+            "h": 40,
+            "tag": "button"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "table-overflow-x__connected-accounts__320x568",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "connected-accounts",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 106
+      },
+      "viewport": {
+        "w": 320,
+        "h": 568,
+        "label": "mobile-320"
+      }
+    },
+    {
+      "id": "table-overflow-x__connected-accounts__360x640",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "connected-accounts",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 66
+      },
+      "viewport": {
+        "w": 360,
+        "h": 640,
+        "label": "mobile-360"
+      }
+    },
+    {
+      "id": "table-overflow-x__connected-accounts__375x812",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "connected-accounts",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 51
+      },
+      "viewport": {
+        "w": 375,
+        "h": 812,
+        "label": "mobile-375"
+      }
+    },
+    {
+      "id": "table-overflow-x__connected-accounts__390x844",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "connected-accounts",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 36
+      },
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "table-overflow-x__connected-accounts__412x915",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "connected-accounts",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 14
+      },
+      "viewport": {
+        "w": 412,
+        "h": 915,
+        "label": "mobile-412"
+      }
+    },
+    {
+      "id": "small-touch-targets__contact",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "contact",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 31,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__cookies",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "cookies",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 28,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__copy-trading",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "copy-trading",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__creator",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "creator",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__creator-add-bot",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "creator-add-bot",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__dashboard",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "dashboard",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__docs",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "docs",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 28,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__documentation",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "documentation",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 27,
+        "samples": [
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 36,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__forgot-password",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "forgot-password",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 2,
+        "samples": [
+          {
+            "w": 188,
+            "h": 40,
+            "tag": "a"
+          },
+          {
+            "w": 398,
+            "h": 26,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__guides",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "guides",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 27,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__help",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "help",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 37,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__history",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "history",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__home",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "home",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 29,
+        "samples": [
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 36,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__journal",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "journal",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__leaderboard",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "leaderboard",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__login",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "login",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__marketplace",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "marketplace",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__marketplace-success",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "marketplace-success",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__markets",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "markets",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__notifications",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "notifications",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__press",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "press",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 29,
+        "samples": [
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 36,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__pricing",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "pricing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 29,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__privacy",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "privacy",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 38,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__register",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "register",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 92,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 46,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__reset-password",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "reset-password",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 3,
+        "samples": [
+          {
+            "w": 160,
+            "h": 40,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__risk-disclosure",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "risk-disclosure",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 35,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "settings",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-api-keys",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "settings-api-keys",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-billing",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "settings-billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-kyc",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "settings-kyc",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-notifications",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "settings-notifications",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-profile",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "settings-profile",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-security",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "settings-security",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-support",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "settings-support",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-trading",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "settings-trading",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__signup",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "signup",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 92,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 46,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__strategies",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "strategies",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__strategies-builder",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "strategies-builder",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__subscriptions",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 29,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 40,
+            "h": 40,
+            "tag": "button"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__1024x1366",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 158
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__320x568",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 566
+      },
+      "viewport": {
+        "w": 320,
+        "h": 568,
+        "label": "mobile-320"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__360x640",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 526
+      },
+      "viewport": {
+        "w": 360,
+        "h": 640,
+        "label": "mobile-360"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__375x812",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 511
+      },
+      "viewport": {
+        "w": 375,
+        "h": 812,
+        "label": "mobile-375"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__390x844",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 496
+      },
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__412x915",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 474
+      },
+      "viewport": {
+        "w": 412,
+        "h": 915,
+        "label": "mobile-412"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__430x932",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 456
+      },
+      "viewport": {
+        "w": 430,
+        "h": 932,
+        "label": "mobile-430"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__480x800",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 406
+      },
+      "viewport": {
+        "w": 480,
+        "h": 800,
+        "label": "mobile-480"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__768x1024",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 126
+      },
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__820x1180",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 74
+      },
+      "viewport": {
+        "w": 820,
+        "h": 1180,
+        "label": "tablet-820"
+      }
+    },
+    {
+      "id": "table-overflow-x__subscriptions__834x1112",
+      "source": "phase1",
+      "type": "table-overflow-x",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Usability: table overflow on product billing/accounts routes",
+      "detail": {
+        "type": "table-overflow-x",
+        "severity": "medium",
+        "value": 60
+      },
+      "viewport": {
+        "w": 834,
+        "h": 1112,
+        "label": "tablet-834"
+      }
+    },
+    {
+      "id": "small-touch-targets__team-plans",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "team-plans",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 28,
+        "samples": [
+          {
+            "w": 133,
+            "h": 17,
+            "tag": "a"
+          },
+          {
+            "w": 40,
+            "h": 33,
+            "tag": "button"
+          },
+          {
+            "w": 87,
+            "h": 17,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 17,
+            "tag": "a"
+          },
+          {
+            "w": 76,
+            "h": 17,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__terms",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "terms",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 41,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__verify-email",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "verify-email",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 8,
+        "samples": [
+          {
+            "w": 40,
+            "h": 40,
+            "tag": "a"
+          },
+          {
+            "w": 22,
+            "h": 64,
+            "tag": "input"
+          },
+          {
+            "w": 22,
+            "h": 64,
+            "tag": "input"
+          },
+          {
+            "w": 22,
+            "h": 64,
+            "tag": "input"
+          },
+          {
+            "w": 22,
+            "h": 64,
+            "tag": "input"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 320,
+        "h": 568,
+        "label": "mobile-320"
+      }
+    },
+    {
+      "id": "small-touch-targets__wallet",
+      "source": "phase1",
+      "type": "small-touch-targets",
+      "slug": "wallet",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__about",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "about",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__admin",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "admin",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__admin-agents",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "admin-agents",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__admin-coach",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "admin-coach",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__admin-kyc",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "admin-kyc",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__admin-strategies",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "admin-strategies",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__admin-system",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "admin-system",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__admin-users",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "admin-users",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__affiliate",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "affiliate",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__affiliate-best",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "affiliate-best",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__alpha-coach",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "alpha-coach",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__analytics",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "analytics",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__analytics-global",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "analytics-global",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__analytics-performance",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "analytics-performance",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__analytics-risk",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "analytics-risk",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__analytics-trade",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "analytics-trade",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__api-reference",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "api-reference",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__billing",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "billing",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 18
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__blog",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "blog",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__bots",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "bots",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__careers",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "careers",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__community",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "community",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__connected-accounts",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "connected-accounts",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 18
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__contact",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "contact",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__cookies",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "cookies",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__copy-trading",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "copy-trading",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 110
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__creator",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "creator",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__creator-add-bot",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "creator-add-bot",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__dashboard",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "dashboard",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__docs",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "docs",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__documentation",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "documentation",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__forgot-password",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "forgot-password",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 40
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__guides",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "guides",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__help",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "help",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__history",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "history",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__home",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "home",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "extreme-scroll-height__home",
+      "source": "phase1",
+      "type": "extreme-scroll-height",
+      "slug": "home",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "extreme-scroll-height",
+        "severity": "low",
+        "value": 11637
+      },
+      "viewport": {
+        "w": 320,
+        "h": 568,
+        "label": "mobile-320"
+      }
+    },
+    {
+      "id": "narrow-card__journal",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "journal",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__leaderboard",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "leaderboard",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__login",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "login",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__marketplace",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "marketplace",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__marketplace-success",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "marketplace-success",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__markets",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "markets",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__notifications",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "notifications",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__press",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "press",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "extreme-scroll-height__press",
+      "source": "phase1",
+      "type": "extreme-scroll-height",
+      "slug": "press",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "extreme-scroll-height",
+        "severity": "low",
+        "value": 11796
+      },
+      "viewport": {
+        "w": 320,
+        "h": 568,
+        "label": "mobile-320"
+      }
+    },
+    {
+      "id": "narrow-card__pricing",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "pricing",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__privacy",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "privacy",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__register",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "register",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 92
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__reset-password",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "reset-password",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 40
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__risk-disclosure",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "risk-disclosure",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__settings",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "settings",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__settings-api-keys",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "settings-api-keys",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__settings-billing",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "settings-billing",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__settings-kyc",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "settings-kyc",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__settings-notifications",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "settings-notifications",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__settings-profile",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "settings-profile",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__settings-security",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "settings-security",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__settings-support",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "settings-support",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__settings-trading",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "settings-trading",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__signup",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "signup",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 92
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__strategies",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "strategies",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__strategies-builder",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "strategies-builder",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__subscriptions",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "subscriptions",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 18
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__team-plans",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "team-plans",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 24
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__terms",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "terms",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "extreme-scroll-height__terms",
+      "source": "phase1",
+      "type": "extreme-scroll-height",
+      "slug": "terms",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "extreme-scroll-height",
+        "severity": "low",
+        "value": 13575
+      },
+      "viewport": {
+        "w": 320,
+        "h": 568,
+        "label": "mobile-320"
+      }
+    },
+    {
+      "id": "narrow-card__verify-email",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "verify-email",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 40
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "narrow-card__wallet",
+      "source": "phase1",
+      "type": "narrow-card",
+      "slug": "wallet",
+      "severity": "low",
+      "bucket": "P2",
+      "rationale": "Probe/cosmetic density — defer",
+      "detail": {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 101
+      },
+      "viewport": {
+        "w": 1024,
+        "h": 1366,
+        "label": "tablet-1024"
+      }
+    },
+    {
+      "id": "small-touch-targets__about",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "about",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__about",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "about",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=22",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__about",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "about",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=23",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-agents",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-agents",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-agents",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-agents",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-coach",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-coach",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-coach",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-coach",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-coach",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-coach",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-kyc",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-kyc",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-kyc",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-kyc",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-kyc",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-kyc",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-strategies",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-strategies",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-strategies",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-strategies",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-strategies",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-strategies",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-system",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-system",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-system",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-system",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-system",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-system",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-users",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-users",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-users",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-users",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin-users",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin-users",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__admin",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "admin",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=508",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "long-tasks__admin",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "admin",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=530",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__admin",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "admin",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__affiliate-best",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "affiliate-best",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__affiliate-best",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "affiliate-best",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__affiliate-best",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "affiliate-best",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__affiliate",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "affiliate",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__affiliate",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "affiliate",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__affiliate",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "affiliate",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__alpha-coach",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "alpha-coach",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "long-tasks__alpha-coach",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "alpha-coach",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=1122",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__alpha-coach",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "alpha-coach",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "duplicate-requests__alpha-coach",
+      "source": "phase1b",
+      "type": "duplicate-requests",
+      "slug": "alpha-coach",
+      "severity": "low",
+      "bucket": "P3",
+      "rationale": "Network dedupe — out of UI Phase 2 scope",
+      "detail": "n=1",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__alpha-coach",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "alpha-coach",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-global",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-global",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-global",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-global",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-global",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-global",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__analytics-performance",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "analytics-performance",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=532",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-performance",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-performance",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "long-tasks__analytics-performance",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "analytics-performance",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=534",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-performance",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-performance",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "long-tasks__analytics-performance",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "analytics-performance",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=533",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-performance",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-performance",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-risk",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-risk",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-risk",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-risk",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-risk",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-risk",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-trade",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-trade",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-trade",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-trade",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics-trade",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics-trade",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__analytics",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "analytics",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=510",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "long-tasks__analytics",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "analytics",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=536",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__analytics",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "analytics",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__api-reference",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "api-reference",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__api-reference",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "api-reference",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=22",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "long-tasks__api-reference",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "api-reference",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=619",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__api-reference",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "api-reference",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=23",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__billing",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__billing",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__billing",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__blog",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "blog",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__blog",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "blog",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=22",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "long-tasks__blog",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "blog",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=520",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__blog",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "blog",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=23",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__bots",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "bots",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__bots",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "bots",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__bots",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "bots",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__careers",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "careers",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=27",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__careers",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "careers",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=23",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__careers",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "careers",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=24",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__community",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "community",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=28",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__community",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "community",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=24",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__community",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "community",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__connected-accounts",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "connected-accounts",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__connected-accounts",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "connected-accounts",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__connected-accounts",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "connected-accounts",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__contact",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "contact",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=30",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__contact",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "contact",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__contact",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "contact",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=27",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__cookies",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "cookies",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=27",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__cookies",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "cookies",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=23",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__cookies",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "cookies",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=24",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__copy-trading",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "copy-trading",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__copy-trading",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "copy-trading",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__copy-trading",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "copy-trading",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__creator-add-bot",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "creator-add-bot",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__creator-add-bot",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "creator-add-bot",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__creator-add-bot",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "creator-add-bot",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__creator",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "creator",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__creator",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "creator",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__creator",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "creator",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__dashboard",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "dashboard",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__dashboard",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "dashboard",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__dashboard",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "dashboard",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__docs",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "docs",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=27",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__docs",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "docs",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=23",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "long-tasks__docs",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "docs",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=535",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__docs",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "docs",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=24",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__documentation",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "documentation",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=525",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__documentation",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "documentation",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=27",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "long-tasks__documentation",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "documentation",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=541",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__documentation",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "documentation",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=23",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__documentation",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "documentation",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=24",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__get-bots",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "get-bots",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__get-bots",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "get-bots",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__get-bots",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "get-bots",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__guides",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "guides",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__guides",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "guides",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=22",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__guides",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "guides",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=23",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__help",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "help",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=543",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__help",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "help",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=36",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__help",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "help",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=32",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__help",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "help",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=33",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__history",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "history",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__history",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "history",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__history",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "history",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__home",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "home",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__home",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "home",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__home",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "home",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__journal",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "journal",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__journal",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "journal",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__journal",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "journal",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__leaderboard",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "leaderboard",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__leaderboard",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "leaderboard",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__leaderboard",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "leaderboard",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__login",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "login",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__login",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "login",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__login",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "login",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__marketplace-success",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "marketplace-success",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__marketplace-success",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "marketplace-success",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__marketplace-success",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "marketplace-success",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__marketplace",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "marketplace",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__marketplace",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "marketplace",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "long-tasks__marketplace",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "marketplace",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=515",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__marketplace",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "marketplace",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__markets",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "markets",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__markets",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "markets",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__markets",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "markets",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__my-bots",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "my-bots",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__my-bots",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "my-bots",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__my-bots",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "my-bots",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__notifications",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "notifications",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__notifications",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "notifications",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__notifications",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "notifications",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__onboarding-risk",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "onboarding-risk",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=583",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__press",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "press",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "long-tasks__press",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "press",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=699",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__press",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "press",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__press",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "press",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__pricing",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "pricing",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=519",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__pricing",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "pricing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=28",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__pricing",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "pricing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=24",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__pricing",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "pricing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__privacy",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "privacy",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=37",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__privacy",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "privacy",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=33",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__privacy",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "privacy",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=34",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__register",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "register",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__register",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "register",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__register",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "register",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__risk-disclosure",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "risk-disclosure",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=34",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__risk-disclosure",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "risk-disclosure",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=30",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__risk-disclosure",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "risk-disclosure",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=31",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-api-keys",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-api-keys",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-api-keys",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-api-keys",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-api-keys",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-api-keys",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-billing",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "long-tasks__settings-billing",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "settings-billing",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=530",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-billing",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-billing",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-kyc",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-kyc",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-kyc",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-kyc",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-kyc",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-kyc",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-notifications",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-notifications",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-notifications",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-notifications",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-notifications",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-notifications",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__settings-profile",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "settings-profile",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=509",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-profile",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-profile",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "long-tasks__settings-profile",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "settings-profile",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=510",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-profile",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-profile",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "long-tasks__settings-profile",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "settings-profile",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=513",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-profile",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-profile",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-security",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-security",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-security",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-security",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-security",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-security",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__settings-support",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "settings-support",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=579",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-support",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-support",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-support",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-support",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-trading",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-trading",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-trading",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-trading",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings-trading",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings-trading",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__settings",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "settings",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__signup",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "signup",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__signup",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "signup",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__signup",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "signup",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__strategies-builder",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "strategies-builder",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__strategies-builder",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "strategies-builder",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__strategies-builder",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "strategies-builder",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__strategies",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "strategies",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__strategies",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "strategies",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__strategies",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "strategies",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__subscriptions",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__subscriptions",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__subscriptions",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "subscriptions",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__team-plans",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "team-plans",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__team-plans",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "team-plans",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__team-plans",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "team-plans",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__terms",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "terms",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=40",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "small-touch-targets__terms",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "terms",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=36",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__terms",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "terms",
+      "severity": "medium",
+      "bucket": "P2",
+      "rationale": "Footer/marketing link touch noise — defer",
+      "detail": "count=37",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "long-tasks__verify-email",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "verify-email",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=595",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "small-touch-targets__wallet",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "wallet",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=29",
+      "viewport": {
+        "w": 1920,
+        "h": 1080,
+        "label": "desktop-1920"
+      }
+    },
+    {
+      "id": "long-tasks__wallet",
+      "source": "phase1b",
+      "type": "long-tasks",
+      "slug": "wallet",
+      "severity": "medium",
+      "bucket": "P3",
+      "rationale": "Engine/marketing main-thread — freeze platforms; no Phase 2 engine edits",
+      "detail": "totalMs=581",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__wallet",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "wallet",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=25",
+      "viewport": {
+        "w": 390,
+        "h": 844,
+        "label": "mobile-390"
+      }
+    },
+    {
+      "id": "small-touch-targets__wallet",
+      "source": "phase1b",
+      "type": "small-touch-targets",
+      "slug": "wallet",
+      "severity": "medium",
+      "bucket": "P0",
+      "rationale": "Tier A / product chrome touch targets below 44px",
+      "detail": "count=26",
+      "viewport": {
+        "w": 768,
+        "h": 1024,
+        "label": "tablet-768"
+      }
+    },
+    {
+      "id": "systemic__density-tokens",
+      "source": "phase2-plan",
+      "type": "adaptive-density",
+      "slug": "*",
+      "severity": "medium",
+      "bucket": "P1",
+      "rationale": "Thin density profiles on existing breakpoints",
+      "detail": null,
+      "viewport": null
+    },
+    {
+      "id": "systemic__spacing-tokens",
+      "source": "phase2-plan",
+      "type": "spacing-normalize",
+      "slug": "app-shell",
+      "severity": "medium",
+      "bucket": "P1",
+      "rationale": "Normalize shell spacing to semantic tokens",
+      "detail": null,
+      "viewport": null
+    },
+    {
+      "id": "systemic__typography-truncate",
+      "source": "phase2-plan",
+      "type": "typography",
+      "slug": "dashboard-chrome",
+      "severity": "medium",
+      "bucket": "P1",
+      "rationale": "Wrap/truncate/min-w-0 on measured offenders",
+      "detail": null,
+      "viewport": null
+    },
+    {
+      "id": "systemic__resize-cls",
+      "source": "phase2-plan",
+      "type": "resize-stability",
+      "slug": "app-shell",
+      "severity": "medium",
+      "bucket": "P1",
+      "rationale": "Density + overflow containment for resize CLS",
+      "detail": null,
+      "viewport": null
+    }
+  ]
+}

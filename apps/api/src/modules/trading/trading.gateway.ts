@@ -100,6 +100,9 @@ export class TradingGateway
   }
 
   broadcastPrices(prices: any) {
+    // Skip identical reference re-broadcasts (API Phase 2 WS optimization)
+    if (prices === this.lastPriceSnapshot) return;
+    this.lastPriceSnapshot = prices;
     this.server.to('market_prices').emit('price_update', prices);
   }
 }

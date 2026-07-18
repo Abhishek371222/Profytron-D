@@ -1,0 +1,90 @@
+{
+  "ts": "2026-07-18T18:57:25.032Z",
+  "base": "http://localhost:3000",
+  "samples": [
+    {
+      "label": "button-click-visual-feedback",
+      "wallClickMs": 228,
+      "clickToMutateMs": null,
+      "windowMs": 16.30000001192093
+    },
+    {
+      "label": "nav-to-analytics",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "navigation-page-ready",
+      "ready": {
+        "path": "/login",
+        "busy": false,
+        "main": false
+      }
+    },
+    {
+      "label": "modal-open-attempt:button:has-text(\"Settings\")",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "modal-open-attempt:button:has-text(\"Open\")",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "modal-open-attempt:[data-slot=\"dialog-trigger\"]",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "modal-open-attempt:button[aria-haspopup=\"dialog\"]",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "tooltip",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "search-focus",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "search-typing",
+      "skipped": true,
+      "reason": "no search input"
+    },
+    {
+      "label": "table-sort",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "filter",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "tabs",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "accordion",
+      "skipped": true,
+      "reason": "not found"
+    },
+    {
+      "label": "nav-home-to-pricing",
+      "error": "locator.click: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator('a[href=\"/pricing\"]').first()\n    - locator resolved to <a href=\"/pricing\" class=\"inline-flex h-12 items-center justify-center rounded-[14px] border border-[var(--card-border)] bg-card/80 px-7 text-sm font-semibold text-foreground backdrop-blur-sm transition-colors duration-[var(--motion-fast,120ms)] hover:bg-card\">View pricing</a>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - performing click action\n    - click action done\n    - waiting for scheduled navigations to finish\n    - navigated to \"http://localhost:3000/\"\n"
+    },
+    {
+      "label": "login-email-focus",
+      "wallClickMs": 390,
+      "clickToMutateMs": null,
+      "windowMs": 21.900000005960464
+    }
+  ]
+}

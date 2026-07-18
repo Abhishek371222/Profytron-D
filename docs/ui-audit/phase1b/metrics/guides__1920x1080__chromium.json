@@ -1,0 +1,114 @@
+{
+  "slug": "guides",
+  "path": "/guides",
+  "auth": "public",
+  "shell": "marketing",
+  "browser": "chromium",
+  "viewport": {
+    "w": 1920,
+    "h": 1080,
+    "label": "desktop-1920"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/guides",
+    "title": "Trading Guides — Learn Algo Trading | Profytron",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 1724,
+      "first-contentful-paint": 1724
+    },
+    "lcp": {
+      "startTime": 3644,
+      "size": 43885,
+      "url": null
+    },
+    "cls": 0.00009305568192721394,
+    "inpProxyMs": null,
+    "longTaskCount": 2,
+    "longTaskTotalMs": 499,
+    "tbtProxyMs": 499,
+    "navigation": {
+      "domContentLoaded": 1598.9000000059605,
+      "loadEventEnd": 3266.2000000029802,
+      "responseEnd": 397,
+      "transferSize": 14716
+    },
+    "memory": {
+      "usedJSHeapSize": 109000000,
+      "totalJSHeapSize": 116000000
+    },
+    "domNodes": 521,
+    "js": {
+      "scriptCount": 8,
+      "scriptTransferKB": 5849
+    },
+    "network": {
+      "apiCount": 0,
+      "duplicates": [],
+      "sample": []
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 38,
+          "displayH": 42,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 50,
+          "displayH": 54,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": 52,
+      "droppedFrames": 3,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 1,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 36,
+      "smallTouchTargetCount": 26
+    },
+    "settled": {
+      "main": true,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 5094.5
+  },
+  "networkLog": {
+    "responses": [],
+    "failed": 0
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:40:07.850Z"
+}

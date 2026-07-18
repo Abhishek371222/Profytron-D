@@ -1,0 +1,455 @@
+{
+  "slug": "press",
+  "path": "/press",
+  "auth": "public",
+  "shell": "marketing",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 1366,
+    "h": 768,
+    "label": "desktop-1366"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs\\ui-audit\\phase1\\screenshots\\press__1366x768__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 1366,
+      "h": 768,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 1366,
+      "scrollHeight": 6820,
+      "clientWidth": 1366,
+      "clientHeight": 768,
+      "overflowX": 0,
+      "overflowY": 6052
+    },
+    "body": {
+      "width": 1366
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 638,
+        "height": 125,
+        "fontSize": "61.47px",
+        "lineHeight": "58.3965px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": {
+        "selector": "h2",
+        "width": 626,
+        "height": 95,
+        "fontSize": "44px",
+        "lineHeight": "47.52px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h3": {
+        "selector": "h3",
+        "width": 460,
+        "height": 28,
+        "fontSize": "18px",
+        "lineHeight": "28px",
+        "fontWeight": "700",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 1366,
+        "height": 6820,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 62,
+        "height": 36,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "500",
+        "color": "rgb(52, 131, 152)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 576,
+        "height": 88,
+        "fontSize": "18px",
+        "lineHeight": "29.25px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": ".page-container[0]",
+        "width": 1366,
+        "height": 73,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[1]",
+        "width": 1366,
+        "height": 580,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[2]",
+        "width": 1366,
+        "height": 724,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[3]",
+        "width": 1366,
+        "height": 658,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[4]",
+        "width": 1366,
+        "height": 624,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[5]",
+        "width": 1366,
+        "height": 1268,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[6]",
+        "width": 1366,
+        "height": 314,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[7]",
+        "width": 1366,
+        "height": 735,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[8]",
+        "width": 1366,
+        "height": 564,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "relative"
+      },
+      {
+        "selector": "main",
+        "width": 1366,
+        "height": 6820,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "relative"
+      },
+      {
+        "selector": "nav",
+        "width": 1332,
+        "height": 73,
+        "maxWidth": "none",
+        "paddingLeft": "4px",
+        "paddingRight": "20px",
+        "position": "static"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 36,
+        "height": 36,
+        "minWidth": "auto"
+      },
+      {
+        "i": 1,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 2,
+        "width": 200,
+        "height": 48,
+        "minWidth": "auto"
+      },
+      {
+        "i": 3,
+        "width": 1366,
+        "height": 889,
+        "minWidth": "0px"
+      },
+      {
+        "i": 4,
+        "width": 626,
+        "height": 262,
+        "minWidth": "0px"
+      },
+      {
+        "i": 5,
+        "width": 560,
+        "height": 65,
+        "minWidth": "0px"
+      },
+      {
+        "i": 6,
+        "width": 3,
+        "height": 676,
+        "minWidth": "0px"
+      },
+      {
+        "i": 7,
+        "width": 578,
+        "height": 163,
+        "minWidth": "0px"
+      },
+      {
+        "i": 8,
+        "width": 578,
+        "height": 163,
+        "minWidth": "0px"
+      },
+      {
+        "i": 9,
+        "width": 578,
+        "height": 163,
+        "minWidth": "0px"
+      },
+      {
+        "i": 10,
+        "width": 578,
+        "height": 163,
+        "minWidth": "0px"
+      },
+      {
+        "i": 11,
+        "width": 433,
+        "height": 172,
+        "minWidth": "auto"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "i": 0,
+        "width": 14,
+        "height": 14,
+        "tag": "svg"
+      },
+      {
+        "i": 1,
+        "width": 2727,
+        "height": 989,
+        "tag": "canvas"
+      },
+      {
+        "i": 2,
+        "width": 320,
+        "height": 320,
+        "tag": "div"
+      },
+      {
+        "i": 3,
+        "width": 3,
+        "height": 676,
+        "tag": "div"
+      },
+      {
+        "i": 4,
+        "width": 18,
+        "height": 18,
+        "tag": "div"
+      },
+      {
+        "i": 5,
+        "width": 48,
+        "height": 48,
+        "tag": "div"
+      }
+    ],
+    "sticky": [
+      {
+        "tag": "header",
+        "position": "fixed",
+        "top": 0,
+        "height": 113,
+        "width": 1366
+      },
+      {
+        "tag": "div",
+        "position": "sticky",
+        "top": 999,
+        "height": 560,
+        "width": 626
+      },
+      {
+        "tag": "div",
+        "position": "sticky",
+        "top": 5351,
+        "height": 253,
+        "width": 412
+      },
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 688,
+        "height": 56,
+        "width": 56
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "clamp(1rem, 1.25vw, 1.5rem)",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 56,
+      "smallTouchTargetCount": 29,
+      "smallTouchTargets": [
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 36,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 102,
+          "h": 41,
+          "tag": "button"
+        },
+        {
+          "w": 183,
+          "h": 41,
+          "tag": "button"
+        },
+        {
+          "w": 178,
+          "h": 21,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": []
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 29,
+        "samples": [
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 36,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 3
+      }
+    ],
+    "title": "Profytron — Algorithmic Trading Platform for Indian Traders",
+    "url": "http://localhost:3000/"
+  },
+  "error": null,
+  "ts": "2026-07-18T17:20:51.382Z"
+}

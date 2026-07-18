@@ -14,13 +14,16 @@ import {
   Zap,
   Link2,
 } from 'lucide-react';
-import type { CoachEscalationStatus, CoachMessage } from '@/lib/api/coach';
+import type { CoachEscalationStatus } from '@/lib/api/coach';
+import { MVP_FOLLOW_UPS } from '@profytron/ai-coach';
+import { COACH_EVENTS, trackCoachEvent } from '@/lib/analytics/track-coach';
 import { ExecutiveWaitBar } from '@/components/alpha-coach/ExecutiveWaitBar';
 import { CoachComposer } from '@/components/alpha-coach/CoachComposer';
 import {
   CoachErrorBanner,
   CoachMessageRow,
   CoachTypingRow,
+  type UiCoachMessage,
 } from '@/components/alpha-coach/CoachMessageRow';
 import {
   CoachBrandMark,
@@ -28,13 +31,19 @@ import {
 } from '@/components/alpha-coach/CoachBrandMark';
 import { cn } from '@/lib/utils';
 
-const SUGGESTIONS = [
-  { label: 'Analyze exposure', icon: Target },
-  { label: 'Review drawdown', icon: TrendingUp },
-  { label: 'Optimize stop-loss', icon: ShieldCheck },
-  { label: 'Explain XAUUSD', icon: Activity },
-  { label: 'Validate bot', icon: Zap },
-];
+const SUGGESTIONS = MVP_FOLLOW_UPS.map((label) => ({
+  label,
+  icon:
+    /drawdown/i.test(label)
+      ? TrendingUp
+      : /trade/i.test(label)
+        ? Activity
+        : /strategy/i.test(label)
+          ? Zap
+          : /week/i.test(label)
+            ? ShieldCheck
+            : Target,
+}));
 
 export function CoachChatPanel({
   messages,
@@ -44,6 +53,7 @@ export function CoachChatPanel({
   onInputChange,
   onSend,
   onSuggestion,
+  onFeedback,
   onEscalate,
   onRetry,
   onNewChat,
@@ -64,13 +74,14 @@ export function CoachChatPanel({
   winRate,
   openTradeCount,
 }: {
-  messages: CoachMessage[];
+  messages: UiCoachMessage[];
   isTyping: boolean;
   streamingText?: string;
   inputValue: string;
   onInputChange: (v: string) => void;
   onSend: () => void;
   onSuggestion: (label: string) => void;
+  onFeedback?: (message: UiCoachMessage, value: 'up' | 'down') => void;
   onEscalate: () => void;
   onRetry?: () => void;
   onNewChat?: () => void;
@@ -226,6 +237,14 @@ export function CoachChatPanel({
             empty && 'h-full min-h-full',
           )}
         >
+          {/* ERROR_GUIDE — keep Retry visible after failed first send (empty conversation) */}
+          {errorText && (
+            <CoachErrorBanner
+              text={errorText}
+              onRetry={onRetry && lastFailedText ? onRetry : undefined}
+            />
+          )}
+
           {empty ? (
             <EmptyState
               hasBrokerAccount={Boolean(hasBrokerAccount)}
@@ -250,8 +269,13 @@ export function CoachChatPanel({
                     <CoachMessageRow
                       message={m}
                       onRegenerate={
-                        m.id === lastAssistantId && lastUserText
-                          ? () => onSuggestion(lastUserText)
+                        m.id === lastAssistantId && lastUserText && onRetry
+                          ? onRetry
+                          : undefined
+                      }
+                      onFeedback={
+                        onFeedback
+                          ? (value) => onFeedback(m, value)
                           : undefined
                       }
                     />
@@ -274,13 +298,6 @@ export function CoachChatPanel({
               )}
 
               {isTyping && !streamingText && <CoachTypingRow />}
-
-              {errorText && (
-                <CoachErrorBanner
-                  text={errorText}
-                  onRetry={onRetry && lastFailedText ? onRetry : undefined}
-                />
-              )}
             </>
           )}
         </div>
@@ -308,6 +325,15 @@ function EmptyState({
   winRate?: number;
   openTradeCount?: number;
 }) {
+  React.useEffect(() => {
+    trackCoachEvent(COACH_EVENTS.SUGGESTION_IMPRESSION, {
+      metadata: {
+        labels: SUGGESTIONS.map((s) => s.label).join('|'),
+        count: SUGGESTIONS.length,
+      },
+    });
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}

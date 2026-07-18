@@ -242,4 +242,45 @@ export const coachApi = {
     const res = await apiClient.post(`/coach/admin/escalations/${id}/resolve`);
     return unwrapApiResponse<CoachEscalation>(res.data);
   },
+
+  async trackInsight(payload: {
+    event: string;
+    conversationId?: string | null;
+    intent?: string | null;
+    questionPreview?: string | null;
+    metadata?: Record<string, unknown>;
+  }) {
+    const res = await apiClient.post('/coach/insights/events', payload);
+    return unwrapApiResponse<{ tracked: boolean }>(res.data);
+  },
+
+  async getInsightsSummary(days = 7) {
+    const res = await apiClient.get('/coach/admin/insights', {
+      params: { days },
+    });
+    return unwrapApiResponse<CoachInsightsSummary>(res.data);
+  },
+};
+
+export type CoachInsightsSummary = {
+  windowDays: number;
+  since: string;
+  kpis: {
+    coachWau: number;
+    suggestionCtr: number | null;
+    followUpRate: number | null;
+    completionRate: number | null;
+    evidenceBackedRate: number | null;
+    unsupportedIntentRate: number | null;
+    lowConfidenceRate: number | null;
+    toolFailureEvents: number;
+    satisfactionRate: number | null;
+    multiDayReturnUsers: number;
+    multiDayReturnRate: number | null;
+  };
+  counts: Record<string, number | Record<string, number>>;
+  topQuestions: Array<{ question: string; count: number }>;
+  topIntents: Array<{ intent: string; count: number }>;
+  topSuggestions: Array<{ label: string; count: number }>;
+  failingTools: Array<{ tool: string; count: number }>;
 };

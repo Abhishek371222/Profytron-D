@@ -1,0 +1,459 @@
+{
+  "at": "2026-07-18T20:01:27.514Z",
+  "unusedIndexCount": 245,
+  "unusedSample": [
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotSymbol",
+      "index_name": "AccountSnapshotSymbol_brokerAccountId_symbol_capturedAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 3440640
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotSymbol",
+      "index_name": "AccountSnapshotSymbol_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 2015232
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotDeal",
+      "index_name": "AccountSnapshotDeal_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 1433600
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotOrderHistory",
+      "index_name": "AccountSnapshotOrderHistory_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 1392640
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotSymbol",
+      "index_name": "AccountSnapshotSymbol_snapshotId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 278528
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotDeal",
+      "index_name": "AccountSnapshotDeal_positionId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 221184
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotDeal",
+      "index_name": "AccountSnapshotDeal_snapshotId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 221184
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotOrderHistory",
+      "index_name": "AccountSnapshotOrderHistory_snapshotId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 212992
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotDeal",
+      "index_name": "AccountSnapshotDeal_dealId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 180224
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotOrderHistory",
+      "index_name": "AccountSnapshotOrderHistory_ticket_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 180224
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotRisk",
+      "index_name": "AccountSnapshotRisk_snapshotId_key",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 57344
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotStatus",
+      "index_name": "AccountSnapshotStatus_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 57344
+    },
+    {
+      "schemaname": "public",
+      "table_name": "EquitySnapshot",
+      "index_name": "EquitySnapshot_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 57344
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotPerformance",
+      "index_name": "AccountSnapshotPerformance_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 57344
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotRisk",
+      "index_name": "AccountSnapshotRisk_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 57344
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotEvent",
+      "index_name": "AccountSnapshotEvent_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 57344
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotStatus",
+      "index_name": "AccountSnapshotStatus_snapshotId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 57344
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotPerformance",
+      "index_name": "AccountSnapshotPerformance_snapshotId_key",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 57344
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotEvent",
+      "index_name": "AccountSnapshotEvent_snapshotId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 57344
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotRisk",
+      "index_name": "AccountSnapshotRisk_brokerAccountId_capturedAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 49152
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotEvent",
+      "index_name": "AccountSnapshotEvent_brokerAccountId_occurredAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 49152
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotStatus",
+      "index_name": "AccountSnapshotStatus_brokerAccountId_capturedAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 49152
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountSnapshotPerformance",
+      "index_name": "AccountSnapshotPerformance_brokerAccountId_capturedAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 49152
+    },
+    {
+      "schemaname": "public",
+      "table_name": "Trade",
+      "index_name": "Trade_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 40960
+    },
+    {
+      "schemaname": "public",
+      "table_name": "Trade",
+      "index_name": "Trade_openedAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "CoachMessage",
+      "index_name": "CoachMessage_faqAnswerId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AgentInsight",
+      "index_name": "AgentInsight_agentType_scope_createdAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AgentInsight",
+      "index_name": "AgentInsight_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AgentJob",
+      "index_name": "AgentJob_userId_createdAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "MarketplaceListing",
+      "index_name": "MarketplaceListing_isFeatured_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "Affiliate",
+      "index_name": "Affiliate_userId_key",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "Affiliate",
+      "index_name": "Affiliate_referrerId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "UserAchievement",
+      "index_name": "UserAchievement_userId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AgentJob",
+      "index_name": "AgentJob_agentType_status_createdAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "Notification",
+      "index_name": "Notification_userId_isRead_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AgentEventOutbox",
+      "index_name": "AgentEventOutbox_eventType_createdAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AgentEventOutbox",
+      "index_name": "AgentEventOutbox_idempotencyKey_key",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountLatestSnapshot",
+      "index_name": "AccountLatestSnapshot_lastSyncedAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AuditLog",
+      "index_name": "AuditLog_userId_createdAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AuditLog",
+      "index_name": "AuditLog_eventType_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "UserActivationEvent",
+      "index_name": "UserActivationEvent_pkey",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "Trade",
+      "index_name": "Trade_brokerTicket_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "Strategy",
+      "index_name": "Strategy_masterBrokerAccountId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "UserStrategySubscription",
+      "index_name": "UserStrategySubscription_brokerAccountId_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "MarketplaceListing",
+      "index_name": "MarketplaceListing_isFeatured_updatedAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "EmailLog",
+      "index_name": "EmailLog_type_createdAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "EmailLog",
+      "index_name": "EmailLog_to_createdAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "EmailLog",
+      "index_name": "EmailLog_userId_createdAt_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "NotificationLog",
+      "index_name": "NotificationLog_channel_status_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    },
+    {
+      "schemaname": "public",
+      "table_name": "AccountLatestSnapshot",
+      "index_name": "AccountLatestSnapshot_syncStatus_idx",
+      "idx_scan": 0,
+      "idx_tup_read": 0,
+      "idx_tup_fetch": 0,
+      "index_bytes": 16384
+    }
+  ],
+  "fkIndexGaps": [],
+  "duplicateIndexes": [],
+  "note": "Observation window 2 — do NOT drop zero-scan indexes based on this alone"
+}

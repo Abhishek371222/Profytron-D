@@ -4,6 +4,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AuditTimingInterceptor } from './common/interceptors/audit-timing.interceptor';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import express, { NextFunction, Request, Response } from 'express';
@@ -70,15 +71,21 @@ export function configureApp(app: INestApplication) {
   });
 
   app.setGlobalPrefix('v1', {
-    exclude: [{ path: 'health', method: RequestMethod.ALL }],
+    exclude: [
+      { path: 'health', method: RequestMethod.ALL },
+      { path: 'live', method: RequestMethod.ALL },
+      { path: 'ready', method: RequestMethod.ALL },
+    ],
   });
 
   app.use((req: Request, _res: Response, next: NextFunction) => {
-    if (
-      req.method === 'GET' &&
-      (req.url === '/v1/health' || req.url?.startsWith('/v1/health?'))
-    ) {
-      req.url = req.url.replace('/v1/health', '/health');
+    if (req.method === 'GET') {
+      for (const path of ['health', 'live', 'ready'] as const) {
+        if (req.url === `/v1/${path}` || req.url?.startsWith(`/v1/${path}?`)) {
+          req.url = req.url.replace(`/v1/${path}`, `/${path}`);
+          break;
+        }
+      }
     }
     next();
   });
@@ -131,10 +138,11 @@ export function configureApp(app: INestApplication) {
   app.useGlobalFilters(
     new AllExceptionsFilter({ httpAdapter: app.getHttpAdapter() } as any),
   );
-  app.useGlobalInterceptors(
-    new SentryInterceptor(),
-    new TransformInterceptor(),
-  );
+  const interceptors: any[] = [new SentryInterceptor(), new TransformInterceptor()];
+  if (process.env.API_AUDIT_TIMING === '1') {
+    interceptors.push(new AuditTimingInterceptor());
+  }
+  app.useGlobalInterceptors(...interceptors);
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

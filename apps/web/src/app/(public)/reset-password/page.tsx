@@ -121,6 +121,44 @@ function ResetPasswordPageInner() {
  }
  };
 
+  if (!token) {
+    return (
+      <main className="min-h-screen w-full bg-bg-base overflow-hidden relative flex flex-col items-center justify-center p-6">
+        <div className="fixed top-12 left-12 z-50">
+          <Magnetic strength={0.2}>
+            <Link href="/login" className="flex items-center gap-4 group">
+              <div className="w-10 h-10 rounded-xl bg-bg-card border border-border flex items-center justify-center group-hover:border-primary/50 transition-colors shadow-2xl">
+                <ArrowLeft className="w-5 h-5 text-foreground/60 group-hover:text-primary transition-colors" />
+              </div>
+              <span className="text-foreground/40 group-hover:text-foreground font-bold tracking-widest text-xs uppercase hidden sm:block">
+                Back to Login
+              </span>
+            </Link>
+          </Magnetic>
+        </div>
+        <div className="fixed top-12 right-12 z-50">
+          <BrandLogo size="xl" />
+        </div>
+        <div className="relative z-10 w-full max-w-lg bg-bg-card/40 backdrop-blur-3xl border border-border rounded-[40px] p-10 lg:p-14 shadow-2xl text-center space-y-6">
+          <div className="w-20 h-20 rounded-3xl bg-destructive/10 border border-destructive/20 flex items-center justify-center mx-auto">
+            <ShieldCheck className="w-10 h-10 text-destructive" />
+          </div>
+          <div className="space-y-3">
+            <h1 className="brand-display-heading text-3xl sm:text-4xl">
+              Invalid <span className="brand-gradient-text">reset link.</span>
+            </h1>
+            <p className="text-muted-foreground font-sans text-lg">
+              This password reset link is missing or expired. Request a new one to continue.
+            </p>
+          </div>
+          <Button asChild className="w-full h-14 rounded-2xl">
+            <Link href="/forgot-password">Request a new reset link</Link>
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
  return (
  <main className="min-h-screen w-full bg-bg-base overflow-hidden relative flex flex-col items-center justify-center p-6">
 

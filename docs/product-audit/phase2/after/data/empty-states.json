@@ -1,0 +1,57 @@
+{
+  "capturedAt": "2026-07-18T20:54:03.306Z",
+  "base": "http://127.0.0.1:3000",
+  "hasJwt": true,
+  "pages": [
+    {
+      "id": "strategies",
+      "path": "/strategies",
+      "status": "Complete",
+      "httpStatus": 200,
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fstrategies",
+      "emptyCueDetected": false,
+      "screenshot": "journeys/empty-states/strategies.png",
+      "note": "Page reachable; empty cue not detected (may have data)"
+    },
+    {
+      "id": "notifications",
+      "path": "/settings/notifications",
+      "status": "Complete",
+      "httpStatus": 200,
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fsettings%2Fnotifications",
+      "emptyCueDetected": false,
+      "screenshot": "journeys/empty-states/notifications.png",
+      "note": "Page reachable; empty cue not detected (may have data)"
+    },
+    {
+      "id": "marketplace",
+      "path": "/marketplace",
+      "status": "Complete",
+      "httpStatus": 200,
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fmarketplace",
+      "emptyCueDetected": false,
+      "screenshot": "journeys/empty-states/marketplace.png",
+      "note": "Page reachable; empty cue not detected (may have data)"
+    },
+    {
+      "id": "my_bots",
+      "path": "/my-bots",
+      "status": "Complete",
+      "httpStatus": 200,
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fmy-bots",
+      "emptyCueDetected": false,
+      "screenshot": "journeys/empty-states/my_bots.png",
+      "note": "Page reachable; empty cue not detected (may have data)"
+    },
+    {
+      "id": "wallet",
+      "path": "/wallet",
+      "status": "Complete",
+      "httpStatus": 200,
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fwallet",
+      "emptyCueDetected": false,
+      "screenshot": "journeys/empty-states/wallet.png",
+      "note": "Page reachable; empty cue not detected (may have data)"
+    }
+  ]
+}

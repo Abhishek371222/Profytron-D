@@ -1,0 +1,44 @@
+# Image Report
+
+| Route | Img resources | Oversize nodes | Largest transfer KB |
+| --- | --- | --- | --- |
+| about | 1 | 0 | 3 |
+| about | 1 | 0 | 3 |
+| about | 1 | 0 | 3 |
+| admin-agents | 0 | 0 | 0 |
+| admin-agents | 0 | 0 | 0 |
+| admin-agents | 0 | 0 | 0 |
+| admin-coach | 0 | 0 | 0 |
+| admin-coach | 0 | 0 | 0 |
+| admin-coach | 0 | 0 | 0 |
+| admin-kyc | 0 | 0 | 0 |
+| admin-kyc | 0 | 0 | 0 |
+| admin-kyc | 0 | 0 | 0 |
+| admin-strategies | 0 | 0 | 0 |
+| admin-strategies | 0 | 0 | 0 |
+| admin-strategies | 0 | 0 | 0 |
+| admin-system | 0 | 0 | 0 |
+| admin-system | 0 | 0 | 0 |
+| admin-system | 0 | 0 | 0 |
+| admin-users | 0 | 0 | 0 |
+| admin-users | 0 | 0 | 0 |
+| admin-users | 0 | 0 | 0 |
+| admin | 0 | 0 | 0 |
+| admin | 0 | 0 | 0 |
+| admin | 0 | 0 | 0 |
+| affiliate-best | 0 | 0 | 0 |
+| affiliate-best | 0 | 0 | 0 |
+| affiliate-best | 0 | 0 | 0 |
+| affiliate | 0 | 0 | 0 |
+| affiliate | 0 | 0 | 0 |
+| affiliate | 0 | 0 | 0 |
+| alpha-coach | 0 | 0 | 0 |
+| alpha-coach | 0 | 0 | 0 |
+| alpha-coach | 0 | 0 | 0 |
+| analytics-global | 0 | 0 | 0 |
+| analytics-global | 0 | 0 | 0 |
+| analytics-global | 0 | 0 | 0 |
+| analytics-performance | 0 | 0 | 0 |
+| analytics-performance | 0 | 0 | 0 |
+| analytics-performance | 0 | 0 | 0 |
+| analytics-risk | 0 | 0 | 0 |

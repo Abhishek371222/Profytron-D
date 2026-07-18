@@ -1,0 +1,231 @@
+{
+  "capturedAt": "2026-07-18T20:36:09.943Z",
+  "base": "http://127.0.0.1:3000",
+  "hasJwt": true,
+  "journeys": [
+    {
+      "id": "visitor",
+      "name": "Visitor marketing",
+      "domain": "visitor",
+      "steps": 4,
+      "status": "Complete",
+      "wallMs": 30301,
+      "complete": 4,
+      "partial": 0,
+      "blocked": 0,
+      "missing": 0
+    },
+    {
+      "id": "auth",
+      "name": "Authentication surfaces",
+      "domain": "auth",
+      "steps": 7,
+      "status": "Blocked",
+      "wallMs": 34636,
+      "complete": 6,
+      "partial": 0,
+      "blocked": 1,
+      "missing": 0
+    },
+    {
+      "id": "onboarding",
+      "name": "Onboarding",
+      "domain": "onboarding",
+      "steps": 4,
+      "status": "Missing",
+      "wallMs": 27755,
+      "complete": 3,
+      "partial": 0,
+      "blocked": 0,
+      "missing": 1
+    },
+    {
+      "id": "broker",
+      "name": "Broker connection",
+      "domain": "broker",
+      "steps": 3,
+      "status": "Blocked",
+      "wallMs": 7694,
+      "complete": 2,
+      "partial": 0,
+      "blocked": 1,
+      "missing": 0
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "domain": "dashboard",
+      "steps": 3,
+      "status": "Complete",
+      "wallMs": 10929,
+      "complete": 3,
+      "partial": 0,
+      "blocked": 0,
+      "missing": 0
+    },
+    {
+      "id": "strategies",
+      "name": "Strategies",
+      "domain": "strategies",
+      "steps": 3,
+      "status": "Complete",
+      "wallMs": 11065,
+      "complete": 3,
+      "partial": 0,
+      "blocked": 0,
+      "missing": 0
+    },
+    {
+      "id": "ai_coach",
+      "name": "AI Coach",
+      "domain": "ai_coach",
+      "steps": 3,
+      "status": "Partial",
+      "wallMs": 7197,
+      "complete": 2,
+      "partial": 1,
+      "blocked": 0,
+      "missing": 0
+    },
+    {
+      "id": "billing",
+      "name": "Billing & subscriptions",
+      "domain": "billing",
+      "steps": 6,
+      "status": "Blocked",
+      "wallMs": 19614,
+      "complete": 5,
+      "partial": 0,
+      "blocked": 1,
+      "missing": 0
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "domain": "settings",
+      "steps": 7,
+      "status": "Complete",
+      "wallMs": 25539,
+      "complete": 7,
+      "partial": 0,
+      "blocked": 0,
+      "missing": 0
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "domain": "marketplace",
+      "steps": 2,
+      "status": "Complete",
+      "wallMs": 7691,
+      "complete": 2,
+      "partial": 0,
+      "blocked": 0,
+      "missing": 0
+    },
+    {
+      "id": "error_recovery",
+      "name": "Error recovery probes",
+      "domain": "errors",
+      "steps": 2,
+      "status": "Complete",
+      "wallMs": 8497,
+      "complete": 2,
+      "partial": 0,
+      "blocked": 0,
+      "missing": 0
+    }
+  ],
+  "features": [
+    {
+      "id": "landing",
+      "name": "Landing / marketing",
+      "domain": "visitor",
+      "status": "Complete"
+    },
+    {
+      "id": "auth_register",
+      "name": "Register UI",
+      "domain": "auth",
+      "status": "Blocked"
+    },
+    {
+      "id": "auth_login",
+      "name": "Login UI",
+      "domain": "auth",
+      "status": "Blocked"
+    },
+    {
+      "id": "auth_oauth",
+      "name": "OAuth buttons",
+      "domain": "auth",
+      "status": "Blocked"
+    },
+    {
+      "id": "onboarding",
+      "name": "Onboarding flow",
+      "domain": "onboarding",
+      "status": "Missing"
+    },
+    {
+      "id": "broker_connect",
+      "name": "Broker connect",
+      "domain": "broker",
+      "status": "Blocked"
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "domain": "dashboard",
+      "status": "Complete"
+    },
+    {
+      "id": "strategies",
+      "name": "Strategies",
+      "domain": "strategies",
+      "status": "Complete"
+    },
+    {
+      "id": "ai_coach",
+      "name": "AI Coach",
+      "domain": "ai_coach",
+      "status": "Partial"
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "domain": "marketplace",
+      "status": "Complete"
+    },
+    {
+      "id": "wallet",
+      "name": "Wallet",
+      "domain": "billing",
+      "status": "Blocked"
+    },
+    {
+      "id": "billing",
+      "name": "Billing / subscriptions",
+      "domain": "billing",
+      "status": "Blocked"
+    },
+    {
+      "id": "notifications",
+      "name": "Notifications settings",
+      "domain": "settings",
+      "status": "Complete"
+    },
+    {
+      "id": "api_keys",
+      "name": "API keys",
+      "domain": "settings",
+      "status": "Complete"
+    },
+    {
+      "id": "support",
+      "name": "In-app support",
+      "domain": "settings",
+      "status": "Complete"
+    }
+  ]
+}

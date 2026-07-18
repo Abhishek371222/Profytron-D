@@ -1,0 +1,305 @@
+{
+  "at": "2026-07-18T20:12:51.703Z",
+  "base": "http://localhost:4000",
+  "results": [
+    {
+      "method": "GET",
+      "path": "/v1/market/news",
+      "module": "market",
+      "status": 200,
+      "bytes": 36527,
+      "contentEncoding": null,
+      "topKeys": [
+        "category",
+        "count",
+        "items",
+        "source",
+        "serverTime"
+      ],
+      "jsonDepth": 3,
+      "nullRatio": 0,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/ohlc",
+      "module": "market",
+      "status": 200,
+      "bytes": 24969,
+      "contentEncoding": null,
+      "topKeys": [
+        "symbol",
+        "timeframe",
+        "limit",
+        "candles",
+        "source",
+        "serverTime"
+      ],
+      "jsonDepth": 3,
+      "nullRatio": 0,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/economic-calendar",
+      "module": "market",
+      "status": 200,
+      "bytes": 2814,
+      "contentEncoding": null,
+      "topKeys": [
+        "from",
+        "to",
+        "count",
+        "events",
+        "source",
+        "serverTime"
+      ],
+      "jsonDepth": 3,
+      "nullRatio": 0.217,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/marketplace",
+      "module": "marketplace",
+      "status": 200,
+      "bytes": 1985,
+      "contentEncoding": null,
+      "topKeys": [
+        "items",
+        "nextCursor",
+        "count",
+        "total"
+      ],
+      "jsonDepth": 8,
+      "nullRatio": 0.143,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/marketplace/featured",
+      "module": "marketplace",
+      "status": 200,
+      "bytes": 1840,
+      "contentEncoding": null,
+      "topKeys": [
+        "Array(1)"
+      ],
+      "jsonDepth": 7,
+      "nullRatio": 0.134,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/subscriptions/plans",
+      "module": "subscriptions",
+      "status": 200,
+      "bytes": 1626,
+      "contentEncoding": null,
+      "topKeys": [
+        "Array(4)"
+      ],
+      "jsonDepth": 3,
+      "nullRatio": 0,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/leaderboard/monthly",
+      "module": "leaderboard",
+      "status": 200,
+      "bytes": 1452,
+      "contentEncoding": null,
+      "topKeys": [
+        "period",
+        "entries"
+      ],
+      "jsonDepth": 4,
+      "nullRatio": 0.075,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/leaderboard/alltime",
+      "module": "leaderboard",
+      "status": 200,
+      "bytes": 1436,
+      "contentEncoding": null,
+      "topKeys": [
+        "period",
+        "entries"
+      ],
+      "jsonDepth": 4,
+      "nullRatio": 0.075,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/strategies",
+      "module": "strategies",
+      "status": 200,
+      "bytes": 1265,
+      "contentEncoding": null,
+      "topKeys": [
+        "strategies",
+        "total",
+        "page",
+        "limit"
+      ],
+      "jsonDepth": 6,
+      "nullRatio": 0.022,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/quotes",
+      "module": "market",
+      "status": 200,
+      "bytes": 453,
+      "contentEncoding": null,
+      "topKeys": [
+        "Array(3)"
+      ],
+      "jsonDepth": 2,
+      "nullRatio": 0,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/leaderboard/strategies",
+      "module": "leaderboard",
+      "status": 200,
+      "bytes": 438,
+      "contentEncoding": null,
+      "topKeys": [
+        "Array(1)"
+      ],
+      "jsonDepth": 3,
+      "nullRatio": 0.111,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1",
+      "module": "app",
+      "status": 200,
+      "bytes": 265,
+      "contentEncoding": null,
+      "topKeys": [
+        "status",
+        "version",
+        "prefix",
+        "executionMode",
+        "copyFactoryEnabled",
+        "allowMetaApiSubscribers",
+        "metaApiUserSeats",
+        "storeOnlyUserConnect",
+        "gitSha"
+      ],
+      "jsonDepth": 1,
+      "nullRatio": 0.111,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "module": "app",
+      "status": 200,
+      "bytes": 232,
+      "contentEncoding": null,
+      "topKeys": [
+        "status",
+        "database",
+        "redis",
+        "queue",
+        "websocket",
+        "uptime",
+        "timestamp",
+        "version"
+      ],
+      "jsonDepth": 1,
+      "nullRatio": 0,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/quote",
+      "module": "market",
+      "status": 200,
+      "bytes": 192,
+      "contentEncoding": null,
+      "topKeys": [
+        "symbol",
+        "price",
+        "change24hPct",
+        "timestamp",
+        "source"
+      ],
+      "jsonDepth": 1,
+      "nullRatio": 0,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/copy/masters",
+      "module": "copy",
+      "status": 200,
+      "bytes": 65,
+      "contentEncoding": null,
+      "topKeys": [
+        "Array(0)"
+      ],
+      "jsonDepth": 1,
+      "nullRatio": null,
+      "wrapped": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/github",
+      "module": "auth",
+      "status": 302,
+      "bytes": 0,
+      "contentEncoding": null,
+      "topKeys": [],
+      "jsonDepth": 0,
+      "nullRatio": null,
+      "wrapped": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/github/callback",
+      "module": "auth",
+      "status": 302,
+      "bytes": 0,
+      "contentEncoding": null,
+      "topKeys": [],
+      "jsonDepth": 0,
+      "nullRatio": null,
+      "wrapped": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/google",
+      "module": "auth",
+      "status": 302,
+      "bytes": 0,
+      "contentEncoding": null,
+      "topKeys": [],
+      "jsonDepth": 0,
+      "nullRatio": null,
+      "wrapped": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/google/callback",
+      "module": "auth",
+      "status": 302,
+      "bytes": 0,
+      "contentEncoding": null,
+      "topKeys": [],
+      "jsonDepth": 0,
+      "nullRatio": null,
+      "wrapped": false
+    }
+  ]
+}

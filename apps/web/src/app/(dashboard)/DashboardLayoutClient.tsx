@@ -6,6 +6,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { AppProviders } from '@/components/providers/AppProviders';
 import { ActivationChecklist } from '@/components/dashboard/ActivationChecklist';
 import { BrokerConnectBanner } from '@/components/dashboard/BrokerConnectBanner';
+import { OfflineBanner } from '@/components/product/OfflineBanner';
 import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
 import { TutorialPrompt } from '@/components/tutorial/TutorialPrompt';
 import { cn, isAdminUser } from '@/lib/utils';
@@ -169,6 +170,9 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             />
           )}
         </AnimatePresence>
+
+        {/* PRODUCT_DEBT / ERROR_GUIDE — one offline banner for the dashboard shell */}
+        {mounted && <OfflineBanner />}
 
         {mounted && !fillViewport && !isAdmin && (
           <ActivationChecklist compact={showDemoBanner} />

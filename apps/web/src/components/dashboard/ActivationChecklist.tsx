@@ -8,6 +8,10 @@ import { CheckCircle2, Circle, Sparkles, X } from 'lucide-react';
 import { growthApi } from '@/lib/api/growth';
 import { cn, isAdminUser } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import {
+  ADOPTION_EVENTS,
+  trackAdoptionEvent,
+} from '@/lib/analytics/track-adoption';
 
 export function ActivationChecklist({ compact = false }: { compact?: boolean }) {
   const [dismissed, setDismissed] = React.useState(false);
@@ -25,12 +29,27 @@ export function ActivationChecklist({ compact = false }: { compact?: boolean }) 
     enabled: sessionReady && !isAdminUser(user),
   });
 
-  if (isAdminUser(user) || dismissed || isLoading || !data) return null;
-  if (data.progressPct >= 100 || data.isActivated) return null;
+  React.useEffect(() => {
+    if (!data?.nextStep) return;
+    trackAdoptionEvent(ADOPTION_EVENTS.STEP_VIEW, {
+      step: data.nextStep.id,
+      href: data.nextStep.href,
+    });
+  }, [data?.nextStep?.id]);
 
-  const next = data.checklist.find((item) => !item.done);
+  if (isAdminUser(user) || dismissed || isLoading || !data) return null;
+  // Hide only when required milestones are complete — not early isActivated quirks
+  if (data.progressPct >= 100) return null;
+
+  const next =
+    data.nextStep || data.checklist.find((item) => !item.done && item.required !== false);
+  const visible = data.checklist.filter((c) => c.required !== false || !c.done || c.done);
 
   const dismiss = () => {
+    trackAdoptionEvent(ADOPTION_EVENTS.STEP_ABANDON, {
+      step: next?.id || 'checklist',
+      metadata: { reason: 'dismissed' },
+    });
     localStorage.setItem('profytron_activation_dismissed', 'true');
     setDismissed(true);
   };
@@ -48,7 +67,7 @@ export function ActivationChecklist({ compact = false }: { compact?: boolean }) 
         </div>
         <div className="relative min-w-0 flex-1">
           <p className="truncate text-caption font-semibold text-foreground">
-            Get started · {data.completed}/{data.total} · {data.progressPct}%
+            Next up · {data.completed}/{data.total} · {data.progressPct}%
           </p>
           <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-foreground/5">
             <div
@@ -60,6 +79,12 @@ export function ActivationChecklist({ compact = false }: { compact?: boolean }) 
         {next ? (
           <Link
             href={next.href}
+            onClick={() =>
+              trackAdoptionEvent(ADOPTION_EVENTS.EMPTY_STATE_CTA, {
+                step: next.id,
+                href: next.href,
+              })
+            }
             className="relative shrink-0 rounded-lg bg-primary px-3 py-1.5 text-micro font-bold uppercase tracking-widest text-primary-foreground hover:bg-primary-hover"
           >
             {next.label}
@@ -81,7 +106,7 @@ export function ActivationChecklist({ compact = false }: { compact?: boolean }) 
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-primary/20 bg-background overflow-hidden"
+      className="relative rounded-2xl border border-primary/20 bg-background overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-chart-2/5 to-transparent pointer-events-none" />
       <div className="relative p-5">
@@ -92,10 +117,10 @@ export function ActivationChecklist({ compact = false }: { compact?: boolean }) 
             </div>
             <div>
               <p className="text-xs font-bold text-foreground uppercase tracking-[0.2em]">
-                Get Started
+                Your activation path
               </p>
               <p className="text-caption text-foreground/35 mt-0.5">
-                {data.completed}/{data.total} complete · {data.progressPct}%
+                {data.completed}/{data.total} required · {data.progressPct}%
               </p>
             </div>
           </div>
@@ -103,6 +128,7 @@ export function ActivationChecklist({ compact = false }: { compact?: boolean }) 
             type="button"
             onClick={dismiss}
             className="w-8 h-8 rounded-lg bg-foreground/5 border border-border hover:bg-foreground/10 flex items-center justify-center"
+            aria-label="Dismiss"
           >
             <X className="w-3.5 h-3.5 text-foreground/30" />
           </button>
@@ -116,16 +142,27 @@ export function ActivationChecklist({ compact = false }: { compact?: boolean }) 
         </div>
 
         <ul className="space-y-2 mb-4">
-          {data.checklist.map((item) => (
+          {visible.map((item) => (
             <li key={item.id} className="flex items-center gap-2.5 text-sm">
               {item.done ? (
                 <CheckCircle2 className="w-4 h-4 text-chart-3 shrink-0" />
               ) : (
                 <Circle className="w-4 h-4 text-foreground/20 shrink-0" />
               )}
-              <span className={cn(item.done ? 'text-foreground/40 line-through' : 'text-foreground/70')}>
-                {item.label}
-              </span>
+              {item.done ? (
+                <span className="text-foreground/40 line-through">{item.label}</span>
+              ) : (
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'text-foreground/70 hover:text-primary hover:underline',
+                    next?.id === item.id && 'font-semibold text-foreground',
+                  )}
+                >
+                  {item.label}
+                  {item.required === false ? ' (optional)' : ''}
+                </Link>
+              )}
             </li>
           ))}
         </ul>
@@ -133,9 +170,15 @@ export function ActivationChecklist({ compact = false }: { compact?: boolean }) 
         {next && (
           <Link
             href={next.href}
+            onClick={() =>
+              trackAdoptionEvent(ADOPTION_EVENTS.EMPTY_STATE_CTA, {
+                step: next.id,
+                href: next.href,
+              })
+            }
             className="inline-flex items-center justify-center w-full h-[var(--control-h-sm)] rounded-[var(--radius-button)] bg-primary hover:bg-primary-hover text-primary-foreground text-caption font-bold uppercase tracking-widest transition-colors duration-200"
           >
-            {next.label}
+            Continue · {next.label}
           </Link>
         )}
       </div>

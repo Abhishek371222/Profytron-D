@@ -1,0 +1,56 @@
+{
+  "id": "broker",
+  "name": "Broker connection",
+  "domain": "broker",
+  "steps": [
+    {
+      "id": "accounts",
+      "path": "/connected-accounts",
+      "requiresAuth": true,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fconnected-accounts",
+      "wallMs": 3690,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=HaWT_t8GvhXvsgdbiKiQW' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/broker/accounts.png",
+      "note": null,
+      "evidence": "journeys/broker/accounts.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "connect_cta",
+      "path": "/connected-accounts",
+      "requiresAuth": true,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fconnected-accounts",
+      "wallMs": 3997,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=qfuxjnfh6s52EEvIwqqpw' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/broker/connect_cta.png",
+      "note": "CTA visibility only",
+      "evidence": "journeys/broker/connect_cta.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "live_metaapi",
+      "path": "/connected-accounts",
+      "requiresAuth": true,
+      "status": "Blocked",
+      "url": null,
+      "wallMs": 0,
+      "consoleErrors": [],
+      "screenshot": null,
+      "note": "Live MetaAPI broker connect not exercised (Phase 1 measure-only)",
+      "evidence": null,
+      "skipped": true
+    }
+  ],
+  "clicks": 2,
+  "wallMs": 7694,
+  "consoleErrors": [
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=HaWT_t8GvhXvsgdbiKiQW' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=qfuxjnfh6s52EEvIwqqpw' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+  ]
+}

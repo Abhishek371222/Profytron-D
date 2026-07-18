@@ -86,6 +86,8 @@ export function LiveTradesRail({
   feed,
   hasBrokerAccount,
   onClose,
+  onSelectTrade,
+  selectedTradeId,
   className,
 }: {
   openTrades: OpenTrade[];
@@ -95,6 +97,8 @@ export function LiveTradesRail({
   feed: FeedItem[];
   hasBrokerAccount: boolean;
   onClose?: () => void;
+  onSelectTrade?: (id: string) => void;
+  selectedTradeId?: string | null;
   className?: string;
 }) {
   return (
@@ -171,13 +175,24 @@ export function LiveTradesRail({
           <ul className="space-y-1.5">
             {openTrades.slice(0, 10).map((t, i) => {
               const pnl = t.profit ?? 0;
+              const tid = t.id || `${t.symbol}-${i}`;
+              const selected = Boolean(t.id && selectedTradeId === t.id);
               return (
                 <motion.li
-                  key={t.id || `${t.symbol}-${i}`}
+                  key={tid}
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="rounded-xl border border-[var(--card-border)] bg-card px-3 py-2"
+                  className={cn(
+                    'rounded-xl border bg-card px-3 py-2',
+                    selected
+                      ? 'border-primary ring-1 ring-primary/30'
+                      : 'border-[var(--card-border)]',
+                    onSelectTrade && t.id ? 'cursor-pointer hover:bg-muted/40' : '',
+                  )}
+                  onClick={() => {
+                    if (onSelectTrade && t.id) onSelectTrade(t.id);
+                  }}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs font-semibold text-foreground">

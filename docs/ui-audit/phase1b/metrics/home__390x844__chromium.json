@@ -1,0 +1,121 @@
+{
+  "slug": "home",
+  "path": "/",
+  "auth": "public",
+  "shell": "marketing",
+  "browser": "chromium",
+  "viewport": {
+    "w": 390,
+    "h": 844,
+    "label": "mobile-390"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/",
+    "title": "Profytron — Algorithmic Trading Platform for Indian Traders",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 296,
+      "first-contentful-paint": 296
+    },
+    "lcp": {
+      "startTime": 296,
+      "size": 4384,
+      "url": null
+    },
+    "cls": 0.00006981836466974098,
+    "inpProxyMs": 40,
+    "longTaskCount": 1,
+    "longTaskTotalMs": 367,
+    "tbtProxyMs": 367,
+    "navigation": {
+      "domContentLoaded": 217.6000000089407,
+      "loadEventEnd": 1053.7000000029802,
+      "responseEnd": 176.90000000596046,
+      "transferSize": 28516
+    },
+    "memory": {
+      "usedJSHeapSize": 123000000,
+      "totalJSHeapSize": 139000000
+    },
+    "domNodes": 1045,
+    "js": {
+      "scriptCount": 7,
+      "scriptTransferKB": 5465
+    },
+    "network": {
+      "apiCount": 0,
+      "duplicates": [],
+      "sample": []
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 38,
+          "displayH": 42,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 50,
+          "displayH": 54,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": null,
+      "droppedFrames": 4,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 0,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 55,
+      "smallTouchTargetCount": 25
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 1058.1000000089407
+  },
+  "networkLog": {
+    "responses": [],
+    "failed": 0
+  },
+  "scroll": {
+    "distance": 1800,
+    "durationMs": 640.5999999940395,
+    "avgFps": null,
+    "longTasksDuring": 1,
+    "droppedFramesDuring": 1,
+    "stickyFixed": 1
+  },
+  "ts": "2026-07-18T18:37:18.396Z"
+}

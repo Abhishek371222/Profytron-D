@@ -345,14 +345,35 @@ export function Sidebar({ mobile = false }: { mobile?: boolean }) {
           )}
 
           {user && !expanded && (
-            <button
-              type="button"
-              onClick={() => router.push("/settings/profile")}
-              className="sidebar-profile-avatar-only mx-auto"
-              title={displayName}
-            >
-              <UserAvatar name={displayName} size="sm" className="ring-2 ring-primary/20" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="sidebar-profile-avatar-only mx-auto"
+                  title={displayName}
+                  aria-label={`${displayName} menu`}
+                >
+                  <UserAvatar name={displayName} size="sm" className="ring-2 ring-primary/20" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="right" align="end" className="w-48 rounded-2xl">
+                <DropdownMenuItem
+                  onClick={() => router.push("/settings/profile")}
+                  className="rounded-xl gap-2.5 cursor-pointer"
+                >
+                  <User className="w-4 h-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="rounded-xl gap-2.5 text-destructive focus:text-destructive cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
 
           {!mobile && (

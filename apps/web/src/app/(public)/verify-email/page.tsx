@@ -22,12 +22,18 @@ export default function VerifyEmailPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [timer, setTimer] = useState(60);
-  const [email, setEmail] = useState('demo@profytron.com');
+  const [email, setEmail] = useState('');
+  const [needsEmail, setNeedsEmail] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     const storedEmail = sessionStorage.getItem('verificationEmail');
-    if (storedEmail) setEmail(storedEmail);
+    if (storedEmail) {
+      setEmail(storedEmail);
+      setNeedsEmail(false);
+    } else {
+      setNeedsEmail(true);
+    }
     sessionStorage.removeItem('verificationOtp');
   }, []);
 
@@ -186,7 +192,14 @@ export default function VerifyEmailPage() {
  Check your <span className="brand-gradient-text">intelligence.</span>
  </h1>
         <p className="text-muted-foreground font-sans text-lg">
-          We've synchronized a verification code to <span className="text-foreground font-bold opacity-80">{email}</span>
+          {needsEmail || !email
+            ? 'Enter the email you registered with, then enter the verification code we sent.'
+            : (
+              <>
+                We sent a verification code to{' '}
+                <span className="text-foreground font-bold opacity-80">{email}</span>
+              </>
+            )}
         </p>
  </div>
  </motion.div>
@@ -197,6 +210,39 @@ export default function VerifyEmailPage() {
  {errorMessage}
  </div>
  )}
+ {needsEmail ? (
+ <motion.div variants={itemVariants} className="space-y-3">
+   <label className="block text-left text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+     Email address
+   </label>
+   <input
+     type="email"
+     value={email}
+     onChange={(e) => setEmail(e.target.value.trim())}
+     placeholder="you@example.com"
+     className="w-full h-14 rounded-xl border border-border bg-foreground/3 px-4 text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
+     autoComplete="email"
+   />
+   <Button
+     type="button"
+     className="w-full"
+     disabled={!email.includes('@')}
+     onClick={() => {
+       sessionStorage.setItem('verificationEmail', email);
+       setNeedsEmail(false);
+     }}
+   >
+     Continue to verification code
+   </Button>
+   <p className="text-center text-sm text-muted-foreground">
+     Or{' '}
+     <Link href="/login" className="text-primary underline-offset-2 hover:underline">
+       return to sign in
+     </Link>
+   </p>
+ </motion.div>
+ ) : (
+ <>
  <motion.div variants={itemVariants} className="flex justify-between gap-3">
  {otp.map((digit, index) => (
  <div key={index} className="relative group/otp flex-1">
@@ -248,6 +294,8 @@ export default function VerifyEmailPage() {
  </Button>
  </Magnetic>
  </motion.div>
+ </>
+ )}
  </form>
 
  <motion.div variants={itemVariants} className="mt-12 flex flex-col items-center gap-4">

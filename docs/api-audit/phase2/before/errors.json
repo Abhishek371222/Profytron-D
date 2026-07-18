@@ -1,0 +1,57 @@
+{
+  "at": "2026-07-18T20:12:19.916Z",
+  "base": "http://localhost:4000",
+  "results": [
+    {
+      "name": "unauthorized_me",
+      "method": "GET",
+      "path": "/v1/users/me",
+      "status": 401,
+      "ms": 42.4,
+      "keys": [
+        "success",
+        "statusCode",
+        "error",
+        "code",
+        "timestamp",
+        "path"
+      ],
+      "success": false,
+      "preview": "{\"success\":false,\"statusCode\":401,\"error\":\"Unauthorized\",\"code\":\"INTERNAL_ERROR\",\"timestamp\":\"2026-07-18T20:12:19.897Z\",\"path\":\"/v1/users/me\"}"
+    },
+    {
+      "name": "not_found",
+      "method": "GET",
+      "path": "/v1/this-route-does-not-exist-audit",
+      "status": 404,
+      "ms": 6.6,
+      "keys": [
+        "success",
+        "statusCode",
+        "error",
+        "code",
+        "timestamp",
+        "path"
+      ],
+      "success": false,
+      "preview": "{\"success\":false,\"statusCode\":404,\"error\":\"Cannot GET /v1/this-route-does-not-exist-audit\",\"code\":\"Not Found\",\"timestamp\":\"2026-07-18T20:12:19.907Z\",\"path\":\"/v1/this-route-does-not-exist-audit\"}"
+    },
+    {
+      "name": "bad_login",
+      "method": "POST",
+      "path": "/v1/auth/login",
+      "status": 400,
+      "ms": 6.7,
+      "keys": [
+        "success",
+        "statusCode",
+        "error",
+        "code",
+        "timestamp",
+        "path"
+      ],
+      "success": false,
+      "preview": "{\"success\":false,\"statusCode\":400,\"error\":[\"email must be an email\"],\"code\":\"Bad Request\",\"timestamp\":\"2026-07-18T20:12:19.914Z\",\"path\":\"/v1/auth/login\"}"
+    }
+  ]
+}

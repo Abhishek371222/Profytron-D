@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import {
   ArrowUpRight,
   Bot,
@@ -204,6 +205,16 @@ export default function BillingPage() {
         <span className="text-foreground">Billing & Payments</span>
       </div>
 
+      {(currentQuery.isError || paymentsQuery.isError) && (
+        <DashErrorState
+          message="Couldn't load billing data."
+          onRetry={() => {
+            void currentQuery.refetch();
+            void paymentsQuery.refetch();
+          }}
+        />
+      )}
+
       { }
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -368,6 +379,7 @@ export default function BillingPage() {
         </div>
 
         <div className="responsive-table-shell">
+          <div className="responsive-table-inner">
           <table className="w-full">
             <thead>
               <tr className="border-b border-[var(--card-border)] bg-muted/20">
@@ -377,6 +389,7 @@ export default function BillingPage() {
                     className={cn(
                       'px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground',
                       i >= 2 ? 'text-right' : 'text-left',
+                      (i === 1 || i === 4) && 'col-priority-md',
                     )}
                   >
                     {h}
@@ -389,7 +402,7 @@ export default function BillingPage() {
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       {Array.from({ length: 5 }).map((_, j) => (
-                        <td key={j} className="px-5 py-4">
+                        <td key={j} className={cn('px-5 py-4', (j === 1 || j === 4) && 'col-priority-md')}>
                           <div className="h-3 bg-muted rounded animate-pulse" style={{ width: `${50 + j * 10}%` }} />
                         </td>
                       ))}
@@ -421,8 +434,8 @@ export default function BillingPage() {
                         <p className="text-sm font-medium text-foreground">{new Date(p.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                         <p className="text-xs text-muted-foreground mt-0.5">{new Date(p.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-sm text-foreground">{p.description}</p>
+                      <td className="col-priority-md px-5 py-4">
+                        <p className="text-sm text-foreground min-w-0 truncate max-w-[14rem]">{p.description}</p>
                       </td>
                       <td className="px-5 py-4 text-right">
                         <span className="text-sm font-bold tabular-nums text-foreground">{formatInr(p.amount)}</span>
@@ -433,12 +446,12 @@ export default function BillingPage() {
                           {p.status.charAt(0) + p.status.slice(1).toLowerCase()}
                         </span>
                       </td>
-                      <td className="px-5 py-4 text-right">
+                      <td className="col-priority-md px-5 py-4 text-right">
                         <button
                           type="button"
                           disabled={invoiceDownloadUnavailable}
                           title={invoiceDownloadUnavailable ? 'Invoice downloads are coming soon' : undefined}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-muted-foreground disabled:hover:border-[var(--card-border)]"
+                          className="inline-flex items-center gap-1.5 min-h-[var(--touch-min)] px-3 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:text-muted-foreground disabled:hover:border-[var(--card-border)]"
                         >
                           <Download className="h-3 w-3" />
                           Download
@@ -448,6 +461,7 @@ export default function BillingPage() {
                   ))}
             </tbody>
           </table>
+          </div>
         </div>
       </motion.div>
 

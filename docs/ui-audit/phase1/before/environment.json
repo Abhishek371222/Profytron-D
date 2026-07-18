@@ -1,11 +1,11 @@
 {
-  "date": "2026-07-18T15:06:52.347Z",
-  "base": "http://127.0.0.1:3000",
+  "date": "2026-07-18T18:01:26.204Z",
+  "base": "http://localhost:3000",
   "host": {
-    "platform": "darwin",
-    "arch": "arm64",
-    "node": "v20.20.2",
-    "cwd": "/Users/aini/Desktop/p"
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.18.0",
+    "cwd": "D:\\Profytron-D-main\\Profytron-D-main"
   },
   "auth": {
     "AUDIT_JWT": false,
@@ -13,7 +13,7 @@
   },
   "matrix": {
     "viewportCount": 23,
-    "routeCount": 73,
+    "routeCount": 76,
     "dpiScales": [
       1,
       1.25,

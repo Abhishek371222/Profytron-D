@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getFirebaseAuth } from '@/lib/firebase/client';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { resolvePostLoginRedirect } from '@/lib/utils';
 import type { AxiosError } from 'axios';
 
@@ -75,16 +77,28 @@ async function syncFirebaseSession(payload: {
   throw lastError;
 }
 
+/** Product Phase 2 — OAuth callback recovery (AUTH_REPORT / ERROR_GUIDE). */
 export default function AuthCallbackClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuthStore();
   const syncStartedRef = useRef(false);
+  const [failMessage, setFailMessage] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     const handleCallback = async () => {
       if (syncStartedRef.current) return;
       syncStartedRef.current = true;
+      setFailMessage(null);
+
+      const fail = (message: string, loginQuery?: string) => {
+        setFailMessage(message);
+        if (loginQuery) {
+          // Keep login as alternate path; in-page retry remains primary.
+          void loginQuery;
+        }
+      };
 
       const oauthCode = searchParams.get('oauthCode');
       if (oauthCode) {
@@ -105,7 +119,7 @@ export default function AuthCallbackClient() {
           window.location.href = dest;
         } catch (e) {
           console.error('OAuth code exchange failed:', e);
-          router.push('/login?error=oauth_failed');
+          fail('Google/GitHub sign-in could not finish. Please try again.');
         }
         return;
       }
@@ -117,14 +131,21 @@ export default function AuthCallbackClient() {
 
       if (providerError) {
         console.error('OAuth provider error:', providerError);
-        router.push('/login?error=auth_failed');
+        const detail =
+          searchParams.get('error_description') ||
+          (providerError !== 'access_denied' ? providerError : null);
+        fail(
+          detail
+            ? `Sign-in was cancelled or failed: ${String(detail).slice(0, 160)}`
+            : 'Sign-in was cancelled or failed. Please try again.',
+        );
         return;
       }
 
       const auth = await getFirebaseAuth();
       if (!auth) {
         console.error('Firebase auth unavailable (missing env configuration)');
-        router.push('/login?error=auth_failed');
+        fail('Sign-in is temporarily unavailable. Return to login and try again.');
         return;
       }
 
@@ -134,7 +155,7 @@ export default function AuthCallbackClient() {
         result = await getRedirectResult(auth);
       } catch (redirectError) {
         console.error('Firebase redirect result failed:', redirectError);
-        router.push('/login?error=auth_failed');
+        fail('Sign-in could not finish. Please try again from login.');
         return;
       }
 
@@ -155,13 +176,13 @@ export default function AuthCallbackClient() {
             }
           } catch (startError) {
             console.error('Failed to start redirect sign-in:', startError);
-            router.push('/login?error=auth_failed');
+            fail('Could not start social sign-in. Please try again.');
           }
           return;
         }
 
         console.error('Firebase session retrieval failed: no redirect result');
-        router.push('/login?error=auth_failed');
+        fail('No sign-in session was found. Return to login and try again.');
         return;
       }
 
@@ -171,7 +192,7 @@ export default function AuthCallbackClient() {
         const email = fbUser.email;
         if (!email) {
           console.error('Firebase session is missing an email address');
-          router.push('/login?error=auth_failed');
+          fail('Your social account did not share an email. Use email sign-in or another provider.');
           return;
         }
 
@@ -210,12 +231,44 @@ export default function AuthCallbackClient() {
         window.location.href = dest;
       } catch (e) {
         console.error('Backend synchronization failed:', e);
-        router.push(`/login?error=${mapSyncError(e)}`);
+        const code = mapSyncError(e);
+        fail(
+          code === 'rate_limited'
+            ? 'Too many sign-in attempts. Wait a minute and try again.'
+            : code === 'backend_unavailable'
+              ? 'Service is temporarily unavailable. Please try again.'
+              : 'Sign-in almost completed, but session setup failed. Please try again.',
+        );
       }
     };
 
     handleCallback();
-  }, [login, router, searchParams]);
+  }, [login, router, searchParams, retryKey]);
+
+  if (failMessage) {
+    return (
+      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center px-4">
+        <div className="max-w-md w-full space-y-4 text-center">
+          <h1 className="text-heading-4 font-semibold text-foreground">Sign-in interrupted</h1>
+          <p className="text-sm text-muted-foreground">{failMessage}</p>
+          <div className="flex flex-col sm:flex-row gap-2 justify-center">
+            <Button
+              type="button"
+              onClick={() => {
+                syncStartedRef.current = false;
+                setRetryKey((k) => k + 1);
+              }}
+            >
+              Try again
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/login">Back to login</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center">

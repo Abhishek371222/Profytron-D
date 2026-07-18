@@ -1,0 +1,129 @@
+{
+  "ts": "2026-07-18T19:01:17.063Z",
+  "steps": [
+    {
+      "step": "multi-tab",
+      "tabs": 4,
+      "ok": true
+    },
+    {
+      "step": "resize-cycle",
+      "snapshot": {
+        "overflowX": 0,
+        "cls": 0.0000707518024209105,
+        "longTaskTotalMs": 1208
+      }
+    },
+    {
+      "step": "zoom-cycle",
+      "ok": true
+    },
+    {
+      "step": "background-return",
+      "snapshot": {
+        "title": "Sign In | Profytron",
+        "overflowX": 0,
+        "avgFps": 11.818181818181818
+      }
+    },
+    {
+      "step": "visibility-cycle",
+      "recovered": {
+        "hidden": false,
+        "hasMain": true
+      }
+    }
+  ],
+  "final": {
+    "url": "http://localhost:3000/login?redirect=%2Fdashboard",
+    "title": "Sign In | Profytron",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 4376,
+      "first-contentful-paint": 4376
+    },
+    "lcp": {
+      "startTime": 4376,
+      "size": 15246,
+      "url": null
+    },
+    "cls": 0.0000707518024209105,
+    "inpProxyMs": null,
+    "longTaskCount": 7,
+    "longTaskTotalMs": 1302,
+    "tbtProxyMs": 1302,
+    "navigation": {
+      "domContentLoaded": 4140.4000000059605,
+      "loadEventEnd": 5716,
+      "responseEnd": 1701.6000000089407,
+      "transferSize": 12768
+    },
+    "memory": {
+      "usedJSHeapSize": 116000000,
+      "totalJSHeapSize": 123000000
+    },
+    "domNodes": 242,
+    "js": {
+      "scriptCount": 9,
+      "scriptTransferKB": 7031
+    },
+    "network": {
+      "apiCount": 1,
+      "duplicates": [],
+      "sample": [
+        {
+          "name": "http://localhost:3000/api/auth/refresh",
+          "initiatorType": "xmlhttprequest",
+          "duration": 363.40000000596046,
+          "transferSize": 446,
+          "encodedBodySize": 146,
+          "startTime": 6109.5
+        }
+      ]
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 46,
+          "displayH": 50,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": 12,
+      "droppedFrames": 110,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 0,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 10,
+      "smallTouchTargetCount": 4
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 19438.40000000596
+  }
+}

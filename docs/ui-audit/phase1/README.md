@@ -2,13 +2,14 @@
 
 ## Responsive Foundation & Display System Audit
 
-**Status:** In progress  
+**Status:** Complete (measurement baseline)  
 **Mode:** Measure-only — no product UI, architecture, motion, or visual redesign  
-**Platform:** Phases 1–6 frozen
+**Platform:** Phases 1–6 frozen ([phase6 EXIT_CRITERIA](../../audit/phase6/EXIT_CRITERIA.md))  
+**Next:** [Phase 1B — Runtime UX Quality Audit](../phase1b/README.md)
 
 ### Mission
 
-Establish how Profytron renders across display sizes, browsers, DPI, and zoom — with evidence — before any UI refinement.
+Establish how Profytron renders across display sizes, browsers, DPI, and zoom — with evidence — before any UI refinement. Mirrors engineering Phase 1 (`docs/audit/PHASE1_AUDIT.md`): measure and document only.
 
 ### Locked decisions
 
@@ -35,13 +36,19 @@ pnpm ui-audit:dpi
 pnpm ui-audit:zoom
 
 # Or all modes
-UI_AUDIT_MODE=all pnpm ui-audit:capture
+pnpm ui-audit:all
 
 # Resize / orientation measurements
 pnpm ui-audit:resize
 
 # Aggregate markdown reports
 pnpm ui-audit:reports
+```
+
+Incremental re-capture:
+
+```bash
+UI_AUDIT_PATHS=/dashboard,/pricing UI_AUDIT_MODE=viewport pnpm ui-audit:capture
 ```
 
 Optional env:
@@ -52,6 +59,8 @@ Optional env:
 | `AUDIT_JWT` | Seed authenticated dashboard routes |
 | `COMPAT_ADMIN_JWT` | Seed admin routes |
 | `UI_AUDIT_LIMIT` | Cap captures (debug) |
+| `UI_AUDIT_PATHS` | Comma-separated paths (incremental) |
+| `UI_AUDIT_BROWSERS` | Comma-separated browser names (e.g. `msedge`) |
 | `UI_AUDIT_DRY=1` | Metrics only, skip PNGs |
 | `UI_AUDIT_*_ID` / `UI_AUDIT_*_SLUG` | Dynamic route fixtures |
 

@@ -1,0 +1,86 @@
+{
+  "slug": "admin-agents",
+  "path": "/admin/agents",
+  "auth": "admin",
+  "shell": "admin",
+  "browser": "chromium",
+  "viewport": {
+    "w": 390,
+    "h": 844,
+    "label": "mobile-390"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/",
+    "title": "Profytron — Algorithmic Trading Platform for Indian Traders",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "dpr": 1
+    },
+    "paints": {},
+    "lcp": null,
+    "cls": 0,
+    "inpProxyMs": null,
+    "longTaskCount": 0,
+    "longTaskTotalMs": 0,
+    "tbtProxyMs": 0,
+    "navigation": {
+      "domContentLoaded": 0,
+      "loadEventEnd": 0,
+      "responseEnd": 242.3999999910593,
+      "transferSize": 28515
+    },
+    "memory": {
+      "usedJSHeapSize": 116000000,
+      "totalJSHeapSize": 131000000
+    },
+    "domNodes": 60,
+    "js": {
+      "scriptCount": 0,
+      "scriptTransferKB": 0
+    },
+    "network": {
+      "apiCount": 0,
+      "duplicates": [],
+      "sample": []
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": null,
+      "droppedFrames": 0,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 0,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 0,
+      "smallTouchTargetCount": 0
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 371.59999999403954
+  },
+  "networkLog": {
+    "responses": [],
+    "failed": 0
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:56:30.489Z"
+}

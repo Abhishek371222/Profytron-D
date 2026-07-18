@@ -1,0 +1,26 @@
+{
+  "ts": "2026-07-18T19:01:17.059Z",
+  "updatesRequested": 1000,
+  "before": {
+    "heap": 103000000,
+    "longTaskTotalMs": 455,
+    "cls": 0.0000331649073848018
+  },
+  "storm": {
+    "mode": "synthetic",
+    "updates": 1000,
+    "durationMs": 1965.3999999910593,
+    "longTasks": 0,
+    "longTaskMs": 0,
+    "droppedFrames": 0,
+    "heapDelta": 0,
+    "cls": 0.0000331649073848018,
+    "platformMarks": []
+  },
+  "after": {
+    "heap": 103000000,
+    "longTaskTotalMs": 455,
+    "cls": 0.0000331649073848018,
+    "avgFps": 53.75
+  }
+}

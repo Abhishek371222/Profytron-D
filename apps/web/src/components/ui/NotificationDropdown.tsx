@@ -129,7 +129,7 @@ export function NotificationDropdown() {
       <DropdownMenuTrigger asChild>
         <button
           onClick={handleTriggerClick}
-          className="relative h-10 w-10 sm:h-[42px] sm:w-[42px] rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-border text-foreground/40 hover:text-foreground transition-all flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="relative h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] sm:h-[42px] sm:w-[42px] rounded-xl border border-border bg-muted/30 hover:bg-muted/60 hover:border-border text-foreground/40 hover:text-foreground transition-all flex items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         >
           <Bell className="w-[18px] h-[18px]" />

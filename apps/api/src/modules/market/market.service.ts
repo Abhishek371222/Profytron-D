@@ -320,90 +320,88 @@ export class MarketService {
     const safeCategory = this.normalizeNewsCategory(category);
     const safeMinId = Math.max(0, Math.floor(minId || 0));
     const cacheKey = `market:news:${safeCategory}:${safeMinId}`;
-    const cached = await this.redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
 
-    const apiKey = process.env.FINNHUB_API_KEY?.trim();
-    if (!apiKey) {
-      throw new ServiceUnavailableException(
-        'Market news unavailable. Configure FINNHUB_API_KEY.',
-      );
-    }
+    // Single-flight cache-aside (API Phase 2 payload/latency) — collapses stampedes
+    return this.redis.cached(cacheKey, 120, async () => {
+      const apiKey = process.env.FINNHUB_API_KEY?.trim();
+      if (!apiKey) {
+        throw new ServiceUnavailableException(
+          'Market news unavailable. Configure FINNHUB_API_KEY.',
+        );
+      }
 
-    const url = new URL('https://finnhub.io/api/v1/news');
-    url.searchParams.set('category', safeCategory);
-    if (safeMinId > 0) url.searchParams.set('minId', String(safeMinId));
-    url.searchParams.set('token', apiKey);
+      const url = new URL('https://finnhub.io/api/v1/news');
+      url.searchParams.set('category', safeCategory);
+      if (safeMinId > 0) url.searchParams.set('minId', String(safeMinId));
+      url.searchParams.set('token', apiKey);
 
-    const response = await fetch(url.toString(), {
-      headers: { Accept: 'application/json' },
-      signal: AbortSignal.timeout(12000),
+      const response = await fetch(url.toString(), {
+        headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!response.ok) {
+        this.logger.warn(`Finnhub news failed: ${response.status}`);
+        throw new ServiceUnavailableException(
+          'Unable to fetch market news right now.',
+        );
+      }
+
+      const payload = (await response.json()) as Array<{
+        category?: string;
+        datetime?: number;
+        headline?: string;
+        id?: number;
+        image?: string;
+        related?: string;
+        source?: string;
+        summary?: string;
+        url?: string;
+      }>;
+
+      const isArticleImage = (image?: string | null) => {
+        if (!image) return false;
+        const lower = image.toLowerCase();
+        if (
+          lower.includes('/finnhub/logo') ||
+          lower.includes('finnhub.io/logo')
+        ) {
+          return false;
+        }
+        if (/[/_-]logo\.(jpe?g|png|gif|webp|svg)(\?|$)/i.test(lower)) {
+          return false;
+        }
+        return true;
+      };
+
+      const mapped = (Array.isArray(payload) ? payload : [])
+        .filter((item) => item?.headline && item?.url)
+        .map((item) => ({
+          id: item.id ?? 0,
+          category: item.category || safeCategory,
+          datetime: item.datetime
+            ? new Date(item.datetime * 1000).toISOString()
+            : new Date().toISOString(),
+          headline: item.headline || '',
+          image: isArticleImage(item.image) ? item.image || null : null,
+          related: item.related || '',
+          source: item.source || 'Finnhub',
+          // Cap summary length — same field, smaller wire payload (Phase 2)
+          summary: (item.summary || '').slice(0, 480),
+          url: item.url || '',
+        }));
+
+      const withImages = mapped.filter((item) => item.image);
+      const withoutImages = mapped.filter((item) => !item.image);
+      const items = [...withImages, ...withoutImages].slice(0, 60);
+
+      return {
+        category: safeCategory,
+        count: items.length,
+        items,
+        source: 'finnhub',
+        serverTime: new Date().toISOString(),
+      };
     });
-    if (!response.ok) {
-      this.logger.warn(`Finnhub news failed: ${response.status}`);
-      throw new ServiceUnavailableException(
-        'Unable to fetch market news right now.',
-      );
-    }
-
-    const payload = (await response.json()) as Array<{
-      category?: string;
-      datetime?: number;
-      headline?: string;
-      id?: number;
-      image?: string;
-      related?: string;
-      source?: string;
-      summary?: string;
-      url?: string;
-    }>;
-
-    const isArticleImage = (image?: string | null) => {
-      if (!image) return false;
-      const lower = image.toLowerCase();
-      if (
-        lower.includes('/finnhub/logo') ||
-        lower.includes('finnhub.io/logo')
-      ) {
-        return false;
-      }
-      if (/[/_-]logo\.(jpe?g|png|gif|webp|svg)(\?|$)/i.test(lower)) {
-        return false;
-      }
-      return true;
-    };
-
-    const mapped = (Array.isArray(payload) ? payload : [])
-      .filter((item) => item?.headline && item?.url)
-      .map((item) => ({
-        id: item.id ?? 0,
-        category: item.category || safeCategory,
-        datetime: item.datetime
-          ? new Date(item.datetime * 1000).toISOString()
-          : new Date().toISOString(),
-        headline: item.headline || '',
-        image: item.image || null,
-        related: item.related || '',
-        source: item.source || 'Finnhub',
-        summary: item.summary || '',
-        url: item.url || '',
-      }));
-
-    const withImages = mapped.filter((item) => isArticleImage(item.image));
-    const withoutImages = mapped.filter((item) => !isArticleImage(item.image));
-    const items = [...withImages, ...withoutImages].slice(0, 60);
-
-    const result = {
-      category: safeCategory,
-      count: items.length,
-      items,
-      source: 'finnhub',
-      serverTime: new Date().toISOString(),
-    };
-    await this.redis.set(cacheKey, JSON.stringify(result), 120);
-    return result;
   }
 
   async getCompanyNews(symbol: string, from?: string, to?: string) {

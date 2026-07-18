@@ -22,7 +22,7 @@ const backendWs = backendWsOrigin(backendApiOrigin);
 
 const nextConfig: NextConfig = {
   ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
-  transpilePackages: ["lucide-react"],
+  transpilePackages: ["lucide-react", "@profytron/ai-coach"],
   serverExternalPackages: ["pg"],
   reactCompiler: true,
   poweredByHeader: false,

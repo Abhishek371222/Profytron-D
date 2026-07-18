@@ -105,26 +105,31 @@ let batteryWired = false;
 
 export function wireBatteryQualitySignal() {
   if (batteryWired || typeof navigator === 'undefined') return;
-  const getBattery = (
-    navigator as Navigator & {
-      getBattery?: () => Promise<{
-        charging: boolean;
-        level: number;
-        addEventListener: (t: string, fn: () => void) => void;
-      }>;
-    }
-  ).getBattery;
-  if (!getBattery) return;
+  type BatteryManager = {
+    charging: boolean;
+    level: number;
+    addEventListener: (t: string, fn: () => void) => void;
+  };
+  const nav = navigator as Navigator & {
+    getBattery?: () => Promise<BatteryManager>;
+  };
+  if (typeof nav.getBattery !== 'function') return;
   batteryWired = true;
-  void getBattery().then((b) => {
-    const sync = () => {
-      const low = !b.charging && b.level < 0.2;
-      adaptMotionQuality({ lowBattery: low });
-    };
-    sync();
-    b.addEventListener('levelchange', sync);
-    b.addEventListener('chargingchange', sync);
-  });
+  // Must call on navigator — unbound getBattery throws Illegal invocation in Chromium/Edge.
+  void nav
+    .getBattery()
+    .then((b) => {
+      const sync = () => {
+        const low = !b.charging && b.level < 0.2;
+        adaptMotionQuality({ lowBattery: low });
+      };
+      sync();
+      b.addEventListener('levelchange', sync);
+      b.addEventListener('chargingchange', sync);
+    })
+    .catch(() => {
+      // Battery Status API unavailable or blocked — keep default quality.
+    });
 }
 
 export const motionQualityApi = {

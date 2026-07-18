@@ -4,7 +4,7 @@ import React from 'react';
 import { Bell, Mail, Smartphone, Shield, Zap, Activity, Moon, TrendingUp, CreditCard, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { SettingsSection, SettingsToggle } from '@/components/settings/SettingsUi';
-import { DashButton } from '@/components/dashboard/DashboardPrimitives';
+import { DashButton, DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { notificationsApi, type NotificationPreferences } from '@/lib/api/notifications';
@@ -42,15 +42,29 @@ const DEFAULT_PREFS: NotificationPreferences = {
 export default function NotificationsPage() {
   const [prefs, setPrefs] = React.useState<NotificationPreferences>(DEFAULT_PREFS);
   const [loading, setLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [isDirty, setIsDirty] = React.useState(false);
 
-  React.useEffect(() => {
-    notificationsApi.getPreferences()
-      .then((p) => setPrefs(p))
-      .catch(() => {})
+  const loadPrefs = React.useCallback(() => {
+    setLoading(true);
+    setLoadError(false);
+    notificationsApi
+      .getPreferences()
+      .then((p) => {
+        setPrefs(p);
+        setLoadError(false);
+      })
+      // ERROR_GUIDE — don't silently fall back to defaults on load failure
+      .catch(() => {
+        setLoadError(true);
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  React.useEffect(() => {
+    loadPrefs();
+  }, [loadPrefs]);
 
   const update = (key: keyof NotificationPreferences, value: any) => {
     setPrefs((prev) => ({ ...prev, [key]: value }));
@@ -89,6 +103,15 @@ export default function NotificationsPage() {
           <div key={i} className="h-32 rounded-2xl bg-muted/10" />
         ))}
       </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <DashErrorState
+        message="Couldn't load notification preferences."
+        onRetry={loadPrefs}
+      />
     );
   }
 

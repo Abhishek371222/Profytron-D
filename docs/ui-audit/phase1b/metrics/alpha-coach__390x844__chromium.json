@@ -1,0 +1,154 @@
+{
+  "slug": "alpha-coach",
+  "path": "/alpha-coach",
+  "auth": "user",
+  "shell": "dashboard",
+  "browser": "chromium",
+  "viewport": {
+    "w": 390,
+    "h": 844,
+    "label": "mobile-390"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/",
+    "title": "Profytron — Algorithmic Trading Platform for Indian Traders",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 1620,
+      "first-contentful-paint": 1620
+    },
+    "lcp": {
+      "startTime": 1620,
+      "size": 5180,
+      "url": null
+    },
+    "cls": 0.0003256426000025053,
+    "inpProxyMs": 32,
+    "longTaskCount": 4,
+    "longTaskTotalMs": 1122,
+    "tbtProxyMs": 1122,
+    "navigation": {
+      "domContentLoaded": 1591.2999999970198,
+      "loadEventEnd": 2652,
+      "responseEnd": 392.20000000298023,
+      "transferSize": 12769
+    },
+    "memory": {
+      "usedJSHeapSize": 177000000,
+      "totalJSHeapSize": 199000000
+    },
+    "domNodes": 1080,
+    "js": {
+      "scriptCount": 19,
+      "scriptTransferKB": 11420
+    },
+    "network": {
+      "apiCount": 2,
+      "duplicates": [
+        {
+          "url": "http://localhost:3000/api/auth/refresh",
+          "count": 2
+        }
+      ],
+      "sample": [
+        {
+          "name": "http://localhost:3000/api/auth/refresh",
+          "initiatorType": "xmlhttprequest",
+          "duration": 79.70000000298023,
+          "transferSize": 446,
+          "encodedBodySize": 146,
+          "startTime": 2939.3999999910593
+        },
+        {
+          "name": "http://localhost:3000/api/auth/refresh",
+          "initiatorType": "xmlhttprequest",
+          "duration": 8.400000005960464,
+          "transferSize": 446,
+          "encodedBodySize": 146,
+          "startTime": 4216.79999999702
+        }
+      ]
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 38,
+          "displayH": 42,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 50,
+          "displayH": 54,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": 47.666666666666664,
+      "droppedFrames": 10,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 1,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 56,
+      "smallTouchTargetCount": 25
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 5411
+  },
+  "networkLog": {
+    "responses": [
+      {
+        "url": "http://localhost:3000/api/auth/refresh",
+        "status": 401,
+        "ok": false
+      },
+      {
+        "url": "http://localhost:3000/api/auth/refresh",
+        "status": 401,
+        "ok": false
+      }
+    ],
+    "failed": 2
+  },
+  "scroll": {
+    "distance": 1800,
+    "durationMs": 996.2000000029802,
+    "avgFps": null,
+    "longTasksDuring": 3,
+    "droppedFramesDuring": 5,
+    "stickyFixed": 2
+  },
+  "ts": "2026-07-18T18:48:15.269Z"
+}

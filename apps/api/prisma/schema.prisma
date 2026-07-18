@@ -323,9 +323,7 @@ model User {
   coachMessagesSent       CoachMessage[]          @relation("CoachMessageSender")
   coachEscalations        CoachEscalation[]       @relation("CoachEscalationUser")
   coachEscalationsClaimed CoachEscalation[]       @relation("CoachEscalationClaimedBy")
-
-  @@index([email])
-  @@index([referralCode])
+  coachInsightEvents      CoachInsightEvent[]
 }
 
 model UserActivationEvent {
@@ -870,6 +868,7 @@ model Strategy {
   @@index([creatorId])
   @@index([category])
   @@index([isPublished, isVerified])
+  @@index([masterBrokerAccountId])
 }
 
 model StrategyPerformance {
@@ -889,7 +888,6 @@ model StrategyPerformance {
   createdAt     DateTime @default(now())
 
   @@unique([strategyId, date])
-  @@index([strategyId, date])
 }
 
 model UserStrategySubscription {
@@ -932,6 +930,7 @@ model UserStrategySubscription {
   @@unique([userId, strategyId])
   @@index([userId, status])
   @@index([strategyId])
+  @@index([brokerAccountId])
   @@index([expiresAt])
   @@index([billingModel, status])
   @@index([profitShareState])
@@ -1017,8 +1016,6 @@ model WalletTransaction {
 
   @@index([userId, createdAt])
   @@index([status])
-  @@index([idempotencyKey])
-  @@index([billingId])
   @@index([externalTxnId])
 }
 
@@ -1098,6 +1095,7 @@ model AffiliateFunnelEvent {
 
   @@index([referrerId, createdAt])
   @@index([referrerId, eventType])
+  @@index([refereeId])
 }
 
 model UserAchievement {
@@ -1305,7 +1303,6 @@ model Invoice {
   dueAt           DateTime?
 
   @@index([userId, issuedAt])
-  @@index([invoiceNumber])
 }
 
 model SubscriptionPlan {
@@ -1322,8 +1319,6 @@ model SubscriptionPlan {
   updatedAt       DateTime @updatedAt
 
   subscriptions UserSubscription[]
-
-  @@index([name])
 }
 
 model UserSubscription {
@@ -1344,6 +1339,7 @@ model UserSubscription {
   nextBillingAt DateTime?
 
   @@unique([userId, planId])
+  @@index([planId])
   @@index([status, expiresAt])
 }
 
@@ -1372,7 +1368,6 @@ model TraderProfile {
   followers2 SocialFollow[]  @relation("Followers")
   following2 SocialFollow[]  @relation("Following")
 
-  @@index([userId])
   @@index([isVerified, totalPnl])
 }
 
@@ -1395,6 +1390,7 @@ model SocialComment {
   @@index([tradeId])
   @@index([userId])
   @@index([profileId])
+  @@index([replyToId])
   @@index([createdAt])
 }
 
@@ -1555,8 +1551,6 @@ model AiRiskPolicy {
   minWinRate        Float?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-
-  @@index([userId])
 }
 
 // ===== LANGUAGE & PREFERENCES =====
@@ -1571,8 +1565,6 @@ model UserPreference {
   pushNotifications  Boolean  @default(true)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
-
-  @@index([userId])
 }
 
 model TutorialProgress {
@@ -1653,7 +1645,6 @@ model FeatureFlag {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@index([key])
   @@index([enabled])
 }
 
@@ -1672,7 +1663,6 @@ model ApiKey {
   createdAt  DateTime  @default(now())
 
   @@index([userId])
-  @@index([keyHash])
 }
 
 // ===== AI WORKFORCE (event-driven agents) =====
@@ -1836,7 +1826,6 @@ model MasterProfile {
   brokerAccount BrokerAccount?     @relation(fields: [brokerAccountId], references: [id], onDelete: SetNull)
   relationships CopyRelationship[]
 
-  @@index([userId])
   @@index([isPublic, isVerified])
 }
 
@@ -1915,6 +1904,7 @@ model TradeExecution {
   @@index([masterPositionId])
   @@index([followerUserId, createdAt])
   @@index([status])
+  @@index([copyRelationshipId])
 }
 
 /// Live copy signals for user MT5 terminals (bridge EA) — no MetaApi seat required.
@@ -2067,6 +2057,7 @@ model CoachMessage {
 
   @@index([conversationId, createdAt])
   @@index([senderId])
+  @@index([faqAnswerId])
 }
 
 model CoachFaqAnswer {
@@ -2116,4 +2107,124 @@ model CoachEscalation {
   @@index([userId])
   @@index([conversationId])
   @@index([claimedById])
+}
+
+/// First-party Alpha Coach product analytics (Coach Insights).
+/// Multiple events per user — not unique like UserActivationEvent.
+model CoachInsightEvent {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event          String
+  conversationId String?
+  intent         String?
+  /// Truncated user question for top-questions rollup (≤160 chars).
+  questionPreview String? @db.VarChar(160)
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  @@index([event, createdAt])
+  @@index([userId, createdAt])
+  @@index([intent, createdAt])
+  @@index([conversationId, createdAt])
+  @@index([createdAt])
+}
+
+// ===== PHASE 2 SNAPSHOT SOFT-ARCHIVE (lifecycle job; Sync Engine writers unchanged) =====
+model AccountSnapshotOrderHistoryArchive {
+  id              String    @id
+  snapshotId      String
+  brokerAccountId String
+  ticket          String?
+  positionId      String?
+  symbol          String?
+  openPrice       Float?
+  closePrice      Float?
+  openTime        DateTime?
+  closeTime       DateTime?
+  profit          Float     @default(0)
+  swap            Float     @default(0)
+  commission      Float     @default(0)
+  netProfit       Float     @default(0)
+  holdingSeconds  Int?
+  exitReason      String?
+  rawJson         Json?
+  capturedAt      DateTime
+  archivedAt      DateTime  @default(now())
+
+  @@index([brokerAccountId, archivedAt])
+  @@index([archivedAt])
+  @@index([snapshotId])
+}
+
+model AccountSnapshotDealArchive {
+  id              String    @id
+  snapshotId      String
+  brokerAccountId String
+  dealId          String?
+  positionId      String?
+  orderId         String?
+  symbol          String?
+  price           Float?
+  volume          Float     @default(0)
+  commission      Float     @default(0)
+  swap            Float     @default(0)
+  fee             Float     @default(0)
+  profit          Float     @default(0)
+  time            DateTime?
+  executionType   String?
+  rawJson         Json?
+  capturedAt      DateTime
+  archivedAt      DateTime  @default(now())
+
+  @@index([brokerAccountId, archivedAt])
+  @@index([archivedAt])
+  @@index([snapshotId])
+}
+
+model AccountSnapshotSymbolArchive {
+  id              String    @id
+  snapshotId      String
+  brokerAccountId String
+  symbol          String
+  bid             Float?
+  ask             Float?
+  spread          Float?
+  digits          Int?
+  contractSize    Float?
+  tickSize        Float?
+  tickValue       Float?
+  minLot          Float?
+  maxLot          Float?
+  lotStep         Float?
+  tradingEnabled  Boolean?
+  rawJson         Json?
+  capturedAt      DateTime
+  archivedAt      DateTime  @default(now())
+
+  @@index([brokerAccountId, archivedAt])
+  @@index([archivedAt])
+}
+
+model AccountSnapshotMarketDataArchive {
+  id              String    @id
+  snapshotId      String
+  brokerAccountId String
+  symbol          String
+  bid             Float?
+  ask             Float?
+  spread          Float?
+  open            Float?
+  high            Float?
+  low             Float?
+  close           Float?
+  volume          Float?
+  timeframe       String?
+  tickTimestamp   DateTime?
+  rawJson         Json?
+  capturedAt      DateTime
+  archivedAt      DateTime  @default(now())
+
+  @@index([brokerAccountId, archivedAt])
+  @@index([archivedAt])
 }

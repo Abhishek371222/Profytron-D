@@ -1,0 +1,768 @@
+{
+  "capturedAt": "2026-07-18T20:29:20.459Z",
+  "base": "http://127.0.0.1:3000",
+  "hasJwt": false,
+  "probe": "screenshot+reachability",
+  "journeys": [
+    {
+      "id": "visitor",
+      "name": "Visitor marketing",
+      "domain": "visitor",
+      "steps": [
+        {
+          "id": "home",
+          "path": "/",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/",
+          "wallMs": 6029,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=5hB-i-bHp3_afF7A4W4K1' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/visitor/home.png",
+          "note": null,
+          "evidence": "journeys/visitor/home.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "pricing",
+          "path": "/pricing",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/pricing",
+          "wallMs": 20349,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=xB7KambjhVsTYoGbb0TuP' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/visitor/pricing.png",
+          "note": null,
+          "evidence": "journeys/visitor/pricing.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "about",
+          "path": "/about",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/about",
+          "wallMs": 18167,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=f9f9HItxwJOxT6H7qUwDY' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/visitor/about.png",
+          "note": null,
+          "evidence": "journeys/visitor/about.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "help",
+          "path": "/help",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/help",
+          "wallMs": 9538,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=awmrWMveBfdBJSADFiKEx' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/visitor/help.png",
+          "note": null,
+          "evidence": "journeys/visitor/help.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 4,
+      "wallMs": 54121,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=5hB-i-bHp3_afF7A4W4K1' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=xB7KambjhVsTYoGbb0TuP' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=f9f9HItxwJOxT6H7qUwDY' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=awmrWMveBfdBJSADFiKEx' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "auth",
+      "name": "Authentication surfaces",
+      "domain": "auth",
+      "steps": [
+        {
+          "id": "register",
+          "path": "/register",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/register",
+          "wallMs": 17645,
+          "consoleErrors": [],
+          "screenshot": "journeys/auth/register.png",
+          "note": null,
+          "evidence": "journeys/auth/register.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "login",
+          "path": "/login",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login",
+          "wallMs": 14308,
+          "consoleErrors": [],
+          "screenshot": "journeys/auth/login.png",
+          "note": null,
+          "evidence": "journeys/auth/login.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "forgot",
+          "path": "/forgot-password",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/forgot-password",
+          "wallMs": 18568,
+          "consoleErrors": [
+            "Refused to apply style from 'http://127.0.0.1:3000/_next/static/css/app/layout.css?v=1784406654999' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/webpack.js?v=1784406654999' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/main-app.js?v=1784406654999' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/app/error.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/app/layout.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/app-pages-internals.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/app/not-found.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/app/(public)/layout.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/app/(public)/forgot-password/page.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/app/global-error.js' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled."
+          ],
+          "screenshot": "journeys/auth/forgot.png",
+          "note": null,
+          "evidence": "journeys/auth/forgot.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "reset",
+          "path": "/reset-password",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/reset-password",
+          "wallMs": 12431,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=lckSlZYIhAmA81WxBD4ip' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/reset.png",
+          "note": null,
+          "evidence": "journeys/auth/reset.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "verify",
+          "path": "/verify-email",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/verify-email",
+          "wallMs": 8124,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=-2MkE1N3oyRupyipevNj8' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/verify.png",
+          "note": null,
+          "evidence": "journeys/auth/verify.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "oauth_buttons",
+          "path": "/login",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login",
+          "wallMs": 5621,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=DPuLzpmQ_R5rcrYv-HlZD' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/oauth_buttons.png",
+          "note": "UI presence only — no live OAuth",
+          "evidence": "journeys/auth/oauth_buttons.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "live_otp",
+          "path": "/register",
+          "requiresAuth": false,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "Live email OTP not exercised",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 6,
+      "wallMs": 76728,
+      "consoleErrors": [
+        "Refused to apply style from 'http://127.0.0.1:3000/_next/static/css/app/layout.css?v=1784406654999' because its MIME type ('text/plain') is not a supported stylesheet MIME type, and strict MIME checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/webpack.js?v=1784406654999' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "Refused to execute script from 'http://127.0.0.1:3000/_next/static/chunks/main-app.js?v=1784406654999' because its MIME type ('text/plain') is not executable, and strict MIME type checking is enabled.",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=lckSlZYIhAmA81WxBD4ip' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=-2MkE1N3oyRupyipevNj8' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=DPuLzpmQ_R5rcrYv-HlZD' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "onboarding",
+      "name": "Onboarding",
+      "domain": "onboarding",
+      "steps": [
+        {
+          "id": "welcome",
+          "path": "/onboarding",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "risk",
+          "path": "/onboarding/risk",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "terms",
+          "path": "/terms",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/terms",
+          "wallMs": 6385,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=HVX-OWhzw3CQ9xSMV6cmC' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/onboarding/terms.png",
+          "note": null,
+          "evidence": "journeys/onboarding/terms.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "risk_disclosure",
+          "path": "/risk-disclosure",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/risk-disclosure",
+          "wallMs": 4811,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=HvUdhxynpQmB2yPPBHOTL' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/onboarding/risk_disclosure.png",
+          "note": null,
+          "evidence": "journeys/onboarding/risk_disclosure.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 2,
+      "wallMs": 11202,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=HVX-OWhzw3CQ9xSMV6cmC' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=HvUdhxynpQmB2yPPBHOTL' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "broker",
+      "name": "Broker connection",
+      "domain": "broker",
+      "steps": [
+        {
+          "id": "accounts",
+          "path": "/connected-accounts",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "connect_cta",
+          "path": "/connected-accounts",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "live_metaapi",
+          "path": "/connected-accounts",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "Live MetaAPI broker connect not exercised (Phase 1 measure-only)",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 0,
+      "wallMs": 0,
+      "consoleErrors": []
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "domain": "dashboard",
+      "steps": [
+        {
+          "id": "overview",
+          "path": "/dashboard",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "analytics",
+          "path": "/analytics",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "markets",
+          "path": "/markets",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 0,
+      "wallMs": 0,
+      "consoleErrors": []
+    },
+    {
+      "id": "strategies",
+      "name": "Strategies",
+      "domain": "strategies",
+      "steps": [
+        {
+          "id": "browse",
+          "path": "/strategies",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "builder",
+          "path": "/strategies/builder",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "my_bots",
+          "path": "/my-bots",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 0,
+      "wallMs": 0,
+      "consoleErrors": []
+    },
+    {
+      "id": "ai_coach",
+      "name": "AI Coach",
+      "domain": "ai_coach",
+      "steps": [
+        {
+          "id": "open",
+          "path": "/alpha-coach",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "input",
+          "path": "/alpha-coach",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "live_stream",
+          "path": "/alpha-coach",
+          "requiresAuth": true,
+          "status": "Partial",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "Live model streaming not exercised (keys/network)",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 0,
+      "wallMs": 0,
+      "consoleErrors": []
+    },
+    {
+      "id": "billing",
+      "name": "Billing & subscriptions",
+      "domain": "billing",
+      "steps": [
+        {
+          "id": "pricing",
+          "path": "/pricing",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/pricing",
+          "wallMs": 6912,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=H7JpDdkOg9D-zxIKFo-Cx' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/billing/pricing.png",
+          "note": null,
+          "evidence": "journeys/billing/pricing.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "billing",
+          "path": "/billing",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "subscriptions",
+          "path": "/subscriptions",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "wallet",
+          "path": "/wallet",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "settings_billing",
+          "path": "/settings/billing",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "live_checkout",
+          "path": "/billing",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "Real Razorpay/Stripe checkout not exercised",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 1,
+      "wallMs": 6915,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=H7JpDdkOg9D-zxIKFo-Cx' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "domain": "settings",
+      "steps": [
+        {
+          "id": "root",
+          "path": "/settings",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "profile",
+          "path": "/settings/profile",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "security",
+          "path": "/settings/security",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "notifications",
+          "path": "/settings/notifications",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "trading",
+          "path": "/settings/trading",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "api_keys",
+          "path": "/settings/api-keys",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "support",
+          "path": "/settings/support",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 0,
+      "wallMs": 0,
+      "consoleErrors": []
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "domain": "marketplace",
+      "steps": [
+        {
+          "id": "browse",
+          "path": "/marketplace",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        },
+        {
+          "id": "success",
+          "path": "/marketplace/success",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "No AUDIT_JWT / COMPAT_ADMIN_JWT — authed step not probed",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 0,
+      "wallMs": 0,
+      "consoleErrors": []
+    },
+    {
+      "id": "error_recovery",
+      "name": "Error recovery probes",
+      "domain": "errors",
+      "steps": [
+        {
+          "id": "not_found",
+          "path": "/this-route-does-not-exist-product-audit",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/this-route-does-not-exist-product-audit",
+          "wallMs": 5081,
+          "consoleErrors": [
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=G_xmM8J3pkrI0KahwoZam' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/error_recovery/not_found.png",
+          "note": "HTTP 404; not-found probe (soft)",
+          "evidence": "journeys/error_recovery/not_found.png",
+          "httpStatus": 404
+        },
+        {
+          "id": "authed_without_jwt",
+          "path": "/dashboard",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fdashboard",
+          "wallMs": 3650,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=Ph1tpgwfcJCAub23hukDA' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/error_recovery/authed_without_jwt.png",
+          "note": "Expect redirect or login gate",
+          "evidence": "journeys/error_recovery/authed_without_jwt.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 2,
+      "wallMs": 8736,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=G_xmM8J3pkrI0KahwoZam' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=Ph1tpgwfcJCAub23hukDA' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    }
+  ],
+  "summary": {
+    "journeys": 11,
+    "steps": 44,
+    "complete": 15,
+    "partial": 1,
+    "blocked": 28,
+    "missing": 0,
+    "skipped": 29,
+    "failed": 0
+  }
+}

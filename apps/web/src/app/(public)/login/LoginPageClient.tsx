@@ -64,6 +64,13 @@ function resolveUrlErrorMessage(searchParams: URLSearchParams): string | null {
   if (expired === 'true' || expired === '1') {
     return 'Your session expired. Please sign in again.';
   }
+  if (searchParams.get('reset') === 'success') {
+    return 'Password updated. Sign in with your new password.';
+  }
+  const oauthDetail = searchParams.get('error_description');
+  if (oauthDetail && (authError === 'oauth_failed' || authError === 'auth_failed')) {
+    return decodeURIComponent(oauthDetail).slice(0, 200);
+  }
   return null;
 }
 
@@ -165,7 +172,7 @@ function LoginPageContent() {
     const email = getValues('email');
     if (!email) {
       toast.error('Enter your email first', {
-        description: 'Provide your account email, then click Lost Access again.',
+        description: 'Provide your account email, then click Forgot password? again.',
       });
       return;
     }

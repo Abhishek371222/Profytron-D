@@ -1,0 +1,241 @@
+{
+  "slug": "wallet",
+  "path": "/wallet",
+  "auth": "user",
+  "shell": "dashboard",
+  "tier": "A",
+  "browser": "chromium",
+  "viewport": {
+    "w": 768,
+    "h": 1024,
+    "label": "tablet-768"
+  },
+  "dpr": 1,
+  "zoom": 0.8,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs\\ui-audit\\phase1\\screenshots\\wallet__768x1024__chromium__dpr1__z80.png",
+  "metrics": {
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 768,
+      "scrollHeight": 1024,
+      "clientWidth": 768,
+      "clientHeight": 1024,
+      "overflowX": 0,
+      "overflowY": 0
+    },
+    "body": {
+      "width": 768
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 638,
+        "height": 39,
+        "fontSize": "36px",
+        "lineHeight": "38.88px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": {
+        "selector": "h2",
+        "width": 0,
+        "height": 0,
+        "fontSize": "36px",
+        "lineHeight": "38.88px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h3": null,
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 768,
+        "height": 1024,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 0,
+        "height": 0,
+        "fontSize": "14px",
+        "lineHeight": "22.75px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 0,
+        "height": 0,
+        "fontSize": "14px",
+        "lineHeight": "22.75px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": "main",
+        "width": 768,
+        "height": 1024,
+        "maxWidth": "none",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 720,
+        "height": 749,
+        "minWidth": "auto"
+      },
+      {
+        "i": 1,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 2,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 3,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 4,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 5,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 6,
+        "width": 638,
+        "height": 48,
+        "minWidth": "0px"
+      },
+      {
+        "i": 7,
+        "width": 638,
+        "height": 48,
+        "minWidth": "0px"
+      }
+    ],
+    "tables": [],
+    "charts": [],
+    "sticky": [
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 0,
+        "height": 1024,
+        "width": 768
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "1rem",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 8,
+      "smallTouchTargetCount": 4,
+      "smallTouchTargets": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": [
+        "input.peer",
+        "input.peer"
+      ]
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 4,
+        "samples": [
+          {
+            "w": 91,
+            "h": 34,
+            "tag": "a"
+          },
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      }
+    ],
+    "title": "Sign In | Profytron",
+    "url": "http://localhost:3000/login?redirect=%2Fwallet"
+  },
+  "error": null,
+  "ts": "2026-07-18T17:56:29.230Z"
+}

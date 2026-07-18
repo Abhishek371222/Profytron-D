@@ -1283,19 +1283,36 @@ export class PaymentsService {
       select: { id: true, profitShareAccruedUnsettled: true },
     });
 
-    for (const subscription of subscriptions) {
-      const liability = subscription.profitShareAccruedUnsettled ?? 0;
-      if (liability >= available) continue;
-      await this.prisma.userStrategySubscription.update({
-        where: { id: subscription.id },
+    const due = subscriptions.filter(
+      (subscription) =>
+        (subscription.profitShareAccruedUnsettled ?? 0) < available,
+    );
+    const dueWithLiability = due
+      .filter((s) => (s.profitShareAccruedUnsettled ?? 0) > 0)
+      .map((s) => s.id);
+    const dueOk = due
+      .filter((s) => (s.profitShareAccruedUnsettled ?? 0) <= 0)
+      .map((s) => s.id);
+
+    if (dueWithLiability.length) {
+      await this.prisma.userStrategySubscription.updateMany({
+        where: { id: { in: dueWithLiability } },
         data: {
           status: SubscriptionStatus.ACTIVE,
-          profitShareState:
-            liability > 0
-              ? ProfitShareState.PROFIT_SHARE_DUE
-              : ProfitShareState.PROFIT_SHARE_OK,
+          profitShareState: ProfitShareState.PROFIT_SHARE_DUE,
         },
       });
+    }
+    if (dueOk.length) {
+      await this.prisma.userStrategySubscription.updateMany({
+        where: { id: { in: dueOk } },
+        data: {
+          status: SubscriptionStatus.ACTIVE,
+          profitShareState: ProfitShareState.PROFIT_SHARE_OK,
+        },
+      });
+    }
+    for (const subscription of due) {
       await this.copyFactorySync.enqueueLinkSubscription(subscription.id);
     }
   }
@@ -1367,21 +1384,42 @@ export class PaymentsService {
   }
 
   async getSubscriptionPlans() {
+    const cacheKey = 'api:cache:subscription-plans:v1';
+    try {
+      const hit = await this.redis.get(cacheKey);
+      if (hit) return JSON.parse(hit);
+    } catch (err) {
+      this.logger.debug(
+        `subscription plans cache miss/read error: ${err instanceof Error ? err.message : 'unknown'}`,
+      );
+    }
+
     const plans = await this.prisma.subscriptionPlan.findMany({
       orderBy: { monthlyPrice: 'asc' },
     });
-    if (plans.length > 0) return plans;
-    return PLATFORM_PLANS.filter((p) => p.monthlyPrice >= 0).map((p) => ({
-      id: p.slug,
-      name: p.name,
-      description: p.description,
-      monthlyPrice: p.monthlyPrice,
-      annualPrice: p.annualPrice,
-      features: p.features,
-      maxStrategies: p.maxStrategies,
-      maxCopyTrades: p.maxCopyTrades,
-      prioritySupport: p.prioritySupport,
-    }));
+    const result =
+      plans.length > 0
+        ? plans
+        : PLATFORM_PLANS.filter((p) => p.monthlyPrice >= 0).map((p) => ({
+            id: p.slug,
+            name: p.name,
+            description: p.description,
+            monthlyPrice: p.monthlyPrice,
+            annualPrice: p.annualPrice,
+            features: p.features,
+            maxStrategies: p.maxStrategies,
+            maxCopyTrades: p.maxCopyTrades,
+            prioritySupport: p.prioritySupport,
+          }));
+
+    try {
+      await this.redis.set(cacheKey, JSON.stringify(result), 'EX', 120);
+    } catch (err) {
+      this.logger.debug(
+        `subscription plans cache write error: ${err instanceof Error ? err.message : 'unknown'}`,
+      );
+    }
+    return result;
   }
 
   async getCurrentSubscription(userId: string) {

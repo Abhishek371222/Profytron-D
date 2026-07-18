@@ -8,7 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { LayoutDashboard, ShieldCheck, LogOut, ChevronLeft, AlertTriangle } from "@/components/ui/icons";
-import { Users as UsersIcon, Shield as ShieldIcon, Server as ServerIcon, Bot, Menu, Headset, FileCheck } from "lucide-react";
+import { Users as UsersIcon, Shield as ShieldIcon, Server as ServerIcon, Bot, Menu, Headset, FileCheck, BarChart3 } from "lucide-react";
+import { useDensityProfile } from "@/lib/hooks/useDensityProfile";
 
 const adminNavItems = [
   { name: "Dashboard", icon: LayoutDashboard, href: "/admin" },
@@ -16,6 +17,7 @@ const adminNavItems = [
   { name: "Strategies", icon: ShieldIcon, href: "/admin/strategies" },
   { name: "KYC Review", icon: FileCheck, href: "/admin/kyc" },
   { name: "Alpha Coach", icon: Headset, href: "/admin/coach" },
+  { name: "Coach Insights", icon: BarChart3, href: "/admin/coach-insights" },
   { name: "System", icon: ServerIcon, href: "/admin/system" },
   { name: "AI Workforce", icon: Bot, href: "/admin/agents" },
 ];
@@ -137,6 +139,7 @@ function AdminAuthGate({ children }: { children: React.ReactNode }) {
   const { user, isAuthenticated, isHydrating } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
+  const density = useDensityProfile();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -188,7 +191,7 @@ function AdminAuthGate({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-[100dvh] min-w-0 overflow-hidden bg-background font-sans text-foreground">
+    <div data-density={density} className="flex h-[100dvh] min-w-0 overflow-hidden bg-background font-sans text-foreground">
       {isMobile && mobileOpen && (
         <button
           type="button"

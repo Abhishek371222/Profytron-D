@@ -1,0 +1,45 @@
+{
+  "id": "error_recovery",
+  "name": "Error recovery probes",
+  "domain": "errors",
+  "steps": [
+    {
+      "id": "not_found",
+      "path": "/this-route-does-not-exist-product-audit",
+      "requiresAuth": false,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/this-route-does-not-exist-product-audit",
+      "wallMs": 6877,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=-QADG7ZJLhrcAfj4xhi3W' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/error_recovery/not_found.png",
+      "note": "HTTP 404; not-found probe (soft)",
+      "evidence": "journeys/error_recovery/not_found.png",
+      "httpStatus": 404
+    },
+    {
+      "id": "authed_without_jwt",
+      "path": "/dashboard",
+      "requiresAuth": false,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fdashboard",
+      "wallMs": 3652,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=zNenV3UwdBhlX9DTqp0Y3' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/error_recovery/authed_without_jwt.png",
+      "note": "Expect redirect or login gate",
+      "evidence": "journeys/error_recovery/authed_without_jwt.png",
+      "httpStatus": 200
+    }
+  ],
+  "clicks": 2,
+  "wallMs": 10535,
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=-QADG7ZJLhrcAfj4xhi3W' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=zNenV3UwdBhlX9DTqp0Y3' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+  ]
+}

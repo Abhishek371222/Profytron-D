@@ -1,0 +1,46 @@
+# Scroll Report
+
+| Route | VP | Avg FPS | Long tasks | Dropped frames | Sticky/fixed |
+| --- | --- | --- | --- | --- | --- |
+| about | 1920×1080 | 60.0 | 0 | 0 | 3 |
+| about | 390×844 | 61.0 | 0 | 0 | 3 |
+| about | 768×1024 | — | 0 | 0 | 3 |
+| admin | 1920×1080 | 30.0 | 1 | 1 | 3 |
+| admin | 390×844 | 32.0 | 1 | 2 | 1 |
+| admin | 768×1024 | 29.0 | 1 | 1 | 1 |
+| alpha-coach | 1920×1080 | — | 0 | 0 | 3 |
+| alpha-coach | 390×844 | — | 3 | 5 | 2 |
+| alpha-coach | 768×1024 | — | 0 | 1 | 1 |
+| analytics-performance | 1920×1080 | 29.0 | 1 | 1 | 3 |
+| analytics-performance | 390×844 | 29.0 | 1 | 1 | 1 |
+| analytics-performance | 768×1024 | 30.0 | 1 | 2 | 1 |
+| analytics | 1920×1080 | 30.0 | 1 | 2 | 3 |
+| analytics | 390×844 | 33.0 | 1 | 1 | 1 |
+| analytics | 768×1024 | 29.0 | 1 | 1 | 1 |
+| dashboard | 1920×1080 | — | 0 | 0 | 3 |
+| dashboard | 390×844 | — | 0 | 0 | 1 |
+| dashboard | 768×1024 | — | 0 | 1 | 1 |
+| home | 1920×1080 | — | 1 | 1 | 3 |
+| home | 390×844 | — | 1 | 1 | 1 |
+| home | 768×1024 | — | 0 | 0 | 1 |
+| login | 1920×1080 | — | 0 | 1 | 3 |
+| login | 390×844 | — | 1 | 3 | 1 |
+| login | 768×1024 | — | 0 | 0 | 1 |
+| marketplace | 1920×1080 | 30.0 | 1 | 3 | 3 |
+| marketplace | 390×844 | — | 1 | 1 | 1 |
+| marketplace | 768×1024 | 29.0 | 1 | 1 | 1 |
+| pricing | 1920×1080 | 61.0 | 0 | 0 | 3 |
+| pricing | 390×844 | 61.0 | 0 | 0 | 3 |
+| pricing | 768×1024 | 60.0 | 0 | 0 | 3 |
+| register | 1920×1080 | — | 0 | 0 | 3 |
+| register | 390×844 | — | 0 | 1 | 1 |
+| register | 768×1024 | — | 0 | 0 | 1 |
+| settings-profile | 1920×1080 | 31.0 | 1 | 1 | 3 |
+| settings-profile | 390×844 | 31.0 | 1 | 2 | 1 |
+| settings-profile | 768×1024 | 29.0 | 1 | 1 | 1 |
+| strategies | 1920×1080 | — | 0 | 0 | 3 |
+| strategies | 390×844 | — | 0 | 0 | 1 |
+| strategies | 768×1024 | — | 0 | 0 | 1 |
+| wallet | 1920×1080 | — | 0 | 0 | 3 |
+| wallet | 390×844 | — | 1 | 0 | 1 |
+| wallet | 768×1024 | — | 1 | 2 | 1 |

@@ -1,0 +1,98 @@
+{
+  "capturedAt": "2026-07-18T20:40:06.693Z",
+  "debt": [
+    {
+      "id": "PROD-P1-auth-live_otp",
+      "sev": "P1",
+      "finding": "Step auth/live_otp Blocked (policy skip): Live email OTP not exercised",
+      "evidence": "skipIf policy",
+      "phase2": "Authorize live probe or manual QA outside measure harness"
+    },
+    {
+      "id": "PROD-P0-onboarding-welcome",
+      "sev": "P0",
+      "finding": "Step onboarding/welcome Missing: /onboarding",
+      "evidence": "page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('body') to be visible\n    7 × locator resolved to hidden <body class=\"__variable_0c9267 __variable_694534 font-sans text-body bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground\">…</body>\n    - waiting for\" http://127.0.0.1:3000/onboarding/risk\" navigation to finish...\n",
+      "phase2": "Investigate reachability / routing before launch"
+    },
+    {
+      "id": "PROD-P1-broker-live_metaapi",
+      "sev": "P1",
+      "finding": "Step broker/live_metaapi Blocked (policy skip): Live MetaAPI broker connect not exercised (Phase 1 measure-only)",
+      "evidence": "skipIf policy",
+      "phase2": "Authorize live probe or manual QA outside measure harness"
+    },
+    {
+      "id": "PROD-P2-ai_coach-live_stream",
+      "sev": "P2",
+      "finding": "Step ai_coach/live_stream Partial: /alpha-coach",
+      "evidence": "Live model streaming not exercised (keys/network)",
+      "phase2": "Tighten expect selectors or complete UI signal"
+    },
+    {
+      "id": "PROD-P1-billing-live_checkout",
+      "sev": "P1",
+      "finding": "Step billing/live_checkout Blocked (policy skip): Real Razorpay/Stripe checkout not exercised",
+      "evidence": "skipIf policy",
+      "phase2": "Authorize live probe or manual QA outside measure harness"
+    },
+    {
+      "id": "PROD-P2-err-offline",
+      "sev": "P2",
+      "finding": "Error probe offline Partial",
+      "evidence": "No dedicated offline banner detected (browser offline set)",
+      "phase2": "Improve offline/unauthorized UX if launch-critical"
+    }
+  ],
+  "bySev": {
+    "P0": [
+      {
+        "id": "PROD-P0-onboarding-welcome",
+        "sev": "P0",
+        "finding": "Step onboarding/welcome Missing: /onboarding",
+        "evidence": "page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('body') to be visible\n    7 × locator resolved to hidden <body class=\"__variable_0c9267 __variable_694534 font-sans text-body bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground\">…</body>\n    - waiting for\" http://127.0.0.1:3000/onboarding/risk\" navigation to finish...\n",
+        "phase2": "Investigate reachability / routing before launch"
+      }
+    ],
+    "P1": [
+      {
+        "id": "PROD-P1-auth-live_otp",
+        "sev": "P1",
+        "finding": "Step auth/live_otp Blocked (policy skip): Live email OTP not exercised",
+        "evidence": "skipIf policy",
+        "phase2": "Authorize live probe or manual QA outside measure harness"
+      },
+      {
+        "id": "PROD-P1-broker-live_metaapi",
+        "sev": "P1",
+        "finding": "Step broker/live_metaapi Blocked (policy skip): Live MetaAPI broker connect not exercised (Phase 1 measure-only)",
+        "evidence": "skipIf policy",
+        "phase2": "Authorize live probe or manual QA outside measure harness"
+      },
+      {
+        "id": "PROD-P1-billing-live_checkout",
+        "sev": "P1",
+        "finding": "Step billing/live_checkout Blocked (policy skip): Real Razorpay/Stripe checkout not exercised",
+        "evidence": "skipIf policy",
+        "phase2": "Authorize live probe or manual QA outside measure harness"
+      }
+    ],
+    "P2": [
+      {
+        "id": "PROD-P2-ai_coach-live_stream",
+        "sev": "P2",
+        "finding": "Step ai_coach/live_stream Partial: /alpha-coach",
+        "evidence": "Live model streaming not exercised (keys/network)",
+        "phase2": "Tighten expect selectors or complete UI signal"
+      },
+      {
+        "id": "PROD-P2-err-offline",
+        "sev": "P2",
+        "finding": "Error probe offline Partial",
+        "evidence": "No dedicated offline banner detected (browser offline set)",
+        "phase2": "Improve offline/unauthorized UX if launch-critical"
+      }
+    ],
+    "P3": []
+  }
+}

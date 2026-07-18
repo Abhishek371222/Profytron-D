@@ -1,0 +1,34 @@
+{
+  "capturedAt": "2026-07-18T20:53:40.229Z",
+  "base": "http://127.0.0.1:3000",
+  "hasJwt": true,
+  "probes": [
+    {
+      "id": "not_found",
+      "status": "Complete",
+      "httpStatus": 404,
+      "url": "http://127.0.0.1:3000/this-route-does-not-exist-product-audit",
+      "screenshot": "journeys/error_recovery/not-found.png",
+      "note": "404 / not-found surface reachability"
+    },
+    {
+      "id": "unauthorized_gate",
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/login?redirect=%2Fdashboard",
+      "screenshot": "journeys/error_recovery/no-jwt-dashboard.png",
+      "note": "Unauthed dashboard redirected/gated"
+    },
+    {
+      "id": "offline",
+      "status": "Partial",
+      "screenshot": "journeys/error_recovery/offline.png",
+      "note": "No dedicated offline banner detected (browser offline set)"
+    }
+  ],
+  "summary": {
+    "complete": 2,
+    "partial": 1,
+    "blocked": 0,
+    "missing": 0
+  }
+}

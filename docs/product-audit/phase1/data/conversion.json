@@ -1,0 +1,538 @@
+{
+  "capturedAt": "2026-07-18T20:40:05.975Z",
+  "source": "journey-results.json",
+  "note": "Lab rates only — not production funnel analytics",
+  "journeyCount": 11,
+  "overallSuccessRateLab": 0.889,
+  "funnels": [
+    {
+      "journeyId": "visitor",
+      "name": "Visitor marketing",
+      "domain": "visitor",
+      "stepCount": 4,
+      "successRateLab": 1,
+      "skipRateLab": 0,
+      "totalWallMs": 30301,
+      "avgStepMs": 7566,
+      "steps": [
+        {
+          "stepId": "home",
+          "path": "/",
+          "status": "Complete",
+          "wallMs": 8356,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "pricing",
+          "path": "/pricing",
+          "status": "Complete",
+          "wallMs": 7863,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "about",
+          "path": "/about",
+          "status": "Complete",
+          "wallMs": 8097,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "help",
+          "path": "/help",
+          "status": "Complete",
+          "wallMs": 5946,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "journeyId": "auth",
+      "name": "Authentication surfaces",
+      "domain": "auth",
+      "stepCount": 7,
+      "successRateLab": 0.857,
+      "skipRateLab": 0.143,
+      "totalWallMs": 34636,
+      "avgStepMs": 4944,
+      "steps": [
+        {
+          "stepId": "register",
+          "path": "/register",
+          "status": "Complete",
+          "wallMs": 7363,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "login",
+          "path": "/login",
+          "status": "Complete",
+          "wallMs": 5761,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "forgot",
+          "path": "/forgot-password",
+          "status": "Complete",
+          "wallMs": 5969,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "reset",
+          "path": "/reset-password",
+          "status": "Complete",
+          "wallMs": 5954,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "verify",
+          "path": "/verify-email",
+          "status": "Complete",
+          "wallMs": 5644,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "oauth_buttons",
+          "path": "/login",
+          "status": "Complete",
+          "wallMs": 3919,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "live_otp",
+          "path": "/register",
+          "status": "Blocked",
+          "wallMs": 0,
+          "completionRateLab": 0,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "journeyId": "onboarding",
+      "name": "Onboarding",
+      "domain": "onboarding",
+      "stepCount": 4,
+      "successRateLab": 0.75,
+      "skipRateLab": 0,
+      "totalWallMs": 27755,
+      "avgStepMs": 6935,
+      "steps": [
+        {
+          "stepId": "welcome",
+          "path": "/onboarding",
+          "status": "Missing",
+          "wallMs": 11147,
+          "completionRateLab": 0,
+          "dropOff": true,
+          "reachable": false
+        },
+        {
+          "stepId": "risk",
+          "path": "/onboarding/risk",
+          "status": "Complete",
+          "wallMs": 3977,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": false
+        },
+        {
+          "stepId": "terms",
+          "path": "/terms",
+          "status": "Complete",
+          "wallMs": 7016,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": false
+        },
+        {
+          "stepId": "risk_disclosure",
+          "path": "/risk-disclosure",
+          "status": "Complete",
+          "wallMs": 5601,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": false
+        }
+      ]
+    },
+    {
+      "journeyId": "broker",
+      "name": "Broker connection",
+      "domain": "broker",
+      "stepCount": 3,
+      "successRateLab": 0.667,
+      "skipRateLab": 0.333,
+      "totalWallMs": 7694,
+      "avgStepMs": 2562,
+      "steps": [
+        {
+          "stepId": "accounts",
+          "path": "/connected-accounts",
+          "status": "Complete",
+          "wallMs": 3690,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "connect_cta",
+          "path": "/connected-accounts",
+          "status": "Complete",
+          "wallMs": 3997,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "live_metaapi",
+          "path": "/connected-accounts",
+          "status": "Blocked",
+          "wallMs": 0,
+          "completionRateLab": 0,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "journeyId": "dashboard",
+      "name": "Dashboard",
+      "domain": "dashboard",
+      "stepCount": 3,
+      "successRateLab": 1,
+      "skipRateLab": 0,
+      "totalWallMs": 10929,
+      "avgStepMs": 3640,
+      "steps": [
+        {
+          "stepId": "overview",
+          "path": "/dashboard",
+          "status": "Complete",
+          "wallMs": 3523,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "analytics",
+          "path": "/analytics",
+          "status": "Complete",
+          "wallMs": 3734,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "markets",
+          "path": "/markets",
+          "status": "Complete",
+          "wallMs": 3663,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "journeyId": "strategies",
+      "name": "Strategies",
+      "domain": "strategies",
+      "stepCount": 3,
+      "successRateLab": 1,
+      "skipRateLab": 0,
+      "totalWallMs": 11065,
+      "avgStepMs": 3685,
+      "steps": [
+        {
+          "stepId": "browse",
+          "path": "/strategies",
+          "status": "Complete",
+          "wallMs": 3707,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "builder",
+          "path": "/strategies/builder",
+          "status": "Complete",
+          "wallMs": 3661,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "my_bots",
+          "path": "/my-bots",
+          "status": "Complete",
+          "wallMs": 3686,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "journeyId": "ai_coach",
+      "name": "AI Coach",
+      "domain": "ai_coach",
+      "stepCount": 3,
+      "successRateLab": 0.667,
+      "skipRateLab": 0.333,
+      "totalWallMs": 7197,
+      "avgStepMs": 2397,
+      "steps": [
+        {
+          "stepId": "open",
+          "path": "/alpha-coach",
+          "status": "Complete",
+          "wallMs": 3554,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "input",
+          "path": "/alpha-coach",
+          "status": "Complete",
+          "wallMs": 3637,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "live_stream",
+          "path": "/alpha-coach",
+          "status": "Partial",
+          "wallMs": 0,
+          "completionRateLab": 0.5,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "journeyId": "billing",
+      "name": "Billing & subscriptions",
+      "domain": "billing",
+      "stepCount": 6,
+      "successRateLab": 0.833,
+      "skipRateLab": 0.167,
+      "totalWallMs": 19614,
+      "avgStepMs": 3266,
+      "steps": [
+        {
+          "stepId": "pricing",
+          "path": "/pricing",
+          "status": "Complete",
+          "wallMs": 5045,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "billing",
+          "path": "/billing",
+          "status": "Complete",
+          "wallMs": 3695,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "subscriptions",
+          "path": "/subscriptions",
+          "status": "Complete",
+          "wallMs": 3583,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "wallet",
+          "path": "/wallet",
+          "status": "Complete",
+          "wallMs": 3594,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "settings_billing",
+          "path": "/settings/billing",
+          "status": "Complete",
+          "wallMs": 3680,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "live_checkout",
+          "path": "/billing",
+          "status": "Blocked",
+          "wallMs": 0,
+          "completionRateLab": 0,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "journeyId": "settings",
+      "name": "Settings",
+      "domain": "settings",
+      "stepCount": 7,
+      "successRateLab": 1,
+      "skipRateLab": 0,
+      "totalWallMs": 25539,
+      "avgStepMs": 3645,
+      "steps": [
+        {
+          "stepId": "root",
+          "path": "/settings",
+          "status": "Complete",
+          "wallMs": 3575,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "profile",
+          "path": "/settings/profile",
+          "status": "Complete",
+          "wallMs": 3731,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "security",
+          "path": "/settings/security",
+          "status": "Complete",
+          "wallMs": 3555,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "notifications",
+          "path": "/settings/notifications",
+          "status": "Complete",
+          "wallMs": 3725,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "trading",
+          "path": "/settings/trading",
+          "status": "Complete",
+          "wallMs": 3581,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "api_keys",
+          "path": "/settings/api-keys",
+          "status": "Complete",
+          "wallMs": 3746,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "support",
+          "path": "/settings/support",
+          "status": "Complete",
+          "wallMs": 3602,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "journeyId": "marketplace",
+      "name": "Marketplace",
+      "domain": "marketplace",
+      "stepCount": 2,
+      "successRateLab": 1,
+      "skipRateLab": 0,
+      "totalWallMs": 7691,
+      "avgStepMs": 3843,
+      "steps": [
+        {
+          "stepId": "browse",
+          "path": "/marketplace",
+          "status": "Complete",
+          "wallMs": 3826,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "success",
+          "path": "/marketplace/success",
+          "status": "Complete",
+          "wallMs": 3859,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    },
+    {
+      "journeyId": "error_recovery",
+      "name": "Error recovery probes",
+      "domain": "errors",
+      "stepCount": 2,
+      "successRateLab": 1,
+      "skipRateLab": 0,
+      "totalWallMs": 8497,
+      "avgStepMs": 4245,
+      "steps": [
+        {
+          "stepId": "not_found",
+          "path": "/this-route-does-not-exist-product-audit",
+          "status": "Complete",
+          "wallMs": 4725,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        },
+        {
+          "stepId": "authed_without_jwt",
+          "path": "/dashboard",
+          "status": "Complete",
+          "wallMs": 3764,
+          "completionRateLab": 1,
+          "dropOff": false,
+          "reachable": true
+        }
+      ]
+    }
+  ],
+  "catalogJourneys": 11
+}

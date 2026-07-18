@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { StrategyActivationModal } from '@/components/strategies/StrategyActivationModal';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import {
   FilterPill,
   STRATEGY_CATEGORIES,
@@ -45,7 +46,12 @@ export default function StrategiesPage() {
   const [isActivationOpen, setIsActivationOpen] = React.useState(false);
   const [selectedStrategy, setSelectedStrategy] = React.useState<Strategy | null>(null);
 
-  const { data: libraryData, isLoading: libraryLoading } = useQuery({
+  const {
+    data: libraryData,
+    isLoading: libraryLoading,
+    isError: libraryError,
+    refetch: refetchLibrary,
+  } = useQuery({
     queryKey: ['strategies', selectedCategory, verifiedOnly, debouncedSearch, sortBy],
     queryFn: () =>
       strategiesApi.getStrategies({
@@ -59,7 +65,12 @@ export default function StrategiesPage() {
     refetchOnWindowFocus: false,
   });
 
-  const { data: myStrategies, isLoading: myLoading, isError: myStrategiesError } = useQuery({
+  const {
+    data: myStrategies,
+    isLoading: myLoading,
+    isError: myStrategiesError,
+    refetch: refetchMyStrategies,
+  } = useQuery({
     queryKey: ['my-strategies'],
     queryFn: () => strategiesApi.getMyStrategies(),
     enabled: activeTab === 'my-strategies',
@@ -72,6 +83,12 @@ export default function StrategiesPage() {
       toast.error('Could not load your bots');
     }
   }, [myStrategiesError]);
+
+  React.useEffect(() => {
+    if (libraryError) {
+      toast.error('Could not load strategies');
+    }
+  }, [libraryError]);
 
   const getFilteredStrategies = (
     strategies: Strategy[],
@@ -113,6 +130,9 @@ export default function StrategiesPage() {
       : getFilteredStrategies(myStrategyList, selectedCategory, debouncedSearch, sortBy, verifiedOnly);
 
   const isLoading = activeTab === 'library' ? libraryLoading : myLoading;
+  // ERROR_GUIDE / EMPTY_STATE_GUIDE — inline error when list fails, not empty filters copy
+  const listError = activeTab === 'library' ? libraryError : myStrategiesError;
+  const refetchList = activeTab === 'library' ? refetchLibrary : refetchMyStrategies;
 
   return (
     <div className="space-y-5 pb-8">
@@ -188,14 +208,47 @@ export default function StrategiesPage() {
             <div key={i} className="dashboard-card h-80 animate-pulse bg-muted/30" />
           ))}
         </div>
+      ) : listError ? (
+        <DashErrorState
+          message={
+            activeTab === 'my-strategies'
+              ? "Couldn't load your bots."
+              : "Couldn't load strategies."
+          }
+          onRetry={() => {
+            void refetchList();
+          }}
+        />
       ) : displayedStrategies.length === 0 ? (
         <div className="dashboard-card py-16 flex flex-col items-center text-center gap-3">
           <Database className="h-12 w-12 text-muted-foreground/40" />
           <h3 className="text-base font-semibold text-foreground">No bots found</h3>
-          <p className="text-sm text-muted-foreground">Try adjusting your filters or search.</p>
-          <button type="button" onClick={() => { setSearchQuery(''); setSelectedCategory('ALL'); setVerifiedOnly(false); }} className="text-sm text-primary hover:underline">
-            Reset filters
-          </button>
+          <p className="text-sm text-muted-foreground max-w-md">
+            {searchQuery || selectedCategory !== 'ALL' || verifiedOnly
+              ? 'Try adjusting your filters or search.'
+              : 'Create or import your first strategy — or browse the marketplace for beginner-friendly bots.'}
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {(searchQuery || selectedCategory !== 'ALL' || verifiedOnly) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('ALL');
+                  setVerifiedOnly(false);
+                }}
+                className="text-sm text-primary hover:underline"
+              >
+                Reset filters
+              </button>
+            )}
+            <a
+              href="/marketplace"
+              className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+            >
+              Browse marketplace
+            </a>
+          </div>
         </div>
       ) : (
         <div className={cn('grid gap-4', viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1')}>

@@ -22,6 +22,7 @@ import { CoachEscalationStatus } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard, Roles } from '../auth/guards/auth.guard';
 import { CoachService } from './coach.service';
+import { CoachInsightsService } from './coach-insights.service';
 
 type AuthenticatedRequest = Request & {
   user: { id: string; role?: string };
@@ -33,7 +34,10 @@ type AuthenticatedRequest = Request & {
 @ApiResponse({ status: 401, description: 'Unauthorized' })
 @Controller('coach')
 export class CoachController {
-  constructor(private readonly coachService: CoachService) {}
+  constructor(
+    private readonly coachService: CoachService,
+    private readonly coachInsights: CoachInsightsService,
+  ) {}
 
   @Get('conversations')
   @ApiOperation({ summary: 'List my Alpha Coach conversations' })
@@ -120,6 +124,32 @@ export class CoachController {
   @ApiOperation({ summary: 'Escalate conversation to a human executive' })
   escalate(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.coachService.escalate(req.user.id, id);
+  }
+
+  @Throttle({ default: { ttl: 60000, limit: 120 } })
+  @Post('insights/events')
+  @ApiOperation({ summary: 'Track Alpha Coach product analytics event' })
+  trackInsight(
+    @Req() req: AuthenticatedRequest,
+    @Body()
+    body: {
+      event: string;
+      conversationId?: string;
+      intent?: string;
+      questionPreview?: string;
+      metadata?: Record<string, unknown>;
+    },
+  ) {
+    return this.coachInsights.track(req.user.id, body || { event: '' });
+  }
+
+  @Get('admin/insights')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Coach Insights KPI summary (admin)' })
+  insightsSummary(@Query('days') days?: string) {
+    const n = days ? Number(days) : 7;
+    return this.coachInsights.getSummary(Number.isFinite(n) ? n : 7);
   }
 
   @Get('admin/escalations')

@@ -11,6 +11,7 @@ export const ACTIVATION_EVENTS = {
   FIRST_WALLET_DEPOSIT: 'FIRST_WALLET_DEPOSIT',
   FIRST_MARKETPLACE_SUB: 'FIRST_MARKETPLACE_SUB',
   FIRST_REAL_TRADE: 'FIRST_REAL_TRADE',
+  FIRST_COACH_INTERACTION: 'FIRST_COACH_INTERACTION',
   POWER_USER: 'POWER_USER',
   TUTORIAL_STARTED: 'TUTORIAL_STARTED',
   TUTORIAL_COMPLETED: 'TUTORIAL_COMPLETED',
@@ -44,6 +45,11 @@ const ACHIEVEMENT_MAP: Partial<
     key: 'COPY_CAT',
     tier: 'SILVER',
     title: 'Strategy Subscriber',
+  },
+  [ACTIVATION_EVENTS.FIRST_COACH_INTERACTION]: {
+    key: 'COACH_FIRST_ASK',
+    tier: 'BRONZE',
+    title: 'First Coach Insight',
   },
   [ACTIVATION_EVENTS.POWER_USER]: {
     key: 'POWER_USER',
@@ -137,20 +143,41 @@ export class ActivationService {
         event: ACTIVATION_EVENTS.ONBOARDING_COMPLETED,
         href: '/onboarding/risk',
         done: eventSet.has(ACTIVATION_EVENTS.ONBOARDING_COMPLETED),
+        required: true,
       },
       {
         id: 'broker',
         label: 'Connect broker or paper account',
         event: ACTIVATION_EVENTS.BROKER_CONNECTED,
-        href: '/copy-trading',
+        href: '/connected-accounts',
         done: eventSet.has(ACTIVATION_EVENTS.BROKER_CONNECTED),
+        required: true,
+      },
+      {
+        id: 'coach',
+        label: 'Ask Alpha Coach a question',
+        event: ACTIVATION_EVENTS.FIRST_COACH_INTERACTION,
+        href: '/alpha-coach',
+        done: eventSet.has(ACTIVATION_EVENTS.FIRST_COACH_INTERACTION),
+        required: true,
+      },
+      {
+        id: 'subscribe',
+        label: 'Activate your first strategy',
+        event: ACTIVATION_EVENTS.FIRST_MARKETPLACE_SUB,
+        href: '/marketplace',
+        done: eventSet.has(ACTIVATION_EVENTS.FIRST_MARKETPLACE_SUB),
+        required: true,
       },
       {
         id: 'paper',
-        label: 'Execute first paper trade',
+        label: 'Complete first paper (or live) trade',
         event: ACTIVATION_EVENTS.FIRST_PAPER_TRADE,
         href: '/marketplace',
-        done: eventSet.has(ACTIVATION_EVENTS.FIRST_PAPER_TRADE),
+        done:
+          eventSet.has(ACTIVATION_EVENTS.FIRST_PAPER_TRADE) ||
+          eventSet.has(ACTIVATION_EVENTS.FIRST_REAL_TRADE),
+        required: true,
       },
       {
         id: 'deposit',
@@ -158,16 +185,12 @@ export class ActivationService {
         event: ACTIVATION_EVENTS.FIRST_WALLET_DEPOSIT,
         href: '/wallet',
         done: eventSet.has(ACTIVATION_EVENTS.FIRST_WALLET_DEPOSIT),
-      },
-      {
-        id: 'subscribe',
-        label: 'Subscribe to a marketplace strategy',
-        event: ACTIVATION_EVENTS.FIRST_MARKETPLACE_SUB,
-        href: '/marketplace',
-        done: eventSet.has(ACTIVATION_EVENTS.FIRST_MARKETPLACE_SUB),
+        required: false,
       },
     ];
 
+    const required = checklist.filter((c) => c.required);
+    const completedRequired = required.filter((c) => c.done).length;
     const completed = checklist.filter((c) => c.done).length;
     return {
       events: events.map((e) => ({
@@ -176,12 +199,17 @@ export class ActivationService {
         metadata: e.metadata,
       })),
       checklist,
-      progressPct: Math.round((completed / checklist.length) * 100),
-      completed,
-      total: checklist.length,
+      progressPct: Math.round((completedRequired / required.length) * 100),
+      completed: completedRequired,
+      total: required.length,
+      optionalCompleted: checklist.filter((c) => !c.required && c.done).length,
       isActivated:
-        eventSet.has(ACTIVATION_EVENTS.FIRST_PAPER_TRADE) ||
-        eventSet.has(ACTIVATION_EVENTS.BROKER_CONNECTED),
+        completedRequired >= required.length ||
+        (eventSet.has(ACTIVATION_EVENTS.BROKER_CONNECTED) &&
+          (eventSet.has(ACTIVATION_EVENTS.FIRST_PAPER_TRADE) ||
+            eventSet.has(ACTIVATION_EVENTS.FIRST_REAL_TRADE)) &&
+          eventSet.has(ACTIVATION_EVENTS.FIRST_COACH_INTERACTION)),
+      nextStep: checklist.find((c) => c.required && !c.done) || null,
     };
   }
 
@@ -274,6 +302,7 @@ export class ActivationService {
     const milestones = [
       ACTIVATION_EVENTS.ONBOARDING_COMPLETED,
       ACTIVATION_EVENTS.BROKER_CONNECTED,
+      ACTIVATION_EVENTS.FIRST_COACH_INTERACTION,
       ACTIVATION_EVENTS.FIRST_PAPER_TRADE,
       ACTIVATION_EVENTS.FIRST_WALLET_DEPOSIT,
       ACTIVATION_EVENTS.FIRST_MARKETPLACE_SUB,

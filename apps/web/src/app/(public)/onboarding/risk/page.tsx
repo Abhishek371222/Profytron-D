@@ -84,15 +84,18 @@ export default function RiskOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isFinalizing, setIsFinalizing] = useState(false);
+  /** PRODUCT_DEBT / EMPTY_STATE_GUIDE — completion choice instead of hard redirect only */
+  const [showCompletion, setShowCompletion] = useState(false);
 
   React.useEffect(() => {
     if (isHydrating) return;
     if (!isAuthenticated) {
       router.replace('/login?redirect=/onboarding/risk');
-    } else if (user?.onboardingCompleted) {
+      // Stay on completion choice after save; API sets onboardingCompleted=true
+    } else if (user?.onboardingCompleted && !showCompletion) {
       router.replace('/dashboard');
     }
-  }, [isAuthenticated, isHydrating, user?.onboardingCompleted, router]);
+  }, [isAuthenticated, isHydrating, user?.onboardingCompleted, showCompletion, router]);
 
   const handleSelect = (questionId: string, option: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: option }));
@@ -130,7 +133,8 @@ export default function RiskOnboardingPage() {
       toast.success('Risk profile saved', {
         description: 'Next: connect a paper account or browse strategies.',
       });
-      router.push('/get-bots?paper=1');
+      setShowCompletion(true);
+      setIsFinalizing(false);
     } catch (error: unknown) {
       const axiosErr = error as {
         response?: { data?: { error?: string }; status?: number };
@@ -144,13 +148,14 @@ export default function RiskOnboardingPage() {
           axiosErr?.message?.includes('Network Error'));
 
       console.error('Failed to save risk profile', error);
+      // ERROR_GUIDE — customer-facing copy; no internal port/API hints
       toast.error(
         isNetwork
           ? 'Cannot reach the server'
           : (axiosErr?.response?.data?.error as string) || 'Could not save risk profile',
         {
           description: isNetwork
-            ? 'Start the API (port 4000) and try again.'
+            ? 'Check your connection and try again.'
             : 'Please retry in a few seconds.',
         },
       );
@@ -179,7 +184,45 @@ export default function RiskOnboardingPage() {
 
       <div className="relative z-10 w-full max-w-2xl">
         <AnimatePresence mode="wait">
-          {!isFinalizing ? (
+          {showCompletion ? (
+            <motion.div
+              key="completion"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+              className="dashboard-card p-6 sm:p-8 lg:p-10 space-y-8 text-center"
+            >
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
+                <ShieldCheck className="h-8 w-8 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-heading-4 font-bold tracking-tight text-foreground">
+                  Risk profile saved
+                </h2>
+                <p className="text-body text-muted-foreground max-w-md mx-auto leading-relaxed">
+                  Choose where to go next — connect a paper account or browse strategies.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Button
+                  variant="primary"
+                  className="sm:flex-1 h-12"
+                  onClick={() => router.push('/get-bots?paper=1')}
+                >
+                  Connect paper account
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  className="sm:flex-1 h-12"
+                  onClick={() => router.push('/strategies')}
+                >
+                  Browse strategies
+                </Button>
+              </div>
+            </motion.div>
+          ) : !isFinalizing ? (
             <motion.div
               key={`step-${currentStep}`}
               initial={{ opacity: 0, y: 16 }}

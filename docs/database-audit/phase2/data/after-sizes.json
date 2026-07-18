@@ -1,0 +1,593 @@
+{
+  "tables": [
+    {
+      "table_name": "AccountSnapshotOrderHistory",
+      "total_bytes": 19185664,
+      "table_bytes": 17162240,
+      "index_bytes": 1982464,
+      "est_rows": 17528
+    },
+    {
+      "table_name": "AccountSnapshotDeal",
+      "total_bytes": 16449536,
+      "table_bytes": 14155776,
+      "index_bytes": 2252800,
+      "est_rows": 17860
+    },
+    {
+      "table_name": "AccountSnapshotSymbol",
+      "total_bytes": 10846208,
+      "table_bytes": 5021696,
+      "index_bytes": 5783552,
+      "est_rows": 24357
+    },
+    {
+      "table_name": "AccountSnapshot",
+      "total_bytes": 4210688,
+      "table_bytes": 868352,
+      "index_bytes": 106496,
+      "est_rows": 310
+    },
+    {
+      "table_name": "AccountSnapshotPerformance",
+      "total_bytes": 1089536,
+      "table_bytes": 892928,
+      "index_bytes": 163840,
+      "est_rows": 313
+    },
+    {
+      "table_name": "AccountSnapshotStatus",
+      "total_bytes": 802816,
+      "table_bytes": 606208,
+      "index_bytes": 163840,
+      "est_rows": 313
+    },
+    {
+      "table_name": "AccountSnapshotRisk",
+      "total_bytes": 532480,
+      "table_bytes": 335872,
+      "index_bytes": 163840,
+      "est_rows": 313
+    },
+    {
+      "table_name": "Trade",
+      "total_bytes": 376832,
+      "table_bytes": 65536,
+      "index_bytes": 278528,
+      "est_rows": 151
+    },
+    {
+      "table_name": "AccountSnapshotEvent",
+      "total_bytes": 352256,
+      "table_bytes": 139264,
+      "index_bytes": 180224,
+      "est_rows": 313
+    },
+    {
+      "table_name": "EquitySnapshot",
+      "total_bytes": 278528,
+      "table_bytes": 131072,
+      "index_bytes": 114688,
+      "est_rows": 489
+    },
+    {
+      "table_name": "UserStrategySubscription",
+      "total_bytes": 147456,
+      "table_bytes": 8192,
+      "index_bytes": 131072,
+      "est_rows": 1
+    },
+    {
+      "table_name": "AccountLatestSnapshot",
+      "total_bytes": 114688,
+      "table_bytes": 8192,
+      "index_bytes": 65536,
+      "est_rows": 1
+    },
+    {
+      "table_name": "NotificationLog",
+      "total_bytes": 114688,
+      "table_bytes": 16384,
+      "index_bytes": 65536,
+      "est_rows": 51
+    },
+    {
+      "table_name": "Notification",
+      "total_bytes": 114688,
+      "table_bytes": 16384,
+      "index_bytes": 65536,
+      "est_rows": 40
+    },
+    {
+      "table_name": "Strategy",
+      "total_bytes": 114688,
+      "table_bytes": 8192,
+      "index_bytes": 98304,
+      "est_rows": 1
+    },
+    {
+      "table_name": "StrategyPerformance",
+      "total_bytes": 98304,
+      "table_bytes": 24576,
+      "index_bytes": 32768,
+      "est_rows": 10
+    },
+    {
+      "table_name": "UserActivationEvent",
+      "total_bytes": 98304,
+      "table_bytes": 8192,
+      "index_bytes": 81920,
+      "est_rows": -1
+    },
+    {
+      "table_name": "User",
+      "total_bytes": 98304,
+      "table_bytes": 8192,
+      "index_bytes": 81920,
+      "est_rows": -1
+    },
+    {
+      "table_name": "EmailLog",
+      "total_bytes": 81920,
+      "table_bytes": 8192,
+      "index_bytes": 65536,
+      "est_rows": -1
+    },
+    {
+      "table_name": "CoachMessage",
+      "total_bytes": 81920,
+      "table_bytes": 8192,
+      "index_bytes": 65536,
+      "est_rows": 4
+    },
+    {
+      "table_name": "BrokerAccount",
+      "total_bytes": 81920,
+      "table_bytes": 8192,
+      "index_bytes": 65536,
+      "est_rows": 4
+    },
+    {
+      "table_name": "MarketplaceListing",
+      "total_bytes": 81920,
+      "table_bytes": 8192,
+      "index_bytes": 65536,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AgentEventOutbox",
+      "total_bytes": 81920,
+      "table_bytes": 8192,
+      "index_bytes": 65536,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AuditLog",
+      "total_bytes": 65536,
+      "table_bytes": 8192,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "TutorialProgress",
+      "total_bytes": 65536,
+      "table_bytes": 8192,
+      "index_bytes": 49152,
+      "est_rows": 3
+    },
+    {
+      "table_name": "LeaderboardEntry",
+      "total_bytes": 65536,
+      "table_bytes": 8192,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "ProvisioningJob",
+      "total_bytes": 65536,
+      "table_bytes": 8192,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "UserSession",
+      "total_bytes": 65536,
+      "table_bytes": 8192,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "Affiliate",
+      "total_bytes": 65536,
+      "table_bytes": 8192,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AgentJob",
+      "total_bytes": 65536,
+      "table_bytes": 8192,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "CoachConversation",
+      "total_bytes": 65536,
+      "table_bytes": 8192,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "UserAchievement",
+      "total_bytes": 65536,
+      "table_bytes": 8192,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "WalletTransaction",
+      "total_bytes": 57344,
+      "table_bytes": 0,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "Payment",
+      "total_bytes": 57344,
+      "table_bytes": 0,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "SocialComment",
+      "total_bytes": 57344,
+      "table_bytes": 0,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "TradeExecution",
+      "total_bytes": 57344,
+      "table_bytes": 0,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "CopyBridgeOrder",
+      "total_bytes": 57344,
+      "table_bytes": 0,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "UserSubscription",
+      "total_bytes": 57344,
+      "table_bytes": 0,
+      "index_bytes": 49152,
+      "est_rows": -1
+    },
+    {
+      "table_name": "CopyRelationship",
+      "total_bytes": 49152,
+      "table_bytes": 0,
+      "index_bytes": 40960,
+      "est_rows": -1
+    },
+    {
+      "table_name": "CoachEscalation",
+      "total_bytes": 49152,
+      "table_bytes": 0,
+      "index_bytes": 40960,
+      "est_rows": -1
+    },
+    {
+      "table_name": "ProfitShareLedgerEntry",
+      "total_bytes": 49152,
+      "table_bytes": 0,
+      "index_bytes": 40960,
+      "est_rows": -1
+    },
+    {
+      "table_name": "BrokerAccountShare",
+      "total_bytes": 49152,
+      "table_bytes": 0,
+      "index_bytes": 40960,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AccountSnapshotPendingOrder",
+      "total_bytes": 49152,
+      "table_bytes": 0,
+      "index_bytes": 40960,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AgentInsight",
+      "total_bytes": 49152,
+      "table_bytes": 8192,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AccountSnapshotPosition",
+      "total_bytes": 49152,
+      "table_bytes": 0,
+      "index_bytes": 40960,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AffiliateFunnelEvent",
+      "total_bytes": 49152,
+      "table_bytes": 0,
+      "index_bytes": 40960,
+      "est_rows": -1
+    },
+    {
+      "table_name": "NotificationPreference",
+      "total_bytes": 49152,
+      "table_bytes": 8192,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "SupportTicket",
+      "total_bytes": 40960,
+      "table_bytes": 0,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AccountSnapshotOrderHistoryArchive",
+      "total_bytes": 40960,
+      "table_bytes": 0,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "MasterProfile",
+      "total_bytes": 40960,
+      "table_bytes": 0,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "Invoice",
+      "total_bytes": 40960,
+      "table_bytes": 0,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "TradeEvent",
+      "total_bytes": 40960,
+      "table_bytes": 0,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "SocialFollow",
+      "total_bytes": 40960,
+      "table_bytes": 0,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "StrategyEdge",
+      "total_bytes": 40960,
+      "table_bytes": 0,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "StrategyReview",
+      "total_bytes": 40960,
+      "table_bytes": 0,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AccountSnapshotDealArchive",
+      "total_bytes": 40960,
+      "table_bytes": 0,
+      "index_bytes": 32768,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AccountSnapshotSymbolArchive",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AITradeExplanation",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "ApiKey",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "StrategyDocument",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "SupportTicketResponse",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "CoachFaqQuestion",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AccountSnapshotCopyTrading",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AccountSnapshotMarketData",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "WebhookEvent",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "FeatureFlag",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "UserFcmToken",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "TraderProfile",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "VpsAccount",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "BrokerApiCredential",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "TradeJournalEntry",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AccountSnapshotMarketDataArchive",
+      "total_bytes": 32768,
+      "table_bytes": 0,
+      "index_bytes": 24576,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AgentBudget",
+      "total_bytes": 24576,
+      "table_bytes": 8192,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "SupportKnowledgeChunk",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "StrategyBuilder",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "StrategyNode",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "AiRiskPolicy",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "DailyMetricsSnapshot",
+      "total_bytes": 24576,
+      "table_bytes": 8192,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "KycDocument",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "CoachFaqAnswer",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "SubscriptionPlan",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "BotInstance",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "PaymentIdempotency",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    },
+    {
+      "table_name": "UserPreference",
+      "total_bytes": 24576,
+      "table_bytes": 0,
+      "index_bytes": 16384,
+      "est_rows": -1
+    }
+  ],
+  "totalBytes": 57999360
+}

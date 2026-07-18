@@ -707,14 +707,17 @@ export class WalletService {
         remainingBalance,
       );
 
-    for (const subscription of affectedSubscriptions) {
-      await this.prisma.userStrategySubscription.update({
-        where: { id: subscription.subscriptionId },
+    const affectedIds = affectedSubscriptions.map((s) => s.subscriptionId);
+    if (affectedIds.length) {
+      await this.prisma.userStrategySubscription.updateMany({
+        where: { id: { in: affectedIds } },
         data: {
           status: SubscriptionStatus.PAUSED,
           profitShareState: ProfitShareState.PROFIT_SHARE_PAUSED,
         },
       });
+    }
+    for (const subscription of affectedSubscriptions) {
       await this.enqueueCopyFactory('unlink', subscription.subscriptionId);
     }
 
@@ -741,20 +744,36 @@ export class WalletService {
       },
     });
 
-    for (const subscription of subscriptions) {
-      const liability = subscription.profitShareAccruedUnsettled ?? 0;
-      if (liability >= balance.available) continue;
+    const due = subscriptions.filter(
+      (subscription) =>
+        (subscription.profitShareAccruedUnsettled ?? 0) < balance.available,
+    );
+    const dueWithLiability = due
+      .filter((s) => (s.profitShareAccruedUnsettled ?? 0) > 0)
+      .map((s) => s.id);
+    const dueOk = due
+      .filter((s) => (s.profitShareAccruedUnsettled ?? 0) <= 0)
+      .map((s) => s.id);
 
-      await this.prisma.userStrategySubscription.update({
-        where: { id: subscription.id },
+    if (dueWithLiability.length) {
+      await this.prisma.userStrategySubscription.updateMany({
+        where: { id: { in: dueWithLiability } },
         data: {
           status: SubscriptionStatus.ACTIVE,
-          profitShareState:
-            liability > 0
-              ? ProfitShareState.PROFIT_SHARE_DUE
-              : ProfitShareState.PROFIT_SHARE_OK,
+          profitShareState: ProfitShareState.PROFIT_SHARE_DUE,
         },
       });
+    }
+    if (dueOk.length) {
+      await this.prisma.userStrategySubscription.updateMany({
+        where: { id: { in: dueOk } },
+        data: {
+          status: SubscriptionStatus.ACTIVE,
+          profitShareState: ProfitShareState.PROFIT_SHARE_OK,
+        },
+      });
+    }
+    for (const subscription of due) {
       await this.enqueueCopyFactory('link', subscription.id);
     }
   }

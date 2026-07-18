@@ -1,0 +1,47 @@
+{
+  "at": "2026-07-18T20:12:15.036Z",
+  "base": "http://localhost:4000",
+  "adapter": "apps/api/src/adapters/redis-io.adapter.ts",
+  "gateways": [
+    {
+      "file": "apps/api/src/modules/broker/account-snapshot.gateway.ts",
+      "namespace": "account-snapshot",
+      "cors": true,
+      "clientEvents": [],
+      "serverEmits": [],
+      "redisAdapter": true
+    },
+    {
+      "file": "apps/api/src/modules/coach/coach.gateway.ts",
+      "namespace": "coach",
+      "cors": true,
+      "clientEvents": [
+        "join_conversation",
+        "typing"
+      ],
+      "serverEmits": [
+        "typing"
+      ],
+      "redisAdapter": true
+    },
+    {
+      "file": "apps/api/src/modules/trading/trading.gateway.ts",
+      "namespace": "trading",
+      "cors": true,
+      "clientEvents": [
+        "subscribe_prices",
+        "unsubscribe_prices"
+      ],
+      "serverEmits": [
+        "price_update"
+      ],
+      "redisAdapter": true
+    }
+  ],
+  "live": [
+    {
+      "skipped": true,
+      "reason": "socket.io-client not installed in root"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "slug": "about",
+  "path": "/about",
+  "auth": "public",
+  "shell": "marketing",
+  "browser": "chromium",
+  "viewport": {
+    "w": 1920,
+    "h": 1080,
+    "label": "desktop-1920"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/about",
+    "title": "About Us — Mission & Team | Profytron",
+    "viewport": {
+      "w": 1920,
+      "h": 1080,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 1740,
+      "first-contentful-paint": 1740
+    },
+    "lcp": {
+      "startTime": 2724,
+      "size": 60918,
+      "url": null
+    },
+    "cls": 0.00021807602697929726,
+    "inpProxyMs": null,
+    "longTaskCount": 2,
+    "longTaskTotalMs": 483,
+    "tbtProxyMs": 483,
+    "navigation": {
+      "domContentLoaded": 1617,
+      "loadEventEnd": 2343.4000000059605,
+      "responseEnd": 403.5,
+      "transferSize": 14273
+    },
+    "memory": {
+      "usedJSHeapSize": 97400000,
+      "totalJSHeapSize": 116000000
+    },
+    "domNodes": 406,
+    "js": {
+      "scriptCount": 8,
+      "scriptTransferKB": 5848
+    },
+    "network": {
+      "apiCount": 0,
+      "duplicates": [],
+      "sample": []
+    },
+    "images": {
+      "resourceCount": 1,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 38,
+          "displayH": 42,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark.png&w=256&q=75",
+          "naturalW": 256,
+          "naturalH": 164,
+          "displayW": 168,
+          "displayH": 168,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=128&q=75",
+          "naturalW": 128,
+          "naturalH": 129,
+          "displayW": 120,
+          "displayH": 120,
+          "loading": "lazy",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 50,
+          "displayH": 54,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 3
+    },
+    "animation": {
+      "avgFps": 51,
+      "droppedFrames": 3,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 1,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 36,
+      "smallTouchTargetCount": 26
+    },
+    "settled": {
+      "main": true,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 4657.20000000298
+  },
+  "networkLog": {
+    "responses": [],
+    "failed": 0
+  },
+  "scroll": {
+    "distance": 1800,
+    "durationMs": 459.29999999701977,
+    "avgFps": 60,
+    "longTasksDuring": 0,
+    "droppedFramesDuring": 0,
+    "stickyFixed": 3
+  },
+  "ts": "2026-07-18T18:38:13.601Z"
+}

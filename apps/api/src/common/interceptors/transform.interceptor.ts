@@ -32,6 +32,17 @@ export class TransformInterceptor<T> implements NestInterceptor<
         ) {
           return data as T;
         }
+        // Skip re-wrap when handler already returned the envelope (Phase 2)
+        if (
+          data &&
+          typeof data === 'object' &&
+          !Array.isArray(data) &&
+          'success' in (data as object) &&
+          'data' in (data as object) &&
+          'timestamp' in (data as object)
+        ) {
+          return data as Response<T>;
+        }
         return {
           success: true,
           data,

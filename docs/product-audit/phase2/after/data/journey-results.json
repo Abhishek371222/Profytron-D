@@ -1,0 +1,843 @@
+{
+  "capturedAt": "2026-07-18T20:50:11.156Z",
+  "base": "http://127.0.0.1:3000",
+  "hasJwt": true,
+  "probe": "screenshot+reachability",
+  "journeys": [
+    {
+      "id": "visitor",
+      "name": "Visitor marketing",
+      "domain": "visitor",
+      "steps": [
+        {
+          "id": "home",
+          "path": "/",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/",
+          "wallMs": 9314,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=dxTBak_EGZW0oxUj0wPm1' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/visitor/home.png",
+          "note": null,
+          "evidence": "journeys/visitor/home.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "pricing",
+          "path": "/pricing",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/pricing",
+          "wallMs": 5498,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=UcpVnL0a_7SQwCaMi5y_k' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/visitor/pricing.png",
+          "note": null,
+          "evidence": "journeys/visitor/pricing.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "about",
+          "path": "/about",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/about",
+          "wallMs": 5913,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=ByV1VrnsofVNA8IHsooJ-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/visitor/about.png",
+          "note": null,
+          "evidence": "journeys/visitor/about.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "help",
+          "path": "/help",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/help",
+          "wallMs": 5409,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=fHyGS8wgljvGRasoS6ZI4' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/visitor/help.png",
+          "note": null,
+          "evidence": "journeys/visitor/help.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 4,
+      "wallMs": 26154,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=dxTBak_EGZW0oxUj0wPm1' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=UcpVnL0a_7SQwCaMi5y_k' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=ByV1VrnsofVNA8IHsooJ-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=fHyGS8wgljvGRasoS6ZI4' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "auth",
+      "name": "Authentication surfaces",
+      "domain": "auth",
+      "steps": [
+        {
+          "id": "register",
+          "path": "/register",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/register",
+          "wallMs": 7380,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=bDyu2foywSBwszc4p3MfE' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/register.png",
+          "note": null,
+          "evidence": "journeys/auth/register.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "login",
+          "path": "/login",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login",
+          "wallMs": 6399,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=e53qozxEtEA1um-tF5Lx9' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/login.png",
+          "note": null,
+          "evidence": "journeys/auth/login.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "forgot",
+          "path": "/forgot-password",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/forgot-password",
+          "wallMs": 5667,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=4u26AJ3vmxz_UiBnj4Ozs' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/forgot.png",
+          "note": null,
+          "evidence": "journeys/auth/forgot.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "reset",
+          "path": "/reset-password",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/reset-password",
+          "wallMs": 5331,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=K7AEBNbyYLraP3WW39GEu' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/reset.png",
+          "note": null,
+          "evidence": "journeys/auth/reset.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "verify",
+          "path": "/verify-email",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/verify-email",
+          "wallMs": 6026,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=eVgyq5crBEu-rOygQDyvI' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/verify.png",
+          "note": null,
+          "evidence": "journeys/auth/verify.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "oauth_buttons",
+          "path": "/login",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login",
+          "wallMs": 4276,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=orR8q8gMk22VRJj6Z2QI0' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/oauth_buttons.png",
+          "note": "UI presence only — no live OAuth",
+          "evidence": "journeys/auth/oauth_buttons.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "logout",
+          "path": "/dashboard",
+          "requiresAuth": true,
+          "status": "Partial",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fdashboard",
+          "wallMs": 4240,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=JGBPIxXKAz2Q_qcwkFbgX' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/auth/logout.png",
+          "note": "Page reachable; expect \"log out|logout|sign out\" soft-matched via body",
+          "evidence": "journeys/auth/logout.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "live_otp",
+          "path": "/register",
+          "requiresAuth": false,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "Live email OTP not exercised",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 7,
+      "wallMs": 39346,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=bDyu2foywSBwszc4p3MfE' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=e53qozxEtEA1um-tF5Lx9' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=4u26AJ3vmxz_UiBnj4Ozs' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=K7AEBNbyYLraP3WW39GEu' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=eVgyq5crBEu-rOygQDyvI' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=orR8q8gMk22VRJj6Z2QI0' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=JGBPIxXKAz2Q_qcwkFbgX' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "onboarding",
+      "name": "Onboarding",
+      "domain": "onboarding",
+      "steps": [
+        {
+          "id": "welcome",
+          "path": "/onboarding",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/onboarding",
+          "wallMs": 6417,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=reOMVpS0hT4amUUJbrnew' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/onboarding/welcome.png",
+          "note": "Welcome shell or redirect to /onboarding/risk — body must stay visible",
+          "evidence": "journeys/onboarding/welcome.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "risk",
+          "path": "/onboarding/risk",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/onboarding/risk",
+          "wallMs": 5896,
+          "consoleErrors": [],
+          "screenshot": "journeys/onboarding/risk.png",
+          "note": null,
+          "evidence": "journeys/onboarding/risk.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "terms",
+          "path": "/terms",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/terms",
+          "wallMs": 7298,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=7F5CNJnIKgzWEBNWrxyMO' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/onboarding/terms.png",
+          "note": null,
+          "evidence": "journeys/onboarding/terms.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "risk_disclosure",
+          "path": "/risk-disclosure",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/risk-disclosure",
+          "wallMs": 5659,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=uxHiqvjKvxoCXWttZAZAV' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/onboarding/risk_disclosure.png",
+          "note": null,
+          "evidence": "journeys/onboarding/risk_disclosure.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 4,
+      "wallMs": 25287,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=reOMVpS0hT4amUUJbrnew' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=7F5CNJnIKgzWEBNWrxyMO' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=uxHiqvjKvxoCXWttZAZAV' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "broker",
+      "name": "Broker connection",
+      "domain": "broker",
+      "steps": [
+        {
+          "id": "accounts",
+          "path": "/connected-accounts",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fconnected-accounts",
+          "wallMs": 3858,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=wdcu1bLJ0UJbH4mc2pa7V' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/broker/accounts.png",
+          "note": null,
+          "evidence": "journeys/broker/accounts.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "connect_cta",
+          "path": "/connected-accounts",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fconnected-accounts",
+          "wallMs": 3517,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=7KDAm4-Zras3AEkThEt3I' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/broker/connect_cta.png",
+          "note": "CTA visibility only",
+          "evidence": "journeys/broker/connect_cta.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "live_metaapi",
+          "path": "/connected-accounts",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "Live MetaAPI broker connect not exercised (Phase 1 measure-only)",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 2,
+      "wallMs": 7384,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=wdcu1bLJ0UJbH4mc2pa7V' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=7KDAm4-Zras3AEkThEt3I' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "domain": "dashboard",
+      "steps": [
+        {
+          "id": "overview",
+          "path": "/dashboard",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fdashboard",
+          "wallMs": 3738,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=cDqchxcYOub9BhvQpQgvz' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/dashboard/overview.png",
+          "note": null,
+          "evidence": "journeys/dashboard/overview.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "analytics",
+          "path": "/analytics",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fanalytics",
+          "wallMs": 3615,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=xhHbP6H9adk4EK2Tx9ag-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/dashboard/analytics.png",
+          "note": null,
+          "evidence": "journeys/dashboard/analytics.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "markets",
+          "path": "/markets",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fmarkets",
+          "wallMs": 3649,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=OzP6YjjAQnBmt6pEBKJRI' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/dashboard/markets.png",
+          "note": null,
+          "evidence": "journeys/dashboard/markets.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 3,
+      "wallMs": 11012,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=cDqchxcYOub9BhvQpQgvz' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=xhHbP6H9adk4EK2Tx9ag-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=OzP6YjjAQnBmt6pEBKJRI' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "strategies",
+      "name": "Strategies",
+      "domain": "strategies",
+      "steps": [
+        {
+          "id": "browse",
+          "path": "/strategies",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fstrategies",
+          "wallMs": 3544,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=88iVBCJwm5PnR4XkoYFSU' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/strategies/browse.png",
+          "note": null,
+          "evidence": "journeys/strategies/browse.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "builder",
+          "path": "/strategies/builder",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fstrategies%2Fbuilder",
+          "wallMs": 3718,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=S2guO_BBGgmp5STSAVfNN' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/strategies/builder.png",
+          "note": null,
+          "evidence": "journeys/strategies/builder.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "my_bots",
+          "path": "/my-bots",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fmy-bots",
+          "wallMs": 3577,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=FNYkNm1bCwnYp9Y1oDjBo' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/strategies/my_bots.png",
+          "note": null,
+          "evidence": "journeys/strategies/my_bots.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 3,
+      "wallMs": 10849,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=88iVBCJwm5PnR4XkoYFSU' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=S2guO_BBGgmp5STSAVfNN' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=FNYkNm1bCwnYp9Y1oDjBo' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "ai_coach",
+      "name": "AI Coach",
+      "domain": "ai_coach",
+      "steps": [
+        {
+          "id": "open",
+          "path": "/alpha-coach",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Falpha-coach",
+          "wallMs": 3636,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=EBJzPSNpLEGANxoIgJzsL' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/ai_coach/open.png",
+          "note": null,
+          "evidence": "journeys/ai_coach/open.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "input",
+          "path": "/alpha-coach",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Falpha-coach",
+          "wallMs": 3533,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=_ssUGCwhSC2rTTHwL6oZ9' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/ai_coach/input.png",
+          "note": "Composer presence",
+          "evidence": "journeys/ai_coach/input.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "live_stream",
+          "path": "/alpha-coach",
+          "requiresAuth": true,
+          "status": "Partial",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "Live model streaming not exercised (keys/network)",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 2,
+      "wallMs": 7177,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=EBJzPSNpLEGANxoIgJzsL' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=_ssUGCwhSC2rTTHwL6oZ9' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "billing",
+      "name": "Billing & subscriptions",
+      "domain": "billing",
+      "steps": [
+        {
+          "id": "pricing",
+          "path": "/pricing",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/pricing",
+          "wallMs": 3632,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=ixilhBjDp-c5Ravj-Uxjq' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/billing/pricing.png",
+          "note": null,
+          "evidence": "journeys/billing/pricing.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "billing",
+          "path": "/billing",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fbilling",
+          "wallMs": 3672,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=KPQBnGPVitfEtMxJ3hquA' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/billing/billing.png",
+          "note": null,
+          "evidence": "journeys/billing/billing.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "subscriptions",
+          "path": "/subscriptions",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fsubscriptions",
+          "wallMs": 3681,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=b1qw-Asa4XvmmdLWE-vDu' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/billing/subscriptions.png",
+          "note": null,
+          "evidence": "journeys/billing/subscriptions.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "wallet",
+          "path": "/wallet",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fwallet",
+          "wallMs": 3483,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=oIgsFgX7fp-Ocq1YLvjbt' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/billing/wallet.png",
+          "note": null,
+          "evidence": "journeys/billing/wallet.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "settings_billing",
+          "path": "/settings/billing",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fsettings%2Fbilling",
+          "wallMs": 3628,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=UhmT2QHgN666zd2Olakbq' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/billing/settings_billing.png",
+          "note": null,
+          "evidence": "journeys/billing/settings_billing.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "live_checkout",
+          "path": "/billing",
+          "requiresAuth": true,
+          "status": "Blocked",
+          "url": null,
+          "wallMs": 0,
+          "consoleErrors": [],
+          "screenshot": null,
+          "note": "Real Razorpay/Stripe checkout not exercised",
+          "evidence": null,
+          "skipped": true
+        }
+      ],
+      "clicks": 5,
+      "wallMs": 18110,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=ixilhBjDp-c5Ravj-Uxjq' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=KPQBnGPVitfEtMxJ3hquA' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=b1qw-Asa4XvmmdLWE-vDu' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=oIgsFgX7fp-Ocq1YLvjbt' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=UhmT2QHgN666zd2Olakbq' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "domain": "settings",
+      "steps": [
+        {
+          "id": "root",
+          "path": "/settings",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fsettings",
+          "wallMs": 3581,
+          "consoleErrors": [],
+          "screenshot": "journeys/settings/root.png",
+          "note": null,
+          "evidence": "journeys/settings/root.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "profile",
+          "path": "/settings/profile",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fsettings%2Fprofile",
+          "wallMs": 3903,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=VFv4YrLZ-bEChLysUKzn4' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/settings/profile.png",
+          "note": null,
+          "evidence": "journeys/settings/profile.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "security",
+          "path": "/settings/security",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fsettings%2Fsecurity",
+          "wallMs": 3742,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=GkTjDyTyDgsufj5RD5Y8v' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/settings/security.png",
+          "note": null,
+          "evidence": "journeys/settings/security.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "notifications",
+          "path": "/settings/notifications",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fsettings%2Fnotifications",
+          "wallMs": 3570,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=rXRwuuO1WdXUCe_u5vEj1' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/settings/notifications.png",
+          "note": null,
+          "evidence": "journeys/settings/notifications.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "trading",
+          "path": "/settings/trading",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fsettings%2Ftrading",
+          "wallMs": 3677,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=fr13MgMRPvdzeVQyyT7QT' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/settings/trading.png",
+          "note": null,
+          "evidence": "journeys/settings/trading.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "api_keys",
+          "path": "/settings/api-keys",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fsettings%2Fapi-keys",
+          "wallMs": 3639,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=UY_JzJ9yGtkGmiIgLkhZ0' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/settings/api_keys.png",
+          "note": null,
+          "evidence": "journeys/settings/api_keys.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "support",
+          "path": "/settings/support",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fsettings%2Fsupport",
+          "wallMs": 4074,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=to-jPXzdLlRrxSAllMaMW' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/settings/support.png",
+          "note": null,
+          "evidence": "journeys/settings/support.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 7,
+      "wallMs": 26214,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=VFv4YrLZ-bEChLysUKzn4' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=GkTjDyTyDgsufj5RD5Y8v' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=rXRwuuO1WdXUCe_u5vEj1' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=fr13MgMRPvdzeVQyyT7QT' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=UY_JzJ9yGtkGmiIgLkhZ0' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=to-jPXzdLlRrxSAllMaMW' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace",
+      "domain": "marketplace",
+      "steps": [
+        {
+          "id": "browse",
+          "path": "/marketplace",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fmarketplace",
+          "wallMs": 3595,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=JOA3Na76TtcK_0aAdic3-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/marketplace/browse.png",
+          "note": null,
+          "evidence": "journeys/marketplace/browse.png",
+          "httpStatus": 200
+        },
+        {
+          "id": "success",
+          "path": "/marketplace/success",
+          "requiresAuth": true,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fmarketplace%2Fsuccess",
+          "wallMs": 3629,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=CWw1A7QSRr0pakCj_w85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/marketplace/success.png",
+          "note": null,
+          "evidence": "journeys/marketplace/success.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 2,
+      "wallMs": 7231,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=JOA3Na76TtcK_0aAdic3-' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=CWw1A7QSRr0pakCj_w85z' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    },
+    {
+      "id": "error_recovery",
+      "name": "Error recovery probes",
+      "domain": "errors",
+      "steps": [
+        {
+          "id": "not_found",
+          "path": "/this-route-does-not-exist-product-audit",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/this-route-does-not-exist-product-audit",
+          "wallMs": 6877,
+          "consoleErrors": [
+            "Failed to load resource: the server responded with a status of 404 (Not Found)",
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=-QADG7ZJLhrcAfj4xhi3W' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/error_recovery/not_found.png",
+          "note": "HTTP 404; not-found probe (soft)",
+          "evidence": "journeys/error_recovery/not_found.png",
+          "httpStatus": 404
+        },
+        {
+          "id": "authed_without_jwt",
+          "path": "/dashboard",
+          "requiresAuth": false,
+          "status": "Complete",
+          "url": "http://127.0.0.1:3000/login?redirect=%2Fdashboard",
+          "wallMs": 3652,
+          "consoleErrors": [
+            "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=zNenV3UwdBhlX9DTqp0Y3' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+          ],
+          "screenshot": "journeys/error_recovery/authed_without_jwt.png",
+          "note": "Expect redirect or login gate",
+          "evidence": "journeys/error_recovery/authed_without_jwt.png",
+          "httpStatus": 200
+        }
+      ],
+      "clicks": 2,
+      "wallMs": 10535,
+      "consoleErrors": [
+        "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=-QADG7ZJLhrcAfj4xhi3W' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=zNenV3UwdBhlX9DTqp0Y3' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ]
+    }
+  ],
+  "summary": {
+    "journeys": 11,
+    "steps": 45,
+    "complete": 40,
+    "partial": 2,
+    "blocked": 3,
+    "missing": 0,
+    "skipped": 4,
+    "failed": 0
+  }
+}

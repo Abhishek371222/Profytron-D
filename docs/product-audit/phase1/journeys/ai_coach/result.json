@@ -1,0 +1,56 @@
+{
+  "id": "ai_coach",
+  "name": "AI Coach",
+  "domain": "ai_coach",
+  "steps": [
+    {
+      "id": "open",
+      "path": "/alpha-coach",
+      "requiresAuth": true,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/login?redirect=%2Falpha-coach",
+      "wallMs": 3554,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=gKnmbUkGCktBDfXvNFAfW' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/ai_coach/open.png",
+      "note": null,
+      "evidence": "journeys/ai_coach/open.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "input",
+      "path": "/alpha-coach",
+      "requiresAuth": true,
+      "status": "Complete",
+      "url": "http://127.0.0.1:3000/login?redirect=%2Falpha-coach",
+      "wallMs": 3637,
+      "consoleErrors": [
+        "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=9X9baKSjaAWDV_9CPjEgZ' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+      ],
+      "screenshot": "journeys/ai_coach/input.png",
+      "note": "Composer presence",
+      "evidence": "journeys/ai_coach/input.png",
+      "httpStatus": 200
+    },
+    {
+      "id": "live_stream",
+      "path": "/alpha-coach",
+      "requiresAuth": true,
+      "status": "Partial",
+      "url": null,
+      "wallMs": 0,
+      "consoleErrors": [],
+      "screenshot": null,
+      "note": "Live model streaming not exercised (keys/network)",
+      "evidence": null,
+      "skipped": true
+    }
+  ],
+  "clicks": 2,
+  "wallMs": 7197,
+  "consoleErrors": [
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=gKnmbUkGCktBDfXvNFAfW' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE",
+    "WebSocket connection to 'ws://127.0.0.1:3000/_next/webpack-hmr?id=9X9baKSjaAWDV_9CPjEgZ' failed: Error during WebSocket handshake: net::ERR_INVALID_HTTP_RESPONSE"
+  ]
+}

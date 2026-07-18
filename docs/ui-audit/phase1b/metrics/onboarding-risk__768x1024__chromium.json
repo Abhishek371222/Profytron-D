@@ -1,0 +1,93 @@
+{
+  "slug": "onboarding-risk",
+  "path": "/onboarding/risk",
+  "auth": "user",
+  "shell": "auth",
+  "browser": "chromium",
+  "viewport": {
+    "w": 768,
+    "h": 1024,
+    "label": "tablet-768"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/onboarding/risk",
+    "title": "Onboarding | Profytron",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 1632,
+      "first-contentful-paint": 1632
+    },
+    "lcp": {
+      "startTime": 1632,
+      "size": 2584,
+      "url": null
+    },
+    "cls": 0,
+    "inpProxyMs": null,
+    "longTaskCount": 1,
+    "longTaskTotalMs": 395,
+    "tbtProxyMs": 395,
+    "navigation": {
+      "domContentLoaded": 1603.5,
+      "loadEventEnd": 2307.7000000029802,
+      "responseEnd": 376.3999999910593,
+      "transferSize": 7683
+    },
+    "memory": {
+      "usedJSHeapSize": 116000000,
+      "totalJSHeapSize": 123000000
+    },
+    "domNodes": 77,
+    "js": {
+      "scriptCount": 8,
+      "scriptTransferKB": 6120
+    },
+    "network": {
+      "apiCount": 0,
+      "duplicates": [],
+      "sample": []
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": null,
+      "droppedFrames": 3,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 0,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 0,
+      "smallTouchTargetCount": 0
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 2433.0999999940395
+  },
+  "networkLog": {
+    "responses": [],
+    "failed": 0
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:45:32.372Z"
+}

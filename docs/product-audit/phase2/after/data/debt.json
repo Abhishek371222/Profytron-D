@@ -1,0 +1,97 @@
+{
+  "capturedAt": "2026-07-18T20:54:04.820Z",
+  "debt": [
+    {
+      "id": "PROD-P2-auth-logout",
+      "sev": "P2",
+      "finding": "Step auth/logout Partial: /dashboard",
+      "evidence": "Page reachable; expect \"log out|logout|sign out\" soft-matched via body",
+      "phase2": "Tighten expect selectors or complete UI signal"
+    },
+    {
+      "id": "PROD-P1-auth-live_otp",
+      "sev": "P1",
+      "finding": "Step auth/live_otp Blocked (policy skip): Live email OTP not exercised",
+      "evidence": "skipIf policy",
+      "phase2": "Authorize live probe or manual QA outside measure harness"
+    },
+    {
+      "id": "PROD-P1-broker-live_metaapi",
+      "sev": "P1",
+      "finding": "Step broker/live_metaapi Blocked (policy skip): Live MetaAPI broker connect not exercised (Phase 1 measure-only)",
+      "evidence": "skipIf policy",
+      "phase2": "Authorize live probe or manual QA outside measure harness"
+    },
+    {
+      "id": "PROD-P2-ai_coach-live_stream",
+      "sev": "P2",
+      "finding": "Step ai_coach/live_stream Partial: /alpha-coach",
+      "evidence": "Live model streaming not exercised (keys/network)",
+      "phase2": "Tighten expect selectors or complete UI signal"
+    },
+    {
+      "id": "PROD-P1-billing-live_checkout",
+      "sev": "P1",
+      "finding": "Step billing/live_checkout Blocked (policy skip): Real Razorpay/Stripe checkout not exercised",
+      "evidence": "skipIf policy",
+      "phase2": "Authorize live probe or manual QA outside measure harness"
+    },
+    {
+      "id": "PROD-P2-err-offline",
+      "sev": "P2",
+      "finding": "Error probe offline Partial",
+      "evidence": "No dedicated offline banner detected (browser offline set)",
+      "phase2": "Improve offline/unauthorized UX if launch-critical"
+    }
+  ],
+  "bySev": {
+    "P0": [],
+    "P1": [
+      {
+        "id": "PROD-P1-auth-live_otp",
+        "sev": "P1",
+        "finding": "Step auth/live_otp Blocked (policy skip): Live email OTP not exercised",
+        "evidence": "skipIf policy",
+        "phase2": "Authorize live probe or manual QA outside measure harness"
+      },
+      {
+        "id": "PROD-P1-broker-live_metaapi",
+        "sev": "P1",
+        "finding": "Step broker/live_metaapi Blocked (policy skip): Live MetaAPI broker connect not exercised (Phase 1 measure-only)",
+        "evidence": "skipIf policy",
+        "phase2": "Authorize live probe or manual QA outside measure harness"
+      },
+      {
+        "id": "PROD-P1-billing-live_checkout",
+        "sev": "P1",
+        "finding": "Step billing/live_checkout Blocked (policy skip): Real Razorpay/Stripe checkout not exercised",
+        "evidence": "skipIf policy",
+        "phase2": "Authorize live probe or manual QA outside measure harness"
+      }
+    ],
+    "P2": [
+      {
+        "id": "PROD-P2-auth-logout",
+        "sev": "P2",
+        "finding": "Step auth/logout Partial: /dashboard",
+        "evidence": "Page reachable; expect \"log out|logout|sign out\" soft-matched via body",
+        "phase2": "Tighten expect selectors or complete UI signal"
+      },
+      {
+        "id": "PROD-P2-ai_coach-live_stream",
+        "sev": "P2",
+        "finding": "Step ai_coach/live_stream Partial: /alpha-coach",
+        "evidence": "Live model streaming not exercised (keys/network)",
+        "phase2": "Tighten expect selectors or complete UI signal"
+      },
+      {
+        "id": "PROD-P2-err-offline",
+        "sev": "P2",
+        "finding": "Error probe offline Partial",
+        "evidence": "No dedicated offline banner detected (browser offline set)",
+        "phase2": "Improve offline/unauthorized UX if launch-critical"
+      }
+    ],
+    "P3": []
+  }
+}

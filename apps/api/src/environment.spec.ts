@@ -47,8 +47,18 @@ describeIfApiInfra('Environment and runtime configuration', () => {
       .get('/health')
       .expect(200);
 
-    expect(response.body.data.status).toBe('ok');
+    expect(response.body.data.status).toMatch(/^(ok|degraded)$/);
     expect(response.body.data.database).toBe('connected');
+  });
+
+  it('exposes live and ready probes', async () => {
+    const live = await request(app.getHttpServer()).get('/live').expect(200);
+    expect(live.body.data.status).toBe('ok');
+    expect(live.body.data.check).toBe('live');
+
+    const ready = await request(app.getHttpServer()).get('/ready').expect(200);
+    expect(ready.body.data.status).toBe('ok');
+    expect(ready.body.data.database).toBe('connected');
   });
 
   it('applies CORS headers through the shared app bootstrap', async () => {

@@ -1,0 +1,30 @@
+{
+  "at": "2026-07-18T20:01:22.690Z",
+  "dryRun": true,
+  "cleanup": false,
+  "HOT_KEEP_DAYS": 14,
+  "ARCHIVE_TTL_DAYS": 365,
+  "moves": [
+    {
+      "table": "AccountSnapshotOrderHistory",
+      "archive": "AccountSnapshotOrderHistoryArchive",
+      "eligible": 0
+    },
+    {
+      "table": "AccountSnapshotDeal",
+      "archive": "AccountSnapshotDealArchive",
+      "eligible": 0
+    },
+    {
+      "table": "AccountSnapshotSymbol",
+      "archive": "AccountSnapshotSymbolArchive",
+      "eligible": 0
+    },
+    {
+      "table": "AccountSnapshotMarketData",
+      "archive": "AccountSnapshotMarketDataArchive",
+      "eligible": 0
+    }
+  ],
+  "cleanups": []
+}

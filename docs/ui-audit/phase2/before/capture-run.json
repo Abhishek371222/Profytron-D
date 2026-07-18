@@ -1,0 +1,2050 @@
+{
+  "viewport": {
+    "mode": "viewport",
+    "base": "http://127.0.0.1:3000",
+    "count": 107,
+    "ok": 107,
+    "failed": 0,
+    "skipped": 0,
+    "overflowX": 0,
+    "authJwtPresent": false,
+    "adminJwtPresent": false,
+    "dry": false,
+    "ts": "2026-07-18T19:15:40.975Z",
+    "results": [
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1024,
+          "h": 1366,
+          "label": "tablet-1024"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__1024x1366__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1280,
+          "h": 720,
+          "label": "desktop-1280"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__1280x720__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1366,
+          "h": 768,
+          "label": "desktop-1366"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__1366x768__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1440,
+          "h": 900,
+          "label": "desktop-1440"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__1440x900__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1536,
+          "h": 864,
+          "label": "desktop-1536"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__1536x864__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1600,
+          "h": 900,
+          "label": "desktop-1600"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__1600x900__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1728,
+          "h": 1117,
+          "label": "desktop-1728"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__1728x1117__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1920,
+          "h": 1080,
+          "label": "desktop-1920"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__1920x1080__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1920,
+          "h": 1200,
+          "label": "desktop-1920x1200"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__1920x1200__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 2048,
+          "h": 1152,
+          "label": "desktop-2048"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__2048x1152__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 2560,
+          "h": 1440,
+          "label": "desktop-2560"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__2560x1440__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 320,
+          "h": 568,
+          "label": "mobile-320"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__320x568__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 3440,
+          "h": 1440,
+          "label": "ultrawide-3440"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__3440x1440__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 360,
+          "h": 640,
+          "label": "mobile-360"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__360x640__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 375,
+          "h": 812,
+          "label": "mobile-375"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__375x812__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 3840,
+          "h": 2160,
+          "label": "uhd-3840"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__3840x2160__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 390,
+          "h": 844,
+          "label": "mobile-390"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__390x844__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 412,
+          "h": 915,
+          "label": "mobile-412"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__412x915__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 430,
+          "h": 932,
+          "label": "mobile-430"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__430x932__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 480,
+          "h": 800,
+          "label": "mobile-480"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__480x800__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 768,
+          "h": 1024,
+          "label": "tablet-768"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__768x1024__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 820,
+          "h": 1180,
+          "label": "tablet-820"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__820x1180__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "billing",
+        "path": "/billing",
+        "browser": "chromium",
+        "viewport": {
+          "w": 834,
+          "h": 1112,
+          "label": "tablet-834"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\billing__834x1112__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1024,
+          "h": 1366,
+          "label": "tablet-1024"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__1024x1366__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1280,
+          "h": 720,
+          "label": "desktop-1280"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__1280x720__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1366,
+          "h": 768,
+          "label": "desktop-1366"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__1366x768__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1440,
+          "h": 900,
+          "label": "desktop-1440"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__1440x900__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1536,
+          "h": 864,
+          "label": "desktop-1536"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__1536x864__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1600,
+          "h": 900,
+          "label": "desktop-1600"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__1600x900__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1728,
+          "h": 1117,
+          "label": "desktop-1728"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__1728x1117__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1920,
+          "h": 1080,
+          "label": "desktop-1920"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__1920x1080__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1920,
+          "h": 1200,
+          "label": "desktop-1920x1200"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__1920x1200__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 2048,
+          "h": 1152,
+          "label": "desktop-2048"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__2048x1152__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 2560,
+          "h": 1440,
+          "label": "desktop-2560"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__2560x1440__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 320,
+          "h": 568,
+          "label": "mobile-320"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__320x568__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 3440,
+          "h": 1440,
+          "label": "ultrawide-3440"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__3440x1440__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 360,
+          "h": 640,
+          "label": "mobile-360"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__360x640__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 375,
+          "h": 812,
+          "label": "mobile-375"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__375x812__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 3840,
+          "h": 2160,
+          "label": "uhd-3840"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__3840x2160__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 390,
+          "h": 844,
+          "label": "mobile-390"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__390x844__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 412,
+          "h": 915,
+          "label": "mobile-412"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__412x915__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 430,
+          "h": 932,
+          "label": "mobile-430"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__430x932__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 480,
+          "h": 800,
+          "label": "mobile-480"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__480x800__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 768,
+          "h": 1024,
+          "label": "tablet-768"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__768x1024__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 820,
+          "h": 1180,
+          "label": "tablet-820"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__820x1180__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "connected-accounts",
+        "path": "/connected-accounts",
+        "browser": "chromium",
+        "viewport": {
+          "w": 834,
+          "h": 1112,
+          "label": "tablet-834"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\connected-accounts__834x1112__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1024,
+          "h": 1366,
+          "label": "tablet-1024"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__1024x1366__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1280,
+          "h": 720,
+          "label": "desktop-1280"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__1280x720__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1366,
+          "h": 768,
+          "label": "desktop-1366"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__1366x768__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1440,
+          "h": 900,
+          "label": "desktop-1440"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__1440x900__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1536,
+          "h": 864,
+          "label": "desktop-1536"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__1536x864__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1600,
+          "h": 900,
+          "label": "desktop-1600"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__1600x900__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1728,
+          "h": 1117,
+          "label": "desktop-1728"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__1728x1117__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1920,
+          "h": 1080,
+          "label": "desktop-1920"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__1920x1080__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1920,
+          "h": 1200,
+          "label": "desktop-1920x1200"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__1920x1200__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 2048,
+          "h": 1152,
+          "label": "desktop-2048"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__2048x1152__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 2560,
+          "h": 1440,
+          "label": "desktop-2560"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__2560x1440__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 320,
+          "h": 568,
+          "label": "mobile-320"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__320x568__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 3440,
+          "h": 1440,
+          "label": "ultrawide-3440"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__3440x1440__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 360,
+          "h": 640,
+          "label": "mobile-360"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__360x640__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 375,
+          "h": 812,
+          "label": "mobile-375"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__375x812__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 3840,
+          "h": 2160,
+          "label": "uhd-3840"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__3840x2160__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 390,
+          "h": 844,
+          "label": "mobile-390"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__390x844__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 412,
+          "h": 915,
+          "label": "mobile-412"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__412x915__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 430,
+          "h": 932,
+          "label": "mobile-430"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__430x932__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 480,
+          "h": 800,
+          "label": "mobile-480"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__480x800__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 768,
+          "h": 1024,
+          "label": "tablet-768"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__768x1024__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 820,
+          "h": 1180,
+          "label": "tablet-820"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__820x1180__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "dashboard",
+        "path": "/dashboard",
+        "browser": "chromium",
+        "viewport": {
+          "w": 834,
+          "h": 1112,
+          "label": "tablet-834"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\dashboard__834x1112__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1024,
+          "h": 1366,
+          "label": "tablet-1024"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__1024x1366__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1280,
+          "h": 720,
+          "label": "desktop-1280"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__1280x720__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1366,
+          "h": 768,
+          "label": "desktop-1366"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__1366x768__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1440,
+          "h": 900,
+          "label": "desktop-1440"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__1440x900__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1536,
+          "h": 864,
+          "label": "desktop-1536"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__1536x864__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 320,
+          "h": 568,
+          "label": "mobile-320"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__320x568__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 360,
+          "h": 640,
+          "label": "mobile-360"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__360x640__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 375,
+          "h": 812,
+          "label": "mobile-375"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__375x812__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 390,
+          "h": 844,
+          "label": "mobile-390"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__390x844__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 412,
+          "h": 915,
+          "label": "mobile-412"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__412x915__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 430,
+          "h": 932,
+          "label": "mobile-430"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__430x932__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 480,
+          "h": 800,
+          "label": "mobile-480"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__480x800__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 768,
+          "h": 1024,
+          "label": "tablet-768"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__768x1024__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 820,
+          "h": 1180,
+          "label": "tablet-820"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__820x1180__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "login",
+        "path": "/login",
+        "browser": "chromium",
+        "viewport": {
+          "w": 834,
+          "h": 1112,
+          "label": "tablet-834"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\login__834x1112__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1024,
+          "h": 1366,
+          "label": "tablet-1024"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__1024x1366__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1280,
+          "h": 720,
+          "label": "desktop-1280"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__1280x720__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1366,
+          "h": 768,
+          "label": "desktop-1366"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__1366x768__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1440,
+          "h": 900,
+          "label": "desktop-1440"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__1440x900__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1536,
+          "h": 864,
+          "label": "desktop-1536"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__1536x864__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1600,
+          "h": 900,
+          "label": "desktop-1600"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__1600x900__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1728,
+          "h": 1117,
+          "label": "desktop-1728"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__1728x1117__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1920,
+          "h": 1080,
+          "label": "desktop-1920"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__1920x1080__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 1920,
+          "h": 1200,
+          "label": "desktop-1920x1200"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__1920x1200__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 2048,
+          "h": 1152,
+          "label": "desktop-2048"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__2048x1152__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 2560,
+          "h": 1440,
+          "label": "desktop-2560"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__2560x1440__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 320,
+          "h": 568,
+          "label": "mobile-320"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__320x568__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 3440,
+          "h": 1440,
+          "label": "ultrawide-3440"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__3440x1440__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 360,
+          "h": 640,
+          "label": "mobile-360"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__360x640__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 375,
+          "h": 812,
+          "label": "mobile-375"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__375x812__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 3840,
+          "h": 2160,
+          "label": "uhd-3840"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__3840x2160__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 390,
+          "h": 844,
+          "label": "mobile-390"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__390x844__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 412,
+          "h": 915,
+          "label": "mobile-412"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__412x915__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 430,
+          "h": 932,
+          "label": "mobile-430"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__430x932__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 480,
+          "h": 800,
+          "label": "mobile-480"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__480x800__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 768,
+          "h": 1024,
+          "label": "tablet-768"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__768x1024__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 820,
+          "h": 1180,
+          "label": "tablet-820"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__820x1180__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      },
+      {
+        "slug": "subscriptions",
+        "path": "/subscriptions",
+        "browser": "chromium",
+        "viewport": {
+          "w": 834,
+          "h": 1112,
+          "label": "tablet-834"
+        },
+        "dpr": 1,
+        "zoom": 1,
+        "ok": true,
+        "status": 200,
+        "overflowX": 0,
+        "screenshot": "docs\\ui-audit\\phase2\\screenshots\\subscriptions__834x1112__chromium__dpr1__z100.png",
+        "error": null,
+        "skipped": false,
+        "skipReason": null
+      }
+    ]
+  }
+}

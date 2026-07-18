@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { marketplaceApi, SubscriptionBillingModel } from '@/lib/api/marketplace';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import { toast } from 'sonner';
 import { useBreakpoint } from '@/lib/hooks/useBreakpoint';
 import { formatBotName } from '@/lib/bot-labels';
@@ -399,6 +400,7 @@ function MarketplacePageInner() {
               </div>
             </div>
 
+            {/* ERROR_GUIDE / EMPTY_STATE_GUIDE — retry on query failure, not empty filters copy */}
             <div data-tour="marketplace-bots-list">
               {isLoading ? (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -406,6 +408,13 @@ function MarketplacePageInner() {
                     <div key={i} className="marketplace-skeleton h-64 rounded-[var(--radius-card)]" />
                   ))}
                 </div>
+              ) : marketplaceQuery.isError ? (
+                <DashErrorState
+                  message="Couldn't load marketplace bots."
+                  onRetry={() => {
+                    void marketplaceQuery.refetch();
+                  }}
+                />
               ) : viewType === 'list' ? (
                 <MarketplaceStrategyTable strategies={strategies} onSubscribe={openSubscribe} />
               ) : (
@@ -417,7 +426,7 @@ function MarketplacePageInner() {
               )}
             </div>
 
-            {!isLoading && strategies.length === 0 && (
+            {!isLoading && !marketplaceQuery.isError && strategies.length === 0 && (
               <div
                 data-tour-empty="marketplace-bots-list"
                 className="rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-12 text-center shadow-[var(--shadow-card)]"
@@ -427,11 +436,19 @@ function MarketplacePageInner() {
                 </div>
                 <p className="text-base font-semibold text-foreground">No bots match your filters</p>
                 <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                  Adjust your risk, market, or pricing filters — or explore featured strategies above.
+                  Adjust risk, market, or pricing — or reset filters to see featured and beginner-friendly strategies.
                 </p>
-                <Button variant="outline" className="mt-5" onClick={resetFilters}>
-                  Reset Filters
-                </Button>
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                  <Button variant="outline" onClick={resetFilters}>
+                    Reset Filters
+                  </Button>
+                  <a
+                    href="/connected-accounts"
+                    className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+                  >
+                    Connect account first
+                  </a>
+                </div>
               </div>
             )}
 

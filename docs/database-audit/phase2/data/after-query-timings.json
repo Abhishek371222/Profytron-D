@@ -1,0 +1,368 @@
+{
+  "prismaOps": [
+    {
+      "name": "prisma_count_users",
+      "ms": 582,
+      "ok": true,
+      "result": 7
+    },
+    {
+      "name": "prisma_count_trades",
+      "ms": 570.3,
+      "ok": true,
+      "result": 151
+    },
+    {
+      "name": "prisma_open_trades_join",
+      "ms": 597.3,
+      "ok": true,
+      "result": 0
+    },
+    {
+      "name": "prisma_portfolio_style_trades",
+      "ms": 1206.8,
+      "ok": true,
+      "result": 24
+    },
+    {
+      "name": "prisma_n1_broker_per_user",
+      "ms": 3257.7,
+      "ok": true,
+      "result": {
+        "users": 7,
+        "accounts": 4
+      }
+    },
+    {
+      "name": "prisma_batched_broker_by_users",
+      "ms": 877.9,
+      "ok": true,
+      "result": {
+        "users": 7,
+        "accounts": 4
+      }
+    }
+  ],
+  "prismaQueryEvents": [
+    {
+      "sql": "\n    SELECT table_name, column_name, data_type, udt_name, is_nullable, column_default,\n           character_maximum_length\n    FROM information_schema.columns\n    WHERE table_schema = 'public'\n    ORDER BY table_name, ordinal_position\n  ",
+      "durationMs": 1444
+    },
+    {
+      "sql": "\n    SELECT\n      tc.table_name AS from_table,\n      kcu.column_name AS from_column,\n      ccu.table_name AS to_table,\n      ccu.column_name AS to_column,\n      tc.constraint_name,\n      rc.delete_rule,\n      rc.update_rule\n    FROM informa",
+      "durationMs": 947
+    },
+    {
+      "sql": "\n    SELECT\n      i.schemaname,\n      i.tablename,\n      i.indexname,\n      i.indexdef,\n      pg_relation_size(c.oid) AS index_bytes\n    FROM pg_indexes i\n    JOIN pg_class c ON c.relname = i.indexname\n    JOIN pg_namespace n ON n.oid = c.r",
+      "durationMs": 912
+    },
+    {
+      "sql": "\n    SELECT c.relname AS table_name,\n           pg_total_relation_size(c.oid) AS total_bytes,\n           pg_relation_size(c.oid) AS table_bytes,\n           pg_indexes_size(c.oid) AS index_bytes,\n           c.reltuples::bigint AS est_rows\n  ",
+      "durationMs": 665
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AccountSnapshotStatus\"",
+      "durationMs": 660
+    },
+    {
+      "sql": "\n    SELECT tc.table_name, kcu.column_name, tc.constraint_name\n    FROM information_schema.table_constraints tc\n    JOIN information_schema.key_column_usage kcu\n      ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.tab",
+      "durationMs": 651
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"CoachMessage\"",
+      "durationMs": 634
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"Trade\" c\n      LEFT JOIN \"BrokerAccount\" p ON p.\"id\" = c.\"brokerAccountId\"\n      WHERE c.\"brokerAccountId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 617
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"CoachEscalation\"",
+      "durationMs": 611
+    },
+    {
+      "sql": "\n      SELECT pid, state, wait_event_type, wait_event,\n             now() - xact_start AS xact_age,\n             now() - query_start AS query_age,\n             left(query, 120) AS query\n      FROM pg_stat_activity\n      WHERE datname = curr",
+      "durationMs": 610
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"AccountSnapshot\" c\n      LEFT JOIN \"BrokerAccount\" p ON p.\"id\" = c.\"brokerAccountId\"\n      WHERE c.\"brokerAccountId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 604
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"",
+      "durationMs": 603
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"Trade\" c\n      LEFT JOIN \"User\" p ON p.\"id\" = c.\"userId\"\n      WHERE c.\"userId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 602
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"Strategy\"",
+      "durationMs": 602
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"UserActivationEvent\"",
+      "durationMs": 600
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AgentEventOutbox\"",
+      "durationMs": 600
+    },
+    {
+      "sql": "SELECT \"public\".\"User\".\"id\", \"public\".\"User\".\"email\", \"public\".\"User\".\"passwordHash\", \"public\".\"User\".\"fullName\", \"public\".\"User\".\"username\", \"public\".\"User\".\"avatarUrl\", \"public\".\"User\".\"bio\", \"public\".\"User\".\"country\", \"public\".\"User\".\"ti",
+      "durationMs": 600
+    },
+    {
+      "sql": "\n      SELECT schemaname, relname AS table_name, indexrelname AS index_name,\n             idx_scan, idx_tup_read, idx_tup_fetch,\n             pg_relation_size(indexrelid) AS index_bytes\n      FROM pg_stat_user_indexes\n      ORDER BY idx_sca",
+      "durationMs": 598
+    },
+    {
+      "sql": "\n        SELECT COUNT(*)::bigint AS bad\n        FROM \"Trade\"\n        WHERE \"closedAt\" IS NOT NULL AND \"openedAt\" IS NOT NULL AND \"closedAt\" < \"openedAt\"\n      ",
+      "durationMs": 597
+    },
+    {
+      "sql": "SELECT \"public\".\"Trade\".\"id\", \"public\".\"Trade\".\"userId\", \"public\".\"Trade\".\"strategyId\", \"public\".\"Trade\".\"brokerAccountId\", \"public\".\"Trade\".\"brokerTicket\", \"public\".\"Trade\".\"symbol\", \"public\".\"Trade\".\"direction\"::text, \"public\".\"Trade\".\"vo",
+      "durationMs": 597
+    },
+    {
+      "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT * FROM \"BrokerAccount\" LIMIT 20",
+      "durationMs": 596
+    },
+    {
+      "sql": "\n      SELECT name, setting, unit\n      FROM pg_settings\n      WHERE name IN (\n        'max_connections','shared_buffers','work_mem','maintenance_work_mem',\n        'effective_cache_size','random_page_cost','default_transaction_isolation',\n",
+      "durationMs": 596
+    },
+    {
+      "sql": "SELECT version() AS v, current_database() AS db, current_user AS usr, current_setting('transaction_isolation') AS isolation",
+      "durationMs": 595
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"CoachConversation\"",
+      "durationMs": 595
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AccountSnapshot\"",
+      "durationMs": 594
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"NotificationLog\"",
+      "durationMs": 593
+    },
+    {
+      "sql": "\n    SELECT tc.table_name, tc.constraint_name, kcu.column_name\n    FROM information_schema.table_constraints tc\n    JOIN information_schema.key_column_usage kcu\n      ON tc.constraint_name = kcu.constraint_name AND tc.table_schema = kcu.tab",
+      "durationMs": 592
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"UserAchievement\"",
+      "durationMs": 592
+    },
+    {
+      "sql": "SELECT \"public\".\"Trade\".\"id\", \"public\".\"Trade\".\"userId\", \"public\".\"Trade\".\"strategyId\", \"public\".\"Trade\".\"brokerAccountId\", \"public\".\"Trade\".\"brokerTicket\", \"public\".\"Trade\".\"symbol\", \"public\".\"Trade\".\"direction\"::text, \"public\".\"Trade\".\"vo",
+      "durationMs": 591
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AccountLatestSnapshot\"",
+      "durationMs": 589
+    },
+    {
+      "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT COUNT(*) FROM \"Trade\"",
+      "durationMs": 589
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"UserSubscription\" c\n      LEFT JOIN \"User\" p ON p.\"id\" = c.\"userId\"\n      WHERE c.\"userId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 587
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"Affiliate\"",
+      "durationMs": 587
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"Payment\"",
+      "durationMs": 587
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"UserSession\" c\n      LEFT JOIN \"User\" p ON p.\"id\" = c.\"userId\"\n      WHERE c.\"userId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 585
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AccountSnapshotOrderHistory\"",
+      "durationMs": 585
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"CopyBridgeOrder\"",
+      "durationMs": 585
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"MarketplaceListing\"",
+      "durationMs": 584
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AuditLog\"",
+      "durationMs": 583
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"Trade\"",
+      "durationMs": 582
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"EquitySnapshot\"",
+      "durationMs": 582
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"BrokerAccount\" c\n      LEFT JOIN \"User\" p ON p.\"id\" = c.\"userId\"\n      WHERE c.\"userId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 581
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"WalletTransaction\" c\n      LEFT JOIN \"User\" p ON p.\"id\" = c.\"userId\"\n      WHERE c.\"userId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 581
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"Payment\" c\n      LEFT JOIN \"User\" p ON p.\"id\" = c.\"userId\"\n      WHERE c.\"userId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 581
+    },
+    {
+      "sql": "\n        SELECT \"brokerAccountId\", \"brokerTicket\", COUNT(*)::bigint AS c\n        FROM \"Trade\"\n        WHERE \"brokerTicket\" IS NOT NULL\n        GROUP BY 1, 2\n        HAVING COUNT(*) > 1\n        LIMIT 50\n      ",
+      "durationMs": 581
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AccountSnapshotPerformance\"",
+      "durationMs": 581
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"EmailLog\"",
+      "durationMs": 581
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"UserSubscription\"",
+      "durationMs": 581
+    },
+    {
+      "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT id FROM \"Trade\" WHERE \"userId\" IS NOT NULL AND status = 'CLOSED' ORDER BY \"closedAt\" DESC NULLS LAST LIMIT 200",
+      "durationMs": 580
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"TutorialProgress\"",
+      "durationMs": 579
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"LeaderboardEntry\"",
+      "durationMs": 579
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AgentJob\"",
+      "durationMs": 579
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"TradeExecution\"",
+      "durationMs": 579
+    },
+    {
+      "sql": "\n    SELECT conname AS constraint_name, conrelid::regclass::text AS table_name, pg_get_constraintdef(oid) AS definition\n    FROM pg_constraint\n    WHERE contype = 'c' AND connamespace = 'public'::regnamespace\n  ",
+      "durationMs": 577
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"StrategyPerformance\"",
+      "durationMs": 577
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"",
+      "durationMs": 577
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AccountSnapshotRisk\"",
+      "durationMs": 576
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"BrokerAccount\"",
+      "durationMs": 576
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"EquitySnapshot\" c\n      LEFT JOIN \"BrokerAccount\" p ON p.\"id\" = c.\"brokerAccountId\"\n      WHERE c.\"brokerAccountId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 575
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AccountSnapshotDeal\"",
+      "durationMs": 575
+    },
+    {
+      "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT * FROM \"Trade\" WHERE status = 'OPEN' LIMIT 50",
+      "durationMs": 575
+    },
+    {
+      "sql": "\n      SELECT c.relname AS table_name, c.relrowsecurity AS rls_enabled, c.relforcerowsecurity AS rls_forced\n      FROM pg_class c\n      JOIN pg_namespace n ON n.oid = c.relnamespace\n      WHERE n.nspname = 'public' AND c.relkind = 'r'\n     ",
+      "durationMs": 575
+    },
+    {
+      "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT * FROM \"EquitySnapshot\" ORDER BY \"capturedAt\" DESC LIMIT 100",
+      "durationMs": 574
+    },
+    {
+      "sql": "SELECT \"public\".\"User\".\"id\", \"public\".\"User\".\"email\", \"public\".\"User\".\"passwordHash\", \"public\".\"User\".\"fullName\", \"public\".\"User\".\"username\", \"public\".\"User\".\"avatarUrl\", \"public\".\"User\".\"bio\", \"public\".\"User\".\"country\", \"public\".\"User\".\"ti",
+      "durationMs": 574
+    },
+    {
+      "sql": "\n      SELECT rolname, rolsuper, rolcreaterole, rolcreatedb, rolcanlogin\n      FROM pg_roles\n      WHERE rolcanlogin = true\n      ORDER BY rolname\n      LIMIT 40\n    ",
+      "durationMs": 574
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AccountSnapshotSymbol\"",
+      "durationMs": 573
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"Notification\"",
+      "durationMs": 571
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"UserSession\"",
+      "durationMs": 571
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"WalletTransaction\"",
+      "durationMs": 571
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"UserStrategySubscription\"",
+      "durationMs": 570
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"SocialComment\"",
+      "durationMs": 569
+    },
+    {
+      "sql": "SELECT COUNT(*) FROM (SELECT \"public\".\"Trade\".\"id\" FROM \"public\".\"Trade\" WHERE 1=1 OFFSET $1) AS \"sub\"",
+      "durationMs": 568
+    },
+    {
+      "sql": "\n      SELECT COUNT(*)::bigint AS orphans\n      FROM \"UserStrategySubscription\" c\n      LEFT JOIN \"User\" p ON p.\"id\" = c.\"userId\"\n      WHERE c.\"userId\" IS NOT NULL AND p.\"id\" IS NULL\n    ",
+      "durationMs": 567
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"ProvisioningJob\"",
+      "durationMs": 567
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"CopyRelationship\"",
+      "durationMs": 567
+    },
+    {
+      "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT status, COUNT(*), COALESCE(SUM(profit),0) FROM \"Trade\" GROUP BY status",
+      "durationMs": 567
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"User\"",
+      "durationMs": 565
+    },
+    {
+      "sql": "SELECT COUNT(*) FROM (SELECT \"public\".\"User\".\"id\" FROM \"public\".\"User\" WHERE 1=1 OFFSET $1) AS \"sub\"",
+      "durationMs": 564
+    },
+    {
+      "sql": "SELECT COUNT(*)::bigint AS c FROM \"AccountSnapshotEvent\"",
+      "durationMs": 563
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"",
+      "durationMs": 311
+    }
+  ]
+}

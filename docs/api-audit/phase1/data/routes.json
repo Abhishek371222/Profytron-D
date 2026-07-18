@@ -1,0 +1,2726 @@
+{
+  "at": "2026-07-18T20:12:10.499Z",
+  "baseDefault": "http://localhost:4000",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/v1",
+      "module": "app",
+      "controller": "AppController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "module": "app",
+      "controller": "AppController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/dashboard",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/stats",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/users",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/users/:id",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/users/:id/withdraw",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/users/:id/status",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/users/:id/role",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/verifications",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/strategies",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/strategies",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/strategies/:id",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/strategies/pdf",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/strategies/:strategyId/documents",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/admin/strategies/:strategyId/documents/:documentId",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/admin/strategies/:id",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/verifications/:id/handle",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/payments/overview",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/system/metrics",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/setup/master-copy",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/broker-accounts",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/broker-accounts/:id/master",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/broker-accounts/:id/broadcast",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/kyc/pending",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/kyc/documents/:docId/url",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/kyc/:userId/review",
+      "module": "admin",
+      "controller": "AdminController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/affiliates/me",
+      "module": "affiliates",
+      "controller": "AffiliatesController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/affiliates/dashboard",
+      "module": "affiliates",
+      "controller": "AffiliatesController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/affiliates/referrals",
+      "module": "affiliates",
+      "controller": "AffiliatesController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/affiliates/activity",
+      "module": "affiliates",
+      "controller": "AffiliatesController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/affiliates/leaderboard",
+      "module": "affiliates",
+      "controller": "AffiliatesController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/affiliates/capture/:code",
+      "module": "affiliates",
+      "controller": "AffiliatesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/affiliates/withdraw",
+      "module": "affiliates",
+      "controller": "AffiliatesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/agents/dashboard",
+      "module": "agents",
+      "controller": "AgentsController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/agents/activity",
+      "module": "agents",
+      "controller": "AgentsController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/agents/insights",
+      "module": "agents",
+      "controller": "AgentsController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/budgets/:agentType/enable",
+      "module": "agents",
+      "controller": "AgentsController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/budgets/:agentType/disable",
+      "module": "agents",
+      "controller": "AgentsController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/run-all-low",
+      "module": "agents",
+      "controller": "AgentsController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/run/:agentType",
+      "module": "agents",
+      "controller": "AgentsController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/ai/explain-trade/:tradeId",
+      "module": "ai",
+      "controller": "AIController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/ai/explain",
+      "module": "ai",
+      "controller": "AIController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/ai/chat",
+      "module": "ai",
+      "controller": "AIController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/ai/coaching-report",
+      "module": "ai",
+      "controller": "AIController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/ai/market-regime/:symbol",
+      "module": "ai",
+      "controller": "AIController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/ai/regime",
+      "module": "ai",
+      "controller": "AIController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk/metrics",
+      "module": "ai-risk",
+      "controller": "AiRiskController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk/score",
+      "module": "ai-risk",
+      "controller": "AiRiskController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk/policy",
+      "module": "ai-risk",
+      "controller": "AiRiskController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/risk/policy",
+      "module": "ai-risk",
+      "controller": "AiRiskController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/risk/dashboard",
+      "module": "ai-risk",
+      "controller": "AiRiskController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/portfolio",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/monthly-returns",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/strategy-comparison",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/risk",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/advanced",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/trades",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/trades/export",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/execution",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/tax-report",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/global",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/analytics/leaderboard",
+      "module": "analytics",
+      "controller": "AnalyticsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/settings/api-keys",
+      "module": "api-keys",
+      "controller": "ApiKeysController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/settings/api-keys",
+      "module": "api-keys",
+      "controller": "ApiKeysController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/settings/api-keys/:id",
+      "module": "api-keys",
+      "controller": "ApiKeysController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/register",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/verify-email",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/login",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/2fa/complete-login",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/supabase",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/firebase",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/refresh",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/logout",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/forgot-password",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/reset-password",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/resend-otp",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/magic-link",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/magic-link/verify",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/2fa/setup",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/2fa/cancel-setup",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/2fa/verify-setup",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/2fa/disable",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/2fa/backup-codes",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/github",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/github/callback",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/google",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/google/callback",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/oauth-token-exchange",
+      "module": "auth",
+      "controller": "AuthController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/latest",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/summary",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/history",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/positions",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/pending-orders",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/deals",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/balance-history",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/equity-history",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/drawdown-history",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/returns-history",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/analytics",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/performance",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/risk",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/symbols",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts/:id/snapshot/timeline",
+      "module": "broker",
+      "controller": "AccountSnapshotController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/broker/accounts/connect",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/broker/accounts/:id",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/broker/accounts/:id/test",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/broker/accounts/:id/bridge-token",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/broker/accounts/:id/share",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/broker/accounts",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/broker/accounts/:id/accept",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/broker/accounts/:id/decline",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/broker/accounts/:id",
+      "module": "broker",
+      "controller": "BrokerController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/coach/conversations",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/coach/conversations",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/coach/conversations/:id",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/coach/conversations/:id",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/coach/conversations/:id/messages",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/coach/conversations/:id/messages/stream",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/coach/conversations/:id/escalate",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/coach/admin/escalations",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/coach/admin/conversations/:id",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/coach/admin/escalations/:id/claim",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/coach/admin/escalations/:id/reply",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/coach/admin/escalations/:id/resolve",
+      "module": "coach",
+      "controller": "CoachController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/copy/masters",
+      "module": "copy",
+      "controller": "CopyController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/copy/masters/:id",
+      "module": "copy",
+      "controller": "CopyController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/copy/master/me",
+      "module": "copy",
+      "controller": "CopyController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/copy/master/me",
+      "module": "copy",
+      "controller": "CopyController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/copy/relationships",
+      "module": "copy",
+      "controller": "CopyController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/copy/subscriptions/:id/sizing",
+      "module": "copy",
+      "controller": "CopyController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/bridge/orders",
+      "module": "copy-bridge",
+      "controller": "CopyBridgeController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/bridge/orders/:id/result",
+      "module": "copy-bridge",
+      "controller": "CopyBridgeController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/flags",
+      "module": "feature-flags",
+      "controller": "FeatureFlagsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/flags/:key",
+      "module": "feature-flags",
+      "controller": "FeatureFlagsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "PUT",
+      "path": "/v1/admin/flags/:key",
+      "module": "feature-flags",
+      "controller": "FeatureFlagsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/admin/flags/:key",
+      "module": "feature-flags",
+      "controller": "FeatureFlagsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/growth/activation",
+      "module": "growth",
+      "controller": "GrowthController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/growth/track",
+      "module": "growth",
+      "controller": "GrowthController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/growth/metrics",
+      "module": "growth",
+      "controller": "GrowthController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/journal",
+      "module": "journal",
+      "controller": "JournalController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/journal/insights",
+      "module": "journal",
+      "controller": "JournalController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/journal",
+      "module": "journal",
+      "controller": "JournalController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/journal/:id",
+      "module": "journal",
+      "controller": "JournalController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/journal/:id/rate",
+      "module": "journal",
+      "controller": "JournalController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/journal/:id/analyze",
+      "module": "journal",
+      "controller": "JournalController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/leaderboard/monthly",
+      "module": "leaderboard",
+      "controller": "LeaderboardController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/leaderboard/alltime",
+      "module": "leaderboard",
+      "controller": "LeaderboardController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/leaderboard/strategies",
+      "module": "leaderboard",
+      "controller": "LeaderboardController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/leaderboard/me",
+      "module": "leaderboard",
+      "controller": "LeaderboardController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/quote",
+      "module": "market",
+      "controller": "MarketController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/quotes",
+      "module": "market",
+      "controller": "MarketController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/ohlc",
+      "module": "market",
+      "controller": "MarketController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/news",
+      "module": "market",
+      "controller": "MarketController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/company-news",
+      "module": "market",
+      "controller": "MarketController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/market/economic-calendar",
+      "module": "market",
+      "controller": "MarketController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/marketplace",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/marketplace/featured",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/marketplace/:id/analytics",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/marketplace/:id",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/marketplace/:strategyId/listing",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/marketplace/:strategyId/subscribe",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/marketplace/:strategyId/risk-overrides",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/marketplace/:strategyId/risk-overrides",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/marketplace/:id/reviews",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/marketplace/:id/reviews",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/marketplace/reviews/:reviewId/reply",
+      "module": "marketplace",
+      "controller": "MarketplaceController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/notifications",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/notifications/unread-count",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/notifications/preferences",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/notifications/preferences",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/notifications/mark-seen",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/notifications/mark-all-read",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/notifications/:id/read",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/notifications/:id",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/notifications",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/notifications/fcm-token",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/notifications/fcm-token/remove",
+      "module": "notifications",
+      "controller": "NotificationsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/webhooks/stripe",
+      "module": "payments",
+      "controller": "PaymentsController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/webhooks/razorpay",
+      "module": "payments",
+      "controller": "PaymentsController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/payments/razorpay/order",
+      "module": "payments",
+      "controller": "RazorpayController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/payments/razorpay/verify",
+      "module": "payments",
+      "controller": "RazorpayController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/payments/razorpay/demo-complete",
+      "module": "payments",
+      "controller": "RazorpayController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/plans",
+      "module": "plans",
+      "controller": "PlansController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/search/global",
+      "module": "search",
+      "controller": "SearchController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/strategies",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/strategies/my",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/strategies/created",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/strategies/:id",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/strategies/:id",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/strategies/:id",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/activate",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/deactivate",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/pause",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/resume",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/strategies/:id/auto-renew",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/backtest",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/backtest/preview",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/backtest/walk-forward",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/backtest/sensitivity",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/publish",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/publish-live",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/strategies/:id/documents",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/strategies/:id/documents/:documentId/file",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/strategies/:id/documents",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/strategies/:id/documents/:documentId",
+      "module": "strategies",
+      "controller": "StrategiesController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/builder",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/builder",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/builder/:id",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/builder/:id",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/builder/:id/nodes",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/builder/nodes/:nodeId",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/builder/nodes/:nodeId",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/builder/:id/edges",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/builder/edges/:edgeId",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/builder/:id/compile",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/builder/:id/backtest",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/builder/:id/codegen",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/builder/:id/publish",
+      "module": "strategy-builder",
+      "controller": "StrategyBuilderController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/subscriptions/plans",
+      "module": "subscriptions",
+      "controller": "SubscriptionsController",
+      "auth": "public",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/subscriptions/current",
+      "module": "subscriptions",
+      "controller": "SubscriptionsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/subscriptions/checkout",
+      "module": "subscriptions",
+      "controller": "SubscriptionsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/subscriptions/cancel",
+      "module": "subscriptions",
+      "controller": "SubscriptionsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/subscriptions/invoices",
+      "module": "subscriptions",
+      "controller": "SubscriptionsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/subscriptions/payments",
+      "module": "subscriptions",
+      "controller": "SubscriptionsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/support/tickets",
+      "module": "support",
+      "controller": "SupportController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/support/tickets",
+      "module": "support",
+      "controller": "SupportController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/support/tickets/:id",
+      "module": "support",
+      "controller": "SupportController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/support/tickets/:id/responses",
+      "module": "support",
+      "controller": "SupportController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/support/tickets/:id/status",
+      "module": "support",
+      "controller": "SupportController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/support/tickets/:id/assign",
+      "module": "support",
+      "controller": "SupportController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/support/admin/billing/:billingId",
+      "module": "support",
+      "controller": "SupportController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/support/admin/pending",
+      "module": "support",
+      "controller": "SupportController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/telegram/webhook",
+      "module": "telegram",
+      "controller": "TelegramController",
+      "auth": "public",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/telegram/link",
+      "module": "telegram",
+      "controller": "TelegramController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/telegram/test-alert",
+      "module": "telegram",
+      "controller": "TelegramController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/trading/emergency-stop",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/trading/trades/order",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/trading/trades/bulk-close",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/trading/trades/:id/close",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/trading/trades/:id/modify",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/trading/trades/:id/break-even",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/trading/trades/:id/trailing-stop",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/trading/subscriptions",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/trading/subscriptions/:id",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/trading/trades/open",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/v1/trading/sync-bots",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": false,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/trading/trades/history",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/trading/master-status",
+      "module": "trading",
+      "controller": "TradingController",
+      "auth": "admin",
+      "probeable": true,
+      "roles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tutorial/progress",
+      "module": "tutorial",
+      "controller": "TutorialController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/tutorial/progress",
+      "module": "tutorial",
+      "controller": "TutorialController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/users/me",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/users/me",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/users/me/avatar",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/users/me/risk-profile",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/users/me/sessions",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/users/me/sessions/:id",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/users/me/sessions",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/users/me/password-reset/request-otp",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/users/me/password-reset/verify-otp",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/users/me/password-reset/confirm",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/users/me/delete/request-otp",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/users/me/delete/verify-otp",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/users/me",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/users/me/kyc",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/users/me/kyc",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/users/me/email-history",
+      "module": "users",
+      "controller": "UsersController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/vps",
+      "module": "vps",
+      "controller": "VpsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/vps",
+      "module": "vps",
+      "controller": "VpsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/vps/:id/start",
+      "module": "vps",
+      "controller": "VpsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/vps/:id/stop",
+      "module": "vps",
+      "controller": "VpsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/vps/:id",
+      "module": "vps",
+      "controller": "VpsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/vps/:id/bots",
+      "module": "vps",
+      "controller": "VpsController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/vps/:id/bots",
+      "module": "vps",
+      "controller": "VpsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/vps/bots/:botId/start",
+      "module": "vps",
+      "controller": "VpsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/vps/bots/:botId/stop",
+      "module": "vps",
+      "controller": "VpsController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/wallet/balance",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/wallet/transactions",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/wallet/deposit",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/wallet/withdrawal-otp",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/wallet/withdraw/preview",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/wallet/withdraw",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/wallet/statement/:year/:month",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/wallet/billing/:billingId",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "GET",
+      "path": "/v1/wallet/transaction/:id",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": true,
+      "roles": []
+    },
+    {
+      "method": "POST",
+      "path": "/v1/wallet/webhook",
+      "module": "wallet",
+      "controller": "WalletController",
+      "auth": "user",
+      "probeable": false,
+      "roles": []
+    }
+  ]
+}

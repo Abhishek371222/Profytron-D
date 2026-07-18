@@ -8,10 +8,12 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import { useUIStore } from "@/lib/stores/useUIStore";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { useDensityProfile } from "@/lib/hooks/useDensityProfile";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const pathname = usePathname();
+  const density = useDensityProfile();
   const [mounted, setMounted] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
 
@@ -77,6 +79,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div
+      data-density={density}
       className="flex overflow-x-hidden relative min-w-0 brand-surface-bg h-[100dvh] max-h-[100dvh] overflow-hidden"
       suppressHydrationWarning
     >
@@ -130,7 +133,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div
           className={cn(
-            "flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar",
+            "flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar contain-inline-size",
             lockScroll && "overflow-hidden",
           )}
         >
@@ -140,7 +143,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               isBuilder
                 ? "p-0 max-w-none w-full h-full min-h-0 flex flex-col"
                 : isCoach
-                  ? "flex h-full min-h-0 w-full min-w-0 max-w-none mx-auto flex-col overflow-hidden p-1.5 sm:p-2"
+                  ? "flex h-full min-h-0 w-full min-w-0 max-w-none mx-auto flex-col overflow-hidden p-[var(--dashboard-p)]"
                   : "p-[var(--dashboard-p)] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-[clamp(3rem,4vw,4rem)] max-w-[1920px] mx-auto w-full min-w-0",
             )}
           >

@@ -42,7 +42,7 @@ export function MobileBottomNav() {
                 data-tour={item.tour}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'relative flex min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 py-1 transition-colors duration-200',
+                  'relative flex min-h-[var(--touch-min)] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 py-1 transition-colors duration-200',
                   isActive ? 'text-primary' : 'text-foreground/25 hover:text-foreground/50',
                 )}
               >

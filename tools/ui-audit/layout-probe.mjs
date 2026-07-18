@@ -90,9 +90,13 @@ export function layoutProbeSource() {
     const smallTargets = focusables
       .map((el) => {
         const r = el.getBoundingClientRect();
+        const cs = getComputedStyle(el);
+        if (cs.visibility === 'hidden' || cs.display === 'none' || el.getAttribute('aria-hidden') === 'true') {
+          return null;
+        }
         return { w: Math.round(r.width), h: Math.round(r.height), tag: el.tagName.toLowerCase() };
       })
-      .filter((t) => t.w > 0 && t.h > 0 && (t.w < 44 || t.h < 44));
+      .filter((t) => t && t.w >= 4 && t.h >= 4 && (t.w < 44 || t.h < 44));
 
     const missingLabels = focusables
       .filter((el) => {

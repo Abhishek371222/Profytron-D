@@ -1,0 +1,368 @@
+{
+  "ts": "2026-07-18T19:00:57.699Z",
+  "scale": 0.01,
+  "results": [
+    {
+      "profile": "30min",
+      "nominalMinutes": 30,
+      "scale": 0.01,
+      "durationMs": 18000,
+      "samples": 9,
+      "series": [
+        {
+          "t": "2026-07-18T18:57:29.007Z",
+          "elapsedMs": 19,
+          "heap": 116000000,
+          "domNodes": 224,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 454,
+          "avgFps": 36,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:31.023Z",
+          "elapsedMs": 2035,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 454,
+          "avgFps": 51.666666666666664,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:33.037Z",
+          "elapsedMs": 4049,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 454,
+          "avgFps": 55.2,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:35.054Z",
+          "elapsedMs": 6066,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 454,
+          "avgFps": 56.857142857142854,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:37.085Z",
+          "elapsedMs": 8097,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 454,
+          "avgFps": 57.77777777777778,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:39.117Z",
+          "elapsedMs": 10129,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 454,
+          "avgFps": 58.27272727272727,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:41.148Z",
+          "elapsedMs": 12160,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 454,
+          "avgFps": 58.69230769230769,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:43.183Z",
+          "elapsedMs": 14195,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 454,
+          "avgFps": 58.93333333333333,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:45.211Z",
+          "elapsedMs": 16223,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 454,
+          "avgFps": 59.11764705882353,
+          "platformMarks": 0
+        }
+      ],
+      "scroll": {
+        "distance": 1200,
+        "durationMs": 362.59999999403954,
+        "avgFps": null,
+        "longTasksDuring": 0,
+        "droppedFramesDuring": 0,
+        "stickyFixed": 1
+      },
+      "final": {
+        "heap": 116000000,
+        "domNodes": 242,
+        "cls": 0.0000331649073848018,
+        "longTaskTotalMs": 454
+      },
+      "heapGrowth": 0
+    },
+    {
+      "profile": "1hour",
+      "nominalMinutes": 60,
+      "scale": 0.01,
+      "durationMs": 36000,
+      "samples": 10,
+      "series": [
+        {
+          "t": "2026-07-18T18:57:52.437Z",
+          "elapsedMs": 8,
+          "heap": 116000000,
+          "domNodes": 224,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 48,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:56.066Z",
+          "elapsedMs": 3637,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 55.6,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:57:59.708Z",
+          "elapsedMs": 7279,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 57.888888888888886,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:58:03.345Z",
+          "elapsedMs": 10916,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 58.5,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:58:06.993Z",
+          "elapsedMs": 14564,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 59.0625,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:58:10.619Z",
+          "elapsedMs": 18190,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 59.4,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:58:14.265Z",
+          "elapsedMs": 21836,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 59.52173913043478,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:58:17.916Z",
+          "elapsedMs": 25487,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 59.629629629629626,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:58:21.559Z",
+          "elapsedMs": 29130,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 59.7,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:58:25.192Z",
+          "elapsedMs": 32763,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 429,
+          "avgFps": 59.794117647058826,
+          "platformMarks": 0
+        }
+      ],
+      "scroll": {
+        "distance": 1200,
+        "durationMs": 361.09999999403954,
+        "avgFps": null,
+        "longTasksDuring": 0,
+        "droppedFramesDuring": 0,
+        "stickyFixed": 1
+      },
+      "final": {
+        "heap": 116000000,
+        "domNodes": 242,
+        "cls": 0.0000331649073848018,
+        "longTaskTotalMs": 429
+      },
+      "heapGrowth": 0
+    },
+    {
+      "profile": "4hour",
+      "nominalMinutes": 240,
+      "scale": 0.01,
+      "durationMs": 144000,
+      "samples": 10,
+      "series": [
+        {
+          "t": "2026-07-18T18:58:32.947Z",
+          "elapsedMs": 10,
+          "heap": 116000000,
+          "domNodes": 225,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 35,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:58:47.382Z",
+          "elapsedMs": 14445,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 58.666666666666664,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:59:01.818Z",
+          "elapsedMs": 28881,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 59.55172413793103,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:59:16.262Z",
+          "elapsedMs": 43325,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 59.906976744186046,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:59:30.697Z",
+          "elapsedMs": 57760,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 60.03448275862069,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:59:45.145Z",
+          "elapsedMs": 72208,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 60.166666666666664,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T18:59:59.583Z",
+          "elapsedMs": 86646,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 60.23255813953488,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T19:00:14.026Z",
+          "elapsedMs": 101089,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 60.24752475247525,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T19:00:28.462Z",
+          "elapsedMs": 115525,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 60.278260869565216,
+          "platformMarks": 0
+        },
+        {
+          "t": "2026-07-18T19:00:42.898Z",
+          "elapsedMs": 129961,
+          "heap": 116000000,
+          "domNodes": 242,
+          "cls": 0.0000331649073848018,
+          "longTaskTotalMs": 402,
+          "avgFps": 60.50833333333333,
+          "platformMarks": 0
+        }
+      ],
+      "scroll": {
+        "distance": 1200,
+        "durationMs": 352.5,
+        "avgFps": null,
+        "longTasksDuring": 0,
+        "droppedFramesDuring": 0,
+        "stickyFixed": 1
+      },
+      "final": {
+        "heap": 116000000,
+        "domNodes": 242,
+        "cls": 0.0000331649073848018,
+        "longTaskTotalMs": 402
+      },
+      "heapGrowth": 0
+    }
+  ]
+}

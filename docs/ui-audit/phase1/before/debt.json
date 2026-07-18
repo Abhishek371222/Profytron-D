@@ -1,0 +1,4846 @@
+[
+  {
+    "id": "small-touch-targets__about",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "about",
+    "path": "/about",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 27,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__admin",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "admin",
+    "path": "/admin",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 65
+  },
+  {
+    "id": "small-touch-targets__admin-agents",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "admin-agents",
+    "path": "/admin/agents",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__admin-coach",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "admin-coach",
+    "path": "/admin/coach",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__admin-kyc",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "admin-kyc",
+    "path": "/admin/kyc",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__admin-strategies",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "admin-strategies",
+    "path": "/admin/strategies",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__admin-system",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "admin-system",
+    "path": "/admin/system",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__admin-users",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "admin-users",
+    "path": "/admin/users",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__affiliate",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "affiliate",
+    "path": "/affiliate",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__affiliate-best",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "affiliate-best",
+    "path": "/affiliate/best",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__alpha-coach",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "alpha-coach",
+    "path": "/alpha-coach",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__analytics",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "analytics",
+    "path": "/analytics",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__analytics-global",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "analytics-global",
+    "path": "/analytics/global",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__analytics-performance",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "analytics-performance",
+    "path": "/analytics/performance",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__analytics-risk",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "analytics-risk",
+    "path": "/analytics/risk",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__analytics-trade",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "analytics-trade",
+    "path": "/analytics/trade",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__api-reference",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "api-reference",
+    "path": "/api-reference",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 27,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__billing",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "billing",
+    "path": "/billing",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 24,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "button"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "table-overflow-x__billing__320x568",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "billing",
+    "path": "/billing",
+    "viewport": {
+      "w": 320,
+      "h": 568,
+      "label": "mobile-320"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 158
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__billing__360x640",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "billing",
+    "path": "/billing",
+    "viewport": {
+      "w": 360,
+      "h": 640,
+      "label": "mobile-360"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 118
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__billing__375x812",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "billing",
+    "path": "/billing",
+    "viewport": {
+      "w": 375,
+      "h": 812,
+      "label": "mobile-375"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 103
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__billing__390x844",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "billing",
+    "path": "/billing",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 88
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__billing__412x915",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "billing",
+    "path": "/billing",
+    "viewport": {
+      "w": 412,
+      "h": 915,
+      "label": "mobile-412"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 66
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__billing__430x932",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "billing",
+    "path": "/billing",
+    "viewport": {
+      "w": 430,
+      "h": 932,
+      "label": "mobile-430"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 48
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "small-touch-targets__blog",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "blog",
+    "path": "/blog",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 27,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 34
+  },
+  {
+    "id": "small-touch-targets__bots",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "bots",
+    "path": "/bots",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__careers",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "careers",
+    "path": "/careers",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 28,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__community",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "community",
+    "path": "/community",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 29,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__connected-accounts",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "connected-accounts",
+    "path": "/connected-accounts",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 25,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "button"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 32
+  },
+  {
+    "id": "table-overflow-x__connected-accounts__320x568",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "connected-accounts",
+    "path": "/connected-accounts",
+    "viewport": {
+      "w": 320,
+      "h": 568,
+      "label": "mobile-320"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 106
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__connected-accounts__360x640",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "connected-accounts",
+    "path": "/connected-accounts",
+    "viewport": {
+      "w": 360,
+      "h": 640,
+      "label": "mobile-360"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 66
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__connected-accounts__375x812",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "connected-accounts",
+    "path": "/connected-accounts",
+    "viewport": {
+      "w": 375,
+      "h": 812,
+      "label": "mobile-375"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 51
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__connected-accounts__390x844",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "connected-accounts",
+    "path": "/connected-accounts",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 36
+    },
+    "viewportsHit": 3
+  },
+  {
+    "id": "table-overflow-x__connected-accounts__412x915",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "connected-accounts",
+    "path": "/connected-accounts",
+    "viewport": {
+      "w": 412,
+      "h": 915,
+      "label": "mobile-412"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 14
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "small-touch-targets__contact",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "contact",
+    "path": "/contact",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 31,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__cookies",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "cookies",
+    "path": "/cookies",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 28,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__copy-trading",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "copy-trading",
+    "path": "/copy-trading",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__creator",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "creator",
+    "path": "/creator",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__creator-add-bot",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "creator-add-bot",
+    "path": "/creator/add-bot",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__dashboard",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "dashboard",
+    "path": "/dashboard",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__docs",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "docs",
+    "path": "/docs",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 28,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__documentation",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "documentation",
+    "path": "/documentation",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 27,
+      "samples": [
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 36,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__forgot-password",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "forgot-password",
+    "path": "/forgot-password",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 2,
+      "samples": [
+        {
+          "w": 188,
+          "h": 40,
+          "tag": "a"
+        },
+        {
+          "w": 398,
+          "h": 26,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__guides",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "guides",
+    "path": "/guides",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 27,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__help",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "help",
+    "path": "/help",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 37,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 35
+  },
+  {
+    "id": "small-touch-targets__history",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "history",
+    "path": "/history",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__home",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "home",
+    "path": "/",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 29,
+      "samples": [
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 36,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__journal",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "journal",
+    "path": "/journal",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 32
+  },
+  {
+    "id": "small-touch-targets__leaderboard",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "leaderboard",
+    "path": "/leaderboard",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__login",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "login",
+    "path": "/login",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__marketplace",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "marketplace",
+    "path": "/marketplace",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__marketplace-success",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "marketplace-success",
+    "path": "/marketplace/success",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__markets",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "markets",
+    "path": "/markets",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 32
+  },
+  {
+    "id": "small-touch-targets__notifications",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "notifications",
+    "path": "/notifications",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__press",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "press",
+    "path": "/press",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 29,
+      "samples": [
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 36,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__pricing",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "pricing",
+    "path": "/pricing",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 29,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__privacy",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "privacy",
+    "path": "/privacy",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 38,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__register",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "register",
+    "path": "/register",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 92,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 46,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__reset-password",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "reset-password",
+    "path": "/reset-password",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 3,
+      "samples": [
+        {
+          "w": 160,
+          "h": 40,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__risk-disclosure",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "risk-disclosure",
+    "path": "/risk-disclosure",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 35,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__settings",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "settings",
+    "path": "/settings",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__settings-api-keys",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "settings-api-keys",
+    "path": "/settings/api-keys",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__settings-billing",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "settings-billing",
+    "path": "/settings/billing",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__settings-kyc",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "settings-kyc",
+    "path": "/settings/kyc",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__settings-notifications",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "settings-notifications",
+    "path": "/settings/notifications",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__settings-profile",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "settings-profile",
+    "path": "/settings/profile",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 66
+  },
+  {
+    "id": "small-touch-targets__settings-security",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "settings-security",
+    "path": "/settings/security",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__settings-support",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "settings-support",
+    "path": "/settings/support",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__settings-trading",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "settings-trading",
+    "path": "/settings/trading",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__signup",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "signup",
+    "path": "/signup",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 92,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 46,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__strategies",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "strategies",
+    "path": "/strategies",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "small-touch-targets__strategies-builder",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "strategies-builder",
+    "path": "/strategies/builder",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__subscriptions",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 29,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "button"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "table-overflow-x__subscriptions__1024x1366",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 158
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__320x568",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 320,
+      "h": 568,
+      "label": "mobile-320"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 566
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__360x640",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 360,
+      "h": 640,
+      "label": "mobile-360"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 526
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__375x812",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 375,
+      "h": 812,
+      "label": "mobile-375"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 511
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__390x844",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "label": "mobile-390"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 496
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__412x915",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 412,
+      "h": 915,
+      "label": "mobile-412"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 474
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__430x932",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 430,
+      "h": 932,
+      "label": "mobile-430"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 456
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__480x800",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 480,
+      "h": 800,
+      "label": "mobile-480"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 406
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__768x1024",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "label": "tablet-768"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 126
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__820x1180",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 820,
+      "h": 1180,
+      "label": "tablet-820"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 74
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "table-overflow-x__subscriptions__834x1112",
+    "type": "table-overflow-x",
+    "severity": "medium",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 834,
+      "h": 1112,
+      "label": "tablet-834"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "table-overflow-x",
+      "severity": "medium",
+      "value": 60
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "small-touch-targets__team-plans",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "team-plans",
+    "path": "/team-plans",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 28,
+      "samples": [
+        {
+          "w": 133,
+          "h": 17,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 33,
+          "tag": "button"
+        },
+        {
+          "w": 87,
+          "h": 17,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 17,
+          "tag": "a"
+        },
+        {
+          "w": 76,
+          "h": 17,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__terms",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "terms",
+    "path": "/terms",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 41,
+      "samples": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__verify-email",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "verify-email",
+    "path": "/verify-email",
+    "viewport": {
+      "w": 320,
+      "h": 568,
+      "label": "mobile-320"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 8,
+      "samples": [
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        },
+        {
+          "w": 22,
+          "h": 64,
+          "tag": "input"
+        },
+        {
+          "w": 22,
+          "h": 64,
+          "tag": "input"
+        },
+        {
+          "w": 22,
+          "h": 64,
+          "tag": "input"
+        },
+        {
+          "w": 22,
+          "h": 64,
+          "tag": "input"
+        }
+      ]
+    },
+    "viewportsHit": 23
+  },
+  {
+    "id": "small-touch-targets__wallet",
+    "type": "small-touch-targets",
+    "severity": "medium",
+    "slug": "wallet",
+    "path": "/wallet",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "small-touch-targets",
+      "severity": "medium",
+      "count": 4,
+      "samples": [
+        {
+          "w": 91,
+          "h": 34,
+          "tag": "a"
+        },
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ]
+    },
+    "viewportsHit": 68
+  },
+  {
+    "id": "narrow-card__about",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "about",
+    "path": "/about",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 64
+  },
+  {
+    "id": "narrow-card__admin",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "admin",
+    "path": "/admin",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 81
+  },
+  {
+    "id": "narrow-card__admin-agents",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "admin-agents",
+    "path": "/admin/agents",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__admin-coach",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "admin-coach",
+    "path": "/admin/coach",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__admin-kyc",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "admin-kyc",
+    "path": "/admin/kyc",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__admin-strategies",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "admin-strategies",
+    "path": "/admin/strategies",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__admin-system",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "admin-system",
+    "path": "/admin/system",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__admin-users",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "admin-users",
+    "path": "/admin/users",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__affiliate",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "affiliate",
+    "path": "/affiliate",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__affiliate-best",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "affiliate-best",
+    "path": "/affiliate/best",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__alpha-coach",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "alpha-coach",
+    "path": "/alpha-coach",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 84
+  },
+  {
+    "id": "narrow-card__analytics",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "analytics",
+    "path": "/analytics",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 84
+  },
+  {
+    "id": "narrow-card__analytics-global",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "analytics-global",
+    "path": "/analytics/global",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__analytics-performance",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "analytics-performance",
+    "path": "/analytics/performance",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 84
+  },
+  {
+    "id": "narrow-card__analytics-risk",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "analytics-risk",
+    "path": "/analytics/risk",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__analytics-trade",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "analytics-trade",
+    "path": "/analytics/trade",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__api-reference",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "api-reference",
+    "path": "/api-reference",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 51
+  },
+  {
+    "id": "narrow-card__billing",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "billing",
+    "path": "/billing",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 18
+    },
+    "viewportsHit": 99
+  },
+  {
+    "id": "narrow-card__blog",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "blog",
+    "path": "/blog",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 30
+  },
+  {
+    "id": "narrow-card__bots",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "bots",
+    "path": "/bots",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__careers",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "careers",
+    "path": "/careers",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 19
+  },
+  {
+    "id": "narrow-card__community",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "community",
+    "path": "/community",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 19
+  },
+  {
+    "id": "narrow-card__connected-accounts",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "connected-accounts",
+    "path": "/connected-accounts",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 18
+    },
+    "viewportsHit": 148
+  },
+  {
+    "id": "narrow-card__contact",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "contact",
+    "path": "/contact",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 19
+  },
+  {
+    "id": "narrow-card__cookies",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "cookies",
+    "path": "/cookies",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 147
+  },
+  {
+    "id": "narrow-card__copy-trading",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "copy-trading",
+    "path": "/copy-trading",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 110
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__creator",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "creator",
+    "path": "/creator",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__creator-add-bot",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "creator-add-bot",
+    "path": "/creator/add-bot",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__dashboard",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "dashboard",
+    "path": "/dashboard",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 84
+  },
+  {
+    "id": "narrow-card__docs",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "docs",
+    "path": "/docs",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 19
+  },
+  {
+    "id": "narrow-card__documentation",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "documentation",
+    "path": "/documentation",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 19
+  },
+  {
+    "id": "narrow-card__forgot-password",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "forgot-password",
+    "path": "/forgot-password",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 40
+    },
+    "viewportsHit": 16
+  },
+  {
+    "id": "narrow-card__guides",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "guides",
+    "path": "/guides",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 19
+  },
+  {
+    "id": "narrow-card__help",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "help",
+    "path": "/help",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 31
+  },
+  {
+    "id": "narrow-card__history",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "history",
+    "path": "/history",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__home",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "home",
+    "path": "/",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 110
+  },
+  {
+    "id": "extreme-scroll-height__home",
+    "type": "extreme-scroll-height",
+    "severity": "low",
+    "slug": "home",
+    "path": "/",
+    "viewport": {
+      "w": 320,
+      "h": 568,
+      "label": "mobile-320"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "extreme-scroll-height",
+      "severity": "low",
+      "value": 11637
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "narrow-card__journal",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "journal",
+    "path": "/journal",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 48
+  },
+  {
+    "id": "narrow-card__leaderboard",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "leaderboard",
+    "path": "/leaderboard",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__login",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "login",
+    "path": "/login",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 84
+  },
+  {
+    "id": "narrow-card__marketplace",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "marketplace",
+    "path": "/marketplace",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 84
+  },
+  {
+    "id": "narrow-card__marketplace-success",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "marketplace-success",
+    "path": "/marketplace/success",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__markets",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "markets",
+    "path": "/markets",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 48
+  },
+  {
+    "id": "narrow-card__notifications",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "notifications",
+    "path": "/notifications",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__press",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "press",
+    "path": "/press",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 35
+  },
+  {
+    "id": "extreme-scroll-height__press",
+    "type": "extreme-scroll-height",
+    "severity": "low",
+    "slug": "press",
+    "path": "/press",
+    "viewport": {
+      "w": 320,
+      "h": 568,
+      "label": "mobile-320"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "extreme-scroll-height",
+      "severity": "low",
+      "value": 11796
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "narrow-card__pricing",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "pricing",
+    "path": "/pricing",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 64
+  },
+  {
+    "id": "narrow-card__privacy",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "privacy",
+    "path": "/privacy",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 99
+  },
+  {
+    "id": "narrow-card__register",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "register",
+    "path": "/register",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 92
+    },
+    "viewportsHit": 112
+  },
+  {
+    "id": "narrow-card__reset-password",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "reset-password",
+    "path": "/reset-password",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 40
+    },
+    "viewportsHit": 16
+  },
+  {
+    "id": "narrow-card__risk-disclosure",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "risk-disclosure",
+    "path": "/risk-disclosure",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 35
+  },
+  {
+    "id": "narrow-card__settings",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "settings",
+    "path": "/settings",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__settings-api-keys",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "settings-api-keys",
+    "path": "/settings/api-keys",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__settings-billing",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "settings-billing",
+    "path": "/settings/billing",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__settings-kyc",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "settings-kyc",
+    "path": "/settings/kyc",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__settings-notifications",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "settings-notifications",
+    "path": "/settings/notifications",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__settings-profile",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "settings-profile",
+    "path": "/settings/profile",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 81
+  },
+  {
+    "id": "narrow-card__settings-security",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "settings-security",
+    "path": "/settings/security",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__settings-support",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "settings-support",
+    "path": "/settings/support",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__settings-trading",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "settings-trading",
+    "path": "/settings/trading",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__signup",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "signup",
+    "path": "/signup",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 92
+    },
+    "viewportsHit": 52
+  },
+  {
+    "id": "narrow-card__strategies",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "strategies",
+    "path": "/strategies",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 84
+  },
+  {
+    "id": "narrow-card__strategies-builder",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "strategies-builder",
+    "path": "/strategies/builder",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 39
+  },
+  {
+    "id": "narrow-card__subscriptions",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "subscriptions",
+    "path": "/subscriptions",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 18
+    },
+    "viewportsHit": 115
+  },
+  {
+    "id": "narrow-card__team-plans",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "team-plans",
+    "path": "/team-plans",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 24
+    },
+    "viewportsHit": 112
+  },
+  {
+    "id": "narrow-card__terms",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "terms",
+    "path": "/terms",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 36
+    },
+    "viewportsHit": 67
+  },
+  {
+    "id": "extreme-scroll-height__terms",
+    "type": "extreme-scroll-height",
+    "severity": "low",
+    "slug": "terms",
+    "path": "/terms",
+    "viewport": {
+      "w": 320,
+      "h": 568,
+      "label": "mobile-320"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "extreme-scroll-height",
+      "severity": "low",
+      "value": 13575
+    },
+    "viewportsHit": 1
+  },
+  {
+    "id": "narrow-card__verify-email",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "verify-email",
+    "path": "/verify-email",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 40
+    },
+    "viewportsHit": 16
+  },
+  {
+    "id": "narrow-card__wallet",
+    "type": "narrow-card",
+    "severity": "low",
+    "slug": "wallet",
+    "path": "/wallet",
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "label": "tablet-1024"
+    },
+    "browser": "chromium",
+    "dpr": 1,
+    "zoom": 1,
+    "detail": {
+      "type": "narrow-card",
+      "severity": "low",
+      "width": 101
+    },
+    "viewportsHit": 84
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "at": "2026-07-18T20:02:44.520Z",
+  "ok": true,
+  "steps": [
+    {
+      "name": "mode",
+      "at": "2026-07-18T20:02:44.521Z",
+      "mode": "integrity-only",
+      "note": "No Neon branch; validates integrity suite against current DB"
+    }
+  ],
+  "error": null,
+  "branchId": null,
+  "rpoNote": "Neon branch create copies current parent state (PITR-capable product); RPO ≈ seconds for branch fork",
+  "rtoNote": "Measured as wall time from branch create → integrity pass",
+  "checks": [
+    {
+      "name": "select_1",
+      "ms": 602.1,
+      "ok": true
+    },
+    {
+      "name": "orphan_trade_user",
+      "orphans": 0,
+      "ok": true
+    },
+    {
+      "name": "dupe_tickets",
+      "count": 0,
+      "ok": true
+    }
+  ],
+  "rtoMs": 4153.8,
+  "branchDrill": "skipped"
+}

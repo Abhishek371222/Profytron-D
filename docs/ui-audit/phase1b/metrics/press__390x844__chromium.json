@@ -1,0 +1,129 @@
+{
+  "slug": "press",
+  "path": "/press",
+  "auth": "public",
+  "shell": "marketing",
+  "browser": "chromium",
+  "viewport": {
+    "w": 390,
+    "h": 844,
+    "label": "mobile-390"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/",
+    "title": "Profytron — Algorithmic Trading Platform for Indian Traders",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 2004,
+      "first-contentful-paint": 2004
+    },
+    "lcp": {
+      "startTime": 2004,
+      "size": 4384,
+      "url": null
+    },
+    "cls": 0.00006981836466974098,
+    "inpProxyMs": 160,
+    "longTaskCount": 4,
+    "longTaskTotalMs": 699,
+    "tbtProxyMs": 699,
+    "navigation": {
+      "domContentLoaded": 1986.1000000089407,
+      "loadEventEnd": 2618,
+      "responseEnd": 530.9000000059605,
+      "transferSize": 28511
+    },
+    "memory": {
+      "usedJSHeapSize": 177000000,
+      "totalJSHeapSize": 188000000
+    },
+    "domNodes": 1065,
+    "js": {
+      "scriptCount": 10,
+      "scriptTransferKB": 8962
+    },
+    "network": {
+      "apiCount": 1,
+      "duplicates": [],
+      "sample": [
+        {
+          "name": "http://localhost:3000/api/auth/refresh",
+          "initiatorType": "xmlhttprequest",
+          "duration": 120.90000000596046,
+          "transferSize": 446,
+          "encodedBodySize": 146,
+          "startTime": 2985.5
+        }
+      ]
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 38,
+          "displayH": 42,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        },
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 50,
+          "displayH": 54,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": 29,
+      "droppedFrames": 7,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 0,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 55,
+      "smallTouchTargetCount": 25
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 3376
+  },
+  "networkLog": {
+    "responses": [
+      {
+        "url": "http://localhost:3000/api/auth/refresh",
+        "status": 401,
+        "ok": false
+      }
+    ],
+    "failed": 1
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:39:22.039Z"
+}

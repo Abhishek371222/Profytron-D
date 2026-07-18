@@ -1,0 +1,119 @@
+{
+  "slug": "verify-email",
+  "path": "/verify-email",
+  "auth": "public",
+  "shell": "auth",
+  "browser": "chromium",
+  "viewport": {
+    "w": 768,
+    "h": 1024,
+    "label": "tablet-768"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/verify-email",
+    "title": "Verify Your Email | Profytron",
+    "viewport": {
+      "w": 768,
+      "h": 1024,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 1828,
+      "first-contentful-paint": 1828
+    },
+    "lcp": {
+      "startTime": 1828,
+      "size": 19392,
+      "url": null
+    },
+    "cls": 0.0005008831503801048,
+    "inpProxyMs": 80,
+    "longTaskCount": 3,
+    "longTaskTotalMs": 595,
+    "tbtProxyMs": 595,
+    "navigation": {
+      "domContentLoaded": 1623.2000000029802,
+      "loadEventEnd": 2490.9000000059605,
+      "responseEnd": 381.59999999403954,
+      "transferSize": 10460
+    },
+    "memory": {
+      "usedJSHeapSize": 148000000,
+      "totalJSHeapSize": 157000000
+    },
+    "domNodes": 162,
+    "js": {
+      "scriptCount": 11,
+      "scriptTransferKB": 9533
+    },
+    "network": {
+      "apiCount": 1,
+      "duplicates": [],
+      "sample": [
+        {
+          "name": "http://localhost:3000/api/auth/refresh",
+          "initiatorType": "xmlhttprequest",
+          "duration": 29.19999998807907,
+          "transferSize": 446,
+          "encodedBodySize": 146,
+          "startTime": 2783.9000000059605
+        }
+      ]
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [
+        {
+          "src": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "naturalW": 64,
+          "naturalH": 65,
+          "displayW": 46,
+          "displayH": 50,
+          "loading": "auto",
+          "oversize": false,
+          "format": "other"
+        }
+      ],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": 29.5,
+      "droppedFrames": 36,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 0,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 9,
+      "smallTouchTargetCount": 2
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 3726.5999999940395
+  },
+  "networkLog": {
+    "responses": [
+      {
+        "url": "http://localhost:3000/api/auth/refresh",
+        "status": 401,
+        "ok": false
+      }
+    ],
+    "failed": 1
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:44:28.402Z"
+}

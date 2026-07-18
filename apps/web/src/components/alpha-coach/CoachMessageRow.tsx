@@ -11,21 +11,31 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 import type { CoachMessage } from '@/lib/api/coach';
+import type { ExplainabilityResult } from '@profytron/ai-coach';
 import { CoachMessageBody } from '@/components/alpha-coach/CoachMessageBody';
 import { CoachBrandMark } from '@/components/alpha-coach/CoachBrandMark';
+import { CoachExplainabilityCard } from '@/components/alpha-coach/CoachExplainabilityCard';
+import { cn } from '@/lib/utils';
+
+export type UiCoachMessage = CoachMessage & {
+  explainability?: ExplainabilityResult;
+};
 
 export function CoachMessageRow({
   message,
   isStreaming,
   onRegenerate,
+  onFeedback,
 }: {
-  message: CoachMessage;
+  message: UiCoachMessage;
   isStreaming?: boolean;
   onRegenerate?: () => void;
+  onFeedback?: (value: 'up' | 'down') => void;
 }) {
   const isUser = message.role === 'USER';
   const isExec = message.role === 'EXECUTIVE';
   const [copied, setCopied] = React.useState(false);
+  const [feedback, setFeedback] = React.useState<'up' | 'down' | null>(null);
 
   const copy = async () => {
     try {
@@ -34,6 +44,12 @@ export function CoachMessageRow({
       window.setTimeout(() => setCopied(false), 1400);
     } catch {
     }
+  };
+
+  const giveFeedback = (value: 'up' | 'down') => {
+    if (feedback) return;
+    setFeedback(value);
+    onFeedback?.(value);
   };
 
   if (isUser) {
@@ -67,6 +83,9 @@ export function CoachMessageRow({
             />
           )}
         </div>
+        {!isStreaming && message.explainability ? (
+          <CoachExplainabilityCard result={message.explainability} />
+        ) : null}
 
         {!isStreaming && (
           <div className="mt-2 flex items-center gap-0.5 text-muted-foreground opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100 sm:focus-within:opacity-100">
@@ -96,17 +115,27 @@ export function CoachMessageRow({
             )}
             <button
               type="button"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted hover:text-foreground"
+              onClick={() => giveFeedback('up')}
+              className={cn(
+                'inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted hover:text-foreground',
+                feedback === 'up' && 'text-[#348398]',
+              )}
               aria-label="Helpful"
               title="Helpful"
+              disabled={Boolean(feedback)}
             >
               <ThumbsUp className="h-4 w-4" />
             </button>
             <button
               type="button"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#973336]/10 hover:text-[#973336]"
+              onClick={() => giveFeedback('down')}
+              className={cn(
+                'inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#973336]/10 hover:text-[#973336]',
+                feedback === 'down' && 'text-[#973336]',
+              )}
               aria-label="Not helpful"
               title="Not helpful"
+              disabled={Boolean(feedback)}
             >
               <ThumbsDown className="h-4 w-4" />
             </button>

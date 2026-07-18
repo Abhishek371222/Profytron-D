@@ -1,0 +1,88 @@
+{
+  "slug": "onboarding",
+  "path": "/onboarding",
+  "auth": "user",
+  "shell": "auth",
+  "browser": "chromium",
+  "viewport": {
+    "w": 390,
+    "h": 844,
+    "label": "mobile-390"
+  },
+  "ok": true,
+  "status": 200,
+  "error": null,
+  "metrics": {
+    "url": "http://localhost:3000/onboarding",
+    "title": "Onboarding | Profytron",
+    "viewport": {
+      "w": 390,
+      "h": 844,
+      "dpr": 1
+    },
+    "paints": {
+      "first-paint": 6936
+    },
+    "lcp": null,
+    "cls": 0,
+    "inpProxyMs": null,
+    "longTaskCount": 1,
+    "longTaskTotalMs": 391,
+    "tbtProxyMs": 391,
+    "navigation": {
+      "domContentLoaded": 6920.5,
+      "loadEventEnd": 7634.5999999940395,
+      "responseEnd": 5731.899999991059,
+      "transferSize": 8793
+    },
+    "memory": {
+      "usedJSHeapSize": 109000000,
+      "totalJSHeapSize": 116000000
+    },
+    "domNodes": 74,
+    "js": {
+      "scriptCount": 7,
+      "scriptTransferKB": 5194
+    },
+    "network": {
+      "apiCount": 0,
+      "duplicates": [],
+      "sample": []
+    },
+    "images": {
+      "resourceCount": 0,
+      "nodes": [],
+      "oversizeCount": 0,
+      "largestTransferKB": 0
+    },
+    "animation": {
+      "avgFps": null,
+      "droppedFrames": 2,
+      "consoleMetrics": []
+    },
+    "layoutRuntime": {
+      "overflowX": 0,
+      "clippedCards": 0,
+      "overflowingTables": [],
+      "truncatedButtons": 0,
+      "overlaps": 0,
+      "dialogs": []
+    },
+    "a11y": {
+      "focusableCount": 0,
+      "smallTouchTargetCount": 0
+    },
+    "settled": {
+      "main": false,
+      "overview": false,
+      "ariaBusy": false
+    },
+    "collectedAt": 7760.399999991059
+  },
+  "networkLog": {
+    "responses": [],
+    "failed": 0
+  },
+  "scroll": null,
+  "ts": "2026-07-18T18:45:02.364Z"
+}

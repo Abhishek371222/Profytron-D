@@ -128,7 +128,7 @@ export function TopBar() {
           onClick={() => router.push("/connected-accounts")}
           title="Enable trading bot"
           aria-label="Enable trading bot"
-          className="hidden sm:flex relative h-10 w-10 rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all items-center justify-center outline-none shrink-0"
+          className="hidden sm:flex relative h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all items-center justify-center outline-none shrink-0"
         >
           <Link2 className="w-[18px] h-[18px]" />
         </button>
@@ -138,7 +138,7 @@ export function TopBar() {
           onClick={openDeposit}
           title="Add funds"
           aria-label="Add funds"
-          className="hidden sm:flex relative h-10 w-10 rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all items-center justify-center outline-none shrink-0"
+          className="hidden sm:flex relative h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all items-center justify-center outline-none shrink-0"
         >
           <Wallet className="w-[18px] h-[18px]" />
         </button>
@@ -149,7 +149,7 @@ export function TopBar() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="group flex items-center gap-2 sm:gap-2.5 h-10 pl-1 pr-2 sm:pr-3 rounded-xl border border-border bg-card hover:bg-muted transition-all duration-200 outline-none shrink-0 min-w-0">
+            <button className="group flex items-center gap-2 sm:gap-2.5 h-10 min-h-[var(--touch-min)] pl-1 pr-2 sm:pr-3 rounded-xl border border-border bg-card hover:bg-muted transition-all duration-200 outline-none shrink-0 min-w-0">
               {/* Avatar with ring */}
               <div className="relative">
                 <UserAvatar name={displayName} src={displayAvatar} size="md" className="border-2 border-transparent group-hover:border-primary/30 transition-colors" />
@@ -161,7 +161,7 @@ export function TopBar() {
 
               {/* Name + tier — desktop only */}
               <div className="hidden md:flex flex-col items-start leading-none">
-                <span className="text-caption font-semibold text-foreground/80 group-hover:text-foreground transition-colors truncate max-w-[120px]">
+                <span className="text-caption font-semibold text-foreground/80 group-hover:text-foreground transition-colors shell-title max-w-[120px]">
                   {displayName}
                 </span>
                 <div className="flex items-center gap-1 mt-0.5">

@@ -1,0 +1,45 @@
+{
+  "at": "2026-07-18T20:01:17.598Z",
+  "pooled": {
+    "host": "ep-orange-fog-adhqrkf4-pooler.c-2.us-east-1.aws.neon.tech",
+    "hasPooler": true,
+    "search": "?sslmode=require&channel_binding=require"
+  },
+  "direct": {
+    "host": "ep-orange-fog-adhqrkf4-pooler.c-2.us-east-1.aws.neon.tech",
+    "hasPooler": true,
+    "search": "?sslmode=require&channel_binding=require"
+  },
+  "connectMs": {
+    "pooled": 3011.6
+  },
+  "activity": [
+    {
+      "state": "idle",
+      "c": 2
+    },
+    {
+      "state": "active",
+      "c": 1
+    }
+  ],
+  "settings": [
+    {
+      "name": "default_transaction_isolation",
+      "setting": "read committed"
+    },
+    {
+      "name": "max_connections",
+      "setting": "112"
+    },
+    {
+      "name": "statement_timeout",
+      "setting": "0"
+    }
+  ],
+  "guidance": {
+    "connection_limit": "Append ?connection_limit=10 (or &connection_limit=10) on Neon pooler DATABASE_URL",
+    "pool_timeout": "Optional pool_timeout=10 on Prisma URL",
+    "region": "Co-locate API host region with Neon compute (us-east-1 for current project)"
+  }
+}

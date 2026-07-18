@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { apiClient } from '@/lib/api/client';
+import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import {
   CreditCard,
   ChevronRight,
@@ -183,7 +184,7 @@ export default function SubscriptionsPage() {
   const queryClient = useQueryClient();
   const [activeFilter, setActiveFilter] = React.useState<SubscriptionStatus | 'ALL'>('ALL');
 
-  const { data: rawBots = [], isLoading } = useQuery<SubscribedBot[]>({
+  const { data: rawBots = [], isLoading, isError, refetch } = useQuery<SubscribedBot[]>({
     queryKey: ['subscriptions'],
     queryFn: async () => {
       const res = await apiClient.get('/strategies/my');
@@ -296,6 +297,15 @@ export default function SubscriptionsPage() {
         </div>
       </motion.div>
 
+      {isError && (
+        <DashErrorState
+          message="Couldn't load subscriptions."
+          onRetry={() => {
+            void refetch();
+          }}
+        />
+      )}
+
       { }
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <SummaryCard
@@ -358,7 +368,8 @@ export default function SubscriptionsPage() {
 
         { }
         <div className="responsive-table-shell">
-          <table className="w-full min-w-[860px]">
+          <div className="responsive-table-inner">
+          <table className="w-full">
             <thead>
               <tr className="border-b border-[var(--card-border)] bg-muted/20">
                 {TABLE_HEADERS.map((h, i) => (
@@ -367,6 +378,8 @@ export default function SubscriptionsPage() {
                     className={cn(
                       'px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap',
                       i === TABLE_HEADERS.length - 1 ? 'text-right' : 'text-left',
+                      (i === 1 || i === 6) && 'col-priority-md',
+                      (i === 4 || i === 5) && 'col-priority-lg',
                     )}
                   >
                     {h}
@@ -401,14 +414,14 @@ export default function SubscriptionsPage() {
                             <Bot className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-sm font-semibold text-foreground truncate max-w-[140px]">{bot.name}</p>
+                            <p className="text-sm font-semibold text-foreground shell-title max-w-[140px]">{bot.name}</p>
                             <p className="text-[10px] text-muted-foreground uppercase tracking-wider truncate">{bot.category}</p>
                           </div>
                         </div>
                       </td>
 
                       { }
-                      <td className="px-4 py-3.5">
+                      <td className="col-priority-md px-4 py-3.5">
                         <span className="text-xs font-medium text-muted-foreground capitalize">
                           {plan.charAt(0) + plan.slice(1).toLowerCase()}
                         </span>
@@ -440,14 +453,14 @@ export default function SubscriptionsPage() {
                       </td>
 
                       { }
-                      <td className="px-4 py-3.5">
+                      <td className="col-priority-lg px-4 py-3.5">
                         <span className="text-xs text-muted-foreground">
                           {formatDate(bot.subscription?.renewalDate)}
                         </span>
                       </td>
 
                       { }
-                      <td className="px-4 py-3.5">
+                      <td className="col-priority-lg px-4 py-3.5">
                         <span className="text-xs text-muted-foreground max-w-[120px] truncate block">
                           {bot.subscription?.brokerAccount ?? (
                             <span className="italic text-muted-foreground/60">None linked</span>
@@ -456,7 +469,7 @@ export default function SubscriptionsPage() {
                       </td>
 
                       { }
-                      <td className="px-4 py-3.5">
+                      <td className="col-priority-md px-4 py-3.5">
                         <button
                           type="button"
                           role="switch"
@@ -465,14 +478,14 @@ export default function SubscriptionsPage() {
                           disabled={autoRenewMutation.isPending}
                           onClick={() => autoRenewMutation.mutate({ id: bot.id, autoRenew: !autoRenew })}
                           className={cn(
-                            'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors duration-200 disabled:opacity-50',
+                            'relative inline-flex h-7 min-h-[var(--touch-min)] w-11 shrink-0 items-center rounded-full transition-colors duration-200 disabled:opacity-50',
                             autoRenew ? 'bg-primary' : 'bg-[color-mix(in_srgb,var(--muted)_80%,transparent)]',
                           )}
                         >
                           <span
                             className={cn(
-                              'inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200',
-                              autoRenew ? 'translate-x-4' : 'translate-x-0.5',
+                              'inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-200',
+                              autoRenew ? 'translate-x-5' : 'translate-x-0.5',
                             )}
                           />
                         </button>
@@ -482,7 +495,7 @@ export default function SubscriptionsPage() {
                       <td className="px-4 py-3.5 text-right">
                         <Link
                           href={`/marketplace/${bot.id}`}
-                          className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg border border-[color-mix(in_srgb,var(--primary)_28%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-[11px] font-semibold text-primary hover:bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] transition-colors"
+                          className="inline-flex items-center gap-1.5 min-h-[var(--touch-min)] h-8 px-3 rounded-lg border border-[color-mix(in_srgb,var(--primary)_28%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-[11px] font-semibold text-primary hover:bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] transition-colors"
                         >
                           <ArrowUpRight className="h-3.5 w-3.5" />
                           Upgrade
@@ -494,6 +507,7 @@ export default function SubscriptionsPage() {
               </tbody>
             )}
           </table>
+          </div>
         </div>
 
         { }

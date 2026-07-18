@@ -150,6 +150,8 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
+    this.assertBetaAllowlist(dto.email);
+
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -939,6 +941,10 @@ export class AuthService {
       );
     }
 
+    if (!existingGoogleUser) {
+      this.assertBetaAllowlist(profile.email);
+    }
+
     const user = await this.prisma.user.upsert({
       where: { email: profile.email },
       create: {
@@ -1414,6 +1420,7 @@ export class AuthService {
       );
     }
     if (!user) {
+      this.assertBetaAllowlist(profile.email);
       user = await this.prisma.user.create({
         data: {
           email: profile.email,
@@ -1486,5 +1493,27 @@ export class AuthService {
       ...safeUser,
       hasPassword: Boolean(passwordHash),
     };
+  }
+
+  /**
+   * Closed beta gate (D6): when BETA_ALLOWLIST_EMAILS is set (comma-separated),
+   * only those emails may register. Empty/unset = open registration.
+   */
+  private assertBetaAllowlist(email: string) {
+    const raw = (process.env.BETA_ALLOWLIST_EMAILS || '').trim();
+    if (!raw) return;
+    const allowed = new Set(
+      raw
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean),
+    );
+    if (!allowed.has(String(email || '').trim().toLowerCase())) {
+      appError(
+        HttpStatus.FORBIDDEN,
+        'Closed beta — this email is not on the invite list. Request access from the Profytron team.',
+        ErrorCode.FORBIDDEN,
+      );
+    }
   }
 }
