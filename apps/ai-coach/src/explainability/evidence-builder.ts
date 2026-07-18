@@ -279,7 +279,7 @@ export async function buildEvidence(params: {
       tradeExplanation = {
         tradeId: String(tradeId || 'unknown'),
         summary: typeof summary === 'string' ? summary : undefined,
-        confidenceScore: num(explain.confidenceScore ?? explain.confidence),
+        confidenceScore: num(explain.confidenceScore ?? explain.confidence) ?? undefined,
         available: true,
         knownFacts: Array.isArray(explain.riskFactorsJson)
           ? explain.riskFactorsJson.map(String)
