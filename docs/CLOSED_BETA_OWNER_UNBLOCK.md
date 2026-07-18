@@ -1,42 +1,43 @@
 # Owner unblock list — closed beta (2026-07-19)
 
-Agent ran Weeks 1–2 as far as possible without your console logins. **These require you:**
+**Canonical host:** Google Cloud Run — see [`tracks/D-launch-readiness/GCP_ENDPOINTS.md`](./tracks/D-launch-readiness/GCP_ENDPOINTS.md).  
+Do **not** use Render (`profytron-api.onrender.com`) for production.
 
-## P0 — Restore production API (blocks everything)
+## P0 — Confirm GCP API + web healthy after Cloud Build
 
-1. Open [Render](https://dashboard.render.com) → service behind `profytron-api.onrender.com`
-2. Check: suspended / free-tier sleep / crash loop / failed deploy
-3. Manual deploy or restart until:
-   - `GET https://profytron-api.onrender.com/live` → 200
-   - `GET …/ready` → 200
-   - `GET …/health` → 200 (ok or degraded OK)
-4. Tell the agent (or re-run) — UAT + load resume immediately after
+```text
+GET https://api-y4zmug7lwa-el.a.run.app/live
+GET https://api-y4zmug7lwa-el.a.run.app/ready
+GET https://api-y4zmug7lwa-el.a.run.app/health
+GET https://www.profytron.com/status
+```
 
-## P0 — Ship `/status` on web
+Deploy is automatic on push to `main` (triggers `deploy-api` / `deploy-web`), or:
 
-Repo has `apps/web/src/app/status/page.tsx` but prod returns **404**. Redeploy web (Vercel / host) so `https://www.profytron.com/status` works.
+```powershell
+.\deploy\gcp\scripts\deploy.ps1 -Service api
+.\deploy\gcp\scripts\deploy.ps1 -Service web
+```
 
 ## P1 — Secret rotation (Week 1)
 
-In provider consoles (not git): rotate MetaAPI, payments, JWT, AES if workstation copies are treated as exposed. Follow [`SECRET_ROTATION_PLAYBOOK.md`](./tracks/D-launch-readiness/SECRET_ROTATION_PLAYBOOK.md).
+Rotate via **GCP Secret Manager** + provider consoles. Follow [`SECRET_ROTATION_PLAYBOOK.md`](./tracks/D-launch-readiness/SECRET_ROTATION_PLAYBOOK.md).
 
-## P1 — Live UAT (after API up)
+## P1 — Live UAT (after API up with /live /ready)
 
-Manual: MetaAPI connect, payment test checkout, email OTP inbox. Evidence templates already in track docs.
+Manual: MetaAPI connect, payment test checkout, email OTP inbox.
 
 ## P2 — Invite cohort (Week 3)
 
 1. Fill emails in [`CLOSED_BETA_INVITE_LIST.md`](./CLOSED_BETA_INVITE_LIST.md)
-2. Set `BETA_ALLOWLIST_EMAILS` on Render API env
-3. Send invites — agent cannot invent or email your users
+2. Set `BETA_ALLOWLIST_EMAILS` in Secret Manager / Cloud Run env for `api`
+3. Send invites
 
-## Already done by agent
+## Already done
 
-| Item | Evidence |
+| Item | Notes |
 | --- | --- |
-| Closed beta docs + playbook + BETA_LOG | `docs/CLOSED_BETA_PLAYBOOK.md`, `docs/BETA_LOG.md` |
-| Git secret-history scan | `evidence/D2_GIT_HISTORY_20260719.md` |
-| Health probe (failed = real blocker) | `evidence/D1_HEALTH_PROBE_20260719.md` |
-| k6 installed + ladder 100 against prod | `evidence/D7_LOAD_100_*` |
-| Invite worksheet | `docs/CLOSED_BETA_INVITE_LIST.md` |
-| Operator run cheat sheet | `tracks/D-launch-readiness/OPERATOR_RUN.md` |
+| Pushed to `main` | Triggers Cloud Build in `asia-south1` |
+| Fixed web Docker `@profytron/ai-coach` | commit `a9c02da` |
+| Closed beta docs | playbook + BETA_LOG + invite worksheet |
+| GCP endpoints doc | `GCP_ENDPOINTS.md` |

@@ -44,3 +44,12 @@ apps/web/.env
 apps/web/.env.*
 !apps/api/.env.example
 !apps/web/.env.example
+# Audit screenshot blobs — keep Cloud Build uploads small
+docs/**/screenshots/
+docs/**/viewport-matrix/
+docs/ui-audit/
+docs/api-audit/
+docs/database-audit/
+docs/product-audit/
+docs/audit/
+agent-transcripts/

@@ -7,6 +7,8 @@ WORKDIR /app
 # (OpenSSL 3.x) musl query engine during `prisma generate`.
 RUN apk add --no-cache openssl
 
+ARG CACHEBUST=1
+
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
 # Copy every workspace manifest + the lockfile first so that
@@ -23,6 +25,9 @@ COPY services/backtest/package.json ./services/backtest/
 RUN pnpm install --frozen-lockfile --filter api... --ignore-scripts
 
 # API source (includes prisma/schema.prisma)
+# CACHEBUST invalidates Docker layer cache so nest build always matches the commit.
+ARG CACHEBUST=1
+RUN echo "cachebust=$CACHEBUST"
 COPY apps/api ./apps/api
 
 WORKDIR /app/apps/api

@@ -51,7 +51,10 @@ export class AppController {
       allowMetaApiSubscribers: process.env.ALLOW_METAAPI_SUBSCRIBERS === 'true',
       metaApiUserSeats: true,
       storeOnlyUserConnect: false,
-      gitSha: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? null,
+      gitSha:
+        process.env.GIT_COMMIT?.slice(0, 7) ??
+        process.env.RENDER_GIT_COMMIT?.slice(0, 7) ??
+        null,
     };
   }
 
@@ -64,7 +67,10 @@ export class AppController {
       check: 'live',
       uptime: Math.floor(process.uptime()),
       timestamp: new Date().toISOString(),
-      gitSha: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? null,
+      gitSha:
+        process.env.GIT_COMMIT?.slice(0, 7) ??
+        process.env.RENDER_GIT_COMMIT?.slice(0, 7) ??
+        null,
       version: process.env.npm_package_version ?? 'unknown',
     };
   }
@@ -155,7 +161,10 @@ export class AppController {
       uptime: Math.floor(process.uptime()),
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version ?? 'unknown',
-      gitSha: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? null,
+      gitSha:
+        process.env.GIT_COMMIT?.slice(0, 7) ??
+        process.env.RENDER_GIT_COMMIT?.slice(0, 7) ??
+        null,
     };
     this.healthCache = { at: Date.now(), statusCode, body };
     return body;
