@@ -20,7 +20,14 @@
     "db:reset": "pnpm --filter api exec prisma migrate reset --force && pnpm db:seed",
     "build": "turbo build --concurrency=1",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "ui-audit:capture": "node tools/ui-audit/capture-matrix.mjs",
+    "ui-audit:browser": "UI_AUDIT_MODE=browser node tools/ui-audit/capture-matrix.mjs",
+    "ui-audit:dpi": "UI_AUDIT_MODE=dpi node tools/ui-audit/capture-matrix.mjs",
+    "ui-audit:zoom": "UI_AUDIT_MODE=zoom node tools/ui-audit/capture-matrix.mjs",
+    "ui-audit:resize": "node tools/ui-audit/resize-perf.mjs",
+    "ui-audit:reports": "node tools/ui-audit/generate-reports.mjs",
+    "ui-audit:all": "UI_AUDIT_MODE=all node tools/ui-audit/capture-matrix.mjs && node tools/ui-audit/resize-perf.mjs && node tools/ui-audit/generate-reports.mjs"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",

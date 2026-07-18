@@ -1,0 +1,102 @@
+{
+  "slug": "onboarding",
+  "path": "/onboarding",
+  "auth": "user",
+  "shell": "auth",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 1600,
+    "h": 900,
+    "label": "desktop-1600"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/onboarding__1600x900__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 1600,
+      "h": 900,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 1600,
+      "scrollHeight": 900,
+      "clientWidth": 1600,
+      "clientHeight": 900,
+      "overflowX": 0,
+      "overflowY": 0
+    },
+    "body": {
+      "width": 1600
+    },
+    "typography": {
+      "h1": null,
+      "h2": null,
+      "h3": null,
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 1600,
+        "height": 900,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 135,
+        "height": 20,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 135,
+        "height": 20,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [],
+    "cards": [],
+    "tables": [],
+    "charts": [],
+    "sticky": [],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "clamp(1rem, 1.25vw, 1.5rem)",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 0,
+      "smallTouchTargetCount": 0,
+      "smallTouchTargets": [],
+      "missingLabelSamples": []
+    },
+    "issues": [],
+    "title": "Onboarding | Profytron",
+    "url": "http://127.0.0.1:3000/onboarding/risk"
+  },
+  "error": null,
+  "ts": "2026-07-18T14:55:31.328Z"
+}

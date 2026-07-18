@@ -1,0 +1,93 @@
+{
+  "at": "2026-07-18T17:40:56Z",
+  "results": [
+    {
+      "account": "c95040d9-3e06-4ba2-b0f4-d82126240b89",
+      "region": "london",
+      "op": "account_information",
+      "samples": [
+        {
+          "ms": 1779.8,
+          "status": 200,
+          "bytes": 383
+        },
+        {
+          "ms": 714.5,
+          "status": 200,
+          "bytes": 383
+        },
+        {
+          "ms": 689.2,
+          "status": 200,
+          "bytes": 383
+        }
+      ]
+    },
+    {
+      "account": "c95040d9-3e06-4ba2-b0f4-d82126240b89",
+      "region": "london",
+      "op": "positions",
+      "samples": [
+        {
+          "ms": 691.6,
+          "status": 200,
+          "bytes": 2
+        },
+        {
+          "ms": 627.8,
+          "status": 200,
+          "bytes": 2
+        },
+        {
+          "ms": 661.3,
+          "status": 200,
+          "bytes": 2
+        }
+      ]
+    },
+    {
+      "account": "789f8612-bded-470e-a5a1-6626c3c48f04",
+      "region": "london",
+      "op": "account_information",
+      "samples": [
+        {
+          "ms": 744.4,
+          "status": 200,
+          "bytes": 383
+        },
+        {
+          "ms": 567.8,
+          "status": 200,
+          "bytes": 383
+        },
+        {
+          "ms": 737.4,
+          "status": 200,
+          "bytes": 383
+        }
+      ]
+    },
+    {
+      "account": "789f8612-bded-470e-a5a1-6626c3c48f04",
+      "region": "london",
+      "op": "positions",
+      "samples": [
+        {
+          "ms": 718.5,
+          "status": 200,
+          "bytes": 2
+        },
+        {
+          "ms": 632.5,
+          "status": 200,
+          "bytes": 2
+        },
+        {
+          "ms": 1452.9,
+          "status": 200,
+          "bytes": 2
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,4354 @@
+{
+  "at": "2026-07-18T13:03:12.874Z",
+  "base": "http://localhost:3000",
+  "results": [
+    {
+      "route": "/",
+      "authed": false,
+      "wallMs": 10090,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 488,
+          "first-contentful-paint": 488
+        },
+        "longTasks": [
+          {
+            "duration": 157,
+            "startTime": 300.90000000037253
+          },
+          {
+            "duration": 238,
+            "startTime": 568.8000000007451
+          },
+          {
+            "duration": 895,
+            "startTime": 1357.5
+          },
+          {
+            "duration": 564,
+            "startTime": 2252.5
+          },
+          {
+            "duration": 221,
+            "startTime": 2817.800000000745
+          },
+          {
+            "duration": 170,
+            "startTime": 3039.7000000011176
+          },
+          {
+            "duration": 169,
+            "startTime": 3225.60000000149
+          },
+          {
+            "duration": 182,
+            "startTime": 3395.5
+          },
+          {
+            "duration": 245,
+            "startTime": 3579.5
+          },
+          {
+            "duration": 188,
+            "startTime": 3826
+          },
+          {
+            "duration": 1424,
+            "startTime": 4016.9000000003725
+          },
+          {
+            "duration": 253,
+            "startTime": 5443.800000000745
+          },
+          {
+            "duration": 625,
+            "startTime": 5700.10000000149
+          },
+          {
+            "duration": 231,
+            "startTime": 6332.200000001118
+          },
+          {
+            "duration": 227,
+            "startTime": 6563.9000000003725
+          },
+          {
+            "duration": 274,
+            "startTime": 6791.60000000149
+          },
+          {
+            "duration": 197,
+            "startTime": 7067.5
+          },
+          {
+            "duration": 226,
+            "startTime": 7265.60000000149
+          },
+          {
+            "duration": 206,
+            "startTime": 7491.9000000003725
+          },
+          {
+            "duration": 210,
+            "startTime": 7699.5
+          },
+          {
+            "duration": 199,
+            "startTime": 7911.300000000745
+          },
+          {
+            "duration": 198,
+            "startTime": 8111.60000000149
+          },
+          {
+            "duration": 179,
+            "startTime": 8312.900000000373
+          },
+          {
+            "duration": 200,
+            "startTime": 8492.400000000373
+          }
+        ],
+        "longTaskTotalMs": 7678,
+        "longTaskCount": 24,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 462.2000000011176,
+          "loadEventEnd": 853.4000000003725,
+          "responseEnd": 150,
+          "transferSize": 38143,
+          "type": "navigate",
+          "ttfb": 141.80000000074506
+        },
+        "resourceCount": 24,
+        "resourceTransferKB": 9081,
+        "memory": {
+          "usedJSHeapSize": 157000000,
+          "totalJSHeapSize": 177000000
+        },
+        "title": "Profytron \u2014 Algorithmic Trading Platform for Indian Traders",
+        "bodyTextLen": 5242,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9913.359642,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 1,
+        "Frames": 1,
+        "JSEventListeners": 748,
+        "LayoutObjects": 1180,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 3689,
+        "Resources": 23,
+        "ContextLifecycleStateObservers": 16,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 1,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 26,
+        "LayoutCount": 65,
+        "RecalcStyleCount": 73,
+        "LayoutDuration": 0.145491,
+        "RecalcStyleDuration": 0.053575,
+        "DevToolsCommandDuration": 0.003666,
+        "ScriptDuration": 1.276179,
+        "V8CompileDuration": 0.001277,
+        "TaskDuration": 8.134774,
+        "TaskOtherDuration": 6.654586,
+        "ThreadTime": 0.765385,
+        "ProcessTime": 4.699162,
+        "JSHeapUsedSize": 45692592,
+        "JSHeapTotalSize": 61456384,
+        "FirstMeaningfulPaint": 0,
+        "DomContentLoaded": 9905.122899,
+        "NavigationStart": 9904.660689
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379690448",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379690448",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_home_HowItWorks_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_home_ValuePillars_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_home_PricingSection_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_home_CTABanner_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_home_Footer_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_home_FaqSection_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/aa016aab0e6d1295-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/bb3ef058b751a6ad-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379690448",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/_app-pages-browser_src_components_ui_FloatingLines_jsx.css",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/auth/refresh",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_ui_FloatingLines_jsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/__nextjs_font/geist-latin.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_.png",
+      "traceEvents": {
+        "eventCount": 8469,
+        "topNames": [
+          [
+            "RunTask",
+            2889
+          ],
+          [
+            "UpdateLayer",
+            475
+          ],
+          [
+            "PipelineReporter",
+            372
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            372
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            370
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            368
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            368
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            368
+          ],
+          [
+            "StartDrawToSwapStart",
+            368
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            368
+          ],
+          [
+            "RasterTask",
+            361
+          ],
+          [
+            "FunctionCall",
+            175
+          ],
+          [
+            "UpdateCounters",
+            175
+          ],
+          [
+            "DrawFrame",
+            170
+          ],
+          [
+            "BeginFrame",
+            169
+          ],
+          [
+            "DroppedFrame",
+            161
+          ],
+          [
+            "Animation",
+            71
+          ],
+          [
+            "Paint",
+            51
+          ],
+          [
+            "GPUTask",
+            46
+          ],
+          [
+            "V8.BytecodeBudgetInterrupt",
+            46
+          ],
+          [
+            "FireAnimationFrame",
+            44
+          ],
+          [
+            "RequestAnimationFrame",
+            44
+          ],
+          [
+            "TimeStamp",
+            43
+          ],
+          [
+            "AnimationFrame",
+            40
+          ],
+          [
+            "Commit",
+            38
+          ],
+          [
+            "RunMicrotasks",
+            37
+          ],
+          [
+            "EventDispatch",
+            28
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            26
+          ],
+          [
+            "EndCommitToActivation",
+            26
+          ],
+          [
+            "Activation",
+            26
+          ],
+          [
+            "InvalidateLayout",
+            24
+          ],
+          [
+            "IntersectionObserverController::computeIntersections",
+            22
+          ],
+          [
+            "AnimationFrame::Render",
+            22
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            22
+          ],
+          [
+            "thread_name",
+            20
+          ],
+          [
+            "V8.StackGuard",
+            15
+          ],
+          [
+            "V8.HandleInterrupts",
+            15
+          ],
+          [
+            "ActivateLayerTree",
+            14
+          ],
+          [
+            "layerId",
+            14
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            13
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/login",
+      "authed": false,
+      "wallMs": 9506,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 176,
+          "first-contentful-paint": 176
+        },
+        "longTasks": [
+          {
+            "duration": 222,
+            "startTime": 858
+          }
+        ],
+        "longTaskTotalMs": 222,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 149.5,
+          "loadEventEnd": 1139,
+          "responseEnd": 129.2000000011176,
+          "transferSize": 13022,
+          "type": "reload",
+          "ttfb": 125
+        },
+        "resourceCount": 16,
+        "resourceTransferKB": 8232,
+        "memory": {
+          "usedJSHeapSize": 167000000,
+          "totalJSHeapSize": 177000000
+        },
+        "title": "Sign In | Profytron",
+        "bodyTextLen": 468,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9924.245895,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 3,
+        "Frames": 2,
+        "JSEventListeners": 665,
+        "LayoutObjects": 295,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 1475,
+        "Resources": 34,
+        "ContextLifecycleStateObservers": 25,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 3,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 2,
+        "ArrayBufferContents": 2,
+        "LayoutCount": 362,
+        "RecalcStyleCount": 363,
+        "LayoutDuration": 0.033417,
+        "RecalcStyleDuration": 0.103407,
+        "DevToolsCommandDuration": 0.002433,
+        "ScriptDuration": 0.637476,
+        "V8CompileDuration": 0.019141,
+        "TaskDuration": 1.16055,
+        "TaskOtherDuration": 0.364676,
+        "ThreadTime": 1.143835,
+        "ProcessTime": 3.053523,
+        "JSHeapUsedSize": 51644108,
+        "JSHeapTotalSize": 63078400,
+        "FirstMeaningfulPaint": 9920.966016,
+        "DomContentLoaded": 9920.939554,
+        "NavigationStart": 9920.790104
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/login",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379702415",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379702415",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379702415",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/auth/refresh",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/__nextjs_font/geist-latin.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/webpack/f4463865dc5e77dc.webpack.hot-update.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/webpack/webpack.f4463865dc5e77dc.hot-update.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 304,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379706566",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379706566",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379706566",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/__nextjs_font/geist-latin.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/auth/refresh",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_login.png",
+      "traceEvents": {
+        "eventCount": 23806,
+        "topNames": [
+          [
+            "RunTask",
+            7150
+          ],
+          [
+            "UpdateLayer",
+            1682
+          ],
+          [
+            "UpdateCounters",
+            1259
+          ],
+          [
+            "FunctionCall",
+            1250
+          ],
+          [
+            "V8.BytecodeBudgetInterrupt",
+            882
+          ],
+          [
+            "V8.GC_MC_INCREMENTAL",
+            699
+          ],
+          [
+            "ResourceReceivedData",
+            553
+          ],
+          [
+            "AnimationFrame",
+            526
+          ],
+          [
+            "Commit",
+            390
+          ],
+          [
+            "RasterTask",
+            385
+          ],
+          [
+            "TimeStamp",
+            349
+          ],
+          [
+            "PipelineReporter",
+            278
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            278
+          ],
+          [
+            "V8.HandleInterrupts",
+            266
+          ],
+          [
+            "V8.StackGuard",
+            265
+          ],
+          [
+            "AnimationFrame::Render",
+            264
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            264
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            262
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            262
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            260
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            260
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            260
+          ],
+          [
+            "StartDrawToSwapStart",
+            260
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            260
+          ],
+          [
+            "EndCommitToActivation",
+            258
+          ],
+          [
+            "Activation",
+            258
+          ],
+          [
+            "Major concurrent marking rescheduled",
+            238
+          ],
+          [
+            "V8.GC_MC_INCREMENTAL_EMBEDDER_TRACING",
+            233
+          ],
+          [
+            "v8.parseOnBackgroundParsing",
+            212
+          ],
+          [
+            "Paint",
+            211
+          ],
+          [
+            "v8.parseOnBackgroundWaiting",
+            209
+          ],
+          [
+            "RunMicrotasks",
+            190
+          ],
+          [
+            "V8.ExternalMemoryPressure",
+            169
+          ],
+          [
+            "InvalidateLayout",
+            138
+          ],
+          [
+            "BeginFrame",
+            135
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            133
+          ],
+          [
+            "UpdateLayoutTree",
+            133
+          ],
+          [
+            "Layout",
+            133
+          ],
+          [
+            "SetLayerTreeId",
+            133
+          ],
+          [
+            "PrePaint",
+            133
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/marketplace",
+      "authed": false,
+      "wallMs": 13841,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 232,
+          "first-contentful-paint": 232
+        },
+        "longTasks": [
+          {
+            "duration": 200,
+            "startTime": 670.7999999988824
+          }
+        ],
+        "longTaskTotalMs": 200,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 185,
+          "loadEventEnd": 935.1999999992549,
+          "responseEnd": 156.7999999988824,
+          "transferSize": 13061,
+          "type": "reload",
+          "ttfb": 137.5
+        },
+        "resourceCount": 16,
+        "resourceTransferKB": 8260,
+        "memory": {
+          "usedJSHeapSize": 139000000,
+          "totalJSHeapSize": 157000000
+        },
+        "title": "Sign In | Profytron",
+        "bodyTextLen": 468,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9938.095101,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 2,
+        "Frames": 2,
+        "JSEventListeners": 636,
+        "LayoutObjects": 242,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 750,
+        "Resources": 17,
+        "ContextLifecycleStateObservers": 15,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 2,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 0,
+        "LayoutCount": 612,
+        "RecalcStyleCount": 613,
+        "LayoutDuration": 0.044728,
+        "RecalcStyleDuration": 0.19774,
+        "DevToolsCommandDuration": 0.0152,
+        "ScriptDuration": 0.671908,
+        "V8CompileDuration": 0.016264,
+        "TaskDuration": 1.411366,
+        "TaskOtherDuration": 0.465526,
+        "ThreadTime": 1.3922,
+        "ProcessTime": 3.673722,
+        "JSHeapUsedSize": 38064116,
+        "JSHeapTotalSize": 54427648,
+        "FirstMeaningfulPaint": 9933.332068,
+        "DomContentLoaded": 9933.285252,
+        "NavigationStart": 9933.10029
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/marketplace",
+          "status": 307,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?redirect=%2Fmarketplace",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379710155",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379710155",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379710155",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/auth/refresh",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/webpack/86ffe89a9c153e01.webpack.hot-update.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/webpack/webpack.86ffe89a9c153e01.hot-update.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?redirect=%2Fmarketplace",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 304,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379718900",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379718900",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379718900",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/auth/refresh",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/__nextjs_font/geist-latin.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_marketplace.png",
+      "traceEvents": {
+        "eventCount": 16964,
+        "topNames": [
+          [
+            "RunTask",
+            3466
+          ],
+          [
+            "UpdateLayer",
+            2333
+          ],
+          [
+            "RasterTask",
+            684
+          ],
+          [
+            "AnimationFrame",
+            600
+          ],
+          [
+            "PipelineReporter",
+            518
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            518
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            512
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            512
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            512
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            512
+          ],
+          [
+            "StartDrawToSwapStart",
+            512
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            512
+          ],
+          [
+            "Commit",
+            454
+          ],
+          [
+            "FunctionCall",
+            366
+          ],
+          [
+            "UpdateCounters",
+            366
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            302
+          ],
+          [
+            "EndCommitToActivation",
+            302
+          ],
+          [
+            "Activation",
+            302
+          ],
+          [
+            "AnimationFrame::Render",
+            302
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            302
+          ],
+          [
+            "InvalidateLayout",
+            183
+          ],
+          [
+            "RunMicrotasks",
+            175
+          ],
+          [
+            "BeginFrame",
+            153
+          ],
+          [
+            "Layout",
+            153
+          ],
+          [
+            "SetLayerTreeId",
+            153
+          ],
+          [
+            "PrePaint",
+            153
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            152
+          ],
+          [
+            "UpdateLayoutTree",
+            152
+          ],
+          [
+            "RequestMainThreadFrame",
+            151
+          ],
+          [
+            "BeginMainThreadFrame",
+            151
+          ],
+          [
+            "FireAnimationFrame",
+            151
+          ],
+          [
+            "RequestAnimationFrame",
+            151
+          ],
+          [
+            "DOMStats",
+            151
+          ],
+          [
+            "Layerize",
+            151
+          ],
+          [
+            "BeginCommitCompositorFrame",
+            151
+          ],
+          [
+            "ActivateLayerTree",
+            151
+          ],
+          [
+            "DrawFrame",
+            151
+          ],
+          [
+            "AnimationFrame::Presentation",
+            149
+          ],
+          [
+            "Paint",
+            124
+          ],
+          [
+            "Animation",
+            28
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/pricing",
+      "authed": false,
+      "wallMs": 12865,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 4176,
+          "first-contentful-paint": 4176
+        },
+        "longTasks": [
+          {
+            "duration": 229,
+            "startTime": 6339.5
+          }
+        ],
+        "longTaskTotalMs": 229,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 4146.4000000003725,
+          "loadEventEnd": 6633.300000000745,
+          "responseEnd": 4049.7000000011176,
+          "transferSize": 20987,
+          "type": "navigate",
+          "ttfb": 4032.60000000149
+        },
+        "resourceCount": 15,
+        "resourceTransferKB": 7113,
+        "memory": {
+          "usedJSHeapSize": 123000000,
+          "totalJSHeapSize": 131000000
+        },
+        "title": "Pricing \u2014 Plans for Every Trader | Profytron",
+        "bodyTextLen": 2211,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9951.111927,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 1,
+        "Frames": 1,
+        "JSEventListeners": 664,
+        "LayoutObjects": 546,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 1619,
+        "Resources": 18,
+        "ContextLifecycleStateObservers": 13,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 1,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 2,
+        "LayoutCount": 29,
+        "RecalcStyleCount": 360,
+        "LayoutDuration": 0.02694,
+        "RecalcStyleDuration": 0.063564,
+        "DevToolsCommandDuration": 0.001809,
+        "ScriptDuration": 0.297641,
+        "V8CompileDuration": 0.000975,
+        "TaskDuration": 0.612158,
+        "TaskOtherDuration": 0.221229,
+        "ThreadTime": 0.613004,
+        "ProcessTime": 1.225392,
+        "JSHeapUsedSize": 39371720,
+        "JSHeapTotalSize": 50102272,
+        "FirstMeaningfulPaint": 9942.460621,
+        "DomContentLoaded": 9942.434058,
+        "NavigationStart": 9938.28774
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/pricing",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379727983",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379727983",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/bb3ef058b751a6ad-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/aa016aab0e6d1295-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/pricing/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379727983",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_pricing.png",
+      "traceEvents": {
+        "eventCount": 13655,
+        "topNames": [
+          [
+            "RunTask",
+            3563
+          ],
+          [
+            "UpdateLayer",
+            1237
+          ],
+          [
+            "AnimationFrame",
+            602
+          ],
+          [
+            "Commit",
+            458
+          ],
+          [
+            "FunctionCall",
+            371
+          ],
+          [
+            "UpdateCounters",
+            371
+          ],
+          [
+            "PipelineReporter",
+            308
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            308
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            306
+          ],
+          [
+            "EndCommitToActivation",
+            306
+          ],
+          [
+            "Activation",
+            306
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            306
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            304
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            304
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            304
+          ],
+          [
+            "StartDrawToSwapStart",
+            304
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            304
+          ],
+          [
+            "IntersectionObserverController::computeIntersections",
+            302
+          ],
+          [
+            "AnimationFrame::Render",
+            302
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            302
+          ],
+          [
+            "RasterTask",
+            242
+          ],
+          [
+            "RunMicrotasks",
+            155
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            152
+          ],
+          [
+            "UpdateLayoutTree",
+            152
+          ],
+          [
+            "BeginFrame",
+            151
+          ],
+          [
+            "RequestMainThreadFrame",
+            151
+          ],
+          [
+            "BeginMainThreadFrame",
+            151
+          ],
+          [
+            "FireAnimationFrame",
+            151
+          ],
+          [
+            "RequestAnimationFrame",
+            151
+          ],
+          [
+            "SetLayerTreeId",
+            151
+          ],
+          [
+            "PrePaint",
+            151
+          ],
+          [
+            "Layerize",
+            151
+          ],
+          [
+            "BeginCommitCompositorFrame",
+            151
+          ],
+          [
+            "ActivateLayerTree",
+            151
+          ],
+          [
+            "DrawFrame",
+            151
+          ],
+          [
+            "AnimationFrame::Presentation",
+            150
+          ],
+          [
+            "Paint",
+            40
+          ],
+          [
+            "Animation",
+            40
+          ],
+          [
+            "EventDispatch",
+            32
+          ],
+          [
+            "V8.BytecodeBudgetInterrupt",
+            21
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/dashboard",
+      "authed": true,
+      "wallMs": 7831,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 268,
+          "first-contentful-paint": 268
+        },
+        "longTasks": [
+          {
+            "duration": 263,
+            "startTime": 1056.1000000014901
+          }
+        ],
+        "longTaskTotalMs": 263,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 234.90000000037253,
+          "loadEventEnd": 1361.9000000003725,
+          "responseEnd": 167.60000000149012,
+          "transferSize": 13058,
+          "type": "navigate",
+          "ttfb": 161.7000000011176
+        },
+        "resourceCount": 15,
+        "resourceTransferKB": 8234,
+        "memory": {
+          "usedJSHeapSize": 131000000,
+          "totalJSHeapSize": 148000000
+        },
+        "title": "Sign In | Profytron",
+        "bodyTextLen": 468,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9958.970564,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 2,
+        "Frames": 2,
+        "JSEventListeners": 666,
+        "LayoutObjects": 232,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 757,
+        "Resources": 20,
+        "ContextLifecycleStateObservers": 15,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 2,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 4,
+        "LayoutCount": 387,
+        "RecalcStyleCount": 388,
+        "LayoutDuration": 0.026447,
+        "RecalcStyleDuration": 0.146188,
+        "DevToolsCommandDuration": 0.002231,
+        "ScriptDuration": 0.379522,
+        "V8CompileDuration": 0.000509,
+        "TaskDuration": 0.860902,
+        "TaskOtherDuration": 0.306005,
+        "ThreadTime": 0.866863,
+        "ProcessTime": 2.213906,
+        "JSHeapUsedSize": 39077912,
+        "JSHeapTotalSize": 57425920,
+        "FirstMeaningfulPaint": 9951.472016,
+        "DomContentLoaded": 9951.442091,
+        "NavigationStart": 9951.207149
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/dashboard",
+          "status": 307,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?redirect=%2Fdashboard",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379737012",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379737012",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379737012",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/users/me",
+          "status": 200,
+          "resourceType": "xhr",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_dashboard.png",
+      "traceEvents": {
+        "eventCount": 14239,
+        "topNames": [
+          [
+            "RunTask",
+            3414
+          ],
+          [
+            "UpdateLayer",
+            1812
+          ],
+          [
+            "RasterTask",
+            604
+          ],
+          [
+            "AnimationFrame",
+            602
+          ],
+          [
+            "Commit",
+            458
+          ],
+          [
+            "PipelineReporter",
+            308
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            308
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            306
+          ],
+          [
+            "EndCommitToActivation",
+            306
+          ],
+          [
+            "Activation",
+            306
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            306
+          ],
+          [
+            "FunctionCall",
+            304
+          ],
+          [
+            "UpdateCounters",
+            304
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            304
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            304
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            304
+          ],
+          [
+            "StartDrawToSwapStart",
+            304
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            304
+          ],
+          [
+            "AnimationFrame::Render",
+            302
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            302
+          ],
+          [
+            "RunMicrotasks",
+            152
+          ],
+          [
+            "BeginFrame",
+            151
+          ],
+          [
+            "RequestMainThreadFrame",
+            151
+          ],
+          [
+            "BeginMainThreadFrame",
+            151
+          ],
+          [
+            "FireAnimationFrame",
+            151
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            151
+          ],
+          [
+            "RequestAnimationFrame",
+            151
+          ],
+          [
+            "UpdateLayoutTree",
+            151
+          ],
+          [
+            "InvalidateLayout",
+            151
+          ],
+          [
+            "Layout",
+            151
+          ],
+          [
+            "SetLayerTreeId",
+            151
+          ],
+          [
+            "PrePaint",
+            151
+          ],
+          [
+            "DOMStats",
+            151
+          ],
+          [
+            "Layerize",
+            151
+          ],
+          [
+            "BeginCommitCompositorFrame",
+            151
+          ],
+          [
+            "ActivateLayerTree",
+            151
+          ],
+          [
+            "DrawFrame",
+            151
+          ],
+          [
+            "AnimationFrame::Presentation",
+            150
+          ],
+          [
+            "thread_name",
+            18
+          ],
+          [
+            "V8.BytecodeBudgetInterrupt",
+            7
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/analytics",
+      "authed": true,
+      "wallMs": 7071,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 144,
+          "first-contentful-paint": 144
+        },
+        "longTasks": [
+          {
+            "duration": 215,
+            "startTime": 330.7999999988824
+          }
+        ],
+        "longTaskTotalMs": 215,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 118.09999999962747,
+          "loadEventEnd": 582.7999999988824,
+          "responseEnd": 62,
+          "transferSize": 13058,
+          "type": "navigate",
+          "ttfb": 58.40000000037253
+        },
+        "resourceCount": 15,
+        "resourceTransferKB": 8234,
+        "memory": {
+          "usedJSHeapSize": 123000000,
+          "totalJSHeapSize": 148000000
+        },
+        "title": "Sign In | Profytron",
+        "bodyTextLen": 468,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9966.086968,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 2,
+        "Frames": 2,
+        "JSEventListeners": 641,
+        "LayoutObjects": 230,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 736,
+        "Resources": 17,
+        "ContextLifecycleStateObservers": 15,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 2,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 0,
+        "LayoutCount": 391,
+        "RecalcStyleCount": 392,
+        "LayoutDuration": 0.028196,
+        "RecalcStyleDuration": 0.188215,
+        "DevToolsCommandDuration": 0.002417,
+        "ScriptDuration": 0.352962,
+        "V8CompileDuration": 0.000418,
+        "TaskDuration": 0.911208,
+        "TaskOtherDuration": 0.339,
+        "ThreadTime": 0.916876,
+        "ProcessTime": 2.411134,
+        "JSHeapUsedSize": 36294784,
+        "JSHeapTotalSize": 59932672,
+        "FirstMeaningfulPaint": 9959.239919,
+        "DomContentLoaded": 9959.217059,
+        "NavigationStart": 9959.09886
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/analytics",
+          "status": 307,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?redirect=%2Fanalytics",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379744875",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379744875",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379744875",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/users/me",
+          "status": 200,
+          "resourceType": "xhr",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_analytics.png",
+      "traceEvents": {
+        "eventCount": 16692,
+        "topNames": [
+          [
+            "RunTask",
+            3447
+          ],
+          [
+            "UpdateLayer",
+            1812
+          ],
+          [
+            "PipelineReporter",
+            610
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            610
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            608
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            606
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            606
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            606
+          ],
+          [
+            "StartDrawToSwapStart",
+            606
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            606
+          ],
+          [
+            "RasterTask",
+            604
+          ],
+          [
+            "AnimationFrame",
+            600
+          ],
+          [
+            "Commit",
+            458
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            306
+          ],
+          [
+            "EndCommitToActivation",
+            306
+          ],
+          [
+            "Activation",
+            306
+          ],
+          [
+            "FunctionCall",
+            304
+          ],
+          [
+            "UpdateCounters",
+            304
+          ],
+          [
+            "AnimationFrame::Render",
+            302
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            302
+          ],
+          [
+            "RunMicrotasks",
+            152
+          ],
+          [
+            "ActivateLayerTree",
+            151
+          ],
+          [
+            "BeginFrame",
+            151
+          ],
+          [
+            "RequestMainThreadFrame",
+            151
+          ],
+          [
+            "BeginMainThreadFrame",
+            151
+          ],
+          [
+            "FireAnimationFrame",
+            151
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            151
+          ],
+          [
+            "RequestAnimationFrame",
+            151
+          ],
+          [
+            "DrawFrame",
+            151
+          ],
+          [
+            "UpdateLayoutTree",
+            151
+          ],
+          [
+            "InvalidateLayout",
+            151
+          ],
+          [
+            "Layout",
+            151
+          ],
+          [
+            "SetLayerTreeId",
+            151
+          ],
+          [
+            "PrePaint",
+            151
+          ],
+          [
+            "DOMStats",
+            151
+          ],
+          [
+            "Layerize",
+            151
+          ],
+          [
+            "BeginCommitCompositorFrame",
+            151
+          ],
+          [
+            "AnimationFrame::Presentation",
+            149
+          ],
+          [
+            "thread_name",
+            18
+          ],
+          [
+            "V8.BytecodeBudgetInterrupt",
+            8
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/markets",
+      "authed": true,
+      "wallMs": 7302,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 144,
+          "first-contentful-paint": 144
+        },
+        "longTasks": [
+          {
+            "duration": 212,
+            "startTime": 331.40000000037253
+          }
+        ],
+        "longTaskTotalMs": 212,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 119.09999999962747,
+          "loadEventEnd": 578.9000000003725,
+          "responseEnd": 61,
+          "transferSize": 13056,
+          "type": "navigate",
+          "ttfb": 58.09999999962747
+        },
+        "resourceCount": 15,
+        "resourceTransferKB": 8234,
+        "memory": {
+          "usedJSHeapSize": 131000000,
+          "totalJSHeapSize": 148000000
+        },
+        "title": "Sign In | Profytron",
+        "bodyTextLen": 468,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9973.428678,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 2,
+        "Frames": 2,
+        "JSEventListeners": 652,
+        "LayoutObjects": 230,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 736,
+        "Resources": 18,
+        "ContextLifecycleStateObservers": 15,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 2,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 0,
+        "LayoutCount": 405,
+        "RecalcStyleCount": 406,
+        "LayoutDuration": 0.027864,
+        "RecalcStyleDuration": 0.191332,
+        "DevToolsCommandDuration": 0.001977,
+        "ScriptDuration": 0.359217,
+        "V8CompileDuration": 0.000402,
+        "TaskDuration": 0.911806,
+        "TaskOtherDuration": 0.331014,
+        "ThreadTime": 0.923816,
+        "ProcessTime": 2.51342,
+        "JSHeapUsedSize": 36721484,
+        "JSHeapTotalSize": 59670528,
+        "FirstMeaningfulPaint": 9966.357825,
+        "DomContentLoaded": 9966.336662,
+        "NavigationStart": 9966.217564
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/markets",
+          "status": 307,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?redirect=%2Fmarkets",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379751989",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379751989",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379751989",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/users/me",
+          "status": 200,
+          "resourceType": "xhr",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_markets.png",
+      "traceEvents": {
+        "eventCount": 16989,
+        "topNames": [
+          [
+            "RunTask",
+            3454
+          ],
+          [
+            "UpdateLayer",
+            1812
+          ],
+          [
+            "PipelineReporter",
+            610
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            610
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            608
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            606
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            606
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            606
+          ],
+          [
+            "StartDrawToSwapStart",
+            606
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            606
+          ],
+          [
+            "RasterTask",
+            604
+          ],
+          [
+            "AnimationFrame",
+            600
+          ],
+          [
+            "Commit",
+            458
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            306
+          ],
+          [
+            "EndCommitToActivation",
+            306
+          ],
+          [
+            "Activation",
+            306
+          ],
+          [
+            "FunctionCall",
+            304
+          ],
+          [
+            "UpdateCounters",
+            304
+          ],
+          [
+            "IntersectionObserverController::computeIntersections",
+            302
+          ],
+          [
+            "AnimationFrame::Render",
+            302
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            302
+          ],
+          [
+            "RunMicrotasks",
+            152
+          ],
+          [
+            "BeginFrame",
+            151
+          ],
+          [
+            "RequestMainThreadFrame",
+            151
+          ],
+          [
+            "BeginMainThreadFrame",
+            151
+          ],
+          [
+            "FireAnimationFrame",
+            151
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            151
+          ],
+          [
+            "RequestAnimationFrame",
+            151
+          ],
+          [
+            "UpdateLayoutTree",
+            151
+          ],
+          [
+            "DrawFrame",
+            151
+          ],
+          [
+            "InvalidateLayout",
+            151
+          ],
+          [
+            "Layout",
+            151
+          ],
+          [
+            "SetLayerTreeId",
+            151
+          ],
+          [
+            "PrePaint",
+            151
+          ],
+          [
+            "DOMStats",
+            151
+          ],
+          [
+            "Layerize",
+            151
+          ],
+          [
+            "BeginCommitCompositorFrame",
+            151
+          ],
+          [
+            "ActivateLayerTree",
+            151
+          ],
+          [
+            "AnimationFrame::Presentation",
+            149
+          ],
+          [
+            "thread_name",
+            18
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/settings/profile",
+      "authed": true,
+      "wallMs": 7272,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 152,
+          "first-contentful-paint": 152
+        },
+        "longTasks": [
+          {
+            "duration": 212,
+            "startTime": 337.90000000037253
+          }
+        ],
+        "longTaskTotalMs": 212,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 129.2999999988824,
+          "loadEventEnd": 588.9000000003725,
+          "responseEnd": 72.29999999888241,
+          "transferSize": 13067,
+          "type": "navigate",
+          "ttfb": 69.59999999962747
+        },
+        "resourceCount": 15,
+        "resourceTransferKB": 8234,
+        "memory": {
+          "usedJSHeapSize": 123000000,
+          "totalJSHeapSize": 148000000
+        },
+        "title": "Sign In | Profytron",
+        "bodyTextLen": 468,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9980.767871,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 2,
+        "Frames": 2,
+        "JSEventListeners": 641,
+        "LayoutObjects": 230,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 736,
+        "Resources": 17,
+        "ContextLifecycleStateObservers": 15,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 2,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 0,
+        "LayoutCount": 403,
+        "RecalcStyleCount": 404,
+        "LayoutDuration": 0.027192,
+        "RecalcStyleDuration": 0.178933,
+        "DevToolsCommandDuration": 0.001724,
+        "ScriptDuration": 0.358104,
+        "V8CompileDuration": 0.000423,
+        "TaskDuration": 0.895098,
+        "TaskOtherDuration": 0.328722,
+        "ThreadTime": 0.906477,
+        "ProcessTime": 2.460727,
+        "JSHeapUsedSize": 36323612,
+        "JSHeapTotalSize": 59146240,
+        "FirstMeaningfulPaint": 9973.732036,
+        "DomContentLoaded": 9973.710179,
+        "NavigationStart": 9973.580965
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/settings/profile",
+          "status": 307,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?redirect=%2Fsettings%2Fprofile",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379759366",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379759366",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379759366",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/users/me",
+          "status": 200,
+          "resourceType": "xhr",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_settings_profile.png",
+      "traceEvents": {
+        "eventCount": 16564,
+        "topNames": [
+          [
+            "RunTask",
+            3416
+          ],
+          [
+            "UpdateLayer",
+            1800
+          ],
+          [
+            "PipelineReporter",
+            606
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            606
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            604
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            602
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            602
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            602
+          ],
+          [
+            "StartDrawToSwapStart",
+            602
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            602
+          ],
+          [
+            "RasterTask",
+            600
+          ],
+          [
+            "AnimationFrame",
+            596
+          ],
+          [
+            "Commit",
+            455
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            304
+          ],
+          [
+            "EndCommitToActivation",
+            304
+          ],
+          [
+            "Activation",
+            304
+          ],
+          [
+            "FunctionCall",
+            302
+          ],
+          [
+            "UpdateCounters",
+            302
+          ],
+          [
+            "AnimationFrame::Render",
+            300
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            300
+          ],
+          [
+            "RunMicrotasks",
+            151
+          ],
+          [
+            "BeginFrame",
+            150
+          ],
+          [
+            "RequestMainThreadFrame",
+            150
+          ],
+          [
+            "BeginMainThreadFrame",
+            150
+          ],
+          [
+            "FireAnimationFrame",
+            150
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            150
+          ],
+          [
+            "DrawFrame",
+            150
+          ],
+          [
+            "RequestAnimationFrame",
+            150
+          ],
+          [
+            "UpdateLayoutTree",
+            150
+          ],
+          [
+            "InvalidateLayout",
+            150
+          ],
+          [
+            "Layout",
+            150
+          ],
+          [
+            "SetLayerTreeId",
+            150
+          ],
+          [
+            "PrePaint",
+            150
+          ],
+          [
+            "DOMStats",
+            150
+          ],
+          [
+            "Layerize",
+            150
+          ],
+          [
+            "BeginCommitCompositorFrame",
+            150
+          ],
+          [
+            "ActivateLayerTree",
+            150
+          ],
+          [
+            "AnimationFrame::Presentation",
+            148
+          ],
+          [
+            "thread_name",
+            18
+          ],
+          [
+            "HitTest",
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/alpha-coach",
+      "authed": true,
+      "wallMs": 7241,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 128,
+          "first-contentful-paint": 128
+        },
+        "longTasks": [
+          {
+            "duration": 205,
+            "startTime": 309.5
+          }
+        ],
+        "longTaskTotalMs": 205,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 102.90000000037253,
+          "loadEventEnd": 550.5,
+          "responseEnd": 50.59999999962747,
+          "transferSize": 13057,
+          "type": "navigate",
+          "ttfb": 44.19999999925494
+        },
+        "resourceCount": 15,
+        "resourceTransferKB": 8234,
+        "memory": {
+          "usedJSHeapSize": 123000000,
+          "totalJSHeapSize": 148000000
+        },
+        "title": "Sign In | Profytron",
+        "bodyTextLen": 468,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9988.070196,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 2,
+        "Frames": 2,
+        "JSEventListeners": 641,
+        "LayoutObjects": 230,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 736,
+        "Resources": 17,
+        "ContextLifecycleStateObservers": 15,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 2,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 0,
+        "LayoutCount": 403,
+        "RecalcStyleCount": 404,
+        "LayoutDuration": 0.029579,
+        "RecalcStyleDuration": 0.214186,
+        "DevToolsCommandDuration": 0.002388,
+        "ScriptDuration": 0.359186,
+        "V8CompileDuration": 0.000397,
+        "TaskDuration": 0.957359,
+        "TaskOtherDuration": 0.351623,
+        "ThreadTime": 0.962734,
+        "ProcessTime": 2.59161,
+        "JSHeapUsedSize": 36346668,
+        "JSHeapTotalSize": 59408384,
+        "FirstMeaningfulPaint": 9981.03885,
+        "DomContentLoaded": 9981.016978,
+        "NavigationStart": 9980.913963
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/alpha-coach",
+          "status": 307,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?redirect=%2Falpha-coach",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379766675",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379766675",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379766675",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/users/me",
+          "status": 200,
+          "resourceType": "xhr",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_alpha_coach.png",
+      "traceEvents": {
+        "eventCount": 16557,
+        "topNames": [
+          [
+            "RunTask",
+            3409
+          ],
+          [
+            "UpdateLayer",
+            1800
+          ],
+          [
+            "PipelineReporter",
+            606
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            606
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            604
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            602
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            602
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            602
+          ],
+          [
+            "StartDrawToSwapStart",
+            602
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            602
+          ],
+          [
+            "RasterTask",
+            600
+          ],
+          [
+            "AnimationFrame",
+            596
+          ],
+          [
+            "Commit",
+            455
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            304
+          ],
+          [
+            "EndCommitToActivation",
+            304
+          ],
+          [
+            "Activation",
+            304
+          ],
+          [
+            "FunctionCall",
+            302
+          ],
+          [
+            "UpdateCounters",
+            302
+          ],
+          [
+            "AnimationFrame::Render",
+            300
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            300
+          ],
+          [
+            "RunMicrotasks",
+            151
+          ],
+          [
+            "BeginFrame",
+            150
+          ],
+          [
+            "RequestMainThreadFrame",
+            150
+          ],
+          [
+            "BeginMainThreadFrame",
+            150
+          ],
+          [
+            "FireAnimationFrame",
+            150
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            150
+          ],
+          [
+            "RequestAnimationFrame",
+            150
+          ],
+          [
+            "DrawFrame",
+            150
+          ],
+          [
+            "UpdateLayoutTree",
+            150
+          ],
+          [
+            "InvalidateLayout",
+            150
+          ],
+          [
+            "Layout",
+            150
+          ],
+          [
+            "SetLayerTreeId",
+            150
+          ],
+          [
+            "PrePaint",
+            150
+          ],
+          [
+            "DOMStats",
+            150
+          ],
+          [
+            "Layerize",
+            150
+          ],
+          [
+            "BeginCommitCompositorFrame",
+            150
+          ],
+          [
+            "ActivateLayerTree",
+            150
+          ],
+          [
+            "AnimationFrame::Presentation",
+            148
+          ],
+          [
+            "thread_name",
+            18
+          ],
+          [
+            "HitTest",
+            6
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/strategies/builder",
+      "authed": true,
+      "wallMs": 7035,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 132,
+          "first-contentful-paint": 132
+        },
+        "longTasks": [
+          {
+            "duration": 214,
+            "startTime": 313.6000000014901
+          }
+        ],
+        "longTaskTotalMs": 214,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 107.70000000111759,
+          "loadEventEnd": 564.1000000014901,
+          "responseEnd": 52.40000000037253,
+          "transferSize": 13071,
+          "type": "navigate",
+          "ttfb": 49.70000000111759
+        },
+        "resourceCount": 15,
+        "resourceTransferKB": 8234,
+        "memory": {
+          "usedJSHeapSize": 123000000,
+          "totalJSHeapSize": 148000000
+        },
+        "title": "Sign In | Profytron",
+        "bodyTextLen": 468,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 9995.168358,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 2,
+        "Frames": 2,
+        "JSEventListeners": 641,
+        "LayoutObjects": 230,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 736,
+        "Resources": 17,
+        "ContextLifecycleStateObservers": 15,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 2,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 0,
+        "LayoutCount": 390,
+        "RecalcStyleCount": 391,
+        "LayoutDuration": 0.026738,
+        "RecalcStyleDuration": 0.182396,
+        "DevToolsCommandDuration": 0.002064,
+        "ScriptDuration": 0.352446,
+        "V8CompileDuration": 0.000433,
+        "TaskDuration": 0.893086,
+        "TaskOtherDuration": 0.329009,
+        "ThreadTime": 0.898564,
+        "ProcessTime": 2.439519,
+        "JSHeapUsedSize": 36279268,
+        "JSHeapTotalSize": 60194816,
+        "FirstMeaningfulPaint": 9988.346879,
+        "DomContentLoaded": 9988.32588,
+        "NavigationStart": 9988.21817
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/strategies/builder",
+          "status": 307,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?redirect=%2Fstrategies%2Fbuilder",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379773982",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379773982",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379773982",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/users/me",
+          "status": 200,
+          "resourceType": "xhr",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_strategies_builder.png",
+      "traceEvents": {
+        "eventCount": 16575,
+        "topNames": [
+          [
+            "RunTask",
+            3420
+          ],
+          [
+            "UpdateLayer",
+            1800
+          ],
+          [
+            "PipelineReporter",
+            606
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            606
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            604
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            602
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            602
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            602
+          ],
+          [
+            "StartDrawToSwapStart",
+            602
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            602
+          ],
+          [
+            "RasterTask",
+            600
+          ],
+          [
+            "AnimationFrame",
+            596
+          ],
+          [
+            "Commit",
+            455
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            304
+          ],
+          [
+            "EndCommitToActivation",
+            304
+          ],
+          [
+            "Activation",
+            304
+          ],
+          [
+            "FunctionCall",
+            302
+          ],
+          [
+            "UpdateCounters",
+            302
+          ],
+          [
+            "AnimationFrame::Render",
+            300
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            300
+          ],
+          [
+            "RunMicrotasks",
+            151
+          ],
+          [
+            "BeginFrame",
+            150
+          ],
+          [
+            "RequestMainThreadFrame",
+            150
+          ],
+          [
+            "BeginMainThreadFrame",
+            150
+          ],
+          [
+            "FireAnimationFrame",
+            150
+          ],
+          [
+            "DrawFrame",
+            150
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            150
+          ],
+          [
+            "RequestAnimationFrame",
+            150
+          ],
+          [
+            "UpdateLayoutTree",
+            150
+          ],
+          [
+            "InvalidateLayout",
+            150
+          ],
+          [
+            "Layout",
+            150
+          ],
+          [
+            "SetLayerTreeId",
+            150
+          ],
+          [
+            "PrePaint",
+            150
+          ],
+          [
+            "DOMStats",
+            150
+          ],
+          [
+            "Layerize",
+            150
+          ],
+          [
+            "BeginCommitCompositorFrame",
+            150
+          ],
+          [
+            "ActivateLayerTree",
+            150
+          ],
+          [
+            "AnimationFrame::Presentation",
+            148
+          ],
+          [
+            "thread_name",
+            19
+          ],
+          [
+            "V8.BytecodeBudgetInterrupt",
+            8
+          ]
+        ]
+      }
+    },
+    {
+      "route": "/connected-accounts",
+      "authed": true,
+      "wallMs": 11781,
+      "navError": null,
+      "metrics": {
+        "paints": {
+          "first-paint": 460,
+          "first-contentful-paint": 460
+        },
+        "longTasks": [
+          {
+            "duration": 209,
+            "startTime": 708.2999999988824
+          }
+        ],
+        "longTaskTotalMs": 209,
+        "longTaskCount": 1,
+        "cls": 0,
+        "navigation": {
+          "domContentLoaded": 420.69999999925494,
+          "loadEventEnd": 934.7999999988824,
+          "responseEnd": 409.69999999925494,
+          "transferSize": 13108,
+          "type": "navigate",
+          "ttfb": 399.59999999962747
+        },
+        "resourceCount": 16,
+        "resourceTransferKB": 8234,
+        "memory": {
+          "usedJSHeapSize": 177000000,
+          "totalJSHeapSize": 199000000
+        },
+        "title": "Sign In | Profytron",
+        "bodyTextLen": 512,
+        "hydrationMarkers": []
+      },
+      "perfMetrics": {
+        "Timestamp": 10007.002269,
+        "AudioHandlers": 0,
+        "AudioWorkletProcessors": 0,
+        "Documents": 2,
+        "Frames": 2,
+        "JSEventListeners": 646,
+        "LayoutObjects": 233,
+        "MediaKeySessions": 0,
+        "MediaKeys": 0,
+        "Nodes": 734,
+        "Resources": 17,
+        "ContextLifecycleStateObservers": 15,
+        "V8PerContextDatas": 2,
+        "WorkerGlobalScopes": 0,
+        "UACSSResources": 0,
+        "RTCPeerConnections": 0,
+        "ResourceFetchers": 2,
+        "AdSubframes": 0,
+        "DetachedScriptStates": 0,
+        "ArrayBufferContents": 0,
+        "LayoutCount": 485,
+        "RecalcStyleCount": 550,
+        "LayoutDuration": 0.053477,
+        "RecalcStyleDuration": 0.230555,
+        "DevToolsCommandDuration": 0.002866,
+        "ScriptDuration": 0.708872,
+        "V8CompileDuration": 0.012435,
+        "TaskDuration": 1.579836,
+        "TaskOtherDuration": 0.571631,
+        "ThreadTime": 1.549486,
+        "ProcessTime": 4.068122,
+        "JSHeapUsedSize": 44363492,
+        "JSHeapTotalSize": 67158016,
+        "FirstMeaningfulPaint": 10000.276369,
+        "DomContentLoaded": 10000.239522,
+        "NavigationStart": 9999.818855
+      },
+      "networkSample": [
+        {
+          "url": "http://localhost:3000/connected-accounts",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 200,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379781095",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379781095",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(dashboard)/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/bb3ef058b751a6ad-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(dashboard)/connected-accounts/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(dashboard)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379781095",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/broker/shares",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/auth/refresh",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/users/me",
+          "status": 200,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/strategies/my",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/__nextjs_font/geist-latin.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/webpack/7a1dadf9083170a3.webpack.hot-update.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/auth/refresh",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/webpack/webpack.7a1dadf9083170a3.hot-update.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/webpack/3616e299ff3f1934.webpack.hot-update.json",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/webpack/webpack.3616e299ff3f1934.hot-update.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/auth/refresh",
+          "status": 401,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/api/growth/activation",
+          "status": 200,
+          "resourceType": "xhr",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?expired=true&redirect=%2Fconnected-accounts",
+          "status": 200,
+          "resourceType": "document",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/image?url=%2Fbrand-mark-tight.png&w=64&q=75",
+          "status": 304,
+          "resourceType": "image",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/css/app/layout.css?v=1784379785642",
+          "status": 200,
+          "resourceType": "stylesheet",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/webpack.js?v=1784379785642",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app-pages-internals.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/media/22a5144ee8d83bca-s.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/global-error.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/not-found.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/layout.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/app/(public)/login/page.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/main-app.js?v=1784379785642",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_node_modules_pnpm_sentry_nextjs_10_57_0__opentelemetry_core_2_8_0__opentel-60fcee.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/__nextjs_font/geist-latin.woff2",
+          "status": 200,
+          "resourceType": "font",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/login?redirect=%2Fconnected-accounts&_rsc=x2osu",
+          "status": 200,
+          "resourceType": "fetch",
+          "durationMs": -1
+        },
+        {
+          "url": "http://localhost:3000/_next/static/chunks/_app-pages-browser_src_components_chatbot_ChatbotWidget_tsx.js",
+          "status": 200,
+          "resourceType": "script",
+          "durationMs": -1
+        }
+      ],
+      "screenshot": "/Users/aini/Desktop/p/docs/audit/data/traces/_connected_accounts.png",
+      "traceEvents": {
+        "eventCount": 16688,
+        "topNames": [
+          [
+            "RunTask",
+            3490
+          ],
+          [
+            "UpdateLayer",
+            1812
+          ],
+          [
+            "RasterTask",
+            604
+          ],
+          [
+            "PipelineReporter",
+            604
+          ],
+          [
+            "BeginImplFrameToSendBeginMainFrame",
+            604
+          ],
+          [
+            "EndActivateToSubmitCompositorFrame",
+            604
+          ],
+          [
+            "SubmitCompositorFrameToPresentationCompositorFrame",
+            604
+          ],
+          [
+            "SubmitToReceiveCompositorFrame",
+            604
+          ],
+          [
+            "ReceiveCompositorFrameToStartDraw",
+            604
+          ],
+          [
+            "StartDrawToSwapStart",
+            604
+          ],
+          [
+            "SwapEndToPresentationCompositorFrame",
+            604
+          ],
+          [
+            "AnimationFrame",
+            600
+          ],
+          [
+            "Commit",
+            453
+          ],
+          [
+            "FunctionCall",
+            306
+          ],
+          [
+            "UpdateCounters",
+            306
+          ],
+          [
+            "SendBeginMainFrameToCommit",
+            302
+          ],
+          [
+            "EndCommitToActivation",
+            302
+          ],
+          [
+            "Activation",
+            302
+          ],
+          [
+            "AnimationFrame::Render",
+            302
+          ],
+          [
+            "AnimationFrame::StyleAndLayout",
+            302
+          ],
+          [
+            "RunMicrotasks",
+            152
+          ],
+          [
+            "BeginFrame",
+            151
+          ],
+          [
+            "RequestMainThreadFrame",
+            151
+          ],
+          [
+            "BeginMainThreadFrame",
+            151
+          ],
+          [
+            "FireAnimationFrame",
+            151
+          ],
+          [
+            "DrawFrame",
+            151
+          ],
+          [
+            "ScheduleStyleRecalculation",
+            151
+          ],
+          [
+            "RequestAnimationFrame",
+            151
+          ],
+          [
+            "UpdateLayoutTree",
+            151
+          ],
+          [
+            "InvalidateLayout",
+            151
+          ],
+          [
+            "Layout",
+            151
+          ],
+          [
+            "SetLayerTreeId",
+            151
+          ],
+          [
+            "PrePaint",
+            151
+          ],
+          [
+            "DOMStats",
+            151
+          ],
+          [
+            "Layerize",
+            151
+          ],
+          [
+            "BeginCommitCompositorFrame",
+            151
+          ],
+          [
+            "ActivateLayerTree",
+            151
+          ],
+          [
+            "AnimationFrame::Presentation",
+            149
+          ],
+          [
+            "thread_name",
+            18
+          ],
+          [
+            "V8.BytecodeBudgetInterrupt",
+            7
+          ]
+        ]
+      }
+    }
+  ]
+}

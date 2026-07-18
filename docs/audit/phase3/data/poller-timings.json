@@ -1,0 +1,21 @@
+{
+  "at": "2026-07-18T13:10:00Z",
+  "phase": 3,
+  "note": "Configured intervals + Phase 1 MetaApi samples. Live histograms filled when SyncEngine timing marks are enabled.",
+  "pollers": {
+    "masterSync": { "tickMsProd": 3000, "tickMsDev": 15000, "env": "MASTER_SYNC_INTERVAL_MS" },
+    "botTradeSync": { "tickMsProd": 8000, "tickMsDev": 30000, "minAccountMs": 12000 },
+    "copyFactoryPositionSync": { "tickMs": 5000, "minAccountMs": 15000 },
+    "accountHistorySync": { "tickMsProd": 60000, "tickMsDev": 300000, "equitySnapshotMinGapMs": 240000 }
+  },
+  "metaApi": {
+    "equityTtlMs": 30000,
+    "accountInformationMs": [1779.8, 714.5, 689.2],
+    "positionsMs": [691.6, 627.8, 661.0]
+  },
+  "frontendBaseline": {
+    "tanstackRefetchIntervalMs": 60000,
+    "invalidateDebounceMs": 400,
+    "perceivedRefreshTargetMs": 300
+  }
+}

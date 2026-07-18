@@ -1,0 +1,195 @@
+{
+  "at": "2026-07-18T12:06:58.453Z",
+  "totalBytes": 7386018,
+  "count": 36,
+  "byExt": {
+    ".hdr": 1508872,
+    ".jpg": 2743534,
+    ".json": 1556196,
+    ".png": 1399715,
+    ".svg": 167458,
+    ".js": 10243
+  },
+  "largest": [
+    {
+      "path": "apps/web/public/auth/earth/env.hdr",
+      "bytes": 1508872,
+      "ext": ".hdr"
+    },
+    {
+      "path": "apps/web/public/auth/earth/earth_daymap.jpg",
+      "bytes": 1412649,
+      "ext": ".jpg"
+    },
+    {
+      "path": "apps/web/public/marketplace/globe/continent-points.json",
+      "bytes": 1317149,
+      "ext": ".json"
+    },
+    {
+      "path": "apps/web/public/hero/hero-trading-3d.png",
+      "bytes": 719857,
+      "ext": ".png"
+    },
+    {
+      "path": "apps/web/public/auth/earth/earth_night.jpg",
+      "bytes": 547269,
+      "ext": ".jpg"
+    },
+    {
+      "path": "apps/web/public/auth/earth/earth_normal.jpg",
+      "bytes": 336774,
+      "ext": ".jpg"
+    },
+    {
+      "path": "apps/web/public/auth/earth/earth_clouds.png",
+      "bytes": 260222,
+      "ext": ".png"
+    },
+    {
+      "path": "apps/web/public/brand-lockup-light.png",
+      "bytes": 247963,
+      "ext": ".png"
+    },
+    {
+      "path": "apps/web/public/data/ne_110m_land.json",
+      "bytes": 237355,
+      "ext": ".json"
+    },
+    {
+      "path": "apps/web/public/auth/earth/earth_roughness.jpg",
+      "bytes": 223421,
+      "ext": ".jpg"
+    },
+    {
+      "path": "apps/web/public/auth/earth/earth_specular.jpg",
+      "bytes": 223421,
+      "ext": ".jpg"
+    },
+    {
+      "path": "apps/web/public/marketplace/globe/continents-dots.svg",
+      "bytes": 131754,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/brand-lockup.png",
+      "bytes": 118422,
+      "ext": ".png"
+    },
+    {
+      "path": "apps/web/public/brand-mark.png",
+      "bytes": 30666,
+      "ext": ".png"
+    },
+    {
+      "path": "apps/web/public/brand-mark-tight.png",
+      "bytes": 22585,
+      "ext": ".png"
+    },
+    {
+      "path": "apps/web/public/marketplace/globe/particles.svg",
+      "bytes": 11221,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/mockServiceWorker.js",
+      "bytes": 9099,
+      "ext": ".js"
+    },
+    {
+      "path": "apps/web/public/marketplace/globe/latitude-grid.svg",
+      "bytes": 3789,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/marketplace/globe/world-wireframe.svg",
+      "bytes": 3789,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/auth/earth-light.svg",
+      "bytes": 2752,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/auth/earth-dark.svg",
+      "bytes": 2718,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/marketplace/globe/nodes.svg",
+      "bytes": 2264,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/marketplace/globe/routes.svg",
+      "bytes": 2082,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/manifest.json",
+      "bytes": 1692,
+      "ext": ".json"
+    },
+    {
+      "path": "apps/web/public/auth/stars.svg",
+      "bytes": 1220,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/firebase-messaging-sw.js",
+      "bytes": 1144,
+      "ext": ".js"
+    },
+    {
+      "path": "apps/web/public/icons/icon-512.svg",
+      "bytes": 1053,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/icons/icon-192.svg",
+      "bytes": 1026,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/marketplace/globe/gradient-mesh.svg",
+      "bytes": 640,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/auth/network-lines.svg",
+      "bytes": 635,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/marketplace/globe/radial-glow.svg",
+      "bytes": 533,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/auth/noise.svg",
+      "bytes": 475,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/auth/glow.svg",
+      "bytes": 420,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/auth/gradient.svg",
+      "bytes": 410,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/auth/shield.svg",
+      "bytes": 398,
+      "ext": ".svg"
+    },
+    {
+      "path": "apps/web/public/noise.svg",
+      "bytes": 279,
+      "ext": ".svg"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "slug": "onboarding",
+  "path": "/onboarding",
+  "auth": "user",
+  "shell": "auth",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 375,
+    "h": 812,
+    "label": "mobile-375"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": false,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": null,
+  "metrics": null,
+  "error": "page.evaluate: Execution context was destroyed, most likely because of a navigation",
+  "ts": "2026-07-18T14:55:12.901Z"
+}

@@ -114,7 +114,7 @@ export function OverviewPerformance({
                   stroke="var(--primary)"
                   strokeWidth={1.75}
                   fill="url(#overviewEquityFill)"
-                  isAnimationActive={false}
+                  isAnimationActive={false} // Motion Engine: financial charts animate incrementally only (crosshair/tooltip), never full redraw
                 />
               </AreaChart>
             </ResponsiveContainer>

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "name": "Profytron Phase 4 Render Budget Contract",
+  "updated": "2026-07-18",
+  "metrics": {
+    "interactionLatencyMs": { "budget": 100, "unit": "ms" },
+    "avgReactCommitMs": { "budget": 5, "unit": "ms" },
+    "maxReactCommitMs": { "budget": 10, "unit": "ms" },
+    "longTaskMs": { "budget": 50, "unit": "ms" },
+    "moduleRerenderIsolation": { "budget": 1, "unit": "boolean", "note": "Only affected modules" },
+    "fpsStable": { "budget": 60, "unit": "fps" }
+  },
+  "modules": {
+    "MetricsModule": { "maxCommitMs": 8 },
+    "OpenTradesModule": { "maxCommitMs": 10 },
+    "PerformanceChartSlot": { "maxCommitMs": 12 },
+    "MarketWatchModule": { "maxCommitMs": 8 },
+    "NewsModule": { "maxCommitMs": 6 },
+    "CalendarModule": { "maxCommitMs": 6 }
+  },
+  "policy": "Soft-enforce via metrics marks when NEXT_PUBLIC_PLATFORM_METRICS=1. Absolute hard-fail waived until 2026-08-18 per ADR-001 if lab hardware cannot meet FPS/commit on CI.",
+  "waiver": {
+    "adr": "ADR-001-render-budget-waiver",
+    "expires": "2026-08-18"
+  }
+}

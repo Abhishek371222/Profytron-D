@@ -1,0 +1,429 @@
+{
+  "slug": "home",
+  "path": "/",
+  "auth": "public",
+  "shell": "marketing",
+  "tier": "A",
+  "browser": "chromium",
+  "viewport": {
+    "w": 320,
+    "h": 568,
+    "label": "mobile-320"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/home__320x568__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 320,
+      "h": 568,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 320,
+      "scrollHeight": 12205,
+      "clientWidth": 320,
+      "clientHeight": 568,
+      "overflowX": 0,
+      "overflowY": 11637
+    },
+    "body": {
+      "width": 320
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 296,
+        "height": 72,
+        "fontSize": "36px",
+        "lineHeight": "34.2px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": {
+        "selector": "h2",
+        "width": 296,
+        "height": 65,
+        "fontSize": "30px",
+        "lineHeight": "32.4px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h3": {
+        "selector": "h3",
+        "width": 150,
+        "height": 56,
+        "fontSize": "18px",
+        "lineHeight": "28px",
+        "fontWeight": "700",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 320,
+        "height": 12205,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 0,
+        "height": 0,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "500",
+        "color": "rgb(52, 131, 152)",
+        "display": "inline",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 296,
+        "height": 130,
+        "fontSize": "16px",
+        "lineHeight": "26px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": ".page-container[0]",
+        "width": 320,
+        "height": 72,
+        "maxWidth": "1920px",
+        "paddingLeft": "12px",
+        "paddingRight": "12px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[1]",
+        "width": 320,
+        "height": 884,
+        "maxWidth": "1920px",
+        "paddingLeft": "12px",
+        "paddingRight": "12px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[2]",
+        "width": 320,
+        "height": 1752,
+        "maxWidth": "1920px",
+        "paddingLeft": "12px",
+        "paddingRight": "12px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[3]",
+        "width": 320,
+        "height": 1480,
+        "maxWidth": "1920px",
+        "paddingLeft": "12px",
+        "paddingRight": "12px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[4]",
+        "width": 320,
+        "height": 1316,
+        "maxWidth": "1920px",
+        "paddingLeft": "12px",
+        "paddingRight": "12px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[5]",
+        "width": 320,
+        "height": 2584,
+        "maxWidth": "1920px",
+        "paddingLeft": "12px",
+        "paddingRight": "12px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[6]",
+        "width": 320,
+        "height": 770,
+        "maxWidth": "1920px",
+        "paddingLeft": "12px",
+        "paddingRight": "12px",
+        "position": "relative"
+      },
+      {
+        "selector": ".page-container[7]",
+        "width": 320,
+        "height": 1290,
+        "maxWidth": "1920px",
+        "paddingLeft": "12px",
+        "paddingRight": "12px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[8]",
+        "width": 320,
+        "height": 1175,
+        "maxWidth": "1920px",
+        "paddingLeft": "12px",
+        "paddingRight": "12px",
+        "position": "relative"
+      },
+      {
+        "selector": "main",
+        "width": 320,
+        "height": 12205,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "relative"
+      },
+      {
+        "selector": "nav",
+        "width": 296,
+        "height": 72,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "16px",
+        "position": "static"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 1,
+        "width": 40,
+        "height": 40,
+        "minWidth": "auto"
+      },
+      {
+        "i": 2,
+        "width": 200,
+        "height": 48,
+        "minWidth": "0px"
+      },
+      {
+        "i": 3,
+        "width": 320,
+        "height": 1865,
+        "minWidth": "0px"
+      },
+      {
+        "i": 4,
+        "width": 296,
+        "height": 279,
+        "minWidth": "0px"
+      },
+      {
+        "i": 5,
+        "width": 246,
+        "height": 79,
+        "minWidth": "0px"
+      },
+      {
+        "i": 6,
+        "width": 3,
+        "height": 1093,
+        "minWidth": "0px"
+      },
+      {
+        "i": 7,
+        "width": 256,
+        "height": 297,
+        "minWidth": "0px"
+      },
+      {
+        "i": 8,
+        "width": 256,
+        "height": 269,
+        "minWidth": "0px"
+      },
+      {
+        "i": 9,
+        "width": 256,
+        "height": 246,
+        "minWidth": "0px"
+      },
+      {
+        "i": 10,
+        "width": 256,
+        "height": 269,
+        "minWidth": "0px"
+      },
+      {
+        "i": 11,
+        "width": 296,
+        "height": 172,
+        "minWidth": "auto"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "i": 0,
+        "width": 320,
+        "height": 320,
+        "tag": "div"
+      },
+      {
+        "i": 1,
+        "width": 3,
+        "height": 0,
+        "tag": "div"
+      },
+      {
+        "i": 2,
+        "width": 18,
+        "height": 18,
+        "tag": "div"
+      },
+      {
+        "i": 3,
+        "width": 48,
+        "height": 48,
+        "tag": "div"
+      },
+      {
+        "i": 4,
+        "width": 20,
+        "height": 20,
+        "tag": "svg"
+      },
+      {
+        "i": 5,
+        "width": 64,
+        "height": 13,
+        "tag": "span"
+      }
+    ],
+    "sticky": [
+      {
+        "tag": "header",
+        "position": "fixed",
+        "top": 0,
+        "height": 104,
+        "width": 320
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "0.75rem",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 55,
+      "smallTouchTargetCount": 25,
+      "smallTouchTargets": [
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "button"
+        },
+        {
+          "w": 94,
+          "h": 41,
+          "tag": "button"
+        },
+        {
+          "w": 175,
+          "h": 41,
+          "tag": "button"
+        },
+        {
+          "w": 156,
+          "h": 18,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": []
+    },
+    "issues": [
+      {
+        "type": "extreme-scroll-height",
+        "severity": "low",
+        "value": 11637
+      },
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 25,
+        "samples": [
+          {
+            "w": 40,
+            "h": 40,
+            "tag": "button"
+          },
+          {
+            "w": 94,
+            "h": 41,
+            "tag": "button"
+          },
+          {
+            "w": 175,
+            "h": 41,
+            "tag": "button"
+          },
+          {
+            "w": 156,
+            "h": 18,
+            "tag": "a"
+          },
+          {
+            "w": 40,
+            "h": 40,
+            "tag": "a"
+          }
+        ]
+      }
+    ],
+    "title": "Profytron — Algorithmic Trading Platform for Indian Traders",
+    "url": "http://127.0.0.1:3000/"
+  },
+  "error": null,
+  "ts": "2026-07-18T14:49:54.351Z"
+}

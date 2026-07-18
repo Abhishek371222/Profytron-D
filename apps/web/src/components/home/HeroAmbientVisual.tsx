@@ -1,16 +1,31 @@
-"use client";
+'use client';
 
-import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
+/**
+ * Progressive hero ambient visual.
+ * Layers: Static → Animated Background → 3D Scene → Interactive
+ */
+
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { motion, useReducedMotion } from 'framer-motion';
+import {
+  isExperienceEngineEnabled,
+  heroRuntimeApi,
+  lodManagerApi,
+} from '@/platform/experience';
+import { durationSeconds, MOTION_EASING } from '@/platform/motion';
+
+const FloatingLines = dynamic(() => import('@/components/ui/FloatingLines'), {
+  ssr: false,
+  loading: () => null,
+});
 
 const PRIMARY_PATH =
-  "M 0 210 C 45 198, 95 182, 145 162 S 215 118, 275 88 S 335 52, 400 28";
-
+  'M 0 210 C 45 198, 95 182, 145 162 S 215 118, 275 88 S 335 52, 400 28';
 const SECONDARY_PATH =
-  "M 0 225 C 55 210, 115 195, 165 178 S 235 145, 295 122 S 355 92, 400 72";
-
+  'M 0 225 C 55 210, 115 195, 165 178 S 235 145, 295 122 S 355 92, 400 72';
 const GHOST_PATH =
-  "M 0 198 C 38 186, 78 174, 128 160 S 188 128, 248 102 S 308 68, 400 44";
+  'M 0 198 C 38 186, 78 174, 128 160 S 188 128, 248 102 S 308 68, 400 44';
 
 const NODES = [
   { cx: 145, cy: 162, delay: 0.2 },
@@ -34,32 +49,139 @@ const VOLUME_BARS = [
 ] as const;
 
 const LIVE_CHIPS = [
-  { label: "BTC/USDT", value: "+2.84%", top: "22%", left: "52%", delay: 0 },
-  { label: "AI Signal", value: "Active", top: "38%", left: "68%", delay: 0.4 },
-  { label: "Portfolio", value: "+12.6%", top: "58%", left: "44%", delay: 0.8 },
+  { label: 'BTC/USDT', value: '+2.84%', top: '22%', left: '52%', delay: 0 },
+  { label: 'AI Signal', value: 'Active', top: '38%', left: '68%', delay: 0.4 },
+  { label: 'Portfolio', value: '+12.6%', top: '58%', left: '44%', delay: 0.8 },
 ] as const;
 
 const CTA_CHIPS = [
-  { label: "Win Rate", value: "73.4%", top: "28%", left: "55%", delay: 0 },
-  { label: "Sharpe", value: "2.14", top: "52%", left: "62%", delay: 0.5 },
+  { label: 'Win Rate', value: '73.4%', top: '28%', left: '55%', delay: 0 },
+  { label: 'Sharpe', value: '2.14', top: '52%', left: '62%', delay: 0.5 },
 ] as const;
 
-export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "cta" }) {
+const DARK_GRADIENT = ['#5FB2C4', '#348398', '#71C0D1', '#1E6D48', '#2D7284'];
+const LIGHT_GRADIENT = ['#348398', '#2D7284', '#1E6D48', '#255F6C', '#5FB2C4'];
+
+function useIsDark() {
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const root = document.documentElement;
+    const sync = () => setIsDark(root.classList.contains('dark'));
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+  return isDark;
+}
+
+function detectWebGL(): boolean {
+  if (typeof document === 'undefined') return false;
+  try {
+    const c = document.createElement('canvas');
+    return !!(c.getContext('webgl') || c.getContext('experimental-webgl'));
+  } catch {
+    return false;
+  }
+}
+
+export function HeroAmbientVisual({
+  variant = 'hero',
+}: {
+  variant?: 'hero' | 'cta';
+}) {
   const reduceMotion = useReducedMotion();
-  const chips = variant === "cta" ? CTA_CHIPS : LIVE_CHIPS;
-  const showScan = variant === "hero";
+  const isDark = useIsDark();
+  const chips = variant === 'cta' ? CTA_CHIPS : LIVE_CHIPS;
+  const showScan = variant === 'hero';
+  const engineOn = isExperienceEngineEnabled();
+  const [mount3d, setMount3d] = useState(!engineOn);
+  const [layer, setLayer] = useState<'static' | 'animated' | 'scene3d' | 'interactive'>(
+    'static',
+  );
+
+  useEffect(() => {
+    if (!engineOn) {
+      setMount3d(true);
+      return;
+    }
+    const webgl = !reduceMotion && detectWebGL();
+    heroRuntimeApi.start({
+      webglReady: webgl,
+      onLayer: (l) => {
+        setLayer(l);
+        if (l === 'scene3d' || l === 'interactive') {
+          if (webgl && heroRuntimeApi.shouldMountWebGL()) setMount3d(true);
+        }
+      },
+    });
+    // Always advance animated layer immediately for first paint
+    setLayer('animated');
+    if (webgl && heroRuntimeApi.shouldMountWebGL()) {
+      // Defer 3D one frame so static/animated paint first
+      const t = window.setTimeout(() => setMount3d(true), 50);
+      return () => clearTimeout(t);
+    }
+    setMount3d(false);
+  }, [engineOn, reduceMotion]);
+
+  useEffect(() => {
+    if (!engineOn) return;
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') heroRuntimeApi.pause();
+      else heroRuntimeApi.resume();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [engineOn]);
+
+  const lineCounts = lodManagerApi.lineCounts([5, 7, 4]);
+  const interactive = layer === 'interactive' && !reduceMotion;
+  const enterMs = durationSeconds('Hero');
+  const ease = MOTION_EASING.Smooth;
 
   return (
     <motion.div
-      className={variant === "cta" ? "hero-ambient hero-ambient-cta" : "hero-ambient"}
+      className={variant === 'cta' ? 'hero-ambient hero-ambient-cta' : 'hero-ambient'}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 1.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: enterMs, delay: 0.1, ease: ease as unknown as number[] }}
       aria-hidden
+      data-hero-layer={layer}
     >
-      <div className="hero-ambient-core">
+      {/* Layer 1: static */}
+      <div className="hero-ambient-core exp-hero-surface">
         <div className="hero-ambient-mesh" />
-        <div className="hero-ambient-mesh hero-ambient-mesh-b" />
+        {/* Layer 2: animated mesh */}
+        {!reduceMotion && (
+          <div className="hero-ambient-mesh hero-ambient-mesh-b" />
+        )}
+
+        {/* Layer 3–4: WebGL when allowed */}
+        {mount3d && lineCounts.some((n) => n > 0) && (
+          <div
+            className={`hero-ambient-lines ${isDark ? 'hero-ambient-lines-dark' : 'hero-ambient-lines-light'}`}
+          >
+            <FloatingLines
+              transparent
+              linesGradient={isDark ? DARK_GRADIENT : LIGHT_GRADIENT}
+              enabledWaves={['top', 'middle', 'bottom']}
+              lineCount={lineCounts}
+              lineDistance={[4, 3, 5]}
+              animationSpeed={0.85}
+              interactive={interactive}
+              parallax={interactive}
+              parallaxStrength={0.14}
+              bendRadius={6}
+              bendStrength={-0.35}
+              mouseDamping={0.04}
+              topWavePosition={{ x: 8, y: 0.4, rotate: -0.35 }}
+              middleWavePosition={{ x: 4, y: -0.1, rotate: 0.15 }}
+              bottomWavePosition={{ x: 1.5, y: -0.65, rotate: 0.3 }}
+              mixBlendMode={isDark ? 'screen' : 'multiply'}
+            />
+          </div>
+        )}
 
         <svg
           viewBox="0 0 400 260"
@@ -111,7 +233,11 @@ export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "ct
                 opacity: reduceMotion ? 0.15 : 0.35,
               }}
               style={{ transformOrigin: `${bar.x + 7}px 240px` }}
-              transition={{ duration: 0.8, delay: 0.6 + i * 0.04, ease: "easeOut" }}
+              transition={{
+                duration: durationSeconds('Slow'),
+                delay: 0.3 + i * 0.03,
+                ease: 'easeOut',
+              }}
             />
           ))}
 
@@ -123,7 +249,7 @@ export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "ct
             strokeLinecap="round"
             initial={{ pathLength: 0, opacity: 0 }}
             animate={{ pathLength: 1, opacity: reduceMotion ? 0.25 : 0.45 }}
-            transition={{ duration: 2.6, delay: 0.1, ease: "easeInOut" }}
+            transition={{ duration: durationSeconds('Hero'), delay: 0.05, ease: 'easeInOut' }}
           />
 
           <motion.path
@@ -140,9 +266,14 @@ export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "ct
               strokeDashoffset: reduceMotion ? 0 : [0, -28],
             }}
             transition={{
-              pathLength: { duration: 2.4, delay: 0.2, ease: "easeInOut" },
-              opacity: { duration: 2.4, delay: 0.2 },
-              strokeDashoffset: { duration: 6, repeat: Infinity, ease: "linear", delay: 2.8 },
+              pathLength: { duration: durationSeconds('Hero'), delay: 0.1, ease: 'easeInOut' },
+              opacity: { duration: durationSeconds('Hero'), delay: 0.1 },
+              strokeDashoffset: {
+                duration: 6,
+                repeat: Infinity,
+                ease: 'linear',
+                delay: 1.5,
+              },
             }}
           />
 
@@ -156,7 +287,7 @@ export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "ct
             filter="url(#heroLineGlow)"
             initial={{ pathLength: 0, opacity: 0 }}
             animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 2.2, delay: 0.15, ease: "easeInOut" }}
+            transition={{ duration: durationSeconds('Hero'), delay: 0.08, ease: 'easeInOut' }}
           />
 
           {!reduceMotion && (
@@ -176,7 +307,7 @@ export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "ct
                 className="hero-ambient-node-pulse"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: reduceMotion ? 0.12 : 0.28 }}
-                transition={{ delay: node.delay + 1.8, duration: 0.5 }}
+                transition={{ delay: node.delay + 0.8, duration: durationSeconds('Standard') }}
                 style={{ animationDelay: `${node.delay}s` }}
               />
               <motion.circle
@@ -186,7 +317,12 @@ export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "ct
                 className="hero-ambient-node"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: node.delay + 2, duration: 0.4, type: "spring", stiffness: 260 }}
+                transition={{
+                  delay: node.delay + 0.9,
+                  duration: durationSeconds('Fast'),
+                  type: 'spring',
+                  stiffness: 260,
+                }}
               />
             </g>
           ))}
@@ -199,7 +335,11 @@ export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "ct
               className="hero-ambient-chip"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.6 + chip.delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                delay: 0.8 + chip.delay,
+                duration: durationSeconds('Standard'),
+                ease: MOTION_EASING.Smooth as unknown as number[],
+              }}
               style={{ top: chip.top, left: chip.left }}
             >
               <span className="hero-ambient-chip-label">{chip.label}</span>
@@ -208,22 +348,24 @@ export function HeroAmbientVisual({ variant = "hero" }: { variant?: "hero" | "ct
           ))}
         </div>
 
-        <div className="hero-ambient-particles">
-          {Array.from({ length: 14 }).map((_, i) => (
-            <span
-              key={i}
-              className="hero-ambient-particle"
-              style={{
-                top: `${12 + (i * 7) % 78}%`,
-                left: `${10 + (i * 11) % 82}%`,
-                animationDelay: `${i * 0.42}s`,
-                animationDuration: `${4 + (i % 3)}s`,
-              }}
-            />
-          ))}
-        </div>
+        {!reduceMotion && layer !== 'static' && (
+          <div className="hero-ambient-particles">
+            {Array.from({ length: mount3d ? 14 : 6 }).map((_, i) => (
+              <span
+                key={i}
+                className="hero-ambient-particle"
+                style={{
+                  top: `${12 + ((i * 7) % 78)}%`,
+                  left: `${10 + ((i * 11) % 82)}%`,
+                  animationDelay: `${i * 0.42}s`,
+                  animationDuration: `${4 + (i % 3)}s`,
+                }}
+              />
+            ))}
+          </div>
+        )}
 
-        {showScan && <div className="hero-ambient-scan" />}
+        {showScan && !reduceMotion && <div className="hero-ambient-scan" />}
       </div>
     </motion.div>
   );

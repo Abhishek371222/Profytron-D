@@ -1,0 +1,496 @@
+{
+  "at": "2026-07-18T17:40:05Z",
+  "raw": [
+    {
+      "path": "/v1/trading/trades/open",
+      "attempt": 0,
+      "status": 200,
+      "ms": 798.4,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/trading/trades/open",
+      "attempt": 1,
+      "status": 200,
+      "ms": 674.0,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/trading/trades/open",
+      "attempt": 2,
+      "status": 200,
+      "ms": 216.5,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/trading/trades/history?limit=50",
+      "attempt": 0,
+      "status": 200,
+      "ms": 465.1,
+      "bytes": 92,
+      "ce": null
+    },
+    {
+      "path": "/v1/trading/trades/history?limit=50",
+      "attempt": 1,
+      "status": 200,
+      "ms": 218.1,
+      "bytes": 92,
+      "ce": null
+    },
+    {
+      "path": "/v1/trading/trades/history?limit=50",
+      "attempt": 2,
+      "status": 200,
+      "ms": 308.4,
+      "bytes": 92,
+      "ce": null
+    },
+    {
+      "path": "/v1/trading/subscriptions",
+      "attempt": 0,
+      "status": 200,
+      "ms": 521.1,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/trading/subscriptions",
+      "attempt": 1,
+      "status": 200,
+      "ms": 229.9,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/trading/subscriptions",
+      "attempt": 2,
+      "status": 200,
+      "ms": 290.5,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/trading/master-status",
+      "attempt": 0,
+      "status": 403,
+      "error": "HTTP Error 403: Forbidden",
+      "ms": 4.9
+    },
+    {
+      "path": "/v1/trading/master-status",
+      "attempt": 1,
+      "status": 403,
+      "error": "HTTP Error 403: Forbidden",
+      "ms": 1.8
+    },
+    {
+      "path": "/v1/trading/master-status",
+      "attempt": 2,
+      "status": 403,
+      "error": "HTTP Error 403: Forbidden",
+      "ms": 2.2
+    },
+    {
+      "path": "/v1/broker/accounts",
+      "attempt": 0,
+      "status": 200,
+      "ms": 519.5,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/broker/accounts",
+      "attempt": 1,
+      "status": 200,
+      "ms": 519.0,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/broker/accounts",
+      "attempt": 2,
+      "status": 200,
+      "ms": 750.5,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/analytics/portfolio?range=1m",
+      "attempt": 0,
+      "status": 200,
+      "ms": 1351.4,
+      "bytes": 307,
+      "ce": null
+    },
+    {
+      "path": "/v1/analytics/portfolio?range=1m",
+      "attempt": 1,
+      "status": 200,
+      "ms": 2.6,
+      "bytes": 307,
+      "ce": null
+    },
+    {
+      "path": "/v1/analytics/portfolio?range=1m",
+      "attempt": 2,
+      "status": 200,
+      "ms": 9.8,
+      "bytes": 307,
+      "ce": null
+    },
+    {
+      "path": "/v1/analytics/trades?limit=50",
+      "attempt": 0,
+      "status": 200,
+      "ms": 2.3,
+      "bytes": 537,
+      "ce": null
+    },
+    {
+      "path": "/v1/analytics/trades?limit=50",
+      "attempt": 1,
+      "status": 200,
+      "ms": 3.7,
+      "bytes": 537,
+      "ce": null
+    },
+    {
+      "path": "/v1/analytics/trades?limit=50",
+      "attempt": 2,
+      "status": 200,
+      "ms": 2.1,
+      "bytes": 537,
+      "ce": null
+    },
+    {
+      "path": "/v1/analytics/risk",
+      "attempt": 0,
+      "status": 200,
+      "ms": 2298.2,
+      "bytes": 212,
+      "ce": null
+    },
+    {
+      "path": "/v1/analytics/risk",
+      "attempt": 1,
+      "status": 200,
+      "ms": 2.8,
+      "bytes": 212,
+      "ce": null
+    },
+    {
+      "path": "/v1/analytics/risk",
+      "attempt": 2,
+      "status": 200,
+      "ms": 1.7,
+      "bytes": 212,
+      "ce": null
+    },
+    {
+      "path": "/v1/users/me",
+      "attempt": 0,
+      "status": 200,
+      "ms": 511.7,
+      "bytes": 741,
+      "ce": null
+    },
+    {
+      "path": "/v1/users/me",
+      "attempt": 1,
+      "status": 200,
+      "ms": 319.8,
+      "bytes": 741,
+      "ce": null
+    },
+    {
+      "path": "/v1/users/me",
+      "attempt": 2,
+      "status": 200,
+      "ms": 224.0,
+      "bytes": 741,
+      "ce": null
+    },
+    {
+      "path": "/v1/market/quotes?symbols=EURUSD,XAUUSD,BTCUSDT",
+      "attempt": 0,
+      "status": 200,
+      "ms": 4.2,
+      "bytes": 453,
+      "ce": null
+    },
+    {
+      "path": "/v1/market/quotes?symbols=EURUSD,XAUUSD,BTCUSDT",
+      "attempt": 1,
+      "status": 200,
+      "ms": 3.7,
+      "bytes": 453,
+      "ce": null
+    },
+    {
+      "path": "/v1/market/quotes?symbols=EURUSD,XAUUSD,BTCUSDT",
+      "attempt": 2,
+      "status": 200,
+      "ms": 3.3,
+      "bytes": 453,
+      "ce": null
+    },
+    {
+      "path": "/v1/marketplace/listings?page=1&limit=20",
+      "attempt": 0,
+      "status": 400,
+      "error": "HTTP Error 400: Bad Request",
+      "ms": 15.7
+    },
+    {
+      "path": "/v1/marketplace/listings?page=1&limit=20",
+      "attempt": 1,
+      "status": 400,
+      "error": "HTTP Error 400: Bad Request",
+      "ms": 5.6
+    },
+    {
+      "path": "/v1/marketplace/listings?page=1&limit=20",
+      "attempt": 2,
+      "status": 400,
+      "error": "HTTP Error 400: Bad Request",
+      "ms": 4.3
+    },
+    {
+      "path": "/v1/risk/metrics",
+      "attempt": 0,
+      "status": 200,
+      "ms": 4.1,
+      "bytes": 145,
+      "ce": null
+    },
+    {
+      "path": "/v1/risk/metrics",
+      "attempt": 1,
+      "status": 200,
+      "ms": 2.8,
+      "bytes": 145,
+      "ce": null
+    },
+    {
+      "path": "/v1/risk/metrics",
+      "attempt": 2,
+      "status": 200,
+      "ms": 2.9,
+      "bytes": 145,
+      "ce": null
+    },
+    {
+      "path": "/v1/risk/score",
+      "attempt": 0,
+      "status": 200,
+      "ms": 542.5,
+      "bytes": 88,
+      "ce": null
+    },
+    {
+      "path": "/v1/risk/score",
+      "attempt": 1,
+      "status": 200,
+      "ms": 2.6,
+      "bytes": 88,
+      "ce": null
+    },
+    {
+      "path": "/v1/risk/score",
+      "attempt": 2,
+      "status": 200,
+      "ms": 1.9,
+      "bytes": 88,
+      "ce": null
+    },
+    {
+      "path": "/v1/coach/conversations",
+      "attempt": 0,
+      "status": 200,
+      "ms": 454.1,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/coach/conversations",
+      "attempt": 1,
+      "status": 200,
+      "ms": 685.3,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/coach/conversations",
+      "attempt": 2,
+      "status": 200,
+      "ms": 228.4,
+      "bytes": 65,
+      "ce": null
+    },
+    {
+      "path": "/v1/wallet/balance",
+      "attempt": 0,
+      "status": 200,
+      "ms": 238.6,
+      "bytes": 134,
+      "ce": null
+    },
+    {
+      "path": "/v1/wallet/balance",
+      "attempt": 1,
+      "status": 200,
+      "ms": 221.1,
+      "bytes": 134,
+      "ce": null
+    },
+    {
+      "path": "/v1/wallet/balance",
+      "attempt": 2,
+      "status": 200,
+      "ms": 228.8,
+      "bytes": 134,
+      "ce": null
+    },
+    {
+      "path": "/v1/notifications",
+      "attempt": 0,
+      "status": 200,
+      "ms": 492.5,
+      "bytes": 542,
+      "ce": null
+    },
+    {
+      "path": "/v1/notifications",
+      "attempt": 1,
+      "status": 200,
+      "ms": 987.7,
+      "bytes": 542,
+      "ce": null
+    },
+    {
+      "path": "/v1/notifications",
+      "attempt": 2,
+      "status": 500,
+      "error": "HTTP Error 500: Internal Server Error",
+      "ms": 5119.8
+    }
+  ],
+  "summary": [
+    {
+      "path": "/v1/notifications",
+      "n": 2,
+      "min": 492.5,
+      "p50": 987.7,
+      "max": 987.7,
+      "avg_bytes": 542
+    },
+    {
+      "path": "/v1/trading/trades/open",
+      "n": 3,
+      "min": 216.5,
+      "p50": 674.0,
+      "max": 798.4,
+      "avg_bytes": 65
+    },
+    {
+      "path": "/v1/broker/accounts",
+      "n": 3,
+      "min": 519.0,
+      "p50": 519.5,
+      "max": 750.5,
+      "avg_bytes": 65
+    },
+    {
+      "path": "/v1/coach/conversations",
+      "n": 3,
+      "min": 228.4,
+      "p50": 454.1,
+      "max": 685.3,
+      "avg_bytes": 65
+    },
+    {
+      "path": "/v1/users/me",
+      "n": 3,
+      "min": 224.0,
+      "p50": 319.8,
+      "max": 511.7,
+      "avg_bytes": 741
+    },
+    {
+      "path": "/v1/trading/trades/history?limit=50",
+      "n": 3,
+      "min": 218.1,
+      "p50": 308.4,
+      "max": 465.1,
+      "avg_bytes": 92
+    },
+    {
+      "path": "/v1/trading/subscriptions",
+      "n": 3,
+      "min": 229.9,
+      "p50": 290.5,
+      "max": 521.1,
+      "avg_bytes": 65
+    },
+    {
+      "path": "/v1/wallet/balance",
+      "n": 3,
+      "min": 221.1,
+      "p50": 228.8,
+      "max": 238.6,
+      "avg_bytes": 134
+    },
+    {
+      "path": "/v1/analytics/portfolio?range=1m",
+      "n": 3,
+      "min": 2.6,
+      "p50": 9.8,
+      "max": 1351.4,
+      "avg_bytes": 307
+    },
+    {
+      "path": "/v1/market/quotes?symbols=EURUSD,XAUUSD,BTCUSDT",
+      "n": 3,
+      "min": 3.3,
+      "p50": 3.7,
+      "max": 4.2,
+      "avg_bytes": 453
+    },
+    {
+      "path": "/v1/risk/metrics",
+      "n": 3,
+      "min": 2.8,
+      "p50": 2.9,
+      "max": 4.1,
+      "avg_bytes": 145
+    },
+    {
+      "path": "/v1/analytics/risk",
+      "n": 3,
+      "min": 1.7,
+      "p50": 2.8,
+      "max": 2298.2,
+      "avg_bytes": 212
+    },
+    {
+      "path": "/v1/risk/score",
+      "n": 3,
+      "min": 1.9,
+      "p50": 2.6,
+      "max": 542.5,
+      "avg_bytes": 88
+    },
+    {
+      "path": "/v1/analytics/trades?limit=50",
+      "n": 3,
+      "min": 2.1,
+      "p50": 2.3,
+      "max": 3.7,
+      "avg_bytes": 537
+    }
+  ]
+}

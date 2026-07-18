@@ -40,6 +40,12 @@ function bindSocketEvents(sock: Socket) {
     'trade_blocked',
     'emergency_stop_triggered',
     'strategy_activated',
+    'bot_activated',
+    'subscription_status_changed',
+    'account_equity',
+    'account_sync_degraded',
+    'positions_delta',
+    'sync_status',
     'new_notification',
     'transaction_update',
   ] as const;

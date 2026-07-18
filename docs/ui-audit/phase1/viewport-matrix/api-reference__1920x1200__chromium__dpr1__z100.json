@@ -1,0 +1,409 @@
+{
+  "slug": "api-reference",
+  "path": "/api-reference",
+  "auth": "public",
+  "shell": "marketing",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 1920,
+    "h": 1200,
+    "label": "desktop-1920x1200"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/api-reference__1920x1200__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 1920,
+      "h": 1200,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 1920,
+      "scrollHeight": 3112,
+      "clientWidth": 1920,
+      "clientHeight": 1200,
+      "overflowX": 0,
+      "overflowY": 1912
+    },
+    "body": {
+      "width": 1920
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 1872,
+        "height": 56,
+        "fontSize": "52px",
+        "lineHeight": "56.16px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": {
+        "selector": "h2",
+        "width": 125,
+        "height": 24,
+        "fontSize": "18px",
+        "lineHeight": "24.3px",
+        "fontWeight": "600",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h3": null,
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 1920,
+        "height": 3112,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 62,
+        "height": 36,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "500",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 672,
+        "height": 59,
+        "fontSize": "18px",
+        "lineHeight": "29.25px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": ".page-container[0]",
+        "width": 1920,
+        "height": 73,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[1]",
+        "width": 1920,
+        "height": 236,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[2]",
+        "width": 1920,
+        "height": 274,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[3]",
+        "width": 1920,
+        "height": 968,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[4]",
+        "width": 1920,
+        "height": 238,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[5]",
+        "width": 1920,
+        "height": 564,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "relative"
+      },
+      {
+        "selector": "main",
+        "width": 1920,
+        "height": 3112,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "relative"
+      },
+      {
+        "selector": "nav",
+        "width": 1872,
+        "height": 73,
+        "maxWidth": "none",
+        "paddingLeft": "4px",
+        "paddingRight": "20px",
+        "position": "static"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 36,
+        "height": 36,
+        "minWidth": "auto"
+      },
+      {
+        "i": 1,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 2,
+        "width": 148,
+        "height": 26,
+        "minWidth": "auto"
+      },
+      {
+        "i": 3,
+        "width": 40,
+        "height": 26,
+        "minWidth": "auto"
+      },
+      {
+        "i": 4,
+        "width": 105,
+        "height": 26,
+        "minWidth": "auto"
+      },
+      {
+        "i": 5,
+        "width": 920,
+        "height": 37,
+        "minWidth": "0px"
+      },
+      {
+        "i": 6,
+        "width": 920,
+        "height": 37,
+        "minWidth": "0px"
+      },
+      {
+        "i": 7,
+        "width": 920,
+        "height": 37,
+        "minWidth": "0px"
+      },
+      {
+        "i": 8,
+        "width": 920,
+        "height": 37,
+        "minWidth": "0px"
+      },
+      {
+        "i": 9,
+        "width": 862,
+        "height": 41,
+        "minWidth": "0px"
+      },
+      {
+        "i": 10,
+        "width": 1872,
+        "height": 84,
+        "minWidth": "0px"
+      },
+      {
+        "i": 11,
+        "width": 1872,
+        "height": 84,
+        "minWidth": "0px"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "i": 0,
+        "width": 64,
+        "height": 26,
+        "tag": "span"
+      },
+      {
+        "i": 1,
+        "width": 64,
+        "height": 26,
+        "tag": "span"
+      },
+      {
+        "i": 2,
+        "width": 64,
+        "height": 26,
+        "tag": "span"
+      },
+      {
+        "i": 3,
+        "width": 64,
+        "height": 26,
+        "tag": "span"
+      },
+      {
+        "i": 4,
+        "width": 64,
+        "height": 26,
+        "tag": "span"
+      },
+      {
+        "i": 5,
+        "width": 64,
+        "height": 26,
+        "tag": "span"
+      }
+    ],
+    "sticky": [
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 0,
+        "height": 1200,
+        "width": 1920
+      },
+      {
+        "tag": "header",
+        "position": "fixed",
+        "top": 0,
+        "height": 113,
+        "width": 1920
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "clamp(1rem, 1.25vw, 1.5rem)",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 34,
+      "smallTouchTargetCount": 27,
+      "smallTouchTargets": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 36,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": []
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 27,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 40
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 105
+      }
+    ],
+    "title": "API Reference — Developer Documentation | Profytron",
+    "url": "http://127.0.0.1:3000/api-reference"
+  },
+  "error": null,
+  "ts": "2026-07-18T14:51:35.612Z"
+}

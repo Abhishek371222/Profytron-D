@@ -1,0 +1,238 @@
+{
+  "slug": "verify-email",
+  "path": "/verify-email",
+  "auth": "public",
+  "shell": "auth",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 375,
+    "h": 812,
+    "label": "mobile-375"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/verify-email__375x812__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 375,
+      "h": 812,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 375,
+      "scrollHeight": 812,
+      "clientWidth": 375,
+      "clientHeight": 812,
+      "overflowX": 0,
+      "overflowY": 0
+    },
+    "body": {
+      "width": 375
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 245,
+        "height": 65,
+        "fontSize": "30px",
+        "lineHeight": "32.4px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": null,
+      "h3": null,
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 375,
+        "height": 812,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 161,
+        "height": 20,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 245,
+        "height": 84,
+        "fontSize": "18px",
+        "lineHeight": "28px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": "main",
+        "width": 375,
+        "height": 812,
+        "maxWidth": "none",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "relative"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 40,
+        "height": 40,
+        "minWidth": "auto"
+      },
+      {
+        "i": 1,
+        "width": 327,
+        "height": 672,
+        "minWidth": "0px"
+      }
+    ],
+    "tables": [],
+    "charts": [],
+    "sticky": [
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 0,
+        "height": 812,
+        "width": 375
+      },
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 48,
+        "height": 40,
+        "width": 40
+      },
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 48,
+        "height": 58,
+        "width": 213
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "0.75rem",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 9,
+      "smallTouchTargetCount": 8,
+      "smallTouchTargets": [
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        },
+        {
+          "w": 31,
+          "h": 64,
+          "tag": "input"
+        },
+        {
+          "w": 31,
+          "h": 64,
+          "tag": "input"
+        },
+        {
+          "w": 31,
+          "h": 64,
+          "tag": "input"
+        },
+        {
+          "w": 31,
+          "h": 64,
+          "tag": "input"
+        },
+        {
+          "w": 31,
+          "h": 64,
+          "tag": "input"
+        },
+        {
+          "w": 31,
+          "h": 64,
+          "tag": "input"
+        },
+        {
+          "w": 133,
+          "h": 26,
+          "tag": "button"
+        }
+      ],
+      "missingLabelSamples": [
+        "input.w-full",
+        "input.w-full",
+        "input.w-full",
+        "input.w-full",
+        "input.w-full",
+        "input.w-full"
+      ]
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 8,
+        "samples": [
+          {
+            "w": 40,
+            "h": 40,
+            "tag": "a"
+          },
+          {
+            "w": 31,
+            "h": 64,
+            "tag": "input"
+          },
+          {
+            "w": 31,
+            "h": 64,
+            "tag": "input"
+          },
+          {
+            "w": 31,
+            "h": 64,
+            "tag": "input"
+          },
+          {
+            "w": 31,
+            "h": 64,
+            "tag": "input"
+          }
+        ]
+      }
+    ],
+    "title": "Verify Your Email | Profytron",
+    "url": "http://127.0.0.1:3000/verify-email"
+  },
+  "error": null,
+  "ts": "2026-07-18T14:54:20.389Z"
+}

@@ -1,0 +1,317 @@
+{
+  "slug": "careers",
+  "path": "/careers",
+  "auth": "public",
+  "shell": "marketing",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 3840,
+    "h": 2160,
+    "label": "uhd-3840"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/careers__3840x2160__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 3840,
+      "h": 2160,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 3840,
+      "scrollHeight": 2160,
+      "clientWidth": 3840,
+      "clientHeight": 2160,
+      "overflowX": 0,
+      "overflowY": 0
+    },
+    "body": {
+      "width": 3840
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 1872,
+        "height": 56,
+        "fontSize": "52px",
+        "lineHeight": "56.16px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": {
+        "selector": "h2",
+        "width": 1814,
+        "height": 26,
+        "fontSize": "24px",
+        "lineHeight": "25.92px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h3": null,
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 3840,
+        "height": 2160,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 62,
+        "height": 36,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "500",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 672,
+        "height": 59,
+        "fontSize": "18px",
+        "lineHeight": "29.25px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": ".page-container[0]",
+        "width": 1920,
+        "height": 73,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[1]",
+        "width": 1920,
+        "height": 352,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[2]",
+        "width": 1920,
+        "height": 221,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[3]",
+        "width": 1920,
+        "height": 564,
+        "maxWidth": "1920px",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "relative"
+      },
+      {
+        "selector": "main",
+        "width": 3840,
+        "height": 1681,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "relative"
+      },
+      {
+        "selector": "nav",
+        "width": 1872,
+        "height": 73,
+        "maxWidth": "none",
+        "paddingLeft": "4px",
+        "paddingRight": "20px",
+        "position": "static"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 36,
+        "height": 36,
+        "minWidth": "auto"
+      },
+      {
+        "i": 1,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 2,
+        "width": 375,
+        "height": 48,
+        "minWidth": "0px"
+      },
+      {
+        "i": 3,
+        "width": 3840,
+        "height": 350,
+        "minWidth": "0px"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "i": 0,
+        "width": 312,
+        "height": 34,
+        "tag": "span"
+      },
+      {
+        "i": 1,
+        "width": 6,
+        "height": 6,
+        "tag": "div"
+      },
+      {
+        "i": 2,
+        "width": 6,
+        "height": 6,
+        "tag": "div"
+      }
+    ],
+    "sticky": [
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 0,
+        "height": 2160,
+        "width": 3840
+      },
+      {
+        "tag": "header",
+        "position": "fixed",
+        "top": 0,
+        "height": 113,
+        "width": 3840
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "clamp(1rem, 1.25vw, 1.5rem)",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 38,
+      "smallTouchTargetCount": 28,
+      "smallTouchTargets": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 36,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 134,
+          "h": 16,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": [
+        "input.h-12"
+      ]
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 28,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      }
+    ],
+    "title": "Careers — Build the Future of Trading | Profytron",
+    "url": "http://127.0.0.1:3000/careers"
+  },
+  "error": null,
+  "ts": "2026-07-18T14:50:39.772Z"
+}

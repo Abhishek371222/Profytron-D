@@ -20,6 +20,19 @@ import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
 import { useAccountContext } from '@/hooks/useAccountContext';
 import { useQueryClient } from '@tanstack/react-query';
+import { RenderBoundary } from '@/platform/rendering';
+import { metricsApi } from '@/platform/metrics';
+import { animationApi } from '@/platform/animation';
+import {
+  startMotionEngine,
+  isMotionEngineEnabled,
+  MotionProfilerOverlay,
+} from '@/platform/motion';
+import {
+  startExperienceEngine,
+  isExperienceEngineEnabled,
+  ExperienceDevPanel,
+} from '@/platform/experience';
 
 const BrokerConnectModal = dynamic(
   () =>
@@ -47,6 +60,35 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     setMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (process.env.NEXT_PUBLIC_PLATFORM_METRICS !== '1') return;
+    const stopLong = metricsApi.observeLongTasks();
+    const stopFps = metricsApi.startFpsSampler(8);
+    return () => {
+      stopLong();
+      stopFps();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!isMotionEngineEnabled()) return;
+    return startMotionEngine();
+  }, []);
+
+  React.useEffect(() => {
+    if (!isExperienceEngineEnabled()) return;
+    return startExperienceEngine();
+  }, []);
+
+  React.useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') animationApi.pauseAll();
+      else animationApi.resumeAll();
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
   }, []);
 
   React.useEffect(() => {
@@ -101,6 +143,8 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   };
 
   const isBuilder = pathname?.includes('/strategies/builder');
+  const isCoach = pathname?.includes('/alpha-coach');
+  const fillViewport = isBuilder || isCoach;
 
   if (bootstrapActive) {
     return <div className="min-h-[100dvh] w-full bg-background" aria-hidden />;
@@ -110,10 +154,13 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
     <AppShell>
       <div
         suppressHydrationWarning
-        className={cn('relative flex flex-col', !isBuilder && 'gap-[var(--section-gap)]')}
+        className={cn(
+          'relative flex min-h-0 flex-col',
+          fillViewport ? 'h-full flex-1 overflow-hidden' : 'gap-[var(--section-gap)]',
+        )}
       >
         <AnimatePresence>
-          {mounted && showDemoBanner && !isBuilder && !isAdmin && (
+          {mounted && showDemoBanner && !fillViewport && !isAdmin && (
             <BrokerConnectBanner
               onConnect={openBrokerModal}
               onDemo={connectDemoAccount}
@@ -123,9 +170,11 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           )}
         </AnimatePresence>
 
-        {mounted && !isBuilder && !isAdmin && <ActivationChecklist />}
-        {mounted && !isBuilder && !isAdmin && <TutorialPrompt />}
-        {mounted && !isBuilder && !isAdmin && <TutorialOverlay />}
+        {mounted && !fillViewport && !isAdmin && (
+          <ActivationChecklist compact={showDemoBanner} />
+        )}
+        {mounted && !fillViewport && !isAdmin && <TutorialPrompt />}
+        {mounted && !fillViewport && !isAdmin && <TutorialOverlay />}
 
         {showBrokerModal && (
           <BrokerConnectModal
@@ -137,7 +186,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <Suspense
           fallback={
-            <div className="flex-1 flex flex-col gap-4 animate-pulse" aria-busy="true">
+            <div className="flex min-h-0 flex-1 flex-col gap-4 animate-pulse" aria-busy="true">
               <div className="h-8 w-64 rounded-xl bg-muted border border-border" />
               <div className="h-48 rounded-card bg-muted border border-border" />
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -148,8 +197,18 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             </div>
           }
         >
-          {children}
+          <RenderBoundary>
+            {fillViewport ? (
+              <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+                {children}
+              </div>
+            ) : (
+              children
+            )}
+          </RenderBoundary>
         </Suspense>
+        {isMotionEngineEnabled() && <MotionProfilerOverlay />}
+        {isExperienceEngineEnabled() && <ExperienceDevPanel />}
       </div>
     </AppShell>
   );

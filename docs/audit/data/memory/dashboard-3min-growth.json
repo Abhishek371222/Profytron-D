@@ -1,0 +1,90 @@
+{
+  "at": "2026-07-18T12:18:25.495Z",
+  "note": "3-minute proxy sample; 30m/1h/4h require overnight runs",
+  "samples": [
+    {
+      "tSec": 0,
+      "heap": 10000000,
+      "nodes": 215,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 15,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 30,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 45,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 60,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 75,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 90,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 105,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 120,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 135,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 150,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    },
+    {
+      "tSec": 165,
+      "heap": 10000000,
+      "nodes": 238,
+      "listenersApprox": null,
+      "heapMB": 10
+    }
+  ]
+}

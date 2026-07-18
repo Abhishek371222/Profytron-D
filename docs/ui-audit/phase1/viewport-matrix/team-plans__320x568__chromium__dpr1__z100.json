@@ -1,0 +1,303 @@
+{
+  "slug": "team-plans",
+  "path": "/team-plans",
+  "auth": "user",
+  "shell": "dashboard",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 320,
+    "h": 568,
+    "label": "mobile-320"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/team-plans__320x568__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 320,
+      "h": 568,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 320,
+      "scrollHeight": 1433,
+      "clientWidth": 320,
+      "clientHeight": 568,
+      "overflowX": 0,
+      "overflowY": 865
+    },
+    "body": {
+      "width": 304
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 304,
+        "height": 37,
+        "fontSize": "32px",
+        "lineHeight": "normal",
+        "fontWeight": "700",
+        "color": "rgb(0, 0, 0)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": null,
+      "h3": null,
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 304,
+        "height": 1417,
+        "fontSize": "16px",
+        "lineHeight": "normal",
+        "fontWeight": "400",
+        "color": "rgb(0, 0, 0)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": "[class*=\"text-xs\"]",
+        "width": 52,
+        "height": 15,
+        "fontSize": "13.3333px",
+        "lineHeight": "normal",
+        "fontWeight": "400",
+        "color": "rgb(0, 0, 0)",
+        "display": "inline",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 304,
+        "height": 18,
+        "fontSize": "16px",
+        "lineHeight": "normal",
+        "fontWeight": "400",
+        "color": "rgb(0, 0, 0)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": "main",
+        "width": 304,
+        "height": 535,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "static"
+      },
+      {
+        "selector": "aside",
+        "width": 304,
+        "height": 724,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "static"
+      },
+      {
+        "selector": "nav[0]",
+        "width": 304,
+        "height": 420,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "static"
+      },
+      {
+        "selector": "nav[1]",
+        "width": 304,
+        "height": 140,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "static"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 24,
+        "height": 24,
+        "minWidth": "0px"
+      },
+      {
+        "i": 1,
+        "width": 40,
+        "height": 33,
+        "minWidth": "0px"
+      },
+      {
+        "i": 2,
+        "width": 304,
+        "height": 75,
+        "minWidth": "0px"
+      },
+      {
+        "i": 3,
+        "width": 40,
+        "height": 33,
+        "minWidth": "0px"
+      },
+      {
+        "i": 4,
+        "width": 40,
+        "height": 33,
+        "minWidth": "0px"
+      },
+      {
+        "i": 5,
+        "width": 16,
+        "height": 6,
+        "minWidth": "0px"
+      },
+      {
+        "i": 6,
+        "width": 52,
+        "height": 78,
+        "minWidth": "0px"
+      },
+      {
+        "i": 7,
+        "width": 36,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 8,
+        "width": 289,
+        "height": 20,
+        "minWidth": "0px"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "i": 0,
+        "width": 24,
+        "height": 24,
+        "tag": "svg"
+      },
+      {
+        "i": 1,
+        "width": 36,
+        "height": 15,
+        "tag": "div"
+      },
+      {
+        "i": 2,
+        "width": 36,
+        "height": 0,
+        "tag": "div"
+      },
+      {
+        "i": 3,
+        "width": 33,
+        "height": 14,
+        "tag": "span"
+      }
+    ],
+    "sticky": [],
+    "cssVars": {
+      "--content-max": null,
+      "--dashboard-p": null,
+      "--sidebar-w": null,
+      "--sidebar-w-collapsed": null,
+      "--touch-min": null,
+      "--safe-top": null,
+      "--safe-bottom": null
+    },
+    "a11y": {
+      "focusableCount": 31,
+      "smallTouchTargetCount": 27,
+      "smallTouchTargets": [
+        {
+          "w": 133,
+          "h": 18,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 33,
+          "tag": "button"
+        },
+        {
+          "w": 87,
+          "h": 18,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 18,
+          "tag": "a"
+        },
+        {
+          "w": 76,
+          "h": 18,
+          "tag": "a"
+        },
+        {
+          "w": 80,
+          "h": 18,
+          "tag": "a"
+        },
+        {
+          "w": 156,
+          "h": 18,
+          "tag": "a"
+        },
+        {
+          "w": 276,
+          "h": 36,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": []
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 27,
+        "samples": [
+          {
+            "w": 133,
+            "h": 18,
+            "tag": "a"
+          },
+          {
+            "w": 40,
+            "h": 33,
+            "tag": "button"
+          },
+          {
+            "w": 87,
+            "h": 18,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 18,
+            "tag": "a"
+          },
+          {
+            "w": 76,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      }
+    ],
+    "title": "Dashboard | Profytron",
+    "url": "http://127.0.0.1:3000/team-plans"
+  },
+  "error": null,
+  "ts": "2026-07-18T15:03:28.287Z"
+}

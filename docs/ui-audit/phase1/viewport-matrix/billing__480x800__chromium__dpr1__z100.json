@@ -1,0 +1,371 @@
+{
+  "slug": "billing",
+  "path": "/billing",
+  "auth": "user",
+  "shell": "dashboard",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 480,
+    "h": 800,
+    "label": "mobile-480"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/billing__480x800__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 480,
+      "h": 800,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 480,
+      "scrollHeight": 800,
+      "clientWidth": 480,
+      "clientHeight": 800,
+      "overflowX": 0,
+      "overflowY": 0
+    },
+    "body": {
+      "width": 480
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 377,
+        "height": 32,
+        "fontSize": "24px",
+        "lineHeight": "32px",
+        "fontWeight": "700",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": {
+        "selector": "h2",
+        "width": 105,
+        "height": 28,
+        "fontSize": "18px",
+        "lineHeight": "28px",
+        "fontWeight": "700",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h3": null,
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 480,
+        "height": 800,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 377,
+        "height": 20,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 246,
+        "height": 16,
+        "fontSize": "10px",
+        "lineHeight": "16px",
+        "fontWeight": "700",
+        "color": "color(srgb 0.392157 0.439216 0.478431 / 0.75)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": "main",
+        "width": 480,
+        "height": 800,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "relative"
+      },
+      {
+        "selector": "aside",
+        "width": 264,
+        "height": 800,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "relative"
+      },
+      {
+        "selector": "nav[0]",
+        "width": 262,
+        "height": 639,
+        "maxWidth": "none",
+        "paddingLeft": "7.8px",
+        "paddingRight": "7.8px",
+        "position": "static"
+      },
+      {
+        "selector": "nav[1]",
+        "width": 480,
+        "height": 64,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "fixed"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 18,
+        "height": 18,
+        "minWidth": "auto"
+      },
+      {
+        "i": 1,
+        "width": 44,
+        "height": 44,
+        "minWidth": "44px"
+      },
+      {
+        "i": 2,
+        "width": 306,
+        "height": 38,
+        "minWidth": "0px"
+      },
+      {
+        "i": 3,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 4,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 5,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 6,
+        "width": 50,
+        "height": 40,
+        "minWidth": "0px"
+      },
+      {
+        "i": 7,
+        "width": 10,
+        "height": 10,
+        "minWidth": "0px"
+      },
+      {
+        "i": 8,
+        "width": 456,
+        "height": 194,
+        "minWidth": "0px"
+      },
+      {
+        "i": 9,
+        "width": 32,
+        "height": 22,
+        "minWidth": "auto"
+      },
+      {
+        "i": 10,
+        "width": 456,
+        "height": 93,
+        "minWidth": "auto"
+      },
+      {
+        "i": 11,
+        "width": 456,
+        "height": 93,
+        "minWidth": "auto"
+      }
+    ],
+    "tables": [
+      {
+        "i": 0,
+        "width": 454,
+        "overflowX": 0,
+        "tag": "div"
+      },
+      {
+        "i": 1,
+        "width": 454,
+        "overflowX": 0,
+        "tag": "table"
+      }
+    ],
+    "charts": [
+      {
+        "i": 0,
+        "width": 18,
+        "height": 18,
+        "tag": "svg"
+      },
+      {
+        "i": 1,
+        "width": 36,
+        "height": 36,
+        "tag": "div"
+      },
+      {
+        "i": 2,
+        "width": 10,
+        "height": 10,
+        "tag": "div"
+      },
+      {
+        "i": 3,
+        "width": 44,
+        "height": 44,
+        "tag": "div"
+      },
+      {
+        "i": 4,
+        "width": 44,
+        "height": 44,
+        "tag": "div"
+      },
+      {
+        "i": 5,
+        "width": 44,
+        "height": 44,
+        "tag": "div"
+      }
+    ],
+    "sticky": [
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 0,
+        "height": 800,
+        "width": 264
+      },
+      {
+        "tag": "nav",
+        "position": "fixed",
+        "top": 736,
+        "height": 64,
+        "width": 480
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "0.75rem",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 31,
+      "smallTouchTargetCount": 21,
+      "smallTouchTargets": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "button"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        },
+        {
+          "w": 246,
+          "h": 38,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": []
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 21,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 40,
+            "h": 40,
+            "tag": "button"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          },
+          {
+            "w": 246,
+            "h": 38,
+            "tag": "a"
+          }
+        ]
+      }
+    ],
+    "title": "Dashboard | Profytron",
+    "url": "http://127.0.0.1:3000/billing"
+  },
+  "error": null,
+  "ts": "2026-07-18T15:03:14.703Z"
+}

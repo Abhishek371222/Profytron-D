@@ -1,0 +1,14 @@
+Legend: production dependency, optional only, dev only
+
+profytron@0.1.0 /Users/aini/Desktop/p/apps/web (PRIVATE)
+│
+│   dependencies:
+├── @tanstack/react-query@5.97.0
+├── firebase@12.15.0
+├── framer-motion@11.18.2
+├── recharts@3.8.1
+├── socket.io-client@4.8.3
+├── three@0.185.1
+└── zustand@5.0.12
+
+7 packages in 5 projects

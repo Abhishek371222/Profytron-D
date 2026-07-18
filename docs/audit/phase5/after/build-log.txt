@@ -1,0 +1,4 @@
+Production build: success (next build --webpack, exit 0)
+Typecheck: success (tsc --noEmit)
+Node policy selftest: success (tests/motion/motion-number.node.ts)
+Captured: 2026-07-18

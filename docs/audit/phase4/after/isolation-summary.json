@@ -1,0 +1,17 @@
+{
+  "at": "2026-07-18T13:40:00Z",
+  "isolation": {
+    "clockLeaf": true,
+    "quotesLocalized": true,
+    "memoModules": true,
+    "renderSlots": true,
+    "chartViewport": true,
+    "newsCalendarViewport": true
+  },
+  "rollback": "NEXT_PUBLIC_RENDER_ENGINE=0",
+  "virtualization": "skipped_capped_lists",
+  "vsBefore": {
+    "serverClockBlastRadius": "DashboardClock_only",
+    "quoteBlastRadius": "MarketWatch_and_OpenTrades_modules"
+  }
+}

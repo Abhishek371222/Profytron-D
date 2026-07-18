@@ -6,6 +6,7 @@ import { X, Loader2, RefreshCcw, Radio, CheckCircle2, XCircle } from 'lucide-rea
 import { cn } from '@/lib/utils';
 import { brokerApi } from '@/lib/api/broker';
 import { toast } from 'sonner';
+import { useModalMotionProps } from '@/platform/motion';
 
 export interface AccountDetailsData {
   id: string;
@@ -102,20 +103,24 @@ export function AccountDetailsModal({
     }
   };
 
+  const modal = useModalMotionProps();
+
   return (
     <AnimatePresence>
       {account && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={modal.backdrop.initial}
+          animate={modal.backdrop.animate}
+          exit={modal.backdrop.exit}
+          transition={modal.backdrop.transition}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           onClick={(e) => e.target === e.currentTarget && onClose()}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            initial={modal.panel.initial}
+            animate={modal.panel.animate}
+            exit={modal.panel.exit}
+            transition={modal.panel.transition}
             className="w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl border border-[var(--card-border)] bg-card shadow-2xl"
           >
             { }

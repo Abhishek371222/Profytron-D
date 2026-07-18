@@ -7,6 +7,7 @@ import QueryProvider from "@/components/providers/QueryProvider";
 import { WorkspaceBootstrapController } from "@/components/auth/WorkspaceBootstrapController";
 import { Toaster } from "sonner";
 import React from "react";
+import { MOTION_DURATION, isMotionEngineEnabled } from "@/platform/motion";
 
 function ThemedToaster() {
   const [theme, setTheme] = React.useState<"light" | "dark">("dark");
@@ -24,7 +25,26 @@ function ThemedToaster() {
     return () => observer.disconnect();
   }, []);
 
-  return <Toaster richColors position="top-right" theme={theme} />;
+  const toastMs = isMotionEngineEnabled() ? MOTION_DURATION.Standard : 200;
+
+  return (
+    <Toaster
+      richColors
+      position="top-right"
+      theme={theme}
+      duration={4000}
+      toastOptions={{
+        duration: 4000,
+        classNames: {
+          toast: "motion-toast",
+        },
+        style: {
+          // Sonner uses CSS transitions; duration token documents toast budget (≤180ms visual).
+          transitionDuration: `${Math.min(toastMs, 180)}ms`,
+        },
+      }}
+    />
+  );
 }
 
 export function AppProviders({ children }: { children: React.ReactNode }) {

@@ -220,7 +220,12 @@ export function CoachChatPanel({
         ref={scrollRef}
         className="relative z-[1] min-h-0 flex-1 overflow-y-auto overscroll-contain"
       >
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-7 px-4 py-5 sm:px-6 sm:py-7">
+        <div
+          className={cn(
+            'mx-auto flex w-full max-w-3xl flex-col gap-7 px-4 py-5 sm:px-6 sm:py-7',
+            empty && 'h-full min-h-full',
+          )}
+        >
           {empty ? (
             <EmptyState
               hasBrokerAccount={Boolean(hasBrokerAccount)}
@@ -308,7 +313,7 @@ function EmptyState({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="flex min-h-[min(58vh,26rem)] flex-col items-center justify-center text-center"
+      className="flex min-h-full flex-1 flex-col items-center justify-center py-10 text-center"
     >
       <CoachBrandMark size={48} pulse className="mb-5 rounded-2xl" />
 

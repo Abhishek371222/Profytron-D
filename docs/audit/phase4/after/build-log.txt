@@ -1,0 +1,154 @@
+
+> profytron@0.1.0 prebuild /Users/aini/Desktop/p/apps/web
+> node ./scripts/clear-next-build-lock.mjs && node ./scripts/generate-firebase-sw.mjs
+
+[generate-firebase-sw] Missing env vars, background push notifications will not work: NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN, NEXT_PUBLIC_FIREBASE_PROJECT_ID, NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET, NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID, NEXT_PUBLIC_FIREBASE_APP_ID
+
+> profytron@0.1.0 build /Users/aini/Desktop/p/apps/web
+> next build --webpack
+
+▲ Next.js 16.2.2 (webpack)
+- Environments: .env.local
+- Experiments (use with caution):
+  · clientTraceMetadata
+  · optimizePackageImports
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.3min
+  Running TypeScript ...
+  Finished TypeScript in 24.1s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/66) ...
+  Generating static pages using 7 workers (16/66) 
+  Generating static pages using 7 workers (32/66) 
+  Generating static pages using 7 workers (49/66) 
+✓ Generating static pages using 7 workers (66/66) in 3.5s
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /about
+├ ○ /admin
+├ ○ /admin/agents
+├ ○ /admin/coach
+├ ○ /admin/kyc
+├ ○ /admin/strategies
+├ ○ /admin/system
+├ ○ /admin/users
+├ ƒ /affiliate
+├ ƒ /affiliate/best
+├ ƒ /alpha-coach
+├ ƒ /analytics
+├ ƒ /analytics/global
+├ ƒ /analytics/performance
+├ ƒ /analytics/risk
+├ ƒ /analytics/trade
+├ ○ /api-reference
+├ ƒ /api/analytics/global
+├ ƒ /api/analytics/monthly-returns
+├ ƒ /api/analytics/portfolio
+├ ƒ /api/analytics/risk
+├ ƒ /api/analytics/strategy-comparison
+├ ƒ /api/analytics/trades
+├ ƒ /api/analytics/trades/export
+├ ƒ /api/auth/google
+├ ƒ /api/broker/accounts
+├ ƒ /api/broker/accounts/connect
+├ ƒ /api/chatbot
+├ ƒ /api/copy/link
+├ ƒ /api/currency
+├ ƒ /api/market/bias
+├ ƒ /api/market/news-image
+├ ƒ /api/market/ohlc
+├ ƒ /api/market/quote
+├ ƒ /api/market/quotes
+├ ƒ /api/strategies/my
+├ ƒ /api/trading/lot-size
+├ ƒ /api/trading/trades/[id]/break-even
+├ ƒ /api/trading/trades/[id]/close
+├ ƒ /api/trading/trades/[id]/modify
+├ ƒ /api/trading/trades/[id]/trailing-stop
+├ ƒ /api/trading/trades/bulk-close
+├ ƒ /api/trading/trades/history
+├ ƒ /api/trading/trades/open
+├ ƒ /api/trading/trades/order
+├ ƒ /api/waitlist
+├ ○ /apple-icon.png
+├ ○ /auth/callback
+├ ƒ /billing
+├ ○ /blog
+├ ● /blog/[slug]
+│ ├ /blog/backtesting-lies
+│ ├ /blog/llm-trading-signals
+│ └ /blog/colocation-real-talk
+├ ƒ /bots
+├ ● /brokers/[slug]
+│ ├ /brokers/ic-markets
+│ ├ /brokers/pepperstone
+│ ├ /brokers/exness
+│ └ [+16 more paths]
+├ ○ /careers
+├ ○ /community
+├ ƒ /connected-accounts
+├ ○ /contact
+├ ○ /cookies
+├ ƒ /copy-trading
+├ ƒ /creator
+├ ƒ /creator/add-bot
+├ ƒ /creator/bots/[id]
+├ ƒ /dashboard
+├ ○ /docs
+├ ○ /documentation
+├ ○ /forgot-password
+├ ƒ /get-bots
+├ ○ /guides
+├ ○ /help
+├ ƒ /history
+├ ○ /icon.png
+├ ƒ /journal
+├ ƒ /leaderboard
+├ ○ /login
+├ ƒ /marketplace
+├ ƒ /marketplace/[id]
+├ ƒ /marketplace/success
+├ ƒ /markets
+├ ƒ /my-bots
+├ ƒ /notifications
+├ ○ /onboarding
+├ ○ /onboarding/risk
+├ ○ /press
+├ ○ /pricing
+├ ○ /privacy
+├ ○ /register
+├ ○ /reset-password
+├ ○ /risk-disclosure
+├ ○ /robots.txt
+├ ƒ /settings
+├ ƒ /settings/api-keys
+├ ƒ /settings/billing
+├ ƒ /settings/kyc
+├ ƒ /settings/notifications
+├ ƒ /settings/profile
+├ ƒ /settings/security
+├ ƒ /settings/support
+├ ƒ /settings/trading
+├ ○ /signup
+├ ○ /sitemap.xml
+├ ƒ /strategies
+├ ƒ /strategies/[id]
+├ ƒ /strategies/builder
+├ ƒ /subscriptions
+├ ƒ /team-plans
+├ ○ /terms
+├ ○ /verify-email
+└ ƒ /wallet
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -1,0 +1,259 @@
+{
+  "at": "2026-07-18T13:03:12.874Z",
+  "healthNote": "/health probe timeout 300ms",
+  "routes": [
+    {
+      "route": "/",
+      "wallMs": {
+        "before": 9844,
+        "after": 10090,
+        "delta": 246
+      },
+      "fcp": {
+        "before": 1432,
+        "after": 488,
+        "delta": -944
+      },
+      "longMs": {
+        "before": 7127,
+        "after": 7678,
+        "delta": 551
+      },
+      "resKB": {
+        "before": 9081,
+        "after": 9081,
+        "delta": 0
+      }
+    },
+    {
+      "route": "/login",
+      "wallMs": {
+        "before": 15493,
+        "after": 9506,
+        "delta": -5987
+      },
+      "fcp": {
+        "before": 8452,
+        "after": 176,
+        "delta": -8276
+      },
+      "longMs": {
+        "before": 358,
+        "after": 222,
+        "delta": -136
+      },
+      "resKB": {
+        "before": 8234,
+        "after": 8232,
+        "delta": -2
+      }
+    },
+    {
+      "route": "/marketplace",
+      "wallMs": {
+        "before": 8672,
+        "after": 13841,
+        "delta": 5169
+      },
+      "fcp": {
+        "before": 1532,
+        "after": 232,
+        "delta": -1300
+      },
+      "longMs": {
+        "before": 454,
+        "after": 200,
+        "delta": -254
+      },
+      "resKB": {
+        "before": 8234,
+        "after": 8260,
+        "delta": 26
+      }
+    },
+    {
+      "route": "/pricing",
+      "wallMs": {
+        "before": 9352,
+        "after": 12865,
+        "delta": 3513
+      },
+      "fcp": {
+        "before": 2440,
+        "after": 4176,
+        "delta": 1736
+      },
+      "longMs": {
+        "before": 265,
+        "after": 229,
+        "delta": -36
+      },
+      "resKB": {
+        "before": 7113,
+        "after": 7113,
+        "delta": 0
+      }
+    },
+    {
+      "route": "/dashboard",
+      "wallMs": {
+        "before": 8447,
+        "after": 7831,
+        "delta": -616
+      },
+      "fcp": {
+        "before": 252,
+        "after": 268,
+        "delta": 16
+      },
+      "longMs": {
+        "before": 255,
+        "after": 263,
+        "delta": 8
+      },
+      "resKB": {
+        "before": 8234,
+        "after": 8234,
+        "delta": 0
+      }
+    },
+    {
+      "route": "/analytics",
+      "wallMs": {
+        "before": 7117,
+        "after": 7071,
+        "delta": -46
+      },
+      "fcp": {
+        "before": 140,
+        "after": 144,
+        "delta": 4
+      },
+      "longMs": {
+        "before": 248,
+        "after": 215,
+        "delta": -33
+      },
+      "resKB": {
+        "before": 8234,
+        "after": 8234,
+        "delta": 0
+      }
+    },
+    {
+      "route": "/markets",
+      "wallMs": {
+        "before": 7168,
+        "after": 7302,
+        "delta": 134
+      },
+      "fcp": {
+        "before": 176,
+        "after": 144,
+        "delta": -32
+      },
+      "longMs": {
+        "before": 214,
+        "after": 212,
+        "delta": -2
+      },
+      "resKB": {
+        "before": 8234,
+        "after": 8234,
+        "delta": 0
+      }
+    },
+    {
+      "route": "/settings/profile",
+      "wallMs": {
+        "before": 7042,
+        "after": 7272,
+        "delta": 230
+      },
+      "fcp": {
+        "before": 128,
+        "after": 152,
+        "delta": 24
+      },
+      "longMs": {
+        "before": 204,
+        "after": 212,
+        "delta": 8
+      },
+      "resKB": {
+        "before": 8234,
+        "after": 8234,
+        "delta": 0
+      }
+    },
+    {
+      "route": "/alpha-coach",
+      "wallMs": {
+        "before": 7628,
+        "after": 7241,
+        "delta": -387
+      },
+      "fcp": {
+        "before": 132,
+        "after": 128,
+        "delta": -4
+      },
+      "longMs": {
+        "before": 266,
+        "after": 205,
+        "delta": -61
+      },
+      "resKB": {
+        "before": 8234,
+        "after": 8234,
+        "delta": 0
+      }
+    },
+    {
+      "route": "/strategies/builder",
+      "wallMs": {
+        "before": 7711,
+        "after": 7035,
+        "delta": -676
+      },
+      "fcp": {
+        "before": 164,
+        "after": 132,
+        "delta": -32
+      },
+      "longMs": {
+        "before": 207,
+        "after": 214,
+        "delta": 7
+      },
+      "resKB": {
+        "before": 8234,
+        "after": 8234,
+        "delta": 0
+      }
+    },
+    {
+      "route": "/connected-accounts",
+      "wallMs": {
+        "before": 15737,
+        "after": 11781,
+        "delta": -3956
+      },
+      "fcp": {
+        "before": 2928,
+        "after": 460,
+        "delta": -2468
+      },
+      "longMs": {
+        "before": 227,
+        "after": 209,
+        "delta": -18
+      },
+      "resKB": {
+        "before": 8234,
+        "after": 8234,
+        "delta": 0
+      }
+    }
+  ]
+}

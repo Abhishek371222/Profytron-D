@@ -1,0 +1,80 @@
+{
+  "categories": {
+    "performance": {
+      "score": 0.4,
+      "title": "Performance"
+    },
+    "accessibility": {
+      "score": 0.96,
+      "title": "Accessibility"
+    }
+  },
+  "audits": {
+    "first-contentful-paint": {
+      "title": "First Contentful Paint",
+      "score": 0.85,
+      "displayValue": "2.0\u00a0s",
+      "numericValue": 1976.74935
+    },
+    "largest-contentful-paint": {
+      "title": "Largest Contentful Paint",
+      "score": 0,
+      "displayValue": "50.6\u00a0s",
+      "numericValue": 50598.207575
+    },
+    "total-blocking-time": {
+      "title": "Total Blocking Time",
+      "score": 0,
+      "displayValue": "6,780\u00a0ms",
+      "numericValue": 6775.708875000001
+    },
+    "cumulative-layout-shift": {
+      "title": "Cumulative Layout Shift",
+      "score": 1,
+      "displayValue": "0.009",
+      "numericValue": 0.008716591198664164
+    },
+    "speed-index": {
+      "title": "Speed Index",
+      "score": 0.65,
+      "displayValue": "4.9\u00a0s",
+      "numericValue": 4908.374107954245
+    },
+    "interactive": {
+      "title": "Time to Interactive",
+      "score": 0,
+      "displayValue": "50.6\u00a0s",
+      "numericValue": 50603.0533975
+    },
+    "server-response-time": {
+      "title": "Initial server response time was short",
+      "score": 1,
+      "displayValue": "Root document took 330\u00a0ms",
+      "numericValue": 332.281
+    },
+    "mainthread-work-breakdown": {
+      "title": "Minimize main-thread work",
+      "score": 0,
+      "displayValue": "15.5\u00a0s",
+      "numericValue": 15535.808000000137
+    },
+    "bootup-time": {
+      "title": "Reduce JavaScript execution time",
+      "score": 0,
+      "displayValue": "13.2\u00a0s",
+      "numericValue": 13188.24000000001
+    },
+    "unused-javascript": {
+      "title": "Reduce unused JavaScript",
+      "score": 0,
+      "displayValue": "Potential savings of 1,417\u00a0KiB",
+      "numericValue": 7350
+    },
+    "dom-size": {
+      "title": "Avoid an excessive DOM size",
+      "score": 0.5,
+      "displayValue": "968 elements",
+      "numericValue": 968
+    }
+  }
+}

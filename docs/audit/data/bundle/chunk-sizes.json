@@ -1,0 +1,659 @@
+{
+  "summary": {
+    "js_files": 263,
+    "js_total_kb": 6857.4,
+    "css_total_kb": 399.0,
+    "largest_js": [
+      {
+        "path": "static/chunks/1312-0d5d840b2b2b4cdb.js",
+        "bytes": 498132,
+        "kb": 486.5
+      },
+      {
+        "path": "static/chunks/7299.b5e46cb1ca919424.js",
+        "bytes": 415423,
+        "kb": 405.7
+      },
+      {
+        "path": "static/chunks/3505.16dd148e6d682f1e.js",
+        "bytes": 364927,
+        "kb": 356.4
+      },
+      {
+        "path": "static/chunks/4e77bd5d.00e26850adec2e93.js",
+        "bytes": 348263,
+        "kb": 340.1
+      },
+      {
+        "path": "static/chunks/3919-a3d68e57279333c6.js",
+        "bytes": 266667,
+        "kb": 260.4
+      },
+      {
+        "path": "static/chunks/main-cb84bc8cbec10420.js",
+        "bytes": 250446,
+        "kb": 244.6
+      },
+      {
+        "path": "static/chunks/2906.6f0f9fde84fd8abc.js",
+        "bytes": 241953,
+        "kb": 236.3
+      },
+      {
+        "path": "static/chunks/c2b750b4.8d440f42bcc917aa.js",
+        "bytes": 210615,
+        "kb": 205.7
+      },
+      {
+        "path": "static/chunks/3c98fd3f-14bcfa852fcb20fc.js",
+        "bytes": 200217,
+        "kb": 195.5
+      },
+      {
+        "path": "static/chunks/framework-d8f6d4b6730db88d.js",
+        "bytes": 190047,
+        "kb": 185.6
+      },
+      {
+        "path": "static/chunks/aaa38339.f11fbfc0b5da26af.js",
+        "bytes": 185892,
+        "kb": 181.5
+      },
+      {
+        "path": "static/chunks/13359791.a039bd6637e87ab3.js",
+        "bytes": 120585,
+        "kb": 117.8
+      },
+      {
+        "path": "static/chunks/d2c3fecd.bf72a76b80f60d90.js",
+        "bytes": 120584,
+        "kb": 117.8
+      },
+      {
+        "path": "static/chunks/4871-6b2d4b0227d7f430.js",
+        "bytes": 114625,
+        "kb": 111.9
+      },
+      {
+        "path": "static/chunks/polyfills-42372ed130431b0a.js",
+        "bytes": 112594,
+        "kb": 110.0
+      },
+      {
+        "path": "static/chunks/app/(dashboard)/layout-a6bde96579a1367f.js",
+        "bytes": 96070,
+        "kb": 93.8
+      },
+      {
+        "path": "static/chunks/7755617c.67b9ae1b951331db.js",
+        "bytes": 86624,
+        "kb": 84.6
+      },
+      {
+        "path": "static/chunks/app/(dashboard)/dashboard/page-715ba96280e93d9f.js",
+        "bytes": 79916,
+        "kb": 78.0
+      },
+      {
+        "path": "static/chunks/8850-4f655decde8d103b.js",
+        "bytes": 69896,
+        "kb": 68.3
+      },
+      {
+        "path": "static/chunks/2927-ddb4bcd406c94716.js",
+        "bytes": 67243,
+        "kb": 65.7
+      },
+      {
+        "path": "static/chunks/app/(dashboard)/wallet/page-df741f5dbaa09bdf.js",
+        "bytes": 62036,
+        "kb": 60.6
+      },
+      {
+        "path": "static/chunks/4682-245b3f7f418777dd.js",
+        "bytes": 61744,
+        "kb": 60.3
+      },
+      {
+        "path": "static/chunks/app/(dashboard)/marketplace/page-d330a00908cda37b.js",
+        "bytes": 58255,
+        "kb": 56.9
+      },
+      {
+        "path": "static/chunks/3071-417aa10af113661c.js",
+        "bytes": 54463,
+        "kb": 53.2
+      },
+      {
+        "path": "static/chunks/e809d3ec-0f0e87a21e530e4b.js",
+        "bytes": 51927,
+        "kb": 50.7
+      }
+    ],
+    "largest_css": [
+      {
+        "path": "static/css/3847091f1060da72.css",
+        "bytes": 388085,
+        "kb": 379.0
+      },
+      {
+        "path": "static/css/f652b4b1d5b4ac84.css",
+        "bytes": 16681,
+        "kb": 16.3
+      },
+      {
+        "path": "static/css/3b8535bb488efde5.css",
+        "bytes": 3751,
+        "kb": 3.7
+      },
+      {
+        "path": "static/css/a561b038822611de.css",
+        "bytes": 83,
+        "kb": 0.1
+      }
+    ],
+    "rootMainFiles": null
+  },
+  "raw_top100": [
+    {
+      "path": "static/chunks/1312-0d5d840b2b2b4cdb.js",
+      "bytes": 498132,
+      "kb": 486.5
+    },
+    {
+      "path": "static/chunks/7299.b5e46cb1ca919424.js",
+      "bytes": 415423,
+      "kb": 405.7
+    },
+    {
+      "path": "static/chunks/3505.16dd148e6d682f1e.js",
+      "bytes": 364927,
+      "kb": 356.4
+    },
+    {
+      "path": "static/chunks/4e77bd5d.00e26850adec2e93.js",
+      "bytes": 348263,
+      "kb": 340.1
+    },
+    {
+      "path": "static/chunks/3919-a3d68e57279333c6.js",
+      "bytes": 266667,
+      "kb": 260.4
+    },
+    {
+      "path": "static/chunks/main-cb84bc8cbec10420.js",
+      "bytes": 250446,
+      "kb": 244.6
+    },
+    {
+      "path": "static/chunks/2906.6f0f9fde84fd8abc.js",
+      "bytes": 241953,
+      "kb": 236.3
+    },
+    {
+      "path": "static/chunks/c2b750b4.8d440f42bcc917aa.js",
+      "bytes": 210615,
+      "kb": 205.7
+    },
+    {
+      "path": "static/chunks/3c98fd3f-14bcfa852fcb20fc.js",
+      "bytes": 200217,
+      "kb": 195.5
+    },
+    {
+      "path": "static/chunks/framework-d8f6d4b6730db88d.js",
+      "bytes": 190047,
+      "kb": 185.6
+    },
+    {
+      "path": "static/chunks/aaa38339.f11fbfc0b5da26af.js",
+      "bytes": 185892,
+      "kb": 181.5
+    },
+    {
+      "path": "static/chunks/13359791.a039bd6637e87ab3.js",
+      "bytes": 120585,
+      "kb": 117.8
+    },
+    {
+      "path": "static/chunks/d2c3fecd.bf72a76b80f60d90.js",
+      "bytes": 120584,
+      "kb": 117.8
+    },
+    {
+      "path": "static/chunks/4871-6b2d4b0227d7f430.js",
+      "bytes": 114625,
+      "kb": 111.9
+    },
+    {
+      "path": "static/chunks/polyfills-42372ed130431b0a.js",
+      "bytes": 112594,
+      "kb": 110.0
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/layout-a6bde96579a1367f.js",
+      "bytes": 96070,
+      "kb": 93.8
+    },
+    {
+      "path": "static/chunks/7755617c.67b9ae1b951331db.js",
+      "bytes": 86624,
+      "kb": 84.6
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/dashboard/page-715ba96280e93d9f.js",
+      "bytes": 79916,
+      "kb": 78.0
+    },
+    {
+      "path": "static/chunks/8850-4f655decde8d103b.js",
+      "bytes": 69896,
+      "kb": 68.3
+    },
+    {
+      "path": "static/chunks/2927-ddb4bcd406c94716.js",
+      "bytes": 67243,
+      "kb": 65.7
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/wallet/page-df741f5dbaa09bdf.js",
+      "bytes": 62036,
+      "kb": 60.6
+    },
+    {
+      "path": "static/chunks/4682-245b3f7f418777dd.js",
+      "bytes": 61744,
+      "kb": 60.3
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/marketplace/page-d330a00908cda37b.js",
+      "bytes": 58255,
+      "kb": 56.9
+    },
+    {
+      "path": "static/chunks/3071-417aa10af113661c.js",
+      "bytes": 54463,
+      "kb": 53.2
+    },
+    {
+      "path": "static/chunks/e809d3ec-0f0e87a21e530e4b.js",
+      "bytes": 51927,
+      "kb": 50.7
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/alpha-coach/page-72a77a75c40c7fd5.js",
+      "bytes": 51926,
+      "kb": 50.7
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/connected-accounts/page-e38a508e95896c2a.js",
+      "bytes": 51823,
+      "kb": 50.6
+    },
+    {
+      "path": "static/chunks/1938-9ffdf6b54843428e.js",
+      "bytes": 41745,
+      "kb": 40.8
+    },
+    {
+      "path": "static/chunks/8240-85fa935c0a2095ee.js",
+      "bytes": 41427,
+      "kb": 40.5
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/affiliate/page-b5dc09ab09dcecc3.js",
+      "bytes": 40208,
+      "kb": 39.3
+    },
+    {
+      "path": "static/chunks/8147-ca18671946e88087.js",
+      "bytes": 37389,
+      "kb": 36.5
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/history/page-c282f1c2e5d37516.js",
+      "bytes": 37285,
+      "kb": 36.4
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/affiliate/best/page-51b84ac8725c4433.js",
+      "bytes": 36162,
+      "kb": 35.3
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/settings/billing/page-6ac97d08f900b21a.js",
+      "bytes": 35608,
+      "kb": 34.8
+    },
+    {
+      "path": "static/chunks/app/admin/strategies/page-b4030ef638afb946.js",
+      "bytes": 34437,
+      "kb": 33.6
+    },
+    {
+      "path": "static/chunks/5644-8b011630ca93b964.js",
+      "bytes": 33938,
+      "kb": 33.1
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/billing/page-b302dfae13129094.js",
+      "bytes": 33078,
+      "kb": 32.3
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/markets/page-f59b39500b97a06a.js",
+      "bytes": 32971,
+      "kb": 32.2
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/settings/security/page-5d08c18e40596945.js",
+      "bytes": 32877,
+      "kb": 32.1
+    },
+    {
+      "path": "static/chunks/1371.c142473015118341.js",
+      "bytes": 32218,
+      "kb": 31.5
+    },
+    {
+      "path": "static/chunks/327-606e3e068e441143.js",
+      "bytes": 31950,
+      "kb": 31.2
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/my-bots/page-aad9021c6eb4701f.js",
+      "bytes": 31373,
+      "kb": 30.6
+    },
+    {
+      "path": "static/chunks/app/page-c0a010cf99ef7b79.js",
+      "bytes": 30240,
+      "kb": 29.5
+    },
+    {
+      "path": "static/chunks/8806-1722c713f53efd9b.js",
+      "bytes": 29630,
+      "kb": 28.9
+    },
+    {
+      "path": "static/chunks/4448-67ec56453b414c87.js",
+      "bytes": 27975,
+      "kb": 27.3
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/analytics/performance/page-74b1f1aeb37e92fc.js",
+      "bytes": 27655,
+      "kb": 27.0
+    },
+    {
+      "path": "static/chunks/2839-5f3891020e844615.js",
+      "bytes": 27216,
+      "kb": 26.6
+    },
+    {
+      "path": "static/chunks/9099.851d92a0e3badf35.js",
+      "bytes": 26995,
+      "kb": 26.4
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/analytics/page-757c556647c4abd8.js",
+      "bytes": 26146,
+      "kb": 25.5
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/leaderboard/page-5b95653a7d56ac62.js",
+      "bytes": 25965,
+      "kb": 25.4
+    },
+    {
+      "path": "static/chunks/3330-56a63d9c073b6259.js",
+      "bytes": 25500,
+      "kb": 24.9
+    },
+    {
+      "path": "static/chunks/app/blog/page-410ae7274f510324.js",
+      "bytes": 25196,
+      "kb": 24.6
+    },
+    {
+      "path": "static/chunks/4090.ee5519841968b5f8.js",
+      "bytes": 25187,
+      "kb": 24.6
+    },
+    {
+      "path": "static/chunks/3374-77f43447643ced2a.js",
+      "bytes": 25113,
+      "kb": 24.5
+    },
+    {
+      "path": "static/chunks/4136.03674d85a8639060.js",
+      "bytes": 24768,
+      "kb": 24.2
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/subscriptions/page-9a31fdce69ade6fb.js",
+      "bytes": 24647,
+      "kb": 24.1
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/bots/page-b131828f9cd04555.js",
+      "bytes": 24423,
+      "kb": 23.9
+    },
+    {
+      "path": "static/chunks/app/admin/page-1953cdbc8190c286.js",
+      "bytes": 23924,
+      "kb": 23.4
+    },
+    {
+      "path": "static/chunks/app/admin/agents/page-ae145f952746c3bc.js",
+      "bytes": 23874,
+      "kb": 23.3
+    },
+    {
+      "path": "static/chunks/457-d49b3e2d5fdadc55.js",
+      "bytes": 23675,
+      "kb": 23.1
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/strategies/page-4824a551c6854644.js",
+      "bytes": 23568,
+      "kb": 23.0
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/analytics/global/page-236e10a928a23df3.js",
+      "bytes": 23457,
+      "kb": 22.9
+    },
+    {
+      "path": "static/chunks/app/community/page-8625ebacba002f5b.js",
+      "bytes": 23267,
+      "kb": 22.7
+    },
+    {
+      "path": "static/chunks/4925-34ab2c14cec8a88d.js",
+      "bytes": 22284,
+      "kb": 21.8
+    },
+    {
+      "path": "static/chunks/app/terms/page-be113aa612020b24.js",
+      "bytes": 22105,
+      "kb": 21.6
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/analytics/trade/page-1881e697ab433706.js",
+      "bytes": 21980,
+      "kb": 21.5
+    },
+    {
+      "path": "static/chunks/1115-c4bbab7b2c08dd5f.js",
+      "bytes": 21882,
+      "kb": 21.4
+    },
+    {
+      "path": "static/chunks/app/(public)/onboarding/risk/page-1fb59935a75cc587.js",
+      "bytes": 21638,
+      "kb": 21.1
+    },
+    {
+      "path": "static/chunks/375-2226f0c7a98ef83a.js",
+      "bytes": 21203,
+      "kb": 20.7
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/creator/page-e735b3086b42e068.js",
+      "bytes": 20190,
+      "kb": 19.7
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/settings/profile/page-e98b4b2d1ca41135.js",
+      "bytes": 20149,
+      "kb": 19.7
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/settings/kyc/page-b1cec8a7d1c2fa33.js",
+      "bytes": 20139,
+      "kb": 19.7
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/settings/trading/page-55ca770c4326254c.js",
+      "bytes": 19999,
+      "kb": 19.5
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/strategies/[id]/page-5e07129eda81a479.js",
+      "bytes": 19394,
+      "kb": 18.9
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/marketplace/[id]/page-fdc572174574905b.js",
+      "bytes": 19321,
+      "kb": 18.9
+    },
+    {
+      "path": "static/chunks/app/admin/users/page-1c442581b9f950ff.js",
+      "bytes": 19184,
+      "kb": 18.7
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/journal/page-65c455665d8d7e91.js",
+      "bytes": 19178,
+      "kb": 18.7
+    },
+    {
+      "path": "static/chunks/app/contact/page-721f40a8ea6e9d51.js",
+      "bytes": 18731,
+      "kb": 18.3
+    },
+    {
+      "path": "static/chunks/app/privacy/page-4de94d1e450e644b.js",
+      "bytes": 18568,
+      "kb": 18.1
+    },
+    {
+      "path": "static/chunks/7636-8e14c90ab0e66617.js",
+      "bytes": 18452,
+      "kb": 18.0
+    },
+    {
+      "path": "static/chunks/app/risk-disclosure/page-a9dbbb756327e831.js",
+      "bytes": 18419,
+      "kb": 18.0
+    },
+    {
+      "path": "static/chunks/1274-c7eff90d58e468de.js",
+      "bytes": 18369,
+      "kb": 17.9
+    },
+    {
+      "path": "static/chunks/6349-02e3c9dd84609858.js",
+      "bytes": 18216,
+      "kb": 17.8
+    },
+    {
+      "path": "static/chunks/app/admin/kyc/page-ed91decbb3ca7073.js",
+      "bytes": 18201,
+      "kb": 17.8
+    },
+    {
+      "path": "static/chunks/6552-e5286e95ab1c5885.js",
+      "bytes": 17943,
+      "kb": 17.5
+    },
+    {
+      "path": "static/chunks/8197-8e0ccd083cb80e71.js",
+      "bytes": 17743,
+      "kb": 17.3
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/analytics/risk/page-9e725b788bf04de2.js",
+      "bytes": 17729,
+      "kb": 17.3
+    },
+    {
+      "path": "static/chunks/app/api-reference/page-36d3efc76af8f042.js",
+      "bytes": 17648,
+      "kb": 17.2
+    },
+    {
+      "path": "static/chunks/app/cookies/page-5c835e9bc9571a20.js",
+      "bytes": 17648,
+      "kb": 17.2
+    },
+    {
+      "path": "static/chunks/1524.482a75e4ae4d544c.js",
+      "bytes": 17181,
+      "kb": 16.8
+    },
+    {
+      "path": "static/chunks/app/docs/page-5c2005445f56b45f.js",
+      "bytes": 17153,
+      "kb": 16.8
+    },
+    {
+      "path": "static/chunks/3453.78c0fc761584c723.js",
+      "bytes": 17044,
+      "kb": 16.6
+    },
+    {
+      "path": "static/chunks/app/(public)/reset-password/page-616301909b72a960.js",
+      "bytes": 16976,
+      "kb": 16.6
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/settings/notifications/page-2471922688d90483.js",
+      "bytes": 16737,
+      "kb": 16.3
+    },
+    {
+      "path": "static/chunks/app/guides/page-6f0b3b79c4c0eb9c.js",
+      "bytes": 16467,
+      "kb": 16.1
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/creator/bots/[id]/page-688b480b0b9368d4.js",
+      "bytes": 16147,
+      "kb": 15.8
+    },
+    {
+      "path": "static/chunks/app/about/page-23adbe0857f968fc.js",
+      "bytes": 16063,
+      "kb": 15.7
+    },
+    {
+      "path": "static/chunks/app/(public)/verify-email/page-b4c3b9e8a623d965.js",
+      "bytes": 15976,
+      "kb": 15.6
+    },
+    {
+      "path": "static/chunks/app/(dashboard)/creator/add-bot/page-91ae491aa90018bf.js",
+      "bytes": 15725,
+      "kb": 15.4
+    },
+    {
+      "path": "static/chunks/app/layout-48e01603ca31e528.js",
+      "bytes": 15684,
+      "kb": 15.3
+    }
+  ]
+}

@@ -6,6 +6,8 @@ import { RedisService } from '../auth/redis.service';
 import { TradingGateway } from './trading.gateway';
 import { CopyLedgerService } from './copy-ledger.service';
 import { CopyFactoryService } from '../copy-factory/copy-factory.service';
+import { SyncEngineService } from '../sync/sync-engine.service';
+import type { PositionSnapshot } from '../sync/sync-diff';
 import {
   SubscriptionStatus,
   TradeDirection,
@@ -44,6 +46,7 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
     private gateway: TradingGateway,
     private ledger: CopyLedgerService,
     private copyFactory: CopyFactoryService,
+    private syncEngine: SyncEngineService,
   ) {}
 
   onModuleDestroy() {
@@ -125,8 +128,14 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
             `Position sync failed for user ${sub.userId} (account ${sub.brokerAccountId}, ${fails} consecutive): ${(err as Error).message}`,
           );
           if (fails === 3) {
+            const statusDelta = await this.syncEngine.commitStatus(
+              sub.brokerAccountId,
+              'degraded',
+            );
+            this.gateway.sendToUser(sub.userId, 'sync_status', statusDelta);
             this.gateway.sendToUser(sub.userId, 'account_sync_degraded', {
               brokerAccountId: sub.brokerAccountId,
+              version: statusDelta.version,
             });
           }
         }
@@ -178,6 +187,21 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
       takeProfit: p.takeProfit ?? null,
       profit: typeof p.profit === 'number' ? p.profit : undefined,
     }));
+
+    const snapshots: PositionSnapshot[] = brokerPositions.map((p) => ({
+      id: p.id,
+      symbol: p.symbol,
+      volume: p.volume,
+      openPrice: p.openPrice,
+      profit: p.profit,
+      stopLoss: p.stopLoss,
+      takeProfit: p.takeProfit,
+      type: p.type,
+    }));
+    const positionsDelta = await this.syncEngine.commitPositions(
+      sub.brokerAccountId,
+      snapshots,
+    );
 
     const openDbTrades = await this.prisma.trade.findMany({
       where: {
@@ -268,5 +292,17 @@ export class CopyFactoryPositionSyncService implements OnModuleDestroy {
       });
       this.gateway.sendToUser(sub.userId, 'trade_closed', closed);
     }
+
+    if (positionsDelta.changed) {
+      this.gateway.sendToUser(sub.userId, 'positions_delta', {
+        ...positionsDelta,
+        accountId: sub.brokerAccountId,
+      });
+    }
+    this.gateway.sendToUser(
+      sub.userId,
+      'sync_status',
+      await this.syncEngine.commitStatus(sub.brokerAccountId, 'fresh'),
+    );
   }
 }

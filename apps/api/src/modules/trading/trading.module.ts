@@ -20,10 +20,12 @@ import { BotTradeSyncService } from './bot-trade-sync.service';
 import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
 import { WalletModule } from '../wallet/wallet.module';
 import { ProfitShareService } from './profit-share.service';
+import { SyncModule } from '../sync/sync.module';
 
 @Module({
   imports: [
     AuthModule,
+    SyncModule,
     forwardRef(() => CopyFactoryModule),
     GrowthModule,
     MarketModule,

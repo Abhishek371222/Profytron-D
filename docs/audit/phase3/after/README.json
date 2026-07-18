@@ -1,0 +1,17 @@
+{
+  "at": "2026-07-18T13:15:00Z",
+  "phase": 3,
+  "note": "After SyncEngine + client delta path. Absolute CWV budgets still waived under Phase 2 ADR-009 until 2026-08-18. Perceived warm equity patch target ≤300ms (in-process setQueryData).",
+  "changes": {
+    "equityPath": "L2 + setQueryData; no broker-accounts active refetch",
+    "positionsPath": "positions_delta setQueryData when version advances",
+    "dashboardPoll": "refetchInterval disabled; staleTime 10m; 5m medium reconcile",
+    "shotgun": "invalidateAccountQueries → scheduleEntityRefresh",
+    "rollback": "SYNC_ENGINE_ENABLED=0"
+  },
+  "targets": {
+    "perceivedRefreshMs": 300,
+    "duplicateGets500ms": 0,
+    "blankAfterFirstLoad": false
+  }
+}

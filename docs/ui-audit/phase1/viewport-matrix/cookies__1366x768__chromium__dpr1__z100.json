@@ -1,0 +1,440 @@
+{
+  "slug": "cookies",
+  "path": "/cookies",
+  "auth": "public",
+  "shell": "marketing",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 1366,
+    "h": 768,
+    "label": "desktop-1366"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/cookies__1366x768__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 1366,
+      "h": 768,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 1366,
+      "scrollHeight": 3453,
+      "clientWidth": 1366,
+      "clientHeight": 768,
+      "overflowX": 0,
+      "overflowY": 2685
+    },
+    "body": {
+      "width": 1366
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 1332,
+        "height": 56,
+        "fontSize": "52px",
+        "lineHeight": "56.16px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": {
+        "selector": "h2",
+        "width": 1274,
+        "height": 24,
+        "fontSize": "18px",
+        "lineHeight": "24.3px",
+        "fontWeight": "600",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h3": {
+        "selector": "h3",
+        "width": 146,
+        "height": 24,
+        "fontSize": "16px",
+        "lineHeight": "24px",
+        "fontWeight": "700",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 1366,
+        "height": 3453,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 62,
+        "height": 36,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "500",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 672,
+        "height": 59,
+        "fontSize": "18px",
+        "lineHeight": "29.25px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": ".page-container[0]",
+        "width": 1366,
+        "height": 73,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[1]",
+        "width": 1366,
+        "height": 226,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[2]",
+        "width": 1366,
+        "height": 179,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[3]",
+        "width": 1366,
+        "height": 846,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[4]",
+        "width": 1366,
+        "height": 441,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[5]",
+        "width": 1366,
+        "height": 237,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[6]",
+        "width": 1366,
+        "height": 564,
+        "maxWidth": "1920px",
+        "paddingLeft": "17.075px",
+        "paddingRight": "17.075px",
+        "position": "relative"
+      },
+      {
+        "selector": "main",
+        "width": 1366,
+        "height": 3453,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "relative"
+      },
+      {
+        "selector": "nav",
+        "width": 1332,
+        "height": 73,
+        "maxWidth": "none",
+        "paddingLeft": "4px",
+        "paddingRight": "20px",
+        "position": "static"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 36,
+        "height": 36,
+        "minWidth": "auto"
+      },
+      {
+        "i": 1,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 2,
+        "width": 120,
+        "height": 22,
+        "minWidth": "auto"
+      },
+      {
+        "i": 3,
+        "width": 78,
+        "height": 22,
+        "minWidth": "auto"
+      },
+      {
+        "i": 4,
+        "width": 126,
+        "height": 22,
+        "minWidth": "auto"
+      },
+      {
+        "i": 5,
+        "width": 102,
+        "height": 22,
+        "minWidth": "auto"
+      },
+      {
+        "i": 6,
+        "width": 102,
+        "height": 22,
+        "minWidth": "auto"
+      },
+      {
+        "i": 7,
+        "width": 66,
+        "height": 22,
+        "minWidth": "auto"
+      },
+      {
+        "i": 8,
+        "width": 114,
+        "height": 22,
+        "minWidth": "auto"
+      },
+      {
+        "i": 9,
+        "width": 126,
+        "height": 22,
+        "minWidth": "auto"
+      },
+      {
+        "i": 10,
+        "width": 1332,
+        "height": 385,
+        "minWidth": "0px"
+      },
+      {
+        "i": 11,
+        "width": 1330,
+        "height": 41,
+        "minWidth": "0px"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "i": 0,
+        "width": 110,
+        "height": 26,
+        "tag": "span"
+      },
+      {
+        "i": 1,
+        "width": 128,
+        "height": 16,
+        "tag": "div"
+      },
+      {
+        "i": 2,
+        "width": 6,
+        "height": 6,
+        "tag": "div"
+      }
+    ],
+    "sticky": [
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 0,
+        "height": 768,
+        "width": 1366
+      },
+      {
+        "tag": "header",
+        "position": "fixed",
+        "top": 0,
+        "height": 113,
+        "width": 1366
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "clamp(1rem, 1.25vw, 1.5rem)",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 35,
+      "smallTouchTargetCount": 28,
+      "smallTouchTargets": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 36,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 173,
+          "h": 21,
+          "tag": "a"
+        },
+        {
+          "w": 40,
+          "h": 40,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": []
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 28,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 120
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 78
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 126
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 102
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 102
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 66
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 114
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 126
+      }
+    ],
+    "title": "Cookie Policy | Profytron",
+    "url": "http://127.0.0.1:3000/cookies"
+  },
+  "error": null,
+  "ts": "2026-07-18T14:52:23.354Z"
+}

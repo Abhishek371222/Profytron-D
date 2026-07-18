@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo, useEffect, useId, useRef, useState } from 'react';
-import { useThemeDark } from '@/components/auth/earth/hooks';
+import { useThemeDark } from '@/lib/hooks/useThemeDark';
 import { cn } from '@/lib/utils';
 
 type TradingViewAdvancedChartProps = {

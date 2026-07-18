@@ -1,0 +1,14 @@
+{
+  "at": "2026-07-18T13:25:00Z",
+  "route": "/dashboard",
+  "note": "Pre-isolation structural ranking. Playwright commit samples appended when measured.",
+  "cascadeTriggers": [
+    { "id": "serverClock", "intervalMs": 1000, "rerenders": "full_page" },
+    { "id": "liveQuotesInModel", "intervalMs": 12000, "rerenders": "full_page" },
+    { "id": "equityDelta", "source": "ws", "rerenders": "full_page_if_parent_subscribes" }
+  ],
+  "memoModulesWired": false,
+  "renderSlots": false,
+  "viewportPause": false,
+  "virtualization": "not_needed_capped_lists"
+}

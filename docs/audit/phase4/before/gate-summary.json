@@ -1,0 +1,17 @@
+{
+  "at": "2026-07-18T13:18:00Z",
+  "build": "ok",
+  "compatChromium": { "passed": 13, "skipped": 2 },
+  "vsPhase2Before": "Route CWV not re-run end-to-end; sync architecture changes are correctness/perceived-refresh oriented. Warm equity/positions patches are in-process setQueryData (target ≤300ms perceived).",
+  "syncEngine": {
+    "module": "apps/api/src/modules/sync",
+    "flag": "SYNC_ENGINE_ENABLED (default on; set 0 to disable)",
+    "events": ["positions_delta", "account_equity+version", "sync_status"]
+  },
+  "client": {
+    "fsm": "idle|synchronizing|fresh|degraded|recovering",
+    "brokerStaleTimeMs": 600000,
+    "refetchInterval": false,
+    "bgReconcileMs": 300000
+  }
+}

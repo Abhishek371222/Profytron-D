@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "phase": 6,
+  "stage": "after",
+  "captured": "2026-07-18",
+  "experienceEnginePresent": true,
+  "flag": "NEXT_PUBLIC_EXPERIENCE_ENGINE (default ON)",
+  "gates": {
+    "tsc": "pass",
+    "build": "pass",
+    "experienceNodeSelftest": "pass",
+    "experiencePlaywrightChromium": "8/8 pass"
+  },
+  "rollback": "NEXT_PUBLIC_EXPERIENCE_ENGINE=0",
+  "platformFreeze": true
+}

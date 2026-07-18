@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "name": "Profytron Phase 6 Experience Budget Contract",
+  "updated": "2026-07-18",
+  "systems": {
+    "hero": {
+      "gpuMsPerFrame": 8,
+      "memoryMb": 64,
+      "loadToInteractiveMs": 1000
+    },
+    "coach": {
+      "gpuMsPerFrame": 2,
+      "cpuMs": 4
+    },
+    "marketing": {
+      "paintMs": 16
+    },
+    "surfaces": {
+      "paintMs": 12
+    },
+    "shaders": {
+      "gpuMsPerFrame": 6
+    }
+  },
+  "progressiveHero": ["static", "animated", "scene3d", "interactive"],
+  "featureFlag": "NEXT_PUBLIC_EXPERIENCE_ENGINE (default ON; set 0 to disable)",
+  "policy": "Soft-enforce via metrics when NEXT_PUBLIC_PLATFORM_METRICS=1"
+}

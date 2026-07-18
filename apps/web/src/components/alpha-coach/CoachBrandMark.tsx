@@ -3,7 +3,10 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CoachOrb } from '@/components/experience/CoachOrb';
+import { isExperienceEngineEnabled } from '@/platform/experience';
 
+/** Solid brand mark — Target on teal, or CoachOrb when Experience Engine is on. */
 export function CoachBrandMark({
   size = 28,
   pulse = false,
@@ -15,6 +18,14 @@ export function CoachBrandMark({
 }) {
   const reduce = useReducedMotion();
   const icon = Math.max(12, Math.round(size * 0.48));
+
+  if (isExperienceEngineEnabled() && size >= 28) {
+    return (
+      <span className={cn('inline-flex shrink-0', className)} aria-hidden>
+        <CoachOrb emotion={pulse && !reduce ? 'thinking' : 'idle'} size={size >= 40 ? 'lg' : 'md'} />
+      </span>
+    );
+  }
 
   return (
     <motion.span

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "Profytron Phase 2 Performance Budget Contract",
+  "updated": "2026-07-18",
+  "metrics": {
+    "initialJsGzipKb": { "budget": 220, "unit": "KB" },
+    "dashboardJsGzipKb": { "budget": 350, "unit": "KB" },
+    "routeTransitionMs": { "budget": 150, "unit": "ms" },
+    "dashboardRefreshPerceivedMs": { "budget": 300, "unit": "ms" },
+    "reactCommitMs": { "budget": 8, "unit": "ms" },
+    "longTaskMs": { "budget": 50, "unit": "ms" },
+    "memoryGrowth1hPct": { "budget": 10, "unit": "%" },
+    "duplicateIdenticalGets500ms": { "budget": 0, "unit": "count" }
+  },
+  "policy": "Phase 2 must not regress Phase 1 baselines. Absolute budgets waived until 2026-08-18 per ADR-009; then enforce or renew.",
+  "waiver": {
+    "adr": "ADR-009-budget-waiver",
+    "expires": "2026-08-18",
+    "exitRule": "no_regression_vs_phase1_before_baselines"
+  }
+}

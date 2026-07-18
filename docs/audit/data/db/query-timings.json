@@ -1,0 +1,153 @@
+{
+  "at": "2026-07-18T12:07:25.976Z",
+  "results": [
+    {
+      "name": "count_users",
+      "ms": 3092.8,
+      "result": 6
+    },
+    {
+      "name": "count_trades",
+      "ms": 523.3,
+      "result": 151
+    },
+    {
+      "name": "open_trades_join",
+      "ms": 539.7,
+      "result": 0
+    },
+    {
+      "name": "broker_accounts_by_user",
+      "ms": 1032.5,
+      "result": 2
+    },
+    {
+      "name": "equity_snapshots_recent",
+      "ms": 767.5,
+      "result": 100
+    },
+    {
+      "name": "closed_trades_agg",
+      "ms": 1412.5,
+      "result": [
+        {
+          "_count": 151,
+          "_sum": {
+            "profit": 78.55999999999997
+          },
+          "status": "CLOSED"
+        }
+      ]
+    },
+    {
+      "name": "marketplace_listings",
+      "ms": 2017.4,
+      "result": 1
+    },
+    {
+      "name": "portfolio_style_trades",
+      "ms": 5477.2,
+      "result": 103
+    },
+    {
+      "name": "n1_sim_broker_per_user",
+      "ms": 2955.8,
+      "result": {
+        "users": 6,
+        "accounts": 4
+      }
+    }
+  ],
+  "prismaQueryEvents": [
+    {
+      "sql": "SELECT \"public\".\"Trade\".\"id\", \"public\".\"Trade\".\"userId\", \"public\".\"Trade\".\"strategyId\", \"public\".\"Trade\".\"brokerAccountId\", \"public\".\"Trade\".\"brokerTicket\", \"public\".\"Trade\".\"symbol\", \"public\".\"Trade\".\"direction\"::text, \"public\".\"Trade\".\"volume\", \"public\".\"Trade\".\"openPrice\", \"public\".\"Trade\".\"close",
+      "durationMs": 5134,
+      "paramsLen": 55
+    },
+    {
+      "sql": "SELECT \"public\".\"MarketplaceListing\".\"id\", \"public\".\"MarketplaceListing\".\"strategyId\", \"public\".\"MarketplaceListing\".\"monthlyPrice\", \"public\".\"MarketplaceListing\".\"annualPrice\", \"public\".\"MarketplaceListing\".\"lifetimePrice\", \"public\".\"MarketplaceListing\".\"isFeatured\", \"public\".\"MarketplaceListing\".\"",
+      "durationMs": 1487,
+      "paramsLen": 6
+    },
+    {
+      "sql": "SELECT COUNT(*), SUM(\"public\".\"Trade\".\"profit\"), \"public\".\"Trade\".\"status\"::text FROM \"public\".\"Trade\" WHERE 1=1 GROUP BY \"public\".\"Trade\".\"status\" OFFSET $1",
+      "durationMs": 1406,
+      "paramsLen": 3
+    },
+    {
+      "sql": "SELECT \"public\".\"EquitySnapshot\".\"id\", \"public\".\"EquitySnapshot\".\"brokerAccountId\", \"public\".\"EquitySnapshot\".\"balance\", \"public\".\"EquitySnapshot\".\"equity\", \"public\".\"EquitySnapshot\".\"margin\", \"public\".\"EquitySnapshot\".\"freeMargin\", \"public\".\"EquitySnapshot\".\"capturedAt\" FROM \"public\".\"EquitySnapsho",
+      "durationMs": 761,
+      "paramsLen": 7
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"bridgeTokenHash\", \"public\".\"BrokerAccount\".\"serverName\", \"pu",
+      "durationMs": 700,
+      "paramsLen": 42
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"bridgeTokenHash\", \"public\".\"BrokerAccount\".\"serverName\", \"pu",
+      "durationMs": 689,
+      "paramsLen": 42
+    },
+    {
+      "sql": "SELECT \"public\".\"Trade\".\"id\", \"public\".\"Trade\".\"userId\", \"public\".\"Trade\".\"strategyId\", \"public\".\"Trade\".\"brokerAccountId\", \"public\".\"Trade\".\"brokerTicket\", \"public\".\"Trade\".\"symbol\", \"public\".\"Trade\".\"direction\"::text, \"public\".\"Trade\".\"volume\", \"public\".\"Trade\".\"openPrice\", \"public\".\"Trade\".\"close",
+      "durationMs": 537,
+      "paramsLen": 13
+    },
+    {
+      "sql": "SELECT \"public\".\"Strategy\".\"id\", \"public\".\"Strategy\".\"creatorId\", \"public\".\"Strategy\".\"name\", \"public\".\"Strategy\".\"description\", \"public\".\"Strategy\".\"category\"::text, \"public\".\"Strategy\".\"riskLevel\"::text, \"public\".\"Strategy\".\"assetClass\"::text, \"public\".\"Strategy\".\"timeframe\"::text, \"public\".\"Strat",
+      "durationMs": 528,
+      "paramsLen": 42
+    },
+    {
+      "sql": "SELECT COUNT(*) FROM (SELECT \"public\".\"Trade\".\"id\" FROM \"public\".\"Trade\" WHERE 1=1 OFFSET $1) AS \"sub\"",
+      "durationMs": 522,
+      "paramsLen": 3
+    },
+    {
+      "sql": "SELECT COUNT(*) FROM (SELECT \"public\".\"User\".\"id\" FROM \"public\".\"User\" WHERE 1=1 OFFSET $1) AS \"sub\"",
+      "durationMs": 518,
+      "paramsLen": 3
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"bridgeTokenHash\", \"public\".\"BrokerAccount\".\"serverName\", \"pu",
+      "durationMs": 518,
+      "paramsLen": 42
+    },
+    {
+      "sql": "SELECT \"public\".\"User\".\"id\", \"public\".\"User\".\"email\", \"public\".\"User\".\"passwordHash\", \"public\".\"User\".\"fullName\", \"public\".\"User\".\"username\", \"public\".\"User\".\"avatarUrl\", \"public\".\"User\".\"bio\", \"public\".\"User\".\"country\", \"public\".\"User\".\"timezone\", \"public\".\"User\".\"role\"::text, \"public\".\"User\".\"kycS",
+      "durationMs": 514,
+      "paramsLen": 5
+    },
+    {
+      "sql": "SELECT \"public\".\"User\".\"id\", \"public\".\"User\".\"email\", \"public\".\"User\".\"passwordHash\", \"public\".\"User\".\"fullName\", \"public\".\"User\".\"username\", \"public\".\"User\".\"avatarUrl\", \"public\".\"User\".\"bio\", \"public\".\"User\".\"country\", \"public\".\"User\".\"timezone\", \"public\".\"User\".\"role\"::text, \"public\".\"User\".\"kycS",
+      "durationMs": 506,
+      "paramsLen": 5
+    },
+    {
+      "sql": "SELECT \"public\".\"User\".\"id\", \"public\".\"User\".\"email\", \"public\".\"User\".\"passwordHash\", \"public\".\"User\".\"fullName\", \"public\".\"User\".\"username\", \"public\".\"User\".\"avatarUrl\", \"public\".\"User\".\"bio\", \"public\".\"User\".\"country\", \"public\".\"User\".\"timezone\", \"public\".\"User\".\"role\"::text, \"public\".\"User\".\"kycS",
+      "durationMs": 336,
+      "paramsLen": 5
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"bridgeTokenHash\", \"public\".\"BrokerAccount\".\"serverName\", \"pu",
+      "durationMs": 305,
+      "paramsLen": 42
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"bridgeTokenHash\", \"public\".\"BrokerAccount\".\"serverName\", \"pu",
+      "durationMs": 285,
+      "paramsLen": 42
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"bridgeTokenHash\", \"public\".\"BrokerAccount\".\"serverName\", \"pu",
+      "durationMs": 224,
+      "paramsLen": 42
+    },
+    {
+      "sql": "SELECT \"public\".\"BrokerAccount\".\"id\", \"public\".\"BrokerAccount\".\"userId\", \"public\".\"BrokerAccount\".\"brokerName\"::text, \"public\".\"BrokerAccount\".\"accountNumberLast4\", \"public\".\"BrokerAccount\".\"credentialsEncrypted\", \"public\".\"BrokerAccount\".\"bridgeTokenHash\", \"public\".\"BrokerAccount\".\"serverName\", \"pu",
+      "durationMs": 217,
+      "paramsLen": 42
+    }
+  ]
+}

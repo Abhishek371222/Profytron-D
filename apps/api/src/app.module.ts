@@ -22,6 +22,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { WebsocketModule } from './modules/websocket/websocket.module';
 import { SearchModule } from './modules/search/search.module';
 import { TradingModule } from './modules/trading/trading.module';
+import { SyncModule } from './modules/sync/sync.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MarketModule } from './modules/market/market.module';
@@ -128,6 +129,7 @@ const parseRedisConfig = () => {
     MarketplaceModule,
     PaymentsModule,
     TradingModule,
+    SyncModule,
     AIModule,
     CoachModule,
     SearchModule,

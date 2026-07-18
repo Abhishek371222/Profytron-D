@@ -1,0 +1,22 @@
+{
+  "at": "2026-07-18T13:03:12Z",
+  "note": "After-metrics captured via tools/audit/playwright-cwv.cjs against local stack (web:3000, api:4000).",
+  "artifacts": [
+    "route-summary.json",
+    "comparison.json",
+    "playwright-cwv.json",
+    "cwv-run.log",
+    "compat-chromium.log"
+  ],
+  "compat": {
+    "project": "chromium",
+    "passed": 13,
+    "skipped": 2,
+    "note": "Firefox/WebKit skipped — browsers not installed; install with pnpm exec playwright install for cross-browser"
+  },
+  "budget": {
+    "adr": "ADR-009",
+    "expires": "2026-08-18",
+    "rule": "no_regression_vs_before_baselines"
+  }
+}

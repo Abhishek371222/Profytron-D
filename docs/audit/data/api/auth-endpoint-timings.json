@@ -1,0 +1,101 @@
+{
+  "at": "2026-07-18T17:39:01Z",
+  "results": [
+    {
+      "path": "/v1/users/me",
+      "status": 200,
+      "ms": 1157.3,
+      "bytes": 741
+    },
+    {
+      "path": "/v1/users/profile",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ms": 8.4
+    },
+    {
+      "path": "/v1/broker/accounts",
+      "status": 200,
+      "ms": 979.6,
+      "bytes": 65
+    },
+    {
+      "path": "/v1/trading/positions",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ms": 14.2
+    },
+    {
+      "path": "/v1/trading/open-trades",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ms": 4.1
+    },
+    {
+      "path": "/v1/trading/trades",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ms": 4.7
+    },
+    {
+      "path": "/v1/trading/history",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ms": 2.8
+    },
+    {
+      "path": "/v1/analytics/portfolio?range=1m",
+      "status": 200,
+      "ms": 1402.5,
+      "bytes": 307
+    },
+    {
+      "path": "/v1/analytics/overview",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ms": 32.5
+    },
+    {
+      "path": "/v1/notifications",
+      "status": 200,
+      "ms": 455.6,
+      "bytes": 542
+    },
+    {
+      "path": "/v1/notifications/list",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ms": 2.8
+    },
+    {
+      "path": "/v1/wallet/balance",
+      "status": 200,
+      "ms": 231.9,
+      "bytes": 134
+    },
+    {
+      "path": "/v1/wallet/summary",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ms": 2.2
+    },
+    {
+      "path": "/v1/coach/conversations",
+      "status": 200,
+      "ms": 505.4,
+      "bytes": 65
+    },
+    {
+      "path": "/v1/ai-risk/score",
+      "status": 404,
+      "error": "HTTP Error 404: Not Found",
+      "ms": 14.3
+    },
+    {
+      "path": "/v1/risk/metrics",
+      "status": 200,
+      "ms": 484.6,
+      "bytes": 145
+    }
+  ]
+}

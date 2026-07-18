@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "phase": 5,
+  "captured": "2026-07-18",
+  "summary": {
+    "framerMotionFiles": 95,
+    "animatePresenceFiles": 31,
+    "tailwindTransitionFiles": 120,
+    "sonnerCallSites": 55,
+    "modalPatterns": ["dialog-css", "framer-portal", "hybrid"],
+    "cssKeyframeSources": ["styles/animations.css", "styles/globals.css"],
+    "platformAnimationApi": {
+      "markChanged": "wired (mt5-sync/delta)",
+      "consumeChanged": "unused",
+      "useMotionAllowed": "unused in UI",
+      "register": "unused"
+    },
+    "animatedCounter": "deleted",
+    "rechartsPolicy": "isAnimationActive=false on financial charts"
+  },
+  "hardcodedPatterns": {
+    "durations": [0.2, 0.35, 0.55],
+    "easings": ["easeOut", "[0.22,1,0.36,1]", "[0.23,1,0.32,1]"],
+    "springs": [{ "stiffness": 320, "damping": 34 }]
+  },
+  "migrationScope": {
+    "inScope": ["dashboard", "modals", "toasts", "buttons", "forms", "charts-policy", "tables"],
+    "phase6Debt": ["auth", "marketing", "hero", "threejs"]
+  }
+}

@@ -10,7 +10,7 @@ const buttonVariants = cva(
     "group/button relative inline-flex shrink-0 items-center justify-center",
     "rounded-button border border-transparent bg-clip-padding",
     "text-body-sm font-semibold whitespace-nowrap",
-    "transition-all duration-[150ms] ease-out outline-none select-none",
+    "transition-all duration-[var(--motion-fast,120ms)] ease-[var(--ease-out)] outline-none select-none",
     "focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-50",
     "aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20",

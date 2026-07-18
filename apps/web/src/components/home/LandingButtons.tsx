@@ -18,7 +18,7 @@ export function LandingPrimaryLink({
     <Link
       href={href}
       className={cn(
-        "btn-landing-primary",
+        "btn-landing-primary exp-cta",
         className,
       )}
     >

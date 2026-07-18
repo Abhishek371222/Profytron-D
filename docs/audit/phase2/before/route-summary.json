@@ -1,0 +1,112 @@
+[
+  {
+    "route": "/",
+    "wallMs": 9844,
+    "fcp": 1432,
+    "longTasks": 26,
+    "longMs": 7127,
+    "resKB": 9081,
+    "heapMB": 157,
+    "cls": 0
+  },
+  {
+    "route": "/login",
+    "wallMs": 15493,
+    "fcp": 8452,
+    "longTasks": 2,
+    "longMs": 358,
+    "resKB": 8234,
+    "heapMB": 123,
+    "cls": 0
+  },
+  {
+    "route": "/marketplace",
+    "wallMs": 8672,
+    "fcp": 1532,
+    "longTasks": 2,
+    "longMs": 454,
+    "resKB": 8234,
+    "heapMB": 123,
+    "cls": 0
+  },
+  {
+    "route": "/pricing",
+    "wallMs": 9352,
+    "fcp": 2440,
+    "longTasks": 1,
+    "longMs": 265,
+    "resKB": 7113,
+    "heapMB": 116,
+    "cls": 0
+  },
+  {
+    "route": "/dashboard",
+    "wallMs": 8447,
+    "fcp": 252,
+    "longTasks": 1,
+    "longMs": 255,
+    "resKB": 8234,
+    "heapMB": 131,
+    "cls": 0
+  },
+  {
+    "route": "/analytics",
+    "wallMs": 7117,
+    "fcp": 140,
+    "longTasks": 1,
+    "longMs": 248,
+    "resKB": 8234,
+    "heapMB": 123,
+    "cls": 0
+  },
+  {
+    "route": "/markets",
+    "wallMs": 7168,
+    "fcp": 176,
+    "longTasks": 1,
+    "longMs": 214,
+    "resKB": 8234,
+    "heapMB": 123,
+    "cls": 0
+  },
+  {
+    "route": "/settings/profile",
+    "wallMs": 7042,
+    "fcp": 128,
+    "longTasks": 1,
+    "longMs": 204,
+    "resKB": 8234,
+    "heapMB": 123,
+    "cls": 0
+  },
+  {
+    "route": "/alpha-coach",
+    "wallMs": 7628,
+    "fcp": 132,
+    "longTasks": 2,
+    "longMs": 266,
+    "resKB": 8234,
+    "heapMB": 131,
+    "cls": 0
+  },
+  {
+    "route": "/strategies/builder",
+    "wallMs": 7711,
+    "fcp": 164,
+    "longTasks": 1,
+    "longMs": 207,
+    "resKB": 8234,
+    "heapMB": 131,
+    "cls": 0
+  },
+  {
+    "route": "/connected-accounts",
+    "wallMs": 15737,
+    "fcp": 2928,
+    "longTasks": 1,
+    "longMs": 227,
+    "resKB": 8234,
+    "heapMB": 177,
+    "cls": 0
+  }
+]

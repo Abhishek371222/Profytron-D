@@ -1,0 +1,8 @@
+{
+  "at": "2026-07-18T13:38:00Z",
+  "build": "ok",
+  "compatChromium": { "passed": 13, "skipped": 2 },
+  "isolation": "ok",
+  "rollback": "NEXT_PUBLIC_RENDER_ENGINE=0",
+  "budgetWaiver": "ADR-001 until 2026-08-18"
+}

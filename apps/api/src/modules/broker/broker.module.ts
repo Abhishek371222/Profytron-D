@@ -11,6 +11,7 @@ import { AccountSnapshotService } from './account-snapshot.service';
 import { BullModule } from '@nestjs/bull';
 import { GrowthModule } from '../growth/growth.module';
 import { AuthModule } from '../auth/auth.module';
+import { SyncModule } from '../sync/sync.module';
 
 @Global()
 @Module({
@@ -20,6 +21,7 @@ import { AuthModule } from '../auth/auth.module';
     }),
     GrowthModule,
     AuthModule,
+    SyncModule,
   ],
   controllers: [
     BrokerController,

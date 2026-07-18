@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "phase": 5,
+  "stage": "after",
+  "captured": "2026-07-18",
+  "motionEnginePresent": true,
+  "qualityManagerPresent": true,
+  "numberEnginePresent": true,
+  "flag": "NEXT_PUBLIC_MOTION_ENGINE (default ON)",
+  "gates": {
+    "tsc": "pass",
+    "build": "pass",
+    "motionNodeSelftest": "pass",
+    "motionPlaywrightChromium": "6/6 pass"
+  },
+  "modules": [
+    "motion-tokens",
+    "motion-springs",
+    "motion-presets",
+    "motion-quality",
+    "motion-queue",
+    "motion-conflicts",
+    "motion-timeline",
+    "motion-recovery",
+    "motion-registry",
+    "motion-accessibility",
+    "motion-observability",
+    "motion-number",
+    "motion-transitions",
+    "motion-gestures",
+    "motion-layout",
+    "motion-contracts",
+    "motion-profiler",
+    "motion-engine"
+  ],
+  "migrated": [
+    "OverviewMetricCards",
+    "OverviewOpenPositions",
+    "BrokerConnectModal",
+    "AccountDetailsModal",
+    "SubscribeModal",
+    "dialog",
+    "sheet",
+    "button",
+    "input",
+    "AppProviders toaster"
+  ],
+  "docs": "docs/audit/phase5/",
+  "rollback": "NEXT_PUBLIC_MOTION_ENGINE=0"
+}

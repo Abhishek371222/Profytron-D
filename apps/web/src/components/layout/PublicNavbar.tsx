@@ -158,7 +158,7 @@ export function PublicNavbar() {
   return (
     <header
       className={cn(
-        'fixed inset-x-0 top-0 z-50 transition-all duration-300',
+        'fixed inset-x-0 top-0 z-50 transition-all duration-[var(--motion-standard,200ms)]',
         isScrolled ? 'py-2' : 'py-4 sm:py-5',
       )}
       role="banner"
@@ -166,9 +166,9 @@ export function PublicNavbar() {
       <div className="page-container w-full">
         <nav
           className={cn(
-            'flex items-center justify-between pl-0 pr-4 sm:pl-1 sm:pr-5 py-2.5 rounded-button border transition-all duration-300 overflow-visible',
+            'exp-public-navbar flex items-center justify-between pl-0 pr-4 sm:pl-1 sm:pr-5 py-2.5 rounded-button border transition-all duration-[var(--motion-standard,200ms)] overflow-visible',
             isScrolled && mounted
-              ? 'glass-navbar shadow-sm border-[var(--card-border)]'
+              ? 'glass-navbar shadow-sm border-[var(--exp-border,var(--card-border))]'
               : 'border-transparent bg-transparent',
           )}
           aria-label="Site navigation"

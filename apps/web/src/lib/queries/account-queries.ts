@@ -1,6 +1,7 @@
 import type { QueryClient } from '@tanstack/react-query';
 import { brokerApi } from '@/lib/api/broker';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { scheduleEntityRefresh } from '@/platform/mt5-sync';
 
 export const BROKER_ACCOUNTS_KEY = ['broker-accounts'] as const;
 export const BROKER_LIVE_SNAPSHOT_KEY = ['broker-live-snapshot'] as const;
@@ -289,7 +290,16 @@ export async function loadBrokerAccountsQuery(
 }
 
 export function invalidateAccountQueries(qc: QueryClient) {
-  for (const key of ACCOUNT_QUERY_KEYS) {
-    qc.invalidateQueries({ queryKey: [key] });
-  }
+  // Phase 3: entity-scoped refresh (replaces shotgun ACCOUNT_QUERY_KEYS loop).
+  scheduleEntityRefresh(
+    qc,
+    [
+      'open-trades',
+      'trade-history',
+      'portfolio',
+      'dashboard-risk',
+      'broker-accounts',
+    ],
+    'critical',
+  );
 }

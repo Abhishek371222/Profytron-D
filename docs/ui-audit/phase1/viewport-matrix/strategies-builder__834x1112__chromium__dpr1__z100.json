@@ -1,0 +1,231 @@
+{
+  "slug": "strategies-builder",
+  "path": "/strategies/builder",
+  "auth": "user",
+  "shell": "dashboard",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 834,
+    "h": 1112,
+    "label": "tablet-834"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/strategies-builder__834x1112__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 834,
+      "h": 1112,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 834,
+      "scrollHeight": 1112,
+      "clientWidth": 834,
+      "clientHeight": 1112,
+      "overflowX": 0,
+      "overflowY": 0
+    },
+    "body": {
+      "width": 834
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 704,
+        "height": 39,
+        "fontSize": "36px",
+        "lineHeight": "38.88px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": {
+        "selector": "h2",
+        "width": 0,
+        "height": 0,
+        "fontSize": "36px",
+        "lineHeight": "38.88px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h3": null,
+      "h4": null,
+      "body": {
+        "selector": "body",
+        "width": 834,
+        "height": 1112,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 0,
+        "height": 0,
+        "fontSize": "14px",
+        "lineHeight": "22.75px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 0,
+        "height": 0,
+        "fontSize": "14px",
+        "lineHeight": "22.75px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": "main",
+        "width": 834,
+        "height": 1112,
+        "maxWidth": "none",
+        "paddingLeft": "24px",
+        "paddingRight": "24px",
+        "position": "static"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 786,
+        "height": 691,
+        "minWidth": "auto"
+      },
+      {
+        "i": 1,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 2,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 3,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 4,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 5,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 6,
+        "width": 704,
+        "height": 48,
+        "minWidth": "0px"
+      },
+      {
+        "i": 7,
+        "width": 704,
+        "height": 48,
+        "minWidth": "0px"
+      }
+    ],
+    "tables": [],
+    "charts": [],
+    "sticky": [
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 0,
+        "height": 1112,
+        "width": 834
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "1rem",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 7,
+      "smallTouchTargetCount": 3,
+      "smallTouchTargets": [
+        {
+          "w": 20,
+          "h": 20,
+          "tag": "button"
+        },
+        {
+          "w": 108,
+          "h": 18,
+          "tag": "button"
+        },
+        {
+          "w": 123,
+          "h": 18,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": [
+        "input.peer",
+        "input.peer"
+      ]
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 3,
+        "samples": [
+          {
+            "w": 20,
+            "h": 20,
+            "tag": "button"
+          },
+          {
+            "w": 108,
+            "h": 18,
+            "tag": "button"
+          },
+          {
+            "w": 123,
+            "h": 18,
+            "tag": "a"
+          }
+        ]
+      }
+    ],
+    "title": "Sign In | Profytron",
+    "url": "http://127.0.0.1:3000/login?redirect=%2Fstrategies%2Fbuilder"
+  },
+  "error": null,
+  "ts": "2026-07-18T14:57:52.532Z"
+}

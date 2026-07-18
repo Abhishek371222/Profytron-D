@@ -1,0 +1,54 @@
+[
+  {
+    "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT id FROM \"Trade\" WHERE \"userId\" IS NOT NULL AND status = 'CLOSED' ORDER BY",
+    "planSummary": {
+      "PlanningTime": 0.179,
+      "ExecutionTime": 0.115,
+      "Plan": {
+        "NodeType": "Limit",
+        "TotalCost": 15.73,
+        "ActualTotalTime": 0.091,
+        "ActualRows": 151
+      }
+    }
+  },
+  {
+    "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT COUNT(*) FROM \"Trade\"",
+    "planSummary": {
+      "PlanningTime": 0.12,
+      "ExecutionTime": 0.056,
+      "Plan": {
+        "NodeType": "Aggregate",
+        "TotalCost": 9.9,
+        "ActualTotalTime": 0.038,
+        "ActualRows": 1
+      }
+    }
+  },
+  {
+    "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT * FROM \"BrokerAccount\" LIMIT 20",
+    "planSummary": {
+      "PlanningTime": 0.135,
+      "ExecutionTime": 0.02,
+      "Plan": {
+        "NodeType": "Limit",
+        "TotalCost": 1.04,
+        "ActualTotalTime": 0.009,
+        "ActualRows": 4
+      }
+    }
+  },
+  {
+    "sql": "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) SELECT * FROM \"EquitySnapshot\" ORDER BY \"capturedAt\" DESC LIMIT 100",
+    "planSummary": {
+      "PlanningTime": 0.081,
+      "ExecutionTime": 0.166,
+      "Plan": {
+        "NodeType": "Limit",
+        "TotalCost": 36.01,
+        "ActualTotalTime": 0.148,
+        "ActualRows": 100
+      }
+    }
+  }
+]

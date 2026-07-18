@@ -11,6 +11,7 @@ import {
   getMt5ServerOptions,
 } from '@/lib/broker/broker-directory';
 import { cn } from '@/lib/utils';
+import { useModalMotionProps } from '@/platform/motion';
 
 interface Props {
   open: boolean;
@@ -129,21 +130,24 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
   };
 
   const isQuotaError = /allows \d+ connected account/i.test(error);
+  const modal = useModalMotionProps();
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={modal.backdrop.initial}
+          animate={modal.backdrop.animate}
+          exit={modal.backdrop.exit}
+          transition={modal.backdrop.transition}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           onClick={(e) => e.target === e.currentTarget && handleClose()}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 12 }}
+            initial={modal.panel.initial}
+            animate={modal.panel.animate}
+            exit={modal.panel.exit}
+            transition={modal.panel.transition}
             className="w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-2xl border border-border-default bg-bg-elevated glass shadow-2xl"
           >
             <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">

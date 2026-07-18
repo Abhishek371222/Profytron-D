@@ -6,6 +6,7 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BrandGradientText } from "@/components/brand/BrandGradientText";
 import { BrandLogoAmbient } from "@/components/brand/BrandLogoMark";
+import { durationSeconds, MOTION_EASING } from "@/platform/motion";
 
 export function MarketingHero({
   eyebrow,
@@ -27,12 +28,15 @@ export function MarketingHero({
   className?: string;
 }) {
   return (
-    <section className={cn("marketing-hero", className)}>
+    <section className={cn("marketing-hero exp-lighting", className)}>
       <div className="page-container max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          transition={{
+            duration: durationSeconds("Hero"),
+            ease: MOTION_EASING.Smooth as unknown as number[],
+          }}
         >
           <span className="landing-eyebrow mb-6">
             {EyebrowIcon ? <EyebrowIcon className="h-3.5 w-3.5" /> : null}

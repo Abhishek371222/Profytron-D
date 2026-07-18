@@ -161,13 +161,32 @@
   --duration-hover: 150ms;
   --duration-modal: 250ms;
   --duration-chart: 500ms;
+  /* Phase 5 Motion Engine tokens (semantic) */
+  --motion-instant: 0ms;
+  --motion-fast: 120ms;
+  --motion-standard: 200ms;
+  --motion-slow: 320ms;
+  --motion-hero: 550ms;
+  --motion-background: 800ms;
+  /* Phase 6 Experience tokens */
+  --exp-depth-1: color-mix(in srgb, var(--card) 96%, var(--primary) 4%);
+  --exp-depth-2: color-mix(in srgb, var(--card) 92%, var(--primary) 8%);
+  --exp-depth-3: color-mix(in srgb, var(--background) 90%, var(--primary) 10%);
+  --exp-surface: color-mix(in srgb, var(--card) 94%, transparent);
+  --exp-glass: var(--bg-glass);
+  --exp-glow: var(--glow-hero);
+  --exp-shadow-card: var(--shadow-card);
+  --exp-shadow-card-hover: var(--shadow-card-hover);
+  --exp-border: var(--card-border);
+  --exp-lighting-key: var(--primary);
+  --exp-lighting-rim: color-mix(in srgb, var(--chart-2) 35%, transparent);
   --ease-page: cubic-bezier(0, 0, 0.2, 1);
   --ease-hover: ease;
   --ease-modal: ease-in-out;
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-smooth: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
 
   --gradient-hero: linear-gradient(135deg, #348398 0%, #9FE1F3 100%);
   --gradient-hero-word: linear-gradient(90deg, #348398 0%, #9FE1F3 100%);
@@ -3145,4 +3164,91 @@ input::-webkit-strong-password-auto-fill-button {
   pointer-events: none;
   position: absolute;
   right: 0;
+}
+
+/* ── Phase 6 Experience: Coach Orb + surfaces ───────────── */
+.exp-lighting {
+  --exp-ambient-local: var(--exp-glow);
+}
+
+.exp-hero-surface {
+  background: var(--exp-depth-1);
+}
+
+.exp-cta {
+  box-shadow: var(--shadow-cta);
+}
+
+.exp-marketing-card {
+  background: var(--exp-surface);
+}
+
+.coach-orb {
+  isolation: isolate;
+}
+
+.coach-orb__core {
+  position: absolute;
+  inset: 15%;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--primary), var(--chart-2));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+.coach-orb__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1.5px solid color-mix(in srgb, var(--primary) 45%, transparent);
+  opacity: 0.7;
+}
+
+.coach-orb__pulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--primary) 50%, transparent);
+  animation: coach-orb-pulse 1.6s var(--ease-smooth) infinite;
+}
+
+.coach-orb--thinking .coach-orb__core,
+.coach-orb--tool .coach-orb__core {
+  animation: coach-orb-breathe 1.2s var(--ease-smooth) infinite;
+}
+
+.coach-orb--streaming .coach-orb__core,
+.coach-orb--speaking .coach-orb__core {
+  animation: coach-orb-breathe 0.9s var(--ease-smooth) infinite;
+}
+
+.coach-orb--success .coach-orb__core {
+  background: linear-gradient(135deg, var(--success), var(--primary));
+}
+
+.coach-orb--error .coach-orb__core {
+  background: linear-gradient(135deg, var(--destructive), var(--primary));
+}
+
+.coach-orb--idle .coach-orb__pulse {
+  display: none;
+}
+
+@keyframes coach-orb-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.12); opacity: 0.15; }
+}
+
+@keyframes coach-orb-breathe {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(0.94); filter: brightness(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach-orb__pulse,
+  .coach-orb--thinking .coach-orb__core,
+  .coach-orb--tool .coach-orb__core,
+  .coach-orb--streaming .coach-orb__core,
+  .coach-orb--speaking .coach-orb__core {
+    animation: none !important;
+  }
 }

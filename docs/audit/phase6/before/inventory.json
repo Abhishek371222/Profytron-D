@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "phase": 6,
+  "captured": "2026-07-18",
+  "surfaces": {
+    "landing": {
+      "hero": "HeroAmbientVisual + FloatingLines Three.js",
+      "sections": ["HowItWorks", "ValuePillars", "Pricing", "CTA", "Faq"],
+      "featuresSection": "missing (#features gap)",
+      "scores": {
+        "hierarchy": 7,
+        "depth": 6,
+        "consistency": 6,
+        "spacing": 7,
+        "lighting": 6,
+        "motion": 5,
+        "brand": 7,
+        "a11y": 6,
+        "performance": 6
+      }
+    },
+    "pricing": { "scores": { "hierarchy": 7, "depth": 5, "consistency": 6, "brand": 7 } },
+    "about": { "kit": "MarketingPage", "scores": { "hierarchy": 6, "depth": 5, "consistency": 6 } },
+    "alphaCoach": {
+      "visual": "CoachBrandMark pulse; no orb",
+      "deleted": ["AIAssistantOrb", "CoachAiPulseStrip"],
+      "scores": { "hierarchy": 6, "motion": 4, "brand": 5 }
+    },
+    "chatbot": { "avatar": "Sparkles icon", "scores": { "brand": 4, "motion": 5 } }
+  },
+  "threeJs": {
+    "live": ["components/ui/FloatingLines.jsx"],
+    "deletedAuthEarth": true
+  },
+  "experienceEnginePresent": false
+}

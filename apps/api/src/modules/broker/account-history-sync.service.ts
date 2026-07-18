@@ -14,6 +14,8 @@ import { RedisService } from '../auth/redis.service';
 import { TradeDirection, TradeStatus } from '@prisma/client';
 import { seedInitialEquity } from '../../common/utils/account-performance.util';
 import { AccountSnapshotGateway } from './account-snapshot.gateway';
+import { SyncEngineService } from '../sync/sync-engine.service';
+import type { PositionSnapshot } from '../sync/sync-diff';
 
 type DealGroup = { positionId: string; deals: any[] };
 
@@ -75,6 +77,7 @@ export class AccountHistorySyncService
     private crypto: CryptoService,
     private redis: RedisService,
     private snapshotGateway: AccountSnapshotGateway,
+    private syncEngine: SyncEngineService,
   ) {}
 
   onModuleInit() {
@@ -252,6 +255,21 @@ export class AccountHistorySyncService
     if (!Number.isFinite(equity) || equity <= 0) return;
     const margin = Number(info?.margin ?? 0);
     const freeMargin = Number(info?.freeMargin ?? 0);
+
+    const equityPayload = {
+      balance: snap.balance,
+      equity: snap.equity,
+      margin: snap.margin,
+      freeMargin: snap.freeMargin,
+    };
+    // Watermark first — skip PG write when equity unchanged since last sync.
+    const delta = await this.syncEngine.commitEquity(
+      brokerAccountId,
+      equityPayload,
+    );
+    if (!delta.changed && last) {
+      return;
+    }
 
     await this.prisma.equitySnapshot.create({
       data: { brokerAccountId, balance, equity, margin, freeMargin },
@@ -1068,28 +1086,73 @@ export class AccountHistorySyncService
 
     const openDb = await this.prisma.trade.findMany({
       where: { brokerAccountId, status: TradeStatus.OPEN },
-      select: { id: true, brokerTicket: true, profit: true },
+      select: {
+        id: true,
+        brokerTicket: true,
+        profit: true,
+      },
     });
     const dbByTicket = new Map(
       openDb.filter((t) => t.brokerTicket).map((t) => [t.brokerTicket!, t]),
     );
 
+    const snapshots: PositionSnapshot[] = [];
     for (const pos of positions) {
       const ticket = String(pos.id ?? pos.positionId ?? '');
       if (!ticket) continue;
       const symbol = String(pos.symbol || '');
       if (!symbol) continue;
+      const profit =
+        typeof pos.profit === 'number'
+          ? pos.profit
+          : Number(pos.unrealizedProfit ?? 0) || 0;
+      snapshots.push({
+        id: ticket,
+        symbol,
+        volume: Number(pos.volume ?? 0),
+        openPrice: Number(pos.openPrice ?? pos.price ?? 0),
+        profit,
+        stopLoss: pos.stopLoss ?? null,
+        takeProfit: pos.takeProfit ?? null,
+        type: String(pos.type || ''),
+      });
+    }
+
+    const delta = await this.syncEngine.commitPositions(
+      brokerAccountId,
+      snapshots,
+    );
+
+    // Always reconcile vanished opens against live MetaAPI (empty array included).
+    const brokerIds = new Set(snapshots.map((p) => p.id));
+    for (const trade of openDb) {
+      if (!trade.brokerTicket) continue;
+      if (brokerIds.has(trade.brokerTicket)) continue;
+      await this.prisma.trade.update({
+        where: { id: trade.id },
+        data: {
+          status: TradeStatus.CLOSED,
+          closedAt: new Date(),
+          profit: trade.profit ?? 0,
+        },
+      });
+    }
+
+    if (!delta.changed) return;
+
+    const toUpsert = (delta.upserts as PositionSnapshot[]).length
+      ? (delta.upserts as PositionSnapshot[])
+      : snapshots;
+
+    for (const pos of toUpsert) {
       const direction = String(pos.type || '')
         .toUpperCase()
         .includes('SELL')
         ? TradeDirection.SHORT
         : TradeDirection.LONG;
-      const profit =
-        typeof pos.profit === 'number'
-          ? pos.profit
-          : Number(pos.unrealizedProfit ?? 0) || 0;
+      const profit = Number(pos.profit ?? 0);
 
-      const existing = dbByTicket.get(ticket);
+      const existing = dbByTicket.get(pos.id);
       if (existing) {
         if (Number(existing.profit ?? 0) !== profit) {
           await this.prisma.trade.update({
@@ -1104,25 +1167,25 @@ export class AccountHistorySyncService
         where: {
           brokerAccountId_brokerTicket: {
             brokerAccountId,
-            brokerTicket: ticket,
+            brokerTicket: pos.id,
           },
         },
         create: {
           userId,
           brokerAccountId,
-          brokerTicket: ticket,
-          symbol,
+          brokerTicket: pos.id,
+          symbol: pos.symbol,
           direction,
-          volume: Number(pos.volume ?? 0),
-          openPrice: Number(pos.openPrice ?? pos.price ?? 0),
-          fillPrice: Number(pos.openPrice ?? pos.price ?? 0),
+          volume: pos.volume,
+          openPrice: pos.openPrice,
+          fillPrice: pos.openPrice,
           stopLoss: pos.stopLoss ?? null,
           takeProfit: pos.takeProfit ?? null,
           profit,
           isPaper: false,
           status: TradeStatus.OPEN,
           executionMode: 'ACCOUNT_HISTORY_SYNC',
-          openedAt: pos.time ? new Date(pos.time) : new Date(),
+          openedAt: new Date(),
         },
         update: { profit },
       });

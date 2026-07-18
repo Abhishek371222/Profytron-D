@@ -9,7 +9,7 @@ import { growthApi } from '@/lib/api/growth';
 import { cn, isAdminUser } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 
-export function ActivationChecklist() {
+export function ActivationChecklist({ compact = false }: { compact?: boolean }) {
   const [dismissed, setDismissed] = React.useState(false);
   const user = useAuthStore((s) => s.user);
   const sessionReady = useAuthStore((s) => s.sessionReady);
@@ -29,6 +29,53 @@ export function ActivationChecklist() {
   if (data.progressPct >= 100 || data.isActivated) return null;
 
   const next = data.checklist.find((item) => !item.done);
+
+  const dismiss = () => {
+    localStorage.setItem('profytron_activation_dismissed', 'true');
+    setDismissed(true);
+  };
+
+  if (compact) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative flex items-center gap-3 rounded-xl border border-primary/20 bg-background px-3 py-2.5 overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-chart-2/5 to-transparent pointer-events-none" />
+        <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 border border-primary/25">
+          <Sparkles className="h-3.5 w-3.5 text-primary" />
+        </div>
+        <div className="relative min-w-0 flex-1">
+          <p className="truncate text-caption font-semibold text-foreground">
+            Get started · {data.completed}/{data.total} · {data.progressPct}%
+          </p>
+          <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-foreground/5">
+            <div
+              className="h-full bg-primary transition-all duration-500"
+              style={{ width: `${data.progressPct}%` }}
+            />
+          </div>
+        </div>
+        {next ? (
+          <Link
+            href={next.href}
+            className="relative shrink-0 rounded-lg bg-primary px-3 py-1.5 text-micro font-bold uppercase tracking-widest text-primary-foreground hover:bg-primary-hover"
+          >
+            {next.label}
+          </Link>
+        ) : null}
+        <button
+          type="button"
+          onClick={dismiss}
+          className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-foreground/5 border border-border hover:bg-foreground/10"
+          aria-label="Dismiss activation checklist"
+        >
+          <X className="h-3.5 w-3.5 text-foreground/30" />
+        </button>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -54,10 +101,7 @@ export function ActivationChecklist() {
           </div>
           <button
             type="button"
-            onClick={() => {
-              localStorage.setItem('profytron_activation_dismissed', 'true');
-              setDismissed(true);
-            }}
+            onClick={dismiss}
             className="w-8 h-8 rounded-lg bg-foreground/5 border border-border hover:bg-foreground/10 flex items-center justify-center"
           >
             <X className="w-3.5 h-3.5 text-foreground/30" />

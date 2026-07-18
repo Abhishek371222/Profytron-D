@@ -1,0 +1,40 @@
+{
+  "date": "2026-07-18T15:06:52.347Z",
+  "base": "http://127.0.0.1:3000",
+  "host": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v20.20.2",
+    "cwd": "/Users/aini/Desktop/p"
+  },
+  "auth": {
+    "AUDIT_JWT": false,
+    "COMPAT_ADMIN_JWT": false
+  },
+  "matrix": {
+    "viewportCount": 23,
+    "routeCount": 73,
+    "dpiScales": [
+      1,
+      1.25,
+      1.5,
+      2,
+      3
+    ],
+    "zoomLevels": [
+      0.8,
+      0.9,
+      1,
+      1.1,
+      1.25,
+      1.5
+    ],
+    "browsers": [
+      "chromium",
+      "firefox",
+      "webkit",
+      "msedge"
+    ]
+  },
+  "note": "OS matrix uses lab host + Playwright device emulation; true multi-OS CI is out of band."
+}

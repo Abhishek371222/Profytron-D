@@ -1,14 +1,12 @@
 "use client";
 
 import React from "react";
-import { Search, Command, Menu, ChevronDown, CreditCard, LogOut, User, Link2, Wallet, Compass } from "lucide-react";
+import { Search, Command, Menu, ChevronDown, CreditCard, LogOut, User, Link2, Wallet, Compass, Moon, Sun } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { UserAvatar } from "@/components/ui/UserAvatar";
@@ -69,13 +67,19 @@ export function TopBar() {
     router.push("/login");
   };
 
+  const toggleThemeFromMenu = () => {
+    const isDark = document.documentElement.classList.contains("dark");
+    const next = isDark ? "light" : "dark";
+    localStorage.setItem("theme", next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+  };
+
   return (
     <header suppressHydrationWarning className="relative h-full w-full flex items-center justify-between px-[var(--dashboard-p)] z-30 gap-1.5 sm:gap-3 topbar-float">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
 
       {/* ─── Left: Mobile menu + Search ─── */}
       <div className="relative z-10 flex items-center gap-1.5 sm:gap-3 flex-1 min-w-0 max-w-xl">
-
         <button
           onClick={toggleSidebar}
           className="lg:hidden h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] shrink-0 rounded-button border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-hover flex items-center justify-center"
@@ -96,7 +100,7 @@ export function TopBar() {
           onMouseEnter={() => setSearchFocused(true)}
           onMouseLeave={() => setSearchFocused(false)}
         >
-          { }
+          {/* Beam sweep */}
           <div className="pointer-events-none absolute inset-y-0 -inset-x-full w-1/2 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent skew-x-[-18deg] translate-x-[-200%] group-hover:translate-x-[400%] transition-transform duration-700" />
 
           <Search className={cn(
@@ -119,8 +123,7 @@ export function TopBar() {
 
       {/* ─── Right: Quick actions + Notifications + User ─── */}
       <div className="relative z-10 flex items-center gap-1 sm:gap-2 shrink-0">
-        {/* Connect Broker */}
-
+        {/* Connect Broker — sm+ only */}
         <button
           onClick={() => router.push("/connected-accounts")}
           title="Enable trading bot"
@@ -130,24 +133,24 @@ export function TopBar() {
           <Link2 className="w-[18px] h-[18px]" />
         </button>
 
-        { }
+        {/* Add Funds — sm+ only (Wallet is in mobile bottom nav) */}
         <button
           onClick={openDeposit}
           title="Add funds"
           aria-label="Add funds"
-          className="relative h-10 w-10 rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all flex items-center justify-center outline-none shrink-0"
+          className="hidden sm:flex relative h-10 w-10 rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all items-center justify-center outline-none shrink-0"
         >
           <Wallet className="w-[18px] h-[18px]" />
         </button>
 
-        <ThemeToggle />
+        <ThemeToggle className="hidden sm:flex" />
 
         <NotificationDropdown />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="group flex items-center gap-2 sm:gap-2.5 h-10 pl-1 pr-2 sm:pr-3 rounded-xl border border-border bg-card hover:bg-muted transition-all duration-200 outline-none shrink-0 min-w-0">
-              { }
+              {/* Avatar with ring */}
               <div className="relative">
                 <UserAvatar name={displayName} src={displayAvatar} size="md" className="border-2 border-transparent group-hover:border-primary/30 transition-colors" />
                 <div
@@ -156,7 +159,7 @@ export function TopBar() {
                 />
               </div>
 
-              { }
+              {/* Name + tier — desktop only */}
               <div className="hidden md:flex flex-col items-start leading-none">
                 <span className="text-caption font-semibold text-foreground/80 group-hover:text-foreground transition-colors truncate max-w-[120px]">
                   {displayName}
@@ -180,7 +183,7 @@ export function TopBar() {
             align="end"
             className="w-56 bg-popover backdrop-blur-xl border border-border shadow-lg rounded-card p-1.5"
           >
-            { }
+            {/* User header */}
             <div className="px-3 py-2.5 mb-1">
               <p className="text-caption font-semibold text-foreground truncate">{displayName}</p>
               <p className="text-micro text-foreground/30 truncate mt-0.5">{resolvedUser?.email || ''}</p>
@@ -200,6 +203,30 @@ export function TopBar() {
             >
               <CreditCard className="w-3.5 h-3.5" />
               Subscription
+            </DropdownMenuItem>
+
+            {/* Mobile-only shortcuts (icons hidden from top bar) */}
+            <DropdownMenuItem
+              onClick={openDeposit}
+              className="flex sm:hidden items-center gap-2.5 px-3 py-2 rounded-xl text-foreground/60 hover:text-foreground hover:bg-muted/5 cursor-pointer text-caption font-medium transition-colors"
+            >
+              <Wallet className="w-3.5 h-3.5" />
+              Add funds
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => router.push("/connected-accounts")}
+              className="flex sm:hidden items-center gap-2.5 px-3 py-2 rounded-xl text-foreground/60 hover:text-foreground hover:bg-muted/5 cursor-pointer text-caption font-medium transition-colors"
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              Connect broker
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={toggleThemeFromMenu}
+              className="flex sm:hidden items-center gap-2.5 px-3 py-2 rounded-xl text-foreground/60 hover:text-foreground hover:bg-muted/5 cursor-pointer text-caption font-medium transition-colors"
+            >
+              <Sun className="w-3.5 h-3.5 dark:hidden" />
+              <Moon className="hidden w-3.5 h-3.5 dark:block" />
+              Toggle theme
             </DropdownMenuItem>
 
             <DropdownMenuItem

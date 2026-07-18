@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "phase": 5,
+  "stage": "before",
+  "captured": "2026-07-18",
+  "notes": "Baseline before Motion Engine. Inventory only — build/compat revalidated at exit.",
+  "inventory": "docs/audit/phase5/before/inventory.json",
+  "motionEnginePresent": false,
+  "qualityManagerPresent": false,
+  "numberEnginePresent": false
+}

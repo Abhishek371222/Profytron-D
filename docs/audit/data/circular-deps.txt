@@ -1,0 +1,21 @@
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 5, reused 1, downloaded 0, added 0
+Progress: resolved 25, reused 12, downloaded 6, added 0
+Progress: resolved 57, reused 36, downloaded 18, added 0
+Progress: resolved 95, reused 47, downloaded 45, added 0
+Progress: resolved 123, reused 57, downloaded 60, added 0
+Progress: resolved 130, reused 58, downloaded 71, added 0
+Progress: resolved 135, reused 61, downloaded 74, added 0
+Packages: +135
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 135, reused 61, downloaded 74, added 112
+Progress: resolved 135, reused 61, downloaded 74, added 135, done
+- Finding files
+Processed 629 files (5.9s) (207 warnings)
+
+✖ Found 3 circular dependencies!
+
+1) api/src/modules/copy-factory/copy-factory.module.ts > api/src/modules/provisioning/provisioning.module.ts > api/src/modules/notifications/notifications.module.ts > api/src/modules/trading/trading.module.ts
+2) web/src/lib/api/client.ts > web/src/lib/stores/useAuthStore.ts > web/src/lib/api/auth.ts
+3) web/src/lib/api/client.ts > web/src/lib/stores/useAuthStore.ts
+

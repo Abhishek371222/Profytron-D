@@ -5,6 +5,8 @@ import { CryptoService } from '../../common/crypto.service';
 import { RedisService } from '../auth/redis.service';
 import { TradingGateway } from './trading.gateway';
 import { CopyLedgerService } from './copy-ledger.service';
+import { SyncEngineService } from '../sync/sync-engine.service';
+import type { PositionSnapshot } from '../sync/sync-diff';
 import {
   SubscriptionStatus,
   TradeDirection,
@@ -52,6 +54,7 @@ export class BotTradeSyncService implements OnModuleDestroy {
     private redis: RedisService,
     private gateway: TradingGateway,
     private ledger: CopyLedgerService,
+    private syncEngine: SyncEngineService,
   ) {}
 
   onModuleDestroy() {
@@ -216,6 +219,17 @@ export class BotTradeSyncService implements OnModuleDestroy {
           this.logger.warn(
             `Bot trade sync failed account=${brokerAccountId} (${fails}x): ${(err as Error).message}`,
           );
+          if (fails === 3) {
+            const statusDelta = await this.syncEngine.commitStatus(
+              brokerAccountId,
+              'degraded',
+            );
+            this.gateway.sendToUser(group.userId, 'sync_status', statusDelta);
+            this.gateway.sendToUser(group.userId, 'account_sync_degraded', {
+              brokerAccountId,
+              version: statusDelta.version,
+            });
+          }
         }
       }
     } catch (err) {
@@ -292,6 +306,21 @@ export class BotTradeSyncService implements OnModuleDestroy {
         magic: typeof p.magic === 'number' ? p.magic : null,
       }))
       .filter((p) => p.id && p.symbol);
+
+    const positionSnapshots: PositionSnapshot[] = brokerPositions.map((p) => ({
+      id: p.id,
+      symbol: p.symbol,
+      volume: p.volume,
+      openPrice: p.openPrice,
+      profit: p.profit,
+      stopLoss: p.stopLoss,
+      takeProfit: p.takeProfit,
+      type: p.type,
+    }));
+    const positionsDelta = await this.syncEngine.commitPositions(
+      input.brokerAccountId,
+      positionSnapshots,
+    );
 
     const openDbTrades = await this.prisma.trade.findMany({
       where: {
@@ -423,6 +452,14 @@ export class BotTradeSyncService implements OnModuleDestroy {
       this.gateway.sendToUser(input.userId, 'trade_closed', closed);
     }
 
+    if (positionsDelta.changed) {
+      this.gateway.sendToUser(input.userId, 'positions_delta', {
+        ...positionsDelta,
+        accountId: input.brokerAccountId,
+      });
+    }
+
+    // Heal orphan OPEN trades with null strategyId when only one bot is linked
     if (input.subscriptions.length === 1) {
       const healed = await this.prisma.trade.updateMany({
         where: {
@@ -441,6 +478,10 @@ export class BotTradeSyncService implements OnModuleDestroy {
       creds.metaApiRegion,
     );
     if (live != null && Number.isFinite(live) && live > 0) {
+      const equityDelta = await this.syncEngine.commitEquity(
+        input.brokerAccountId,
+        { balance: live, equity: live },
+      );
       await this.prisma.brokerAccount.update({
         where: { id: input.brokerAccountId },
         data: {
@@ -452,10 +493,21 @@ export class BotTradeSyncService implements OnModuleDestroy {
             : {}),
         },
       });
-      this.gateway.sendToUser(input.userId, 'account_equity', {
-        brokerAccountId: input.brokerAccountId,
-        equity: live,
-      });
+      if (equityDelta.changed) {
+        this.gateway.sendToUser(input.userId, 'account_equity', {
+          brokerAccountId: input.brokerAccountId,
+          accountId: input.brokerAccountId,
+          equity: live,
+          balance: live,
+          version: equityDelta.version,
+          syncedAt: equityDelta.syncedAt,
+        });
+      }
+      this.gateway.sendToUser(
+        input.userId,
+        'sync_status',
+        await this.syncEngine.commitStatus(input.brokerAccountId, 'fresh'),
+      );
     }
 
     return touched;

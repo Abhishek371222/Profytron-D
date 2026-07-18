@@ -1,0 +1,371 @@
+{
+  "slug": "community",
+  "path": "/community",
+  "auth": "public",
+  "shell": "marketing",
+  "tier": "B",
+  "browser": "chromium",
+  "viewport": {
+    "w": 1024,
+    "h": 1366,
+    "label": "tablet-1024"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": true,
+  "status": 200,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": "docs/ui-audit/phase1/screenshots/community__1024x1366__chromium__dpr1__z100.png",
+  "metrics": {
+    "viewport": {
+      "w": 1024,
+      "h": 1366,
+      "dpr": 1
+    },
+    "scroll": {
+      "scrollWidth": 1024,
+      "scrollHeight": 2215,
+      "clientWidth": 1024,
+      "clientHeight": 1366,
+      "overflowX": 0,
+      "overflowY": 849
+    },
+    "body": {
+      "width": 1024
+    },
+    "typography": {
+      "h1": {
+        "selector": "h1",
+        "width": 992,
+        "height": 56,
+        "fontSize": "52px",
+        "lineHeight": "56.16px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h2": {
+        "selector": "h2",
+        "width": 992,
+        "height": 32,
+        "fontSize": "30px",
+        "lineHeight": "32.4px",
+        "fontWeight": "800",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h3": {
+        "selector": "h3",
+        "width": 428,
+        "height": 28,
+        "fontSize": "20px",
+        "lineHeight": "28px",
+        "fontWeight": "700",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "h4": {
+        "selector": "h4",
+        "width": 259,
+        "height": 20,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "700",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "body": {
+        "selector": "body",
+        "width": 1024,
+        "height": 2215,
+        "fontSize": "16px",
+        "lineHeight": "25.6px",
+        "fontWeight": "400",
+        "color": "rgb(30, 37, 43)",
+        "display": "block",
+        "position": "static"
+      },
+      "small": {
+        "selector": ".text-sm",
+        "width": 62,
+        "height": 36,
+        "fontSize": "14px",
+        "lineHeight": "20px",
+        "fontWeight": "500",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      },
+      "p": {
+        "selector": "p",
+        "width": 672,
+        "height": 88,
+        "fontSize": "18px",
+        "lineHeight": "29.25px",
+        "fontWeight": "400",
+        "color": "rgb(100, 112, 122)",
+        "display": "block",
+        "position": "static"
+      }
+    },
+    "containers": [
+      {
+        "selector": ".page-container[0]",
+        "width": 1024,
+        "height": 73,
+        "maxWidth": "1920px",
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[1]",
+        "width": 1024,
+        "height": 220,
+        "maxWidth": "1920px",
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[2]",
+        "width": 1024,
+        "height": 296,
+        "maxWidth": "1920px",
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[3]",
+        "width": 1024,
+        "height": 274,
+        "maxWidth": "1920px",
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[4]",
+        "width": 1024,
+        "height": 118,
+        "maxWidth": "1920px",
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "position": "static"
+      },
+      {
+        "selector": ".page-container[5]",
+        "width": 1024,
+        "height": 581,
+        "maxWidth": "1920px",
+        "paddingLeft": "16px",
+        "paddingRight": "16px",
+        "position": "relative"
+      },
+      {
+        "selector": "main",
+        "width": 1024,
+        "height": 2215,
+        "maxWidth": "none",
+        "paddingLeft": "0px",
+        "paddingRight": "0px",
+        "position": "relative"
+      },
+      {
+        "selector": "nav",
+        "width": 992,
+        "height": 73,
+        "maxWidth": "none",
+        "paddingLeft": "4px",
+        "paddingRight": "20px",
+        "position": "static"
+      }
+    ],
+    "cards": [
+      {
+        "i": 0,
+        "width": 36,
+        "height": 36,
+        "minWidth": "auto"
+      },
+      {
+        "i": 1,
+        "width": 0,
+        "height": 0,
+        "minWidth": "0px"
+      },
+      {
+        "i": 2,
+        "width": 486,
+        "height": 296,
+        "minWidth": "0px"
+      },
+      {
+        "i": 3,
+        "width": 317,
+        "height": 142,
+        "minWidth": "0px"
+      },
+      {
+        "i": 4,
+        "width": 317,
+        "height": 142,
+        "minWidth": "0px"
+      },
+      {
+        "i": 5,
+        "width": 317,
+        "height": 162,
+        "minWidth": "0px"
+      },
+      {
+        "i": 6,
+        "width": 1024,
+        "height": 221,
+        "minWidth": "0px"
+      }
+    ],
+    "tables": [],
+    "charts": [
+      {
+        "i": 0,
+        "width": 121,
+        "height": 26,
+        "tag": "span"
+      },
+      {
+        "i": 1,
+        "width": 4,
+        "height": 4,
+        "tag": "div"
+      },
+      {
+        "i": 2,
+        "width": 6,
+        "height": 6,
+        "tag": "div"
+      }
+    ],
+    "sticky": [
+      {
+        "tag": "div",
+        "position": "fixed",
+        "top": 0,
+        "height": 1366,
+        "width": 1024
+      },
+      {
+        "tag": "header",
+        "position": "fixed",
+        "top": 0,
+        "height": 113,
+        "width": 1024
+      }
+    ],
+    "cssVars": {
+      "--content-max": "min(120rem, 100%)",
+      "--dashboard-p": "clamp(1rem, 1.25vw, 1.5rem)",
+      "--sidebar-w": "clamp(16.5rem, 17vw, 19rem)",
+      "--sidebar-w-collapsed": "clamp(4.5rem, 5vw, 5.5rem)",
+      "--touch-min": "2.75rem",
+      "--safe-top": "0px",
+      "--safe-bottom": "0px"
+    },
+    "a11y": {
+      "focusableCount": 38,
+      "smallTouchTargetCount": 29,
+      "smallTouchTargets": [
+        {
+          "w": 1,
+          "h": 1,
+          "tag": "a"
+        },
+        {
+          "w": 62,
+          "h": 36,
+          "tag": "a"
+        },
+        {
+          "w": 104,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 111,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 78,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 36,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 116,
+          "h": 36,
+          "tag": "button"
+        },
+        {
+          "w": 87,
+          "h": 20,
+          "tag": "a"
+        }
+      ],
+      "missingLabelSamples": []
+    },
+    "issues": [
+      {
+        "type": "small-touch-targets",
+        "severity": "medium",
+        "count": 29,
+        "samples": [
+          {
+            "w": 1,
+            "h": 1,
+            "tag": "a"
+          },
+          {
+            "w": 62,
+            "h": 36,
+            "tag": "a"
+          },
+          {
+            "w": 104,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 111,
+            "h": 36,
+            "tag": "button"
+          },
+          {
+            "w": 78,
+            "h": 36,
+            "tag": "button"
+          }
+        ]
+      },
+      {
+        "type": "narrow-card",
+        "severity": "low",
+        "width": 36
+      }
+    ],
+    "title": "Community — Traders & Strategy Creators | Profytron",
+    "url": "http://127.0.0.1:3000/community"
+  },
+  "error": null,
+  "ts": "2026-07-18T14:50:50.912Z"
+}

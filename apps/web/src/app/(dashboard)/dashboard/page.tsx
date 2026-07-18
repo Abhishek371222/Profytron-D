@@ -1,33 +1,48 @@
 'use client';
 
 import React from 'react';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Link2, RefreshCcw, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
-import { marketApi, type MarketNewsCategory } from '@/lib/api/market';
+import type { MarketNewsCategory } from '@/lib/api/market';
 import { ManualOrderModal } from '@/components/trading/ManualOrderModal';
+import {
+  readOverviewAccountCache,
+  writeOverviewAccountCache,
+} from '@/lib/overview-account-cache';
+import { platform } from '@/platform';
+import { QueryKeys } from '@/platform/data/query-keys';
+import { isRenderEngineEnabled, RenderSlot } from '@/platform/rendering';
+import { DashboardClock } from '@/platform/dashboard/DashboardClock';
+import { PerformanceChartSlot } from '@/platform/dashboard/PerformanceChartSlot';
+import { ViewportModule } from '@/platform/dashboard/ViewportModule';
+import {
+  MetricsModule,
+  OpenTradesModule,
+  RecentTradesModule,
+  RiskModule,
+  MarketWatchModule,
+  CalendarModule,
+  NewsModule,
+  QuickActionsModule,
+  type WatchTab,
+} from '@/platform/dashboard/modules';
 import { OverviewMetricCards } from '@/components/dashboard/overview/OverviewMetricCards';
 import { OverviewOpenPositions } from '@/components/dashboard/overview/OverviewOpenPositions';
-import {
-  OverviewMarketWatch,
-  type WatchTab,
-} from '@/components/dashboard/overview/OverviewMarketWatch';
+import { OverviewMarketWatch } from '@/components/dashboard/overview/OverviewMarketWatch';
 import { OverviewRecentTrades } from '@/components/dashboard/overview/OverviewRecentTrades';
 import { OverviewEconomicCalendar } from '@/components/dashboard/overview/OverviewEconomicCalendar';
 import { OverviewMarketNews } from '@/components/dashboard/overview/OverviewMarketNews';
 import { OverviewQuickActions } from '@/components/dashboard/overview/OverviewQuickActions';
 import { OverviewAccountHealth } from '@/components/dashboard/overview/OverviewAccountHealth';
-import { LiveClock } from '@/components/dashboard/overview/LiveClock';
-import {
-  readOverviewAccountCache,
-  writeOverviewAccountCache,
-} from '@/lib/overview-account-cache';
+import dynamic from 'next/dynamic';
+import { Mt5SyncBadge } from '@/platform/dashboard/Mt5SyncBadge';
 
-const OverviewPerformance = dynamic(
+const engineOn = isRenderEngineEnabled();
+
+const LegacyPerformance = dynamic(
   () =>
     import('@/components/dashboard/overview/OverviewPerformance').then(
       (m) => ({ default: m.OverviewPerformance }),
@@ -50,7 +65,6 @@ export default function DashboardPage() {
   const userId = currentUser?.id;
 
   const {
-    quotes,
     portfolio,
     openTrades,
     tradeHistory,
@@ -66,21 +80,20 @@ export default function DashboardPage() {
     portfolioInitialLoading,
     openTradesInitialLoading,
     tradeHistoryInitialLoading,
-    quotesInitialLoading,
   } = useDashboardData('1M');
 
   const accountsStillLoading =
     !hasBrokerAccount && accountsInitialLoading;
 
-  const newsQuery = useQuery({
-    queryKey: ['market-news', 'overview', newsCategory],
-    queryFn: () => marketApi.getNews({ category: newsCategory }),
+  const newsQuery = platform.data().useWorkspaceQuery({
+    queryKey: QueryKeys.marketNews(newsCategory),
+    queryFn: () => platform.data().market.getNews({ category: newsCategory }),
     staleTime: 60_000,
     refetchInterval: 120_000,
   });
 
-  const calendarQuery = useQuery({
-    queryKey: ['economic-calendar', 'overview'],
+  const calendarQuery = platform.data().useWorkspaceQuery({
+    queryKey: QueryKeys.economicCalendar(),
     queryFn: () => {
       const now = new Date();
       const day = now.getUTCDay();
@@ -91,7 +104,7 @@ export default function DashboardPage() {
       sunday.setUTCDate(monday.getUTCDate() + 6);
       const from = monday.toISOString().slice(0, 10);
       const to = sunday.toISOString().slice(0, 10);
-      return marketApi.getEconomicCalendar({ from, to });
+      return platform.data().market.getEconomicCalendar({ from, to });
     },
     staleTime: 5 * 60_000,
     refetchInterval: 10 * 60_000,
@@ -122,6 +135,7 @@ export default function DashboardPage() {
     }
     return 0;
   }, [hasBrokerAccount, openTrades, openTradesInitialLoading, mountedForCache, userId]);
+
   const [nowMs] = React.useState(() => Date.now());
   const realizedPnl24h = React.useMemo(() => {
     if (!hasBrokerAccount) return 0;
@@ -155,38 +169,22 @@ export default function DashboardPage() {
   ]);
 
   const equityCurve = hasBrokerAccount ? portfolio?.equityCurve ?? [] : [];
-  const sparkline =
-    !hasBrokerAccount || equityCurve.length < 2
-      ? hasBrokerAccount && balance > 0
-        ? [balance, balance]
-        : [0, 0]
-      : equityCurve.slice(-24).map((p) => p.equity);
+  const sparkline = React.useMemo(() => {
+    if (!hasBrokerAccount || equityCurve.length < 2) {
+      return hasBrokerAccount && balance > 0 ? [balance, balance] : [0, 0];
+    }
+    return equityCurve.slice(-24).map((p: { equity: number }) => p.equity);
+  }, [hasBrokerAccount, equityCurve, balance]);
 
   const cachedReturnPct =
     hasBrokerAccount && mountedForCache
       ? Number(readOverviewAccountCache(userId)?.change24hPct)
       : NaN;
-
-  // Total return is ALWAYS vs deposited capital (net deposits / initialEquity),
-  // never vs a rolling 30d window. Formula: (equity − depositBase) / depositBase.
-  const depositBase = Number(
-    portfolio?.depositBase ??
-      portfolio?.equityBase ??
-      defaultBrokerAccount?.initialEquity ??
-      0,
-  );
-  const currentEquity = hasBrokerAccount
-    ? equity > 0
-      ? equity
-      : balance
-    : 0;
   const totalReturnPct = !hasBrokerAccount
     ? 0
-    : portfolio?.totalReturnPct != null &&
-        Number.isFinite(portfolio.totalReturnPct) &&
-        (portfolio.source === 'database' ||
-          portfolio.source === 'snapshot' ||
-          portfolio.source === 'metaapi')
+    : portfolio?.source === 'metaapi' &&
+        portfolio.totalReturnPct != null &&
+        Number.isFinite(portfolio.totalReturnPct)
       ? portfolio.totalReturnPct
       : (() => {
           const base = Number(
@@ -201,7 +199,6 @@ export default function DashboardPage() {
           }
           return Number.isFinite(cachedReturnPct) ? cachedReturnPct : 0;
         })();
-
 
   const change24hPct = totalReturnPct;
 
@@ -241,15 +238,6 @@ export default function DashboardPage() {
     userId,
   ]);
 
-  const quoteMap = React.useMemo(() => {
-    const next: Record<string, { price: number; change24hPct: number }> = {};
-    for (const [key, q] of Object.entries(quotes)) {
-      if (!q) continue;
-      next[key] = { price: q.price, change24hPct: q.change24hPct };
-    }
-    return next;
-  }, [quotes]);
-
   const syncError =
     portfolio?.syncError || tradeHistoryQuery.data?.syncError;
   const metaApiBroken = syncError === 'METAAPI_UNAUTHORIZED';
@@ -275,13 +263,62 @@ export default function DashboardPage() {
     ? `${isPaper ? 'Paper' : 'Real'} Account ····${defaultBrokerAccount.accountNumberLast4 || ''}`
     : 'No account';
 
+  const metrics = React.useMemo(
+    () => ({
+      balance: hasBrokerAccount ? balance : 0,
+      equity: hasBrokerAccount ? equity : 0,
+      margin: hasBrokerAccount ? margin : 0,
+      freeMargin: hasBrokerAccount ? freeMargin : 0,
+      currency,
+      unrealizedPnl: hasBrokerAccount ? unrealizedPnl : 0,
+      realizedPnl24h: hasBrokerAccount ? realizedPnl24h : 0,
+      change24hPct: hasBrokerAccount ? change24hPct : 0,
+      sparkline: hasBrokerAccount ? sparkline : [0, 0],
+      isPaper,
+      loading: metricsLoading,
+      refreshing: accountsRefreshing && liveReady,
+    }),
+    [
+      hasBrokerAccount,
+      balance,
+      equity,
+      margin,
+      freeMargin,
+      currency,
+      unrealizedPnl,
+      realizedPnl24h,
+      change24hPct,
+      sparkline,
+      isPaper,
+      metricsLoading,
+      accountsRefreshing,
+      liveReady,
+    ],
+  );
+
+  const onNewOrder = React.useCallback(() => setManualOrderOpen(true), []);
+  const onWatchTab = React.useCallback((tab: WatchTab) => setWatchTab(tab), []);
+  const onNewsCategory = React.useCallback(
+    (c: MarketNewsCategory) => setNewsCategory(c),
+    [],
+  );
+
+  const Metrics = engineOn ? MetricsModule : OverviewMetricCards;
+  const Recent = engineOn ? RecentTradesModule : OverviewRecentTrades;
+  const Risk = engineOn ? RiskModule : OverviewAccountHealth;
+  const Calendar = engineOn ? CalendarModule : OverviewEconomicCalendar;
+  const News = engineOn ? NewsModule : OverviewMarketNews;
+  const Actions = engineOn ? QuickActionsModule : OverviewQuickActions;
+
+  const slot = (id: string, node: React.ReactNode) =>
+    engineOn ? <RenderSlot id={id}>{node}</RenderSlot> : node;
+
   return (
     <div
       className="space-y-2.5 pb-5 sm:space-y-3"
       suppressHydrationWarning
       data-tour="dashboard-overview"
     >
-      { }
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
@@ -297,17 +334,17 @@ export default function DashboardPage() {
             <span className="text-muted-foreground/50">·</span>
             <span className="inline-flex items-center gap-1 text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--chart-bull)]" />
-              {defaultBrokerAccount?.brokerName || 'Broker'} · {isPaper ? 'Demo' : 'Live'}
+              {defaultBrokerAccount?.brokerName || 'Broker'} ·{' '}
+              {isPaper ? 'Demo' : 'Live'}
             </span>
           </div>
-          <div className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--card-border)] bg-card px-2.5 py-1 text-[11px] tabular-nums text-muted-foreground">
-            <span className="inline-flex items-center gap-1 font-medium text-foreground">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
-              Live
-            </span>
-            <span className="text-muted-foreground/50">·</span>
-            <LiveClock />
-          </div>
+          {engineOn ? (
+            <DashboardClock />
+          ) : (
+            <div className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--card-border)] bg-card px-2.5 py-1 text-[11px] tabular-nums text-muted-foreground">
+              <Mt5SyncBadge />
+            </div>
+          )}
           <button
             type="button"
             onClick={() => {
@@ -328,10 +365,12 @@ export default function DashboardPage() {
         <div className="flex items-start gap-3 rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
           <div className="min-w-0 text-sm">
-            <p className="font-semibold text-foreground">Live account sync is offline</p>
+            <p className="font-semibold text-foreground">
+              Live account sync is offline
+            </p>
             <p className="mt-0.5 text-muted-foreground">
-              We couldn&apos;t refresh your broker connection. Try again in a moment, or reconnect
-              your account from Connected Accounts.
+              We couldn&apos;t refresh your broker connection. Try again in a
+              moment, or reconnect your account from Connected Accounts.
             </p>
           </div>
         </div>
@@ -349,12 +388,15 @@ export default function DashboardPage() {
                   Connect your first account
                 </p>
                 <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-                  Link a paper or live broker once. Balance, margin, positions, and
-                  performance all come from that account.
+                  Link a paper or live broker once. Balance, margin, positions,
+                  and performance all come from that account.
                 </p>
               </div>
             </div>
-            <Button onClick={() => router.push('/connected-accounts')} className="shrink-0 gap-2">
+            <Button
+              onClick={() => router.push('/connected-accounts')}
+              className="shrink-0 gap-2"
+            >
               <Zap className="h-4 w-4" />
               Connect Account
             </Button>
@@ -362,46 +404,56 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {(hasBrokerAccount || accountsStillLoading) && (
-        <OverviewMetricCards
-          metrics={{
-            balance: hasBrokerAccount ? balance : 0,
-            equity: hasBrokerAccount ? equity : 0,
-            margin: hasBrokerAccount ? margin : 0,
-            freeMargin: hasBrokerAccount ? freeMargin : 0,
-            currency,
-            unrealizedPnl: hasBrokerAccount ? unrealizedPnl : 0,
-            realizedPnl24h: hasBrokerAccount ? realizedPnl24h : 0,
-            change24hPct: hasBrokerAccount ? change24hPct : 0,
-            sparkline: hasBrokerAccount ? sparkline : [0, 0],
-            isPaper,
-            loading: metricsLoading,
-            refreshing: accountsRefreshing && liveReady,
-          }}
-        />
-      )}
+      {(hasBrokerAccount || accountsStillLoading) &&
+        slot('MetricsModule', <Metrics metrics={metrics} />)}
 
-      { }
       <div className="grid grid-cols-1 items-stretch gap-3 xl:grid-cols-12">
         {(hasBrokerAccount || accountsStillLoading) && (
           <>
             <div className="xl:col-span-5">
-              <OverviewOpenPositions
-                positions={hasBrokerAccount ? openTrades : []}
-                quotes={quoteMap}
-                currency={currency}
-                loading={accountsStillLoading || openTradesInitialLoading}
-                onNewOrder={() => setManualOrderOpen(true)}
-              />
+              {engineOn
+                ? slot(
+                    'OpenTradesModule',
+                    <OpenTradesModule
+                      positions={hasBrokerAccount ? openTrades : []}
+                      currency={currency}
+                      loading={
+                        accountsStillLoading || openTradesInitialLoading
+                      }
+                      onNewOrder={onNewOrder}
+                    />,
+                  )
+                : slot(
+                    'OpenTradesModule',
+                    <OverviewOpenPositions
+                      positions={hasBrokerAccount ? openTrades : []}
+                      quotes={{}}
+                      currency={currency}
+                      loading={
+                        accountsStillLoading || openTradesInitialLoading
+                      }
+                      onNewOrder={onNewOrder}
+                    />,
+                  )}
             </div>
             <div className="xl:col-span-4">
-              <OverviewPerformance
-                equityCurve={hasBrokerAccount ? equityCurve : []}
-                totalReturnPct={hasBrokerAccount ? totalReturnPct : 0}
-                winRate={hasBrokerAccount ? portfolio?.winRate ?? 0 : 0}
-                totalTrades={hasBrokerAccount ? portfolio?.totalTrades ?? 0 : 0}
-                loading={accountsStillLoading || portfolioInitialLoading}
-              />
+              {engineOn ? (
+                <PerformanceChartSlot
+                  equityCurve={hasBrokerAccount ? equityCurve : []}
+                  totalReturnPct={hasBrokerAccount ? totalReturnPct : 0}
+                  winRate={hasBrokerAccount ? portfolio?.winRate ?? 0 : 0}
+                  totalTrades={hasBrokerAccount ? portfolio?.totalTrades ?? 0 : 0}
+                  loading={accountsStillLoading || portfolioInitialLoading}
+                />
+              ) : (
+                <LegacyPerformance
+                  equityCurve={hasBrokerAccount ? equityCurve : []}
+                  totalReturnPct={hasBrokerAccount ? totalReturnPct : 0}
+                  winRate={hasBrokerAccount ? portfolio?.winRate ?? 0 : 0}
+                  totalTrades={hasBrokerAccount ? portfolio?.totalTrades ?? 0 : 0}
+                  loading={accountsStillLoading || portfolioInitialLoading}
+                />
+              )}
             </div>
           </>
         )}
@@ -412,16 +464,24 @@ export default function DashboardPage() {
               : 'xl:col-span-12'
           }
         >
-          <OverviewMarketWatch
-            quotes={quoteMap}
-            activeTab={watchTab}
-            onTabChange={setWatchTab}
-            loading={quotesInitialLoading}
-          />
+          {engineOn
+            ? slot(
+                'MarketWatchModule',
+                <MarketWatchModule
+                  activeTab={watchTab}
+                  onTabChange={onWatchTab}
+                />,
+              )
+            : (
+              <OverviewMarketWatch
+                quotes={{}}
+                activeTab={watchTab}
+                onTabChange={onWatchTab}
+              />
+            )}
         </div>
       </div>
 
-      { }
       <div
         className={
           hasBrokerAccount || accountsStillLoading
@@ -429,37 +489,69 @@ export default function DashboardPage() {
             : 'grid grid-cols-1 items-stretch gap-3 lg:grid-cols-2'
         }
       >
-        {(hasBrokerAccount || accountsStillLoading) && (
-          <OverviewRecentTrades
-            trades={hasBrokerAccount ? tradeHistory : []}
-            currency={currency}
-            loading={accountsStillLoading || tradeHistoryInitialLoading}
-            syncError={
-              hasBrokerAccount
-                ? tradeHistoryQuery.data?.syncError ?? null
-                : null
-            }
-            syncMessage={
-              hasBrokerAccount
-                ? tradeHistoryQuery.data?.message ?? null
-                : null
-            }
-          />
+        {(hasBrokerAccount || accountsStillLoading) &&
+          slot(
+            'RecentTradesModule',
+            <Recent
+              trades={hasBrokerAccount ? tradeHistory : []}
+              currency={currency}
+              loading={accountsStillLoading || tradeHistoryInitialLoading}
+              syncError={
+                hasBrokerAccount
+                  ? tradeHistoryQuery.data?.syncError ??
+                    (tradeHistoryQuery.isError ? 'METAAPI_UNAVAILABLE' : null)
+                  : null
+              }
+              syncMessage={
+                hasBrokerAccount
+                  ? tradeHistoryQuery.data?.message ??
+                    (tradeHistoryQuery.isError
+                      ? 'Could not sync closed trades from MetaAPI. Showing last saved trades if available.'
+                      : null)
+                  : null
+              }
+            />,
+          )}
+        {engineOn ? (
+          <ViewportModule id="CalendarModule">
+            <Calendar
+              events={calendarQuery.data?.events ?? []}
+              loading={calendarQuery.isPending && !calendarQuery.data}
+              error={calendarQuery.isError}
+            />
+          </ViewportModule>
+        ) : (
+          slot(
+            'CalendarModule',
+            <Calendar
+              events={calendarQuery.data?.events ?? []}
+              loading={calendarQuery.isPending && !calendarQuery.data}
+              error={calendarQuery.isError}
+            />,
+          )
         )}
-        <OverviewEconomicCalendar
-          events={calendarQuery.data?.events ?? []}
-          loading={calendarQuery.isPending && !calendarQuery.data}
-          error={calendarQuery.isError}
-        />
-        <OverviewMarketNews
-          news={newsQuery.data?.items ?? []}
-          category={newsCategory}
-          onCategoryChange={setNewsCategory}
-          loading={newsQuery.isPending && !newsQuery.data}
-        />
+        {engineOn ? (
+          <ViewportModule id="NewsModule">
+            <News
+              news={newsQuery.data?.items ?? []}
+              category={newsCategory}
+              onCategoryChange={onNewsCategory}
+              loading={newsQuery.isPending && !newsQuery.data}
+            />
+          </ViewportModule>
+        ) : (
+          slot(
+            'NewsModule',
+            <News
+              news={newsQuery.data?.items ?? []}
+              category={newsCategory}
+              onCategoryChange={onNewsCategory}
+              loading={newsQuery.isPending && !newsQuery.data}
+            />,
+          )
+        )}
       </div>
 
-      { }
       <div
         className={
           hasBrokerAccount || accountsStillLoading
@@ -467,23 +559,28 @@ export default function DashboardPage() {
             : 'grid grid-cols-1 items-stretch gap-3'
         }
       >
-        <OverviewQuickActions onNewOrder={() => setManualOrderOpen(true)} />
-        {(hasBrokerAccount || accountsStillLoading) && (
-          <OverviewAccountHealth
-            riskScoreLabel={hasBrokerAccount ? riskScoreLabel : 'No Data'}
-            drawdownPct={hasBrokerAccount ? drawdownPct : 0}
-            profitFactor={hasBrokerAccount ? profitFactor : 0}
-            sharpeRatio={hasBrokerAccount ? sharpeRatio : 0}
-            healthPct={hasBrokerAccount ? healthPct : 8}
-          />
-        )}
+        {slot('QuickActionsModule', <Actions onNewOrder={onNewOrder} />)}
+        {(hasBrokerAccount || accountsStillLoading) &&
+          slot(
+            'RiskModule',
+            <Risk
+              riskScoreLabel={hasBrokerAccount ? riskScoreLabel : 'No Data'}
+              drawdownPct={hasBrokerAccount ? drawdownPct : 0}
+              profitFactor={hasBrokerAccount ? profitFactor : 0}
+              sharpeRatio={hasBrokerAccount ? sharpeRatio : 0}
+              healthPct={hasBrokerAccount ? healthPct : 8}
+            />,
+          )}
       </div>
 
       <p className="text-center text-[11px] text-muted-foreground">
         Live account data and market insights for your workspace.
       </p>
 
-      <ManualOrderModal open={manualOrderOpen} onOpenChange={setManualOrderOpen} />
+      <ManualOrderModal
+        open={manualOrderOpen}
+        onOpenChange={setManualOrderOpen}
+      />
     </div>
   );
 }

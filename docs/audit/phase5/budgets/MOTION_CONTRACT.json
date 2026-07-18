@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "name": "Profytron Phase 5 Motion Budget Contract",
+  "updated": "2026-07-18",
+  "budgetsMs": {
+    "hover": 80,
+    "button": 100,
+    "modal": 200,
+    "drawer": 220,
+    "toast": 180,
+    "navigation": 250,
+    "counter": 250
+  },
+  "qualityLevels": ["ultra", "high", "medium", "minimal"],
+  "queueLanes": ["critical", "interaction", "feedback", "decorative", "idle"],
+  "conflictPriority": ["state", "press", "click", "hover"],
+  "policy": "Soft-enforce via metrics marks when NEXT_PUBLIC_PLATFORM_METRICS=1. Overages require ADR waiver.",
+  "featureFlag": "NEXT_PUBLIC_MOTION_ENGINE (default ON; set 0 to disable)"
+}

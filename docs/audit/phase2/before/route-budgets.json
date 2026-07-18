@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "seededFrom": "2026-07-18 Phase 1 measurements (dev server Playwright + production webpack chunks)",
+  "note": "Budgets are aspirational Phase 2 targets. Baseline is measured current.",
+  "routes": {
+    "/": {
+      "baseline": { "fcpMs": 1432, "longTaskMs": 7127, "transferKB": 9081, "heapMB": 157, "jsChunkKB_disk": null },
+      "budget": { "fcpMs": 1800, "longTaskMs": 500, "transferKB": 1500, "heapMB": 80, "jsKB": 250, "cpuMs": 50, "renderMs": 16, "animationMs": 8, "gpuMs": 8 }
+    },
+    "/login": {
+      "baseline": { "fcpMs": 8452, "longTaskMs": 358, "transferKB": 8234, "heapMB": 123 },
+      "budget": { "fcpMs": 2500, "longTaskMs": 300, "transferKB": 2000, "heapMB": 100, "jsKB": 200, "earthAssetsKB": 800 }
+    },
+    "/dashboard": {
+      "baseline": { "wallMs": 8447, "heapMB": 131, "pageChunkKB": 78, "layoutChunkKB": 94 },
+      "budget": { "fcpMs": 1500, "longTaskMs": 200, "transferKB": 1200, "heapMB": 80, "jsKB": 150, "cpuMs": 6, "renderMs": 4, "animationMs": 2, "gpuMs": 5, "apiBootstrapMs": 300 }
+    },
+    "/marketplace": {
+      "baseline": { "fcpMs": 1532, "transferKB": 8234, "heapMB": 123 },
+      "budget": { "fcpMs": 1800, "transferKB": 1200, "heapMB": 90, "jsKB": 180 }
+    },
+    "/connected-accounts": {
+      "baseline": { "fcpMs": 2928, "heapMB": 177 },
+      "budget": { "fcpMs": 2000, "heapMB": 100, "jsKB": 150 }
+    }
+  },
+  "api": {
+    "healthMs": { "baseline": 1505, "budget": 100 },
+    "metaApiAccountInformationMs": { "baseline_p50": 700, "budget": 400 },
+    "neonRoundTripMs": { "baseline": 200, "budget": 50, "note": "requires regional colocation" }
+  }
+}

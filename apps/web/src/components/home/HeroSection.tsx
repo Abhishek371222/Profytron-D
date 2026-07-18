@@ -5,8 +5,6 @@ import { TrustBadges } from "@/components/trust/TrustBadges";
 import { StaggerFadeUp, StaggerItem } from "@/components/animations/StaggerFadeUp";
 import { RotatingWords } from "@/components/animations/RotatingWords";
 import { HeroAmbientVisual } from "@/components/home/HeroAmbientVisual";
-import { HeroStatsRow } from "@/components/home/HeroStatsRow";
-import { HeroFeatureStrip } from "@/components/home/HeroFeatureStrip";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { LandingDashboardLink, LandingPrimaryLink, LandingSecondaryLink } from "@/components/home/LandingButtons";
 import { useMounted } from "@/lib/hooks/useMounted";
@@ -118,9 +116,6 @@ export function HeroSection() {
             </div>
           </div>
         </div>
-
-        <HeroStatsRow />
-        <HeroFeatureStrip />
       </div>
     </section>
   );

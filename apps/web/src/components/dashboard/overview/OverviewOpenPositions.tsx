@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { animationApi } from '@/platform/animation';
+import { isMotionEngineEnabled } from '@/platform/motion';
 import {
   formatMoney,
   formatPct,
@@ -53,6 +55,30 @@ export function OverviewOpenPositions({
 
   const totalVolume = rows.reduce((s, r) => s + r.amount, 0);
   const totalPnl = rows.reduce((s, r) => s + r.pnl, 0);
+  const [flashIds, setFlashIds] = React.useState<Record<string, boolean>>({});
+
+  React.useEffect(() => {
+    if (!isMotionEngineEnabled()) return;
+    const next: Record<string, boolean> = {};
+    let any = false;
+    for (const r of rows) {
+      if (animationApi.consumeChanged(`trade.${r.id}.pnl`)) {
+        next[r.id] = true;
+        any = true;
+      }
+    }
+    if (!any) return;
+    setFlashIds((prev) => ({ ...prev, ...next }));
+    const t = window.setTimeout(() => {
+      setFlashIds((prev) => {
+        const copy = { ...prev };
+        for (const id of Object.keys(next)) delete copy[id];
+        return copy;
+      });
+    }, 320);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [positions.map((p) => `${p.id}:${p.pnl}`).join('|')]);
 
   return (
     <div className="flex h-full min-h-[220px] flex-col overflow-hidden rounded-xl border border-[var(--card-border)] bg-card">
@@ -109,7 +135,10 @@ export function OverviewOpenPositions({
               {rows.map((r) => (
                 <tr
                   key={r.id}
-                  className="border-b border-[var(--card-border)]/60 last:border-0 hover:bg-muted/20"
+                  className={cn(
+                    'border-b border-[var(--card-border)]/60 last:border-0 hover:bg-muted/20 transition-colors duration-[var(--motion-fast,120ms)]',
+                    flashIds[r.id] && 'bg-primary/5',
+                  )}
                 >
                   <td className="px-4 py-2.5 font-semibold text-foreground sm:px-5">
                     {formatSymbol(r.asset)}

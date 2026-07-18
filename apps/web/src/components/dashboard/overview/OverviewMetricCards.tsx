@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Activity, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAnimatedNumber } from '@/platform/motion';
 import {
   formatMoney,
   formatPct,
@@ -57,8 +58,8 @@ function ProgressBar({ value }: { value: number }) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/70">
       <div
-        className="h-full w-full origin-left rounded-full bg-primary transition-transform duration-500 will-change-transform"
-        style={{ transform: `scaleX(${pct / 100})` }}
+        className="h-full rounded-full bg-primary transition-[width] duration-[var(--motion-slow,320ms)]"
+        style={{ width: `${pct}%` }}
       />
     </div>
   );
@@ -102,11 +103,40 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
     refreshing,
   } = metrics;
 
+  // Always USD on Overview — matches MT5 / Connected Accounts, no locale FX.
   const currency = 'USD';
 
   const marginUsedPct = equity > 0 ? (margin / equity) * 100 : 0;
   const marginLevel = margin > 0 ? (equity / margin) * 100 : 0;
   const freePct = equity > 0 ? Math.min(100, (freeMargin / equity) * 100) : 0;
+
+  const balanceAnim = useAnimatedNumber({
+    id: 'metric.balance',
+    value: balance,
+    kind: 'currency',
+    currency,
+    changeKey: 'overview.balance',
+  });
+  const equityAnim = useAnimatedNumber({
+    id: 'metric.equity',
+    value: equity,
+    kind: 'currency',
+    currency,
+    changeKey: 'overview.equity',
+  });
+  const freeAnim = useAnimatedNumber({
+    id: 'metric.freeMargin',
+    value: freeMargin,
+    kind: 'currency',
+    currency,
+  });
+  const pnlAnim = useAnimatedNumber({
+    id: 'metric.unrealizedPnl',
+    value: unrealizedPnl,
+    kind: 'currency',
+    currency,
+    changeKey: 'overview.pnl',
+  });
 
   if (loading) {
     return (
@@ -133,10 +163,13 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
               Total Balance
             </p>
             <p
-              className="mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums truncate"
+              className={cn(
+                'mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums truncate transition-colors duration-[var(--motion-fast,120ms)]',
+                balanceAnim.highlight && 'text-primary',
+              )}
               title={formatMoney(balance, currency)}
             >
-              {formatMoney(balance, currency)}
+              {balanceAnim.formatted}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               {isPaper ? 'Paper' : 'Real'} · {currency}
@@ -157,10 +190,13 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
           Equity
         </p>
         <p
-          className="mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums truncate"
+          className={cn(
+            'mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums truncate transition-colors duration-[var(--motion-fast,120ms)]',
+            equityAnim.highlight && 'text-primary',
+          )}
           title={formatMoney(equity, currency)}
         >
-          {formatMoney(equity, currency)}
+          {equityAnim.formatted}
         </p>
         <div className="mt-2 space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -181,7 +217,7 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
           className="mt-1.5 text-xl font-semibold tracking-tight text-foreground tabular-nums truncate"
           title={formatMoney(freeMargin, currency)}
         >
-          {formatMoney(freeMargin, currency)}
+          {freeAnim.formatted}
         </p>
         <div className="mt-2 space-y-1.5">
           <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -205,10 +241,14 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
           </div>
         </div>
         <p
-          className={cn('mt-1.5 text-xl font-semibold tracking-tight tabular-nums truncate', pnlClass(unrealizedPnl))}
+          className={cn(
+            'mt-1.5 text-xl font-semibold tracking-tight tabular-nums truncate transition-colors duration-[var(--motion-fast,120ms)]',
+            pnlClass(unrealizedPnl),
+            pnlAnim.highlight && 'ring-1 ring-primary/30 rounded-sm',
+          )}
           title={formatSignedMoney(unrealizedPnl, currency)}
         >
-          {formatSignedMoney(unrealizedPnl, currency)}
+          {formatSignedMoney(pnlAnim.visual, currency)}
         </p>
         <div className="mt-2 flex items-center justify-between text-xs">
           <span className="text-muted-foreground">Realized P/L (24h)</span>

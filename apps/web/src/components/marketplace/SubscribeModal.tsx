@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { formatApiErrorMessage, formatBotName } from '@/lib/bot-labels';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { useModalMotionProps, motionPresets, durationSeconds } from '@/platform/motion';
 
 interface SubscribeModalProps {
   strategy: any;
@@ -218,24 +219,27 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
     }
   };
 
+  const modal = useModalMotionProps();
+  const panelTransition = motionPresets.modal();
+
   return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-6 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] sm:pb-6">
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            initial={modal.backdrop.initial}
+            animate={modal.backdrop.animate}
+            exit={modal.backdrop.exit}
+            transition={modal.backdrop.transition}
             onClick={onClose}
             className="absolute inset-0 bg-black/85 backdrop-blur-xl"
           />
 
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.94 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.94 }}
-            transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+            initial={modal.panel.initial}
+            animate={modal.panel.animate}
+            exit={modal.panel.exit}
+            transition={panelTransition}
             className={cn(
               'relative w-full max-w-2xl overflow-hidden rounded-t-[var(--radius-modal)] sm:rounded-[var(--radius-modal)]',
               'dashboard-card shadow-[var(--shadow-lg)]',
@@ -259,7 +263,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                  transition={{ duration: durationSeconds('Standard') }}
                   className="flex flex-col items-center py-10 text-center"
                 >
                   <div className="relative mb-5">
@@ -344,7 +348,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                         initial={{ opacity: 0, x: -12 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -12 }}
-                        transition={{ duration: 0.25 }}
+                        transition={motionPresets.panel()}
                         className="space-y-3"
                       >
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -453,7 +457,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                           <motion.label
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.15 }}
+                            transition={{ delay: durationSeconds('Fast') }}
                             className="flex items-center gap-3 rounded-xl border border-chart-3/20 bg-chart-3/[0.06] p-3.5 text-sm text-chart-3 cursor-pointer hover:border-chart-3/35 transition-colors"
                           >
                             <input
@@ -478,7 +482,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                         initial={{ opacity: 0, x: 12 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 12 }}
-                        transition={{ duration: 0.25 }}
+                        transition={motionPresets.panel()}
                         className="rounded-2xl border border-white/[0.08] bg-muted/25 p-5 space-y-3"
                       >
                         {[

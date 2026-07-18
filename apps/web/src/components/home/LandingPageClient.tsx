@@ -1,19 +1,20 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { MotionConfig } from "framer-motion";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { HeroSection } from "@/components/home/HeroSection";
 import { SectionRevealer } from "@/components/ui/SectionRevealer";
+import { LenisProvider } from "@/components/providers/LenisProvider";
+import React from "react";
+import {
+  startExperienceEngine,
+  isExperienceEngineEnabled,
+  ExperienceDevPanel,
+} from "@/platform/experience";
 
-const LiveTicker = dynamic(
-  () => import("@/components/home/StatsSection").then((m) => ({ default: m.LiveTicker })),
-  { loading: () => <div className="h-[72px]" aria-hidden /> },
-);
-
-const SocialProofBar = dynamic(
-  () => import("@/components/home/SocialProofBar").then((m) => ({ default: m.SocialProofBar })),
+const HowItWorks = dynamic(
+  () => import("@/components/home/HowItWorks").then((m) => ({ default: m.HowItWorks })),
   { loading: () => null },
 );
 
@@ -27,33 +28,18 @@ const FeaturesSection = dynamic(
   { loading: () => null },
 );
 
-const HowItWorks = dynamic(
-  () => import("@/components/home/HowItWorks").then((m) => ({ default: m.HowItWorks })),
-  { loading: () => null },
-);
-
-const StatsSection = dynamic(
-  () => import("@/components/home/StatsSection").then((m) => ({ default: m.StatsSection })),
-  { loading: () => null },
-);
-
-const Testimonials = dynamic(
-  () => import("@/components/home/Testimonials").then((m) => ({ default: m.Testimonials })),
-  { loading: () => null },
-);
-
 const PricingSection = dynamic(
   () => import("@/components/home/PricingSection").then((m) => ({ default: m.PricingSection })),
   { loading: () => null },
 );
 
-const FaqSection = dynamic(
-  () => import("@/components/home/FaqSection").then((m) => ({ default: m.FaqSection })),
+const CTABanner = dynamic(
+  () => import("@/components/home/CTABanner").then((m) => ({ default: m.CTABanner })),
   { loading: () => null },
 );
 
-const CTABanner = dynamic(
-  () => import("@/components/home/CTABanner").then((m) => ({ default: m.CTABanner })),
+const FaqSection = dynamic(
+  () => import("@/components/home/FaqSection").then((m) => ({ default: m.FaqSection })),
   { loading: () => null },
 );
 
@@ -63,40 +49,29 @@ const Footer = dynamic(
 );
 
 export function LandingPageClient() {
+  React.useEffect(() => {
+    if (!isExperienceEngineEnabled()) return;
+    return startExperienceEngine();
+  }, []);
+
   return (
     <AppProviders>
-      <MotionConfig reducedMotion="always">
-      <main className="landing-page-root relative min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background">
+    <LenisProvider>
+      <main className="relative min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background exp-lighting">
         <div className="relative z-10">
           <PublicNavbar />
           <HeroSection />
-
-          <SectionRevealer>
-            <SocialProofBar />
-          </SectionRevealer>
-
-          <SectionRevealer delay={0.08}>
-            <LiveTicker />
-          </SectionRevealer>
-
-          <SectionRevealer delay={0.1}>
-            <ValuePillars />
-          </SectionRevealer>
-
-          <SectionRevealer delay={0.05} direction="right">
-            <FeaturesSection />
-          </SectionRevealer>
 
           <SectionRevealer delay={0.08}>
             <HowItWorks />
           </SectionRevealer>
 
-          <SectionRevealer delay={0.06}>
-            <StatsSection />
+          <SectionRevealer delay={0.1}>
+            <FeaturesSection />
           </SectionRevealer>
 
-          <SectionRevealer delay={0.08} direction="left">
-            <Testimonials />
+          <SectionRevealer delay={0.1}>
+            <ValuePillars />
           </SectionRevealer>
 
           <SectionRevealer delay={0.1}>
@@ -113,8 +88,9 @@ export function LandingPageClient() {
 
           <Footer />
         </div>
+        {isExperienceEngineEnabled() && <ExperienceDevPanel />}
       </main>
-      </MotionConfig>
+    </LenisProvider>
     </AppProviders>
   );
 }
