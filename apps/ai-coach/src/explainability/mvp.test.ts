@@ -5,7 +5,7 @@ import {
   isMvpIntent,
   toolsForIntent,
   runExplainability,
-} from '../index.ts';
+} from '../index';
 
 describe('intent-routing', () => {
   it('classifies MVP performance intents', () => {
