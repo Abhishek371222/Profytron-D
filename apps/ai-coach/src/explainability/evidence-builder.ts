@@ -4,8 +4,8 @@ import type {
   ToolFetchers,
   ToolId,
   SessionMemory,
-} from './types.ts';
-import { toolsForIntent } from './tool-router.ts';
+} from './types';
+import { toolsForIntent } from './tool-router';
 
 function num(v: unknown): number | null {
   if (typeof v === 'number' && Number.isFinite(v)) return v;

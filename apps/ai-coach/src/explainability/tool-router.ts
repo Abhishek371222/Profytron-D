@@ -1,4 +1,4 @@
-import type { CoachIntent, ToolId } from './types.ts';
+import type { CoachIntent, ToolId } from './types';
 
 /** Minimum tool set per intent — no recursive agent loops. */
 export function toolsForIntent(intent: CoachIntent): ToolId[] {

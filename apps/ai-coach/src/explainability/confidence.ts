@@ -1,5 +1,5 @@
-import type { CoachIntent, ConfidenceLevel, EvidenceBundle, ToolId } from './types.ts';
-import { toolsForIntent } from './tool-router.ts';
+import type { CoachIntent, ConfidenceLevel, EvidenceBundle, ToolId } from './types';
+import { toolsForIntent } from './tool-router';
 
 export function scoreConfidence(params: {
   intent: CoachIntent;

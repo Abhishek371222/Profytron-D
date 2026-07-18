@@ -1,5 +1,5 @@
-import type { Citation, CoachIntent, EvidenceBundle, ToolId } from './types.ts';
-import { toolsForIntent } from './tool-router.ts';
+import type { Citation, CoachIntent, EvidenceBundle, ToolId } from './types';
+import { toolsForIntent } from './tool-router';
 
 const LABELS: Record<ToolId, string> = {
   analytics_portfolio: 'Portfolio metrics',

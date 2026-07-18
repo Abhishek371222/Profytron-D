@@ -1,17 +1,17 @@
-import { classifyIntent, isMvpIntent } from './intent-classifier.ts';
-import { buildEvidence } from './evidence-builder.ts';
-import { scoreConfidence } from './confidence.ts';
-import { buildCitations } from './citations.ts';
+import { classifyIntent, isMvpIntent } from './intent-classifier';
+import { buildEvidence } from './evidence-builder';
+import { scoreConfidence } from './confidence';
+import { buildCitations } from './citations';
 import {
   buildResponseSections,
   sectionsToPlainText,
   MVP_FOLLOW_UPS,
-} from './response-builder.ts';
+} from './response-builder';
 import type {
   ExplainabilityResult,
   SessionMemory,
   ToolFetchers,
-} from './types.ts';
+} from './types';
 
 export async function runExplainability(params: {
   message: string;
@@ -66,8 +66,8 @@ export async function runExplainability(params: {
   };
 }
 
-export { classifyIntent, isMvpIntent } from './intent-classifier.ts';
-export { toolsForIntent } from './tool-router.ts';
-export { MVP_FOLLOW_UPS } from './response-builder.ts';
-export { EVIDENCE_ONLY_SYSTEM, buildEvidenceUserPrompt } from './templates.ts';
-export type * from './types.ts';
+export { classifyIntent, isMvpIntent } from './intent-classifier';
+export { toolsForIntent } from './tool-router';
+export { MVP_FOLLOW_UPS } from './response-builder';
+export { EVIDENCE_ONLY_SYSTEM, buildEvidenceUserPrompt } from './templates';
+export type * from './types';

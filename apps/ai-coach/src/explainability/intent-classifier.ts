@@ -1,4 +1,4 @@
-import type { CoachIntent } from './types.ts';
+import type { CoachIntent } from './types';
 
 const RULES: Array<{ intent: CoachIntent; patterns: RegExp[] }> = [
   // —— Program 2 Portfolio (before generic performance overlaps) ——

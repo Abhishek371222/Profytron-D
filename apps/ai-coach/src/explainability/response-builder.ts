@@ -1,4 +1,4 @@
-import type { CoachIntent, EvidenceBundle } from './types.ts';
+import type { CoachIntent, EvidenceBundle } from './types';
 
 function money(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n)) return 'unavailable';
