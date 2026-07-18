@@ -1,0 +1,23 @@
+{
+  "slug": "markets",
+  "path": "/markets",
+  "auth": "user",
+  "shell": "dashboard",
+  "tier": "B",
+  "browser": "webkit",
+  "viewport": {
+    "w": 768,
+    "h": 1024,
+    "label": "tablet-768"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": false,
+  "status": null,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": null,
+  "metrics": null,
+  "error": "page.goto: Could not connect to the server.\nCall log:\n  - navigating to \"http://127.0.0.1:3000/markets\", waiting until \"domcontentloaded\"\n",
+  "ts": "2026-07-18T15:12:50.951Z"
+}

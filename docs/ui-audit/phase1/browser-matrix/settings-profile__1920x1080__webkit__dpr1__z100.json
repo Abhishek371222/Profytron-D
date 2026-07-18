@@ -1,0 +1,23 @@
+{
+  "slug": "settings-profile",
+  "path": "/settings/profile",
+  "auth": "user",
+  "shell": "dashboard",
+  "tier": "A",
+  "browser": "webkit",
+  "viewport": {
+    "w": 1920,
+    "h": 1080,
+    "label": "desktop-1920"
+  },
+  "dpr": 1,
+  "zoom": 1,
+  "ok": false,
+  "status": null,
+  "skipped": false,
+  "skipReason": null,
+  "screenshot": null,
+  "metrics": null,
+  "error": "page.goto: Could not connect to the server.\nCall log:\n  - navigating to \"http://127.0.0.1:3000/settings/profile\", waiting until \"domcontentloaded\"\n",
+  "ts": "2026-07-18T15:12:50.664Z"
+}
