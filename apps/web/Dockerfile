@@ -8,11 +8,13 @@ RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY apps/web/package.json ./apps/web/
+COPY apps/ai-coach/package.json ./apps/ai-coach/
 COPY services/ai/package.json ./services/ai/
 COPY services/backtest/package.json ./services/backtest/
 
 RUN pnpm install --frozen-lockfile --filter profytron... --ignore-scripts
 
+COPY apps/ai-coach ./apps/ai-coach
 COPY apps/web ./apps/web
 
 WORKDIR /app/apps/web
