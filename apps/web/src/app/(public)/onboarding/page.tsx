@@ -7,8 +7,9 @@
  */
 import Link from 'next/link';
 import { ArrowRight, ShieldCheck, Sparkles } from '@/components/ui/icons';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { LandingAmbientBackground } from '@/components/home/LandingAmbientBackground';
+import { cn } from '@/lib/utils';
 
 export default function OnboardingWelcomePage() {
   return (
@@ -28,12 +29,13 @@ export default function OnboardingWelcomePage() {
             Next, tell us how you want to trade so we can size risk limits and recommendations.
           </p>
         </div>
-        <Button asChild className="w-full gap-2" size="lg">
-          <Link href="/onboarding/risk">
-            Continue to Risk DNA
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </Button>
+        <Link
+          href="/onboarding/risk"
+          className={cn(buttonVariants({ size: 'lg' }), 'w-full gap-2')}
+        >
+          Continue to Risk DNA
+          <ArrowRight className="h-4 w-4" />
+        </Link>
         <p className="text-caption text-muted-foreground">
           Takes about two minutes. You can update preferences later in Settings.
         </p>

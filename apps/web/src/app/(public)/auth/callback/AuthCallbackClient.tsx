@@ -7,8 +7,9 @@ import { getFirebaseAuth } from '@/lib/firebase/client';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { resolvePostLoginRedirect } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import type { AxiosError } from 'axios';
 
 const SYNC_MAX_ATTEMPTS = 4;
@@ -261,9 +262,12 @@ export default function AuthCallbackClient() {
             >
               Try again
             </Button>
-            <Button asChild variant="outline">
-              <Link href="/login">Back to login</Link>
-            </Button>
+            <Link
+              href="/login"
+              className={cn(buttonVariants({ variant: 'outline' }))}
+            >
+              Back to login
+            </Link>
           </div>
         </div>
       </div>

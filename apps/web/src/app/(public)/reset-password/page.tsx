@@ -11,10 +11,11 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Magnetic } from '@/components/ui/Interactions';
 import { authApi } from '@/lib/api/auth';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const resetPasswordSchema = z.object({
  password: z.string().min(8,"Minimum 8 characters"),
@@ -151,9 +152,12 @@ function ResetPasswordPageInner() {
               This password reset link is missing or expired. Request a new one to continue.
             </p>
           </div>
-          <Button asChild className="w-full h-14 rounded-2xl">
-            <Link href="/forgot-password">Request a new reset link</Link>
-          </Button>
+          <Link
+            href="/forgot-password"
+            className={cn(buttonVariants(), 'w-full h-14 rounded-2xl')}
+          >
+            Request a new reset link
+          </Link>
         </div>
       </main>
     );
