@@ -42,6 +42,7 @@
   ],
   "exclude": [
     "node_modules",
-    "src/components/charts/EquityChart.tsx"
+    "src/components/charts/EquityChart.tsx",
+    "tests"
   ]
 }

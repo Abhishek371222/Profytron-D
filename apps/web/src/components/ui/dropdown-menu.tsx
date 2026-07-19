@@ -40,11 +40,13 @@ function DropdownMenuTrigger({ asChild, children, ...props }: { asChild?: boolea
 
 function DropdownMenuContent({
  align ="start",
+ side: _side,
  className,
  children,
  ...props
 }: {
  align?:"start" |"end" |"center";
+ side?: "top" | "right" | "bottom" | "left";
  className?: string;
  children: React.ReactNode;
 }) {
