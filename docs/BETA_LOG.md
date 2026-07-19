@@ -69,14 +69,14 @@ Fill as you run secrets rotation and MetaAPI / Payments / Email UAT.
 
 | Field | Notes |
 | --- | --- |
-| Active users | — (pre-invite; API down) |
+| Active users | — (pre-invite) |
 | New users | — |
-| Bugs found | Prod API `profytron-api.onrender.com` timeouts on `/live` `/ready` `/health`; web `/status` → 404 (code exists, deploy missing) |
-| Critical incidents (SEV1/SEV2) | **SEV1** — production API unreachable |
-| Coach Insights highlights | N/A — no API |
+| Bugs found | Earlier Render probe was wrong host; GCP API was live. Cloud Build `:latest` race fixed (SHA tags). Web typecheck failures fixed and deployed. |
+| Critical incidents (SEV1/SEV2) | none (GCP API healthy) |
+| Coach Insights highlights | N/A — pre-cohort |
 | Feature requests | — |
-| Decisions made | Halt live UAT + load:500 until API healthy; do not invite cohort yet |
-| Actions taken | Git secret-history scan PASS; installed k6; ran D7 ladder 100 (100% fail = infra); evidence under `tracks/D-launch-readiness/evidence/`; invite worksheet created |
+| Decisions made | Canonical prod = GCP Cloud Run (`asia-south1`), not Render |
+| Actions taken | Pushed + Cloud Build deploy; `/live` `/ready` `/health` 200; `/status` 200 on www + Cloud Run web |
 
 ### W1-D2 (YYYY-MM-DD)
 
