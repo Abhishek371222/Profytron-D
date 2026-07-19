@@ -13,6 +13,15 @@ export const brokerApi = {
     return unwrapApiResponse<any>(res.data);
   },
 
+  async refreshBrokerAccount(accountId: string) {
+    const res = await apiClient.post(
+      `/broker/accounts/${accountId}/refresh`,
+      {},
+      { timeout: 45_000 },
+    );
+    return unwrapApiResponse<any>(res.data);
+  },
+
   async disconnectBroker(accountId: string) {
     const res = await apiClient.delete(`/broker/accounts/${accountId}`, {
       timeout: 15_000,

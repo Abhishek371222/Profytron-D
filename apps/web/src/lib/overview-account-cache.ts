@@ -14,7 +14,8 @@ export type CachedOverviewAccount = {
 };
 
 const KEY = 'profytron_overview_account_v1';
-const MAX_AGE_MS = 24 * 60 * 60 * 1000;
+/** Keep sticky paint short so Overview does not freeze on yesterday's equity. */
+const MAX_AGE_MS = 2 * 60 * 1000;
 
 export function readOverviewAccountCache(
   expectedUserId?: string | null,

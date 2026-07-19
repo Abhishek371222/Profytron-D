@@ -48,6 +48,20 @@ export class BrokerController {
     return this.brokerService.getBrokerAccounts(req.user.userId);
   }
 
+  @Post(':id/refresh')
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({
+    summary:
+      'Force MetaAPI history/equity sync for one account, then return enriched account',
+  })
+  async refreshBrokerAccount(
+    @Req() req: AuthReq,
+    @Param('id') accountId: string,
+  ) {
+    return this.brokerService.refreshBrokerAccount(req.user.userId, accountId);
+  }
+
   @Delete(':id')
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiResponse({ status: 404, description: 'Not found' })

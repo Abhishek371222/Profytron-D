@@ -95,6 +95,32 @@ export class AccountHistorySyncService
     if (this.pollTimer) clearInterval(this.pollTimer);
   }
 
+  /**
+   * On-demand sync for one account (dashboard refresh / stale equity).
+   * Bypasses the leader lock so the requesting user's numbers update now.
+   */
+  async syncAccountNow(brokerAccountId: string): Promise<boolean> {
+    if (!process.env.METAAPI_TOKEN?.trim()) return false;
+    if (this.mtAdapter.isRateLimited()) return false;
+
+    const account = await this.prisma.brokerAccount.findFirst({
+      where: {
+        id: brokerAccountId,
+        isActive: true,
+        isPaperTrading: false,
+      },
+      select: { id: true, userId: true, credentialsEncrypted: true },
+    });
+    if (!account?.credentialsEncrypted) return false;
+
+    await this.syncAccount(
+      account.id,
+      account.userId,
+      account.credentialsEncrypted,
+    );
+    return true;
+  }
+
   startPolling(intervalMs = ACCOUNT_SYNC_INTERVAL_MS) {
     if (!process.env.METAAPI_TOKEN?.trim()) {
       this.logger.warn('Account history sync skipped — METAAPI_TOKEN missing');

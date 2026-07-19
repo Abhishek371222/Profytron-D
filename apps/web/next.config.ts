@@ -97,6 +97,15 @@ const nextConfig: NextConfig = {
         destination: "/api/trading/trades/order",
       },
       {
+        // Keep MetaAPI history on the web BFF (do not proxy to Nest DB-only).
+        source: "/api/trading/trades/history",
+        destination: "/api/trading/trades/history",
+      },
+      {
+        source: "/api/trading/trades/open",
+        destination: "/api/trading/trades/open",
+      },
+      {
         source: "/api/trading/trades/bulk-close",
         destination: "/api/trading/trades/bulk-close",
       },

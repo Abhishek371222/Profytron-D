@@ -55,7 +55,9 @@ export function OverviewRecentTrades({
                 : syncError
                   ? syncMessage ||
                     'Broker sync is temporarily unavailable. Retrying…'
-                  : 'Closed trades will show here.'}
+                  : syncMessage
+                    ? syncMessage
+                    : 'Closed trades will show here.'}
             </p>
           </div>
         ) : (

@@ -19,6 +19,7 @@ import { CopyBridgeService } from '../copy-bridge/copy-bridge.service';
 import { linkOrphanStrategySubscriptions } from '../../common/utils/broker-requirement.util';
 import { seedInitialEquity } from '../../common/utils/account-performance.util';
 import { EmailService } from '../email/email.service';
+import { AccountHistorySyncService } from './account-history-sync.service';
 
 @Injectable()
 export class BrokerService {
@@ -31,6 +32,7 @@ export class BrokerService {
     private paperAdapter: PaperBrokerAdapter,
     private activationService: ActivationService,
     private emailService: EmailService,
+    private historySync: AccountHistorySyncService,
     @InjectQueue('copyfactory_sync')
     private readonly copyFactoryQueue: Queue,
   ) {}
@@ -413,7 +415,10 @@ export class BrokerService {
     ];
   }
 
-  private async enrichAccount(account: any) {
+  private async enrichAccount(
+    account: any,
+    opts?: { forceLive?: boolean },
+  ) {
     const { credentialsEncrypted, ...safe } = account;
 
     if (account.isPaperTrading) {
@@ -471,7 +476,7 @@ export class BrokerService {
 
     // DB-first: read the newest background-synced snapshot instead of
     // calling MetaAPI live on every dashboard/account-list request. The
-    // AccountHistorySyncService worker keeps this row fresh (~40s cadence);
+    // AccountHistorySyncService worker keeps this row fresh (~60s cadence);
     // if no snapshot exists yet (account just connected, first cycle
     // pending), fall through to the seeded lastKnownEquity/initialEquity
     // below — exactly as before this change.
@@ -513,12 +518,99 @@ export class BrokerService {
       apiVersion = snapshot.apiVersion;
       liveSynced = snapshot.equity > 0;
       const ageMs = Date.now() - snapshot.capturedAt.getTime();
-      // Fresh within ~3 sync cycles — otherwise flag as syncing while still
-      // showing the last stored database values.
-      connectionStatus = ageMs < 3 * 10_000 ? 'CONNECTED' : 'SYNCING';
+      // Fresh within ~3 sync cycles (prod poll ~60s) — otherwise flag SYNCING
+      // while still showing the last stored database values.
+      connectionStatus = ageMs < 3 * 60_000 ? 'CONNECTED' : 'SYNCING';
     } else if (!this.mtAdapter.isLive) {
       connectionStatus = 'CONNECTED';
       liveSynced = true;
+    }
+
+    // Soft live top-up when forced (Refresh / connect) or snapshot is older
+    // than 2 minutes so Overview does not keep painting frozen figures.
+    const snapshotAgeMs = lastSyncedAt
+      ? Date.now() - lastSyncedAt.getTime()
+      : Number.POSITIVE_INFINITY;
+    const metaApiAccountId = String(creds.metaApiAccountId || '');
+    if (
+      metaApiAccountId &&
+      !metaApiAccountId.startsWith('mock-') &&
+      this.mtAdapter.isLive &&
+      !this.mtAdapter.isRateLimited() &&
+      (opts?.forceLive || snapshotAgeMs > 120_000)
+    ) {
+      try {
+        const info = await this.mtAdapter.getAccountInformation(
+          metaApiAccountId,
+          creds.metaApiRegion,
+        );
+        if (info && Number(info.equity ?? info.balance ?? 0) > 0) {
+          live = {
+            balance: Number(info.balance ?? 0),
+            equity: Number(info.equity ?? info.balance ?? 0),
+            margin: Number(info.margin ?? 0),
+            freeMargin: Number(info.freeMargin ?? 0),
+            marginLevel: Number(info.marginLevel ?? 0) || null,
+            credit: Number(info.credit ?? 0),
+            currency: info.currency ?? 'USD',
+            leverage: info.leverage ?? null,
+          };
+          lastSyncedAt = new Date();
+          liveSynced = true;
+          connectionStatus = 'CONNECTED';
+          syncStatus = 'LIVE_SOFT';
+          await this.prisma.brokerAccount.update({
+            where: { id: account.id },
+            data: {
+              lastKnownEquity: live.equity,
+              lastKnownBalance: live.balance,
+              lastConnectedAt: new Date(),
+            },
+          });
+          safe.lastKnownEquity = live.equity;
+          safe.lastKnownBalance = live.balance;
+          safe.lastConnectedAt = lastSyncedAt;
+        }
+      } catch (err) {
+        this.logger.debug(
+          `Soft live enrich skipped account=${account.id}: ${(err as Error).message}`,
+        );
+      }
+    }
+
+    // Prefer brokerAccount lastKnown* when newer than the DB snapshot so a
+    // successful Refresh is not overwritten by an older accountSnapshot row.
+    const lastConnectedAt = safe.lastConnectedAt
+      ? new Date(safe.lastConnectedAt)
+      : null;
+    if (
+      lastConnectedAt &&
+      safe.lastKnownEquity != null &&
+      (!lastSyncedAt || lastConnectedAt.getTime() >= lastSyncedAt.getTime())
+    ) {
+      const knownEquity = Number(safe.lastKnownEquity);
+      const knownBalance = Number(
+        safe.lastKnownBalance ?? safe.lastKnownEquity,
+      );
+      if (Number.isFinite(knownEquity) && knownEquity > 0) {
+        live = {
+          balance: Number.isFinite(knownBalance) ? knownBalance : knownEquity,
+          equity: knownEquity,
+          margin: live?.margin ?? 0,
+          freeMargin:
+            live?.freeMargin ??
+            Math.max(0, knownEquity - Number(live?.margin ?? 0)),
+          marginLevel: live?.marginLevel ?? null,
+          credit: live?.credit ?? 0,
+          currency: live?.currency ?? 'USD',
+          leverage: live?.leverage ?? null,
+        };
+        lastSyncedAt = lastConnectedAt;
+        liveSynced = true;
+        if (connectionStatus === 'SYNCING' || connectionStatus === 'CONNECTING') {
+          connectionStatus = 'CONNECTED';
+        }
+      }
     }
 
     const balance =
@@ -555,10 +647,34 @@ export class BrokerService {
       syncDurationMs,
       metaApiLatencyMs,
       apiVersion,
-      source: live ? 'database' : 'last_known',
+      source: live ? (syncStatus === 'LIVE_SOFT' ? 'metaapi' : 'database') : 'last_known',
       fillMode: 'metaapi',
       storeOnly: false,
     };
+  }
+
+  async refreshBrokerAccount(userId: string, accountId: string) {
+    const account = await this.prisma.brokerAccount.findFirst({
+      where: { id: accountId, userId, isActive: true },
+    });
+    if (!account) throw new NotFoundException('Account not found');
+
+    if (!account.isPaperTrading) {
+      try {
+        await this.historySync.syncAccountNow(accountId);
+      } catch (err) {
+        this.logger.warn(
+          `refreshBrokerAccount sync failed account=${accountId}: ${(err as Error).message}`,
+        );
+      }
+    }
+
+    const fresh = await this.prisma.brokerAccount.findUnique({
+      where: { id: accountId },
+    });
+    // forceLive: always pull MetaAPI equity on explicit refresh so new and
+    // existing users do not stay stuck on an older accountSnapshot.
+    return this.enrichAccount(fresh, { forceLive: true });
   }
 
   async disconnectBroker(userId: string, accountId: string) {

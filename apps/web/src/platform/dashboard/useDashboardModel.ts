@@ -7,6 +7,7 @@ import { tradingApi } from '@/lib/api/trading';
 import type { TradeHistoryRow } from '@/lib/api/trading';
 import { strategiesApi } from '@/lib/api/strategies';
 import { riskApi } from '@/lib/api/risk';
+import { brokerApi } from '@/lib/api/broker';
 import { useDashboardRealtime } from '@/platform/dashboard/useDashboardRealtime';
 import { useWorkspace, useAppSession, useAppUserId } from '@/app-core';
 import { createCacheApi } from '@/platform/cache';
@@ -161,18 +162,50 @@ export function useDashboardModel(chartRange: keyof typeof RANGE_MAP = '1M') {
     queryKey: QueryKeys.tradeHistory('overview'),
     persistKey: QueryKeys.tradeHistory('overview'),
     queryFn: async () => {
-      const result = await tradingApi.getTradeHistory({ limit: 12 });
-      if (result.syncError && (!result.rows || result.rows.length === 0)) {
-        throw new Error(result.message || result.syncError);
-      }
-      return result;
+      // Never throw on soft MetaAPI sync errors — empty + syncError paints
+      // "No recent trades" instead of an infinite skeleton.
+      return tradingApi.getTradeHistory({ limit: 12 });
     },
-    staleTime: BROKER_STALE_MS,
-    refetchInterval: false,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
+    staleTime: 30_000,
+    refetchInterval: (query) => {
+      if (!accountQueriesEnabled) return false;
+      // While MetaAPI sync is still pending, poll quickly for closed trades.
+      if (query.state.data?.syncPending) return 5_000;
+      return 60_000;
+    },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
     enabled: accountQueriesEnabled,
   });
+
+  // On mount / account switch: force MetaAPI equity+history sync so new and
+  // existing users do not sit on stale lastKnown* balances.
+  React.useEffect(() => {
+    if (!accountQueriesEnabled || !defaultAccount?.id || isPaper) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        await brokerApi.refreshBrokerAccount(defaultAccount.id);
+        if (cancelled) return;
+        await queryClient.invalidateQueries({ queryKey: ['broker-accounts'] });
+        scheduleEntityRefresh(
+          queryClient,
+          ['trade-history', 'open-trades', 'portfolio'],
+          'critical',
+        );
+      } catch {
+        // Soft failure — background poller / Refresh still available.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    accountQueriesEnabled,
+    defaultAccount?.id,
+    isPaper,
+    queryClient,
+  ]);
 
   // Medium-priority background reconcile when tab visible (scheduler-owned).
   React.useEffect(() => {
@@ -184,7 +217,7 @@ export function useDashboardModel(chartRange: keyof typeof RANGE_MAP = '1M') {
         metricsApi.mark('mt5.bg_reconcile');
         scheduleEntityRefresh(
           queryClient,
-          ['open-trades', 'portfolio'],
+          ['open-trades', 'portfolio', 'trade-history', 'broker-accounts'],
           'medium',
         );
       });
@@ -199,8 +232,19 @@ export function useDashboardModel(chartRange: keyof typeof RANGE_MAP = '1M') {
     // Only restore sticky metrics once we know a broker account exists.
     if (!hasBrokerAccount) return;
     const cached = toLiveAccountInfo(cache.readOverviewAccount(userId));
-    if (cached) setStickyAccount(cached);
-  }, [hasBrokerAccount, cache, userId]);
+    if (!cached) return;
+    const raw = cache.readOverviewAccount(userId);
+    if (
+      raw?.accountId &&
+      defaultAccount?.id &&
+      raw.accountId !== defaultAccount.id
+    ) {
+      cache.clearOverviewAccount();
+      setStickyAccount(null);
+      return;
+    }
+    setStickyAccount(cached);
+  }, [hasBrokerAccount, cache, userId, defaultAccount?.id]);
 
   const accountsSettled =
     brokerAccountsQuery.isFetched && !brokerAccountsQuery.isPending;
@@ -382,6 +426,14 @@ export function useDashboardModel(chartRange: keyof typeof RANGE_MAP = '1M') {
   const refreshAll = () => {
     const t0 = performance.now();
     transitionMt5Sync('synchronizing', { source: 'api' });
+    if (defaultAccount?.id && !isPaper) {
+      void brokerApi
+        .refreshBrokerAccount(defaultAccount.id)
+        .then(() =>
+          queryClient.invalidateQueries({ queryKey: ['broker-accounts'] }),
+        )
+        .catch(() => undefined);
+    }
     scheduleEntityRefresh(
       queryClient,
       [

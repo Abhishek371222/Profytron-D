@@ -759,6 +759,23 @@ export class MetaTraderAdapter {
     }
   }
 
+  /** Public account-information read for soft dashboard refresh. */
+  async getAccountInformation(
+    metaApiAccountId: string,
+    region?: string,
+  ): Promise<any | null> {
+    if (!this.isLive || !metaApiAccountId) return null;
+    try {
+      const resolvedRegion = await this.resolveRegion(metaApiAccountId, region);
+      return await this.fetchAccountInformation(
+        metaApiAccountId,
+        resolvedRegion,
+      );
+    } catch {
+      return null;
+    }
+  }
+
   async ensureCopyFactoryRoles(
     metaApiAccountId: string,
     roles: Array<'PROVIDER' | 'SUBSCRIBER'>,

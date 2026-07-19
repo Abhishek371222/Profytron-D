@@ -107,7 +107,13 @@ export const tradingApi = {
     symbol?: string;
     /** Lookback window in days (Overview uses 30; History can pass 365). */
     days?: number;
-  }): Promise<{ rows: TradeHistoryRow[]; nextCursor: string | null; syncError?: string; message?: string }> {
+  }): Promise<{
+    rows: TradeHistoryRow[];
+    nextCursor: string | null;
+    syncError?: string;
+    message?: string;
+    syncPending?: boolean;
+  }> {
     try {
       const res = await apiClient.get('/trading/trades/history', { params });
       const body = res.data as any;
@@ -116,6 +122,7 @@ export const tradingApi = {
         ...data,
         syncError: body?.syncError,
         message: body?.message,
+        syncPending: Boolean(body?.syncPending),
       };
     } catch (error: any) {
       const body = error?.response?.data;
@@ -129,6 +136,7 @@ export const tradingApi = {
         message:
           body?.message ||
           'Could not sync closed trades from MetaAPI. Showing last saved trades if available.',
+        syncPending: Boolean(body?.syncPending),
       };
     }
   },

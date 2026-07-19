@@ -20,9 +20,9 @@ export const maxDuration = 45;
 
 /** Soft wait for MetaAPI when we already have DB rows — keep Overview instant. */
 const META_SOFT_MS = 1_800;
-/** Hard wait when DB is empty (first load / cold account). */
-const META_HARD_MS = 10_000;
-const HISTORY_FETCH_MS = 10_000;
+/** Hard wait when DB is empty (first load / cold account). Cap so UI never hangs. */
+const META_HARD_MS = 3_500;
+const HISTORY_FETCH_MS = 8_000;
 const HISTORY_MAX_RETRIES = 2;
 
 function json(data: unknown, extra?: Record<string, unknown>, status = 200) {
@@ -222,16 +222,27 @@ export async function GET(req: NextRequest) {
         })),
       ]);
 
-      let deals = raced.kind === 'meta' ? raced.deals : null;
-      let metaError = raced.kind === 'meta' ? raced.error : null;
-
-      // Soft timeout with empty DB → finish awaiting the same in-flight call
-      // (do NOT fire a second MetaAPI request).
-      if (raced.kind === 'timeout' && saved.length === 0) {
-        const late = await metaPromise;
-        deals = late.deals;
-        metaError = late.error;
+      // Never await past the soft/hard deadline — Overview must not skeleton-hang
+      // on a slow MetaAPI cold path. Background metaPromise may still finish unused.
+      if (raced.kind === 'timeout') {
+        return json(
+          {
+            rows: saved,
+            nextCursor: null,
+            source: saved.length > 0 ? 'database' : 'empty',
+          },
+          {
+            syncPending: true,
+            message:
+              saved.length > 0
+                ? 'Refreshing live broker history…'
+                : 'Syncing closed trades from broker…',
+          },
+        );
       }
+
+      const deals = raced.deals;
+      const metaError = raced.error;
 
       if (deals) {
         const closedRows = closedTradesFromMetaDeals(deals, { symbolFilter });
@@ -244,21 +255,6 @@ export async function GET(req: NextRequest) {
           dealCount: deals.length,
           closedCount: closedRows.length,
         });
-      }
-
-      // Soft timeout with DB rows → return DB instantly.
-      if (raced.kind === 'timeout' && saved.length > 0) {
-        return json(
-          {
-            rows: saved,
-            nextCursor: null,
-            source: 'database',
-          },
-          {
-            syncPending: true,
-            message: 'Refreshing live broker history…',
-          },
-        );
       }
 
       if (metaError) throw metaError;
