@@ -68,7 +68,7 @@ const themeStyles = {
 };
 
 const TESTIMONIAL_QUOTE =
-  "“The most sophisticated execution architecture I’ve seen delivered outside of a tier-1 firm.”";
+  "“Every strategy runs through the same four steps — connect, profile, assemble, execute — so nothing reaches your capital without passing your own risk rules first.”";
 
 const INTRO_COPY =
   "We’ve distilled decades of quantitative research into four actionable segments. Experience institutional deployment without the infrastructure overhead.";
@@ -176,9 +176,9 @@ export function HowItWorks() {
                   <Rocket className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-foreground">Dr. Alex Volkov</p>
+                  <p className="text-sm font-bold text-foreground">Profytron Engineering</p>
                   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground mt-0.5">
-                    Head of Quant // Omega Desk
+                    Execution Design Principles
                   </p>
                 </div>
               </div>

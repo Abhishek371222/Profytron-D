@@ -30,6 +30,7 @@ const footerLinks = {
     { name: "Documentation", href: "/docs" },
     { name: "API Reference", href: "/api-reference" },
     { name: "Market Guides", href: "/guides" },
+    { name: "Brokers", href: "/brokers" },
     { name: "Community", href: "/community" },
   ],
   Legal: [

@@ -55,10 +55,23 @@ export const pageSeo = {
     path: '/help',
   }),
   guides: buildPageMetadata({
-    title: 'Trading Guides — Learn Algo Trading',
+    title: 'Trading Guides — Algorithmic Strategies, Risk & Market Microstructure',
     description:
-      'Step-by-step guides for algorithmic trading, risk management, strategy deployment, and portfolio analytics on Profytron.',
+      'Practitioner guides on algorithmic trading, Kelly Criterion position sizing, order flow toxicity, mean reversion vs. momentum, and AI signal pipelines.',
     path: '/guides',
+    keywords: ['algorithmic trading guide', 'position sizing Kelly Criterion', 'trading risk management guide'],
+  }),
+  brokers: buildPageMetadata({
+    title: 'Supported Brokers — Connect MT4/MT5 for Automated Trading',
+    description:
+      'Connect Profytron to 20+ MT4/MT5 brokers including IC Markets, Pepperstone, Exness, XM, and OANDA. Compare spreads, minimum deposit, and execution type, or start with paper trading.',
+    path: '/brokers',
+    keywords: [
+      'MT5 broker for automated trading',
+      'best broker for algo trading India',
+      'MT4 MT5 broker comparison',
+      'connect broker to trading bot',
+    ],
   }),
   apiReference: buildPageMetadata({
     title: 'API Reference — Developer Documentation',

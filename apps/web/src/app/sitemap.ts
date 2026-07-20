@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { BROKER_DIRECTORY } from '@/lib/broker/broker-directory';
 import { getAllBlogSlugs, getBlogPost } from '@/lib/blog/posts';
+import { getAllGuideSlugs } from '@/lib/guides/content';
 import { PUBLIC_SITEMAP_ROUTES, toSitemapEntries } from '@/lib/seo/sitemap-routes';
 import { SITE_URL } from '@/lib/seo/constants';
 
@@ -17,6 +18,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
+  const guideRoutes: MetadataRoute.Sitemap = getAllGuideSlugs().map((slug) => ({
+    url: `${SITE_URL}/guides/${slug}`,
+    changeFrequency: 'monthly' as const,
+    priority: 0.65,
+  }));
+
   const brokerRoutes: MetadataRoute.Sitemap = BROKER_DIRECTORY.filter(
     (b) => b.id !== 'PAPER',
   ).map((b) => ({
@@ -25,5 +32,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.55,
   }));
 
-  return [...staticRoutes, ...blogRoutes, ...brokerRoutes];
+  return [...staticRoutes, ...blogRoutes, ...guideRoutes, ...brokerRoutes];
 }

@@ -31,9 +31,9 @@ const methodColors: Record<string, string> = {
 };
 
 const limits = [
-  { tier: 'Developer Node', limit: '60 req/min', burst: '120' },
-  { tier: 'Alpha Desk', limit: '600 req/min', burst: '1,200' },
-  { tier: 'Institution', limit: 'Unlimited', burst: 'Unlimited' },
+  { tier: 'Free / Starter', limit: '60 req/min', burst: '120' },
+  { tier: 'Pro / Business', limit: '600 req/min', burst: '1,200' },
+  { tier: 'Enterprise', limit: 'Unlimited', burst: 'Unlimited' },
 ];
 
 export default function ApiReferencePage() {

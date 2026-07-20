@@ -25,7 +25,7 @@ const guides = [
   { icon: Shield, title: 'Broker Connect', href: '/get-bots', desc: 'Link paper or live MT4/MT5 accounts from 20+ brokers.' },
   { icon: Activity, title: 'Marketplace Strategies', href: '/marketplace', desc: 'Browse verified track records before you subscribe.' },
   { icon: Code2, title: 'REST API Reference', href: '/api-reference', desc: 'Full endpoint documentation, auth, rate limits, and code samples.' },
-  { icon: Terminal, title: 'Broker Setup Guides', href: '/brokers/ic-markets', desc: 'Step-by-step MT5 server setup for popular brokers.' },
+  { icon: Terminal, title: 'Broker Setup Guides', href: '/brokers', desc: 'Step-by-step MT5 server setup for 20+ supported brokers.' },
 ];
 
 export default function DocsPage() {
