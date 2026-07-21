@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { PostHogClient } from '@/lib/analytics/track';
 
@@ -24,12 +24,31 @@ async function initPostHog() {
   }
 }
 
-export function PostHogProvider({ children }: { children: React.ReactNode }) {
+function scheduleAfterLoad(fn: () => void) {
+  const run = () => {
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(() => fn(), { timeout: 3500 });
+    } else {
+      setTimeout(fn, 1200);
+    }
+  };
+
+  if (document.readyState === 'complete') {
+    run();
+    return;
+  }
+
+  window.addEventListener('load', run, { once: true });
+}
+
+export function PostHogProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    void initPostHog();
+    scheduleAfterLoad(() => {
+      void initPostHog();
+    });
   }, []);
 
   useEffect(() => {

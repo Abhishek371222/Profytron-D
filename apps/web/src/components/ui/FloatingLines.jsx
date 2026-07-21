@@ -407,22 +407,15 @@ export default function FloatingLines({
     }
 
     let onScreen = true;
-    const io = typeof IntersectionObserver !== 'undefined'
-      ? new IntersectionObserver(
-          (entries) => { onScreen = entries[0]?.isIntersecting ?? true; },
-          { rootMargin: '100px' },
-        )
-      : null;
-    if (io) io.observe(container);
-
     let raf = 0;
+
     const renderLoop = () => {
       if (!active) return;
       const paused =
         !onScreen ||
         (typeof document !== 'undefined' && document.visibilityState === 'hidden');
       if (paused) {
-        raf = requestAnimationFrame(renderLoop);
+        raf = 0;
         return;
       }
       clock.update();
@@ -440,13 +433,42 @@ export default function FloatingLines({
       renderer.render(scene, camera);
       raf = requestAnimationFrame(renderLoop);
     };
-    renderLoop();
+
+    const kick = () => {
+      if (!active || raf) return;
+      if (
+        !onScreen ||
+        (typeof document !== 'undefined' && document.visibilityState === 'hidden')
+      ) {
+        return;
+      }
+      raf = requestAnimationFrame(renderLoop);
+    };
+
+    const io = typeof IntersectionObserver !== 'undefined'
+      ? new IntersectionObserver(
+          (entries) => {
+            onScreen = entries[0]?.isIntersecting ?? true;
+            if (onScreen) kick();
+          },
+          { rootMargin: '100px' },
+        )
+      : null;
+    if (io) io.observe(container);
+
+    const onVisibility = () => {
+      if (document.visibilityState !== 'hidden') kick();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    kick();
 
     return () => {
       active = false;
       cancelAnimationFrame(raf);
       if (ro) ro.disconnect();
       if (io) io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
       if (interactive) {
         renderer.domElement.removeEventListener('pointermove', handlePointerMove);
         renderer.domElement.removeEventListener('pointerleave', handlePointerLeave);

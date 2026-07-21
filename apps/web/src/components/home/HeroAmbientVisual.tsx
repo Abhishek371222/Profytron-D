@@ -95,34 +95,74 @@ export function HeroAmbientVisual({
   const chips = variant === 'cta' ? CTA_CHIPS : LIVE_CHIPS;
   const showScan = variant === 'hero';
   const engineOn = isExperienceEngineEnabled();
-  const [mount3d, setMount3d] = useState(!engineOn);
+  const [mount3d, setMount3d] = useState(false);
   const [layer, setLayer] = useState<'static' | 'animated' | 'scene3d' | 'interactive'>(
     'static',
   );
 
   useEffect(() => {
-    if (!engineOn) {
-      setMount3d(true);
+    if (reduceMotion) {
+      setMount3d(false);
+      setLayer('animated');
       return;
     }
-    const webgl = !reduceMotion && detectWebGL();
-    heroRuntimeApi.start({
-      webglReady: webgl,
-      onLayer: (l) => {
-        setLayer(l);
-        if (l === 'scene3d' || l === 'interactive') {
-          if (webgl && heroRuntimeApi.shouldMountWebGL()) setMount3d(true);
-        }
-      },
-    });
-    // Always advance animated layer immediately for first paint
-    setLayer('animated');
-    if (webgl && heroRuntimeApi.shouldMountWebGL()) {
-      // Defer 3D one frame so static/animated paint first
-      const t = window.setTimeout(() => setMount3d(true), 50);
-      return () => clearTimeout(t);
+
+    let cancelled = false;
+    let idleId: number | undefined;
+    let po: PerformanceObserver | undefined;
+
+    const mountWhenReady = () => {
+      if (cancelled) return;
+      if (!engineOn) {
+        setMount3d(true);
+        setLayer('interactive');
+        return;
+      }
+      const webgl = detectWebGL();
+      heroRuntimeApi.start({
+        webglReady: webgl,
+        onLayer: (l) => {
+          setLayer(l);
+          if (l === 'scene3d' || l === 'interactive') {
+            if (webgl && heroRuntimeApi.shouldMountWebGL()) setMount3d(true);
+          }
+        },
+      });
+      setLayer('animated');
+      if (webgl && heroRuntimeApi.shouldMountWebGL()) setMount3d(true);
+      else setMount3d(false);
+    };
+
+    const scheduleIdle = () => {
+      if (cancelled) return;
+      if (typeof window.requestIdleCallback === 'function') {
+        idleId = window.requestIdleCallback(() => mountWhenReady(), { timeout: 1800 });
+      } else {
+        setTimeout(mountWhenReady, 400);
+      }
+    };
+
+    try {
+      po = new PerformanceObserver((list) => {
+        if (list.getEntries().length === 0) return;
+        po?.disconnect();
+        scheduleIdle();
+      });
+      po.observe({ type: 'largest-contentful-paint', buffered: true });
+    } catch {
+      scheduleIdle();
     }
-    setMount3d(false);
+
+    const hardFallbackId = setTimeout(mountWhenReady, 2800);
+
+    return () => {
+      cancelled = true;
+      po?.disconnect();
+      if (idleId !== undefined && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleId);
+      }
+      clearTimeout(hardFallbackId);
+    };
   }, [engineOn, reduceMotion]);
 
   useEffect(() => {
@@ -143,7 +183,7 @@ export function HeroAmbientVisual({
   return (
     <motion.div
       className={variant === 'cta' ? 'hero-ambient hero-ambient-cta' : 'hero-ambient'}
-      initial={{ opacity: 0 }}
+      initial={false}
       animate={{ opacity: 1 }}
       transition={{ duration: enterMs, delay: 0.1, ease: ease as unknown as number[] }}
       aria-hidden

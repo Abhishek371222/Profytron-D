@@ -18,6 +18,7 @@ export function RotatingWords({
   block = false,
 }: RotatingWordsProps) {
   const [index, setIndex] = useState(0);
+  const [hasRotated, setHasRotated] = useState(false);
   const reduceMotion = useReducedMotion();
 
   const longest = useMemo(
@@ -28,10 +29,13 @@ export function RotatingWords({
   useEffect(() => {
     if (reduceMotion || words.length <= 1) return;
     const id = setInterval(() => {
+      setHasRotated(true);
       setIndex((i) => (i + 1) % words.length);
     }, interval);
     return () => clearInterval(id);
   }, [words.length, interval, reduceMotion]);
+
+  const word = words[index] ?? "";
 
   return (
     <span
@@ -43,18 +47,23 @@ export function RotatingWords({
       style={{ minWidth: block ? undefined : `${Math.max(longest.length, 8)}ch` }}
       aria-hidden
     >
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={words[index]}
-          initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -16, filter: "blur(4px)" }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-block brand-gradient-text"
-        >
-          {words[index]}
-        </motion.span>
-      </AnimatePresence>
+      {/* First paint: static word (no opacity:0 / blur) so hero H1 can be LCP. */}
+      {!hasRotated || reduceMotion ? (
+        <span className="inline-block brand-gradient-text">{word}</span>
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={word}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-block brand-gradient-text"
+          >
+            {word}
+          </motion.span>
+        </AnimatePresence>
+      )}
     </span>
   );
 }
