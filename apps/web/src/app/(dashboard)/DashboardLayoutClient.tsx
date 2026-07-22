@@ -4,11 +4,8 @@ import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { AppShell } from '@/components/layout/AppShell';
 import { AppProviders } from '@/components/providers/AppProviders';
-import { ActivationChecklist } from '@/components/dashboard/ActivationChecklist';
 import { BrokerConnectBanner } from '@/components/dashboard/BrokerConnectBanner';
 import { OfflineBanner } from '@/components/product/OfflineBanner';
-import { TutorialOverlay } from '@/components/tutorial/TutorialOverlay';
-import { TutorialPrompt } from '@/components/tutorial/TutorialPrompt';
 import { cn, isAdminUser } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { useTutorialStore } from '@/lib/stores/useTutorialStore';
@@ -24,21 +21,53 @@ import { useQueryClient } from '@tanstack/react-query';
 import { RenderBoundary } from '@/platform/rendering';
 import { metricsApi } from '@/platform/metrics';
 import { animationApi } from '@/platform/animation';
-import {
-  startMotionEngine,
-  isMotionEngineEnabled,
-  MotionProfilerOverlay,
-} from '@/platform/motion';
-import {
-  startExperienceEngine,
-  isExperienceEngineEnabled,
-  ExperienceDevPanel,
-} from '@/platform/experience';
+import { isMotionEngineEnabled } from '@/platform/motion/index-flag';
+import { isExperienceEngineEnabled } from '@/platform/experience/index-flag';
 
 const BrokerConnectModal = dynamic(
   () =>
     import('@/components/copy-trading/BrokerConnectModal').then((m) => ({
       default: m.BrokerConnectModal,
+    })),
+  { ssr: false },
+);
+
+const ActivationChecklist = dynamic(
+  () =>
+    import('@/components/dashboard/ActivationChecklist').then((m) => ({
+      default: m.ActivationChecklist,
+    })),
+  { ssr: false },
+);
+
+const TutorialOverlay = dynamic(
+  () =>
+    import('@/components/tutorial/TutorialOverlay').then((m) => ({
+      default: m.TutorialOverlay,
+    })),
+  { ssr: false },
+);
+
+const TutorialPrompt = dynamic(
+  () =>
+    import('@/components/tutorial/TutorialPrompt').then((m) => ({
+      default: m.TutorialPrompt,
+    })),
+  { ssr: false },
+);
+
+const MotionProfilerOverlay = dynamic(
+  () =>
+    import('@/platform/motion/motion-profiler').then((m) => ({
+      default: m.MotionProfilerOverlay,
+    })),
+  { ssr: false },
+);
+
+const ExperienceDevPanel = dynamic(
+  () =>
+    import('@/platform/experience/experience-dev-panel').then((m) => ({
+      default: m.ExperienceDevPanel,
     })),
   { ssr: false },
 );
@@ -75,12 +104,38 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (!isMotionEngineEnabled()) return;
-    return startMotionEngine();
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+    void import('@/platform/motion/motion-engine').then((m) => {
+      if (cancelled) return;
+      cleanup = m.startMotionEngine() ?? undefined;
+      if (cancelled) {
+        cleanup?.();
+        cleanup = undefined;
+      }
+    });
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
   }, []);
 
   React.useEffect(() => {
     if (!isExperienceEngineEnabled()) return;
-    return startExperienceEngine();
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+    void import('@/platform/experience/experience-engine').then((m) => {
+      if (cancelled) return;
+      cleanup = m.startExperienceEngine() ?? undefined;
+      if (cancelled) {
+        cleanup?.();
+        cleanup = undefined;
+      }
+    });
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
   }, []);
 
   React.useEffect(() => {
@@ -211,8 +266,10 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             )}
           </RenderBoundary>
         </Suspense>
-        {isMotionEngineEnabled() && <MotionProfilerOverlay />}
-        {isExperienceEngineEnabled() && <ExperienceDevPanel />}
+        {process.env.NEXT_PUBLIC_PLATFORM_METRICS === '1' &&
+          isMotionEngineEnabled() && <MotionProfilerOverlay />}
+        {process.env.NEXT_PUBLIC_PLATFORM_METRICS === '1' &&
+          isExperienceEngineEnabled() && <ExperienceDevPanel />}
       </div>
     </AppShell>
   );

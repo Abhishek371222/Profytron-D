@@ -1,14 +1,22 @@
 "use client";
 
 import React from "react";
+import dynamic from "next/dynamic";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
-import { GlobalCommandPalette } from "./GlobalCommandPalette";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { useUIStore } from "@/lib/stores/useUIStore";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { useDensityProfile } from "@/lib/hooks/useDensityProfile";
+
+const GlobalCommandPalette = dynamic(
+  () =>
+    import("./GlobalCommandPalette").then((m) => ({
+      default: m.GlobalCommandPalette,
+    })),
+  { ssr: false },
+);
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { sidebarOpen, setSidebarOpen } = useUIStore();

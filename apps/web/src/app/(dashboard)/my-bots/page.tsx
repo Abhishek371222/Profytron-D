@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import {
@@ -15,7 +14,7 @@ import { apiClient } from '@/lib/api/client';
 import { useCurrency } from '@/lib/hooks/useCurrency';
 import { marketplaceApi } from '@/lib/api/marketplace';
 import { formatBotName } from '@/lib/bot-labels';
-import { DashButton } from '@/components/dashboard/DashboardPrimitives';
+import { DashButton } from '@/components/dashboard/DashButton';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import {
   hydrateDashboardCache,
@@ -103,6 +102,7 @@ export default function MyBotsPage() {
   const qc = useQueryClient();
   const { formatPrice } = useCurrency();
   const [tab, setTab] = React.useState<BotStatus | 'ALL'>('ALL');
+  const [recommendReady, setRecommendReady] = React.useState(false);
   const sessionReady = useAuthStore((s) => s.sessionReady);
   const userId = useAuthStore((s) => s.user?.id);
 
@@ -133,29 +133,56 @@ export default function MyBotsPage() {
   const showHardError =
     sessionReady && isError && !isFetching && bots.length === 0;
 
+  // Defer marketplace recommendations until idle so they don't compete with first paint.
+  React.useEffect(() => {
+    if (!sessionReady || isLoading) {
+      setRecommendReady(false);
+      return;
+    }
+    let cancelled = false;
+    let idleId: number | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const arm = () => {
+      if (!cancelled) setRecommendReady(true);
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      idleId = window.requestIdleCallback(arm, { timeout: 2500 });
+    } else {
+      timeoutId = setTimeout(arm, 800);
+    }
+    return () => {
+      cancelled = true;
+      if (idleId !== undefined && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
+    };
+  }, [sessionReady, isLoading]);
+
   React.useEffect(() => {
     if (!sessionReady) return;
     let cancelled = false;
-    (async () => {
-      try {
-        await apiClient.post('/trading/sync-bots');
-        if (!cancelled) {
-          qc.invalidateQueries({ queryKey: ['my-bots'] });
-          qc.invalidateQueries({ queryKey: ['open-trades'] });
-          qc.invalidateQueries({ queryKey: ['broker-accounts'] });
-        }
-      } catch {
-      }
-    })();
-    const id = window.setInterval(() => {
+
+    const sync = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
       void apiClient.post('/trading/sync-bots').then(() => {
+        if (cancelled) return;
         qc.invalidateQueries({ queryKey: ['my-bots'] });
         qc.invalidateQueries({ queryKey: ['open-trades'] });
+        qc.invalidateQueries({ queryKey: ['broker-accounts'] });
       }).catch(() => undefined);
-    }, 20_000);
+    };
+
+    sync();
+    const id = window.setInterval(sync, 30_000);
+    const onVis = () => {
+      if (document.visibilityState === 'visible') sync();
+    };
+    document.addEventListener('visibilitychange', onVis);
     return () => {
       cancelled = true;
       window.clearInterval(id);
+      document.removeEventListener('visibilitychange', onVis);
     };
   }, [sessionReady, qc]);
 
@@ -182,6 +209,7 @@ export default function MyBotsPage() {
     queryFn: () => marketplaceApi.getMarketplace({ limit: 9, sort: 'trending' }),
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    enabled: recommendReady,
   });
 
   const pauseMut  = useMutation({ mutationFn: (id: string) => apiClient.post(`/strategies/${id}/pause`),      onSuccess: () => { toast.success('Bot paused');    qc.invalidateQueries({ queryKey: ['my-bots'] }); }, onError: () => toast.error('Could not pause bot') });
@@ -230,12 +258,7 @@ export default function MyBotsPage() {
 
   return (
     <div className="space-y-6 pb-8" data-tour="my-bots-overview">
-      { }
-      <motion.div
-        initial={{ opacity: 0, y: -12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-wrap items-center justify-between gap-3"
-      >
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_8%,transparent)]">
             <Server className="h-5 w-5" />
@@ -251,18 +274,13 @@ export default function MyBotsPage() {
         >
           <Plus className="h-4 w-4" /> Browse Marketplace
         </Link>
-      </motion.div>
+      </div>
 
-      { }
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {stats.map((s, i) => (
-          <motion.div
+        {stats.map((s) => (
+          <div
             key={s.label}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.05 + i * 0.05, ease: 'easeOut' }}
-            whileHover={{ y: -2 }}
-            className="group relative overflow-hidden rounded-[16px] border border-[color-mix(in_srgb,var(--primary)_12%,var(--card-border))] bg-[color-mix(in_srgb,var(--card)_92%,transparent)] p-4 backdrop-blur-md transition-shadow duration-[250ms] hover:shadow-[0_8px_28px_color-mix(in_srgb,var(--primary)_10%,transparent)]"
+            className="group relative overflow-hidden rounded-[16px] border border-[color-mix(in_srgb,var(--primary)_12%,var(--card-border))] bg-[color-mix(in_srgb,var(--card)_92%,transparent)] p-4 backdrop-blur-md transition-shadow duration-[250ms] hover:-translate-y-0.5 hover:shadow-[0_8px_28px_color-mix(in_srgb,var(--primary)_10%,transparent)]"
           >
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="flex items-center gap-3">
@@ -288,17 +306,11 @@ export default function MyBotsPage() {
                 </p>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
 
-      { }
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.15 }}
-        className="flex flex-wrap gap-2"
-      >
+      <div className="flex flex-wrap gap-2">
         {TABS.map(t => (
           <button
             key={t.key}
@@ -314,13 +326,12 @@ export default function MyBotsPage() {
             {counts[t.key] ? <span className="ml-1 opacity-60">({counts[t.key]})</span> : null}
           </button>
         ))}
-      </motion.div>
+      </div>
 
-      { }
       {!sessionReady || isLoading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid min-h-[28rem] grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="marketplace-skeleton h-52 rounded-[var(--radius-card)]" />
+            <div key={i} className="marketplace-skeleton h-52 min-h-[13rem] rounded-[var(--radius-card)]" />
           ))}
         </div>
       ) : showHardError ? (
@@ -343,11 +354,7 @@ export default function MyBotsPage() {
           </DashButton>
         </div>
       ) : filtered.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-14 text-center shadow-[var(--shadow-card)]"
-        >
+        <div className="rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-14 text-center shadow-[var(--shadow-card)]">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[18px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary">
             <Server className="h-8 w-8" />
           </div>
@@ -359,24 +366,19 @@ export default function MyBotsPage() {
           >
             <ShoppingBag className="h-4 w-4" /> Go to Marketplace
           </Link>
-        </motion.div>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {filtered.map((bot, i) => {
+        <div className="grid min-h-[13rem] grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((bot) => {
             const st   = STATUS_CFG[bot.status] ?? STATUS_CFG.INACTIVE;
             const tone = TONE_CLASSES[st.tone];
             const pnl  = bot.currentPnl ?? 0;
             const psBadge = profitShareBadge(bot);
             return (
-              <motion.div
+              <div
                 key={bot.id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.04, ease: 'easeOut' }}
-                whileHover={{ y: -4 }}
-                className="group flex flex-col gap-4 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)] transition-shadow duration-[250ms] hover:border-[color-mix(in_srgb,var(--primary)_22%,var(--card-border))] hover:shadow-[var(--shadow-card-hover)]"
+                className="group flex min-h-[13rem] flex-col gap-4 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)] transition-shadow duration-[250ms] hover:-translate-y-1 hover:border-[color-mix(in_srgb,var(--primary)_22%,var(--card-border))] hover:shadow-[var(--shadow-card-hover)]"
               >
-                { }
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] border border-[color-mix(in_srgb,var(--primary)_15%,transparent)] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary transition-transform duration-200 group-hover:scale-105">
@@ -398,7 +400,6 @@ export default function MyBotsPage() {
                   </span>
                 ) : null}
 
-                { }
                 <div className="grid grid-cols-3 gap-2 rounded-[12px] bg-[color-mix(in_srgb,var(--muted)_35%,transparent)] p-3 text-center">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">P&L</p>
@@ -418,7 +419,6 @@ export default function MyBotsPage() {
                   </div>
                 </div>
 
-                { }
                 <div className="flex items-center gap-2 border-t border-[var(--card-border)] pt-3 text-xs text-muted-foreground">
                   <BarChart2 className="h-3.5 w-3.5 shrink-0" />
                   <span className="truncate">
@@ -429,7 +429,6 @@ export default function MyBotsPage() {
                   </span>
                 </div>
 
-                { }
                 <div className="flex gap-2">
                   {bot.status === 'ACTIVE' && (
                     <DashButton
@@ -476,40 +475,28 @@ export default function MyBotsPage() {
                     Details <ChevronRight className="h-3 w-3" />
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
 
           {Array.from({ length: addTileCount }).map((_, i) => (
-            <motion.div
+            <Link
               key={`add-tile-${i}`}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: (filtered.length + i) * 0.04, ease: 'easeOut' }}
+              href="/marketplace"
+              className="group flex h-full min-h-[13rem] flex-col items-center justify-center gap-2 rounded-[var(--radius-card)] border border-dashed border-[color-mix(in_srgb,var(--primary)_25%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_4%,transparent)] p-5 text-center transition-all duration-200 hover:border-[color-mix(in_srgb,var(--primary)_45%,var(--card-border))] hover:bg-[color-mix(in_srgb,var(--primary)_7%,transparent)]"
             >
-              <Link
-                href="/marketplace"
-                className="group flex h-full min-h-[13rem] flex-col items-center justify-center gap-2 rounded-[var(--radius-card)] border border-dashed border-[color-mix(in_srgb,var(--primary)_25%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_4%,transparent)] p-5 text-center transition-all duration-200 hover:border-[color-mix(in_srgb,var(--primary)_45%,var(--card-border))] hover:bg-[color-mix(in_srgb,var(--primary)_7%,transparent)]"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary transition-transform duration-200 group-hover:scale-110">
-                  <Plus className="h-5 w-5" />
-                </div>
-                <p className="text-sm font-bold text-foreground">Add another bot</p>
-                <p className="max-w-[14rem] text-xs text-muted-foreground">Browse verified strategies in the marketplace</p>
-              </Link>
-            </motion.div>
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary transition-transform duration-200 group-hover:scale-110">
+                <Plus className="h-5 w-5" />
+              </div>
+              <p className="text-sm font-bold text-foreground">Add another bot</p>
+              <p className="max-w-[14rem] text-xs text-muted-foreground">Browse verified strategies in the marketplace</p>
+            </Link>
           ))}
         </div>
       )}
 
-      { }
       {!isLoading && recommended.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.1, ease: 'easeOut' }}
-          className="space-y-4"
-        >
+        <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <Sparkles className="h-4 w-4 text-primary" />
@@ -520,14 +507,10 @@ export default function MyBotsPage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {recommended.map((rec, i) => (
-              <motion.div
+            {recommended.map((rec) => (
+              <div
                 key={rec.id}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.05, ease: 'easeOut' }}
-                whileHover={{ y: -4 }}
-                className="flex flex-col gap-3 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)] transition-shadow duration-[250ms] hover:shadow-[var(--shadow-card-hover)]"
+                className="flex min-h-[13rem] flex-col gap-3 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)] transition-shadow duration-[250ms] hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -561,10 +544,10 @@ export default function MyBotsPage() {
                 >
                   <Star className="h-3.5 w-3.5" /> View Strategy
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       )}
     </div>
   );
