@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Globe, MessageSquare, Mail, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Globe, MessageSquare, Mail } from "lucide-react";
 import { TrustBadges } from "@/components/trust/TrustBadges";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 

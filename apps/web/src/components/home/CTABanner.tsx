@@ -1,9 +1,9 @@
 ﻿"use client";
 
 import React from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, FileText } from "lucide-react";
-import { HeroAmbientVisual } from "@/components/home/HeroAmbientVisual";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { useMounted } from "@/lib/hooks/useMounted";
 import {
@@ -11,6 +11,15 @@ import {
   LandingPrimaryLink,
   LandingSecondaryLink,
 } from "@/components/home/LandingButtons";
+
+/** WebGL/SVG ambient — not needed for CTA copy/buttons. */
+const HeroAmbientVisual = dynamic(
+  () =>
+    import("@/components/home/HeroAmbientVisual").then((m) => ({
+      default: m.HeroAmbientVisual,
+    })),
+  { ssr: false, loading: () => <div className="hero-ambient" aria-hidden /> },
+);
 
 const TRUST_POINTS = [
   "No credit card required",

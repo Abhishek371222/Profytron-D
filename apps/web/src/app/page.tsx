@@ -1,3 +1,4 @@
+import { Footer } from '@/components/home/Footer';
 import { LandingPageClient } from '@/components/home/LandingPageClient';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { LANDING_FAQ_ITEMS } from '@/lib/seo/faq-items';
@@ -12,7 +13,7 @@ export default function LandingPage() {
       <JsonLd type="website" />
       <JsonLd type="howto" />
       <JsonLd type="faq" faqs={LANDING_FAQ_ITEMS} />
-      <LandingPageClient />
+      <LandingPageClient footer={<Footer />} />
     </>
   );
 }

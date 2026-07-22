@@ -7,51 +7,75 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { SectionRevealer } from "@/components/ui/SectionRevealer";
 import { LenisProvider } from "@/components/providers/LenisProvider";
 import React from "react";
+import { isExperienceEngineEnabled } from "@/platform/experience/index-flag";
 import {
-  startExperienceEngine,
-  isExperienceEngineEnabled,
-  ExperienceDevPanel,
-} from "@/platform/experience";
+  HowItWorksSkeleton,
+  FeaturesSkeleton,
+  ValuePillarsSkeleton,
+  PricingSkeleton,
+  CTABannerSkeleton,
+  FaqSkeleton,
+} from "@/components/home/LandingSectionSkeletons";
 
 const HowItWorks = dynamic(
   () => import("@/components/home/HowItWorks").then((m) => ({ default: m.HowItWorks })),
-  { loading: () => null },
+  { loading: () => <HowItWorksSkeleton /> },
 );
 
 const ValuePillars = dynamic(
   () => import("@/components/home/ValuePillars").then((m) => ({ default: m.ValuePillars })),
-  { loading: () => null },
+  { loading: () => <ValuePillarsSkeleton /> },
 );
 
 const FeaturesSection = dynamic(
   () => import("@/components/home/FeaturesSection").then((m) => ({ default: m.FeaturesSection })),
-  { loading: () => null },
+  { loading: () => <FeaturesSkeleton /> },
 );
 
 const PricingSection = dynamic(
   () => import("@/components/home/PricingSection").then((m) => ({ default: m.PricingSection })),
-  { loading: () => null },
+  { loading: () => <PricingSkeleton /> },
 );
 
 const CTABanner = dynamic(
   () => import("@/components/home/CTABanner").then((m) => ({ default: m.CTABanner })),
-  { loading: () => null },
+  { loading: () => <CTABannerSkeleton /> },
 );
 
 const FaqSection = dynamic(
   () => import("@/components/home/FaqSection").then((m) => ({ default: m.FaqSection })),
-  { loading: () => null },
+  { loading: () => <FaqSkeleton /> },
 );
 
-const Footer = dynamic(
-  () => import("@/components/home/Footer").then((m) => ({ default: m.Footer })),
-  { loading: () => null },
+/** Dev-only panel — keep out of the initial landing graph. */
+const ExperienceDevPanel = dynamic(
+  () =>
+    import("@/platform/experience/experience-dev-panel").then((m) => ({
+      default: m.ExperienceDevPanel,
+    })),
+  { ssr: false },
 );
 
-export function LandingPageClient() {
+export function LandingPageClient({ footer }: { footer: React.ReactNode }) {
   React.useEffect(() => {
     if (!isExperienceEngineEnabled()) return;
-    return startExperienceEngine();
+
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+
+    void import("@/platform/experience/experience-engine").then((m) => {
+      if (cancelled) return;
+      cleanup = m.startExperienceEngine() ?? undefined;
+      if (cancelled) {
+        cleanup?.();
+        cleanup = undefined;
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
   }, []);
 
   return (
@@ -86,9 +110,10 @@ export function LandingPageClient() {
             <FaqSection />
           </SectionRevealer>
 
-          <Footer />
+          {footer}
         </div>
-        {isExperienceEngineEnabled() && <ExperienceDevPanel />}
+        {process.env.NEXT_PUBLIC_PLATFORM_METRICS === "1" &&
+          isExperienceEngineEnabled() && <ExperienceDevPanel />}
       </main>
     </LenisProvider>
     </AppProviders>

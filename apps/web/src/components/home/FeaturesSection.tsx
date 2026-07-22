@@ -11,7 +11,7 @@ import {
   Copy,
   Brain,
 } from 'lucide-react';
-import { durationSeconds, MOTION_EASING } from '@/platform/motion';
+import { durationSeconds, MOTION_EASING } from '@/platform/motion/motion-tokens';
 import { LandingPrimaryLink } from '@/components/home/LandingButtons';
 
 const FEATURES = [

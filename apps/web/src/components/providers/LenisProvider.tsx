@@ -1,7 +1,11 @@
 "use client";
 
 import React from "react";
-import Lenis from "lenis";
+
+type LenisInstance = {
+  raf: (time: number) => void;
+  destroy: () => void;
+};
 
 export function LenisProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
@@ -12,7 +16,7 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
     if (prefersReduced) return;
 
     let cancelled = false;
-    let lenis: Lenis | null = null;
+    let lenis: LenisInstance | null = null;
     let raf = 0;
     let paused = document.visibilityState === "hidden";
     let idleId: number | undefined;
@@ -29,13 +33,17 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
 
     const start = () => {
       if (cancelled) return;
-      lenis = new Lenis({
-        duration: 0.9,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
+      // Keep Lenis off the initial landing JS graph; load after idle.
+      void import("lenis").then(({ default: Lenis }) => {
+        if (cancelled) return;
+        lenis = new Lenis({
+          duration: 0.9,
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+        });
+        document.addEventListener("visibilitychange", onVisibility);
+        raf = requestAnimationFrame(loop);
       });
-      document.addEventListener("visibilitychange", onVisibility);
-      raf = requestAnimationFrame(loop);
     };
 
     // Defer smooth-scroll bootstrap so it does not compete with LCP/hydration.

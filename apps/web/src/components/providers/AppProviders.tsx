@@ -7,7 +7,8 @@ import QueryProvider from "@/components/providers/QueryProvider";
 import { WorkspaceBootstrapController } from "@/components/auth/WorkspaceBootstrapController";
 import { Toaster } from "sonner";
 import React from "react";
-import { MOTION_DURATION, isMotionEngineEnabled } from "@/platform/motion";
+import { MOTION_DURATION } from "@/platform/motion/motion-tokens";
+import { isMotionEngineEnabled } from "@/platform/motion/index-flag";
 
 function ThemedToaster() {
   const [theme, setTheme] = React.useState<"light" | "dark">("dark");

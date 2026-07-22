@@ -8,12 +8,10 @@
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
-import {
-  isExperienceEngineEnabled,
-  heroRuntimeApi,
-  lodManagerApi,
-} from '@/platform/experience';
-import { durationSeconds, MOTION_EASING } from '@/platform/motion';
+import { isExperienceEngineEnabled } from '@/platform/experience/index-flag';
+import { heroRuntimeApi } from '@/platform/experience/hero-runtime';
+import { lodManagerApi } from '@/platform/experience/lod-manager';
+import { durationSeconds, MOTION_EASING } from '@/platform/motion/motion-tokens';
 
 const FloatingLines = dynamic(() => import('@/components/ui/FloatingLines'), {
   ssr: false,

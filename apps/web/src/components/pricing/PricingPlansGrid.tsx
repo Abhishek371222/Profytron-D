@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Check, Rocket, Star, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TiltCard3D } from '@/components/animations/TiltCard3D';
-import { GlowPulse } from '@/components/animations';
+import { GlowPulse } from '@/components/animations/GlowPulse';
 import {
   PLATFORM_PLANS,
   formatInr,
