@@ -1,26 +1,36 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import {
   Server, TrendingUp, TrendingDown, Pause, Play, X, BarChart2,
   ShoppingBag, CalendarClock, DollarSign, Zap, AlertCircle,
-  RefreshCw, ChevronRight, Plus, Sparkles, ShieldCheck, Star,
+  RefreshCw, ChevronRight, Plus,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { apiClient } from '@/lib/api/client';
 import { useCurrency } from '@/lib/hooks/useCurrency';
 import { marketplaceApi } from '@/lib/api/marketplace';
-import { formatBotName } from '@/lib/bot-labels';
 import { DashButton } from '@/components/dashboard/DashButton';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import {
   hydrateDashboardCache,
+  MY_BOTS_HYDRATE_KEYS,
   persistDashboardQuery,
 } from '@/lib/queries/dashboard-cache';
 import { ensureWorkspaceCacheOwner } from '@/lib/queries/purge-workspace-caches';
+
+const RecommendedBots = dynamic(
+  () =>
+    import('./RecommendedBots').then((m) => ({ default: m.RecommendedBots })),
+  {
+    ssr: false,
+    loading: () => <div className="min-h-[13rem]" aria-hidden />,
+  },
+);
 
 type BotStatus = 'ACTIVE' | 'PROVISIONING' | 'FAILED' | 'PAUSED' | 'EXPIRED' | 'CANCELLED' | 'INACTIVE' | 'BLOCKED';
 type ProfitShareState = 'PROFIT_SHARE_OK' | 'PROFIT_SHARE_DUE' | 'PROFIT_SHARE_PAUSED' | 'PROFIT_SHARE_SETTLING';
@@ -109,7 +119,7 @@ export default function MyBotsPage() {
   React.useEffect(() => {
     if (!sessionReady) return;
     ensureWorkspaceCacheOwner(userId);
-    hydrateDashboardCache(qc, userId);
+    hydrateDashboardCache(qc, userId, { keys: MY_BOTS_HYDRATE_KEYS });
   }, [sessionReady, qc, userId]);
 
   const {
@@ -117,6 +127,7 @@ export default function MyBotsPage() {
     isLoading,
     isError,
     isFetching,
+    isFetched,
     refetch,
     error,
   } = useQuery<UserBot[]>({
@@ -126,7 +137,8 @@ export default function MyBotsPage() {
     staleTime: 15_000,
     retry: 2,
     retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 4000),
-    refetchOnWindowFocus: true,
+    // Sync loop + visibility handler refresh data; avoid duplicate focus refetch.
+    refetchOnWindowFocus: false,
     placeholderData: (previous) => previous,
   });
 
@@ -159,32 +171,41 @@ export default function MyBotsPage() {
     };
   }, [sessionReady, isLoading]);
 
+  // Start sync after first bots paint to avoid double-fetch on mount.
   React.useEffect(() => {
-    if (!sessionReady) return;
+    if (!sessionReady || !isFetched) return;
     let cancelled = false;
+    let intervalId: number | undefined;
 
     const sync = () => {
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
-      void apiClient.post('/trading/sync-bots').then(() => {
-        if (cancelled) return;
-        qc.invalidateQueries({ queryKey: ['my-bots'] });
-        qc.invalidateQueries({ queryKey: ['open-trades'] });
-        qc.invalidateQueries({ queryKey: ['broker-accounts'] });
-      }).catch(() => undefined);
+      void apiClient
+        .post('/trading/sync-bots')
+        .then(() => {
+          if (cancelled) return;
+          // Only invalidate this route's primary query; broker poll covers accounts.
+          qc.invalidateQueries({ queryKey: ['my-bots'] });
+        })
+        .catch(() => undefined);
     };
 
-    sync();
-    const id = window.setInterval(sync, 30_000);
+    const startTimer = setTimeout(() => {
+      if (cancelled) return;
+      sync();
+      intervalId = window.setInterval(sync, 30_000);
+    }, 2_000);
+
     const onVis = () => {
       if (document.visibilityState === 'visible') sync();
     };
     document.addEventListener('visibilitychange', onVis);
     return () => {
       cancelled = true;
-      window.clearInterval(id);
+      clearTimeout(startTimer);
+      if (intervalId !== undefined) window.clearInterval(intervalId);
       document.removeEventListener('visibilitychange', onVis);
     };
-  }, [sessionReady, qc]);
+  }, [sessionReady, isFetched, qc]);
 
   React.useEffect(() => {
     const needsWire = bots.some((b) => b.status === 'PROVISIONING');
@@ -203,14 +224,6 @@ export default function MyBotsPage() {
       cancelled = true;
     };
   }, [bots, qc]);
-
-  const recommendedQuery = useQuery({
-    queryKey: ['marketplace-recommended'],
-    queryFn: () => marketplaceApi.getMarketplace({ limit: 9, sort: 'trending' }),
-    staleTime: 60_000,
-    refetchOnWindowFocus: false,
-    enabled: recommendReady,
-  });
 
   const pauseMut  = useMutation({ mutationFn: (id: string) => apiClient.post(`/strategies/${id}/pause`),      onSuccess: () => { toast.success('Bot paused');    qc.invalidateQueries({ queryKey: ['my-bots'] }); }, onError: () => toast.error('Could not pause bot') });
   const resumeMut = useMutation({ mutationFn: (id: string) => apiClient.post(`/strategies/${id}/resume`),     onSuccess: () => { toast.success('Bot resumed');   qc.invalidateQueries({ queryKey: ['my-bots'] }); }, onError: () => toast.error('Could not resume bot') });
@@ -235,24 +248,7 @@ export default function MyBotsPage() {
     { label: 'Next Renewal', value: nextRenewal?.expiresAt ? new Date(nextRenewal.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—', Icon: CalendarClock, positive: true },
   ];
 
-  const ownedIds = new Set(bots.map((b) => b.id));
-  const recommended = ((recommendedQuery.data?.items ?? []) as Array<Record<string, unknown>>)
-    .filter((item) => !ownedIds.has(String(item.strategyId)))
-    .slice(0, 3)
-    .map((item) => {
-      const strategy = item.strategy as Record<string, unknown>;
-      const perf = (strategy.performance as Record<string, unknown>[])?.[0] ?? {};
-      return {
-        id: String(item.strategyId),
-        name: formatBotName(String(strategy.name)),
-        category: String(strategy.category ?? ''),
-        creator: (strategy.creator as { fullName?: string })?.fullName || 'Unknown',
-        verified: Boolean(strategy.isVerified),
-        winRate: Number(perf.winRate || 0),
-        subscribers: Number(strategy.copiesCount || 0),
-        monthlyPrice: Number(item.monthlyPrice || 0),
-      };
-    });
+  const ownedIds = React.useMemo(() => new Set(bots.map((b) => b.id)), [bots]);
 
   const addTileCount = filtered.length > 0 && filtered.length < 3 ? 3 - filtered.length : filtered.length === 0 ? 0 : 1;
 
@@ -495,59 +491,8 @@ export default function MyBotsPage() {
         </div>
       )}
 
-      {!isLoading && recommended.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <h2 className="text-base font-bold text-foreground">Recommended for you</h2>
-            </div>
-            <Link href="/marketplace" className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
-              View all <ChevronRight className="h-3 w-3" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {recommended.map((rec) => (
-              <div
-                key={rec.id}
-                className="flex min-h-[13rem] flex-col gap-3 rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-5 shadow-[var(--shadow-card)] transition-shadow duration-[250ms] hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">{rec.category || 'STRATEGY'}</p>
-                    <h3 className="truncate text-sm font-bold text-foreground">{rec.name}</h3>
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">by {rec.creator}</p>
-                  </div>
-                  {rec.verified && (
-                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-2 py-0.5 text-[10px] font-bold uppercase text-primary">
-                      <ShieldCheck className="h-3 w-3" /> Verified
-                    </span>
-                  )}
-                </div>
-                <div className="grid grid-cols-3 gap-2 rounded-[12px] bg-[color-mix(in_srgb,var(--muted)_35%,transparent)] p-3 text-center">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Win Rate</p>
-                    <p className="text-sm font-bold tabular-nums text-primary">{rec.winRate.toFixed(1)}%</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Subs</p>
-                    <p className="text-sm font-bold tabular-nums text-foreground">{rec.subscribers.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Price</p>
-                    <p className="text-sm font-bold tabular-nums text-foreground">{rec.monthlyPrice > 0 ? formatPrice(rec.monthlyPrice) : 'FREE'}</p>
-                  </div>
-                </div>
-                <Link
-                  href={`/marketplace/${rec.id}`}
-                  className="flex h-9 items-center justify-center gap-1.5 rounded-[10px] border border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] text-xs font-bold text-primary transition-colors duration-200 hover:bg-[color-mix(in_srgb,var(--primary)_14%,transparent)]"
-                >
-                  <Star className="h-3.5 w-3.5" /> View Strategy
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
+      {!isLoading && (
+        <RecommendedBots ownedIds={ownedIds} enabled={recommendReady} />
       )}
     </div>
   );

@@ -111,9 +111,36 @@ function readEntry(queryKey: readonly unknown[]): unknown | undefined {
   return entry.data;
 }
 
+const DEFAULT_HYDRATE_KEYS: readonly (readonly unknown[])[] = [
+  ['my-bots'],
+  ['open-trades'],
+  ['trade-history', 'overview'],
+  ['portfolio', '1m'],
+  ['portfolio', '1d'],
+  ['portfolio', '1w'],
+  ['portfolio', '3m'],
+  ['portfolio', '1y'],
+  ['portfolio', 'all'],
+  ['my-strategies'],
+  ['dashboard-risk'],
+  ['live-market-quotes-v3'],
+  ['broker-accounts'],
+];
+
+/** Route-scoped keys for /my-bots — avoids parsing unused portfolio/history blobs on first paint. */
+export const MY_BOTS_HYDRATE_KEYS: readonly (readonly unknown[])[] = [
+  ['my-bots'],
+  ['broker-accounts'],
+];
+
 export function hydrateDashboardCache(
   qc: QueryClient,
   expectedUserId?: string | null,
+  options?: {
+    keys?: readonly (readonly unknown[])[];
+    /** When false, skip broker session-storage hydrate (default true). */
+    hydrateBroker?: boolean;
+  },
 ) {
   if (typeof window === 'undefined') return;
 
@@ -137,23 +164,11 @@ export function hydrateDashboardCache(
     return;
   }
 
-  hydrateBrokerCacheFromStorage(qc, userId);
+  if (options?.hydrateBroker !== false) {
+    hydrateBrokerCacheFromStorage(qc, userId);
+  }
 
-  const keys: readonly (readonly unknown[])[] = [
-    ['my-bots'],
-    ['open-trades'],
-    ['trade-history', 'overview'],
-    ['portfolio', '1m'],
-    ['portfolio', '1d'],
-    ['portfolio', '1w'],
-    ['portfolio', '3m'],
-    ['portfolio', '1y'],
-    ['portfolio', 'all'],
-    ['my-strategies'],
-    ['dashboard-risk'],
-    ['live-market-quotes-v3'],
-    ['broker-accounts'],
-  ];
+  const keys = options?.keys ?? DEFAULT_HYDRATE_KEYS;
 
   for (const key of keys) {
     if (qc.getQueryData(key) !== undefined) continue;

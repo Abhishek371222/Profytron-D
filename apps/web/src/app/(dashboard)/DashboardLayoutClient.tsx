@@ -4,12 +4,10 @@ import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { AppShell } from '@/components/layout/AppShell';
 import { AppProviders } from '@/components/providers/AppProviders';
-import { BrokerConnectBanner } from '@/components/dashboard/BrokerConnectBanner';
 import { OfflineBanner } from '@/components/product/OfflineBanner';
 import { cn, isAdminUser } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { useTutorialStore } from '@/lib/stores/useTutorialStore';
-import { AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { brokerApi } from '@/lib/api/broker';
@@ -23,6 +21,14 @@ import { metricsApi } from '@/platform/metrics';
 import { animationApi } from '@/platform/animation';
 import { isMotionEngineEnabled } from '@/platform/motion/index-flag';
 import { isExperienceEngineEnabled } from '@/platform/experience/index-flag';
+
+const BrokerConnectBanner = dynamic(
+  () =>
+    import('@/components/dashboard/BrokerConnectBanner').then((m) => ({
+      default: m.BrokerConnectBanner,
+    })),
+  { ssr: false },
+);
 
 const BrokerConnectModal = dynamic(
   () =>
@@ -87,10 +93,34 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   const [showBrokerModal, setShowBrokerModal] = React.useState(false);
   const [connectingDemo, setConnectingDemo] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
+  const [secondaryChromeReady, setSecondaryChromeReady] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Defer checklist/tutorials until idle so they don't compete with route first paint.
+  React.useEffect(() => {
+    if (!mounted) return;
+    let cancelled = false;
+    let idleId: number | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const arm = () => {
+      if (!cancelled) setSecondaryChromeReady(true);
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      idleId = window.requestIdleCallback(arm, { timeout: 3000 });
+    } else {
+      timeoutId = setTimeout(arm, 1200);
+    }
+    return () => {
+      cancelled = true;
+      if (idleId !== undefined && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
+    };
+  }, [mounted]);
 
   React.useEffect(() => {
     if (process.env.NEXT_PUBLIC_PLATFORM_METRICS !== '1') return;
@@ -215,25 +245,23 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           fillViewport ? 'h-full flex-1 overflow-hidden' : 'gap-[var(--section-gap)]',
         )}
       >
-        <AnimatePresence>
-          {mounted && showDemoBanner && !fillViewport && !isAdmin && (
-            <BrokerConnectBanner
-              onConnect={openBrokerModal}
-              onDemo={connectDemoAccount}
-              onDismiss={handleDismissBanner}
-              connectingDemo={connectingDemo}
-            />
-          )}
-        </AnimatePresence>
+        {mounted && showDemoBanner && !fillViewport && !isAdmin && (
+          <BrokerConnectBanner
+            onConnect={openBrokerModal}
+            onDemo={connectDemoAccount}
+            onDismiss={handleDismissBanner}
+            connectingDemo={connectingDemo}
+          />
+        )}
 
         {/* PRODUCT_DEBT / ERROR_GUIDE — one offline banner for the dashboard shell */}
         {mounted && <OfflineBanner />}
 
-        {mounted && !fillViewport && !isAdmin && (
+        {secondaryChromeReady && !fillViewport && !isAdmin && (
           <ActivationChecklist compact={showDemoBanner} />
         )}
-        {mounted && !fillViewport && !isAdmin && <TutorialPrompt />}
-        {mounted && !fillViewport && !isAdmin && <TutorialOverlay />}
+        {secondaryChromeReady && !fillViewport && !isAdmin && <TutorialPrompt />}
+        {secondaryChromeReady && !fillViewport && !isAdmin && <TutorialOverlay />}
 
         {showBrokerModal && (
           <BrokerConnectModal

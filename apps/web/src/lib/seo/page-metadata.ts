@@ -54,6 +54,13 @@ export const pageSeo = {
       'Find answers to common questions about Profytron accounts, billing, broker connections, copy trading, and platform features.',
     path: '/help',
   }),
+  status: buildPageMetadata({
+    title: 'System Status — Platform Health',
+    description:
+      'Live Profytron platform status: API, trading engine, authentication, payments, marketplace, database, broker connectivity, and background jobs.',
+    path: '/status',
+    keywords: ['Profytron status', 'trading platform uptime', 'API health'],
+  }),
   guides: buildPageMetadata({
     title: 'Trading Guides — Algorithmic Strategies, Risk & Market Microstructure',
     description:

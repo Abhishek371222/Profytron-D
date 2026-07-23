@@ -32,6 +32,7 @@ const sections = [
     links: [
       { label: 'Documentation', href: '/docs' },
       { label: 'FAQ on homepage', href: '/#faq' },
+      { label: 'System status', href: '/status' },
       { label: 'Open support ticket', href: '/settings/support' },
       { label: 'Email support', href: 'mailto:support@profytron.com' },
     ],

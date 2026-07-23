@@ -103,12 +103,13 @@ export function Footer() {
         { }
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="hidden sm:flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-chart-3 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-              <span className="text-caption font-medium tracking-widest uppercase text-foreground/50">
-                System Status: Operational
-              </span>
-            </div>
+            <Link
+              href="/status"
+              className="flex items-center gap-2 text-caption font-medium tracking-widest uppercase text-foreground/50 transition-colors hover:text-foreground"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-chart-3 shadow-[0_0_10px_rgba(16,185,129,0.5)]" aria-hidden />
+              System Status
+            </Link>
           </div>
 
           <p className="text-caption text-foreground/30 tracking-widest uppercase font-medium">
