@@ -96,6 +96,7 @@ export const useAuthStore = create<AuthState>()(
           document.cookie = 'onboarding_completed=; path=/; max-age=0; samesite=lax';
           document.cookie = 'user_role=; path=/; max-age=0; samesite=lax';
           setSessionHintCookie(false);
+          window.posthog?.reset();
         }
         purgeWorkspaceCaches();
         set({
@@ -137,6 +138,13 @@ export const useAuthStore = create<AuthState>()(
       },
       hydrate: async () => {
         if (isMockApiEnabled) {
+          const mockUser = get().user;
+          if (typeof window !== 'undefined' && mockUser?.id && window.posthog) {
+            window.posthog.identify(mockUser.id, {
+              email: mockUser.email,
+              name: mockUser.fullName,
+            });
+          }
           set((state) => ({ isAuthenticated: Boolean(state.user), isHydrating: false }));
           return;
         }
@@ -188,6 +196,9 @@ export const useAuthStore = create<AuthState>()(
               sessionStorage.setItem(SESSION_TOKEN_KEY, bootstrapToken);
             }
             setSessionHintCookie(true);
+            if (typeof window !== 'undefined' && user?.id && window.posthog) {
+              window.posthog.identify(user.id, { email: user.email, name: user.fullName });
+            }
             set({
               accessToken: bootstrapToken,
               user,
@@ -217,6 +228,9 @@ export const useAuthStore = create<AuthState>()(
             sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
           }
           setSessionHintCookie(true);
+          if (typeof window !== 'undefined' && user?.id && window.posthog) {
+            window.posthog.identify(user.id, { email: user.email, name: user.fullName });
+          }
           set({
             accessToken,
             user,

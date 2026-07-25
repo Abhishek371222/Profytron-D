@@ -5,6 +5,8 @@ export type Guide = {
   title: string;
   desc: string;
   readTime: string;
+  /** ISO-8601 publish date used for Article JSON-LD */
+  publishedAt: string;
   content: string;
 };
 
@@ -16,6 +18,7 @@ export const GUIDES: Guide[] = [
     title: 'Introduction to Algorithmic Trading',
     desc: 'The fundamentals of systematic trading: how algorithms replace discretion and why execution consistency creates an edge over time.',
     readTime: '10 min',
+    publishedAt: '2025-09-01T00:00:00.000Z',
     content: `Algorithmic trading means encoding a trading decision — when to enter, when to exit, how much to risk — into rules a computer executes without you clicking a button. It sounds simple, but the reason it works is not speed. It's consistency.
 
 ## Why Discretion Fails Over Time
@@ -51,6 +54,7 @@ The next guide in this series, Kelly Criterion & Position Sizing, goes deeper in
     title: 'Kelly Criterion & Position Sizing',
     desc: 'How to size positions to maximize geometric growth without risking ruin — the mathematics behind institutional bankroll management.',
     readTime: '14 min',
+    publishedAt: '2025-09-15T00:00:00.000Z',
     content: `Most traders spend their time on entries and almost none on sizing. This is backwards. A mediocre edge with correct sizing compounds; a great edge with careless sizing eventually blows up. The Kelly Criterion is the formal answer to "how much should I bet."
 
 ## The Core Formula
@@ -92,6 +96,7 @@ Sizing discipline is the least exciting part of trading and the most important. 
     title: 'Order Flow Toxicity & Adverse Selection',
     desc: 'Understanding why certain order flows are exploited by market makers, and how to measure the "toxicity" of your execution.',
     readTime: '18 min',
+    publishedAt: '2025-10-01T00:00:00.000Z',
     content: `Every time you send a market order, someone on the other side is deciding whether trading against you is profitable. If your order flow is predictable — "toxic," in market microstructure terms — market makers price that risk into the spread you pay, and you lose money on execution before your strategy's edge even has a chance to play out.
 
 ## What Makes Flow Toxic
@@ -129,6 +134,7 @@ Profytron's backtesting engine models transaction costs including spread and est
     title: 'Mean Reversion vs. Momentum Strategies',
     desc: 'When markets mean-revert and when they trend — a framework for regime detection and strategy selection.',
     readTime: '12 min',
+    publishedAt: '2025-10-15T00:00:00.000Z',
     content: `Mean reversion and momentum are the two dominant strategy families in systematic trading, and they are structurally opposed: a mean-reversion strategy bets that a large move will partially reverse, while a momentum strategy bets that a move will continue. Running both without regime awareness means one is usually fighting the other.
 
 ## Why Both Exist
@@ -166,6 +172,7 @@ Neither family is "better." The traders who struggle with both are usually runni
     title: 'Building a Sentiment-Driven Signal Pipeline',
     desc: 'Ingesting news, social, and alternative data sources into a real-time scoring pipeline that feeds execution logic.',
     readTime: '20 min',
+    publishedAt: '2025-11-01T00:00:00.000Z',
     content: `A sentiment pipeline turns unstructured text — news, filings, social posts — into a structured, numeric input a trading strategy can consume. The hard part isn't calling a language model; it's building a pipeline that's fast enough, filtered enough, and calibrated enough to be useful rather than noisy.
 
 ## Stage 1: Ingestion and Filtering
@@ -203,6 +210,7 @@ A sentiment pipeline is a genuinely useful input. It is not, on its own, a tradi
     title: 'Understanding Drawdown & Maximum Risk',
     desc: "How to measure, monitor, and set hard limits on portfolio drawdown — the system behind Profytron's AI Risk Engine.",
     readTime: '8 min',
+    publishedAt: '2025-11-15T00:00:00.000Z',
     content: `Drawdown is the single most important number in trading that beginners underweight. It's the percentage decline from your account's highest recorded value (a "peak") to its current value. A strategy can have an excellent average return and still be unusable in practice if its drawdowns are deep enough to be psychologically or financially unbearable.
 
 ## Why Average Return Isn't Enough
@@ -238,6 +246,7 @@ Set your limit deliberately, before you need it. A drawdown limit you configure 
     title: 'The Economics of Market Making',
     desc: 'Why spreads exist, how market makers profit from them, and how directional traders can avoid being picked off.',
     readTime: '16 min',
+    publishedAt: '2025-12-01T00:00:00.000Z',
     content: `The bid-ask spread isn't an arbitrary fee — it's compensation a market maker demands for the risk of holding inventory and trading against potentially better-informed counterparties. Understanding this economic relationship explains a surprising amount about why your orders get filled the way they do.
 
 ## Why Market Makers Exist
@@ -273,6 +282,7 @@ You don't need to out-compete market makers on speed — that's a race retail tr
     title: 'MACD, RSI, and Signal Stacking',
     desc: 'Classic technical indicators explained rigorously — and how Signal Core AI validates or overrides them with multi-modal inputs.',
     readTime: '9 min',
+    publishedAt: '2025-12-15T00:00:00.000Z',
     content: `MACD and RSI are two of the oldest technical indicators still in wide use, and for good reason — they're computationally simple, well understood, and capture genuinely different information. Used together, and understood rigorously rather than as black-box signals, they remain a reasonable foundation for a beginner strategy.
 
 ## MACD: Trend and Momentum

@@ -47,8 +47,9 @@ export default async function GuidePage({ params }: Props) {
         article={{
           title: guide.title,
           description: guide.desc,
-          slug: `guides/${slug}`,
-          datePublished: new Date().toISOString(),
+          slug,
+          path: `/guides/${slug}`,
+          datePublished: guide.publishedAt,
           readTime: guide.readTime,
         }}
       />

@@ -15,6 +15,7 @@ export const PUBLIC_SITEMAP_ROUTES: SitemapEntry[] = [
   { path: '/blog', changeFrequency: 'weekly', priority: 0.85 },
   { path: '/docs', changeFrequency: 'weekly', priority: 0.8 },
   { path: '/help', changeFrequency: 'weekly', priority: 0.75 },
+  { path: '/status', changeFrequency: 'weekly', priority: 0.55 },
   { path: '/guides', changeFrequency: 'monthly', priority: 0.7 },
   { path: '/brokers', changeFrequency: 'monthly', priority: 0.7 },
   { path: '/api-reference', changeFrequency: 'monthly', priority: 0.65 },

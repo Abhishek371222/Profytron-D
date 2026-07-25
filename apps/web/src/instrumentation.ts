@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 
 const SENTRY_DSN = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
+const SENTRY_RELEASE = process.env.COMMIT_SHA || process.env.GIT_SHA;
 
 export async function register() {
   const { z } = await import("zod");
@@ -12,6 +13,7 @@ export async function register() {
     Sentry.init({
       dsn: SENTRY_DSN,
       environment: process.env.NODE_ENV,
+      ...(SENTRY_RELEASE ? { release: SENTRY_RELEASE } : {}),
       tracesSampleRate: 0.05,
       enabled: process.env.NODE_ENV === "production",
     });
@@ -19,6 +21,7 @@ export async function register() {
     Sentry.init({
       dsn: SENTRY_DSN,
       environment: process.env.NODE_ENV,
+      ...(SENTRY_RELEASE ? { release: SENTRY_RELEASE } : {}),
       tracesSampleRate: 0.1,
       enabled: process.env.NODE_ENV === "production",
 

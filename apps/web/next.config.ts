@@ -245,12 +245,17 @@ const nextConfig: NextConfig = {
   },
 };
 
-const withSentry = process.env.SENTRY_DSN
+const sentryDsn = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN;
+const sentryRelease = process.env.COMMIT_SHA || process.env.GIT_SHA;
+
+const withSentry = sentryDsn
   ? withSentryConfig(nextConfig, {
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
       silent: true,
       widenClientFileUpload: true,
+      ...(sentryRelease ? { release: { name: sentryRelease } } : {}),
       webpack: {
         treeshake: { removeDebugLogging: true },
         automaticVercelMonitors: false,

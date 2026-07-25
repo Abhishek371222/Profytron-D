@@ -15,6 +15,8 @@ export interface ArticleSchemaInput {
   title: string;
   description: string;
   slug: string;
+  /** Absolute site path for mainEntityOfPage (e.g. `/guides/foo`). Defaults to `/blog/{slug}`. */
+  path?: string;
   datePublished: string;
   readTime?: string;
 }
@@ -240,7 +242,9 @@ function buildSchema(props: JsonLdProps): object | null {
         },
         mainEntityOfPage: {
           '@type': 'WebPage',
-          '@id': `${SITE_URL}/blog/${article.slug}`,
+          '@id': article.path
+            ? `${SITE_URL}${article.path.startsWith('/') ? article.path : `/${article.path}`}`
+            : `${SITE_URL}/blog/${article.slug}`,
         },
         image: `${SITE_URL}/hero/hero-trading-3d.png`,
         timeRequired: article.readTime,
