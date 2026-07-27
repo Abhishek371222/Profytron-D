@@ -71,14 +71,14 @@ export function PricingPlansGrid({ variant = 'page', showEnterprise = true }: Pr
           </span>
         </p>
       )}
-      <div className="inline-flex rounded-full border border-[var(--card-border)] bg-card p-1 shadow-sm">
+      <div className="inline-flex max-w-full flex-wrap items-center justify-center gap-1 rounded-full border border-[var(--card-border)] bg-card p-1 shadow-sm">
         {(['monthly', 'yearly'] as const).map((cycle) => (
           <button
             key={cycle}
             type="button"
             onClick={() => setBillingCycle(cycle)}
             className={cn(
-              'relative px-5 sm:px-6 py-2.5 rounded-full text-sm font-semibold capitalize transition-all',
+              'relative shrink-0 px-3.5 py-2.5 rounded-full text-sm font-semibold capitalize transition-all sm:px-5 md:px-6',
               billingCycle === cycle
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground',
@@ -88,7 +88,7 @@ export function PricingPlansGrid({ variant = 'page', showEnterprise = true }: Pr
             {cycle === 'yearly' && (
               <span
                 className={cn(
-                  'ml-2 inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold',
+                  'ml-1.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-bold sm:ml-2 sm:px-2',
                   billingCycle === 'yearly'
                     ? 'bg-emerald-500/20 text-emerald-100'
                     : 'bg-emerald-500/10 text-emerald-600',
@@ -124,7 +124,7 @@ export function PricingPlansGrid({ variant = 'page', showEnterprise = true }: Pr
   return (
     <div>
       {toggle}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {displayPlans.map((plan) => (
           <PricingCard
             key={plan.slug}

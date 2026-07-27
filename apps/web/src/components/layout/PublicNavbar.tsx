@@ -159,7 +159,10 @@ export function PublicNavbar() {
     <header
       className={cn(
         'fixed inset-x-0 top-0 z-50 transition-all duration-[var(--motion-standard,200ms)]',
-        isScrolled ? 'py-2' : 'py-4 sm:py-5',
+        // Preserve existing vertical rhythm; add notch inset only when present (0 on desktop).
+        isScrolled
+          ? 'pb-2 pt-[calc(0.5rem+env(safe-area-inset-top,0px))]'
+          : 'pb-4 pt-[calc(1rem+env(safe-area-inset-top,0px))] sm:pb-5 sm:pt-[calc(1.25rem+env(safe-area-inset-top,0px))]',
       )}
       role="banner"
     >
@@ -272,7 +275,7 @@ export function PublicNavbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="absolute top-[72px] left-4 right-4 sm:left-6 sm:right-6 bg-card rounded-card border border-border p-6 lg:hidden shadow-[var(--shadow-lg)] max-h-[calc(100dvh-90px)] overflow-y-auto"
+            className="absolute top-[calc(72px+env(safe-area-inset-top,0px))] left-4 right-4 sm:left-6 sm:right-6 bg-card rounded-card border border-border p-6 lg:hidden shadow-[var(--shadow-lg)] max-h-[calc(100dvh-90px-env(safe-area-inset-top,0px))] overflow-y-auto"
           >
             <Link
               href="/"
