@@ -20,7 +20,7 @@ function MarketplaceSuccessInner() {
   }, []);
 
   return (
-    <main className="flex min-h-[70vh] items-center justify-center p-8">
+    <main className="animate-page-in flex min-h-[70vh] items-center justify-center p-8">
       <div className="w-full max-w-xl premium-surface p-10 text-center">
         <CheckCircle2 className="mx-auto h-16 w-16 text-chart-3" />
         <h1 className="mt-6 text-3xl font-bold text-foreground">Subscription activated!</h1>

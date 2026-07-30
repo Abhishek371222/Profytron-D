@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { TelegramBotService } from './telegram-bot.service';
 import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
+import { LinkTelegramDto } from './dto/link-telegram.dto';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -60,7 +61,7 @@ export class TelegramController {
   @Post('link')
   async linkAccount(
     @Req() req: AuthRequest,
-    @Body() body: { telegramChatId: number; telegramUsername: string },
+    @Body() body: LinkTelegramDto,
   ) {
     return this.telegramService.registerTelegramUser(
       req.user.id,

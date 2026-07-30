@@ -638,7 +638,7 @@ export default function AlphaCoachPage() {
   );
 
   return (
-    <DashboardPage className="!gap-0 !pb-0 !pt-0 flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <DashboardPage className="animate-page-in !gap-0 !pb-0 !pt-0 flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--card-border)] bg-card shadow-sm">
         <div className="grid h-full min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)_272px]">
           {/* Desktop history */}

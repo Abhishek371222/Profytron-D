@@ -10,6 +10,7 @@ import {
 import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/guards/auth.guard';
 import { CopyBridgeService } from './copy-bridge.service';
+import { ReportBridgeResultDto } from './dto/report-result.dto';
 
 @ApiTags('Copy Bridge')
 @Controller('bridge')
@@ -52,12 +53,7 @@ export class CopyBridgeController {
     @Headers('x-bridge-token') headerToken: string | undefined,
     @Query('token') queryToken: string | undefined,
     @Body()
-    body: {
-      status: 'FILLED' | 'FAILED';
-      brokerTicket?: string;
-      fillPrice?: number;
-      errorReason?: string;
-    },
+    body: ReportBridgeResultDto,
   ) {
     return this.bridge.reportResult(
       this.tokenFrom(headerToken, queryToken) ?? '',

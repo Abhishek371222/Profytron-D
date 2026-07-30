@@ -10,7 +10,7 @@ import {
 
 export default function StrategyBuilderPage() {
   return (
-    <DashboardPage className="!gap-0 !p-0 !m-0 flex h-full min-h-0 flex-1 flex-col">
+    <DashboardPage className="animate-page-in !gap-0 !p-0 !m-0 flex h-full min-h-0 flex-1 flex-col">
       <div className="flex h-full min-h-0 flex-1 overflow-hidden rounded-none border-0 bg-bg-secondary md:rounded-2xl md:border md:border-[var(--card-border)]">
         { }
         <aside className="hidden md:flex w-[280px] shrink-0 flex-col border-r border-[var(--card-border)] bg-card text-foreground">

@@ -12,7 +12,7 @@ const configuredSiteUrl =
 export const SITE_URL = configuredSiteUrl.replace(/\/+$/, '');
 export const SITE_NAME = 'Profytron';
 export const SITE_TAGLINE = "India's algorithmic trading platform";
-export const DEFAULT_OG_IMAGE = '/hero/hero-trading-3d.png';
+export const DEFAULT_OG_IMAGE = '/hero/hero-trading-3d.webp';
 export const DEFAULT_OG_IMAGE_ALT =
   'Profytron trading dashboard showing AI analytics, copy trading, and live portfolio performance';
 export const TWITTER_HANDLE = '@profytron';

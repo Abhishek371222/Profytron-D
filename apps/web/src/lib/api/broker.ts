@@ -3,7 +3,7 @@ import { apiClient, unwrapApiResponse } from './client';
 export const brokerApi = {
   async connectBroker(data: any) {
     const res = await apiClient.post('/broker/accounts/connect', data, {
-      timeout: 90_000,
+      timeout: 45_000,
     });
     return unwrapApiResponse<any>(res.data);
   },

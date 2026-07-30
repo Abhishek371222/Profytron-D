@@ -79,8 +79,20 @@ export class AppController {
   @Get('ready')
   /** Readiness — safe to receive traffic only if database is connected. */
   async getReady(@Res({ passthrough: true }) res: Response) {
+    // Production keeps a tight 500ms probe. Local/dev may hit remote Neon RTT
+    // near that budget — override with READY_PROBE_TIMEOUT_MS (ms) only when
+    // NODE_ENV !== 'production'. Never weakens production readiness.
+    const readyTimeoutMs =
+      process.env.NODE_ENV === 'production'
+        ? 500
+        : Number(process.env.READY_PROBE_TIMEOUT_MS) > 0
+          ? Number(process.env.READY_PROBE_TIMEOUT_MS)
+          : 2000;
     try {
-      await withTimeout(this.prismaService.$queryRaw`SELECT 1 AS ok`, 500);
+      await withTimeout(
+        this.prismaService.$queryRaw`SELECT 1 AS ok`,
+        readyTimeoutMs,
+      );
       return {
         status: 'ok',
         check: 'ready',

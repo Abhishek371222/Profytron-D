@@ -49,3 +49,10 @@ export class UpdateJournalEntryDto {
   @MaxLength(8000)
   aiAnalysis?: string;
 }
+
+export class RateEntryDto {
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  rating: number;
+}

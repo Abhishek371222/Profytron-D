@@ -23,6 +23,11 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard, Roles } from '../auth/guards/auth.guard';
 import { CoachService } from './coach.service';
 import { CoachInsightsService } from './coach-insights.service';
+import {
+  CreateConversationDto,
+  SendMessageDto,
+  TrackInsightDto,
+} from './dto/coach.dto';
 
 type AuthenticatedRequest = Request & {
   user: { id: string; role?: string };
@@ -49,7 +54,7 @@ export class CoachController {
   @ApiOperation({ summary: 'Start a new coaching conversation' })
   createConversation(
     @Req() req: AuthenticatedRequest,
-    @Body() body: { title?: string },
+    @Body() body: CreateConversationDto,
   ) {
     return this.coachService.createConversation(req.user.id, body?.title);
   }
@@ -75,7 +80,7 @@ export class CoachController {
   sendMessage(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
-    @Body() body: { content: string },
+    @Body() body: SendMessageDto,
   ) {
     return this.coachService.sendMessage(req.user.id, id, body.content);
   }
@@ -87,7 +92,7 @@ export class CoachController {
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
     @Param('id') id: string,
-    @Body() body: { content: string },
+    @Body() body: SendMessageDto,
   ) {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache, no-transform');
@@ -132,13 +137,7 @@ export class CoachController {
   trackInsight(
     @Req() req: AuthenticatedRequest,
     @Body()
-    body: {
-      event: string;
-      conversationId?: string;
-      intent?: string;
-      questionPreview?: string;
-      metadata?: Record<string, unknown>;
-    },
+    body: TrackInsightDto,
   ) {
     return this.coachInsights.track(req.user.id, body || { event: '' });
   }
@@ -184,7 +183,7 @@ export class CoachController {
   reply(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
-    @Body() body: { content: string },
+    @Body() body: SendMessageDto,
   ) {
     return this.coachService.adminReply(req.user.id, id, body.content);
   }

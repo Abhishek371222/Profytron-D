@@ -122,7 +122,7 @@ function MessageBubble({ msg }: { msg: Message }) {
   );
 }
 
-export function ChatbotWidget() {
+export function ChatbotWidget({ initialOpen = false }: { initialOpen?: boolean }) {
   const pathname = usePathname();
   const isHidden = HIDDEN_ROUTES.some(
     (r) => pathname === r || pathname?.startsWith(`${r}/`),
@@ -133,7 +133,7 @@ export function ChatbotWidget() {
   const aiChatOpen = useUIStore((s) => s.aiChatOpen);
   const setAIChatOpen = useUIStore((s) => s.setAIChatOpen);
   const toggleAIChat = useUIStore((s) => s.toggleAIChat);
-  const [localOpen, setLocalOpen] = useState(false);
+  const [localOpen, setLocalOpen] = useState(initialOpen);
   const isOpen = isAppShell ? aiChatOpen : localOpen;
   const setIsOpen = isAppShell ? setAIChatOpen : setLocalOpen;
   const toggleOpen = isAppShell ? toggleAIChat : () => setLocalOpen((p) => !p);

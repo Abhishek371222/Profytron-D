@@ -406,7 +406,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                       : `Connecting ${resolvedServer} via MetaApi…`}
                     <br />
                     {mode === 'live'
-                      ? 'This can take up to a minute on first connect.'
+                      ? 'Usually a few seconds. Balance may keep syncing after success.'
                       : null}
                   </p>
                 </div>

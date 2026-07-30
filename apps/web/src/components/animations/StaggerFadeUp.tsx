@@ -10,8 +10,10 @@ const container = {
   },
 };
 
+// Keep opacity at 1 from the first frame so the hero H1 can become LCP.
+// Decorative motion is limited to a short Y settle (same timing as before).
 const item = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { opacity: 1, y: 28 },
   visible: {
     opacity: 1,
     y: 0,

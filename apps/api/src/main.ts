@@ -40,8 +40,34 @@ async function resolveApiPort(requestedPort: number): Promise<number> {
   return requestedPort;
 }
 
+/** Strip BOM / CR / LF that PowerShell secret uploads often inject. */
+function sanitizeEnvSecrets() {
+  const keys = [
+    'JWT_ACCESS_SECRET',
+    'JWT_REFRESH_SECRET',
+    'LEGACY_JWT_SECRET',
+    'FRONTEND_URL',
+    'FRONTEND_DASHBOARD_URL',
+    'CORS_ORIGIN',
+    'API_PUBLIC_URL',
+    'GOOGLE_CALLBACK_URL',
+    'GOOGLE_CLIENT_ID',
+    'GOOGLE_CLIENT_SECRET',
+  ] as const;
+
+  for (const key of keys) {
+    const raw = process.env[key];
+    if (raw == null || raw === '') continue;
+    const cleaned = raw.replace(/^\uFEFF/, '').replace(/\r/g, '').trim();
+    if (cleaned !== raw) {
+      process.env[key] = cleaned;
+    }
+  }
+}
+
 function validateEnv() {
   const logger = new Logger('EnvValidation');
+  sanitizeEnvSecrets();
   const nodeEnv = process.env.NODE_ENV;
   const isStrict = nodeEnv === 'production' || nodeEnv === 'staging';
 

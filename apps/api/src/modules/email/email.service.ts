@@ -2,6 +2,16 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Resend } from 'resend';
 import { PrismaService } from '../../prisma/prisma.service';
 
+/** Escapes user-controlled text before it is interpolated into email HTML. */
+function esc(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const BASE = `
   <div style="background:#020617;color:#e2e8f0;padding:40px 32px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:600px;margin:0 auto;border-radius:16px;">
     <div style="margin-bottom:28px;">
@@ -33,11 +43,11 @@ export class EmailService {
     const time = data.time ?? new Date().toUTCString();
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">New sign-in to your account</p>
-      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${name || 'Trader'}, a new login was detected on your Profytron account.</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${esc(name) || 'Trader'}, a new login was detected on your Profytron account.</p>
       <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;margin-bottom:16px;">
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">Time:</span> <strong>${time}</strong></p>
-        ${data.ip ? `<p style="margin:0 0 8px;"><span style="color:#64748b;">IP:</span> <strong>${data.ip}</strong></p>` : ''}
-        ${data.device ? `<p style="margin:0;"><span style="color:#64748b;">Device:</span> <strong>${data.device}</strong></p>` : ''}
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Time:</span> <strong>${esc(time)}</strong></p>
+        ${data.ip ? `<p style="margin:0 0 8px;"><span style="color:#64748b;">IP:</span> <strong>${esc(data.ip)}</strong></p>` : ''}
+        ${data.device ? `<p style="margin:0;"><span style="color:#64748b;">Device:</span> <strong>${esc(data.device)}</strong></p>` : ''}
       </div>
       <p style="color:#64748b;font-size:13px;">If this wasn't you, <a href="${process.env.FRONTEND_URL}/settings/security" style="color:#6366f1;">secure your account immediately</a>.</p>
     ${FOOTER}`;
@@ -106,7 +116,7 @@ export class EmailService {
   async sendWelcomeEmail(email: string, name: string, userId?: string) {
     const base = process.env.FRONTEND_URL || 'https://profytron.com';
     const html = `${BASE}
-      <p style="font-size:22px;font-weight:700;margin:0 0 12px;">Welcome, ${name} 🎯</p>
+      <p style="font-size:22px;font-weight:700;margin:0 0 12px;">Welcome, ${esc(name)} 🎯</p>
       <p style="color:#94a3b8;margin:0 0 20px;">Your account is verified. Get your first algo trade in under 10 minutes:</p>
       <ul style="color:#cbd5e1;padding-left:20px;line-height:1.9;">
         <li>Complete your 2-minute risk profile</li>
@@ -139,9 +149,9 @@ export class EmailService {
   ) {
     const url = `${process.env.FRONTEND_URL || 'https://profytron.com'}${data.ctaPath}`;
     const html = `${BASE}
-      <p style="font-size:20px;font-weight:700;margin:0 0 12px;">${data.headline}</p>
-      <p style="color:#94a3b8;margin:0 0 24px;">Hi ${name || 'Trader'}, ${data.body}</p>
-      <a href="${url}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${data.ctaLabel}</a>
+      <p style="font-size:20px;font-weight:700;margin:0 0 12px;">${esc(data.headline)}</p>
+      <p style="color:#94a3b8;margin:0 0 24px;">Hi ${esc(name) || 'Trader'}, ${esc(data.body)}</p>
+      <a href="${url}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${esc(data.ctaLabel)}</a>
     ${FOOTER}`;
     return this.send(email, data.subject, html, { type: 'LIFECYCLE', userId });
   }
@@ -158,9 +168,9 @@ export class EmailService {
     userId?: string,
   ) {
     const html = `${BASE}
-      <p style="font-size:22px;font-weight:700;color:#4ade80;margin:0 0 12px;">🎯 ${data.title}</p>
-      <p style="color:#94a3b8;margin:0 0 24px;">Hi ${name || 'Trader'}, ${data.body}</p>
-      <a href="${data.ctaUrl}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${data.ctaLabel}</a>
+      <p style="font-size:22px;font-weight:700;color:#4ade80;margin:0 0 12px;">🎯 ${esc(data.title)}</p>
+      <p style="color:#94a3b8;margin:0 0 24px;">Hi ${esc(name) || 'Trader'}, ${esc(data.body)}</p>
+      <a href="${data.ctaUrl}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${esc(data.ctaLabel)}</a>
     ${FOOTER}`;
     return this.send(email, `Profytron: ${data.title}`, html, {
       type: 'ACTIVATION',
@@ -176,7 +186,7 @@ export class EmailService {
   ) {
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Your login link</p>
-      <p style="color:#94a3b8;margin:0 0 24px;">Hi ${name || 'Trader'}, click below to sign in to Profytron. This link expires in <strong>15 minutes</strong>.</p>
+      <p style="color:#94a3b8;margin:0 0 24px;">Hi ${esc(name) || 'Trader'}, click below to sign in to Profytron. This link expires in <strong>15 minutes</strong>.</p>
       <a href="${link}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">Sign In Securely</a>
       <p style="color:#475569;font-size:12px;margin-top:20px;">If you didn't request this, ignore this email.</p>
     ${FOOTER}`;
@@ -222,12 +232,12 @@ export class EmailService {
 
     const html = `${BASE}
       <p style="font-size:18px;font-weight:700;color:${color};margin:0 0 8px;">${title}</p>
-      <p style="color:#94a3b8;margin:0 0 16px;">Hi ${name || 'Trader'}, here's your trade update.</p>
+      <p style="color:#94a3b8;margin:0 0 16px;">Hi ${esc(name) || 'Trader'}, here's your trade update.</p>
       <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;margin-bottom:16px;">
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">Symbol:</span> <strong>${data.symbol}</strong></p>
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">Direction:</span> <strong>${data.direction}</strong></p>
-        ${data.price ? `<p style="margin:0 0 8px;"><span style="color:#64748b;">Price:</span> <strong>${data.price}</strong></p>` : ''}
-        ${data.strategyName ? `<p style="margin:0;"><span style="color:#64748b;">Strategy:</span> <strong>${data.strategyName}</strong></p>` : ''}
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Symbol:</span> <strong>${esc(data.symbol)}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Direction:</span> <strong>${esc(data.direction)}</strong></p>
+        ${data.price ? `<p style="margin:0 0 8px;"><span style="color:#64748b;">Price:</span> <strong>${esc(data.price)}</strong></p>` : ''}
+        ${data.strategyName ? `<p style="margin:0;"><span style="color:#64748b;">Strategy:</span> <strong>${esc(data.strategyName)}</strong></p>` : ''}
       </div>
       ${pnlText}
       <a href="${process.env.FRONTEND_URL}/dashboard" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">View Dashboard</a>
@@ -262,10 +272,10 @@ export class EmailService {
     const success = data.type === 'SUCCESS';
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;color:${success ? '#4ade80' : '#f87171'};margin:0 0 12px;">${success ? '✅ Payment Successful' : '❌ Payment Failed'}</p>
-      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${name || 'Trader'}, ${success ? 'your payment was processed successfully.' : 'your payment could not be processed. Please try again.'}</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${esc(name) || 'Trader'}, ${success ? 'your payment was processed successfully.' : 'your payment could not be processed. Please try again.'}</p>
       <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;">
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">Amount:</span> <strong>${data.currency ?? 'USD'} ${data.amount.toFixed(2)}</strong></p>
-        ${data.description ? `<p style="margin:0;"><span style="color:#64748b;">For:</span> <strong>${data.description}</strong></p>` : ''}
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Amount:</span> <strong>${esc(data.currency ?? 'USD')} ${data.amount.toFixed(2)}</strong></p>
+        ${data.description ? `<p style="margin:0;"><span style="color:#64748b;">For:</span> <strong>${esc(data.description)}</strong></p>` : ''}
       </div>
       <a href="${process.env.FRONTEND_URL}/wallet" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;margin-top:20px;">View Wallet</a>
     ${FOOTER}`;
@@ -281,6 +291,50 @@ export class EmailService {
     );
   }
 
+  async sendTrialStartedEmail(
+    email: string,
+    name: string,
+    planName: string,
+    trialEndsAt: Date,
+    userId?: string,
+  ) {
+    const html = `${BASE}
+      <p style="font-size:20px;font-weight:700;color:#4ade80;margin:0 0 12px;">Your ${esc(planName)} trial is active</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${esc(name) || 'Trader'}, you now have full ${esc(planName)} access for 7 days — no payment required. Your trial ends on <strong>${esc(trialEndsAt.toDateString())}</strong>. Upgrade anytime to keep your access after that.</p>
+      <a href="${process.env.FRONTEND_URL}/settings/billing" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">Manage Billing</a>
+    ${FOOTER}`;
+    return this.send(email, `Profytron: Your ${planName} trial has started`, html, {
+      type: 'TRIAL_STARTED',
+      userId,
+      metadata: { planName, trialEndsAt: trialEndsAt.toISOString() },
+    });
+  }
+
+  async sendTrialEndingSoonEmail(
+    email: string,
+    name: string,
+    planName: string,
+    daysLeft: number,
+    trialEndsAt: Date,
+    userId?: string,
+  ) {
+    const html = `${BASE}
+      <p style="font-size:20px;font-weight:700;color:#facc15;margin:0 0 12px;">Your ${esc(planName)} trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${esc(name) || 'Trader'}, your ${esc(planName)} trial ends on <strong>${esc(trialEndsAt.toDateString())}</strong>. Upgrade now to keep your bots, broker accounts, and access active without interruption.</p>
+      <a href="${process.env.FRONTEND_URL}/settings/billing" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">Upgrade Now</a>
+    ${FOOTER}`;
+    return this.send(
+      email,
+      `Profytron: ${daysLeft} day${daysLeft === 1 ? '' : 's'} left in your ${planName} trial`,
+      html,
+      {
+        type: 'TRIAL_ENDING_SOON',
+        userId,
+        metadata: { planName, daysLeft, trialEndsAt: trialEndsAt.toISOString() },
+      },
+    );
+  }
+
   async sendSubscriptionExpiredEmail(
     email: string,
     name: string,
@@ -289,7 +343,7 @@ export class EmailService {
   ) {
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">Subscription Expired</p>
-      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${name || 'Trader'}, your subscription to <strong>${strategyName}</strong> has expired. Renew to keep your bot enabled.</p>
+      <p style="color:#94a3b8;margin:0 0 20px;">Hi ${esc(name) || 'Trader'}, your subscription to <strong>${esc(strategyName)}</strong> has expired. Renew to keep your bot enabled.</p>
       <a href="${process.env.FRONTEND_URL}/marketplace" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:14px 28px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">Renew Subscription</a>
     ${FOOTER}`;
     return this.send(
@@ -310,8 +364,8 @@ export class EmailService {
     const approved = status === 'VERIFIED';
     const html = `${BASE}
       <p style="font-size:20px;font-weight:700;color:${approved ? '#4ade80' : '#f87171'};margin:0 0 12px;">${approved ? '✅ KYC Verified' : '❌ KYC Rejected'}</p>
-      <p style="color:#94a3b8;margin:0 0 16px;">Hi ${name || 'Trader'}, ${approved ? 'your identity has been verified. You can now make withdrawals.' : 'your KYC documents were not accepted.'}</p>
-      ${notes ? `<div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:16px;margin-bottom:16px;"><p style="color:#94a3b8;margin:0;">${notes}</p></div>` : ''}
+      <p style="color:#94a3b8;margin:0 0 16px;">Hi ${esc(name) || 'Trader'}, ${approved ? 'your identity has been verified. You can now make withdrawals.' : 'your KYC documents were not accepted.'}</p>
+      ${notes ? `<div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:16px;margin-bottom:16px;"><p style="color:#94a3b8;margin:0;">${esc(notes)}</p></div>` : ''}
       <a href="${process.env.FRONTEND_URL}/settings/kyc" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">${approved ? 'Go to Wallet' : 'Resubmit Documents'}</a>
     ${FOOTER}`;
     return this.send(
@@ -334,9 +388,9 @@ export class EmailService {
       ? `<a href="${actionUrl}" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;margin-top:16px;">Open Alert</a>`
       : '';
     const html = `${BASE}
-      <p style="font-size:18px;font-weight:700;margin:0 0 8px;">${title}</p>
-      <p style="color:#94a3b8;margin:0 0 4px;">Hi ${name || 'Trader'},</p>
-      <p style="color:#cbd5e1;margin:0 0 16px;">${message}</p>
+      <p style="font-size:18px;font-weight:700;margin:0 0 8px;">${esc(title)}</p>
+      <p style="color:#94a3b8;margin:0 0 4px;">Hi ${esc(name) || 'Trader'},</p>
+      <p style="color:#cbd5e1;margin:0 0 16px;">${esc(message)}</p>
       ${cta}
     ${FOOTER}`;
     return this.send(email, `Profytron Alert: ${title}`, html, {
@@ -379,19 +433,16 @@ export class EmailService {
       <p style="font-size:20px;font-weight:700;margin:0 0 12px;">New support ticket</p>
       <p style="color:#94a3b8;margin:0 0 20px;">A user raised a ticket from the Profytron Support Center.</p>
       <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;margin-bottom:16px;">
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">Ticket ID:</span> <strong>${data.ticketId}</strong></p>
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">From:</span> <strong>${senderName}</strong></p>
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">Email:</span> <strong>${data.user.email}</strong></p>
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">User ID:</span> <strong>${data.user.id}</strong></p>
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">Category:</span> <strong>${data.category}</strong></p>
-        <p style="margin:0 0 8px;"><span style="color:#64748b;">Subject:</span> <strong>${data.subject}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Ticket ID:</span> <strong>${esc(data.ticketId)}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">From:</span> <strong>${esc(senderName)}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Email:</span> <strong>${esc(data.user.email)}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">User ID:</span> <strong>${esc(data.user.id)}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Category:</span> <strong>${esc(data.category)}</strong></p>
+        <p style="margin:0 0 8px;"><span style="color:#64748b;">Subject:</span> <strong>${esc(data.subject)}</strong></p>
         <p style="margin:12px 0 0;color:#64748b;">Description</p>
-        <p style="margin:6px 0 0;white-space:pre-wrap;color:#e2e8f0;">${data.description
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')}</p>
+        <p style="margin:6px 0 0;white-space:pre-wrap;color:#e2e8f0;">${esc(data.description)}</p>
       </div>
-      <p style="color:#64748b;font-size:13px;">Reply to the user at <a href="mailto:${data.user.email}" style="color:#6366f1;">${data.user.email}</a>.</p>
+      <p style="color:#64748b;font-size:13px;">Reply to the user at <a href="mailto:${esc(data.user.email)}" style="color:#6366f1;">${esc(data.user.email)}</a>.</p>
     ${FOOTER}`;
 
     return this.send(

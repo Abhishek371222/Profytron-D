@@ -314,7 +314,16 @@ function LoginPageContent() {
                 <div className="h-px flex-1 bg-foreground/15" />
               </motion.div>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {/*
+                Password managers often inject attributes (e.g. fdprocessedid) onto
+                form controls before React hydrates — that is not an app SSR bug.
+                suppressHydrationWarning avoids a noisy overlay on those nodes.
+              */}
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-5"
+                suppressHydrationWarning
+              >
                 {urlErrorMessage && (
                   <div
                     role="alert"
@@ -359,6 +368,7 @@ function LoginPageContent() {
                           type="button"
                           onClick={handleForgotPassword}
                           className="text-caption font-semibold text-primary transition-colors hover:brightness-110"
+                          suppressHydrationWarning
                         >
                           Forgot password?
                         </button>
@@ -387,6 +397,7 @@ function LoginPageContent() {
                     onClick={twoFaChallenge ? handleCompleteTwoFa : undefined}
                     disabled={isSubmitting || is2faSubmitting}
                     aria-busy={isSubmitting || is2faSubmitting}
+                    suppressHydrationWarning
                     className="group relative h-12 w-full overflow-hidden rounded-button bg-gradient-hero text-body font-semibold text-primary-foreground transition-all hover:brightness-110"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">

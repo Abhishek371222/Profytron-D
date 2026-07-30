@@ -123,6 +123,7 @@ async function userIdFromRequest(req: NextRequest): Promise<string | null> {
         'X-Requested-With': 'XMLHttpRequest',
       },
       cache: 'no-store',
+      signal: AbortSignal.timeout(5_000),
     });
     if (!meRes.ok) return null;
     const body = await meRes.json();
@@ -169,13 +170,18 @@ async function deployAccount(token: string, accountId: string) {
 async function waitDeployed(
   token: string,
   accountId: string,
-  ms = 25_000,
+  /** Soft wait — return pending so UI is not blocked on MetaAPI cold deploy. */
+  ms = 6_000,
 ): Promise<any> {
   const start = Date.now();
   while (Date.now() - start < ms) {
     const res = await fetch(
       `${PROVISIONING}/users/current/accounts/${accountId}`,
-      { headers: metaHeaders(token), cache: 'no-store' },
+      {
+        headers: metaHeaders(token),
+        cache: 'no-store',
+        signal: AbortSignal.timeout(4_000),
+      },
     );
     if (res.ok) {
       const account = await res.json();
@@ -190,13 +196,21 @@ async function waitDeployed(
         await deployAccount(token, accountId);
       }
     }
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 1500));
   }
-  const res = await fetch(
-    `${PROVISIONING}/users/current/accounts/${accountId}`,
-    { headers: metaHeaders(token), cache: 'no-store' },
-  );
-  return res.ok ? res.json() : null;
+  try {
+    const res = await fetch(
+      `${PROVISIONING}/users/current/accounts/${accountId}`,
+      {
+        headers: metaHeaders(token),
+        cache: 'no-store',
+        signal: AbortSignal.timeout(4_000),
+      },
+    );
+    return res.ok ? res.json() : null;
+  } catch {
+    return null;
+  }
 }
 
 async function fetchAccountInfo(
@@ -208,7 +222,11 @@ async function fetchAccountInfo(
     const host = `https://mt-client-api-v1.${region}.agiliumtrade.ai`;
     const res = await fetch(
       `${host}/users/current/accounts/${accountId}/account-information`,
-      { headers: metaHeaders(token), cache: 'no-store' },
+      {
+        headers: metaHeaders(token),
+        cache: 'no-store',
+        signal: AbortSignal.timeout(5_000),
+      },
     );
     if (!res.ok) return null;
     return res.json();
@@ -466,31 +484,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let copyLink: unknown = null;
-    try {
-      const { trackActivation, linkUserCopySubscriptions } = await import(
-        '@/lib/server/copy-link'
-      );
-      await trackActivation(sql as any, userId, 'BROKER_CONNECTED', {
-        brokerAccountId: accountRow.id,
-        metaApiAccountId: accountId,
-      });
-      copyLink = await linkUserCopySubscriptions({
-        sql: sql as any,
-        userId,
-        metaToken,
-        aesKey,
-      });
-    } catch (linkErr: any) {
-      console.warn('[broker/connect] copy link:', linkErr?.message || linkErr);
-    }
+    // Activation + CopyFactory linking can be slow / rate-limited — do not
+    // block the connect response. Background sync + list polling finish it.
+    void (async () => {
+      try {
+        const { trackActivation, linkUserCopySubscriptions } = await import(
+          '@/lib/server/copy-link'
+        );
+        await trackActivation(sql as any, userId, 'BROKER_CONNECTED', {
+          brokerAccountId: accountRow.id,
+          metaApiAccountId: accountId,
+        });
+        await linkUserCopySubscriptions({
+          sql: sql as any,
+          userId,
+          metaToken,
+          aesKey,
+        });
+      } catch (linkErr: any) {
+        console.warn(
+          '[broker/connect] copy link (bg):',
+          linkErr?.message || linkErr,
+        );
+      }
+    })();
 
     return json({
       ...accountRow,
       pending,
       masterOnly: false,
       executionPath: 'metaapi_rpc',
-      copyLink,
+      copyLink: null,
       accountInfo: {
         balance,
         equity,

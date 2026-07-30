@@ -246,6 +246,20 @@ export async function GET(req: NextRequest) {
 
       if (deals) {
         const closedRows = closedTradesFromMetaDeals(deals, { symbolFilter });
+        // MetaAPI can return a successful empty deals window (wrong seat,
+        // region lag, or cold history) while Neon already has synced closes.
+        // Never let that empty array wipe Overview "Recent Trades".
+        if (closedRows.length === 0 && saved.length > 0) {
+          return json({
+            rows: saved,
+            nextCursor: null,
+            source: 'database',
+            dealCount: deals.length,
+            closedCount: 0,
+            message:
+              'Live broker history was empty; showing synced database trades.',
+          });
+        }
         const page = closedRows.slice(0, limit);
         return json({
           rows: page,

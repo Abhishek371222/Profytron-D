@@ -21,6 +21,8 @@ import { CopyBridgeModule } from '../copy-bridge/copy-bridge.module';
 import { WalletModule } from '../wallet/wallet.module';
 import { ProfitShareService } from './profit-share.service';
 import { SyncModule } from '../sync/sync.module';
+import { TrialLifecycleService } from './trial-lifecycle.service';
+import { AgentsModule } from '../agents/agents.module';
 
 @Module({
   imports: [
@@ -32,6 +34,7 @@ import { SyncModule } from '../sync/sync.module';
     AiRiskModule,
     CopyBridgeModule,
     WalletModule,
+    AgentsModule,
     BullModule.registerQueue(
       {
         name: 'trade_execution',
@@ -59,6 +62,7 @@ import { SyncModule } from '../sync/sync.module';
     CopyFactoryPositionSyncService,
     BotTradeSyncService,
     ProfitShareService,
+    TrialLifecycleService,
   ],
   exports: [
     TradingService,
@@ -69,6 +73,7 @@ import { SyncModule } from '../sync/sync.module';
     TrailingStopService,
     BotTradeSyncService,
     ProfitShareService,
+    TrialLifecycleService,
   ],
 })
 export class TradingModule {}

@@ -271,6 +271,7 @@ model User {
   isActive            Boolean          @default(true)
   isSuspended         Boolean          @default(false)
   onboardingCompleted Boolean          @default(false)
+  hasUsedPlatformTrial Boolean         @default(false)
   lastLoginAt         DateTime?
   deletedAt           DateTime?
   createdAt           DateTime         @default(now())
@@ -1338,9 +1339,16 @@ model UserSubscription {
   cancelledAt   DateTime?
   nextBillingAt DateTime?
 
+  isTrial                 Boolean   @default(false)
+  trialStartedAt          DateTime?
+  trialEndsAt             DateTime?
+  trialConvertedAt        DateTime?
+  trialConversionFailedAt DateTime?
+
   @@unique([userId, planId])
   @@index([planId])
   @@index([status, expiresAt])
+  @@index([isTrial, trialEndsAt])
 }
 
 // ===== SOCIAL TRADING =====

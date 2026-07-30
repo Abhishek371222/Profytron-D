@@ -377,6 +377,7 @@ export function useDashboardModel(chartRange: keyof typeof RANGE_MAP = '1M') {
   const portfolio = !hasBrokerAccount
     ? undefined
     : portfolioQuery.data?.source === 'metaapi' ||
+        portfolioQuery.data?.source === 'database' ||
         portfolioQuery.data?.source === 'empty'
       ? portfolioQuery.data
       : undefined;

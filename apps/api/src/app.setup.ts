@@ -4,7 +4,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AuditTimingInterceptor } from './common/interceptors/audit-timing.interceptor';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import express, { NextFunction, Request, Response } from 'express';
@@ -138,11 +137,7 @@ export function configureApp(app: INestApplication) {
   app.useGlobalFilters(
     new AllExceptionsFilter({ httpAdapter: app.getHttpAdapter() } as any),
   );
-  const interceptors: any[] = [new SentryInterceptor(), new TransformInterceptor()];
-  if (process.env.API_AUDIT_TIMING === '1') {
-    interceptors.push(new AuditTimingInterceptor());
-  }
-  app.useGlobalInterceptors(...interceptors);
+  app.useGlobalInterceptors(new SentryInterceptor(), new TransformInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

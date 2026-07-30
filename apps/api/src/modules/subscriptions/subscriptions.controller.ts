@@ -5,8 +5,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
 import { PaymentsService } from '../payments/payments.service';
+import { CheckoutSubscriptionDto, StartTrialDto } from './dto/subscriptions.dto';
 
 @ApiTags('Subscriptions')
 @Controller('subscriptions')
@@ -36,13 +38,30 @@ export class SubscriptionsController {
   @ApiResponse({ status: 201, description: 'Order created' })
   checkout(
     @Req() req: { user: { userId: string } },
-    @Body()
-    body: { planId: string; billingCycle?: 'MONTHLY' | 'ANNUAL' },
+    @Body() body: CheckoutSubscriptionDto,
   ) {
     return this.paymentsService.createPlatformPlanOrder(
       req.user.userId,
       body.planId,
       body.billingCycle ?? 'MONTHLY',
+    );
+  }
+
+  @Post('trial/start')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Throttle({ default: { ttl: 3600000, limit: 3 } })
+  @ApiOperation({
+    summary: 'Start a 7-day free trial of a Starter/Pro platform plan',
+  })
+  @ApiResponse({ status: 201, description: 'Trial started' })
+  startTrial(
+    @Req() req: { user: { userId: string } },
+    @Body() body: StartTrialDto,
+  ) {
+    return this.paymentsService.startPlatformTrial(
+      req.user.userId,
+      body.planId,
     );
   }
 

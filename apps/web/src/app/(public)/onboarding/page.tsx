@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 
 export default function OnboardingWelcomePage() {
   return (
-    <div className="relative min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
+    <div className="animate-page-in relative min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
       <LandingAmbientBackground />
       <div className="relative z-10 w-full max-w-lg dashboard-card p-8 sm:p-10 space-y-6 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-primary/5 px-3 py-1 text-caption font-medium text-primary">

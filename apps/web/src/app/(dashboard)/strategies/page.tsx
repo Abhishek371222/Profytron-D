@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { strategiesApi, type Strategy } from '@/lib/api/strategies';
 import { useQuery } from '@tanstack/react-query';
@@ -242,12 +243,12 @@ export default function StrategiesPage() {
                 Reset filters
               </button>
             )}
-            <a
+            <Link
               href="/marketplace"
               className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
             >
               Browse marketplace
-            </a>
+            </Link>
           </div>
         </div>
       ) : (

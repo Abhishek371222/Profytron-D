@@ -158,6 +158,7 @@ export class UsersService {
         isActive: true,
         isSuspended: true,
         onboardingCompleted: true,
+        hasUsedPlatformTrial: true,
         lastLoginAt: true,
         deletedAt: true,
         createdAt: true,

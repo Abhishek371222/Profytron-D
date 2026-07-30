@@ -9,9 +9,12 @@ import { CheckCircle2, CreditCard, History, Zap } from '@/components/ui/icons';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { subscriptionsApi, type SubscriptionPlan } from '@/lib/api/subscriptions';
 import { RazorpaySubscriptionButton } from '@/components/payments/RazorpaySubscriptionButton';
+import { StartTrialButton } from '@/components/payments/StartTrialButton';
+import { TrialStatusBanner } from '@/components/dashboard/TrialStatusBanner';
 import { formatInr } from '@/lib/pricing/plans';
 import { trackEvent, ACTIVATION_EVENTS } from '@/lib/analytics/track';
 import { SettingsSection } from '@/components/settings/SettingsUi';
+import { useAuthStore } from '@/lib/stores/useAuthStore';
 import {
   Dialog,
   DialogContent,
@@ -29,10 +32,12 @@ function parseFeatures(features: SubscriptionPlan['features']): string[] {
 
 export default function BillingPage() {
   const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
   const [billingCycle, setBillingCycle] = React.useState<'MONTHLY' | 'ANNUAL'>(
     'MONTHLY',
   );
   const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false);
+  const [trialBannerDismissed, setTrialBannerDismissed] = React.useState(false);
 
   const plansQuery = useQuery({
     queryKey: ['subscription-plans'],
@@ -73,9 +78,28 @@ export default function BillingPage() {
     void queryClient.invalidateQueries({ queryKey: ['subscription-payments'] });
   };
 
+  const isTrialing =
+    Boolean(current?.isTrial) &&
+    !current?.trialConvertedAt &&
+    current?.status === 'ACTIVE';
+
   return (
     <div className="space-y-6 pb-20">
+      {isTrialing && !trialBannerDismissed && current?.trialEndsAt && (
+        <TrialStatusBanner
+          planName={activePlanName ?? 'Trial'}
+          trialEndsAt={current.trialEndsAt}
+          onUpgrade={() => {
+            document
+              .getElementById('billing-plans')
+              ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+          onDismiss={() => setTrialBannerDismissed(true)}
+        />
+      )}
+
       <motion.section
+        id="billing-plans"
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
@@ -189,6 +213,23 @@ export default function BillingPage() {
                       Continue on Free
                     </Link>
                   )
+                ) : plan.trialEligible &&
+                  !isActive &&
+                  !user?.hasUsedPlatformTrial &&
+                  !current ? (
+                  <StartTrialButton
+                    planId={plan.id}
+                    planName={plan.name}
+                    className="w-full"
+                    onSuccess={() => {
+                      trackEvent(ACTIVATION_EVENTS.PLAN_SELECTED, {
+                        planId: plan.id,
+                        planName: plan.name,
+                        trial: true,
+                      });
+                      refreshBilling();
+                    }}
+                  />
                 ) : (
                   <RazorpaySubscriptionButton
                     planId={plan.id}

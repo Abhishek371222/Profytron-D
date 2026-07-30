@@ -36,6 +36,7 @@ It includes a Next.js web app, a NestJS API, Python microservices for AI and bac
 | Doc | Purpose |
 |-----|---------|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System topology and package map |
+| [docs/LOCAL_DATABASE.md](docs/LOCAL_DATABASE.md) | Local Neon / Docker vs production Cloud SQL |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deploy entry points |
 | [docs/RUNBOOK.md](docs/RUNBOOK.md) | Production operations |
 | [docs/API_REFERENCE.md](docs/API_REFERENCE.md) | API docs entry points |
@@ -78,6 +79,8 @@ Minimum expected web envs:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 ### 3) Prepare database
+
+Configure `DATABASE_URL` / `DIRECT_URL` in `apps/api/.env` first (Neon **or** Docker Postgres — see [docs/LOCAL_DATABASE.md](docs/LOCAL_DATABASE.md)). For Neon, `DIRECT_URL` must be the **non-pooler** host.
 
 ```bash
 pnpm db:migrate

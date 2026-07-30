@@ -16,6 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { VpsService } from './vps.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateBotInstanceDto, CreateVpsDto } from './dto/vps.dto';
 
 @ApiTags('VPS')
 @ApiBearerAuth()
@@ -38,7 +39,7 @@ export class VpsController {
   @ApiResponse({ status: 201, description: 'Created' })
   createVps(
     @Req() req: any,
-    @Body() body: { provider: string; cpuCores?: number; memoryGb?: number },
+    @Body() body: CreateVpsDto,
   ) {
     return this.vpsService.createVpsAccount(req.user.id, body.provider, body);
   }
@@ -76,7 +77,7 @@ export class VpsController {
   @ApiResponse({ status: 201, description: 'Created' })
   createBot(
     @Param('id') id: string,
-    @Body() body: { strategyId: string; name: string },
+    @Body() body: CreateBotInstanceDto,
   ) {
     return this.vpsService.createBotInstance(id, body.strategyId, body.name);
   }

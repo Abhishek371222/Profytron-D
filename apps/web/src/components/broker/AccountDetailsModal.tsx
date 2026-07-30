@@ -77,6 +77,7 @@ export function AccountDetailsModal({
 }: Props) {
   const [testing, setTesting] = React.useState(false);
   const [testResult, setTestResult] = React.useState<{ connected: boolean; error?: string } | null>(null);
+  const modal = useModalMotionProps();
 
   React.useEffect(() => {
     setTestResult(null);
@@ -102,8 +103,6 @@ export function AccountDetailsModal({
       setTesting(false);
     }
   };
-
-  const modal = useModalMotionProps();
 
   return (
     <AnimatePresence>

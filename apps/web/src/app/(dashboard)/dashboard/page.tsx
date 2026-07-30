@@ -315,7 +315,7 @@ export default function DashboardPage() {
 
   return (
     <div
-      className="space-y-2.5 pb-5 sm:space-y-3"
+      className="animate-page-in space-y-2.5 pb-5 sm:space-y-3"
       suppressHydrationWarning
       data-tour="dashboard-overview"
     >

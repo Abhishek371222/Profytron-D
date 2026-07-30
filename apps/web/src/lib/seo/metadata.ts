@@ -70,6 +70,11 @@ export function buildPageMetadata({
           width: 1200,
           height: 630,
           alt: ogImageAlt,
+          type: ogImage.endsWith('.webp')
+            ? 'image/webp'
+            : ogImage.endsWith('.avif')
+              ? 'image/avif'
+              : undefined,
         },
       ],
       ...(type === 'article' && publishedTime

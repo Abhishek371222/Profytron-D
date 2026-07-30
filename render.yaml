@@ -21,7 +21,9 @@ services:
     plan: free
     region: oregon
     healthCheckPath: /health
-    autoDeployTrigger: commit
+    # Production is GCP Cloud Run — keep this Blueprint for emergency fallback only.
+    # Leaving auto-deploy on floods Render emails/builds on every main push.
+    autoDeployTrigger: off
     envVars:
       # --- Runtime ---
       - key: NODE_ENV

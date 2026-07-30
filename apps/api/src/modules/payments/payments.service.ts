@@ -1399,7 +1399,13 @@ export class PaymentsService {
     });
     const result =
       plans.length > 0
-        ? plans
+        ? plans.map((row) => ({
+            ...row,
+            trialEligible:
+              PLATFORM_PLANS.find(
+                (p) => p.name.toLowerCase() === row.name.toLowerCase(),
+              )?.trialEligible ?? false,
+          }))
         : PLATFORM_PLANS.filter((p) => p.monthlyPrice >= 0).map((p) => ({
             id: p.slug,
             name: p.name,
@@ -1410,6 +1416,7 @@ export class PaymentsService {
             maxStrategies: p.maxStrategies,
             maxCopyTrades: p.maxCopyTrades,
             prioritySupport: p.prioritySupport,
+            trialEligible: p.trialEligible,
           }));
 
     try {
@@ -1500,6 +1507,148 @@ export class PaymentsService {
     return 'FREE';
   }
 
+  /**
+   * Grants a 7-day, no-payment trial of a Starter/Pro-equivalent plan.
+   * No gateway call is made — entitlement is granted directly and reclaimed
+   * by the existing expirePlatformSubscriptions() cron once expiresAt passes.
+   */
+  async startPlatformTrial(userId: string, planId: string) {
+    if (process.env.PLATFORM_TRIALS_ENABLED === 'false') {
+      throw new ForbiddenException('Free trials are currently unavailable.');
+    }
+
+    const plan = await this.prisma.subscriptionPlan.findFirst({
+      where: { OR: [{ id: planId }, { name: planId }] },
+    });
+    if (!plan) {
+      throw new BadRequestException('Invalid subscription plan');
+    }
+
+    const planConfig = PLATFORM_PLANS.find(
+      (p) => p.name.toLowerCase() === plan.name.toLowerCase(),
+    );
+    if (!planConfig?.trialEligible) {
+      throw new BadRequestException(
+        'This plan is not eligible for a free trial',
+      );
+    }
+
+    const now = new Date();
+    const trialEndsAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    // Everything that decides eligibility AND writes the result must happen
+    // inside one transaction, behind a row lock on this user, so concurrent
+    // trial-start requests for the same user serialize instead of racing:
+    // the second request only proceeds past FOR UPDATE once the first has
+    // committed (or rolled back), and then re-reads the now-current state.
+    const { sub: subscription, user } = await this.prisma.$transaction(
+      async (tx) => {
+        await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+
+        const lockedUser = await tx.user.findUnique({
+          where: { id: userId },
+          select: {
+            email: true,
+            fullName: true,
+            emailVerified: true,
+            hasUsedPlatformTrial: true,
+          },
+        });
+        if (!lockedUser) {
+          throw new NotFoundException('User not found');
+        }
+        if (!lockedUser.emailVerified) {
+          throw new ForbiddenException(
+            'Please verify your email before starting a trial.',
+          );
+        }
+        if (lockedUser.hasUsedPlatformTrial) {
+          throw new ForbiddenException(
+            'You have already used your free trial.',
+          );
+        }
+
+        const existingActive = await tx.userSubscription.findFirst({
+          where: { userId, status: 'ACTIVE' },
+        });
+        if (existingActive) {
+          throw new ForbiddenException(
+            'You already have an active subscription.',
+          );
+        }
+
+        const sub = await tx.userSubscription.upsert({
+          where: { userId_planId: { userId, planId: plan.id } },
+          create: {
+            userId,
+            planId: plan.id,
+            status: 'ACTIVE',
+            billingCycle: 'MONTHLY',
+            autoRenewal: false,
+            subscribedAt: now,
+            expiresAt: trialEndsAt,
+            isTrial: true,
+            trialStartedAt: now,
+            trialEndsAt,
+          },
+          update: {
+            status: 'ACTIVE',
+            billingCycle: 'MONTHLY',
+            autoRenewal: false,
+            subscribedAt: now,
+            expiresAt: trialEndsAt,
+            cancelledAt: null,
+            isTrial: true,
+            trialStartedAt: now,
+            trialEndsAt,
+          },
+        });
+
+        await tx.user.update({
+          where: { id: userId },
+          data: {
+            subscriptionTier: this.tierFromPlanName(plan.name),
+            hasUsedPlatformTrial: true,
+          },
+        });
+
+        return { sub, user: lockedUser };
+      },
+      // A burst of concurrent requests for the same user serializes behind
+      // the row lock above; Prisma's 5s default interactive-transaction
+      // timeout can be exceeded purely by queueing (confirmed under a
+      // 10-concurrent-request live test), which would otherwise surface as
+      // a raw 500 instead of a clean rejection. 10s gives comfortable
+      // headroom without letting a genuinely stuck transaction hang long.
+      { timeout: 10000 },
+    );
+
+    await this.notifications
+      .create(
+        userId,
+        'Trial Started',
+        `Your ${plan.name} trial is active for 7 days — no payment required.`,
+        'SUCCESS',
+        '/settings/billing',
+      )
+      .catch(() => undefined);
+
+    await this.emailService
+      .sendTrialStartedEmail(user.email, user.fullName, plan.name, trialEndsAt, userId)
+      .catch(() => undefined);
+
+    void this.agentEvents.emit({
+      type: AGENT_EVENTS.TRIAL_STARTED,
+      entityType: 'subscription',
+      entityId: subscription.id,
+      userId,
+      payload: { planId: plan.id, planName: plan.name, trialEndsAt: trialEndsAt.toISOString() },
+      idempotencyKey: `trial-started:${subscription.id}`,
+    });
+
+    return subscription;
+  }
+
   private async activatePlatformSubscriptionFromPayment(
     userId: string,
     planId: string,
@@ -1566,7 +1715,19 @@ export class PaymentsService {
       expiresAt.setMonth(expiresAt.getMonth() + 1);
     }
 
-    await this.prisma.userSubscription.upsert({
+    // Fix #1: stamp trialConvertedAt exactly once when the plan being paid
+    // for is the same one the user was trialing.
+    const samePlanTrial = priorActive.find(
+      (s) => s.planId === planId && s.isTrial && !s.trialConvertedAt,
+    );
+
+    // Fix #2: a trial on a DIFFERENT plan must be superseded so only one
+    // ACTIVE row remains, instead of coexisting with the newly paid plan.
+    const otherPlanTrial = priorActive.find(
+      (s) => s.planId !== planId && s.isTrial && !s.trialConvertedAt,
+    );
+
+    const upsertOp = this.prisma.userSubscription.upsert({
       where: { userId_planId: { userId, planId } },
       create: {
         userId,
@@ -1584,8 +1745,27 @@ export class PaymentsService {
         expiresAt,
         nextBillingAt: expiresAt,
         cancelledAt: null,
+        ...(samePlanTrial
+          ? { isTrial: false, trialEndsAt: null, trialConvertedAt: new Date() }
+          : {}),
       },
     });
+
+    if (otherPlanTrial) {
+      await this.prisma.$transaction([
+        upsertOp,
+        this.prisma.userSubscription.update({
+          where: { id: otherPlanTrial.id },
+          data: {
+            status: 'CANCELLED',
+            cancelledAt: new Date(),
+            trialConvertedAt: new Date(),
+          },
+        }),
+      ]);
+    } else {
+      await upsertOp;
+    }
 
     await this.prisma.user.update({
       where: { id: userId },

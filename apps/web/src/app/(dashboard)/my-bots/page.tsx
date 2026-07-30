@@ -253,7 +253,7 @@ export default function MyBotsPage() {
   const addTileCount = filtered.length > 0 && filtered.length < 3 ? 3 - filtered.length : filtered.length === 0 ? 0 : 1;
 
   return (
-    <div className="space-y-6 pb-8" data-tour="my-bots-overview">
+    <div className="animate-page-in space-y-6 pb-8" data-tour="my-bots-overview">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-[14px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary shadow-[0_4px_16px_color-mix(in_srgb,var(--primary)_8%,transparent)]">

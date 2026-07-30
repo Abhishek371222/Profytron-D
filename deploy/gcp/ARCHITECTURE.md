@@ -97,9 +97,11 @@ flowchart TB
 |----------|--------|--------|
 | Memorystore `profytron-redis` | READY | BASIC 1GB, host `10.116.11.163:6379` |
 | VPC connector `profytron-connector` | READY | `10.8.0.0/28` on `default` network |
-| Cloud SQL `profytron` | RUNNABLE | **POSTGRES_18 / db-perf-optimized-N-8 / 100GB / public IP / backups disabled / SSL not required** |
-| Cloud SQL `profytron-postgres` | RUNNABLE | POSTGRES_17 / db-custom-1-3840 / private IP / 10GB — matches `provision-cloudsql.sh` |
-| Neon | External | Still referenced by app secrets / Prisma (`DATABASE_URL` with `-pooler`) |
+| Cloud SQL `profytron-postgres` | **Production DB** | POSTGRES_17 / private IP / backups ON — Cloud Run `DATABASE_URL` target |
+| Cloud SQL `profytron` | STOPPED | Public ENTERPRISE_PLUS instance stopped (Day 4); do not use |
+| Neon | **Local / historical** | Still used in developer `.env` templates; **not** production as of Day 4+ verification |
+
+See also: `docs/LOCAL_DATABASE.md`, `docs/audits/day4-cloudsql-and-secret-rotation-2026-07-23.md`.
 
 ### Identity & secrets
 
@@ -231,14 +233,20 @@ Full CLI runbooks: [`RUNBOOKS.md`](./RUNBOOKS.md)
 cd deploy\gcp\terraform; terraform init; terraform plan
 ```
 
-## 9. Decision required before more infra spend
+## 9. Database source of truth (resolved)
 
-**Pick one database source of truth**, then stop/delete the other Cloud SQL instance:
+**Production:** Cloud SQL `profytron-postgres` (private). Confirmed via Cloud Run Prisma logs (`10.88.0.3`).
 
-| Option | Pros | Cons |
-|--------|------|------|
-| Keep **Neon** | Already in Prisma secrets; managed pooling | Dual-cloud ops |
-| Keep **`profytron-postgres`** (private) | VPC-native; matches provision scripts | Migration + cutover |
-| Keep **`profytron`** (N-8 public) | Powerful | Highest cost; public IP; backups off |
+**Local:** Neon and/or Docker Postgres — see `docs/LOCAL_DATABASE.md`. Cloud SQL Auth Proxy is optional for prod-parity only.
 
-Do **not** `terraform apply` Cloud SQL until this is decided.
+**Stopped:** public Cloud SQL `profytron` (Day 4). Do not re-enable without a new cost/security review.
+
+Historical “pick Neon vs Cloud SQL” rows below are superseded:
+
+| Option | Status |
+|--------|--------|
+| Neon as production | **No** — local/historical only |
+| `profytron-postgres` (private) | **Yes — production** |
+| `profytron` (N-8 public) | **Stopped** — do not use |
+
+Do **not** `terraform apply` a new Cloud SQL instance without an explicit new decision.

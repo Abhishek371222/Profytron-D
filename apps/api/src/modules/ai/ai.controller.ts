@@ -10,6 +10,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { AIService } from './ai.service';
 import { ExplainTradeDto } from './dto/explain-trade.dto';
+import { ChatDto } from './dto/chat.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   ApiTags,
@@ -62,7 +63,7 @@ export class AIController {
   @Post('chat')
   async chat(
     @Req() req: AuthenticatedRequest,
-    @Body() body: { message: string; context?: string },
+    @Body() body: ChatDto,
   ) {
     return this.aiService.chat(req.user.id, body);
   }

@@ -32,10 +32,11 @@ export function oauthLoginErrorCode(exception: unknown): string {
 }
 
 export function resolveFrontendUrl(): string {
-  const raw = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(
-    /\/$/,
-    '',
-  );
+  // Strip BOM / whitespace that can sneak in via secret uploads (PowerShell).
+  const raw = (process.env.FRONTEND_URL || 'http://localhost:3000')
+    .replace(/^\uFEFF/, '')
+    .trim()
+    .replace(/\/$/, '');
   try {
     const url = new URL(raw);
     if (url.hostname === 'profytron.com') {

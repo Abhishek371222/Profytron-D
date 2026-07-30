@@ -19,6 +19,7 @@ import { TradingJournalService } from './trading-journal.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   CreateJournalEntryDto,
+  RateEntryDto,
   UpdateJournalEntryDto,
 } from './dto/journal.dto';
 
@@ -82,7 +83,7 @@ export class JournalController {
   rateEntry(
     @Req() req: any,
     @Param('id') id: string,
-    @Body() body: { rating: number },
+    @Body() body: RateEntryDto,
   ) {
     return this.journalService.rateEntry(id, req.user.id, body.rating);
   }

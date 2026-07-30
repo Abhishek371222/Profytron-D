@@ -58,10 +58,11 @@ export const metadata: Metadata = {
       "Copy top strategies, deploy AI-powered trading bots, and grow your portfolio with institutional-grade tools. Join 5,000+ traders on Profytron.",
     images: [
       {
-        url: "/hero/hero-trading-3d.png",
+        url: "/hero/hero-trading-3d.webp",
         width: 1200,
         height: 630,
         alt: "Profytron trading dashboard showing AI analytics and live portfolio",
+        type: "image/webp",
       },
     ],
     locale: "en_IN",
@@ -73,7 +74,7 @@ export const metadata: Metadata = {
     title: "Profytron — Algo Trading Platform",
     description:
       "AI-powered copy trading, strategy marketplace, and portfolio analytics for Indian traders.",
-    images: ["/hero/hero-trading-3d.png"],
+    images: ["/hero/hero-trading-3d.webp"],
   },
   keywords: [
     "algorithmic trading India",

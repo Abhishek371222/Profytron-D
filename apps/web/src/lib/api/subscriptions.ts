@@ -10,6 +10,7 @@ export type SubscriptionPlan = {
   maxStrategies: number;
   maxCopyTrades: number;
   prioritySupport: boolean;
+  trialEligible?: boolean;
 };
 
 export const subscriptionsApi = {
@@ -34,6 +35,11 @@ export const subscriptionsApi = {
       currency: string;
       keyId: string;
     }>(res.data);
+  },
+
+  async startTrial(planId: string) {
+    const res = await apiClient.post('/subscriptions/trial/start', { planId });
+    return unwrapApiResponse<any>(res.data);
   },
 
   async cancel() {

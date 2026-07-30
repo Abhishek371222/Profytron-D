@@ -61,7 +61,7 @@ function buildSchema(props: JsonLdProps): object | null {
           width: 512,
           height: 512,
         },
-        image: `${SITE_URL}/hero/hero-trading-3d.png`,
+        image: `${SITE_URL}/hero/hero-trading-3d.webp`,
         description:
           'Institutional-grade algorithmic trading platform with AI coaching, copy trading, strategy marketplace, and real-time analytics for Indian traders.',
         foundingDate: '2024',
@@ -134,7 +134,7 @@ function buildSchema(props: JsonLdProps): object | null {
         '@id': `${SITE_URL}/pricing#product`,
         name: 'Profytron Trading Platform',
         url: `${SITE_URL}/pricing`,
-        image: `${SITE_URL}/hero/hero-trading-3d.png`,
+        image: `${SITE_URL}/hero/hero-trading-3d.webp`,
         category: 'Algorithmic trading software',
         description:
           'SaaS algorithmic trading platform with copy trading, AI risk management, and strategy marketplace.',
@@ -246,7 +246,7 @@ function buildSchema(props: JsonLdProps): object | null {
             ? `${SITE_URL}${article.path.startsWith('/') ? article.path : `/${article.path}`}`
             : `${SITE_URL}/blog/${article.slug}`,
         },
-        image: `${SITE_URL}/hero/hero-trading-3d.png`,
+        image: `${SITE_URL}/hero/hero-trading-3d.webp`,
         timeRequired: article.readTime,
       };
 

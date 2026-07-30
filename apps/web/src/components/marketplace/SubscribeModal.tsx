@@ -51,6 +51,8 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [isProvisioning, setIsProvisioning] = React.useState(false);
+  const modal = useModalMotionProps();
+  const panelTransition = motionPresets.modal();
 
   React.useEffect(() => setMounted(true), []);
 
@@ -218,9 +220,6 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
       setIsSubmitting(false);
     }
   };
-
-  const modal = useModalMotionProps();
-  const panelTransition = motionPresets.modal();
 
   return createPortal(
     <AnimatePresence>
