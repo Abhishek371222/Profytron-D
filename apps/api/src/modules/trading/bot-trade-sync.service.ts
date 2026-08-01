@@ -202,7 +202,17 @@ export class BotTradeSyncService implements OnModuleDestroy {
       const now = Date.now();
       for (const [brokerAccountId, group] of byAccount) {
         const last = this.lastPolledAt.get(brokerAccountId) ?? 0;
-        if (now - last < this.minPollIntervalMs) continue;
+        const fails = this.consecutiveFailures.get(brokerAccountId) ?? 0;
+        // A chronically-broken account (10+ consecutive failures, e.g. a stale
+        // metaApiAccountId) is backed off to a slow 10-minute cadence instead of
+        // the normal ~12s tick, so it stops burning the shared MetaAPI rate-limit
+        // budget every cycle. It still retries (never permanently skipped), so a
+        // reconnected/fixed account recovers automatically on its next slow tick.
+        const effectiveIntervalMs =
+          fails >= 10
+            ? Math.max(this.minPollIntervalMs, 600_000)
+            : this.minPollIntervalMs;
+        if (now - last < effectiveIntervalMs) continue;
         this.lastPolledAt.set(brokerAccountId, now);
         try {
           await this.syncBrokerAccount({
