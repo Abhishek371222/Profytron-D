@@ -32,8 +32,8 @@ export function DashboardClock() {
 
   return (
     <div className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--card-border)] bg-card px-2.5 py-1 text-[11px] tabular-nums text-muted-foreground">
-      <span className="inline-flex items-center gap-1 font-medium text-foreground">
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
+      <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+        <span className="landing-live-dot" aria-hidden />
         Live
       </span>
       <Mt5SyncBadge />

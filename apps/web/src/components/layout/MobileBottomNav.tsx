@@ -49,17 +49,16 @@ export function MobileBottomNav() {
                 {isActive && (
                   <motion.div
                     layoutId="mobile-nav-bar"
-                    className="absolute top-0 inset-x-3 h-[2px] rounded-b-full bg-gradient-to-r from-[var(--primary)] to-[var(--secondary)]"
-                    style={{ boxShadow: '0 0 10px color-mix(in srgb, var(--primary) 55%, transparent)' }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                    className="absolute top-0 inset-x-3 h-[2px] rounded-b-sm bg-primary"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
                   />
                 )}
 
                 {isActive && (
                   <motion.div
                     layoutId="mobile-nav-bg"
-                    className="absolute inset-x-0.5 inset-y-1 rounded-lg bg-primary/10 border border-primary/15"
-                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                    className="absolute inset-x-0.5 inset-y-1 rounded-lg border border-primary/20 bg-primary/10"
+                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
                   />
                 )}
 

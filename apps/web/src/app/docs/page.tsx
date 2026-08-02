@@ -37,6 +37,7 @@ export default function DocsPage() {
         title="Build with"
         titleAccent="Precision."
         description="Complete guides, API reference, and architecture documentation for integrating with the Profytron platform."
+        sceneKey="heroTrading"
       />
 
       <MarketingSection>

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -137,6 +138,15 @@ export default function CopyTradingPage() {
         description="Buy a bot plan, connect your MT5 broker, and live execution runs automatically."
         icon={Zap}
       />
+
+      <p className="-mt-2 text-xs text-muted-foreground">
+        Copy trading mirrors eligible trades from your chosen strategy into your connected broker account, subject to
+        execution delay and the risk settings you choose. Read the{' '}
+        <Link href="/risk-disclosure" className="underline decoration-dotted underline-offset-2 hover:text-foreground">
+          risk disclosure
+        </Link>{' '}
+        before subscribing.
+      </p>
 
       {hasConnectedBroker && (
         <BrokerAccountsPanel

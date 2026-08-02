@@ -60,6 +60,7 @@ export default function CookiePolicyPage() {
             <span>Last updated: April 12, 2026</span>
           </div>
         }
+        sceneKey="heroTrading"
       />
 
       <MarketingSection narrow>

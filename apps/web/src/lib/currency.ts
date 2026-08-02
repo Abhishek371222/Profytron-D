@@ -33,23 +33,88 @@ export const CURRENCY_MAP: Record<string, CurrencyInfo> = {
   KR: { code: 'KRW', symbol: '₩', locale: 'ko-KR', rate: 1325 },
 };
 
-export const DEFAULT_CURRENCY: CurrencyInfo = { code: 'USD', symbol: '$', locale: 'en-US', rate: 1 };
+export const DEFAULT_CURRENCY: CurrencyInfo = {
+  code: 'USD',
+  symbol: '$',
+  locale: 'en-US',
+  rate: 1,
+};
 
-export function formatWalletAmount(amount: number, currency: string): string {
-  const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : `${currency} `;
-  return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const LOCALE_BY_CODE: Record<string, string> = {
+  INR: 'en-IN',
+  USD: 'en-US',
+  EUR: 'de-DE',
+  GBP: 'en-GB',
+  AED: 'ar-AE',
+  SGD: 'en-SG',
+  AUD: 'en-AU',
+  CAD: 'en-CA',
+  JPY: 'ja-JP',
+  PKR: 'en-PK',
+  BDT: 'en-BD',
+  NGN: 'en-NG',
+  ZAR: 'en-ZA',
+  BRL: 'pt-BR',
+  MXN: 'es-MX',
+  SAR: 'ar-SA',
+  MYR: 'ms-MY',
+  THB: 'th-TH',
+  IDR: 'id-ID',
+  PHP: 'en-PH',
+  KRW: 'ko-KR',
+};
+
+/** Shared money formatter for billing, wallet, marketplace. */
+export function formatMoney(
+  amount: number,
+  currency = 'INR',
+  options?: { fractionDigits?: number; freeLabel?: string },
+): string {
+  if (!Number.isFinite(amount)) return '—';
+  if (amount < 0 && currency === 'INR') return 'Custom';
+  if (amount === 0 && options?.freeLabel) return options.freeLabel;
+
+  const code = (currency || 'INR').toUpperCase();
+  const locale = LOCALE_BY_CODE[code] ?? 'en-IN';
+  const zeroFraction = code === 'JPY' || code === 'IDR' || code === 'KRW';
+  const digits =
+    options?.fractionDigits ??
+    (zeroFraction ? 0 : code === 'INR' ? 2 : 2);
+
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: code,
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    }).format(amount);
+  } catch {
+    const symbol = code === 'INR' ? '₹' : code === 'USD' ? '$' : `${code} `;
+    return `${symbol}${amount.toLocaleString(locale, {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    })}`;
+  }
 }
 
+/** @deprecated Prefer formatMoney — kept for wallet callers. */
+export function formatWalletAmount(amount: number, currency: string): string {
+  return formatMoney(amount, currency, { fractionDigits: 2 });
+}
+
+/**
+ * INR display for marketing and plan cards.
+ * zero → Free, negative → Custom (enterprise).
+ */
+export function formatInr(amount: number) {
+  if (amount < 0) return 'Custom';
+  if (amount === 0) return 'Free';
+  return formatMoney(amount, 'INR', { fractionDigits: 0 });
+}
+
+/** Convert USD list price into local display using CURRENCY_MAP rates. */
 export function formatPrice(usdPrice: number, currency: CurrencyInfo): string {
   if (usdPrice === 0) return 'FREE';
   const localPrice = usdPrice * currency.rate;
-  try {
-    return new Intl.NumberFormat(currency.locale, {
-      style: 'currency',
-      currency: currency.code,
-      maximumFractionDigits: currency.code === 'JPY' || currency.code === 'IDR' || currency.code === 'KRW' ? 0 : 0,
-    }).format(localPrice);
-  } catch {
-    return `${currency.symbol}${Math.round(localPrice).toLocaleString()}`;
-  }
+  return formatMoney(localPrice, currency.code, { fractionDigits: 0 });
 }

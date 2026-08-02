@@ -2,6 +2,8 @@
 
 Operational playbook — no architecture change required.
 
+For the per-secret priority/method/downtime/rollback/frequency breakdown of every critical production secret, see [`CRITICAL_SECRET_ROTATION_PLAN.md`](./CRITICAL_SECRET_ROTATION_PLAN.md) (plan only — no secret has been rotated).
+
 ## If a credential may be compromised
 
 1. **Revoke / rotate** at the provider (MetaAPI, Stripe, Razorpay, OAuth, Firebase, Neon, email).  

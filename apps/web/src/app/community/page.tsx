@@ -31,6 +31,7 @@ export default function CommunityPage() {
         title="We're Just"
         titleAccent="Getting Started."
         description="Profytron is brand new. The community is forming right now — which means you get to help shape it from day one. Join early, get direct access to the team, and influence how the platform evolves."
+        sceneKey="productCoach"
       />
 
       <MarketingSection>

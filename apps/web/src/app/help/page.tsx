@@ -23,7 +23,7 @@ const sections = [
     title: 'Billing & Wallet',
     links: [
       { label: 'Plans & pricing', href: '/pricing' },
-      { label: 'Manage subscription', href: '/settings/billing' },
+      { label: 'Manage subscription', href: '/billing' },
       { label: 'Fund wallet (UPI/Razorpay)', href: '/wallet' },
     ],
   },
@@ -48,6 +48,7 @@ export default function HelpPage() {
         title="Quick Answers &"
         titleAccent="Resources."
         description="Quick answers and links for Profytron copy trading, billing, and broker setup."
+        sceneKey="heroTrading"
       />
 
       <MarketingSection narrow className="pb-20">

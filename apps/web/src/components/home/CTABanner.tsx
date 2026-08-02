@@ -12,7 +12,6 @@ import {
   LandingSecondaryLink,
 } from "@/components/home/LandingButtons";
 
-/** WebGL/SVG ambient — not needed for CTA copy/buttons. */
 const HeroAmbientVisual = dynamic(
   () =>
     import("@/components/home/HeroAmbientVisual").then((m) => ({
@@ -32,38 +31,36 @@ export function CTABanner() {
   const { isAuthenticated } = useAuthStore();
 
   return (
-    <section className="landing-section overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: [
-            "radial-gradient(ellipse 70% 50% at 85% 40%, rgba(71,167,170,0.1) 0%, transparent 60%)",
-            "radial-gradient(ellipse 50% 40% at 15% 70%, rgba(30,109,72,0.06) 0%, transparent 55%)",
-          ].join(", "),
-        }}
-      />
+    <section className="landing-section overflow-hidden !py-0">
+      <div className="page-container relative z-10 w-full py-[clamp(3.5rem,7vw,5.5rem)]">
+        <div className="landing-cta-frame relative overflow-hidden rounded-[28px] border border-primary/20 bg-card px-6 py-10 sm:px-10 sm:py-12 lg:px-14 lg:py-14">
+          <div aria-hidden className="landing-cta-frame-glow pointer-events-none absolute inset-0" />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
+          />
 
-      <div className="page-container relative z-10 w-full">
-        <div className="hero-main relative">
-          <div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-14">
+          <div className="relative z-10 grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 28, clipPath: "inset(8% 0 0 0)" }}
+              whileInView={{ opacity: 1, y: 0, clipPath: "inset(0% 0 0 0)" }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               className="w-full min-w-0"
             >
-              <span className="landing-eyebrow mb-6">Built for traders. Designed to scale.</span>
+              <span className="landing-eyebrow mb-6">
+                <span className="landing-live-dot" aria-hidden />
+                Built for traders
+              </span>
 
-              <h2 className="brand-display-heading mb-5 text-3xl sm:text-4xl lg:text-[2.75rem]">
+              <h2 className="brand-display-heading mb-5 text-3xl sm:text-4xl lg:text-[2.85rem]">
                 Ready to trade{" "}
                 <span className="landing-gradient-text">smarter?</span>
               </h2>
 
               <p className="mb-8 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
-                Join thousands of traders using Profytron to automate strategies, manage risk,
-                and track performance in one place.
+                Automate strategies, manage risk, and track performance in one place — with your
+                capital staying at your own broker the whole time.
               </p>
 
               <div className="mb-8 flex flex-col flex-wrap items-stretch gap-3 sm:flex-row sm:items-center">
@@ -82,19 +79,23 @@ export function CTABanner() {
               </div>
 
               <div className="flex flex-col gap-y-2.5 sm:flex-row sm:flex-wrap sm:gap-x-6">
-                {TRUST_POINTS.map((item) => (
-                  <span
+                {TRUST_POINTS.map((item, i) => (
+                  <motion.span
                     key={item}
-                    className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground"
+                    initial={{ opacity: 0, x: -8 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 + i * 0.07, duration: 0.4 }}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-foreground/75"
                   >
-                    <Check className="h-4 w-4 shrink-0 text-[var(--success)]" />
+                    <Check className="h-4 w-4 shrink-0 text-primary" strokeWidth={2.5} />
                     {item}
-                  </span>
+                  </motion.span>
                 ))}
               </div>
             </motion.div>
 
-            <div className="hero-ambient-layer hero-ambient-layer-cta">
+            <div className="hero-ambient-layer hero-ambient-layer-cta relative min-h-[14rem]">
               <HeroAmbientVisual variant="cta" />
             </div>
           </div>

@@ -4,7 +4,7 @@ export const pageSeo = {
   home: buildPageMetadata({
     title: 'Profytron — Algorithmic Trading Platform for Indian Traders',
     description:
-      "Profytron is India's most advanced algorithmic trading platform. Copy top strategies, deploy AI-powered bots, and manage your portfolio with institutional-grade tools. 7-day free trial.",
+      "Profytron is an algorithmic trading platform for Indian traders. Copy top strategies, deploy AI-powered bots, and manage your portfolio with institutional-grade tools. 7-day free trial.",
     path: '/',
     keywords: [
       'algorithmic trading platform India',
@@ -124,6 +124,7 @@ export const pageSeo = {
     description:
       'Create your free Profytron account. 7-day trial on paid plans, paper trading included, no credit card required.',
     path: '/register',
+    noIndex: true,
   }),
   login: buildPageMetadata({
     title: 'Sign In',

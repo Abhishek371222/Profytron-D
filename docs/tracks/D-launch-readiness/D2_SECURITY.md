@@ -20,6 +20,7 @@
 | [`D2_FIRST_PASS.md`](./D2_FIRST_PASS.md) | Scan results + open ops actions |
 | [`CREDENTIAL_INVENTORY.md`](./CREDENTIAL_INVENTORY.md) | Names-only inventory |
 | [`SECRET_ROTATION_PLAYBOOK.md`](./SECRET_ROTATION_PLAYBOOK.md) | Rotate / recover |
+| [`CRITICAL_SECRET_ROTATION_PLAN.md`](./CRITICAL_SECRET_ROTATION_PLAN.md) | Per-secret rotation plan (priority, method, downtime, rollback, frequency) for all critical prod secrets — plan only, nothing rotated yet |
 
 ## Remaining before D2 “closed”
 

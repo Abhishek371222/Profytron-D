@@ -6,6 +6,9 @@ import { ArrowLeft, Loader2, Mail, Sparkles, CheckCircle2, RotateCcw } from 'luc
 import Link from 'next/link';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useRouter } from 'next/navigation';
+import { SceneProvider } from '@/components/3d/SceneProvider';
+import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
+import { AuthBrandScene } from '@/components/3d/AuthBrandScene';
 
 import { Button } from '@/components/ui/button';
 import { CinematicCursor } from '@/components/ui/CinematicCursor';
@@ -90,7 +93,7 @@ export default function VerifyEmailPage() {
       const dest = !response.user?.onboardingCompleted
         ? '/onboarding/risk'
         : response.selectedPlan && response.selectedPlan !== 'free'
-          ? `/settings/billing?plan=${response.selectedPlan}`
+          ? `/billing?plan=${response.selectedPlan}`
           : '/dashboard';
       setTimeout(() => router.push(dest), 1500);
     } catch (error: any) {
@@ -120,7 +123,9 @@ export default function VerifyEmailPage() {
  };
 
  return (
+ <SceneProvider>
  <main className="min-h-screen w-full bg-bg-base overflow-hidden noise relative flex flex-col items-center justify-center p-6">
+ <AmbientDepthBackground variant="auth" position="fixed" />
  <CinematicCursor />
  
  { }
@@ -156,6 +161,7 @@ export default function VerifyEmailPage() {
  <div className="absolute inset-0 noise opacity-20 pointer-events-none" />
  
  <motion.div variants={itemVariants} className="flex flex-col items-center text-center space-y-6 mb-12">
+ <AuthBrandScene className="hidden sm:block mb-2" />
  <div className="relative">
  <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-2xl">
  {isSuccess ? (
@@ -330,5 +336,6 @@ export default function VerifyEmailPage() {
  </div>
  </motion.div>
  </main>
+ </SceneProvider>
  );
 }

@@ -6,7 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 const container = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+    transition: { staggerChildren: 0.09, delayChildren: 0.06 },
   },
 };
 
@@ -17,7 +17,8 @@ const item = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+    filter: "blur(0px)",
+    transition: { type: "spring" as const, stiffness: 380, damping: 28, mass: 0.85 },
   },
 };
 
@@ -49,6 +50,12 @@ export function StaggerFadeUp({
   );
 }
 
-export function StaggerItem({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+export function StaggerItem({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return <div className={className}>{children}</div>;
 }

@@ -8,6 +8,7 @@ import {
 import Stripe from 'stripe';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import PDFDocument from 'pdfkit';
 import { PrismaService } from '../../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { TradingGateway } from '../trading/trading.gateway';
@@ -385,7 +386,14 @@ export class PaymentsService {
       Boolean(isMarketplacePayment) &&
       this.isProfitShareBilling(orderNotes.billingModel);
 
-    if (!isMarketplacePayment || isProfitShareMarketplace) {
+    // Platform plan checkout activates entitlement only — never wallet DEPOSIT.
+    // Marketplace fixed subscriptions do not deposit. Profit-share upfront does.
+    // Wallet top-up (no subscription type notes) deposits.
+    const shouldCreditWallet =
+      isProfitShareMarketplace ||
+      (!isMarketplacePayment && !isPlatformPayment);
+
+    if (shouldCreditWallet) {
       await this.creditWallet(
         creditUserId,
         amountRupees,
@@ -428,7 +436,7 @@ export class PaymentsService {
           profitSharePct: orderNotes.profitSharePct,
         },
       );
-    } else {
+    } else if (shouldCreditWallet) {
       await this.activationService.track(
         creditUserId,
         ACTIVATION_EVENTS.FIRST_WALLET_DEPOSIT,
@@ -445,18 +453,32 @@ export class PaymentsService {
       );
     }
 
-    await this.notifications.create({
-      userId: creditUserId,
-      title: isMarketplacePayment ? 'Payment Received' : 'Deposit Successful',
-      message: isMarketplacePayment
+    const notifyTitle = isPlatformPayment
+      ? 'Subscription Payment Received'
+      : isMarketplacePayment
+        ? 'Payment Received'
+        : 'Deposit Successful';
+    const notifyMessage = isPlatformPayment
+      ? `Your platform subscription payment of ₹${amountRupees.toFixed(2)} was confirmed.`
+      : isMarketplacePayment
         ? isProfitShareMarketplace
           ? `₹${amountRupees.toFixed(2)} was added to your wallet for profit sharing. Bot setup is in progress.`
           : `Your bot subscription payment of ₹${amountRupees.toFixed(2)} was confirmed. Setup is in progress.`
-        : `₹${amountRupees.toFixed(2)} has been added to your wallet.`,
+        : `₹${amountRupees.toFixed(2)} has been added to your wallet.`;
+    const notifyUrl = isPlatformPayment
+      ? '/billing'
+      : isMarketplacePayment
+        ? '/my-bots'
+        : '/wallet';
+
+    await this.notifications.create({
+      userId: creditUserId,
+      title: notifyTitle,
+      message: notifyMessage,
       type: 'SUCCESS',
       category: 'PAYMENT',
       priority: 'HIGH',
-      actionUrl: isMarketplacePayment ? '/my-bots' : '/wallet',
+      actionUrl: notifyUrl,
       sendPush: true,
     });
 
@@ -637,6 +659,11 @@ export class PaymentsService {
               `STRIPE_SUBSCRIPTION_DELETED_CONFLICT: no cancellable subscriptions for stripeSubId ${stripeSub.id} (already modified by another process)`,
             );
           }
+          break;
+        }
+        case 'charge.refunded': {
+          const charge = event.data.object;
+          await this.handleStripeChargeRefunded(charge);
           break;
         }
         default:
@@ -823,14 +850,8 @@ export class PaymentsService {
       });
     }
 
-    if (eventType === 'refund.created' && refundEntity?.notes?.userId) {
-      await this.creditWallet(
-        refundEntity.notes.userId,
-        Number(refundEntity.amount || 0) / 100,
-        'WITHDRAWAL',
-        { source: 'razorpay_refund', refundId: refundEntity.id },
-        `razorpay_refund_${refundEntity.id}`,
-      );
+    if (eventType === 'refund.created' && refundEntity?.id) {
+      await this.handleRazorpayRefundCreated(refundEntity);
     }
 
     if (
@@ -1065,6 +1086,23 @@ export class PaymentsService {
         listing.strategy.name,
       );
       await this.copyFactorySync.enqueueLinkSubscription(subscription.id);
+    }
+
+    // Fixed marketplace purchases get a Payment + Invoice for buyer billing history
+    // (profit-share upfront is walleted separately and is not a line-item invoice here).
+    if (!isProfitShare && paidAmount > 0 && paymentReference) {
+      await this.ensureMarketplacePaymentInvoice({
+        userId,
+        amount: paidAmount,
+        description: `Marketplace: ${listing.strategy.name} (${planType})`,
+        paymentReference,
+        strategyId,
+        currency:
+          typeof stripeObject.currency === 'string'
+            ? stripeObject.currency.toUpperCase()
+            : 'INR',
+        isRazorpay: String(paymentReference).startsWith('pay_'),
+      });
     }
   }
 
@@ -1422,6 +1460,13 @@ export class PaymentsService {
   }
 
   async generateInvoice(paymentId: string) {
+    const existing = await this.prisma.invoice.findUnique({
+      where: { paymentId },
+    });
+    if (existing) {
+      return existing;
+    }
+
     const payment = await this.prisma.payment.findUnique({
       where: { id: paymentId },
     });
@@ -1429,10 +1474,24 @@ export class PaymentsService {
       throw new BadRequestException('Payment not found');
     }
 
-    const invoiceNumber = `INV-${Date.now()}`;
+    // Deterministic unique number — paymentId is unique so collisions are impossible.
+    const compactId = payment.id.replace(/-/g, '').slice(0, 12).toUpperCase();
+    const issued = payment.completedAt ?? payment.createdAt;
+    const ymd = [
+      issued.getUTCFullYear(),
+      String(issued.getUTCMonth() + 1).padStart(2, '0'),
+      String(issued.getUTCDate()).padStart(2, '0'),
+    ].join('');
+    const invoiceNumber = `INV-${ymd}-${compactId}`;
+
     const taxRate = parseFloat(process.env.TAX_RATE || '0.18');
-    const tax = payment.amount * taxRate;
-    const total = payment.amount + tax;
+    const tax = Math.round(payment.amount * taxRate * 100) / 100;
+    const total = Math.round((payment.amount + tax) * 100) / 100;
+
+    const meta =
+      payment.metadataJson && typeof payment.metadataJson === 'object'
+        ? (payment.metadataJson as Record<string, unknown>)
+        : {};
 
     return this.prisma.invoice.create({
       data: {
@@ -1444,10 +1503,20 @@ export class PaymentsService {
         total,
         currency: payment.currency,
         description: payment.description,
+        // Relative download path — PDFs generated on demand (no object storage required)
+        pdfUrl: `/v1/subscriptions/invoices/${paymentId}/download`,
         items: [
           {
             description: payment.description || 'Service',
             amount: payment.amount,
+            taxRate,
+            tax,
+            quantity: 1,
+            currency: payment.currency,
+            paymentId: payment.id,
+            razorpayPaymentId: payment.razorpayPaymentId ?? null,
+            stripePaymentId: payment.stripePaymentId ?? null,
+            ...meta,
           },
         ],
       },
@@ -1780,13 +1849,35 @@ export class PaymentsService {
     });
     if (alreadyRecorded) return;
 
+    const now = new Date();
     const priorActive = await this.prisma.userSubscription.findMany({
       where: { userId, status: 'ACTIVE' },
       include: { plan: true },
     });
-    const isUpgrade = priorActive.some(
-      (s) => s.planId !== planId && s.plan.monthlyPrice < plan.monthlyPrice,
+
+    const priorPaidOther = priorActive.filter(
+      (s) => s.planId !== planId && !s.isTrial,
     );
+    const priorMaxPrice = Math.max(
+      0,
+      ...priorActive.map((s) => s.plan.monthlyPrice),
+    );
+    const isUpgrade =
+      priorPaidOther.length > 0 && plan.monthlyPrice > priorMaxPrice;
+    const isDowngrade =
+      priorPaidOther.length > 0 && plan.monthlyPrice < priorMaxPrice;
+
+    // Basic time proration: unused days on the highest prior paid plan carry forward
+    // (no gateway credit — prepaid one-shot charges the new period amount in full).
+    let remainingMs = 0;
+    for (const prior of priorPaidOther) {
+      if (prior.expiresAt && prior.expiresAt.getTime() > now.getTime()) {
+        remainingMs = Math.max(
+          remainingMs,
+          prior.expiresAt.getTime() - now.getTime(),
+        );
+      }
+    }
 
     let payment: { id: string };
     try {
@@ -1799,6 +1890,16 @@ export class PaymentsService {
           status: 'COMPLETED',
           description: `${plan.name} subscription (${billingCycle})`,
           razorpayPaymentId: paymentRef,
+          completedAt: now,
+          metadataJson: {
+            type: 'platform_subscription',
+            planId,
+            billingCycle,
+            isUpgrade,
+            isDowngrade,
+            carriedForwardMs: remainingMs,
+            replacedPlanIds: priorPaidOther.map((s) => s.planId),
+          },
         },
       });
     } catch (err: unknown) {
@@ -1821,80 +1922,92 @@ export class PaymentsService {
       );
     }
 
-    const expiresAt = new Date();
-    if (billingCycle === 'ANNUAL') {
-      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
-    } else {
-      expiresAt.setMonth(expiresAt.getMonth() + 1);
-    }
+    const periodMs =
+      billingCycle === 'ANNUAL'
+        ? 365 * 24 * 60 * 60 * 1000
+        : 30 * 24 * 60 * 60 * 1000;
+    const expiresAt = new Date(now.getTime() + periodMs + remainingMs);
 
-    // Fix #1: stamp trialConvertedAt exactly once when the plan being paid
-    // for is the same one the user was trialing.
     const samePlanTrial = priorActive.find(
       (s) => s.planId === planId && s.isTrial && !s.trialConvertedAt,
     );
 
-    // Fix #2: a trial on a DIFFERENT plan must be superseded so only one
-    // ACTIVE row remains, instead of coexisting with the newly paid plan.
-    const otherPlanTrial = priorActive.find(
-      (s) => s.planId !== planId && s.isTrial && !s.trialConvertedAt,
-    );
+    // Replace every other ACTIVE platform sub (paid or trial) so only one ACTIVE remains.
+    const othersToCancel = priorActive.filter((s) => s.planId !== planId);
 
-    const upsertOp = this.prisma.userSubscription.upsert({
-      where: { userId_planId: { userId, planId } },
-      create: {
-        userId,
-        planId,
-        paymentId: payment.id,
-        status: 'ACTIVE',
-        billingCycle,
-        // Prepaid period (one-shot order): flag remains true for future
-        // compatibility + pre-expiry renew *reminders* only — no auto-charge.
-        autoRenewal: true,
-        expiresAt,
-        nextBillingAt: expiresAt,
-      },
-      update: {
-        paymentId: payment.id,
-        status: 'ACTIVE',
-        billingCycle,
-        autoRenewal: true,
-        expiresAt,
-        nextBillingAt: expiresAt,
-        cancelledAt: null,
-        ...(samePlanTrial
-          ? { isTrial: false, trialEndsAt: null, trialConvertedAt: new Date() }
-          : {}),
-      },
-    });
-
-    if (otherPlanTrial) {
-      await this.prisma.$transaction([
-        upsertOp,
-        this.prisma.userSubscription.update({
-          where: { id: otherPlanTrial.id },
+    await this.prisma.$transaction(async (tx) => {
+      if (othersToCancel.length) {
+        await tx.userSubscription.updateMany({
+          where: {
+            id: { in: othersToCancel.map((s) => s.id) },
+            status: 'ACTIVE',
+          },
           data: {
             status: 'CANCELLED',
-            cancelledAt: new Date(),
-            trialConvertedAt: new Date(),
+            cancelledAt: now,
+            autoRenewal: false,
+            ...(othersToCancel.some((s) => s.isTrial)
+              ? { trialConvertedAt: now }
+              : {}),
           },
-        }),
-      ]);
-    } else {
-      await upsertOp;
-    }
+        });
+        // Stamp trial conversion only on trial rows being superseded
+        for (const trial of othersToCancel.filter(
+          (s) => s.isTrial && !s.trialConvertedAt,
+        )) {
+          await tx.userSubscription.update({
+            where: { id: trial.id },
+            data: { trialConvertedAt: now },
+          });
+        }
+      }
+
+      await tx.userSubscription.upsert({
+        where: { userId_planId: { userId, planId } },
+        create: {
+          userId,
+          planId,
+          paymentId: payment.id,
+          status: 'ACTIVE',
+          billingCycle,
+          autoRenewal: true,
+          expiresAt,
+          nextBillingAt: expiresAt,
+        },
+        update: {
+          paymentId: payment.id,
+          status: 'ACTIVE',
+          billingCycle,
+          autoRenewal: true,
+          expiresAt,
+          nextBillingAt: expiresAt,
+          cancelledAt: null,
+          ...(samePlanTrial
+            ? { isTrial: false, trialEndsAt: null, trialConvertedAt: now }
+            : { isTrial: false, trialEndsAt: null }),
+        },
+      });
+    });
 
     await this.prisma.user.update({
       where: { id: userId },
       data: { subscriptionTier: this.tierFromPlanName(plan.name) },
     });
 
+    const changeLabel = isUpgrade
+      ? 'upgraded to'
+      : isDowngrade
+        ? 'changed to'
+        : 'activated';
     await this.notifications.create(
       userId,
       'Subscription Active',
-      `Your ${plan.name} plan is now active.`,
+      `Your plan was ${changeLabel} ${plan.name}.` +
+        (remainingMs > 0
+          ? ' Remaining time from your previous plan was carried forward.'
+          : ''),
       'SUCCESS',
-      '/settings/billing',
+      '/billing',
     );
 
     await this.affiliatesService.calculateCommission(
@@ -1909,7 +2022,11 @@ export class PaymentsService {
         entityType: 'subscription',
         entityId: planId,
         userId,
-        payload: { planName: plan.name, amount },
+        payload: {
+          planName: plan.name,
+          amount,
+          carriedForwardMs: remainingMs,
+        },
         idempotencyKey: `sub-upgrade:${userId}:${planId}:${paymentRef}`,
       });
     }
@@ -1956,7 +2073,9 @@ export class PaymentsService {
       amount: p.amount,
       currency: p.currency,
       status: p.status,
+      invoiceId: p.invoice?.id,
       invoiceNumber: p.invoice?.invoiceNumber,
+      canDownloadInvoice: Boolean(p.invoice),
     }));
 
     return { payments, total };
@@ -1969,6 +2088,621 @@ export class PaymentsService {
       // Hard cap — previously fully unbounded; long-tenured accounts could
       // accumulate hundreds of monthly invoices.
       take: 200,
+    });
+  }
+
+  async getRefundHistory(userId: string, limit = 50) {
+    const refundedPayments = await this.prisma.payment.findMany({
+      where: { userId, status: 'REFUNDED' },
+      orderBy: { updatedAt: 'desc' },
+      take: limit,
+      select: {
+        id: true,
+        amount: true,
+        currency: true,
+        description: true,
+        updatedAt: true,
+        razorpayPaymentId: true,
+        stripePaymentId: true,
+        metadataJson: true,
+      },
+    });
+
+    const walletClawbacks = await this.prisma.walletTransaction.findMany({
+      where: {
+        userId,
+        type: 'WITHDRAWAL',
+        status: 'CONFIRMED',
+        OR: [
+          { reference: { startsWith: 'refund_' } },
+          { idempotencyKey: { startsWith: 'razorpay_refund_' } },
+          { idempotencyKey: { startsWith: 'stripe_refund_' } },
+          { idempotencyKey: { startsWith: 'admin_refund_' } },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: {
+        id: true,
+        amount: true,
+        createdAt: true,
+        reference: true,
+        idempotencyKey: true,
+        metadataJson: true,
+      },
+    });
+
+    return { refundedPayments, walletClawbacks };
+  }
+
+  /**
+   * Single aggregate for Billing Center — reduces N parallel page-load calls
+   * into one round-trip. Keeps existing /payments, /invoices, /current usable.
+   */
+  async getBillingCenter(userId: string) {
+    const [current, plans, invoices, paymentHistory, refunds] =
+      await Promise.all([
+        this.getCurrentSubscription(userId),
+        this.getSubscriptionPlans(),
+        this.getInvoices(userId),
+        this.getPaymentHistory(userId, 50, 0),
+        this.getRefundHistory(userId, 20),
+      ]);
+
+    const now = new Date();
+    const completed = paymentHistory.payments.filter(
+      (p) => p.status === 'COMPLETED' || p.status === 'REFUNDED',
+    );
+    const spentThisMonth = completed
+      .filter((p) => {
+        const d = new Date(p.date);
+        return (
+          p.status === 'COMPLETED' &&
+          d.getMonth() === now.getMonth() &&
+          d.getFullYear() === now.getFullYear()
+        );
+      })
+      .reduce((sum, p) => sum + p.amount, 0);
+    const spentThisYear = completed
+      .filter((p) => {
+        const d = new Date(p.date);
+        return p.status === 'COMPLETED' && d.getFullYear() === now.getFullYear();
+      })
+      .reduce((sum, p) => sum + p.amount, 0);
+
+    return {
+      current,
+      plans,
+      invoices,
+      payments: paymentHistory.payments,
+      paymentsTotal: paymentHistory.total,
+      refunds,
+      summary: {
+        spentThisMonth,
+        spentThisYear,
+        completedCount: paymentHistory.payments.filter(
+          (p) => p.status === 'COMPLETED',
+        ).length,
+      },
+    };
+  }
+
+  async downloadInvoicePdf(userId: string, invoiceId: string) {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: {
+        userId,
+        OR: [{ id: invoiceId }, { paymentId: invoiceId }],
+      },
+      include: {
+        payment: true,
+        user: { select: { email: true, fullName: true } },
+      },
+    });
+    if (!invoice) {
+      throw new NotFoundException('Invoice not found');
+    }
+
+    const pdfBuffer = await this.renderInvoicePdf(invoice);
+
+    await this.prisma.invoice.update({
+      where: { id: invoice.id },
+      data: {
+        downloadedCount: { increment: 1 },
+        pdfUrl:
+          invoice.pdfUrl ??
+          `/v1/subscriptions/invoices/${invoice.id}/download`,
+      },
+    });
+
+    const safeNumber = invoice.invoiceNumber.replace(/[^a-zA-Z0-9-_]/g, '_');
+    return {
+      buffer: pdfBuffer,
+      filename: `${safeNumber}.pdf`,
+      invoiceNumber: invoice.invoiceNumber,
+    };
+  }
+
+  private async renderInvoicePdf(invoice: {
+    invoiceNumber: string;
+    amount: number;
+    tax: number;
+    total: number;
+    currency: string;
+    description: string | null;
+    issuedAt: Date;
+    items: unknown;
+    user?: { email: string | null; fullName: string | null } | null;
+    payment?: {
+      id: string;
+      razorpayPaymentId: string | null;
+      stripePaymentId: string | null;
+    } | null;
+  }): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+      const doc = new PDFDocument({ margin: 48, size: 'A4' });
+      const chunks: Buffer[] = [];
+      doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+
+      doc.fontSize(20).text('Profytron Tax Invoice', { align: 'left' });
+      doc.moveDown(0.5);
+      doc.fontSize(10).fillColor('#444444');
+      doc.text(`Invoice: ${invoice.invoiceNumber}`);
+      doc.text(`Issued: ${invoice.issuedAt.toISOString().slice(0, 10)}`);
+      doc.text(`Currency: ${invoice.currency}`);
+      if (invoice.user?.fullName || invoice.user?.email) {
+        doc.text(
+          `Bill to: ${invoice.user?.fullName ?? ''}${
+            invoice.user?.email ? ` <${invoice.user.email}>` : ''
+          }`.trim(),
+        );
+      }
+      if (invoice.payment?.razorpayPaymentId) {
+        doc.text(`Gateway ref (Razorpay): ${invoice.payment.razorpayPaymentId}`);
+      }
+      if (invoice.payment?.stripePaymentId) {
+        doc.text(`Gateway ref (Stripe): ${invoice.payment.stripePaymentId}`);
+      }
+      doc.moveDown();
+      doc.fillColor('#000000').fontSize(12).text('Line items', { underline: true });
+      doc.moveDown(0.4);
+      doc.fontSize(10);
+      doc.text(invoice.description || 'Service charge');
+      doc.text(`Taxable amount: ${invoice.currency} ${invoice.amount.toFixed(2)}`);
+      doc.text(`Tax (GST): ${invoice.currency} ${invoice.tax.toFixed(2)}`);
+      doc.fontSize(12).text(`Total: ${invoice.currency} ${invoice.total.toFixed(2)}`, {
+        underline: true,
+      });
+      doc.moveDown();
+      doc
+        .fontSize(9)
+        .fillColor('#666666')
+        .text(
+          'This document is generated by Profytron for accounting records. Contact support@profytron.com for GST updates.',
+        );
+      doc.end();
+    });
+  }
+
+  private async ensureMarketplacePaymentInvoice(params: {
+    userId: string;
+    amount: number;
+    description: string;
+    paymentReference: string;
+    strategyId: string;
+    currency: string;
+    isRazorpay: boolean;
+  }) {
+    try {
+      const existing = await this.prisma.payment.findFirst({
+        where: params.isRazorpay
+          ? { razorpayPaymentId: params.paymentReference }
+          : { stripePaymentId: params.paymentReference },
+        select: { id: true, invoice: { select: { id: true } } },
+      });
+      if (existing?.invoice) return existing;
+      if (existing) {
+        await this.generateInvoice(existing.id);
+        return existing;
+      }
+
+      const payment = await this.prisma.payment.create({
+        data: {
+          userId: params.userId,
+          amount: params.amount,
+          currency: params.currency || 'INR',
+          method: params.isRazorpay ? 'UPI' : 'STRIPE',
+          status: 'COMPLETED',
+          description: params.description,
+          completedAt: new Date(),
+          razorpayPaymentId: params.isRazorpay ? params.paymentReference : undefined,
+          stripePaymentId: params.isRazorpay ? undefined : params.paymentReference,
+          metadataJson: {
+            type: 'marketplace_subscription',
+            strategyId: params.strategyId,
+          },
+        },
+      });
+      await this.generateInvoice(payment.id);
+      return payment;
+    } catch (err) {
+      this.logger.warn(
+        `Marketplace invoice skipped for ${params.paymentReference}: ${
+          err instanceof Error ? err.message : 'unknown'
+        }`,
+      );
+      return null;
+    }
+  }
+
+  private async handleRazorpayRefundCreated(refundEntity: {
+    id?: string;
+    amount?: number;
+    payment_id?: string;
+    notes?: Record<string, string>;
+  }) {
+    const refundId = refundEntity.id;
+    if (!refundId) return;
+
+    const amount = Number(refundEntity.amount || 0) / 100;
+    const paymentIdFromNotes = refundEntity.notes?.paymentId;
+    const userIdFromNotes = refundEntity.notes?.userId;
+
+    let payment = paymentIdFromNotes
+      ? await this.prisma.payment.findUnique({ where: { id: paymentIdFromNotes } })
+      : null;
+
+    if (!payment && refundEntity.payment_id) {
+      payment = await this.prisma.payment.findFirst({
+        where: { razorpayPaymentId: refundEntity.payment_id },
+      });
+    }
+
+    const userId = userIdFromNotes || payment?.userId;
+    if (!userId || amount <= 0) {
+      this.logger.warn(
+        `Razorpay refund ${refundId} skipped — missing userId (notes.userId or payment lookup)`,
+      );
+      return;
+    }
+
+    await this.reconcileRefund({
+      userId,
+      amount: payment ? Math.min(amount, payment.amount) : amount,
+      refundId,
+      source: 'razorpay',
+      paymentDbId: payment?.id,
+      gatewayPaymentId: refundEntity.payment_id ?? payment?.razorpayPaymentId,
+      reason: refundEntity.notes?.reason,
+    });
+  }
+
+  private async handleStripeChargeRefunded(charge: {
+    id?: string;
+    amount_refunded?: number;
+    payment_intent?: string | { id?: string } | null;
+    metadata?: Record<string, string>;
+    refunds?: { data?: Array<{ id?: string; amount?: number }> };
+  }) {
+    const refundEntries = charge.refunds?.data?.length
+      ? charge.refunds.data
+      : [{ id: charge.id ? `ch_refund_${charge.id}` : undefined, amount: charge.amount_refunded }];
+
+    const pi =
+      typeof charge.payment_intent === 'string'
+        ? charge.payment_intent
+        : charge.payment_intent?.id;
+
+    const payment =
+      (pi
+        ? await this.prisma.payment.findFirst({ where: { stripePaymentId: pi } })
+        : null) ??
+      (charge.id
+        ? await this.prisma.payment.findFirst({ where: { stripePaymentId: charge.id } })
+        : null);
+
+    const userId = charge.metadata?.userId || payment?.userId;
+    if (!userId) {
+      this.logger.warn(
+        `Stripe charge.refunded skipped — no userId for charge ${charge.id}`,
+      );
+      return;
+    }
+
+    for (const entry of refundEntries) {
+      const refundId = entry.id ?? `stripe_refund_${charge.id}`;
+      const amount =
+        Number(entry.amount ?? charge.amount_refunded ?? 0) / 100;
+      if (amount <= 0) continue;
+      await this.reconcileRefund({
+        userId,
+        amount: payment ? Math.min(amount, payment.amount) : amount,
+        refundId,
+        source: 'stripe',
+        paymentDbId: payment?.id,
+        gatewayPaymentId: pi ?? charge.id,
+      });
+    }
+  }
+
+  /**
+   * Marks Payment REFUNDED and, if the original payment deposited wallet funds,
+   * claws back via WITHDRAWAL (OUT). Idempotent per refundId.
+   */
+  async reconcileRefund(params: {
+    userId: string;
+    amount: number;
+    refundId: string;
+    source: 'razorpay' | 'stripe' | 'admin';
+    paymentDbId?: string | null;
+    gatewayPaymentId?: string | null;
+    reason?: string;
+    adminId?: string;
+  }) {
+    const {
+      userId,
+      amount,
+      refundId,
+      source,
+      paymentDbId,
+      gatewayPaymentId,
+      reason,
+      adminId,
+    } = params;
+
+    if (amount <= 0) {
+      throw new BadRequestException('Refund amount must be positive');
+    }
+
+    const walletIdempotencyKey =
+      source === 'razorpay'
+        ? `razorpay_refund_${refundId}`
+        : source === 'stripe'
+          ? `stripe_refund_${refundId}`
+          : `admin_refund_${refundId}`;
+
+    let payment = paymentDbId
+      ? await this.prisma.payment.findUnique({ where: { id: paymentDbId } })
+      : null;
+
+    if (!payment && gatewayPaymentId) {
+      payment = await this.prisma.payment.findFirst({
+        where: {
+          OR: [
+            { razorpayPaymentId: gatewayPaymentId },
+            { stripePaymentId: gatewayPaymentId },
+          ],
+        },
+      });
+    }
+
+    if (payment && payment.status !== 'REFUNDED') {
+      await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: 'REFUNDED',
+          metadataJson: {
+            ...((payment.metadataJson as object) ?? {}),
+            refund: {
+              refundId,
+              source,
+              amount,
+              reason: reason ?? null,
+              adminId: adminId ?? null,
+              at: new Date().toISOString(),
+            },
+          },
+        },
+      });
+    }
+
+    // Only claw back wallet when a prior DEPOSIT was credited for this gateway payment.
+    const depositKeys = [
+      payment?.razorpayPaymentId
+        ? `razorpay_payment_${payment.razorpayPaymentId}`
+        : null,
+      payment?.razorpayPaymentId
+        ? `profit_share_upfront_${payment.razorpayPaymentId}`
+        : null,
+      payment?.stripePaymentId
+        ? `profit_share_upfront_${payment.stripePaymentId}`
+        : null,
+      gatewayPaymentId ? `razorpay_payment_${gatewayPaymentId}` : null,
+      gatewayPaymentId ? `profit_share_upfront_${gatewayPaymentId}` : null,
+      gatewayPaymentId ? `stripe_deposit_${gatewayPaymentId}` : null,
+    ].filter((k): k is string => Boolean(k));
+
+    const priorDeposit =
+      depositKeys.length > 0
+        ? await this.prisma.walletTransaction.findFirst({
+            where: {
+              userId,
+              direction: 'IN',
+              status: 'CONFIRMED',
+              idempotencyKey: { in: depositKeys },
+            },
+          })
+        : null;
+
+    let walletTx = null as Awaited<ReturnType<typeof this.creditWallet>> | null;
+    if (priorDeposit) {
+      walletTx = await this.creditWallet(
+        userId,
+        amount,
+        'WITHDRAWAL',
+        {
+          source: `${source}_refund`,
+          refundId,
+          paymentId: payment?.id,
+          reason: reason ?? null,
+          priorDepositKey: priorDeposit.idempotencyKey,
+          adminId: adminId ?? null,
+        },
+        walletIdempotencyKey,
+      );
+    } else {
+      this.logger.log(
+        `Refund ${refundId}: no wallet deposit to claw back (subscription payment or already processed)`,
+      );
+    }
+
+    await this.notifications.create({
+      userId,
+      title: 'Refund Processed',
+      message: priorDeposit
+        ? `A refund of ₹${amount.toFixed(2)} was applied. Related wallet balance was adjusted.`
+        : `A refund of ₹${amount.toFixed(2)} was recorded for your payment.`,
+      type: 'INFO',
+      category: 'PAYMENT',
+      priority: 'HIGH',
+      actionUrl: '/billing',
+      sendPush: true,
+    });
+
+    void this.prisma.user
+      .findUnique({
+        where: { id: userId },
+        select: { email: true, fullName: true },
+      })
+      .then((u) => {
+        if (u) {
+          void this.emailService.sendPaymentEmail(
+            u.email,
+            u.fullName,
+            {
+              type: 'SUCCESS',
+              amount,
+              currency: payment?.currency ?? 'INR',
+              description: `Refund ${refundId}${reason ? `: ${reason}` : ''}`,
+            },
+            userId,
+          );
+        }
+      });
+
+    return {
+      refundId,
+      paymentId: payment?.id ?? null,
+      amount,
+      walletAdjusted: Boolean(priorDeposit),
+      walletTransactionId: walletTx?.id ?? null,
+    };
+  }
+
+  /**
+   * Admin-initiated refund: calls Razorpay/Stripe when possible, then reconciles ledger.
+   */
+  async adminRefundPayment(
+    adminId: string,
+    paymentId: string,
+    amount?: number,
+    reason?: string,
+  ) {
+    const payment = await this.prisma.payment.findUnique({
+      where: { id: paymentId },
+    });
+    if (!payment) {
+      throw new NotFoundException('Payment not found');
+    }
+    if (payment.status === 'REFUNDED') {
+      return {
+        alreadyRefunded: true,
+        paymentId: payment.id,
+        amount: payment.amount,
+      };
+    }
+    if (payment.status !== 'COMPLETED') {
+      throw new BadRequestException(
+        `Cannot refund payment in status ${payment.status}`,
+      );
+    }
+
+    const refundAmount = amount ?? payment.amount;
+    if (refundAmount <= 0 || refundAmount > payment.amount) {
+      throw new BadRequestException('Invalid refund amount');
+    }
+
+    let gatewayRefundId = `admin_${payment.id}_${Date.now()}`;
+
+    if (payment.razorpayPaymentId && this.razorpay) {
+      try {
+        const refund = await this.razorpay.payments.refund(
+          payment.razorpayPaymentId,
+          {
+            amount: Math.round(refundAmount * 100),
+            notes: {
+              userId: payment.userId,
+              paymentId: payment.id,
+              adminId,
+              reason: reason ?? 'admin_refund',
+            },
+          },
+        );
+        gatewayRefundId =
+          (refund as { id?: string })?.id ?? gatewayRefundId;
+      } catch (err) {
+        this.logger.error(
+          `Razorpay refund failed for payment ${payment.id}`,
+          err instanceof Error ? err.stack : err,
+        );
+        throw new BadRequestException(
+          `Razorpay refund failed: ${err instanceof Error ? err.message : 'unknown'}`,
+        );
+      }
+    } else if (payment.stripePaymentId && this.stripe) {
+      try {
+        const stripeParams: {
+          amount: number;
+          metadata: Record<string, string>;
+          payment_intent?: string;
+          charge?: string;
+        } = {
+          amount: Math.round(refundAmount * 100),
+          metadata: {
+            userId: payment.userId,
+            paymentId: payment.id,
+            adminId,
+            reason: reason ?? 'admin_refund',
+          },
+        };
+        if (payment.stripePaymentId.startsWith('pi_')) {
+          stripeParams.payment_intent = payment.stripePaymentId;
+        } else if (payment.stripePaymentId.startsWith('ch_')) {
+          stripeParams.charge = payment.stripePaymentId;
+        } else {
+          throw new Error(
+            `Unsupported Stripe payment reference: ${payment.stripePaymentId}`,
+          );
+        }
+        const refund = await this.stripe.refunds.create(stripeParams);
+        gatewayRefundId = refund.id;
+      } catch (err) {
+        // Fallback: store-only recon when payment_intent/charge invalid (session ids etc.)
+        this.logger.warn(
+          `Stripe refund API failed for ${payment.id}; reconciling ledger only: ${
+            err instanceof Error ? err.message : 'unknown'
+          }`,
+        );
+      }
+    }
+
+    const source: 'razorpay' | 'stripe' | 'admin' = payment.razorpayPaymentId
+      ? 'razorpay'
+      : payment.stripePaymentId
+        ? 'stripe'
+        : 'admin';
+
+    return this.reconcileRefund({
+      userId: payment.userId,
+      amount: refundAmount,
+      refundId: gatewayRefundId,
+      source: source === 'admin' ? 'admin' : source,
+      paymentDbId: payment.id,
+      gatewayPaymentId:
+        payment.razorpayPaymentId ?? payment.stripePaymentId ?? null,
+      reason,
+      adminId,
     });
   }
 }

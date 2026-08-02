@@ -9,6 +9,7 @@ import {
   DashboardPage,
   DashboardBreadcrumbs,
   DashboardPageHeader,
+  DashErrorState,
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import {
@@ -209,7 +210,7 @@ export default function JournalPage() {
   const [editingLesson, setEditingLesson] = React.useState('');
   const [isEditing, setIsEditing] = React.useState(false);
 
-  const { data: entries = [], isLoading } = useQuery({
+  const { data: entries = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['journal'],
     queryFn: () => journalApi.list({ limit: 100 }),
   });
@@ -298,6 +299,8 @@ export default function JournalPage() {
                 <div key={i} className="h-24 rounded-[20px] bg-muted/25 animate-pulse border border-[var(--card-border)]" />
               ))}
             </div>
+          ) : isError ? (
+            <DashErrorState message="Couldn't load your journal entries." onRetry={() => refetch()} />
           ) : entries.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}

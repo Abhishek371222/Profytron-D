@@ -43,19 +43,21 @@ function FilterContent({
 }: Omit<FilterSidebarProps, "isOpen">) {
   const { priceMax: price, selectedRisks, selectedAssets, selectedTimeframes, verifiedOnly } = value;
 
+  // Risk/Markets/Timeframe are single-select: the marketplace API accepts one
+  // value per field per request, so a chip that "stacked" on top of another
+  // previously looked selected but had no effect on the results. Clicking a
+  // chip now selects it exclusively within its group (or clears it back to
+  // "any"), so what's highlighted always matches what's actually applied.
   const toggleRisk = (id: string) => {
-    const next = selectedRisks.includes(id)
-      ? selectedRisks.filter((r) => r !== id)
-      : [...selectedRisks, id];
-    onChange({ ...value, selectedRisks: next });
+    onChange({ ...value, selectedRisks: selectedRisks.includes(id) ? [] : [id] });
   };
 
   const toggleTimeframe = (timeframe: string) => {
     const upper = timeframe.toUpperCase();
-    const next = selectedTimeframes.includes(upper)
-      ? selectedTimeframes.filter((item) => item !== upper)
-      : [...selectedTimeframes, upper];
-    onChange({ ...value, selectedTimeframes: next });
+    onChange({
+      ...value,
+      selectedTimeframes: selectedTimeframes.includes(upper) ? [] : [upper],
+    });
   };
 
   const activeCount = selectedRisks.length + selectedAssets.length + selectedTimeframes.length;
@@ -110,7 +112,7 @@ function FilterContent({
 
         <div className="space-y-3">
           <h4 className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Risk</h4>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2" role="group" aria-label="Filter by risk level">
             {RISK_LEVELS.map((risk) => {
               const active = selectedRisks.includes(risk.id);
               return (
@@ -118,8 +120,9 @@ function FilterContent({
                   key={risk.id}
                   type="button"
                   onClick={() => toggleRisk(risk.id)}
+                  aria-pressed={active}
                   className={cn(
-                    "relative flex items-center gap-2.5 overflow-hidden rounded-[14px] border p-2.5 transition-all duration-200",
+                    "relative flex min-h-[var(--touch-min)] items-center gap-2.5 overflow-hidden rounded-[14px] border p-2.5 transition-all duration-200",
                     active
                       ? "border-[color-mix(in_srgb,var(--primary)_35%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]"
                       : "border-[var(--card-border)] bg-transparent hover:border-[color-mix(in_srgb,var(--primary)_18%,var(--card-border))] hover:bg-[color-mix(in_srgb,var(--teal-tint-1)_8%,transparent)]",
@@ -149,7 +152,7 @@ function FilterContent({
 
         <div className="space-y-3">
           <h4 className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Markets</h4>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by market">
             {ASSETS.map((asset) => {
               const active = selectedAssets.includes(asset);
               return (
@@ -157,13 +160,12 @@ function FilterContent({
                   key={asset}
                   type="button"
                   onClick={() => {
-                    const next = selectedAssets.includes(asset)
-                      ? selectedAssets.filter((a) => a !== asset)
-                      : [...selectedAssets, asset];
-                    onChange({ ...value, selectedAssets: next });
+                    // Single-select, same reasoning as risk/timeframe above.
+                    onChange({ ...value, selectedAssets: active ? [] : [asset] });
                   }}
+                  aria-pressed={active}
                   className={cn(
-                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
+                    "min-h-[var(--touch-min)] rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
                     active
                       ? "border-[color-mix(in_srgb,var(--primary)_40%,var(--card-border))] bg-primary text-primary-foreground"
                       : "border-[var(--card-border)] bg-[color-mix(in_srgb,var(--muted)_35%,transparent)] text-muted-foreground hover:border-[color-mix(in_srgb,var(--primary)_20%,var(--card-border))] hover:text-foreground",
@@ -178,7 +180,7 @@ function FilterContent({
 
         <div className="space-y-3">
           <h4 className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Timeframe</h4>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-2" role="group" aria-label="Filter by timeframe">
             {TIMEFRAMES.map((tf) => {
               const active = selectedTimeframes.includes(tf);
               return (
@@ -186,8 +188,9 @@ function FilterContent({
                   key={tf}
                   type="button"
                   onClick={() => toggleTimeframe(tf)}
+                  aria-pressed={active}
                   className={cn(
-                    "rounded-[12px] border py-2 text-xs font-semibold transition-all duration-200",
+                    "min-h-[var(--touch-min)] rounded-[12px] border py-2 text-xs font-semibold transition-all duration-200",
                     active
                       ? "border-[color-mix(in_srgb,var(--primary)_40%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary"
                       : "border-[var(--card-border)] text-muted-foreground hover:border-[color-mix(in_srgb,var(--primary)_18%,var(--card-border))] hover:text-foreground",
@@ -231,7 +234,7 @@ function FilterContent({
         <button
           type="button"
           onClick={onSavePreset}
-          className="w-full py-1 text-xs font-semibold text-primary transition-colors hover:text-primary-hover"
+          className="w-full rounded-md py-1 text-xs font-semibold text-primary outline-none transition-colors hover:text-primary-hover focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           Save Preset
         </button>
@@ -247,7 +250,7 @@ function FilterContent({
               priceMax: 0,
             })
           }
-          className="w-full py-1 text-xs font-semibold text-destructive/80 transition-colors hover:text-destructive"
+          className="w-full rounded-md py-1 text-xs font-semibold text-destructive/80 outline-none transition-colors hover:text-destructive focus-visible:ring-2 focus-visible:ring-destructive/40"
         >
           Reset All
         </button>

@@ -4,9 +4,11 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, CheckCircle2, X, Sparkles, Zap, Calendar, Infinity as InfinityIcon, Clock } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowRight, CheckCircle2, X, Sparkles, Zap, Calendar, Infinity as InfinityIcon, Clock, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { marketplaceApi, PlanType, SubscriptionBillingModel } from '@/lib/api/marketplace';
+import { brokerApi } from '@/lib/api/broker';
 import { razorpayApi } from '@/lib/api/razorpay';
 import { openRazorpayCheckout } from '@/lib/razorpay/load-checkout';
 import { toast } from 'sonner';
@@ -14,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { formatApiErrorMessage, formatBotName } from '@/lib/bot-labels';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { useModalMotionProps, motionPresets, durationSeconds } from '@/platform/motion';
+import { formatInr as formatMoneyInr } from '@/lib/currency';
 
 interface SubscribeModalProps {
   strategy: any;
@@ -24,7 +27,7 @@ interface SubscribeModalProps {
 
 function formatInr(amount: number) {
   if (!amount || amount <= 0) return 'FREE';
-  return `₹${Number(amount).toLocaleString('en-IN')}`;
+  return formatMoneyInr(amount);
 }
 
 const PLAN_CONFIG: Record<PlanType, { label: string; subtitle: string; icon: any; accent: string; badge?: string }> = {
@@ -54,7 +57,61 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
   const modal = useModalMotionProps();
   const panelTransition = motionPresets.modal();
 
+  const { data: brokerAccounts = [], isLoading: isLoadingBrokers } = useQuery({
+    queryKey: ['broker-accounts'],
+    queryFn: () => brokerApi.getBrokerAccounts(),
+    enabled: isOpen,
+    staleTime: 8_000,
+  });
+  const hasConnectedBroker = brokerAccounts.length > 0;
+
+  const panelRef = React.useRef<HTMLDivElement>(null);
+  const previouslyFocusedRef = React.useRef<HTMLElement | null>(null);
+  const titleId = React.useId();
+
   React.useEffect(() => setMounted(true), []);
+
+  // Focus management: move focus into the dialog on open, restore it to
+  // whatever triggered the dialog on close.
+  React.useEffect(() => {
+    if (!isOpen) return;
+    previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
+    const raf = requestAnimationFrame(() => panelRef.current?.focus());
+    return () => {
+      cancelAnimationFrame(raf);
+      previouslyFocusedRef.current?.focus?.();
+    };
+  }, [isOpen]);
+
+  // Escape-to-close and a basic Tab focus trap while open.
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab' && panelRef.current) {
+        const focusable = Array.from(
+          panelRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter((el) => !el.hasAttribute('disabled'));
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -235,13 +292,18 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
           />
 
           <motion.div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            tabIndex={-1}
             initial={modal.panel.initial}
             animate={modal.panel.animate}
             exit={modal.panel.exit}
             transition={panelTransition}
             className={cn(
               'relative w-full max-w-2xl overflow-hidden rounded-t-[var(--radius-modal)] sm:rounded-[var(--radius-modal)]',
-              'dashboard-card shadow-[var(--shadow-lg)]',
+              'dashboard-card shadow-[var(--shadow-lg)] outline-none',
               'max-h-[min(92dvh,100%)] sm:max-h-[min(90dvh,100%)] flex flex-col',
             )}
           >
@@ -279,7 +341,7 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                       )}
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground tracking-tight">
+                  <h3 id={titleId} className="text-2xl font-bold text-foreground tracking-tight">
                     {isProvisioning ? 'Subscription Processing' : 'Subscription Activated'}
                   </h3>
                   <p className="mt-2 text-sm text-foreground/45 max-w-sm">
@@ -312,17 +374,11 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                         <Sparkles className="w-2.5 h-2.5" />
                         Choose billing
                       </div>
-                      <h3 className="text-2xl font-bold text-foreground tracking-tight leading-tight truncate">
+                      <h3 id={titleId} className="text-2xl font-bold text-foreground tracking-tight leading-tight truncate">
                         {formatBotName(strategy.name)}
                       </h3>
                       <p className="mt-1 text-xs text-foreground/40 font-bold uppercase tracking-[0.18em]">
                         Step {step} of 2 — {step === 1 ? 'Choose billing' : 'Confirm'}
-                      </p>
-                      <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
-                        MT5 account connection is required before purchase.{' '}
-                        <Link href="/connected-accounts" className="text-primary hover:underline">
-                          Connect account
-                        </Link>
                       </p>
                     </div>
 
@@ -338,6 +394,21 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                       ))}
                     </div>
                   </div>
+
+                  {!isLoadingBrokers && !hasConnectedBroker && (
+                    <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-chart-4/25 bg-chart-4/[0.08] p-3.5">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-chart-4" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-foreground">Connect an MT5 account first</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          A connected broker account is required before you can subscribe to this bot.{' '}
+                          <Link href="/connected-accounts" className="font-semibold text-primary hover:underline">
+                            Connect account
+                          </Link>
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex-1 min-h-0 overflow-y-auto">
                   <AnimatePresence mode="wait">
@@ -519,7 +590,19 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                   </AnimatePresence>
                   </div>
 
-                  <div className="mt-4 pt-4 pb-[max(0.25rem,env(safe-area-inset-bottom,0px))] border-t border-[var(--card-border)] flex items-center justify-between gap-3 shrink-0">
+                  <p className="mt-3 text-center text-micro text-foreground/30">
+                    Secure checkout via Razorpay · Cancel anytime — see our{' '}
+                    <Link href="/terms#legal-section-4" className="underline hover:text-foreground/50">
+                      cancellation &amp; refund policy
+                    </Link>
+                    . Copy trading involves market risk — read the{' '}
+                    <Link href="/risk-disclosure" className="underline hover:text-foreground/50">
+                      risk disclosure
+                    </Link>
+                    .
+                  </p>
+
+                  <div className="mt-2 pt-4 pb-[max(0.25rem,env(safe-area-inset-bottom,0px))] border-t border-[var(--card-border)] flex items-center justify-between gap-3 shrink-0">
                     <Button
                       variant="ghost"
                       size="lg"
@@ -530,7 +613,12 @@ export function SubscribeModal({ strategy, isOpen, onClose, initialBillingModel 
                     </Button>
 
                     {step === 1 ? (
-                      <Button variant="primary" size="lg" onClick={() => setStep(2)}>
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        onClick={() => setStep(2)}
+                        disabled={!isLoadingBrokers && !hasConnectedBroker}
+                      >
                         Continue
                         <ArrowRight className="w-4 h-4" />
                       </Button>

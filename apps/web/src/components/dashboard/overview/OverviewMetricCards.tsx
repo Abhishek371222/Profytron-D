@@ -56,9 +56,9 @@ function MiniSpark({
 function ProgressBar({ value }: { value: number }) {
   const pct = Math.min(100, Math.max(0, value));
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted/70">
+    <div className="h-1.5 w-full overflow-hidden rounded-sm bg-muted/70">
       <div
-        className="h-full rounded-full bg-primary transition-[width] duration-[var(--motion-slow,320ms)]"
+        className="h-full rounded-sm bg-primary transition-[width] duration-[var(--motion-slow,320ms)]"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -67,7 +67,11 @@ function ProgressBar({ value }: { value: number }) {
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-[var(--card-border)] bg-card p-3 sm:p-3.5">
+    <div className="group relative overflow-hidden rounded-xl border border-[color-mix(in_srgb,var(--primary)_10%,var(--card-border))] bg-card p-3 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[var(--shadow-card-hover)] sm:p-3.5">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+      />
       {children}
     </div>
   );
@@ -159,7 +163,7 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
       <Card>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
               Total Balance
             </p>
             <p
@@ -186,7 +190,7 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
       </Card>
 
       <Card>
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
           Equity
         </p>
         <p
@@ -210,7 +214,7 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
       </Card>
 
       <Card>
-        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
           Free Margin
         </p>
         <p
@@ -232,7 +236,7 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
 
       <Card>
         <div className="flex items-start justify-between gap-2">
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
             Unrealized P/L
           </p>
           <div className="flex items-center gap-1.5 text-muted-foreground">

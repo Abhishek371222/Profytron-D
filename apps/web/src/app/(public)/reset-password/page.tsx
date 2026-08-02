@@ -9,6 +9,9 @@ import { ArrowLeft, Loader2, Lock, Sparkles, CheckCircle2, ShieldCheck } from 'l
 import Link from 'next/link';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { SceneProvider } from '@/components/3d/SceneProvider';
+import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
+import { AuthBrandScene } from '@/components/3d/AuthBrandScene';
 
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -124,7 +127,9 @@ function ResetPasswordPageInner() {
 
   if (!token) {
     return (
+      <SceneProvider>
       <main className="min-h-screen w-full bg-bg-base overflow-hidden relative flex flex-col items-center justify-center p-6">
+        <AmbientDepthBackground variant="auth" position="fixed" />
         <div className="fixed top-12 left-12 z-50">
           <Magnetic strength={0.2}>
             <Link href="/login" className="flex items-center gap-4 group">
@@ -160,11 +165,14 @@ function ResetPasswordPageInner() {
           </Link>
         </div>
       </main>
+      </SceneProvider>
     );
   }
 
  return (
+ <SceneProvider>
  <main className="min-h-screen w-full bg-bg-base overflow-hidden relative flex flex-col items-center justify-center p-6">
+ <AmbientDepthBackground variant="auth" position="fixed" />
 
  <div className="fixed top-12 left-12 z-50">
  <Magnetic strength={0.2}>
@@ -191,6 +199,7 @@ function ResetPasswordPageInner() {
  <div className="relative bg-bg-card/40 backdrop-blur-3xl border border-border rounded-[40px] p-10 lg:p-14 shadow-2xl overflow-hidden group">
  
  <motion.div variants={itemVariants} className="flex flex-col items-center text-center space-y-6 mb-12">
+ <AuthBrandScene className="hidden sm:block mb-2" />
  <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-2xl relative">
  <ShieldCheck className="w-10 h-10 text-primary" />
  </div>
@@ -262,6 +271,7 @@ function ResetPasswordPageInner() {
  </div>
  </motion.div>
  </main>
+ </SceneProvider>
  );
 }
 

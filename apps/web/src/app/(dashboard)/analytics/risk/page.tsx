@@ -179,6 +179,7 @@ export default function RiskAnalyticsPage() {
           icon={AlertTriangle}
           iconBg="bg-destructive/10 text-destructive"
           valueClass="text-destructive"
+          explainer="Value at Risk — estimated maximum loss over the selected period, with 95% confidence."
         />
         <StatCard
           label="Max Drawdown"
@@ -187,6 +188,7 @@ export default function RiskAnalyticsPage() {
           iconBg="bg-destructive/10 text-destructive"
           valueClass="text-destructive"
           delay={0.05}
+          explainer="The largest peak-to-trough decline in account value over the selected period."
         />
         <StatCard
           label="Calmar Ratio"
@@ -195,6 +197,7 @@ export default function RiskAnalyticsPage() {
           iconBg="bg-primary/10 text-primary"
           valueClass="text-primary"
           delay={0.1}
+          explainer="Annualized return divided by maximum drawdown — higher means more return per unit of drawdown risk."
         />
         <StatCard
           label="Avg Risk / Reward"
@@ -203,6 +206,7 @@ export default function RiskAnalyticsPage() {
           iconBg="bg-chart-5/10 text-chart-5"
           valueClass="text-chart-5"
           delay={0.15}
+          explainer="Average ratio of amount risked to potential reward across your closed trades."
         />
       </div>
 
@@ -298,6 +302,7 @@ export default function RiskAnalyticsPage() {
           icon={Activity}
           iconBg="bg-primary/10 text-primary"
           valueClass="text-primary"
+          explainer="Return earned per unit of total volatility — higher indicates better risk-adjusted performance."
         />
         <StatCard
           label="Sortino Ratio"
@@ -306,6 +311,7 @@ export default function RiskAnalyticsPage() {
           iconBg="bg-primary/10 text-primary"
           valueClass="text-primary"
           delay={0.05}
+          explainer="Like Sharpe, but only penalizes downside volatility — higher indicates better downside-adjusted performance."
         />
         <StatCard
           label="Max Consec Wins"
@@ -314,6 +320,7 @@ export default function RiskAnalyticsPage() {
           iconBg="bg-chart-3/10 text-chart-3"
           valueClass="text-chart-3"
           delay={0.1}
+          explainer="Longest streak of consecutive winning trades in the selected period."
         />
         <StatCard
           label="Avg R-Multiple"
@@ -322,6 +329,7 @@ export default function RiskAnalyticsPage() {
               ? `${advanced!.avgRMultiple.toFixed(2)}R`
               : '—'
           }
+          explainer="Average trade outcome expressed as a multiple of the amount initially risked."
           icon={Crosshair}
           iconBg="bg-chart-5/10 text-chart-5"
           valueClass="text-chart-5"

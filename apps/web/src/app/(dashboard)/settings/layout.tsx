@@ -24,7 +24,7 @@ const navItems = [
   { name: 'Verification', icon: ShieldCheck, href: '/settings/kyc' },
   { name: 'Notifications', icon: Bell, href: '/settings/notifications' },
   { name: 'Trading', icon: Zap, href: '/settings/trading' },
-  { name: 'Billing', icon: CreditCard, href: '/settings/billing' },
+  { name: 'Billing', icon: CreditCard, href: '/billing' },
   { name: 'Support', icon: MessageSquare, href: '/settings/support' },
 ];
 

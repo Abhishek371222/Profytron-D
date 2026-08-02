@@ -19,6 +19,7 @@ import {
   Users,
   Zap,
 } from 'lucide-react';
+import { formatInr } from '@/lib/currency';
 
 const TIER_ICON: Record<string, React.ElementType> = {
   FREE: Bot,
@@ -35,11 +36,6 @@ const TIER_ICON_BG: Record<string, string> = {
   BUSINESS: 'bg-chart-2/10 text-chart-2',
   INSTITUTIONAL: 'bg-chart-4/10 text-chart-4',
 };
-
-function formatInr(amount: number) {
-  if (amount < 0) return 'Custom';
-  return `₹${amount.toLocaleString('en-IN')}`;
-}
 
 function annualEquivalentMonthly(annualPrice: number) {
   return Math.round(annualPrice / 12);

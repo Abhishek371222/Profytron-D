@@ -10,6 +10,7 @@ import {
   ThumbsDown,
   ThumbsUp,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import type { CoachMessage } from '@/lib/api/coach';
 import type { ExplainabilityResult } from '@profytron/ai-coach';
 import { CoachMessageBody } from '@/components/alpha-coach/CoachMessageBody';
@@ -21,7 +22,7 @@ export type UiCoachMessage = CoachMessage & {
   explainability?: ExplainabilityResult;
 };
 
-export function CoachMessageRow({
+export const CoachMessageRow = React.memo(function CoachMessageRow({
   message,
   isStreaming,
   onRegenerate,
@@ -43,6 +44,7 @@ export function CoachMessageRow({
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1400);
     } catch {
+      toast.error("Can't copy — clipboard access denied");
     }
   };
 
@@ -144,7 +146,7 @@ export function CoachMessageRow({
       </div>
     </div>
   );
-}
+});
 
 export function CoachErrorBanner({
   text,
@@ -172,12 +174,13 @@ export function CoachErrorBanner({
 
 export function CoachTypingRow() {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3" role="status" aria-live="polite">
       <CoachBrandMark size={28} pulse />
       <div className="flex items-center gap-1.5 py-1">
         {[0, 1, 2].map((i) => (
           <motion.span
             key={i}
+            aria-hidden="true"
             className="h-1.5 w-1.5 rounded-full bg-[#348398]"
             animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
             transition={{
@@ -188,7 +191,8 @@ export function CoachTypingRow() {
             }}
           />
         ))}
-        <Loader2 className="sr-only" />
+        <Loader2 className="sr-only h-0 w-0" aria-hidden="true" />
+        <span className="sr-only">Alpha Coach is typing</span>
       </div>
     </div>
   );

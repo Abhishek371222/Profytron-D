@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Header,
+  Param,
+  Post,
+  Req,
+  Res,
+  StreamableFile,
+  UseGuards,
+  Body,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -6,6 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import type { Response } from 'express';
 import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
 import { PaymentsService } from '../payments/payments.service';
 import { CheckoutSubscriptionDto, StartTrialDto } from './dto/subscriptions.dto';
@@ -29,6 +41,17 @@ export class SubscriptionsController {
   @ApiOperation({ summary: 'Get current user platform subscription' })
   getCurrent(@Req() req: { user: { userId: string } }) {
     return this.paymentsService.getCurrentSubscription(req.user.userId);
+  }
+
+  @Get('billing-center')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Aggregate billing payload (current plan, plans, invoices, payments, refunds)',
+  })
+  getBillingCenter(@Req() req: { user: { userId: string } }) {
+    return this.paymentsService.getBillingCenter(req.user.userId);
   }
 
   @Post('checkout')
@@ -84,11 +107,41 @@ export class SubscriptionsController {
     return this.paymentsService.getInvoices(req.user.userId);
   }
 
+  @Get('invoices/:id/download')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Download invoice as PDF' })
+  @Header('Content-Type', 'application/pdf')
+  async downloadInvoice(
+    @Req() req: { user: { userId: string } },
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { buffer, filename } = await this.paymentsService.downloadInvoicePdf(
+      req.user.userId,
+      id,
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Length': String(buffer.length),
+    });
+    return new StreamableFile(buffer);
+  }
+
   @Get('payments')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Payment history' })
   getPayments(@Req() req: { user: { userId: string } }) {
-    return this.paymentsService.getPaymentHistory(req.user.userId, 20, 0);
+    return this.paymentsService.getPaymentHistory(req.user.userId, 50, 0);
+  }
+
+  @Get('refunds')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Refund history for current user' })
+  getRefunds(@Req() req: { user: { userId: string } }) {
+    return this.paymentsService.getRefundHistory(req.user.userId);
   }
 }

@@ -48,6 +48,7 @@ export default function AboutPage() {
         title="We Build for"
         titleAccent="Edge, Not Average."
         description="Profytron was built by traders who were tired of institutional tools staying locked inside institutions. We engineered top 0.1% infrastructure into a platform anyone serious could deploy."
+        sceneKey="brandLogo"
       />
 
       <MarketingQuote

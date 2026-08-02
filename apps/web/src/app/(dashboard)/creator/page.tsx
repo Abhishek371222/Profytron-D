@@ -41,19 +41,31 @@ function statusLabel(bot: Strategy) {
   if (bot.verificationStatus === 'PENDING') {
     return { text: 'Pending approval', className: 'bg-amber-500/10 text-amber-700 border-amber-500/20' };
   }
+  // No distinct "rejected" enum value exists — a rejection resets status to
+  // UNVERIFIED. A bot that was submitted before (reviewStartedAt set) but
+  // isn't verified or pending again has been rejected, not just never
+  // submitted, so it gets its own label instead of silently reading "Draft".
+  if (bot.reviewStartedAt && !bot.isVerified) {
+    return { text: 'Changes requested', className: 'bg-destructive/10 text-destructive border-destructive/20' };
+  }
   return { text: 'Draft', className: 'bg-muted text-muted-foreground border-[var(--card-border)]' };
 }
 
 function reviewHint(bot: Strategy) {
-  if (bot.verificationStatus !== 'PENDING') return null;
-  if (bot.reviewEndsAt) {
-    const ends = new Date(bot.reviewEndsAt);
-    const daysLeft = Math.max(0, Math.ceil((ends.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-    return daysLeft > 0
-      ? `~${daysLeft} day${daysLeft === 1 ? '' : 's'} left in review window`
-      : 'Review window complete — awaiting team decision';
+  if (bot.verificationStatus === 'PENDING') {
+    if (bot.reviewEndsAt) {
+      const ends = new Date(bot.reviewEndsAt);
+      const daysLeft = Math.max(0, Math.ceil((ends.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+      return daysLeft > 0
+        ? `~${daysLeft} day${daysLeft === 1 ? '' : 's'} left in review window`
+        : 'Review window complete — awaiting team decision';
+    }
+    return 'Under 1-week real-market review by Profytron';
   }
-  return 'Under 1-week real-market review by Profytron';
+  if (bot.reviewStartedAt && !bot.isVerified && bot.reviewNotes) {
+    return bot.reviewNotes;
+  }
+  return null;
 }
 
 export default function CreatorStudioPage() {
@@ -149,6 +161,7 @@ export default function CreatorStudioPage() {
   const liveCount = myBots.filter((b) => b.isPublished && b.isVerified).length;
   const pendingCount = myBots.filter((b) => b.verificationStatus === 'PENDING').length;
   const totalCopies = myBots.reduce((sum, b) => sum + (b.copiesCount || 0), 0);
+  const totalRevenue = myBots.reduce((sum, b) => sum + Number(b.totalRevenue || 0), 0);
 
   return (
     <DashboardPage>
@@ -207,10 +220,15 @@ export default function CreatorStudioPage() {
         </div>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <DashStatCard label="Your bots" value={String(myBots.length)} hint="Created by you" />
         <DashStatCard label="Live" value={String(liveCount)} hint={`${pendingCount} pending approval`} />
         <DashStatCard label="Total copies" value={String(totalCopies)} hint="Across your bots" />
+        <DashStatCard
+          label="Total revenue"
+          value={`₹${totalRevenue.toLocaleString('en-IN')}`}
+          hint="Your share, credited to wallet on each sale"
+        />
       </div>
 
       <section className="dashboard-card p-5">
@@ -272,13 +290,27 @@ export default function CreatorStudioPage() {
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{bot.description}</p>
-                    {hint && <p className="mt-1 text-[11px] text-amber-700">{hint}</p>}
+                    {hint && (
+                      <p
+                        className={cn(
+                          'mt-1 text-[11px]',
+                          status.text === 'Changes requested' ? 'text-destructive' : 'text-amber-700',
+                        )}
+                      >
+                        {hint}
+                      </p>
+                    )}
                     <div className="mt-1.5 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
                       <span>{bot.category}</span>
                       <span>Risk {bot.riskLevel}</span>
                       {profit != null && <span className="text-chart-3">~{profit}% target</span>}
                       {markets && <span>{markets}</span>}
                       <span>₹{Number(bot.monthlyPrice || 0).toLocaleString('en-IN')}/mo</span>
+                      {Number(bot.totalRevenue || 0) > 0 && (
+                        <span className="font-semibold text-foreground">
+                          ₹{Number(bot.totalRevenue || 0).toLocaleString('en-IN')} earned
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2">

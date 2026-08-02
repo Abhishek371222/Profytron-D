@@ -2,21 +2,16 @@
 
 /**
  * Progressive hero ambient visual.
- * Layers: Static → Animated Background → 3D Scene → Interactive
+ * Layers: Poster/CSS → Animated SVG → SceneSlot (SceneManager / Spline) → Interactive
  */
 
 import React, { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { motion, useReducedMotion } from 'framer-motion';
 import { isExperienceEngineEnabled } from '@/platform/experience/index-flag';
 import { heroRuntimeApi } from '@/platform/experience/hero-runtime';
-import { lodManagerApi } from '@/platform/experience/lod-manager';
 import { durationSeconds, MOTION_EASING } from '@/platform/motion/motion-tokens';
-
-const FloatingLines = dynamic(() => import('@/components/ui/FloatingLines'), {
-  ssr: false,
-  loading: () => null,
-});
+import { SceneSlot } from '@/components/3d/SceneSlot';
+import { evaluateSceneGate } from '@/platform/experience/scene-a11y';
 
 const PRIMARY_PATH =
   'M 0 210 C 45 198, 95 182, 145 162 S 215 118, 275 88 S 335 52, 400 28';
@@ -57,50 +52,23 @@ const CTA_CHIPS = [
   { label: 'Sharpe', value: '2.14', top: '52%', left: '62%', delay: 0.5 },
 ] as const;
 
-const DARK_GRADIENT = ['#5FB2C4', '#348398', '#71C0D1', '#1E6D48', '#2D7284'];
-const LIGHT_GRADIENT = ['#348398', '#2D7284', '#1E6D48', '#255F6C', '#5FB2C4'];
-
-function useIsDark() {
-  const [isDark, setIsDark] = useState(false);
-  useEffect(() => {
-    const root = document.documentElement;
-    const sync = () => setIsDark(root.classList.contains('dark'));
-    sync();
-    const observer = new MutationObserver(sync);
-    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
-  return isDark;
-}
-
-function detectWebGL(): boolean {
-  if (typeof document === 'undefined') return false;
-  try {
-    const c = document.createElement('canvas');
-    return !!(c.getContext('webgl') || c.getContext('experimental-webgl'));
-  } catch {
-    return false;
-  }
-}
-
 export function HeroAmbientVisual({
   variant = 'hero',
 }: {
   variant?: 'hero' | 'cta';
 }) {
   const reduceMotion = useReducedMotion();
-  const isDark = useIsDark();
   const chips = variant === 'cta' ? CTA_CHIPS : LIVE_CHIPS;
   const showScan = variant === 'hero';
   const engineOn = isExperienceEngineEnabled();
-  const [mount3d, setMount3d] = useState(false);
+  const [mountScene, setMountScene] = useState(false);
   const [layer, setLayer] = useState<'static' | 'animated' | 'scene3d' | 'interactive'>(
     'static',
   );
 
   useEffect(() => {
     if (reduceMotion) {
-      setMount3d(false);
+      setMountScene(false);
       setLayer('animated');
       return;
     }
@@ -111,24 +79,21 @@ export function HeroAmbientVisual({
 
     const mountWhenReady = () => {
       if (cancelled) return;
-      if (!engineOn) {
-        setMount3d(true);
-        setLayer('interactive');
-        return;
+      const gate = evaluateSceneGate('heroTrading');
+      if (engineOn) {
+        heroRuntimeApi.start({
+          webglReady: gate.allowWebGL,
+          onLayer: (l) => {
+            setLayer(l);
+            if (l === 'scene3d' || l === 'interactive') {
+              setMountScene(true);
+            }
+          },
+        });
       }
-      const webgl = detectWebGL();
-      heroRuntimeApi.start({
-        webglReady: webgl,
-        onLayer: (l) => {
-          setLayer(l);
-          if (l === 'scene3d' || l === 'interactive') {
-            if (webgl && heroRuntimeApi.shouldMountWebGL()) setMount3d(true);
-          }
-        },
-      });
       setLayer('animated');
-      if (webgl && heroRuntimeApi.shouldMountWebGL()) setMount3d(true);
-      else setMount3d(false);
+      setMountScene(true);
+      if (gate.allowWebGL) setLayer('scene3d');
     };
 
     const scheduleIdle = () => {
@@ -173,8 +138,6 @@ export function HeroAmbientVisual({
     return () => document.removeEventListener('visibilitychange', onVis);
   }, [engineOn]);
 
-  const lineCounts = lodManagerApi.lineCounts([5, 7, 4]);
-  const interactive = layer === 'interactive' && !reduceMotion;
   const enterMs = durationSeconds('Hero');
   const ease = MOTION_EASING.Smooth;
 
@@ -187,36 +150,19 @@ export function HeroAmbientVisual({
       aria-hidden
       data-hero-layer={layer}
     >
-      {/* Layer 1: static */}
       <div className="hero-ambient-core exp-hero-surface">
         <div className="hero-ambient-mesh" />
-        {/* Layer 2: animated mesh */}
         {!reduceMotion && (
           <div className="hero-ambient-mesh hero-ambient-mesh-b" />
         )}
 
-        {/* Layer 3–4: WebGL when allowed */}
-        {mount3d && lineCounts.some((n) => n > 0) && (
-          <div
-            className={`hero-ambient-lines ${isDark ? 'hero-ambient-lines-dark' : 'hero-ambient-lines-light'}`}
-          >
-            <FloatingLines
-              transparent
-              linesGradient={isDark ? DARK_GRADIENT : LIGHT_GRADIENT}
-              enabledWaves={['top', 'middle', 'bottom']}
-              lineCount={lineCounts}
-              lineDistance={[4, 3, 5]}
-              animationSpeed={0.85}
-              interactive={interactive}
-              parallax={interactive}
-              parallaxStrength={0.14}
-              bendRadius={6}
-              bendStrength={-0.35}
-              mouseDamping={0.04}
-              topWavePosition={{ x: 8, y: 0.4, rotate: -0.35 }}
-              middleWavePosition={{ x: 4, y: -0.1, rotate: 0.15 }}
-              bottomWavePosition={{ x: 1.5, y: -0.65, rotate: 0.3 }}
-              mixBlendMode={isDark ? 'screen' : 'multiply'}
+        {mountScene && (
+          <div className="hero-ambient-lines absolute inset-0">
+            <SceneSlot
+              sceneKey="heroTrading"
+              role="interactive"
+              priority
+              className="h-full w-full min-h-[16rem]"
             />
           </div>
         )}
@@ -249,161 +195,74 @@ export function HeroAmbientVisual({
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            <pattern id="heroDotGrid" width="24" height="24" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="0.65" className="hero-ambient-grid-dot" />
-            </pattern>
           </defs>
 
-          <rect width="400" height="260" fill="url(#heroDotGrid)" className="hero-ambient-grid" />
+          <g opacity={reduceMotion ? 0.35 : 0.55}>
+            {VOLUME_BARS.map((b) => (
+              <rect
+                key={b.x}
+                x={b.x}
+                y={230 - b.h}
+                width="10"
+                height={b.h}
+                rx="2"
+                fill="url(#heroVolumeFill)"
+              />
+            ))}
+          </g>
 
-          {VOLUME_BARS.map((bar, i) => (
-            <motion.rect
-              key={bar.x}
-              x={bar.x}
-              y={240 - bar.h}
-              width={14}
-              height={bar.h}
-              rx={2}
-              fill="url(#heroVolumeFill)"
-              initial={{ scaleY: 0, opacity: 0 }}
-              animate={{
-                scaleY: reduceMotion ? 0.6 : 1,
-                opacity: reduceMotion ? 0.15 : 0.35,
-              }}
-              style={{ transformOrigin: `${bar.x + 7}px 240px` }}
-              transition={{
-                duration: durationSeconds('Slow'),
-                delay: 0.3 + i * 0.03,
-                ease: 'easeOut',
-              }}
-            />
-          ))}
-
-          <motion.path
+          <path
             d={GHOST_PATH}
             fill="none"
             stroke="url(#heroLineGhost)"
-            strokeWidth="1"
+            strokeWidth="1.5"
             strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: reduceMotion ? 0.25 : 0.45 }}
-            transition={{ duration: durationSeconds('Hero'), delay: 0.05, ease: 'easeInOut' }}
           />
-
-          <motion.path
+          <path
             d={SECONDARY_PATH}
             fill="none"
             stroke="url(#heroLineGhost)"
-            strokeWidth="1.25"
+            strokeWidth="2"
             strokeLinecap="round"
-            strokeDasharray="4 10"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{
-              pathLength: 1,
-              opacity: reduceMotion ? 0.3 : 0.5,
-              strokeDashoffset: reduceMotion ? 0 : [0, -28],
-            }}
-            transition={{
-              pathLength: { duration: durationSeconds('Hero'), delay: 0.1, ease: 'easeInOut' },
-              opacity: { duration: durationSeconds('Hero'), delay: 0.1 },
-              strokeDashoffset: {
-                duration: 6,
-                repeat: Infinity,
-                ease: 'linear',
-                delay: 1.5,
-              },
-            }}
+            opacity="0.7"
           />
-
-          <motion.path
+          <path
             d={PRIMARY_PATH}
             fill="none"
             stroke="url(#heroLineMain)"
-            strokeWidth="2.5"
+            strokeWidth="2.75"
             strokeLinecap="round"
-            strokeLinejoin="round"
             filter="url(#heroLineGlow)"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: durationSeconds('Hero'), delay: 0.08, ease: 'easeInOut' }}
           />
 
-          {!reduceMotion && (
+          {NODES.map((n) => (
             <circle
-              r={4}
-              className="hero-ambient-traveler"
-              style={{ offsetPath: `path("${PRIMARY_PATH}")` } as React.CSSProperties}
+              key={`${n.cx}-${n.cy}`}
+              cx={n.cx}
+              cy={n.cy}
+              r="3.5"
+              fill="var(--primary)"
+              opacity="0.85"
             />
-          )}
-
-          {NODES.map((node, i) => (
-            <g key={i}>
-              <motion.circle
-                cx={node.cx}
-                cy={node.cy}
-                r={12}
-                className="hero-ambient-node-pulse"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: reduceMotion ? 0.12 : 0.28 }}
-                transition={{ delay: node.delay + 0.8, duration: durationSeconds('Standard') }}
-                style={{ animationDelay: `${node.delay}s` }}
-              />
-              <motion.circle
-                cx={node.cx}
-                cy={node.cy}
-                r={3.75}
-                className="hero-ambient-node"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{
-                  delay: node.delay + 0.9,
-                  duration: durationSeconds('Fast'),
-                  type: 'spring',
-                  stiffness: 260,
-                }}
-              />
-            </g>
           ))}
         </svg>
 
-        <div className="hero-ambient-chips">
-          {chips.map((chip) => (
+        {showScan && !reduceMotion && <div className="hero-ambient-scan" />}
+
+        {!reduceMotion &&
+          chips.map((c) => (
             <motion.div
-              key={chip.label}
+              key={c.label}
               className="hero-ambient-chip"
-              initial={{ opacity: 0, y: 8 }}
+              style={{ top: c.top, left: c.left }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{
-                delay: 0.8 + chip.delay,
-                duration: durationSeconds('Standard'),
-                ease: MOTION_EASING.Smooth as unknown as number[],
-              }}
-              style={{ top: chip.top, left: chip.left }}
+              transition={{ delay: 0.6 + c.delay, duration: 0.45 }}
             >
-              <span className="hero-ambient-chip-label">{chip.label}</span>
-              <span className="hero-ambient-chip-value">{chip.value}</span>
+              <span className="hero-ambient-chip-label">{c.label}</span>
+              <span className="hero-ambient-chip-value">{c.value}</span>
             </motion.div>
           ))}
-        </div>
-
-        {!reduceMotion && layer !== 'static' && (
-          <div className="hero-ambient-particles">
-            {Array.from({ length: mount3d ? 14 : 6 }).map((_, i) => (
-              <span
-                key={i}
-                className="hero-ambient-particle"
-                style={{
-                  top: `${12 + ((i * 7) % 78)}%`,
-                  left: `${10 + ((i * 11) % 82)}%`,
-                  animationDelay: `${i * 0.42}s`,
-                  animationDuration: `${4 + (i % 3)}s`,
-                }}
-              />
-            ))}
-          </div>
-        )}
-
-        {showScan && !reduceMotion && <div className="hero-ambient-scan" />}
       </div>
     </motion.div>
   );

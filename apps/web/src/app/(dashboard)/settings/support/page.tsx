@@ -126,6 +126,7 @@ export default function SupportPage() {
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold text-foreground uppercase tracking-tight">Support Center</h2>
           <p className="text-xs text-foreground/30 uppercase tracking-widest font-semibold">Submit tickets · Track responses · Get help</p>
+          <p className="text-xs text-muted-foreground normal-case tracking-normal font-normal">We respond within 24 hours on business days.</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}

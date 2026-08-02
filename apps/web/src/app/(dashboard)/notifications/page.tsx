@@ -9,6 +9,7 @@ import {
   DashboardBreadcrumbs,
   DashboardPageHeader,
   DashButton,
+  DashErrorState,
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import {
@@ -173,7 +174,7 @@ export default function NotificationsPage() {
   const [unreadOnly, setUnreadOnly] = React.useState(false);
   const [page, setPage] = React.useState(1);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['notifications', { page, unreadOnly }],
     queryFn: () => notificationsApi.list({ page, limit: 20, unreadOnly }),
   });
@@ -236,6 +237,8 @@ export default function NotificationsPage() {
             <div key={i} className="h-[88px] rounded-[22px] bg-muted/25 animate-pulse border border-[var(--card-border)]" />
           ))}
         </div>
+      ) : isError ? (
+        <DashErrorState message="Couldn't load your notifications." onRetry={() => refetch()} />
       ) : notifications.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 12 }}

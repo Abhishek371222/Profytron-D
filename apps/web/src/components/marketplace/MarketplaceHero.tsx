@@ -11,7 +11,6 @@ import {
   Globe2,
   Wallet,
   ArrowRight,
-  Sparkles,
   Lock,
   Scale,
   CheckCircle2,
@@ -129,9 +128,9 @@ export function MarketplaceHero({
             <motion.span
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--primary)_25%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-primary"
+              className="landing-eyebrow"
             >
-              <Sparkles className="h-3.5 w-3.5" />
+              <span className="landing-live-dot" aria-hidden />
               AI Trading Marketplace
             </motion.span>
 

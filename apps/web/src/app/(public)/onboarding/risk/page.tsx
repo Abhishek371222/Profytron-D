@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
 import {
   ShieldCheck,
   Target,
@@ -19,7 +18,8 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { usersApi } from '@/lib/api/users';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
-import { LandingAmbientBackground } from '@/components/home/LandingAmbientBackground';
+import { SceneProvider } from '@/components/3d/SceneProvider';
+import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
 
 const STEPS = [
   {
@@ -79,7 +79,6 @@ const STEPS = [
 ];
 
 export default function RiskOnboardingPage() {
-  const router = useRouter();
   const { isAuthenticated, isHydrating, user } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -90,12 +89,12 @@ export default function RiskOnboardingPage() {
   React.useEffect(() => {
     if (isHydrating) return;
     if (!isAuthenticated) {
-      router.replace('/login?redirect=/onboarding/risk');
+      window.location.replace('/login?redirect=/onboarding/risk');
       // Stay on completion choice after save; API sets onboardingCompleted=true
     } else if (user?.onboardingCompleted && !showCompletion) {
-      router.replace('/dashboard');
+      window.location.replace('/dashboard');
     }
-  }, [isAuthenticated, isHydrating, user?.onboardingCompleted, showCompletion, router]);
+  }, [isAuthenticated, isHydrating, user?.onboardingCompleted, showCompletion]);
 
   const handleSelect = (questionId: string, option: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: option }));
@@ -179,8 +178,9 @@ export default function RiskOnboardingPage() {
   }
 
   return (
+    <SceneProvider>
     <div className="relative min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
-      <LandingAmbientBackground />
+      <AmbientDepthBackground variant="auth" position="fixed" />
 
       <div className="relative z-10 w-full max-w-2xl">
         <AnimatePresence mode="wait">
@@ -208,7 +208,12 @@ export default function RiskOnboardingPage() {
                 <Button
                   variant="primary"
                   className="sm:flex-1 h-12"
-                  onClick={() => router.push('/get-bots?paper=1')}
+                  onClick={() => {
+                    // Hard navigate across public → dashboard layout groups.
+                    // Soft router.push can throw "Failed to fetch" if the RSC
+                    // flight request drops (dev HMR / server restart).
+                    window.location.assign('/get-bots?paper=1');
+                  }}
                 >
                   Connect paper account
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -216,7 +221,9 @@ export default function RiskOnboardingPage() {
                 <Button
                   variant="outline"
                   className="sm:flex-1 h-12"
-                  onClick={() => router.push('/strategies')}
+                  onClick={() => {
+                    window.location.assign('/strategies');
+                  }}
                 >
                   Browse strategies
                 </Button>
@@ -360,5 +367,6 @@ export default function RiskOnboardingPage() {
         </span>
       </div>
     </div>
+    </SceneProvider>
   );
 }

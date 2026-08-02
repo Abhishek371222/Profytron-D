@@ -1,33 +1,33 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+/** Soft attention pulse — scale only, no neon bloom. */
 export const GlowPulse = ({
   children,
-  color = "color-mix(in srgb, var(--primary) 15%, transparent)",
   className,
 }: {
   children: React.ReactNode;
   color?: string;
   className?: string;
 }) => {
+  const reduce = useReducedMotion();
+
+  if (reduce) {
+    return <div className={cn("rounded-xl", className)}>{children}</div>;
+  }
+
   return (
     <motion.div
-      animate={{
-        boxShadow: [
-          `0 0 0 0 ${color}`,
-          `0 0 0 15px color-mix(in srgb, var(--primary) 0%, transparent)`,
-          `0 0 0 0 color-mix(in srgb, var(--primary) 0%, transparent)`,
-        ],
-      }}
+      animate={{ scale: [1, 1.015, 1] }}
       transition={{
-        duration: 2,
+        duration: 2.4,
         repeat: Infinity,
         ease: "easeInOut",
       }}
-      className={cn("rounded-full", className)}
+      className={cn("rounded-xl", className)}
     >
       {children}
     </motion.div>

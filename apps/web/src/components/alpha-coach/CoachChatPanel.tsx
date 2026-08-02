@@ -52,10 +52,13 @@ export function CoachChatPanel({
   inputValue,
   onInputChange,
   onSend,
+  onStop,
+  isGenerating,
   onSuggestion,
   onFeedback,
   onEscalate,
   onRetry,
+  onRegenerateMessage,
   onNewChat,
   onOpenHistory,
   onOpenDesk,
@@ -80,10 +83,13 @@ export function CoachChatPanel({
   inputValue: string;
   onInputChange: (v: string) => void;
   onSend: () => void;
+  onStop?: () => void;
+  isGenerating?: boolean;
   onSuggestion: (label: string) => void;
   onFeedback?: (message: UiCoachMessage, value: 'up' | 'down') => void;
   onEscalate: () => void;
   onRetry?: () => void;
+  onRegenerateMessage?: (userText: string) => void;
   onNewChat?: () => void;
   onOpenHistory?: () => void;
   onOpenDesk?: () => void;
@@ -126,24 +132,26 @@ export function CoachChatPanel({
     });
   }, [messages, hasUserMsgs]);
 
-  const lastUserText = React.useMemo(() => {
-    for (let i = visibleMessages.length - 1; i >= 0; i--) {
-      if (visibleMessages[i].role === 'USER') return visibleMessages[i].content;
+  const precedingUserTextById = React.useMemo(() => {
+    const map = new Map<string, string>();
+    let lastUser: string | null = null;
+    for (const m of visibleMessages) {
+      if (m.role === 'USER') {
+        lastUser = m.content;
+      } else if (lastUser) {
+        map.set(m.id, lastUser);
+      }
     }
-    return lastFailedText || null;
-  }, [visibleMessages, lastFailedText]);
-
-  const lastAssistantId = React.useMemo(() => {
-    for (let i = visibleMessages.length - 1; i >= 0; i--) {
-      if (visibleMessages[i].role !== 'USER') return visibleMessages[i].id;
-    }
-    return null;
+    return map;
   }, [visibleMessages]);
 
   React.useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const shouldStick = distanceFromBottom < 160;
+    if (!shouldStick) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: streamingText ? 'auto' : 'smooth' });
   }, [messages, isTyping, streamingText]);
 
   return (
@@ -187,6 +195,13 @@ export function CoachChatPanel({
               onClick={onEscalate}
               disabled={escalating || escalated}
               whileTap={{ scale: 0.97 }}
+              aria-label={
+                escalated
+                  ? escalationStatus === 'CLAIMED'
+                    ? 'Live desk — executive connected'
+                    : 'Waiting for executive'
+                  : 'Chat with executive'
+              }
               className={cn(
                 'inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition',
                 escalated
@@ -229,6 +244,10 @@ export function CoachChatPanel({
 
       <div
         ref={scrollRef}
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+        aria-label="Coach conversation"
         className="relative z-[1] min-h-0 flex-1 overflow-y-auto overscroll-contain"
       >
         <div
@@ -269,8 +288,8 @@ export function CoachChatPanel({
                     <CoachMessageRow
                       message={m}
                       onRegenerate={
-                        m.id === lastAssistantId && lastUserText && onRetry
-                          ? onRetry
+                        onRegenerateMessage && precedingUserTextById.has(m.id)
+                          ? () => onRegenerateMessage(precedingUserTextById.get(m.id)!)
                           : undefined
                       }
                       onFeedback={
@@ -307,6 +326,8 @@ export function CoachChatPanel({
         value={inputValue}
         onChange={onInputChange}
         onSend={onSend}
+        onStop={onStop}
+        isGenerating={isGenerating}
         disabled={disabled}
         placeholder="Ask Alpha Coach anything…"
       />

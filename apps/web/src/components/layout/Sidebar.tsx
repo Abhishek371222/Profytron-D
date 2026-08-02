@@ -21,6 +21,8 @@ import {
   User,
   LogOut,
   Copy,
+  BarChart3,
+  BookOpen,
 } from "lucide-react";
 import { cn, isAdminUser } from "@/lib/utils";
 import { useUIStore } from "@/lib/stores/useUIStore";
@@ -53,7 +55,10 @@ const navGroups: NavGroup[] = [
   {
     id: "dashboard",
     label: "Dashboard",
-    items: [{ name: "Overview", icon: LayoutDashboard, href: "/dashboard" }],
+    items: [
+      { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
+      { name: "Analytics", icon: BarChart3, href: "/analytics" },
+    ],
   },
   {
     id: "trading",
@@ -65,6 +70,7 @@ const navGroups: NavGroup[] = [
       { name: "Get Bots", icon: Copy, href: "/get-bots" },
       { name: "Connected Accounts", icon: Unplug, href: "/connected-accounts" },
       { name: "Alpha Coach", icon: Target, href: "/alpha-coach" },
+      { name: "Journal", icon: BookOpen, href: "/journal" },
     ],
   },
   {

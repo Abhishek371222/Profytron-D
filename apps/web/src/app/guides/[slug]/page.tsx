@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     path: `/guides/${slug}`,
     keywords: [guide.category, 'algo trading guide', 'Profytron guides'],
     type: 'article',
+    publishedTime: guide.publishedAt,
   });
 }
 

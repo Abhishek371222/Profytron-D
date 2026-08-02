@@ -402,7 +402,12 @@ export default function LeaderboardPage() {
         </div>
       )}
 
-      <DashboardTabs tabs={TABS} active={tab} onChange={setTab} />
+      <DashboardTabs tabs={TABS} active={tab} onChange={setTab} label="Leaderboard period" />
+      <p className="-mt-1 text-xs text-muted-foreground">
+        {tab === 'Top Strategies'
+          ? 'Ranked by profit rate.'
+          : 'Ranked by a blend of win rate and net profit for the selected period.'}
+      </p>
 
       { }
       {isLoading ? (

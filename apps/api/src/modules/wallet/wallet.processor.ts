@@ -21,36 +21,40 @@ export class WalletProcessor {
       return;
     }
 
-    const grouped = await this.prisma.walletTransaction.groupBy({
-      by: ['direction'],
-      where: { userId, status: 'CONFIRMED' },
-      _sum: { amount: true },
-    });
+    await this.prisma.$transaction(async (trx) => {
+      await trx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
 
-    const confirmedIn =
-      grouped.find((entry) => entry.direction === 'IN')?._sum.amount ?? 0;
-    const confirmedOut =
-      grouped.find((entry) => entry.direction === 'OUT')?._sum.amount ?? 0;
-    const available = confirmedIn - confirmedOut;
+      const grouped = await trx.walletTransaction.groupBy({
+        by: ['direction'],
+        where: { userId, status: 'CONFIRMED' },
+        _sum: { amount: true },
+      });
 
-    if (available < tx.amount) {
-      await this.prisma.walletTransaction.update({
+      const confirmedIn =
+        grouped.find((entry) => entry.direction === 'IN')?._sum.amount ?? 0;
+      const confirmedOut =
+        grouped.find((entry) => entry.direction === 'OUT')?._sum.amount ?? 0;
+      const available = confirmedIn - confirmedOut;
+
+      if (available < tx.amount) {
+        await trx.walletTransaction.update({
+          where: { id: transactionId },
+          data: {
+            status: 'FAILED',
+            description:
+              'Withdrawal failed due to insufficient available funds at processing time',
+          },
+        });
+        return;
+      }
+
+      await trx.walletTransaction.update({
         where: { id: transactionId },
         data: {
-          status: 'FAILED',
-          description:
-            'Withdrawal failed due to insufficient available funds at processing time',
+          status: 'CONFIRMED',
+          balanceAfter: available - tx.amount,
         },
       });
-      return;
-    }
-
-    await this.prisma.walletTransaction.update({
-      where: { id: transactionId },
-      data: {
-        status: 'CONFIRMED',
-        balanceAfter: available - tx.amount,
-      },
     });
 
     this.logger.log(`Withdrawal processed for user ${userId}: ${tx.amount}`);

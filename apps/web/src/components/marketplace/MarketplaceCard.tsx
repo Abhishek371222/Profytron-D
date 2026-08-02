@@ -8,10 +8,11 @@ import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
 import { Button } from "@/components/ui/button";
 import type { SubscriptionBillingModel } from "@/lib/api/marketplace";
+import { formatInr as formatMoneyInr } from "@/lib/currency";
 
 function formatInr(amount: number) {
   if (!amount || amount <= 0) return "FREE";
-  return `₹${Number(amount).toLocaleString("en-IN")}`;
+  return formatMoneyInr(amount);
 }
 
 interface MarketplaceCardProps {
@@ -29,15 +30,29 @@ interface MarketplaceCardProps {
     rating?: number;
     reviewCount?: number;
     drawdown?: number;
+    createdAt?: string;
   };
   onSubscribe: (strategy: MarketplaceCardProps["strategy"], billingModel?: SubscriptionBillingModel) => void;
   tourAnchor?: boolean;
 }
 
-export function MarketplaceCard({ strategy, onSubscribe, tourAnchor }: MarketplaceCardProps) {
+const NEW_STRATEGY_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
+
+function isRecentlyCreated(createdAt?: string): boolean {
+  if (!createdAt) return false;
+  const created = new Date(createdAt).getTime();
+  if (Number.isNaN(created)) return false;
+  return Date.now() - created < NEW_STRATEGY_WINDOW_MS;
+}
+
+export const MarketplaceCard = React.memo(function MarketplaceCard({
+  strategy,
+  onSubscribe,
+  tourAnchor,
+}: MarketplaceCardProps) {
   const { returns, sharpe, subscribers, price, rating = 0, reviewCount = 0, drawdown = 0 } = strategy;
   const roundedRating = Math.round(rating);
-  const aiScore = rating > 0 ? rating : Math.min(99, 60 + sharpe * 12);
+  const isNew = isRecentlyCreated(strategy.createdAt);
 
   return (
     <motion.article
@@ -58,9 +73,16 @@ export function MarketplaceCard({ strategy, onSubscribe, tourAnchor }: Marketpla
               <h3 className="truncate text-sm font-bold text-foreground">{strategy.name}</h3>
             </div>
           </div>
-          <span className="rounded-[10px] bg-[color-mix(in_srgb,var(--secondary)_18%,transparent)] px-2 py-1 text-[10px] font-bold tabular-nums text-primary">
-            AI {aiScore.toFixed(0)}
-          </span>
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <span className="rounded-[10px] bg-[color-mix(in_srgb,var(--secondary)_18%,transparent)] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-primary">
+              {strategy.risk} risk
+            </span>
+            {isNew && (
+              <span className="rounded-[10px] bg-chart-3/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-chart-3">
+                New
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
@@ -120,14 +142,14 @@ export function MarketplaceCard({ strategy, onSubscribe, tourAnchor }: Marketpla
         </div>
         <Link
           href={`/marketplace/${strategy.id}`}
-          className="text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary"
+          className="rounded-md text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground outline-none transition-colors hover:text-primary focus-visible:text-primary focus-visible:ring-2 focus-visible:ring-primary/40"
         >
           View Details →
         </Link>
       </div>
     </motion.article>
   );
-}
+});
 
 function Stat({
   label,

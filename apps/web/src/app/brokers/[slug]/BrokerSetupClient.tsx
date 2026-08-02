@@ -20,6 +20,7 @@ export function BrokerSetupClient({ broker }: { broker: BrokerEntry }) {
         title={`Connect ${broker.displayName}`}
         titleAccent="to Profytron."
         description={broker.description}
+        sceneKey="heroTrading"
       />
 
       <MarketingSection narrow>

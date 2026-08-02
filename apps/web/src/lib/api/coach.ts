@@ -130,6 +130,7 @@ export const coachApi = {
       text?: string;
       message?: CoachMessage;
     }) => void,
+    signal?: AbortSignal,
   ) {
     const token = useAuthStore.getState().accessToken;
     const base = apiClient.defaults.baseURL || '/api';
@@ -145,6 +146,7 @@ export const coachApi = {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ content }),
+        signal,
       });
 
       if (!res.ok || !res.body) {
@@ -178,7 +180,11 @@ export const coachApi = {
           }
         }
       }
-    } catch {
+    } catch (err: unknown) {
+      if (signal?.aborted || (err as { name?: string })?.name === 'AbortError') {
+        onEvent({ type: 'stopped' });
+        return;
+      }
       try {
         const result = await coachApi.sendMessage(conversationId, content);
         onEvent({ type: 'user', message: result.userMessage });

@@ -37,6 +37,7 @@ import {
   TrendingUp,
   Wallet as WalletIcon,
 } from 'lucide-react';
+import { DashboardSceneStrip } from '@/components/3d/DashboardSceneStrip';
 
 type TxFilterType = 'ALL' | 'DEPOSIT' | 'WITHDRAWAL' | 'SUBSCRIPTION_PAYMENT';
 type TxFilterStatus = 'ALL' | 'PENDING' | 'CONFIRMED' | 'FAILED';
@@ -390,6 +391,12 @@ export default function WalletPage() {
         <span className="text-foreground">Wallet</span>
       </div>
 
+      <DashboardSceneStrip
+        sceneKey="brandLogo"
+        className="h-20 min-h-20"
+        label="Wallet brand"
+      />
+
       {balanceQuery.isError && (
         <DashErrorState
           message="Couldn't load wallet balance."
@@ -626,7 +633,15 @@ export default function WalletPage() {
           </table>
         </div>
 
-        {!transactionsQuery.isLoading && transactions.length === 0 && (
+        {!transactionsQuery.isLoading && transactionsQuery.isError && (
+          <DashErrorState
+            message="Couldn't load your transactions."
+            onRetry={() => transactionsQuery.refetch()}
+            className="my-4"
+          />
+        )}
+
+        {!transactionsQuery.isLoading && !transactionsQuery.isError && transactions.length === 0 && (
           <div className="py-16 flex flex-col items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted border border-[var(--card-border)]">
               <WalletIcon className="h-7 w-7 text-muted-foreground" />

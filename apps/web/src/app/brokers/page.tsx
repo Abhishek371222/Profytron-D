@@ -32,6 +32,7 @@ export default function BrokersIndexPage() {
         title="Connect Your"
         titleAccent="Broker."
         description={`Profytron connects to ${brokers.length}+ MT4/MT5 brokers so your bots trade through the account you already trust. Compare spreads, minimum deposit, and execution type, or start free with paper trading.`}
+        sceneKey="heroTrading"
       />
 
       <MarketingSection className="pb-24">

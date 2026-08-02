@@ -48,6 +48,8 @@ const nextConfig: NextConfig = {
       "three",
       "zustand",
       "react-hook-form",
+      "@splinetool/react-spline",
+      "@splinetool/runtime",
     ],
   },
 
@@ -74,6 +76,7 @@ const nextConfig: NextConfig = {
     return [
       { source: '/documentation', destination: '/docs', permanent: true },
       { source: '/press', destination: '/', permanent: true },
+      { source: '/signup', destination: '/register', permanent: true },
       { source: '/copy-trading', destination: '/get-bots', permanent: false },
     ];
   },
@@ -164,15 +167,26 @@ const nextConfig: NextConfig = {
     const isProd = process.env.NODE_ENV === 'production';
     
     return [
-      ...NOINDEX_ROUTE_PREFIXES.map((prefix) => ({
-        source: `${prefix}/:path*`,
-        headers: [
-          {
-            key: "X-Robots-Tag",
-            value: "noindex, nofollow, noarchive",
-          },
-        ],
-      })),
+      ...NOINDEX_ROUTE_PREFIXES.flatMap((prefix) => [
+        {
+          source: prefix,
+          headers: [
+            {
+              key: "X-Robots-Tag",
+              value: "noindex, nofollow, noarchive",
+            },
+          ],
+        },
+        {
+          source: `${prefix}/:path*`,
+          headers: [
+            {
+              key: "X-Robots-Tag",
+              value: "noindex, nofollow, noarchive",
+            },
+          ],
+        },
+      ]),
       {
         source: "/:path*.(js|css|woff2|png|jpg|webp|avif|svg|ico)",
         headers: [

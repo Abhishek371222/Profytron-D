@@ -45,6 +45,7 @@ export default function GuidesPage() {
         title="Trade Smarter,"
         titleAccent="Not Harder."
         description="Practitioner-written guides on algorithmic strategies, risk management, market microstructure, and AI signal analysis."
+        sceneKey="heroTrading"
       />
 
       <MarketingSection>

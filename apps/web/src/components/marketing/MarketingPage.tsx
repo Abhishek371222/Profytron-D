@@ -7,6 +7,10 @@ import { cn } from "@/lib/utils";
 import { BrandGradientText } from "@/components/brand/BrandGradientText";
 import { BrandLogoAmbient } from "@/components/brand/BrandLogoMark";
 import { durationSeconds, MOTION_EASING } from "@/platform/motion";
+import { SceneSlot } from "@/components/3d/SceneSlot";
+import type { SceneKey } from "@/platform/experience/scene-registry";
+import { SectionRevealer } from "@/components/ui/SectionRevealer";
+import { TiltCard3D } from "@/components/animations/TiltCard3D";
 
 export function MarketingHero({
   eyebrow,
@@ -17,6 +21,7 @@ export function MarketingHero({
   meta,
   children,
   className,
+  sceneKey,
 }: {
   eyebrow: string;
   eyebrowIcon?: LucideIcon;
@@ -26,9 +31,21 @@ export function MarketingHero({
   meta?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
+  sceneKey?: SceneKey;
 }) {
   return (
-    <section className={cn("marketing-hero exp-lighting", className)}>
+    <section
+      className={cn(
+        'marketing-hero exp-lighting',
+        sceneKey && 'marketing-hero-with-scene',
+        className,
+      )}
+    >
+      {sceneKey ? (
+        <div className="marketing-hero-scene">
+          <SceneSlot sceneKey={sceneKey} role="interactive" className="h-full min-h-[18rem] w-full" />
+        </div>
+      ) : null}
       <div className="page-container max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -72,21 +89,23 @@ export function MarketingQuote({
   attribution?: string;
 }) {
   return (
-    <section className="marketing-quote-band">
-      <div className="page-container max-w-5xl">
-        <motion.blockquote
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="marketing-quote"
-        >
-          {quote}
-        </motion.blockquote>
-        <p className="mt-5 pl-6 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-          — {attribution}
-        </p>
-      </div>
-    </section>
+    <SectionRevealer>
+      <section className="marketing-quote-band">
+        <div className="page-container max-w-5xl">
+          <motion.blockquote
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="marketing-quote not-italic"
+          >
+            {quote}
+          </motion.blockquote>
+          <p className="mt-5 pl-6 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+            — {attribution}
+          </p>
+        </div>
+      </section>
+    </SectionRevealer>
   );
 }
 
@@ -98,9 +117,11 @@ export function MarketingBand({
   className?: string;
 }) {
   return (
-    <section className={cn("marketing-band", className)}>
-      <div className="page-container max-w-5xl">{children}</div>
-    </section>
+    <SectionRevealer>
+      <section className={cn("marketing-band", className)}>
+        <div className="page-container max-w-5xl">{children}</div>
+      </section>
+    </SectionRevealer>
   );
 }
 
@@ -116,11 +137,13 @@ export function MarketingSection({
   id?: string;
 }) {
   return (
-    <section id={id} className={cn("marketing-section", className)}>
-      <div className={cn("page-container", narrow ? "max-w-4xl" : "max-w-5xl")}>
-        {children}
-      </div>
-    </section>
+    <SectionRevealer>
+      <section id={id} className={cn("marketing-section", className)}>
+        <div className={cn("page-container", narrow ? "max-w-4xl" : "max-w-5xl")}>
+          {children}
+        </div>
+      </section>
+    </SectionRevealer>
   );
 }
 
@@ -179,15 +202,16 @@ export function MarketingCard({
   hover?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        "landing-panel p-6 sm:p-7",
-        hover && "transition-shadow hover:shadow-[var(--shadow-card-hover)]",
-        className,
-      )}
-    >
-      {children}
-    </div>
+    <TiltCard3D intensity={8} className={cn("h-full max-sm:pointer-events-none", className)}>
+      <div
+        className={cn(
+          "landing-panel h-full p-6 sm:p-7",
+          hover && "transition-shadow hover:shadow-[var(--shadow-card-hover)]",
+        )}
+      >
+        {children}
+      </div>
+    </TiltCard3D>
   );
 }
 
@@ -272,6 +296,7 @@ export function LegalDocumentLayout({
         eyebrowIcon={EyebrowIcon}
         title={title}
         description={intro}
+        sceneKey="heroTrading"
         meta={
           effectiveDate || lastUpdated ? (
             <div className="flex flex-wrap gap-4 text-xs font-medium text-muted-foreground">

@@ -174,6 +174,7 @@ export function StatCard({
   iconBg,
   valueClass,
   delay = 0,
+  explainer,
 }: {
   label: string;
   value: React.ReactNode;
@@ -181,6 +182,7 @@ export function StatCard({
   iconBg: string;
   valueClass?: string;
   delay?: number;
+  explainer?: string;
 }) {
   return (
     <motion.div
@@ -188,12 +190,16 @@ export function StatCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
       className="dashboard-card p-3.5 flex flex-col gap-2"
+      title={explainer}
     >
       <div className={cn('flex h-8 w-8 items-center justify-center rounded-lg', iconBg)}>
         <Icon className="h-3.5 w-3.5" />
       </div>
       <div>
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="text-xs font-medium text-muted-foreground">
+          {label}
+          {explainer ? <span className="ml-1 cursor-help text-muted-foreground/50">ⓘ</span> : null}
+        </p>
         <p className={cn('text-xl font-bold tabular-nums mt-0.5', valueClass ?? 'text-foreground')}>{value}</p>
       </div>
     </motion.div>

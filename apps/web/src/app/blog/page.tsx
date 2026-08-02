@@ -28,6 +28,7 @@ export default function BlogPage() {
             {posts.length} articles published
           </div>
         }
+        sceneKey="heroTrading"
       />
 
       <MarketingSection>

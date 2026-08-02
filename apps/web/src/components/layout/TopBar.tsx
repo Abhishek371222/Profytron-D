@@ -16,6 +16,7 @@ import { useTutorialStore } from "@/lib/stores/useTutorialStore";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import { NotificationDropdown } from "@/components/ui/NotificationDropdown";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { AlertDialog } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 const TIER_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
@@ -34,6 +35,8 @@ export function TopBar() {
   const { data: currentUser } = useCurrentUser();
   const [searchFocused, setSearchFocused] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = React.useState(false);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
@@ -63,8 +66,14 @@ export function TopBar() {
   const tierStyle = TIER_STYLES[displayTier] ?? TIER_STYLES.FREE;
 
   const handleLogout = async () => {
-    await logout();
-    router.push("/login");
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      router.push("/login");
+    } finally {
+      setIsLoggingOut(false);
+      setLogoutConfirmOpen(false);
+    }
   };
 
   const toggleThemeFromMenu = () => {
@@ -92,10 +101,10 @@ export function TopBar() {
           type="button"
           onClick={() => setCommandPaletteOpen(true)}
           className={cn(
-            "relative min-w-0 flex-1 flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3.5 h-[clamp(2.375rem,2.6vw,2.625rem)] rounded-[14px] transition-all duration-[220ms] ease-out group overflow-hidden",
+            "relative min-w-0 flex-1 flex items-center gap-2 sm:gap-2.5 px-2.5 sm:px-3.5 h-[clamp(2.375rem,2.6vw,2.625rem)] rounded-xl transition-all duration-[200ms] ease-out group overflow-hidden",
             searchFocused
-              ? "bg-card border border-[color-mix(in_srgb,var(--primary)_28%,var(--card-border))] shadow-[0_4px_24px_color-mix(in_srgb,var(--primary)_10%,transparent)]"
-              : "bg-card/70 border border-[color-mix(in_srgb,var(--card-border)_80%,transparent)] hover:bg-card hover:border-[color-mix(in_srgb,var(--primary)_12%,var(--card-border))]",
+              ? "bg-card border border-primary/30 shadow-[0_2px_16px_color-mix(in_srgb,var(--primary)_8%,transparent)]"
+              : "bg-card/80 border border-[var(--card-border)] hover:bg-card hover:border-primary/20",
           )}
           onMouseEnter={() => setSearchFocused(true)}
           onMouseLeave={() => setSearchFocused(false)}
@@ -149,13 +158,16 @@ export function TopBar() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="group flex items-center gap-2 sm:gap-2.5 h-10 min-h-[var(--touch-min)] pl-1 pr-2 sm:pr-3 rounded-xl border border-border bg-card hover:bg-muted transition-all duration-200 outline-none shrink-0 min-w-0">
+            <button
+              aria-label={`Account menu${mounted ? ` for ${displayName}` : ''}`}
+              className="group flex items-center gap-2 sm:gap-2.5 h-10 min-h-[var(--touch-min)] pl-1 pr-2 sm:pr-3 rounded-xl border border-border bg-card hover:bg-muted transition-all duration-200 outline-none shrink-0 min-w-0"
+            >
               {/* Avatar with ring */}
               <div className="relative">
                 <UserAvatar name={displayName} src={displayAvatar} size="md" className="border-2 border-transparent group-hover:border-primary/30 transition-colors" />
                 <div
-                  className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-chart-3 border-2 border-card"
-                  style={{ boxShadow: "0 0 6px color-mix(in srgb, var(--success) 70%, transparent)" }}
+                  className="absolute -bottom-0.5 -right-0.5 landing-live-dot border-2 border-card"
+                  aria-hidden
                 />
               </div>
 
@@ -241,7 +253,7 @@ export function TopBar() {
             <div className="h-px bg-muted/6 mx-1 my-1" />
 
             <DropdownMenuItem
-              onClick={handleLogout}
+              onClick={() => setLogoutConfirmOpen(true)}
               className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-destructive/80 hover:text-destructive hover:bg-destructive/[0.06] cursor-pointer text-caption font-medium transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -250,6 +262,18 @@ export function TopBar() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <AlertDialog
+        open={logoutConfirmOpen}
+        onOpenChange={setLogoutConfirmOpen}
+        title="Log out of Profytron?"
+        description="You'll need to sign in again to access your dashboard, positions, and account."
+        confirmLabel="Log Out"
+        cancelLabel="Stay Signed In"
+        variant="destructive"
+        isLoading={isLoggingOut}
+        onConfirm={handleLogout}
+      />
     </header>
   );
 }

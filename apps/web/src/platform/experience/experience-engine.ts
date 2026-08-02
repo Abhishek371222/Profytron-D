@@ -5,6 +5,8 @@
 import { wireGpuQualityFromMotion, syncGpuFromMotion } from './gpu-quality';
 import { pauseAllExperience, resumeAllExperience } from './experience-registry';
 import { isExperienceEngineEnabled } from './index-flag';
+import { sceneManagerApi } from './scene-manager';
+import { startFpsMonitor, stopFpsMonitor } from './fps-monitor';
 
 let started = false;
 
@@ -14,6 +16,8 @@ export function startExperienceEngine() {
   started = true;
   wireGpuQualityFromMotion();
   syncGpuFromMotion();
+  sceneManagerApi.start();
+  startFpsMonitor();
 
   const onVis = () => {
     if (document.visibilityState === 'hidden') pauseAllExperience();
@@ -26,6 +30,7 @@ export function startExperienceEngine() {
 
   return () => {
     document.removeEventListener('visibilitychange', onVis);
+    stopFpsMonitor();
     started = false;
   };
 }

@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Profytron — Fintech Intelligence",
+  "name": "Profytron",
   "short_name": "Profytron",
-  "description": "Algorithmic trading, automated bots, and AI-powered portfolio management.",
+  "description": "Algorithmic trading platform for Indian traders — AI bots, copy trading, and portfolio analytics.",
   "lang": "en-IN",
   "dir": "ltr",
   "start_url": "/",

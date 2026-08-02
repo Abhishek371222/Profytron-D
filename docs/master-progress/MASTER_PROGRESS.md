@@ -1,7 +1,7 @@
 # Profytron Master Progress (Verified)
 
 **Authority:** This file overrides any pasted chat “progress summary.”
-Update only after code + doc evidence is checked. Last verification: 2026-08-02 (Phase 9B included).
+Update only after code + doc evidence is checked. Last verification: 2026-08-02 (Phase 9C included).
 
 | Phase | Status | Notes |
 |---|---|---|
@@ -14,7 +14,8 @@ Update only after code + doc evidence is checked. Last verification: 2026-08-02 
 | 7 — Marketplace | VERIFIED COMPLETE | `phase7-marketplace-READINESS.md` |
 | 8 — AI Coach | VERIFIED COMPLETE | `phase8-ai-coach-READINESS.md` |
 | 9A — Wallet / Billing / Payments P0s | COMPLETE (local) | `phase9a-wallet-payments-EVIDENCE.md` |
-| **9B — Subscription Lifecycle & Billing Engine** | **COMPLETE (local)** | Items 1–6; reports under `phase9b-*` |
+| 9B — Subscription Lifecycle & Billing Engine | COMPLETE (local) | Items 1–6; reports under `phase9b-*` |
+| **9C — Billing Experience & Financial UX** | **COMPLETE (local)** | `phase9c-billing-experience.md` |
 | Auth session (handoff) | FIXED (local) | Distinct JTIs, hard-nav, refresh grace |
 
 ## Phase 9B inventory

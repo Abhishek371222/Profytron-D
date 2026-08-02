@@ -373,6 +373,10 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                           className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
                           required={mode === 'live'}
                         />
+                        <p className="text-xs text-text-muted">
+                          This grants trading access so your bots can execute on your behalf. Your credentials are
+                          encrypted before being stored and are used only to connect to your MT5 account.
+                        </p>
                       </div>
                     </>
                   )}

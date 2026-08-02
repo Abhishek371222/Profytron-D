@@ -4,6 +4,7 @@ import React from 'react';
 import {
   DashboardPage,
 } from '@/components/dashboard/DashboardPrimitives';
+import { DashboardSceneStrip } from '@/components/3d/DashboardSceneStrip';
 import { ChatHistorySidebar } from '@/components/alpha-coach/ChatHistorySidebar';
 import { CoachChatPanel } from '@/components/alpha-coach/CoachChatPanel';
 import { LiveTradesRail } from '@/components/alpha-coach/LiveTradesRail';
@@ -103,6 +104,7 @@ export default function AlphaCoachPage() {
     startedAt: number;
   } | null>(null);
   const lastAssistantAtRef = React.useRef<number | null>(null);
+  const streamAbortRef = React.useRef<AbortController | null>(null);
 
   React.useEffect(() => {
     activeIdRef.current = activeId;
@@ -521,6 +523,8 @@ export default function AlphaCoachPage() {
 
       let streamBuf = '';
       let streamMode: 'stream' | 'faq' = 'stream';
+      const controller = new AbortController();
+      streamAbortRef.current = controller;
       await coachApi.sendMessageStream(id, text, (event) => {
         if (event.type === 'user' && event.message) {
           setMessages((prev) => {
@@ -568,6 +572,26 @@ export default function AlphaCoachPage() {
             }
             return next;
           });
+        } else if (event.type === 'stopped') {
+          setIsTyping(false);
+          pendingReplyRef.current = null;
+          if (streamBuf) {
+            setMessages((prev) => {
+              const withoutTmp = prev.filter((m) => m.id !== optimisticId);
+              return [
+                ...withoutTmp,
+                {
+                  id: `stopped-${Date.now()}`,
+                  conversationId: id,
+                  role: 'ASSISTANT',
+                  source: 'AI',
+                  content: streamBuf,
+                  createdAt: new Date().toISOString(),
+                },
+              ];
+            });
+          }
+          setStreamingText('');
         } else if (event.type === 'error') {
           pendingReplyRef.current = null;
           trackCoachEvent(COACH_EVENTS.RESPONSE_ERROR, {
@@ -577,8 +601,11 @@ export default function AlphaCoachPage() {
           setErrorText(event.text || 'AI stream error');
           setLastFailedText(text);
         }
-      });
+      }, controller.signal);
 
+      if (streamAbortRef.current === controller) {
+        streamAbortRef.current = null;
+      }
       await refreshList();
     } catch (err: unknown) {
       pendingReplyRef.current = null;
@@ -605,10 +632,15 @@ export default function AlphaCoachPage() {
       setErrorText(apiMsg);
       toast.error(`Can't send message — ${apiMsg}`);
     } finally {
+      streamAbortRef.current = null;
       setIsTyping(false);
       setSending(false);
     }
   };
+
+  const handleStop = React.useCallback(() => {
+    streamAbortRef.current?.abort();
+  }, []);
 
   const handleEscalate = async () => {
     if (!activeId || escalating || escalated) return;
@@ -639,6 +671,11 @@ export default function AlphaCoachPage() {
 
   return (
     <DashboardPage className="animate-page-in !gap-0 !pb-0 !pt-0 flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <DashboardSceneStrip
+        sceneKey="productCoach"
+        className="mb-2 h-16 min-h-16 shrink-0"
+        label="Coach ambient"
+      />
       <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--card-border)] bg-card shadow-sm">
         <div className="grid h-full min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[260px_minmax(0,1fr)_272px]">
           {/* Desktop history */}
@@ -663,6 +700,8 @@ export default function AlphaCoachPage() {
               inputValue={inputValue}
               onInputChange={setInputValue}
               onSend={() => void handleSend(undefined, { source: 'typed' })}
+              onStop={handleStop}
+              isGenerating={isTyping || Boolean(streamingText)}
               onSuggestion={(label) => {
                 trackCoachEvent(COACH_EVENTS.SUGGESTION_CLICKED, {
                   conversationId: activeIdRef.current,
@@ -694,6 +733,13 @@ export default function AlphaCoachPage() {
                 });
                 lastFailedText &&
                   void handleSend(lastFailedText, { source: 'retry' });
+              }}
+              onRegenerateMessage={(userText) => {
+                trackAdoptionEvent(ADOPTION_EVENTS.RETRY, {
+                  step: 'coach',
+                  metadata: { reason: 'regenerate' },
+                });
+                void handleSend(userText, { source: 'retry' });
               }}
               lastFailedText={lastFailedText}
               escalating={escalating}

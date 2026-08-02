@@ -13,6 +13,42 @@ export type SubscriptionPlan = {
   trialEligible?: boolean;
 };
 
+export type BillingCenterPayload = {
+  current: any;
+  plans: SubscriptionPlan[];
+  invoices: Array<{
+    id: string;
+    invoiceNumber?: string;
+    issuedAt?: string;
+    amount?: number;
+    tax?: number;
+    total?: number;
+    currency?: string;
+    description?: string;
+  }>;
+  payments: Array<{
+    id: string;
+    date: string;
+    description: string;
+    amount: number;
+    currency: string;
+    status: string;
+    invoiceId?: string;
+    invoiceNumber?: string;
+    canDownloadInvoice?: boolean;
+  }>;
+  paymentsTotal: number;
+  refunds: {
+    refundedPayments: any[];
+    walletClawbacks: any[];
+  };
+  summary: {
+    spentThisMonth: number;
+    spentThisYear: number;
+    completedCount: number;
+  };
+};
+
 export const subscriptionsApi = {
   async getPlans() {
     const res = await apiClient.get('/subscriptions/plans');
@@ -22,6 +58,11 @@ export const subscriptionsApi = {
   async getCurrent() {
     const res = await apiClient.get('/subscriptions/current');
     return unwrapApiResponse<any>(res.data);
+  },
+
+  async getBillingCenter() {
+    const res = await apiClient.get('/subscriptions/billing-center');
+    return unwrapApiResponse<BillingCenterPayload>(res.data);
   },
 
   async checkout(planId: string, billingCycle: 'MONTHLY' | 'ANNUAL' = 'MONTHLY') {
@@ -55,5 +96,22 @@ export const subscriptionsApi = {
   async getPayments() {
     const res = await apiClient.get('/subscriptions/payments');
     return unwrapApiResponse<{ payments: any[]; total: number }>(res.data);
+  },
+
+  async getRefunds() {
+    const res = await apiClient.get('/subscriptions/refunds');
+    return unwrapApiResponse<{
+      refundedPayments: any[];
+      walletClawbacks: any[];
+    }>(res.data);
+  },
+
+  /** Authenticated PDF download via API client (blob). */
+  async downloadInvoicePdf(invoiceId: string): Promise<Blob> {
+    const res = await apiClient.get(
+      `/subscriptions/invoices/${encodeURIComponent(invoiceId)}/download`,
+      { responseType: 'blob' },
+    );
+    return res.data as Blob;
   },
 };

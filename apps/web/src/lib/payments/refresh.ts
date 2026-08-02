@@ -8,6 +8,8 @@ const PAYMENT_AFFECTED_KEYS = [
   'subscription-current',
   'subscription-invoices',
   'subscription-payments',
+  'subscription-refunds',
+  'billing-center',
   'subscriptions',
   'billing-payments',
   'notifications',

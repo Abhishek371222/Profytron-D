@@ -27,10 +27,7 @@ function toNumber(value: unknown, fallback = 0) {
 
 function buildChartData(strategy: Strategy) {
   const curve = strategy.equityCurve;
-  if (!curve?.length) {
-    const base = toNumber(strategy.latestPerformance?.winRate, 50);
-    return Array.from({ length: 12 }, (_, i) => ({ v: base + Math.sin(i * 0.8) * 4 + i * 0.8, i }));
-  }
+  if (!curve?.length) return [];
   return curve.map((point, i) => {
     if (typeof point === 'number') return { v: point, i };
     if (point && typeof point === 'object') {
@@ -129,17 +126,23 @@ export function StrategyCard({
       )}
 
       <div className="h-24 -mx-5 mb-4 border-y border-[var(--card-border)]">
-        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id={`grid-${strategy.id}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={chartColor} stopOpacity={0.25} />
-                <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <Area type="monotone" dataKey="v" stroke={chartColor} fill={`url(#grid-${strategy.id})`} strokeWidth={2} isAnimationActive={false} />
-          </AreaChart>
-        </ResponsiveContainer>
+        {chartData.length > 1 ? (
+          <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id={`grid-${strategy.id}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={chartColor} stopOpacity={0.25} />
+                  <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <Area type="monotone" dataKey="v" stroke={chartColor} fill={`url(#grid-${strategy.id})`} strokeWidth={2} isAnimationActive={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex h-full items-center justify-center text-[11px] text-muted-foreground">
+            Equity preview unavailable
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-auto text-sm">

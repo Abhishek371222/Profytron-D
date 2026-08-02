@@ -8,6 +8,9 @@ import { SectionRevealer } from "@/components/ui/SectionRevealer";
 import { LenisProvider } from "@/components/providers/LenisProvider";
 import React from "react";
 import { isExperienceEngineEnabled } from "@/platform/experience/index-flag";
+import { SceneProvider } from "@/components/3d/SceneProvider";
+import { AmbientDepthBackground } from "@/components/3d/AmbientDepthBackground";
+import { MarketingTransitionFrame } from "@/components/3d/MarketingTransitionFrame";
 import {
   HowItWorksSkeleton,
   FeaturesSkeleton,
@@ -47,7 +50,6 @@ const FaqSection = dynamic(
   { loading: () => <FaqSkeleton /> },
 );
 
-/** Dev-only panel — keep out of the initial landing graph. */
 const ExperienceDevPanel = dynamic(
   () =>
     import("@/platform/experience/experience-dev-panel").then((m) => ({
@@ -80,42 +82,45 @@ export function LandingPageClient({ footer }: { footer: React.ReactNode }) {
 
   return (
     <AppProviders>
-    <LenisProvider>
-      <main className="relative min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background exp-lighting">
-        <div className="relative z-10">
-          <PublicNavbar />
-          <HeroSection />
+      <SceneProvider>
+        <LenisProvider>
+          <main className="relative min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background exp-lighting">
+            <AmbientDepthBackground variant="marketing" position="fixed" enableAmbientScene />
+            <MarketingTransitionFrame transition="cameraPush" className="relative z-10">
+              <PublicNavbar />
+              <HeroSection />
 
-          <SectionRevealer delay={0.08}>
-            <HowItWorks />
-          </SectionRevealer>
+              <SectionRevealer delay={0.08}>
+                <HowItWorks />
+              </SectionRevealer>
 
-          <SectionRevealer delay={0.1}>
-            <FeaturesSection />
-          </SectionRevealer>
+              <SectionRevealer delay={0.1}>
+                <FeaturesSection />
+              </SectionRevealer>
 
-          <SectionRevealer delay={0.1}>
-            <ValuePillars />
-          </SectionRevealer>
+              <SectionRevealer delay={0.1}>
+                <ValuePillars />
+              </SectionRevealer>
 
-          <SectionRevealer delay={0.1}>
-            <PricingSection />
-          </SectionRevealer>
+              <SectionRevealer delay={0.1}>
+                <PricingSection />
+              </SectionRevealer>
 
-          <SectionRevealer delay={0.1}>
-            <CTABanner />
-          </SectionRevealer>
+              <SectionRevealer delay={0.1}>
+                <CTABanner />
+              </SectionRevealer>
 
-          <SectionRevealer delay={0.08}>
-            <FaqSection />
-          </SectionRevealer>
+              <SectionRevealer delay={0.08}>
+                <FaqSection />
+              </SectionRevealer>
 
-          {footer}
-        </div>
-        {process.env.NEXT_PUBLIC_PLATFORM_METRICS === "1" &&
-          isExperienceEngineEnabled() && <ExperienceDevPanel />}
-      </main>
-    </LenisProvider>
+              {footer}
+            </MarketingTransitionFrame>
+            {process.env.NEXT_PUBLIC_PLATFORM_METRICS === "1" &&
+              isExperienceEngineEnabled() && <ExperienceDevPanel />}
+          </main>
+        </LenisProvider>
+      </SceneProvider>
     </AppProviders>
   );
 }

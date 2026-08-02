@@ -4,7 +4,7 @@ import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { LayoutGrid, List, Search, SlidersHorizontal, ChevronDown, Server, ArrowRight, Sparkles } from 'lucide-react';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FilterSidebar } from '@/components/marketplace/FilterSidebar';
 import { MarketplaceCard } from '@/components/marketplace/MarketplaceCard';
@@ -12,13 +12,15 @@ import { SubscribeModal } from '@/components/marketplace/SubscribeModal';
 import { MarketplaceSkeleton } from '@/components/skeletons/MarketplaceSkeleton';
 import { cn } from '@/lib/utils';
 import { marketplaceApi, SubscriptionBillingModel } from '@/lib/api/marketplace';
-import { apiClient, unwrapApiResponse } from '@/lib/api/client';
+import { strategiesApi } from '@/lib/api/strategies';
 import { Button } from '@/components/ui/button';
 import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import { toast } from 'sonner';
 import { useBreakpoint } from '@/lib/hooks/useBreakpoint';
+import { useDebouncedValue } from '@/lib/hooks/useDebouncedValue';
 import { formatBotName } from '@/lib/bot-labels';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
+import { DashboardSceneStrip } from '@/components/3d/DashboardSceneStrip';
 
 // MarketplaceHero pulls in MarketplaceHeroVisual -> the d3-powered wireframe
 // globe, adding a d3 + JSON-data (~230KB) dependency to what would otherwise
@@ -57,15 +59,6 @@ const MarketplaceStrategyTable = dynamic(
   },
 );
 
-function useDebouncedValue<T>(value: T, delay = 350): T {
-  const [debounced, setDebounced] = React.useState(value);
-  React.useEffect(() => {
-    const t = window.setTimeout(() => setDebounced(value), delay);
-    return () => window.clearTimeout(t);
-  }, [value, delay]);
-  return debounced;
-}
-
 function MarketplacePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -77,10 +70,10 @@ function MarketplacePageInner() {
   const [selectedStrategy, setSelectedStrategy] = React.useState<Record<string, unknown> | null>(null);
   const [selectedBillingModel, setSelectedBillingModel] = React.useState<SubscriptionBillingModel>('FIXED');
 
-  const openSubscribe = (strategy: unknown, billingModel: SubscriptionBillingModel = 'FIXED') => {
+  const openSubscribe = React.useCallback((strategy: unknown, billingModel: SubscriptionBillingModel = 'FIXED') => {
     setSelectedBillingModel(billingModel);
     setSelectedStrategy(strategy as Record<string, unknown>);
-  };
+  }, []);
   const [searchQuery, setSearchQuery] = React.useState(searchParams.get('q') || '');
   const [sortBy, setSortBy] = React.useState<'trending' | 'top-rated' | 'newest' | 'price' | 'performance' | 'subscribers'>(
     (searchParams.get('sort') as 'trending') || 'trending',
@@ -139,8 +132,7 @@ function MarketplacePageInner() {
   const myBotsQuery = useQuery({
     queryKey: ['my-bots-count'],
     queryFn: async () => {
-      const res = await apiClient.get('/strategies/my');
-      const bots = unwrapApiResponse<Array<{ status?: string }>>(res.data) ?? [];
+      const bots = ((await strategiesApi.getMyStrategies()) ?? []) as Array<{ status?: string }>;
       return bots.filter((b) => b.status === 'ACTIVE').length;
     },
     staleTime: 60_000,
@@ -167,6 +159,10 @@ function MarketplacePageInner() {
     getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    // Keep showing the previous result set while a new search/filter/sort
+    // combination is fetching, instead of dropping back to the full skeleton
+    // — makes typing in search and toggling filters feel instant.
+    placeholderData: keepPreviousData,
   });
 
   const mappedStrategies = React.useMemo(() => {
@@ -176,10 +172,6 @@ function MarketplacePageInner() {
       const strategy = item.strategy as Record<string, unknown>;
       const perf = (strategy.performance as Record<string, unknown>[])?.[0] ?? {};
       const assetClass = strategy.assetClass ? String(strategy.assetClass) : 'Unknown';
-      const configMarkets = (strategy.configJson as Record<string, unknown> | undefined)?.markets;
-      const allMarkets = Array.isArray(configMarkets) && configMarkets.length > 0
-        ? configMarkets.map(String)
-        : [assetClass];
       return {
         id: String(item.strategyId),
         name: formatBotName(String(strategy.name)),
@@ -187,7 +179,6 @@ function MarketplacePageInner() {
         creator: (strategy.creator as { fullName?: string })?.fullName || 'Unknown',
         verified: Boolean(strategy.isVerified),
         assetClass,
-        allMarkets,
         timeframe: strategy.timeframe ? String(strategy.timeframe).toUpperCase() : 'Unknown',
         price: Number(item.monthlyPrice || 0),
         monthlyPrice: Number(item.monthlyPrice || 0),
@@ -198,36 +189,19 @@ function MarketplacePageInner() {
         drawdown: Number(perf.maxDrawdown || 0),
         rating: Number(item.rating || 0),
         reviewCount: Number(item.reviewCount || 0),
+        createdAt: typeof strategy.createdAt === 'string' ? strategy.createdAt : undefined,
       };
     });
   }, [marketplaceQuery.data]);
 
-  const strategies = React.useMemo(() => {
-    const normalizedQuery = debouncedSearch.trim().toLowerCase();
-    const filtered = mappedStrategies.filter((s) => {
-      if (filters.verifiedOnly && !s.verified) return false;
-      if (filters.selectedRisks.length && !filters.selectedRisks.includes(s.risk.toLowerCase())) return false;
-      if (filters.selectedAssets.length && !filters.selectedAssets.some((a) => s.allMarkets.includes(a))) return false;
-      if (filters.selectedTimeframes.length && !filters.selectedTimeframes.includes(s.timeframe)) return false;
-      if (filters.priceMax > 0 && s.price > filters.priceMax) return false;
-      if (normalizedQuery) {
-        const target = `${s.name} ${s.creator} ${s.category}`.toLowerCase();
-        if (!target.includes(normalizedQuery)) return false;
-      }
-      return true;
-    });
-
-    return [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'price': return a.price - b.price;
-        case 'performance': return b.returns - a.returns;
-        case 'subscribers': return b.subscribers - a.subscribers;
-        case 'top-rated': return b.sharpe - a.sharpe;
-        case 'newest': return String(b.id).localeCompare(String(a.id));
-        default: return b.subscribers * 0.6 + b.returns * 10 - (a.subscribers * 0.6 + a.returns * 10);
-      }
-    });
-  }, [filters, mappedStrategies, debouncedSearch, sortBy]);
+  // search/verified/risk/assetClass/timeframe/priceMax/sort are all sent to
+  // the API (see marketplaceQuery below) and applied server-side, so
+  // `mappedStrategies` already reflects the current filters/sort exactly —
+  // no client-side re-filter/re-sort pass needed. (A previous re-sort here
+  // also silently disagreed with the server on "top-rated"/"trending", using
+  // Sharpe/a local formula instead of the real rating/trending score — removed
+  // rather than fixed, since the server's result is already correct.)
+  const strategies = mappedStrategies;
 
   const heroStats = React.useMemo(() => {
     const creators = new Set(mappedStrategies.filter((s) => s.verified).map((s) => s.creator));
@@ -267,7 +241,12 @@ function MarketplacePageInner() {
         maxDrawdown: Number(perf.maxDrawdown || 0),
         returnsValue: winRate,
         subscribersValue: Number(strategy.copiesCount || 0),
-        chartData: Array.from({ length: 10 }, (_, i) => ({ val: 10 + winRate * 0.4 + Math.sin(i) * 8 + i * 2 })),
+        rating: Number(item.rating || 0),
+        reviewCount: Number(item.reviewCount || 0),
+        // No historical equity series is available from this endpoint —
+        // leave chartData unset so the card shows an honest "unavailable" state
+        // instead of a fabricated curve.
+        chartData: [],
       };
     });
   }, [featuredQuery.data]);
@@ -293,10 +272,14 @@ function MarketplacePageInner() {
   };
 
   const isLoading = marketplaceQuery.isLoading && !marketplaceQuery.data;
-  const sortLabel = sortBy.replace('-', ' ');
 
   return (
     <div className="marketplace-page brand-surface-bg flex min-h-0 min-w-0 w-full flex-1 flex-col">
+      <DashboardSceneStrip
+        sceneKey="productMarketplace"
+        className="mx-[var(--dashboard-p)] mb-4 mt-2"
+        label="Marketplace ambient"
+      />
       <MarketplaceHero {...heroStats} />
 
       <div className="marketplace-body min-h-0 min-w-0 w-full flex-1 overflow-y-auto overflow-x-hidden pb-10">
@@ -350,14 +333,21 @@ function MarketplacePageInner() {
                   />
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setSortBy(sortOrder[(sortOrder.indexOf(sortBy) + 1) % sortOrder.length])}
-                  className="flex h-[var(--control-h-sm)] items-center gap-2 rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card px-3 text-xs font-semibold capitalize text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {sortLabel}
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </button>
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                    aria-label="Sort strategies by"
+                    className="h-[var(--control-h-sm)] min-h-[var(--touch-min)] appearance-none rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card py-0 pl-3 pr-8 text-xs font-semibold capitalize text-muted-foreground outline-none transition-colors hover:text-foreground focus:border-[color-mix(in_srgb,var(--primary)_40%,var(--card-border))]"
+                  >
+                    {sortOrder.map((option) => (
+                      <option key={option} value={option} className="capitalize">
+                        {option.replace('-', ' ')}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                </div>
 
                 <div className="flex rounded-[var(--radius-button)] border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--muted)_35%,transparent)] p-0.5">
                   <button
@@ -434,20 +424,18 @@ function MarketplacePageInner() {
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-[18px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary">
                   <Sparkles className="h-7 w-7" />
                 </div>
-                <p className="text-base font-semibold text-foreground">No bots match your filters</p>
+                <p className="text-base font-semibold text-foreground">
+                  {debouncedSearch ? `No bots match "${debouncedSearch}"` : 'No bots match your filters'}
+                </p>
                 <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                  Adjust risk, market, or pricing — or reset filters to see featured and beginner-friendly strategies.
+                  {debouncedSearch
+                    ? 'Try a different name or creator, or clear your filters to see everything available.'
+                    : 'Try a broader risk level, market, or price range — or reset filters to see all bots.'}
                 </p>
                 <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-                  <Button variant="outline" onClick={resetFilters}>
+                  <Button variant="primary" onClick={resetFilters}>
                     Reset Filters
                   </Button>
-                  <a
-                    href="/connected-accounts"
-                    className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
-                  >
-                    Connect account first
-                  </a>
                 </div>
               </div>
             )}

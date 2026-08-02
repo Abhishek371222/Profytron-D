@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ChevronRight, AlertTriangle, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SceneSlot } from '@/components/3d/SceneSlot';
 
 export function DashboardPage({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={cn('dash-page relative', className)}>{children}</div>;
@@ -21,11 +22,20 @@ export function DashboardBreadcrumbs({
         <React.Fragment key={`${item.label}-${i}`}>
           {i > 0 && <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />}
           {item.href ? (
-            <Link href={item.href} className={i === items.length - 1 ? 'text-foreground' : 'hover:underline'}>
+            <Link
+              href={item.href}
+              aria-current={i === items.length - 1 ? 'page' : undefined}
+              className={i === items.length - 1 ? 'text-foreground' : 'hover:underline'}
+            >
               {item.label}
             </Link>
           ) : (
-            <span className="text-foreground truncate max-w-[220px]">{item.label}</span>
+            <span
+              aria-current={i === items.length - 1 ? 'page' : undefined}
+              className="text-foreground truncate max-w-[220px]"
+            >
+              {item.label}
+            </span>
           )}
         </React.Fragment>
       ))}
@@ -44,7 +54,7 @@ export function DashboardPageHeader({
 }: {
   title: string;
   titleAccent?: string;
-  description?: string;
+  description?: React.ReactNode;
   icon?: React.ElementType;
   iconClassName?: string;
   actions?: React.ReactNode;
@@ -52,14 +62,14 @@ export function DashboardPageHeader({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
+      initial={{ opacity: 0, y: 16, clipPath: 'inset(8% 0 0 0)' }}
+      animate={{ opacity: 1, y: 0, clipPath: 'inset(0% 0 0 0)' }}
+      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className={cn('flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between', className)}
     >
       <div className="flex items-start gap-3 min-w-0">
         {Icon ? (
-          <div className={cn('dash-icon-box shadow-[0_4px_16px_rgba(0,0,0,0.06)]', iconClassName)}>
+          <div className={cn('dash-icon-box', iconClassName)}>
             <Icon className="h-5 w-5" />
           </div>
         ) : null}
@@ -145,17 +155,42 @@ export function DashboardTabs<T extends string>({
   tabs,
   active,
   onChange,
+  label = 'Filter',
 }: {
   tabs: readonly T[];
   active: T;
   onChange: (tab: T) => void;
+  label?: string;
 }) {
+  const tabRefs = React.useRef<Record<string, HTMLButtonElement | null>>({});
+
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    e.preventDefault();
+    const nextIndex = e.key === 'ArrowRight'
+      ? (index + 1) % tabs.length
+      : (index - 1 + tabs.length) % tabs.length;
+    const nextTab = tabs[nextIndex];
+    onChange(nextTab);
+    tabRefs.current[nextTab]?.focus();
+  };
+
   return (
-    <div className="dash-tabs">
-      {tabs.map((tab) => (
-        <DashFilterPill key={tab} active={active === tab} onClick={() => onChange(tab)}>
+    <div className="dash-tabs" role="tablist" aria-label={label}>
+      {tabs.map((tab, index) => (
+        <button
+          key={tab}
+          type="button"
+          ref={(el) => { tabRefs.current[tab] = el; }}
+          role="tab"
+          aria-selected={active === tab}
+          tabIndex={active === tab ? 0 : -1}
+          onClick={() => onChange(tab)}
+          onKeyDown={(e) => handleKeyDown(e, index)}
+          className={cn('dash-filter-pill', active === tab && 'dash-filter-pill-active')}
+        >
           {tab}
-        </DashFilterPill>
+        </button>
       ))}
     </div>
   );
@@ -190,35 +225,37 @@ export function DashStatCard({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
-      whileHover={{ y: -4 }}
+      transition={{ type: 'spring', stiffness: 340, damping: 28 }}
+      whileHover={{ y: -3 }}
       className={cn(
         'dashboard-card kpi-card relative overflow-hidden transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]',
         className,
       )}
     >
-      { }
-      <div className="pointer-events-none absolute -top-6 -left-6 w-24 h-24 rounded-full bg-[color-mix(in_srgb,var(--primary)_8%,transparent)] blur-2xl" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent"
+      />
 
       <div className="relative flex items-start justify-between gap-2 mb-3">
-        <p className="dash-eyebrow text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
         {Icon && (
-          <div className="flex-shrink-0 w-8 h-8 rounded-[10px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--primary)_12%,transparent)] flex items-center justify-center">
-            <Icon className="w-4 h-4 text-primary" />
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-primary/15 bg-primary/10">
+            <Icon className="h-4 w-4 text-primary" />
           </div>
         )}
       </div>
 
-      <p className="relative text-2xl font-bold text-foreground tabular-nums tracking-tight leading-none mb-2 animate-slot-up">
+      <p className="relative mb-2 text-2xl font-bold leading-none tracking-tight text-foreground tabular-nums animate-slot-up">
         {value}
       </p>
 
       <div className="flex items-center gap-2">
         {trend && (
           <span className={cn(
-            "inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-md",
+            "inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-xs font-semibold",
             trendUp
               ? "bg-[color-mix(in_srgb,var(--success)_10%,transparent)] text-[var(--success)]"
               : "bg-[color-mix(in_srgb,var(--destructive)_10%,transparent)] text-[var(--destructive)]",
@@ -295,6 +332,8 @@ export function DashboardEmptyState({
   actionLabel,
   actionHref,
   onAction,
+  showScene = false,
+  children,
 }: {
   icon: React.ElementType;
   title: string;
@@ -302,12 +341,26 @@ export function DashboardEmptyState({
   actionLabel?: string;
   actionHref?: string;
   onAction?: () => void;
+  /** Compact brandLogo SceneSlot — off by default for dense tables/forms. */
+  showScene?: boolean;
+  children?: React.ReactNode;
 }) {
   return (
     <div className="dashboard-card py-16 px-6 text-center space-y-3">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-muted border border-[var(--card-border)]">
-        <Icon className="h-6 w-6 text-muted-foreground" />
-      </div>
+      {showScene ? (
+        <div className="mx-auto h-20 max-h-20 w-full max-w-[7.5rem]">
+          <SceneSlot
+            sceneKey="brandLogo"
+            role="ambient"
+            className="h-full max-h-20 w-full"
+            alt="Profytron"
+          />
+        </div>
+      ) : (
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-muted border border-[var(--card-border)]">
+          <Icon className="h-6 w-6 text-muted-foreground" />
+        </div>
+      )}
       <p className="dash-eyebrow">{title}</p>
       {description ? (
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">{description}</p>
@@ -330,6 +383,7 @@ export function DashboardEmptyState({
           {actionLabel}
         </button>
       ) : null}
+      {children}
     </div>
   );
 }

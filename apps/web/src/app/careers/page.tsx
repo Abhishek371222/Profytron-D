@@ -36,6 +36,7 @@ export default function CareersPage() {
             Positions Opening Soon
           </span>
         }
+        sceneKey="brandLogo"
       >
         <motion.div
           initial={{ opacity: 0, y: 16 }}

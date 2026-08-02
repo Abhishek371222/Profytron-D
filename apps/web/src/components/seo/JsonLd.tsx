@@ -107,7 +107,7 @@ function buildSchema(props: JsonLdProps): object | null {
         name: 'Profytron',
         applicationCategory: 'FinanceApplication',
         applicationSubCategory: 'TradingPlatform',
-        operatingSystem: 'Web, iOS, Android',
+        operatingSystem: 'Web',
         url: SITE_URL,
         offers: INR_PLANS.map((plan) => ({
           '@type': 'Offer',
@@ -176,7 +176,7 @@ function buildSchema(props: JsonLdProps): object | null {
             '@type': 'HowToStep',
             position: 1,
             name: 'Create your account',
-            text: 'Sign up free at profytron.com with email or Google. No credit card required.',
+            text: `Sign up free at ${new URL(SITE_URL).host} with email or Google. No credit card required.`,
             url: `${SITE_URL}/register`,
           },
           {

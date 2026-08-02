@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { ShieldCheck, Activity, ArrowRight, Bot, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/UserAvatar";
@@ -25,9 +24,13 @@ export interface MarketplaceStrategyRow {
   rating?: number;
 }
 
-function aiScore(s: MarketplaceStrategyRow) {
-  if (s.rating && s.rating > 0) return Math.round(s.rating);
-  return Math.min(99, Math.round(60 + s.sharpe * 10 + s.returns * 0.2));
+function sharpeDisplay(s: MarketplaceStrategyRow) {
+  return s.sharpe > 0 ? s.sharpe.toFixed(2) : '—';
+}
+
+// Normalizes Sharpe ratio (typical real-world range ~0-3) to a 0-100 ring fill.
+function sharpeRingPct(s: MarketplaceStrategyRow) {
+  return Math.max(0, Math.min(100, (Math.max(s.sharpe, 0) / 3) * 100));
 }
 
 function riskLevel(risk: string) {
@@ -37,7 +40,7 @@ function riskLevel(risk: string) {
   return { label: "Med", pct: 55, tone: "text-foreground" };
 }
 
-export function MarketplaceStrategyTable({
+export const MarketplaceStrategyTable = React.memo(function MarketplaceStrategyTable({
   strategies,
   onSubscribe,
 }: {
@@ -51,7 +54,6 @@ export function MarketplaceStrategyTable({
       { }
       <div className="space-y-3 md:hidden">
         {strategies.map((s, rowIndex) => {
-          const score = aiScore(s);
           const risk = riskLevel(s.risk);
           const dd = s.drawdown ?? Math.max(5, 20 - s.sharpe * 3);
 
@@ -89,8 +91,8 @@ export function MarketplaceStrategyTable({
                   <p className="mt-0.5 font-bold tabular-nums text-primary">+{s.returns.toFixed(1)}%</p>
                 </div>
                 <div className="rounded-lg bg-muted/40 px-2.5 py-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">AI Score</p>
-                  <p className="mt-0.5 font-bold tabular-nums text-foreground">{score}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Sharpe</p>
+                  <p className="mt-0.5 font-bold tabular-nums text-foreground">{sharpeDisplay(s)}</p>
                 </div>
                 <div className="rounded-lg bg-muted/40 px-2.5 py-2">
                   <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Risk</p>
@@ -141,7 +143,7 @@ export function MarketplaceStrategyTable({
         <table className="w-full min-w-[56rem]">
           <thead className="sticky top-0 z-10 bg-[color-mix(in_srgb,var(--muted)_45%,var(--card))] backdrop-blur-md">
             <tr>
-              {["Bot", "Category", "Developer", "AI Score", "Return", "Win Rate", "Risk", "Popularity", "Price", ""].map(
+              {["Bot", "Category", "Developer", "Sharpe", "Return", "Win Rate", "Risk", "Popularity", "Price", ""].map(
                 (h, i) => (
                   <th
                     key={h || "action"}
@@ -158,9 +160,7 @@ export function MarketplaceStrategyTable({
           </thead>
           <tbody>
             {strategies.map((s, rowIndex) => {
-              const spark = buildSpark(s.returns, s.id);
               const dd = s.drawdown ?? Math.max(5, 20 - s.sharpe * 3);
-              const score = aiScore(s);
               const risk = riskLevel(s.risk);
               const popPct = (s.subscribers / maxSubs) * 100;
 
@@ -227,34 +227,17 @@ export function MarketplaceStrategyTable({
                             stroke="var(--chart-bull)"
                             strokeWidth="3"
                             strokeLinecap="round"
-                            strokeDasharray={`${(score / 100) * 88} 88`}
+                            strokeDasharray={`${(sharpeRingPct(s) / 100) * 88} 88`}
                           />
                         </svg>
                         <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold tabular-nums text-primary">
-                          {score}
+                          {sharpeDisplay(s)}
                         </span>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold tabular-nums text-primary">+{s.returns.toFixed(1)}%</span>
-                      <div className="hidden h-8 w-[4.5rem] md:block" aria-hidden="true">
-                        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={1} initialDimension={{ width: 400, height: 250 }}>
-                          <AreaChart data={spark}>
-                            <Area
-                              type="monotone"
-                              dataKey="v"
-                              stroke="var(--chart-bull)"
-                              fill="var(--chart-bull)"
-                              fillOpacity={0.14}
-                              strokeWidth={1.5}
-                              isAnimationActive={false}
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
+                    <span className="text-sm font-bold tabular-nums text-primary">+{s.returns.toFixed(1)}%</span>
                   </td>
                   <td className="px-4 py-4">
                     <span className="text-sm font-semibold tabular-nums text-foreground">{s.returns.toFixed(1)}%</span>
@@ -329,12 +312,4 @@ export function MarketplaceStrategyTable({
       </div>
     </>
   );
-}
-
-function buildSpark(base: number, seed: string) {
-  let h = 0;
-  for (let i = 0; i < seed.length; i += 1) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return Array.from({ length: 8 }, (_, i) => ({
-    v: base * 0.3 + ((h + i * 17) % 20) + i * 1.5,
-  }));
-}
+});

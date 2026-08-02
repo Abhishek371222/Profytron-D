@@ -26,12 +26,13 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  applicationName: "Profytron",
   title: {
     default: "Profytron — Algorithmic Trading Platform for Indian Traders",
     template: "%s | Profytron",
   },
   description:
-    "Profytron is India's most advanced algorithmic trading platform. Copy top strategies, deploy AI-powered bots, and manage your portfolio with institutional-grade tools. Free trial available.",
+    "Profytron is an algorithmic trading platform for Indian traders. Copy top strategies, deploy AI-powered bots, and manage your portfolio with institutional-grade tools. Free trial available.",
   manifest: "/manifest.json",
   // Absolute www icons — Bing/Google often resolve relative /favicon.ico against
   // the indexed host (apex). Apex currently 404s favicon via GoDaddy forwarding,
@@ -55,7 +56,7 @@ export const metadata: Metadata = {
     siteName: "Profytron",
     title: "Profytron — Algorithmic Trading Platform for Indian Traders",
     description:
-      "Copy top strategies, deploy AI-powered trading bots, and grow your portfolio with institutional-grade tools. Join 5,000+ traders on Profytron.",
+      "Copy top strategies, deploy AI-powered trading bots, and grow your portfolio with institutional-grade tools.",
     images: [
       {
         url: "/hero/hero-trading-3d.webp",
@@ -71,7 +72,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@profytron",
-    title: "Profytron — Algo Trading Platform",
+    title: "Profytron — Algorithmic Trading Platform for Indian Traders",
     description:
       "AI-powered copy trading, strategy marketplace, and portfolio analytics for Indian traders.",
     images: ["/hero/hero-trading-3d.webp"],
@@ -106,6 +107,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover",
+  colorScheme: "dark light",
   themeColor: [
     { media: "(prefers-color-scheme: dark)", color: "#121212" },
     { media: "(prefers-color-scheme: light)", color: "#368B9D" },
@@ -118,7 +120,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en-IN" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

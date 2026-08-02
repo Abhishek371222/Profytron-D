@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion, type Variants } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Loader2 } from 'lucide-react';
 
 function GoogleLogo() {
   return (
@@ -24,49 +24,73 @@ function GitHubLogo() {
 }
 
 type SocialAuthButtonsProps = {
-  onGoogle: () => void;
-  onGithub: () => void;
+  onGoogle: () => void | Promise<void>;
+  onGithub: () => void | Promise<void>;
   itemVariants?: Variants;
+  disabled?: boolean;
 };
 
 export function SocialAuthButtons({
   onGoogle,
   onGithub,
   itemVariants,
+  disabled = false,
 }: SocialAuthButtonsProps) {
-  const [mounted, setMounted] = React.useState(false);
+  const [busy, setBusy] = React.useState<'google' | 'github' | null>(null);
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const run = async (provider: 'google' | 'github', fn: () => void | Promise<void>) => {
+    if (disabled || busy) return;
+    setBusy(provider);
+    try {
+      await fn();
+    } finally {
+      // Redirect flows leave the page; reset for popup cancel / error paths.
+      setBusy(null);
+    }
+  };
 
   const btnClass =
-    'flex h-12 w-full items-center justify-between gap-3 rounded-xl border border-border bg-card/50 px-5 text-sm font-semibold text-foreground/85 transition-colors hover:bg-muted/60 hover:border-primary/30';
-
-  if (!mounted) {
-    return (
-      <div className="mb-6 space-y-3" aria-hidden="true">
-        <div className="h-12 w-full rounded-xl border border-[var(--card-border)] bg-muted/30" />
-        <div className="h-12 w-full rounded-xl border border-[var(--card-border)] bg-muted/30" />
-      </div>
-    );
-  }
+    'flex min-h-[48px] h-12 w-full items-center justify-between gap-3 rounded-xl border border-border bg-card/50 px-5 text-sm font-semibold text-foreground/85 transition-colors hover:bg-muted/60 hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-card/50 disabled:hover:border-border';
 
   return (
-    <div className="mb-6 space-y-3">
-      <motion.button type="button" variants={itemVariants} onClick={onGoogle} className={btnClass}>
+    <div className="mb-6 space-y-3" role="group" aria-label="Social sign-in">
+      <motion.button
+        type="button"
+        variants={itemVariants}
+        onClick={() => void run('google', onGoogle)}
+        disabled={disabled || busy !== null}
+        aria-busy={busy === 'google'}
+        aria-label="Continue with Google"
+        className={btnClass}
+      >
         <span className="flex items-center gap-3">
-          <GoogleLogo />
+          {busy === 'google' ? (
+            <Loader2 className="h-5 w-5 shrink-0 animate-spin text-muted-foreground" aria-hidden />
+          ) : (
+            <GoogleLogo />
+          )}
           Continue with Google
         </span>
-        <ChevronRight className="h-4 w-4 shrink-0 opacity-40" />
+        <ChevronRight className="h-4 w-4 shrink-0 opacity-40" aria-hidden />
       </motion.button>
-      <motion.button type="button" variants={itemVariants} onClick={onGithub} className={btnClass}>
+      <motion.button
+        type="button"
+        variants={itemVariants}
+        onClick={() => void run('github', onGithub)}
+        disabled={disabled || busy !== null}
+        aria-busy={busy === 'github'}
+        aria-label="Continue with GitHub"
+        className={btnClass}
+      >
         <span className="flex items-center gap-3">
-          <GitHubLogo />
+          {busy === 'github' ? (
+            <Loader2 className="h-5 w-5 shrink-0 animate-spin text-muted-foreground" aria-hidden />
+          ) : (
+            <GitHubLogo />
+          )}
           Continue with GitHub
         </span>
-        <ChevronRight className="h-4 w-4 shrink-0 opacity-40" />
+        <ChevronRight className="h-4 w-4 shrink-0 opacity-40" aria-hidden />
       </motion.button>
     </div>
   );

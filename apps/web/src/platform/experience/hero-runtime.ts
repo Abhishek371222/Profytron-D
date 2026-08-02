@@ -29,7 +29,7 @@ export function getHeroLayer(): HeroLayer {
 }
 
 export function shouldMountWebGLHero(): boolean {
-  if (!isExperienceEngineEnabled()) return true; // legacy FloatingLines path
+  if (!isExperienceEngineEnabled()) return true; // allow SceneSlot progressive path
   if (!gpuAllowsWebGL()) return false;
   return lodFromQuality() > 0;
 }

@@ -39,6 +39,7 @@ import { OverviewQuickActions } from '@/components/dashboard/overview/OverviewQu
 import { OverviewAccountHealth } from '@/components/dashboard/overview/OverviewAccountHealth';
 import dynamic from 'next/dynamic';
 import { Mt5SyncBadge } from '@/platform/dashboard/Mt5SyncBadge';
+import { DashboardSceneStrip } from '@/components/3d/DashboardSceneStrip';
 
 const engineOn = isRenderEngineEnabled();
 
@@ -319,8 +320,15 @@ export default function DashboardPage() {
       suppressHydrationWarning
       data-tour="dashboard-overview"
     >
+      <DashboardSceneStrip sceneKey="ambientDepth" className="mb-6" label="Dashboard ambient" />
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
+          <div className="mb-2 inline-flex items-center gap-2">
+            <span className="landing-eyebrow">
+              <span className="landing-live-dot" aria-hidden />
+              Workspace
+            </span>
+          </div>
           <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
             Overview
           </h1>
@@ -329,11 +337,11 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          <div className="inline-flex items-center gap-2 rounded-lg border border-[var(--card-border)] bg-card px-2.5 py-1 text-[11px] leading-tight">
+          <div className="inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-card px-2.5 py-1 text-[11px] leading-tight shadow-sm">
             <span className="font-semibold text-foreground">{accountLabel}</span>
             <span className="text-muted-foreground/50">·</span>
-            <span className="inline-flex items-center gap-1 text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--chart-bull)]" />
+            <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+              <span className="landing-live-dot" aria-hidden />
               {defaultBrokerAccount?.brokerName || 'Broker'} ·{' '}
               {isPaper ? 'Demo' : 'Live'}
             </span>
@@ -352,7 +360,7 @@ export default function DashboardPage() {
               newsQuery.refetch();
               calendarQuery.refetch();
             }}
-            className="inline-flex h-7 items-center gap-1.5 rounded-lg px-2 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+            className="inline-flex h-7 items-center gap-1.5 rounded-lg border border-transparent px-2 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary/20 hover:bg-muted/60 hover:text-foreground"
             aria-label="Refresh"
           >
             <RefreshCcw className="h-3.5 w-3.5" />

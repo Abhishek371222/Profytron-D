@@ -9,11 +9,11 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { brokerApi } from '@/lib/api/broker';
+import { formatMoney } from '@/lib/currency';
 import { BROKER_ACCOUNTS_KEY, type BrokerAccountRow } from '@/lib/queries/account-queries';
 import { useAccountContext } from '@/hooks/useAccountContext';
 import { BrokerConnectModal } from '@/components/copy-trading/BrokerConnectModal';
 import { AccountDetailsModal } from '@/components/broker/AccountDetailsModal';
-import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import {
   AlertTriangle,
   Bot,
@@ -107,10 +107,40 @@ function BrokerIcon({ name }: { name: string }) {
 }
 
 const SUPPORTED_BROKERS = [
-  'Zerodha', 'Upstox', 'Angel One', 'Dhan',
-  'Interactive Brokers', 'Alpaca', 'Binance',
-  'MetaTrader 4', 'MetaTrader 5',
+  'MetaTrader 5',
+  'Paper trading',
 ];
+
+function AccountCardSkeleton() {
+  return (
+    <div
+      className="dashboard-card p-5 space-y-4"
+      aria-hidden
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-muted animate-pulse" />
+          <div className="space-y-2">
+            <div className="h-3.5 w-28 rounded bg-muted animate-pulse" />
+            <div className="h-3 w-16 rounded bg-muted animate-pulse" />
+          </div>
+        </div>
+        <div className="h-6 w-20 rounded-lg bg-muted animate-pulse" />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="h-14 rounded-lg bg-muted/60 animate-pulse" />
+        <div className="h-14 rounded-lg bg-muted/60 animate-pulse" />
+        <div className="h-14 rounded-lg bg-muted/60 animate-pulse" />
+        <div className="h-14 rounded-lg bg-muted/60 animate-pulse" />
+      </div>
+      <div className="h-10 w-full rounded-lg bg-muted animate-pulse" />
+      <div className="flex gap-2">
+        <div className="h-8 flex-1 rounded-lg bg-muted animate-pulse" />
+        <div className="h-8 flex-1 rounded-lg bg-muted animate-pulse" />
+      </div>
+    </div>
+  );
+}
 
 function maskAccount(num?: string) {
   if (!num) return '****';
@@ -131,8 +161,7 @@ function formatStatus(status: AccountStatus) {
 }
 
 function formatInr(amount: number, currency = 'INR') {
-  const symbol = currency === 'INR' ? '₹' : currency === 'USD' ? '$' : `${currency} `;
-  return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatMoney(amount, currency);
 }
 
 function timeAgo(dateStr: string) {
@@ -520,9 +549,11 @@ export default function ConnectedAccountsPage() {
             <Link2 className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Connected Accounts</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Live MT5 via MetaApi G2 — balance and MasterSync copy fills
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+              Connected accounts
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5 max-w-md leading-relaxed">
+              Link your MT5 broker for live balance and copy execution — or start with paper trading.
             </p>
           </div>
         </div>
@@ -530,19 +561,19 @@ export default function ConnectedAccountsPage() {
           <button
             type="button"
             onClick={refresh}
-            className="btn-premium-ghost inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground"
+            className="btn-premium-ghost inline-flex min-h-[44px] h-10 w-10 items-center justify-center rounded-[var(--radius-button)] border border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
             aria-label="Refresh accounts"
           >
-            <RefreshCcw className="h-4 w-4" />
+            <RefreshCcw className="h-4 w-4" aria-hidden />
           </button>
           <button
             type="button"
             onClick={() => setShowModal(true)}
             data-tour="connect-broker-cta"
-            className="btn-premium inline-flex items-center gap-2 h-9 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide"
+            className="btn-premium inline-flex items-center justify-center gap-2 min-h-[44px] h-10 px-4 rounded-[var(--radius-button)] bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
           >
-            <Plus className="h-4 w-4" />
-            Connect New Broker
+            <Plus className="h-4 w-4" aria-hidden />
+            Connect broker
           </button>
         </div>
       </motion.div>
@@ -579,46 +610,78 @@ export default function ConnectedAccountsPage() {
       { }
       {/* ERROR_GUIDE / EMPTY_STATE_GUIDE — do not show empty copy on load failure */}
       {accountsQuery.isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+          aria-busy="true"
+          aria-label="Loading connected accounts"
+        >
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="dashboard-card p-5 space-y-4">
-              <div className="h-4 bg-muted rounded animate-pulse w-2/3" />
-              <div className="h-3 bg-muted rounded animate-pulse w-1/2" />
-              <div className="h-8 bg-muted rounded animate-pulse w-full" />
-            </div>
+            <AccountCardSkeleton key={i} />
           ))}
         </div>
       ) : accountsQuery.isError ? (
-        <DashErrorState
-          message="Couldn't load connected accounts."
-          onRetry={() => {
-            void accountsQuery.refetch();
-          }}
-        />
-      ) : accounts.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="dashboard-card py-20 flex flex-col items-center gap-4 text-center"
+        <div
+          className="dashboard-card p-8 sm:p-10 flex flex-col items-center gap-4 text-center"
+          role="alert"
         >
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted border border-[var(--card-border)]">
-            <Link2Off className="h-8 w-8 text-muted-foreground" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive">
+            <AlertTriangle className="h-7 w-7" aria-hidden />
           </div>
-          <div className="space-y-1">
-            <p className="text-base font-bold text-foreground">No broker accounts connected yet</p>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              Connect a broker account to start running bots.
+          <div className="space-y-1.5 max-w-sm">
+            <p className="text-base font-bold text-foreground">Couldn&apos;t load accounts</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Check your connection and try again. Your linked brokers are safe — this is only a
+              display error.
             </p>
           </div>
           <button
             type="button"
-            onClick={() => setShowModal(true)}
-            data-tour="connect-broker-cta"
-            className="inline-flex items-center gap-2 h-9 px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors"
+            onClick={() => void accountsQuery.refetch()}
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 h-10 px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
           >
-            <Plus className="h-4 w-4" />
-            Connect Broker
+            <RefreshCcw className="h-4 w-4" aria-hidden />
+            Try again
           </button>
+        </div>
+      ) : accounts.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="dashboard-card px-5 py-14 sm:py-16 flex flex-col items-center gap-5 text-center"
+          role="status"
+        >
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary dark:bg-primary/15">
+            <Link2Off className="h-8 w-8" aria-hidden />
+          </div>
+          <div className="space-y-2 max-w-md">
+            <p className="text-lg font-bold text-foreground tracking-tight">
+              No accounts connected yet
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Connect your first MT5 broker to enable live copy trading, or use paper trading to
+              practice without risk.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-2.5 w-full max-w-md">
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
+              data-tour="connect-broker-cta"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 h-11 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+              Connect broker
+            </button>
+            <Link
+              href="/guides"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 h-11 px-5 rounded-xl border border-[var(--card-border)] bg-card text-sm font-semibold text-foreground hover:bg-muted/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            >
+              Learn more
+            </Link>
+          </div>
+          <p className="text-xs text-muted-foreground max-w-sm leading-relaxed">
+            Sign-in with Google or GitHub is managed from the login page — this screen links trading accounts only.
+          </p>
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -647,6 +710,11 @@ export default function ConnectedAccountsPage() {
                     <span className={cn('h-1.5 w-1.5 rounded-full', STATUS_DOT[account.status] ?? STATUS_DOT.CONNECTED)} />
                     {formatStatus(account.status)}
                   </span>
+                  {(account.isDefault || account.isMasterSource) && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-primary/10 text-primary border border-primary/20">
+                      {account.isMasterSource ? 'Copy source' : 'Default account'}
+                    </span>
+                  )}
                   {account.sharedAccess && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wide bg-chart-2/10 text-chart-2 border border-chart-2/20">
                       Shared by {account.sharedByName || 'teammate'} · view only
@@ -691,8 +759,12 @@ export default function ConnectedAccountsPage() {
                 )}
                 {account.lastSyncedAt && (
                   <div className="rounded-lg bg-muted/20 border border-[var(--card-border)] p-2.5">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">Linked</p>
-                    <p className="text-xs font-bold text-foreground">{timeAgo(account.lastSyncedAt)}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-0.5">
+                      Last synced
+                    </p>
+                    <p className="text-xs font-bold text-foreground">
+                      {timeAgo(account.lastSyncedAt)}
+                    </p>
                   </div>
                 )}
               </div>
@@ -710,19 +782,19 @@ export default function ConnectedAccountsPage() {
                 </p>
               ) : null}
 
-                <div className="flex flex-col gap-2 pt-1">
+                <div className="flex flex-col gap-2 pt-1 mt-auto">
                 {account.canManage !== false && (
                   <button
                     type="button"
                     onClick={() => handleDisconnect(account)}
                     disabled={disconnectingId === account.id}
-                    className="w-full h-10 rounded-lg border border-destructive/40 bg-destructive text-destructive-foreground text-[12px] font-bold uppercase tracking-wide hover:bg-destructive/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 shadow-sm"
-                    aria-label="Disconnect account"
+                    className="w-full min-h-[44px] h-11 rounded-lg border border-destructive/40 bg-destructive text-destructive-foreground text-[12px] font-bold uppercase tracking-wide hover:bg-destructive/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive/40"
+                    aria-label={`Disconnect ${account.brokerName} account`}
                   >
                     {disconnectingId === account.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                     ) : (
-                      <Link2Off className="h-4 w-4" />
+                      <Link2Off className="h-4 w-4" aria-hidden />
                     )}
                     Disconnect account
                   </button>
@@ -733,12 +805,12 @@ export default function ConnectedAccountsPage() {
                       type="button"
                       onClick={() => handleReconnect(account)}
                       disabled={disconnectingId === account.id}
-                      className="flex-1 h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-40 disabled:cursor-default flex items-center justify-center gap-1"
+                      className="flex-1 min-h-[40px] h-9 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                     >
                       {account.status === 'SYNCING' ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                        <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
                       ) : (
-                        <RefreshCcw className="h-3 w-3" />
+                        <RefreshCcw className="h-3 w-3" aria-hidden />
                       )}
                       {account.storeOnly ? 'Upgrade to MetaApi' : 'Reconnect'}
                     </button>
@@ -747,9 +819,9 @@ export default function ConnectedAccountsPage() {
                     type="button"
                     onClick={() => handleViewDetails(account)}
                     disabled={disconnectingId === account.id}
-                    className="flex-1 h-8 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center gap-1 disabled:opacity-40"
+                    className="flex-1 min-h-[40px] h-9 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors flex items-center justify-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                   >
-                    <Globe className="h-3 w-3" />
+                    <Globe className="h-3 w-3" aria-hidden />
                     Details
                   </button>
                 </div>
@@ -786,6 +858,30 @@ export default function ConnectedAccountsPage() {
       )}
 
       { }
+      {!botsQuery.isLoading && accounts.length > 0 && bots.length === 0 ? (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="dashboard-card px-5 py-10 flex flex-col items-center gap-3 text-center"
+          role="status"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted border border-[var(--card-border)] text-muted-foreground">
+            <Bot className="h-6 w-6" aria-hidden />
+          </div>
+          <p className="text-sm font-bold text-foreground">No bots linked yet</p>
+          <p className="text-xs text-muted-foreground max-w-sm leading-relaxed">
+            Subscribe to a marketplace strategy or deploy a bot to see it here alongside your
+            connected accounts.
+          </p>
+          <Link
+            href="/marketplace"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 h-10 px-4 rounded-xl border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-foreground hover:bg-muted/40"
+          >
+            Browse marketplace
+          </Link>
+        </motion.div>
+      ) : null}
+
       {(botsQuery.isLoading || bots.length > 0) && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -883,7 +979,9 @@ export default function ConnectedAccountsPage() {
                             {bot.status === 'ACTIVE' && (
                               <button
                                 type="button"
-                                onClick={() => pauseMut.mutate(bot.id)}
+                                onClick={() => {
+                                  if (confirm('Pause this bot? New trades will stop, but any positions already open on your broker stay open until you close them manually.')) pauseMut.mutate(bot.id);
+                                }}
                                 disabled={pauseMut.isPending}
                                 className="inline-flex items-center gap-1 min-h-[var(--touch-min)] px-2.5 py-1.5 rounded-lg border border-[var(--card-border)] bg-card text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors disabled:opacity-50"
                               >
@@ -1027,23 +1125,26 @@ export default function ConnectedAccountsPage() {
         transition={{ delay: 0.4 }}
         className="dashboard-card p-5"
       >
-        <div className="flex items-center gap-3 mb-4">
-          <Shield className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">Supported Brokers</h2>
+        <div className="flex items-center gap-3 mb-3">
+          <Shield className="h-4 w-4 text-primary" aria-hidden />
+          <h2 className="text-sm font-bold text-foreground uppercase tracking-wide">
+            How connections work
+          </h2>
         </div>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4 max-w-2xl">
+          Live accounts connect through MetaApi to your MT5 login. Paper trading runs on-platform
+          with simulated capital. Indian equities brokers (Zerodha, etc.) are not available here.
+        </p>
         <div className="flex flex-wrap gap-2">
           {SUPPORTED_BROKERS.map((broker) => (
             <span
               key={broker}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[var(--card-border)] bg-muted/20 text-xs font-semibold text-muted-foreground hover:border-primary/30 hover:text-foreground transition-colors cursor-default"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[var(--card-border)] bg-muted/20 text-xs font-semibold text-muted-foreground"
             >
-              <Building2 className="h-3 w-3" />
+              <Building2 className="h-3 w-3" aria-hidden />
               {broker}
             </span>
           ))}
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-[var(--card-border)] text-xs font-semibold text-muted-foreground/60">
-            + More coming soon
-          </span>
         </div>
       </motion.div>
     </div>

@@ -46,6 +46,8 @@ type AccountSnapshot = {
   periodPnl: number;
   openPnl: number;
   maxDd: number;
+  subscribedStrategies: Array<{ name: string; status: string; billingModel: string }>;
+  createdStrategies: Array<{ name: string; isPublished: boolean; copiesCount: number }>;
   summaryLine: string;
 };
 
@@ -410,6 +412,8 @@ export class CoachService {
       periodPnl: 0,
       openPnl: 0,
       maxDd: 0,
+      subscribedStrategies: [],
+      createdStrategies: [],
       summaryLine: 'no broker linked · no open trades',
     };
 
@@ -459,6 +463,23 @@ export class CoachService {
         select: { profit: true, symbol: true, direction: true, volume: true },
       });
 
+      const subscribedStrategies = await this.prisma.userStrategySubscription.findMany({
+        where: { userId, status: 'ACTIVE' },
+        take: 10,
+        select: {
+          billingModel: true,
+          status: true,
+          strategy: { select: { name: true } },
+        },
+      });
+
+      const createdStrategies = await this.prisma.strategy.findMany({
+        where: { creatorId: userId, deletedAt: null },
+        take: 10,
+        orderBy: { updatedAt: 'desc' },
+        select: { name: true, isPublished: true, copiesCount: true },
+      });
+
       const wins = closed.filter((t) => (t.profit ?? 0) > 0).length;
       const winRate = closed.length
         ? Math.round((wins / closed.length) * 1000) / 10
@@ -496,6 +517,12 @@ export class CoachService {
         summaryParts.push(`symbols ${symbols.join(', ') || '—'}`);
       }
       if (maxDd > 0) summaryParts.push(`approx DD ${maxDd.toFixed(1)}%`);
+      if (subscribedStrategies.length) {
+        summaryParts.push(`${subscribedStrategies.length} bot subscription(s)`);
+      }
+      if (createdStrategies.length) {
+        summaryParts.push(`${createdStrategies.length} strategy(ies) created`);
+      }
 
       return {
         hasBroker: Boolean(broker),
@@ -506,6 +533,16 @@ export class CoachService {
         periodPnl,
         openPnl,
         maxDd,
+        subscribedStrategies: subscribedStrategies.map((s) => ({
+          name: s.strategy.name,
+          status: s.status,
+          billingModel: s.billingModel,
+        })),
+        createdStrategies: createdStrategies.map((s) => ({
+          name: s.name,
+          isPublished: s.isPublished,
+          copiesCount: s.copiesCount,
+        })),
         summaryLine: summaryParts.join(' · '),
       };
     } catch (err: any) {
@@ -573,12 +610,30 @@ Rules:
           .join('\n')
       : '- none in last 30d sample';
 
+    const strategyLines = snap.subscribedStrategies.length
+      ? snap.subscribedStrategies
+          .map((s) => `- Subscribed: ${s.name} (${s.billingModel}, ${s.status})`)
+          .join('\n')
+      : '';
+    const createdLines = snap.createdStrategies.length
+      ? snap.createdStrategies
+          .map(
+            (s) =>
+              `- Created: ${s.name} (${s.isPublished ? 'published' : 'draft'}, ${s.copiesCount} copies)`,
+          )
+          .join('\n')
+      : '';
+    const strategiesCtx =
+      strategyLines || createdLines
+        ? `\nStrategies & subscriptions:\n${[strategyLines, createdLines].filter(Boolean).join('\n')}`
+        : '';
+
     const accountCtx = `CONNECTED ACCOUNT
 ${snap.summaryLine}
 Open positions:
 ${openLines}
 Recent closed (sample):
-${closedLines}`;
+${closedLines}${strategiesCtx}`;
 
     const historyCtx = history
       .reverse()

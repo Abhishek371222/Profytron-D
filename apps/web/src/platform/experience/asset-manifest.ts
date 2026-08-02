@@ -2,8 +2,8 @@
  * Single asset manifest — no arbitrary assets.
  */
 
-export type AssetOwner = 'hero' | 'coach' | 'marketing';
-export type AssetKind = 'model' | 'texture' | 'shader' | 'font' | 'icon';
+export type AssetOwner = 'hero' | 'coach' | 'marketing' | 'dashboard' | 'admin';
+export type AssetKind = 'model' | 'texture' | 'shader' | 'font' | 'icon' | 'spline' | 'poster';
 export type AssetPriority =
   | 'critical'
   | 'interactive'
@@ -74,6 +74,77 @@ export const ASSET_MANIFEST: AssetEntry[] = [
     compression: 'none',
     priority: 'background',
     description: 'Features section lucide icons',
+  },
+  {
+    id: 'spline.heroTrading.poster',
+    kind: 'poster',
+    owner: 'hero',
+    version: '1.0.0',
+    size: 120_000,
+    compression: 'webp',
+    priority: 'critical',
+    path: '/3d/posters/hero-trading.webp',
+    description: 'Hero trading LCP poster',
+  },
+  {
+    id: 'spline.heroTrading.scene',
+    kind: 'spline',
+    owner: 'hero',
+    version: '1.0.0',
+    size: 3_000_000,
+    compression: 'gzip',
+    priority: 'hero',
+    description: 'Spline heroTrading scene (env URL)',
+  },
+  {
+    id: 'spline.pricingHero.poster',
+    kind: 'poster',
+    owner: 'marketing',
+    version: '1.0.0',
+    size: 100_000,
+    compression: 'webp',
+    priority: 'hero',
+    path: '/3d/posters/pricing-hero.webp',
+  },
+  {
+    id: 'spline.productMarketplace.poster',
+    kind: 'poster',
+    owner: 'dashboard',
+    version: '1.0.0',
+    size: 100_000,
+    compression: 'webp',
+    priority: 'interactive',
+    path: '/3d/posters/marketplace.webp',
+  },
+  {
+    id: 'spline.productCoach.poster',
+    kind: 'poster',
+    owner: 'coach',
+    version: '1.0.0',
+    size: 80_000,
+    compression: 'webp',
+    priority: 'interactive',
+    path: '/3d/posters/coach.webp',
+  },
+  {
+    id: 'spline.brandLogo.poster',
+    kind: 'poster',
+    owner: 'marketing',
+    version: '1.0.0',
+    size: 40_000,
+    compression: 'webp',
+    priority: 'decorative',
+    path: '/3d/posters/brand-logo.webp',
+  },
+  {
+    id: 'spline.adminOps.poster',
+    kind: 'poster',
+    owner: 'admin',
+    version: '1.0.0',
+    size: 80_000,
+    compression: 'webp',
+    priority: 'decorative',
+    path: '/3d/posters/admin-ops.webp',
   },
 ];
 

@@ -131,8 +131,9 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
                 'peer auth-field w-full h-12 bg-input backdrop-blur-md border border-input-border rounded-input px-5 pt-5 pb-1.5 outline-none transition-all duration-300 font-sans text-body text-foreground placeholder-transparent',
                 'hover:bg-input/80 hover:border-primary/25',
                 '[&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#ffffff_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#0a0a0a] [&:-webkit-autofill]:[caret-color:#000000]',
+                '[&:-webkit-autofill]:[transition:background-color_99999s_ease-in-out_0s]',
                 isPassword &&
-                  'pr-12 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden [&::-webkit-credentials-auto-fill-button]:hidden [&::-webkit-strong-password-auto-fill-button]:hidden',
+                  'pr-14 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden',
                 isFocused && 'bg-card border-primary/30 ring-1 ring-ring/30',
                 error && 'border-destructive/50 focus:border-destructive ring-destructive/20',
                 className,
@@ -146,6 +147,7 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
                 'absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none transition-all duration-300 ease-out origin-left text-body-sm font-semibold tracking-wide',
                 'peer-[:not(:placeholder-shown)]:translate-y-[-18px] peer-[:not(:placeholder-shown)]:scale-[0.72] peer-[:not(:placeholder-shown)]:text-primary',
                 'peer-autofill:translate-y-[-18px] peer-autofill:scale-[0.72] peer-autofill:text-primary',
+                'peer-[-webkit-autofill]:translate-y-[-18px] peer-[-webkit-autofill]:scale-[0.72] peer-[-webkit-autofill]:text-primary',
                 (isFocused || hasValue) && 'translate-y-[-18px] scale-[0.72] text-primary',
               )}
             >
@@ -155,11 +157,11 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
             {isPassword ? (
               <button
                 type="button"
-                tabIndex={-1}
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
                 className={cn(
-                  'absolute right-5 top-1/2 -translate-y-1/2 transition-all duration-300',
+                  'absolute right-3 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] flex items-center justify-center transition-all duration-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 z-[1]',
                   isFocused ? 'text-primary' : 'text-text-muted hover:text-foreground',
                 )}
               >

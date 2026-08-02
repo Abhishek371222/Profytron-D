@@ -8,6 +8,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Loader2, Mail, Sparkles, CheckCircle2, ShieldQuestion } from 'lucide-react';
 import Link from 'next/link';
 import { BrandLogo } from '@/components/brand/BrandLogo';
+import { SceneProvider } from '@/components/3d/SceneProvider';
+import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
+import { AuthBrandScene } from '@/components/3d/AuthBrandScene';
 
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { Button } from '@/components/ui/button';
@@ -70,7 +73,9 @@ export default function ForgotPasswordPage() {
  };
 
  return (
+ <SceneProvider>
  <main className="min-h-screen w-full bg-bg-base overflow-hidden relative flex flex-col items-center justify-center p-6">
+ <AmbientDepthBackground variant="auth" position="fixed" />
 
  { }
  <div className="fixed top-12 left-12 z-50">
@@ -98,6 +103,7 @@ export default function ForgotPasswordPage() {
  <div className="relative bg-bg-card/40 backdrop-blur-3xl border border-border rounded-[40px] p-10 lg:p-14 shadow-2xl overflow-hidden group">
  
  <motion.div variants={itemVariants} className="flex flex-col items-center text-center space-y-6 mb-12">
+ <AuthBrandScene className="hidden sm:block mb-2" />
  <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-2xl relative overflow-hidden">
  <ShieldQuestion className="w-10 h-10 text-primary" />
  <motion.div 
@@ -131,6 +137,11 @@ export default function ForgotPasswordPage() {
  <FloatingLabelInput
  label="Authorized Email"
  type="email"
+ autoComplete="email"
+ autoCapitalize="none"
+ autoCorrect="off"
+ spellCheck={false}
+ inputMode="email"
  icon={Mail}
  {...register('email')}
  error={errors.email?.message}
@@ -189,5 +200,6 @@ export default function ForgotPasswordPage() {
  </div>
  </motion.div>
  </main>
+ </SceneProvider>
  );
 }

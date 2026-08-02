@@ -8,13 +8,15 @@
 import Link from 'next/link';
 import { ArrowRight, ShieldCheck, Sparkles } from '@/components/ui/icons';
 import { buttonVariants } from '@/components/ui/button';
-import { LandingAmbientBackground } from '@/components/home/LandingAmbientBackground';
+import { SceneProvider } from '@/components/3d/SceneProvider';
+import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
 import { cn } from '@/lib/utils';
 
 export default function OnboardingWelcomePage() {
   return (
+    <SceneProvider>
     <div className="animate-page-in relative min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
-      <LandingAmbientBackground />
+      <AmbientDepthBackground variant="auth" position="fixed" />
       <div className="relative z-10 w-full max-w-lg dashboard-card p-8 sm:p-10 space-y-6 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-primary/5 px-3 py-1 text-caption font-medium text-primary">
           <Sparkles className="h-3.5 w-3.5" />
@@ -41,5 +43,6 @@ export default function OnboardingWelcomePage() {
         </p>
       </div>
     </div>
+    </SceneProvider>
   );
 }

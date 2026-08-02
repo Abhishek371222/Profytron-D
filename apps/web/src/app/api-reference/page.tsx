@@ -52,6 +52,7 @@ export default function ApiReferencePage() {
             <span className="rounded-lg border border-[var(--card-border)] bg-card px-3 py-1">HTTPS / WSS</span>
           </div>
         }
+        sceneKey="heroTrading"
       />
 
       <MarketingSection>

@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { TiltCard3D } from '@/components/animations/TiltCard3D';
 import { GlowPulse } from '@/components/animations/GlowPulse';
 import {
+  ANNUAL_SAVE_LABEL,
   PLATFORM_PLANS,
   formatInr,
 } from '@/lib/pricing/plans';
@@ -44,10 +45,10 @@ const landingMeta: Record<
   },
   business: {
     icon: Building2,
-    iconClass: 'text-emerald-600',
+    iconClass: 'text-emerald-600 dark:text-emerald-400',
     iconBg: 'bg-emerald-500/10 border-emerald-500/15',
     ctaClass:
-      'bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/15 border border-emerald-500/20',
+      'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/15 border border-emerald-500/20',
     displayName: 'Elite',
   },
 };
@@ -64,34 +65,38 @@ export function PricingPlansGrid({ variant = 'page', showEnterprise = true }: Pr
 
   const toggle = (
     <div className="relative flex flex-col items-center mb-10 sm:mb-12">
-      {variant === 'landing' && (
-        <p className="text-xs font-semibold text-muted-foreground mb-3 hidden sm:block">
-          <span className="inline-block border-b border-dashed border-muted-foreground/40 pb-0.5">
-            ↳ Save up to 17%
-          </span>
-        </p>
-      )}
-      <div className="inline-flex max-w-full flex-wrap items-center justify-center gap-1 rounded-full border border-[var(--card-border)] bg-card p-1 shadow-sm">
+      <p className="text-xs font-semibold text-muted-foreground mb-3">
+        <span className="inline-block border-b border-dashed border-muted-foreground/40 pb-0.5">
+          ↳ {ANNUAL_SAVE_LABEL}
+        </span>
+      </p>
+      <div
+        role="radiogroup"
+        aria-label="Billing cycle"
+        className="inline-flex max-w-full flex-wrap items-center justify-center gap-1 rounded-full border border-[var(--card-border)] bg-card p-1 shadow-sm"
+      >
         {(['monthly', 'yearly'] as const).map((cycle) => (
           <button
             key={cycle}
             type="button"
+            role="radio"
+            aria-checked={billingCycle === cycle}
             onClick={() => setBillingCycle(cycle)}
             className={cn(
-              'relative shrink-0 px-3.5 py-2.5 rounded-full text-sm font-semibold capitalize transition-all sm:px-5 md:px-6',
+              'relative shrink-0 min-h-[44px] px-3.5 py-2.5 rounded-full text-sm font-semibold capitalize transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 sm:px-5 md:px-6',
               billingCycle === cycle
                 ? 'bg-primary text-primary-foreground shadow-sm'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            {cycle}
+            {cycle === 'yearly' ? 'Yearly' : 'Monthly'}
             {cycle === 'yearly' && (
               <span
                 className={cn(
                   'ml-1.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-bold sm:ml-2 sm:px-2',
                   billingCycle === 'yearly'
-                    ? 'bg-emerald-500/20 text-emerald-100'
-                    : 'bg-emerald-500/10 text-emerald-600',
+                    ? 'bg-emerald-500/20 text-emerald-50'
+                    : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400',
                 )}
               >
                 2 months free
@@ -166,8 +171,13 @@ function PricingCard({
 
   const cardInner = (
     <>
-      {isPopular && variant === 'landing' && (
-        <span className="absolute top-4 right-4 rounded-md bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+      {isPopular && (
+        <span
+          className={cn(
+            'rounded-md bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground',
+            variant === 'landing' ? 'absolute top-4 right-4' : 'mb-3 inline-flex w-fit',
+          )}
+        >
           Most Popular
         </span>
       )}
@@ -179,14 +189,8 @@ function PricingCard({
             meta.iconBg,
           )}
         >
-          <Icon className={cn('w-5 h-5', meta.iconClass)} />
+          <Icon className={cn('w-5 h-5', meta.iconClass)} aria-hidden />
         </div>
-      )}
-
-      {!isPopular && variant === 'page' && plan.recommended && (
-        <span className="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">
-          Most Popular
-        </span>
       )}
 
       <h3 className="text-xl font-bold text-foreground">{displayName}</h3>
@@ -196,7 +200,7 @@ function PricingCard({
         <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
           {plan.monthlyPrice < 0 ? 'Custom' : formatInr(monthlyEquivalent)}
         </span>
-        {plan.monthlyPrice >= 0 && (
+        {plan.monthlyPrice > 0 && (
           <span className="text-lg font-semibold text-muted-foreground">/mo</span>
         )}
       </div>
@@ -214,7 +218,7 @@ function PricingCard({
       <ul className="space-y-3 mb-8 flex-1">
         {plan.features.map((feature) => (
           <li key={feature} className="flex items-start gap-2.5 text-sm text-foreground/80">
-            <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+            <Check className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" aria-hidden />
             <span>{feature}</span>
           </li>
         ))}
@@ -225,7 +229,7 @@ function PricingCard({
         <a
           href={plan.ctaHref}
           className={cn(
-            'inline-flex h-12 w-full items-center justify-center rounded-xl font-semibold text-sm transition-colors',
+            'inline-flex h-12 w-full items-center justify-center rounded-xl font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2',
             variant === 'landing' && meta
               ? meta.ctaClass
               : 'bg-muted hover:bg-muted/80 text-foreground',
@@ -237,7 +241,7 @@ function PricingCard({
         <Link
           href={`${plan.ctaHref}${plan.ctaHref.includes('?') ? '&' : '?'}billing=${billingCycle}`}
           className={cn(
-            'inline-flex h-12 w-full items-center justify-center rounded-xl font-semibold text-sm transition-colors',
+            'inline-flex h-12 w-full items-center justify-center rounded-xl font-semibold text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2',
             variant === 'landing' && meta
               ? meta.ctaClass
               : isPopular
@@ -245,7 +249,7 @@ function PricingCard({
                 : 'bg-muted hover:bg-muted/80 text-foreground',
           )}
         >
-          {plan.slug === 'business' && variant === 'landing' ? 'Start 7-Day Trial' : plan.cta}
+          {plan.cta}
         </Link>
       )}
       </div>

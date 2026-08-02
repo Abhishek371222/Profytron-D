@@ -32,6 +32,8 @@ export interface FeaturedStrategyItem {
   returnsValue?: number;
   subscribersValue?: number;
   maxDrawdown?: number;
+  rating?: number;
+  reviewCount?: number;
 }
 
 interface FeaturedRowProps {
@@ -84,7 +86,9 @@ export function FeaturedRow({ strategies = [], onSubscribe }: FeaturedRowProps) 
           const dd = Number(strategy.maxDrawdown ?? 12);
           const winRate = Number(strategy.returnsValue ?? 0);
           const subs = Number(strategy.subscribersValue ?? 0);
-          const aiScore = Math.min(99, Math.round(72 + sharpe * 8 + winRate * 0.15));
+          const rating = Number(strategy.rating ?? 0);
+          const reviewCount = Number(strategy.reviewCount ?? 0);
+          const roundedRating = Math.round(rating);
           const risk = riskScore(strategy.risk);
           const popularity = Math.min(100, subs / 150);
           const chartReady = Array.isArray(strategy.chartData) && strategy.chartData.length > 1;
@@ -132,14 +136,21 @@ export function FeaturedRow({ strategies = [], onSubscribe }: FeaturedRowProps) 
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5 sm:mt-2 sm:gap-2">
                       <Badge label={strategy.category?.slice(0, 12) || "TREND"} />
-                      <Badge label={`AI ${aiScore}`} accent />
                       <Badge label={`Risk ${risk}/10`} />
-                      <Badge label="14Y BT" className="hidden xs:inline-flex sm:inline-flex" />
-                      <div className="flex items-center gap-0.5 text-primary">
-                        {[1, 2, 3, 4, 5].map((s) => (
-                          <Star key={s} className={cn("h-2.5 w-2.5 sm:h-3 sm:w-3", s <= 4 && "fill-current")} />
-                        ))}
-                      </div>
+                      {reviewCount > 0 ? (
+                        <div
+                          className="flex items-center gap-0.5 text-primary"
+                          aria-label={`${rating.toFixed(1)} out of 5 stars, ${reviewCount} review${reviewCount === 1 ? '' : 's'}`}
+                        >
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <Star
+                              key={s}
+                              aria-hidden
+                              className={cn("h-2.5 w-2.5 sm:h-3 sm:w-3", s <= roundedRating && "fill-current")}
+                            />
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </div>

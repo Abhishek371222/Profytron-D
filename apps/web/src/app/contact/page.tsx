@@ -54,6 +54,7 @@ export default function ContactPage() {
         title="We're here to help you"
         titleAccent="trade smarter."
         description="Reach our support team for product help, or talk to sales about enterprise and institutional deployments. We respond within 24 hours on business days."
+        sceneKey="heroTrading"
       />
 
       <MarketingSection>

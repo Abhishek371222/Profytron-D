@@ -9,6 +9,8 @@ import { useUIStore } from "@/lib/stores/useUIStore";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { useDensityProfile } from "@/lib/hooks/useDensityProfile";
+import { SceneProvider } from "@/components/3d/SceneProvider";
+import { AmbientDepthBackground } from "@/components/3d/AmbientDepthBackground";
 
 const GlobalCommandPalette = dynamic(
   () =>
@@ -86,82 +88,87 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, [isMobile, sidebarOpen, setSidebarOpen]);
 
   return (
-    <div
-      data-density={density}
-      className="flex overflow-x-hidden relative min-w-0 brand-surface-bg h-[100dvh] max-h-[100dvh] overflow-hidden"
-      suppressHydrationWarning
-    >
-      { }
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        Skip to main content
-      </a>
-
-      {mounted && !isBuilder && (
-        <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--primary)_8%,transparent)_0%,transparent_55%)]" />
-      )}
-
-      {isMobile && sidebarOpen && (
-        <button
-          type="button"
-          aria-label="Close sidebar"
-          onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-30 bg-[var(--overlay)] backdrop-blur-[3px]"
-        />
-      )}
-
+    <SceneProvider>
       <div
-        className={cn(
-          "transition-transform duration-300 ease-out flex z-40 shrink-0 will-change-transform",
-          "max-lg:fixed max-lg:inset-y-0 max-lg:left-0",
-          "lg:h-[100dvh] lg:py-[var(--sidebar-pad)] lg:pl-[var(--sidebar-pad)]",
-          isMobile && "pt-safe pb-safe pl-safe",
-          isMobile && sidebarOpen
-            ? "max-lg:translate-x-0"
-            : "max-lg:-translate-x-full",
-        )}
+        data-density={density}
+        className="flex overflow-x-hidden relative min-w-0 brand-surface-bg h-[100dvh] max-h-[100dvh] overflow-hidden"
+        suppressHydrationWarning
       >
-        <Sidebar mobile={isMobile} />
-      </div>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          Skip to main content
+        </a>
 
-      <main
-        id="main-content"
-        tabIndex={-1}
-        className={cn(
-          "flex-1 min-w-0 relative z-20 w-full flex flex-col focus:outline-none",
-          "min-h-0 h-[100dvh] max-h-[100dvh] overflow-hidden",
-          "lg:pr-[var(--sidebar-pad)]",
+        {mounted && !isBuilder && (
+          <AmbientDepthBackground
+            variant="dashboard"
+            position="fixed"
+            enableAmbientScene={false}
+          />
         )}
-      >
-        <div className="shrink-0 z-30 h-[clamp(3.5rem,4.5vw,4.25rem)] pt-safe">
-          <TopBar />
-        </div>
+
+        {isMobile && sidebarOpen && (
+          <button
+            type="button"
+            aria-label="Close sidebar"
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-30 bg-[var(--overlay)] backdrop-blur-[3px]"
+          />
+        )}
 
         <div
           className={cn(
-            "flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar contain-inline-size",
-            lockScroll && "overflow-hidden",
+            "transition-transform duration-300 ease-out flex z-40 shrink-0 will-change-transform",
+            "max-lg:fixed max-lg:inset-y-0 max-lg:left-0",
+            "lg:h-[100dvh] lg:py-[var(--sidebar-pad)] lg:pl-[var(--sidebar-pad)]",
+            isMobile && "pt-safe pb-safe pl-safe",
+            isMobile && sidebarOpen
+              ? "max-lg:translate-x-0"
+              : "max-lg:-translate-x-full",
           )}
         >
+          <Sidebar mobile={isMobile} />
+        </div>
+
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className={cn(
+            "flex-1 min-w-0 relative z-20 w-full flex flex-col focus:outline-none",
+            "min-h-0 h-[100dvh] max-h-[100dvh] overflow-hidden",
+            "lg:pr-[var(--sidebar-pad)]",
+          )}
+        >
+          <div className="shrink-0 z-30 h-[clamp(3.5rem,4.5vw,4.25rem)] pt-safe">
+            <TopBar />
+          </div>
+
           <div
-            suppressHydrationWarning
             className={cn(
-              isBuilder
-                ? "p-0 max-w-none w-full h-full min-h-0 flex flex-col"
-                : isCoach
-                  ? "flex h-full min-h-0 w-full min-w-0 max-w-none mx-auto flex-col overflow-hidden p-[var(--dashboard-p)]"
-                  : "p-[var(--dashboard-p)] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-[clamp(3rem,4vw,4rem)] max-w-[1920px] mx-auto w-full min-w-0",
+              "flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar contain-inline-size",
+              lockScroll && "overflow-hidden",
             )}
           >
-            {children}
+            <div
+              suppressHydrationWarning
+              className={cn(
+                isBuilder
+                  ? "p-0 max-w-none w-full h-full min-h-0 flex flex-col"
+                  : isCoach
+                    ? "flex h-full min-h-0 w-full min-w-0 max-w-none mx-auto flex-col overflow-hidden p-[var(--dashboard-p)]"
+                    : "p-[var(--dashboard-p)] pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-[clamp(3rem,4vw,4rem)] max-w-[1920px] mx-auto w-full min-w-0",
+              )}
+            >
+              {children}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      <GlobalCommandPalette />
-      <MobileBottomNav />
-    </div>
+        <GlobalCommandPalette />
+        <MobileBottomNav />
+      </div>
+    </SceneProvider>
   );
 }

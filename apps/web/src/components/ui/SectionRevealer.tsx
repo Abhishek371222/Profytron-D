@@ -10,7 +10,8 @@ interface SectionRevealerProps {
   direction?: "up" | "left" | "right";
 }
 
-const ease = [0.22, 1, 0.36, 1] as const;
+/** Brand reveal — clip wipe + lift (not generic fade). */
+const ease = [0.16, 1, 0.3, 1] as const;
 
 export function SectionRevealer({
   children,
@@ -21,15 +22,15 @@ export function SectionRevealer({
   const reduceMotion = useReducedMotion();
 
   const hidden = {
-    up: { opacity: 0, y: 40 },
-    left: { opacity: 0, x: -32, y: 40 },
-    right: { opacity: 0, x: 32, y: 40 },
+    up: { opacity: 0, y: 48, clipPath: "inset(12% 0 0 0)" },
+    left: { opacity: 0, x: -40, clipPath: "inset(0 18% 0 0)" },
+    right: { opacity: 0, x: 40, clipPath: "inset(0 0 0 18%)" },
   }[direction];
 
   const visible = {
-    up: { opacity: 1, y: 0 },
-    left: { opacity: 1, x: 0, y: 0 },
-    right: { opacity: 1, x: 0, y: 0 },
+    up: { opacity: 1, y: 0, clipPath: "inset(0% 0 0 0)" },
+    left: { opacity: 1, x: 0, clipPath: "inset(0 0% 0 0)" },
+    right: { opacity: 1, x: 0, clipPath: "inset(0 0 0 0%)" },
   }[direction];
 
   if (reduceMotion) {
@@ -41,9 +42,9 @@ export function SectionRevealer({
       className={`relative ${className}`}
       initial={hidden}
       whileInView={visible}
-      viewport={{ once: true, amount: 0.05, margin: "0px 0px -5% 0px" }}
+      viewport={{ once: true, amount: 0.08, margin: "0px 0px -8% 0px" }}
       transition={{
-        duration: 0.5,
+        duration: 0.7,
         delay,
         ease,
       }}

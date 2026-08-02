@@ -4,17 +4,20 @@ import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
+import { MagneticWrap } from '@/components/animations';
 
 export function LandingPrimaryLink({
   href,
   children,
   className,
+  magnetic = true,
 }: {
   href: string;
   children: React.ReactNode;
   className?: string;
+  magnetic?: boolean;
 }) {
-  return (
+  const link = (
     <Link
       href={href}
       className={cn(
@@ -25,6 +28,10 @@ export function LandingPrimaryLink({
       {children}
     </Link>
   );
+
+  if (!magnetic) return link;
+
+  return <MagneticWrap strength={0.2}>{link}</MagneticWrap>;
 }
 
 export function LandingSecondaryLink({
@@ -43,12 +50,12 @@ export function LandingSecondaryLink({
       href={href}
       onClick={onClick}
       className={cn(
-        'inline-flex items-center justify-center gap-2 h-12 px-7 rounded-[14px]',
+        'inline-flex items-center justify-center gap-2 h-12 px-7 rounded-xl',
         'border border-[var(--card-border)] bg-card/80 backdrop-blur-sm text-foreground font-semibold text-sm',
         'transition-all duration-200 ease-out whitespace-nowrap',
-        'hover:bg-card hover:border-[color-mix(in_srgb,var(--primary)_25%,var(--card-border))]',
-        'hover:scale-[1.02] hover:-translate-y-px',
-        'hover:shadow-[0_4px_16px_rgba(71,167,170,0.12)]',
+        'hover:bg-card hover:border-[color-mix(in_srgb,var(--primary)_30%,var(--card-border))]',
+        'hover:-translate-y-px',
+        'hover:shadow-[0_6px_20px_color-mix(in_srgb,var(--primary)_12%,transparent)]',
         'active:scale-[0.98] active:translate-y-0',
         className,
       )}

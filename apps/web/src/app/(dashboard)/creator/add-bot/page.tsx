@@ -16,31 +16,36 @@ import {
 } from '@/components/dashboard/DashboardPrimitives';
 import { strategiesApi, type Strategy, type StrategyDocumentKind } from '@/lib/api/strategies';
 import { cn } from '@/lib/utils';
+import {
+  STRATEGY_CATEGORIES,
+  STRATEGY_CATEGORY_LABELS,
+  RISK_LEVELS as SHARED_RISK_LEVELS,
+  RISK_LEVEL_LABELS,
+  ASSET_CLASSES,
+} from '@/lib/marketplace/constants';
 
-const CATEGORIES = [
-  { value: 'TREND', label: 'Trend' },
-  { value: 'SCALPING', label: 'Scalping' },
-  { value: 'RANGE', label: 'Range' },
-  { value: 'VOLATILITY', label: 'Volatility' },
-  { value: 'ARBITRAGE', label: 'Arbitrage' },
-] as const;
+const CATEGORIES = STRATEGY_CATEGORIES.map((value) => ({
+  value,
+  label: STRATEGY_CATEGORY_LABELS[value],
+}));
 
-const RISK_LEVELS = [
-  { value: 'LOW', label: 'Low' },
-  { value: 'MEDIUM', label: 'Medium' },
-  { value: 'HIGH', label: 'High' },
-  { value: 'EXPERT', label: 'Expert' },
-] as const;
+const RISK_LEVELS = SHARED_RISK_LEVELS.map((value) => ({
+  value,
+  label: RISK_LEVEL_LABELS[value],
+}));
 
-const MARKET_OPTIONS = ['Forex', 'Crypto', 'Indices', 'Commodities', 'Stocks'] as const;
+const MARKET_OPTIONS = ASSET_CLASSES;
 
+// Deliberately excludes 'D1' (present in the full Timeframe enum) — this
+// form has never offered it, and adding it here would be a visible new
+// option rather than a pure code-sharing change.
 const TIMEFRAMES = ['M1', 'M3', 'M5', 'M15', 'H1', 'H4'] as const;
 
 const addBotSchema = z.object({
   name: z.string().min(3, 'Bot name must be at least 3 characters').max(80),
   strategyStyle: z.string().min(2, 'Enter the strategy style or name it follows'),
-  category: z.enum(['TREND', 'SCALPING', 'RANGE', 'VOLATILITY', 'ARBITRAGE']),
-  riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EXPERT']),
+  category: z.enum(STRATEGY_CATEGORIES),
+  riskLevel: z.enum(SHARED_RISK_LEVELS),
   expectedProfitPct: z.number().min(0, 'Must be 0 or more').max(1000),
   monthlyPrice: z.number().min(0, 'Price cannot be negative'),
   markets: z.array(z.string()).min(1, 'Select at least one market'),
@@ -259,7 +264,7 @@ export default function AddBotPage() {
     },
   });
 
-  const onSubmit = (values: AddBotFormValues) => {
+  const onSubmit = (values: AddBotFormValues, submitForReview: boolean) => {
     if (pendingFiles.length === 0) {
       setAssetError('Upload at least one of: image, PDF, or data file.');
       toast.error('Missing strategy assets', {
@@ -268,7 +273,7 @@ export default function AddBotPage() {
       return;
     }
     setAssetError(null);
-    createMutation.mutate(values);
+    createMutation.mutate({ ...values, publishNow: submitForReview });
   };
 
   return (
@@ -295,7 +300,7 @@ export default function AddBotPage() {
       />
 
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={(e) => e.preventDefault()}
         className="dashboard-card p-5 md:p-6 space-y-5 max-w-3xl"
       >
         <div className="grid gap-4 sm:grid-cols-2">
@@ -500,38 +505,47 @@ export default function AddBotPage() {
           )}
         </div>
 
-        <label className="flex items-start gap-2 text-sm text-foreground">
-          <input
-            type="checkbox"
-            {...register('publishNow')}
-            className="mt-0.5 rounded border-[var(--card-border)]"
-          />
-          <span>
-            Submit for marketplace review after saving
-            <span className="block text-xs text-muted-foreground mt-0.5">
-              Profytron reviews performance for ~1 week. Your bot stays pending in Creator Studio and is not public until approved and you publish it.
-            </span>
-          </span>
-        </label>
+        <div className="rounded-xl border border-[var(--card-border)] bg-muted/20 p-3.5 text-xs text-muted-foreground">
+          Choose one below: save privately as a draft you can keep editing, or submit it for Profytron&apos;s
+          ~1-week marketplace review. Either way, your bot stays private until it&apos;s approved and you
+          separately publish it live.
+        </div>
 
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end pt-2">
           <DashButton type="button" variant="outline" onClick={() => router.push('/creator')}>
             Cancel
           </DashButton>
           <DashButton
-            type="submit"
+            type="button"
+            variant="outline"
             disabled={!isValid || createMutation.isPending || pendingFiles.length === 0}
             className="gap-2"
+            onClick={handleSubmit((values) => onSubmit(values, false))}
           >
-            {createMutation.isPending ? (
+            {createMutation.isPending && !createMutation.variables?.publishNow ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Saving...
               </>
             ) : (
+              'Save as Draft'
+            )}
+          </DashButton>
+          <DashButton
+            type="button"
+            disabled={!isValid || createMutation.isPending || pendingFiles.length === 0}
+            className="gap-2"
+            onClick={handleSubmit((values) => onSubmit(values, true))}
+          >
+            {createMutation.isPending && createMutation.variables?.publishNow ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Submitting...
+              </>
+            ) : (
               <>
                 <Plus className="h-4 w-4" />
-                Add Bot
+                Submit for Review
               </>
             )}
           </DashButton>

@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { strategiesApi, type Strategy } from '@/lib/api/strategies';
 import { useQuery } from '@tanstack/react-query';
@@ -17,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { StrategyActivationModal } from '@/components/strategies/StrategyActivationModal';
-import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
+import { DashErrorState, DashboardEmptyState } from '@/components/dashboard/DashboardPrimitives';
 import {
   FilterPill,
   STRATEGY_CATEGORIES,
@@ -25,15 +24,8 @@ import {
   StrategiesPageHeader,
 } from './_components/StrategiesShared';
 import { StrategyCard } from './_components/StrategyCard';
-
-function useDebouncedValue<T>(value: T, delay = 350): T {
-  const [debounced, setDebounced] = React.useState(value);
-  React.useEffect(() => {
-    const t = window.setTimeout(() => setDebounced(value), delay);
-    return () => window.clearTimeout(t);
-  }, [value, delay]);
-  return debounced;
-}
+import { useDebouncedValue } from '@/lib/hooks/useDebouncedValue';
+import { DashboardSceneStrip } from '@/components/3d/DashboardSceneStrip';
 
 export default function StrategiesPage() {
   const router = useRouter();
@@ -138,6 +130,7 @@ export default function StrategiesPage() {
   return (
     <div className="space-y-5 pb-8">
       <StrategiesBreadcrumbs />
+      <DashboardSceneStrip sceneKey="heroTrading" className="mb-1" label="Strategies ambient" />
       <StrategiesPageHeader
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -221,36 +214,32 @@ export default function StrategiesPage() {
           }}
         />
       ) : displayedStrategies.length === 0 ? (
-        <div className="dashboard-card py-16 flex flex-col items-center text-center gap-3">
-          <Database className="h-12 w-12 text-muted-foreground/40" />
-          <h3 className="text-base font-semibold text-foreground">No bots found</h3>
-          <p className="text-sm text-muted-foreground max-w-md">
-            {searchQuery || selectedCategory !== 'ALL' || verifiedOnly
+        <DashboardEmptyState
+          icon={Database}
+          title="No bots found"
+          description={
+            searchQuery || selectedCategory !== 'ALL' || verifiedOnly
               ? 'Try adjusting your filters or search.'
-              : 'Create or import your first strategy — or browse the marketplace for beginner-friendly bots.'}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {(searchQuery || selectedCategory !== 'ALL' || verifiedOnly) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedCategory('ALL');
-                  setVerifiedOnly(false);
-                }}
-                className="text-sm text-primary hover:underline"
-              >
-                Reset filters
-              </button>
-            )}
-            <Link
-              href="/marketplace"
-              className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+              : 'Create or import your first strategy — or browse the marketplace for beginner-friendly bots.'
+          }
+          actionLabel="Browse marketplace"
+          actionHref="/marketplace"
+          showScene
+        >
+          {(searchQuery || selectedCategory !== 'ALL' || verifiedOnly) ? (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('ALL');
+                setVerifiedOnly(false);
+              }}
+              className="text-sm text-primary hover:underline"
             >
-              Browse marketplace
-            </Link>
-          </div>
-        </div>
+              Reset filters
+            </button>
+          ) : null}
+        </DashboardEmptyState>
       ) : (
         <div className={cn('grid gap-4', viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1')}>
           {displayedStrategies.map((strategy, index) => (

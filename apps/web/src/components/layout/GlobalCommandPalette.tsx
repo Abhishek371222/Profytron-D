@@ -14,6 +14,7 @@ import {
   Command,
   Hash,
   TrendingUp,
+  BookOpen,
   Loader2,
   type LucideIcon,
 } from "lucide-react";
@@ -38,6 +39,7 @@ const QUICK_LINKS: { title: string; href: string; icon: LucideIcon; hint: string
   { title: "Marketplace", href: "/marketplace", icon: ShoppingBag,     hint: "Browse" },
   { title: "Alpha Coach",  href: "/alpha-coach", icon: Sparkles,        hint: "Ask Alpha" },
   { title: "Analytics",   href: "/analytics",   icon: BarChart3,       hint: "Stats"  },
+  { title: "Journal",     href: "/journal",     icon: BookOpen,        hint: "Trades" },
 ];
 
 export function GlobalCommandPalette() {

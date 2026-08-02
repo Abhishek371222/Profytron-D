@@ -47,7 +47,6 @@ const FEATURES = [
   },
 ] as const;
 
-/** Landing Features section — restores /#features. */
 export function FeaturesSection() {
   return (
     <section
@@ -55,48 +54,64 @@ export function FeaturesSection() {
       className="landing-section relative py-20 sm:py-24"
       aria-labelledby="features-heading"
     >
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+
       <div className="page-container max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20, clipPath: 'inset(10% 0 0 0)' }}
+          whileInView={{ opacity: 1, y: 0, clipPath: 'inset(0% 0 0 0)' }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{
-            duration: durationSeconds('Slow'),
+            duration: durationSeconds('Hero'),
             ease: MOTION_EASING.Smooth as unknown as number[],
           }}
           className="mb-12 max-w-2xl"
         >
-          <p className="landing-eyebrow mb-3">Features</p>
+          <p className="landing-eyebrow mb-4">Platform</p>
           <h2
             id="features-heading"
-            className="brand-display-heading text-3xl sm:text-4xl text-foreground"
+            className="brand-display-heading text-3xl text-foreground sm:text-4xl"
           >
-            Everything you need to trade with confidence
+            Everything you need to{' '}
+            <span className="landing-gradient-text">trade with confidence</span>
           </h2>
-          <p className="mt-4 text-base text-muted-foreground leading-relaxed">
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
             One platform for bots, copy trading, analytics, and AI coaching —
             precise, calm, and fast.
           </p>
         </motion.div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 sm:gap-4">
           {FEATURES.map((f, i) => (
             <motion.article
               key={f.title}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{
-                duration: durationSeconds('Standard'),
-                delay: i * 0.04,
-                ease: MOTION_EASING.Out as unknown as number[],
+                type: 'spring',
+                stiffness: 320,
+                damping: 28,
+                delay: i * 0.05,
               }}
-              className="exp-marketing-card group rounded-2xl border border-[var(--card-border)] bg-[var(--exp-surface)] p-5 shadow-[var(--exp-shadow-card)] transition-[box-shadow,transform,border-color] duration-[var(--motion-standard,200ms)] hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--primary)_28%,var(--card-border))] hover:shadow-[var(--exp-shadow-card-hover)]"
+              whileHover={{ y: -4 }}
+              className="group relative overflow-hidden rounded-2xl border border-[var(--card-border)] bg-[var(--exp-surface)] p-5 shadow-[var(--exp-shadow-card)] transition-[border-color,box-shadow] duration-200 hover:border-primary/30 hover:shadow-[var(--exp-shadow-card-hover)]"
             >
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <f.icon className="h-5 w-5" aria-hidden />
+              <div
+                aria-hidden
+                className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-gradient-to-r from-primary to-[var(--chart-4)] transition-transform duration-300 group-hover:scale-x-100"
+              />
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-105">
+                  <f.icon className="h-5 w-5" aria-hidden />
+                </div>
+                <span className="font-mono text-[10px] font-bold tracking-[0.18em] text-muted-foreground/70">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
               </div>
-              <h3 className="text-base font-semibold text-foreground">{f.title}</h3>
+              <h3 className="text-base font-semibold tracking-tight text-foreground">
+                {f.title}
+              </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {f.body}
               </p>
@@ -104,15 +119,21 @@ export function FeaturesSection() {
           ))}
         </div>
 
-        <div className="mt-10 flex flex-wrap gap-3">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.15, duration: 0.45 }}
+          className="mt-10 flex flex-wrap gap-3"
+        >
           <LandingPrimaryLink href="/register">Get started</LandingPrimaryLink>
           <Link
             href="/pricing"
-            className="inline-flex h-12 items-center justify-center rounded-[14px] border border-[var(--card-border)] bg-card/80 px-7 text-sm font-semibold text-foreground backdrop-blur-sm transition-colors duration-[var(--motion-fast,120ms)] hover:bg-card"
+            className="inline-flex h-12 items-center justify-center rounded-xl border border-[var(--card-border)] bg-card/80 px-7 text-sm font-semibold text-foreground backdrop-blur-sm transition-all duration-200 hover:-translate-y-px hover:bg-card hover:border-primary/25"
           >
             View pricing
           </Link>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

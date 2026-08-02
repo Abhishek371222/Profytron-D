@@ -17,6 +17,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminService } from './admin.service';
 import { TradingService } from '../trading/trading.service';
 import { WalletService } from '../wallet/wallet.service';
+import { PaymentsService } from '../payments/payments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard, Roles } from '../auth/guards/auth.guard';
 import {
@@ -60,6 +61,19 @@ class AdminWithdrawDto {
   note?: string;
 }
 
+class AdminRefundDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @IsPositive()
+  amount?: number;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  reason?: string;
+}
+
 type AdminRequest = Request & {
   user: { id: string; userId?: string; role: string };
 };
@@ -79,7 +93,30 @@ export class AdminController {
     private strategyDocuments: StrategyDocumentsService,
     private walletService: WalletService,
     private usersService: UsersService,
+    private paymentsService: PaymentsService,
   ) {}
+
+  @ApiResponse({ status: 200, description: 'Refund processed' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({
+    summary:
+      'Admin refund a completed payment (Razorpay/Stripe when possible + wallet reconcile)',
+  })
+  @Post('payments/:id/refund')
+  async adminRefundPayment(
+    @Req() req: AdminRequest,
+    @Param('id') id: string,
+    @Body() dto: AdminRefundDto,
+  ) {
+    const adminId = req.user.id || req.user.userId || '';
+    return this.paymentsService.adminRefundPayment(
+      adminId,
+      id,
+      dto.amount,
+      dto.reason,
+    );
+  }
 
   @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get admin dashboard aggregate data' })

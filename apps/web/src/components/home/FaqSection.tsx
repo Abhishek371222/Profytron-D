@@ -45,7 +45,7 @@ function FaqAccordion({ items }: { items: FaqItem[] }) {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.22, ease: [0.04, 0.62, 0.23, 0.98] }}
+                  transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
                 >
                   <div className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground sm:px-6">
                     {item.answer}
@@ -93,7 +93,7 @@ export function FaqSection() {
             className="lg:col-span-4 xl:col-span-3"
           >
             <span className="landing-eyebrow mb-5">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              <span className="landing-live-dot" aria-hidden />
               Frequently Asked Questions
             </span>
 

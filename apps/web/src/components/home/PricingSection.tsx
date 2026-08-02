@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { motion } from "framer-motion";
-import { IndianRupee } from "lucide-react";
 import { PricingPlansGrid } from "@/components/pricing/PricingPlansGrid";
 
 export function PricingSection() {
@@ -29,7 +28,7 @@ export function PricingSection() {
           className="text-center mb-10 sm:mb-14"
         >
           <span className="landing-eyebrow mb-6">
-            <IndianRupee className="h-3.5 w-3.5" />
+            <span className="landing-live-dot" aria-hidden />
             Plans in INR
           </span>
 
@@ -40,7 +39,7 @@ export function PricingSection() {
 
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Start free with paper trading. Upgrade for live MT5 bot execution, AI coach, and
-            strategy builder. 7-day trial on all paid plans.
+            copy trading. 7-day trial on all paid plans.
           </p>
         </motion.div>
 

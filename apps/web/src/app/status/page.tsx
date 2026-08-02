@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Activity, RefreshCw, Mail, Clock3, GitCommit, Server } from 'lucide-react';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
-import { BrandGradientText } from '@/components/brand/BrandGradientText';
+import { MarketingHero } from '@/components/marketing/MarketingPage';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { SUPPORT_EMAIL, SITE_URL } from '@/lib/seo/constants';
@@ -211,21 +211,15 @@ export default function StatusPage() {
         ]}
       />
 
-      {/* Static hero (no framer-motion) — same marketing classes, lower JS/CLS. */}
-      <section className="marketing-hero exp-lighting">
-        <div className="page-container max-w-5xl">
-          <span className="landing-eyebrow mb-6">
-            <Activity className="h-3.5 w-3.5" aria-hidden />
-            System Status
-          </span>
-          <h1 className="brand-display-heading mb-5 text-4xl sm:text-5xl md:text-[3.25rem]">
-            Platform status <BrandGradientText>at a glance.</BrandGradientText>
-          </h1>
-          <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            Live health snapshot for Profytron services. Probes refresh every 30 seconds from the
-            public API.
-          </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3" role="status" aria-live="polite">
+      <MarketingHero
+        eyebrow="System Status"
+        eyebrowIcon={Activity}
+        title="Platform status"
+        titleAccent="at a glance."
+        description="Live health snapshot for Profytron services. Probes refresh every 30 seconds from the public API."
+        sceneKey="heroTrading"
+        meta={
+          <div className="flex flex-wrap items-center gap-3" role="status" aria-live="polite">
             <StatusBadge status={overall} loading={loading} />
             {checkedAt ? (
               <span className="text-xs text-muted-foreground">
@@ -233,8 +227,8 @@ export default function StatusPage() {
               </span>
             ) : null}
           </div>
-        </div>
-      </section>
+        }
+      />
 
       <section className="marketing-section pb-20">
         <div className="page-container max-w-5xl">

@@ -24,6 +24,7 @@ import {
   DashboardBreadcrumbs,
   DashboardPageHeader,
   DashButton,
+  DashErrorState,
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import { analyticsApi, type AnalyticsRange } from '@/lib/api/analytics';
@@ -95,6 +96,7 @@ export default function HistoryPage() {
   isFetching,
   isError,
   isPending,
+  refetch: refetchHistory,
  } = useQuery({
   queryKey: ['history-export', selectedRange],
   queryFn: async () => {
@@ -460,7 +462,13 @@ export default function HistoryPage() {
  </table>
  </div>
 
- {!historyLoading && filteredHistory.length === 0 && (
+ {!historyLoading && isError ? (
+ <DashErrorState
+  message="Couldn't load your trade history."
+  onRetry={() => refetchHistory()}
+  className="my-6"
+ />
+ ) : !historyLoading && filteredHistory.length === 0 && (
  <div className="py-24 flex flex-col items-center justify-center space-y-4">
  <div className="w-16 h-16 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center">
  <Brain className="w-8 h-8 text-foreground/15" />

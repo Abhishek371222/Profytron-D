@@ -163,6 +163,14 @@ export function WithdrawSheet({
             >
               {isSendingOtp ? 'Sending OTP...' : 'Continue'}
             </Button>
+
+            {/* TODO(product): surface an actual fee schedule / processing-time
+                estimate here once one is finalized — do not state a number
+                without confirming it against the current payout provider terms. */}
+            <p className="text-center text-xs text-muted-foreground">
+              Every withdrawal requires a one-time passcode sent to your registered email
+              to confirm it&apos;s really you.
+            </p>
           </div>
         )}
 

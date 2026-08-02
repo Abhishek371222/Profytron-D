@@ -8,9 +8,28 @@ import type { User } from 'firebase/auth';
 type SocialProvider = 'google' | 'github';
 type SocialAuthContext = 'login' | 'register';
 
+/**
+ * Safari / iOS WebKit often block or break OAuth popups (ITP + popup policy).
+ * Prefer full-page redirect there; Chrome/Edge/Firefox can keep popup UX.
+ */
+export function prefersOAuthRedirect(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  const isIOS =
+    /iPad|iPhone|iPod/i.test(ua) ||
+    (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1);
+  const isSafariDesktop =
+    /Safari/i.test(ua) &&
+    !/Chrome|Chromium|CriOS|Edg|EdgiOS|OPR|Firefox|FxiOS|Android/i.test(ua);
+  return isIOS || isSafariDesktop;
+}
+
 function startRedirectFlow(provider: SocialProvider, redirectTarget: string) {
-  const params = new URLSearchParams({ startProvider: provider, redirect: redirectTarget });
-  window.location.href = `/auth/callback?${params.toString()}`;
+  const params = new URLSearchParams({
+    startProvider: provider,
+    redirect: redirectTarget,
+  });
+  window.location.assign(`/auth/callback?${params.toString()}`);
 }
 
 async function completeFirebaseLogin(fbUser: User, redirectTarget: string) {
@@ -32,7 +51,9 @@ async function completeFirebaseLogin(fbUser: User, redirectTarget: string) {
   >(response.data);
 
   if ('requiresTwoFa' in data && data.requiresTwoFa) {
-    window.location.href = `/login?twoFaChallenge=${encodeURIComponent(data.challengeToken)}&redirect=${encodeURIComponent(redirectTarget)}`;
+    window.location.assign(
+      `/login?twoFaChallenge=${encodeURIComponent(data.challengeToken)}&redirect=${encodeURIComponent(redirectTarget)}`,
+    );
     return;
   }
 
@@ -40,7 +61,7 @@ async function completeFirebaseLogin(fbUser: User, redirectTarget: string) {
   useAuthStore.getState().login(accessToken, user);
   const dest = resolvePostLoginRedirect(user, redirectTarget);
   useWorkspaceBootstrapStore.getState().startBootstrap(dest);
-  window.location.href = dest;
+  window.location.assign(dest);
 }
 
 export async function startSocialOAuth(
@@ -53,21 +74,31 @@ export async function startSocialOAuth(
     /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);
 
   if (provider === 'google' && isLocalhost) {
-    window.location.href = '/api/auth/google';
+    window.location.assign('/api/auth/google');
     return;
   }
 
   const auth = await getFirebaseAuth();
   if (!auth) {
     if (provider === 'google') {
-      window.location.href = '/api/auth/google';
+      window.location.assign('/api/auth/google');
       return;
     }
+    // GitHub requires Firebase; surface a clear oauth_failed query for the auth page.
+    window.location.assign(
+      `/${context === 'register' ? 'register' : 'login'}?error=oauth_failed`,
+    );
     return;
   }
 
   const redirectTarget =
     new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
+
+  // Safari / iOS: skip popup entirely (ITP + blocked popups). GitHub always uses redirect.
+  if (prefersOAuthRedirect() || provider === 'github') {
+    startRedirectFlow(provider, redirectTarget);
+    return;
+  }
 
   if (provider === 'google') {
     const { GoogleAuthProvider, signInWithPopup } = await import('firebase/auth');
@@ -82,15 +113,15 @@ export async function startSocialOAuth(
       if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
         return;
       }
-      if (code === 'auth/popup-blocked') {
+      if (
+        code === 'auth/popup-blocked' ||
+        code === 'auth/operation-not-supported-in-this-environment'
+      ) {
         startRedirectFlow('google', redirectTarget);
         return;
       }
       console.error(`Unable to ${action} with google:`, err);
-      window.location.href = '/api/auth/google';
+      window.location.assign('/api/auth/google');
     }
-    return;
   }
-
-  startRedirectFlow('github', redirectTarget);
 }

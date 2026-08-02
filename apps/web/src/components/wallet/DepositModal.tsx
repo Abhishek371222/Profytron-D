@@ -135,16 +135,29 @@ export function DepositModal({
 
         {step === 'amount' && (
           <div className="space-y-4">
-            <input
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              type="number"
-              min="1"
-              step="0.01"
-              placeholder="Enter amount (₹)"
-              className="w-full rounded-xl border border-[var(--card-border)] bg-card px-3 py-2.5 text-sm outline-none focus:border-primary/40"
-            />
-            <Button onClick={startDeposit} disabled={depositMutation.isPending} className="w-full rounded-xl">
+            <div className="space-y-2">
+              <label htmlFor="deposit-amount" className="text-sm font-medium text-foreground">
+                Amount (INR)
+              </label>
+              <input
+                id="deposit-amount"
+                name="amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                type="number"
+                min="1"
+                step="0.01"
+                inputMode="decimal"
+                autoComplete="transaction-amount"
+                placeholder="Enter amount"
+                aria-describedby="deposit-amount-help"
+                className="w-full min-h-[44px] rounded-xl border border-[var(--card-border)] bg-card px-3 py-2.5 text-sm outline-none focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-primary/40"
+              />
+              <p id="deposit-amount-help" className="text-xs text-muted-foreground">
+                Minimum deposit is ₹1. Funds appear in your wallet after confirmation.
+              </p>
+            </div>
+            <Button onClick={startDeposit} disabled={depositMutation.isPending} className="w-full rounded-xl min-h-[44px]">
               {depositMutation.isPending ? 'Creating payment...' : 'Continue with Card (Stripe)'}
             </Button>
 
@@ -165,6 +178,11 @@ export function DepositModal({
             >
               Pay with Razorpay (UPI / Card)
             </RazorpayCheckoutButton>
+
+            <p className="text-center text-micro text-foreground/30">
+              Payments are encrypted and processed directly by Stripe and Razorpay.
+              Profytron does not store your card details.
+            </p>
           </div>
         )}
 

@@ -8,6 +8,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
 import { BrokerService } from '../broker/broker.service';
 import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
+import { RedisService } from '../auth/redis.service';
+import { bustMarketplaceCaches } from '../../common/utils/marketplace-query.util';
 import pdfParse from 'pdf-parse';
 import {
   Prisma,
@@ -32,6 +34,7 @@ export class AdminService {
     private emailService: EmailService,
     private brokerService: BrokerService,
     private copyFactorySync: CopyFactorySyncService,
+    private redis: RedisService,
   ) {}
 
   async getSystemStats() {
@@ -540,6 +543,12 @@ export class AdminService {
         data: { isPublished: true },
       });
     }
+
+    // A verification change can affect an already-published listing's
+    // visibility (e.g. un-verifying a live strategy), so both marketplace
+    // cache namespaces are busted the same way every other listing-affecting
+    // write does.
+    await bustMarketplaceCaches(this.redis, { strategyId });
 
     return updated;
   }

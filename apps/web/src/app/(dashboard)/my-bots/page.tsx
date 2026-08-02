@@ -7,7 +7,7 @@ import Link from 'next/link';
 import {
   Server, TrendingUp, TrendingDown, Pause, Play, X, BarChart2,
   ShoppingBag, CalendarClock, DollarSign, Zap, AlertCircle,
-  RefreshCw, ChevronRight, Plus,
+  RefreshCw, ChevronRight, Plus, Search,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ import { apiClient } from '@/lib/api/client';
 import { useCurrency } from '@/lib/hooks/useCurrency';
 import { marketplaceApi } from '@/lib/api/marketplace';
 import { DashButton } from '@/components/dashboard/DashButton';
+import { DashboardEmptyState } from '@/components/dashboard/DashboardPrimitives';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import {
   hydrateDashboardCache,
@@ -229,7 +230,11 @@ export default function MyBotsPage() {
   const resumeMut = useMutation({ mutationFn: (id: string) => apiClient.post(`/strategies/${id}/resume`),     onSuccess: () => { toast.success('Bot resumed');   qc.invalidateQueries({ queryKey: ['my-bots'] }); }, onError: () => toast.error('Could not resume bot') });
   const cancelMut = useMutation({ mutationFn: (id: string) => apiClient.post(`/strategies/${id}/deactivate`), onSuccess: () => { toast.success('Subscription cancelled'); qc.invalidateQueries({ queryKey: ['my-bots'] }); }, onError: () => toast.error('Could not cancel') });
 
-  const filtered   = tab === 'ALL' ? bots : bots.filter(b => b.status === tab);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const byStatus  = tab === 'ALL' ? bots : bots.filter(b => b.status === tab);
+  const filtered  = searchQuery.trim()
+    ? byStatus.filter(b => b.name?.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    : byStatus;
   const activeBots = bots.filter(b => b.status === 'ACTIVE');
   const monthlyCost = activeBots.reduce((s, b) => s + (b.monthlyPrice ?? 0), 0);
   const totalPnl    = bots.reduce((s, b) => s + (b.currentPnl ?? 0), 0);
@@ -250,7 +255,9 @@ export default function MyBotsPage() {
 
   const ownedIds = React.useMemo(() => new Set(bots.map((b) => b.id)), [bots]);
 
-  const addTileCount = filtered.length > 0 && filtered.length < 3 ? 3 - filtered.length : filtered.length === 0 ? 0 : 1;
+  const addTileCount = searchQuery.trim()
+    ? 0
+    : filtered.length > 0 && filtered.length < 3 ? 3 - filtered.length : filtered.length === 0 ? 0 : 1;
 
   return (
     <div className="animate-page-in space-y-6 pb-8" data-tour="my-bots-overview">
@@ -306,22 +313,38 @@ export default function MyBotsPage() {
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {TABS.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={cn(
-              'rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all duration-200',
-              tab === t.key
-                ? 'border-[color-mix(in_srgb,var(--primary)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary'
-                : 'border-transparent bg-[color-mix(in_srgb,var(--muted)_45%,transparent)] text-muted-foreground hover:text-foreground',
-            )}
-          >
-            {t.label}
-            {counts[t.key] ? <span className="ml-1 opacity-60">({counts[t.key]})</span> : null}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap gap-2">
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={cn(
+                'rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all duration-200',
+                tab === t.key
+                  ? 'border-[color-mix(in_srgb,var(--primary)_30%,var(--card-border))] bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary'
+                  : 'border-transparent bg-[color-mix(in_srgb,var(--muted)_45%,transparent)] text-muted-foreground hover:text-foreground',
+              )}
+            >
+              {t.label}
+              {counts[t.key] ? <span className="ml-1 opacity-60">({counts[t.key]})</span> : null}
+            </button>
+          ))}
+        </div>
+
+        {bots.length > 6 && (
+          <div className="relative ml-auto w-full min-w-0 sm:w-56">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search your bots…"
+              aria-label="Search your bots by name"
+              className="h-9 w-full rounded-full border border-[var(--card-border)] bg-card pl-8 pr-3 text-xs outline-none transition-colors focus:border-[color-mix(in_srgb,var(--primary)_40%,var(--card-border))]"
+            />
+          </div>
+        )}
       </div>
 
       {!sessionReady || isLoading ? (
@@ -350,19 +373,25 @@ export default function MyBotsPage() {
           </DashButton>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-[var(--radius-card)] border border-[var(--card-border)] bg-card p-14 text-center shadow-[var(--shadow-card)]">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[18px] bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary">
-            <Server className="h-8 w-8" />
-          </div>
-          <h3 className="mb-2 text-lg font-bold text-foreground">No bots here</h3>
-          <p className="mb-5 text-sm text-muted-foreground">Browse the marketplace to subscribe to trading bots</p>
-          <Link
-            href="/marketplace"
-            className="btn-premium inline-flex items-center gap-2 rounded-[var(--radius-button)] bg-gradient-to-r from-primary to-[var(--primary-active)] px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all"
-          >
-            <ShoppingBag className="h-4 w-4" /> Go to Marketplace
-          </Link>
-        </div>
+        searchQuery.trim() ? (
+          <DashboardEmptyState
+            icon={Server}
+            title={`No bots match "${searchQuery.trim()}"`}
+            description="Try a different name, or clear the search."
+            actionLabel="Clear search"
+            onAction={() => setSearchQuery('')}
+            showScene
+          />
+        ) : (
+          <DashboardEmptyState
+            icon={ShoppingBag}
+            title="No bots here"
+            description="Browse the marketplace to subscribe to trading bots"
+            actionLabel="Go to Marketplace"
+            actionHref="/marketplace"
+            showScene
+          />
+        )
       ) : (
         <div className="grid min-h-[13rem] grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((bot) => {
@@ -429,7 +458,9 @@ export default function MyBotsPage() {
                   {bot.status === 'ACTIVE' && (
                     <DashButton
                       variant="ghost"
-                      onClick={() => pauseMut.mutate(bot.id)}
+                      onClick={() => {
+                        if (confirm('Pause this bot? New trades will stop, but any positions already open on your broker stay open until you close them manually.')) pauseMut.mutate(bot.id);
+                      }}
                       disabled={pauseMut.isPending}
                       className="flex-1 border border-[var(--card-border)] bg-[color-mix(in_srgb,var(--muted)_45%,transparent)] text-muted-foreground hover:text-foreground"
                     >
@@ -457,7 +488,7 @@ export default function MyBotsPage() {
                   {(bot.status === 'ACTIVE' || bot.status === 'PAUSED') && (
                     <DashButton
                       variant="ghost"
-                      onClick={() => { if (confirm('Cancel this bot subscription?')) cancelMut.mutate(bot.id); }}
+                      onClick={() => { if (confirm('Cancel this bot subscription? New trades will stop, but any positions already open on your broker stay open until you close them manually.')) cancelMut.mutate(bot.id); }}
                       disabled={cancelMut.isPending}
                       className="flex-1 border border-[color-mix(in_srgb,var(--destructive)_20%,var(--card-border))] bg-[color-mix(in_srgb,var(--destructive)_10%,transparent)] text-destructive hover:bg-[color-mix(in_srgb,var(--destructive)_16%,transparent)] hover:text-destructive"
                     >

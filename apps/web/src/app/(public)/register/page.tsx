@@ -16,6 +16,9 @@ import { RegisterVisualPanel } from '@/components/auth/RegisterVisualPanel';
 import { FloatingLabelInput } from '@/components/auth/FloatingLabelInput';
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter';
 import { SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
+import { SceneProvider } from '@/components/3d/SceneProvider';
+import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
+import { AuthBrandScene } from '@/components/3d/AuthBrandScene';
 import { authApi } from '@/lib/api/auth';
 import { startSocialOAuth } from '@/lib/auth/social-oauth';
 import { toast } from 'sonner';
@@ -80,6 +83,18 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('error') === 'oauth_failed') {
+      setErrorMessage('Google/GitHub sign-up could not finish. Please try again or use email.');
+      params.delete('error');
+      const qs = params.toString();
+      const next = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+      window.history.replaceState({}, '', next);
+    }
+  }, []);
 
   const {
     register,
@@ -154,8 +169,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-[100dvh] w-full min-w-0 bg-background p-4 pb-safe pt-safe sm:p-6 lg:p-8">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1080px] items-center justify-center">
+    <SceneProvider>
+    <main className="relative min-h-[100dvh] w-full min-w-0 bg-background p-4 pb-safe pt-safe sm:p-6 lg:p-8">
+      <AmbientDepthBackground variant="auth" position="fixed" />
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1080px] items-center justify-center">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -177,7 +194,10 @@ export default function RegisterPage() {
               </div>
 
               <div className="mb-8">
-                <BrandLogo size="xl" className="mb-6" />
+                <div className="mb-6 flex items-center gap-4">
+                  <AuthBrandScene className="hidden sm:block" />
+                  <BrandLogo size="xl" />
+                </div>
                 <h1 className="brand-display-heading text-2xl sm:text-3xl">
                   Create your <BrandGradientText>account.</BrandGradientText>
                 </h1>
@@ -212,7 +232,11 @@ export default function RegisterPage() {
                   </div>
                 )}
                 {errorMessage && (
-                  <div role="alert" className="rounded-input border border-destructive/20 bg-destructive/[0.08] px-4 py-3 text-sm text-destructive">
+                  <div
+                    role="alert"
+                    aria-live="assertive"
+                    className="rounded-input border border-destructive/20 bg-destructive/[0.08] px-4 py-3 text-sm text-destructive"
+                  >
                     {errorMessage}
                   </div>
                 )}
@@ -312,5 +336,6 @@ export default function RegisterPage() {
         </motion.div>
       </div>
     </main>
+    </SceneProvider>
   );
 }

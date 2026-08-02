@@ -9,7 +9,8 @@ export type ExperienceBudgetSystem =
   | 'coach'
   | 'marketing'
   | 'surfaces'
-  | 'shaders';
+  | 'shaders'
+  | 'spline';
 
 export type BudgetDims = {
   gpuMsPerFrame?: number;
@@ -25,6 +26,8 @@ export const EXPERIENCE_BUDGETS: Record<ExperienceBudgetSystem, BudgetDims> = {
   marketing: { paintMs: 16 },
   surfaces: { paintMs: 12 },
   shaders: { gpuMsPerFrame: 6 },
+  /** Soft budget for SceneManager Spline instances (desktop high cap is 120). */
+  spline: { gpuMsPerFrame: 10, memoryMb: 120, loadToInteractiveMs: 1500 },
 };
 
 function metricsOn() {

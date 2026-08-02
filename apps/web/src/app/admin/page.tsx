@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DashboardSceneStrip } from '@/components/3d/DashboardSceneStrip';
 
 const AdminPaymentsChart = dynamic(
   () => import('@/components/admin/AdminPaymentsChart'),
@@ -130,6 +131,7 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6 p-6">
+      <DashboardSceneStrip sceneKey="adminOps" className="mb-2" label="Admin ops ambient" />
       <div>
         <h1 className="text-2xl font-semibold text-foreground">Admin Dashboard</h1>
         <p className="text-sm text-muted-foreground">Live platform metrics and payment snapshots.</p>

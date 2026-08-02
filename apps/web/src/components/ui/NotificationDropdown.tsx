@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { AlertDialog } from '@/components/ui/alert-dialog';
 import { notificationsApi, type NotificationItem } from '@/lib/api/notifications';
 import { onTradingEvent } from '@/lib/realtime/trading-socket';
 import { cn } from '@/lib/utils';
@@ -65,6 +66,8 @@ export function NotificationDropdown() {
   const [items, setItems] = React.useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
+  const [pendingDeleteId, setPendingDeleteId] = React.useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const load = React.useCallback(async () => {
     if (!sessionReady) return;
@@ -114,15 +117,30 @@ export function NotificationDropdown() {
     setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
   }, []);
 
-  const onDelete = React.useCallback(async (e: React.MouseEvent, id: string) => {
+  const requestDelete = React.useCallback((e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    await notificationsApi.deleteOne(id).catch(() => {});
-    setItems((prev) => {
-      const isUnread = prev.find((n) => n.id === id && !n.isRead);
-      if (isUnread) setUnreadCount((c) => Math.max(0, c - 1));
-      return prev.filter((n) => n.id !== id);
-    });
+    setPendingDeleteId(id);
   }, []);
+
+  const confirmDelete = React.useCallback(async () => {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    setIsDeleting(true);
+    try {
+      await notificationsApi.deleteOne(id);
+      setItems((prev) => {
+        const isUnread = prev.find((n) => n.id === id && !n.isRead);
+        if (isUnread) setUnreadCount((c) => Math.max(0, c - 1));
+        return prev.filter((n) => n.id !== id);
+      });
+    } catch {
+      // Leave the item in place if deletion failed — retrying is safer than
+      // silently dropping it from the list.
+    } finally {
+      setIsDeleting(false);
+      setPendingDeleteId(null);
+    }
+  }, [pendingDeleteId]);
 
   return (
     <DropdownMenu>
@@ -155,6 +173,8 @@ export function NotificationDropdown() {
 
       <DropdownMenuContent
         align="end"
+        role="region"
+        aria-label="Notifications"
         className="w-[calc(100vw-2rem)] max-w-[380px] max-sm:right-[-2.75rem] bg-popover border border-card-border shadow-[var(--shadow-lg)] rounded-card p-0 overflow-hidden"
       >
         { }
@@ -281,7 +301,7 @@ export function NotificationDropdown() {
 
                       { }
                       <button
-                        onClick={(e) => onDelete(e, item.id)}
+                        onClick={(e) => requestDelete(e, item.id)}
                         className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity p-2.5 rounded-lg hover:bg-destructive/15 text-text-muted hover:text-destructive outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         type="button"
                         aria-label="Delete notification"
@@ -306,6 +326,18 @@ export function NotificationDropdown() {
           </button>
         </div>
       </DropdownMenuContent>
+
+      <AlertDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => { if (!open) setPendingDeleteId(null); }}
+        title="Delete this notification?"
+        description="This can't be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        isLoading={isDeleting}
+        onConfirm={confirmDelete}
+      />
     </DropdownMenu>
   );
 }

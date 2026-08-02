@@ -9,6 +9,7 @@ import { openRazorpayCheckout } from '@/lib/razorpay/load-checkout';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { trackEvent, ACTIVATION_EVENTS } from '@/lib/analytics/track';
 import { toast } from 'sonner';
+import { formatMoney } from '@/lib/currency';
 
 interface Props {
   planId: string;
@@ -18,6 +19,8 @@ interface Props {
   className?: string;
   children?: React.ReactNode;
   onSuccess?: () => void;
+  onFailed?: (message: string) => void;
+  onDismiss?: () => void;
 }
 
 export function RazorpaySubscriptionButton({
@@ -28,6 +31,8 @@ export function RazorpaySubscriptionButton({
   className,
   children,
   onSuccess,
+  onFailed,
+  onDismiss,
 }: Props) {
   const [loading, setLoading] = React.useState(false);
   const user = useAuthStore((s) => s.user);
@@ -44,12 +49,13 @@ export function RazorpaySubscriptionButton({
       const order = await subscriptionsApi.checkout(planId, billingCycle);
 
       if (order.keyId === 'DEMO_KEY' || (order as { demo?: boolean }).demo) {
-        const rupees = (Number(order.amount) / 100).toFixed(2);
+        const rupees = Number(order.amount) / 100;
         const confirmed = window.confirm(
-          `Demo payment mode — activate ${planName} for ₹${rupees}? (No real charge)`,
+          `Demo payment mode — activate ${planName} for ${formatMoney(rupees, 'INR')}? (No real charge)`,
         );
         if (!confirmed) {
           setLoading(false);
+          onDismiss?.();
           return;
         }
         await razorpayApi.completeDemoOrder(order.orderId);
@@ -88,6 +94,7 @@ export function RazorpaySubscriptionButton({
                 ? (err as { response: { data: { error: string } } }).response.data.error
                 : 'Payment could not be verified.';
             toast.error('Verification failed', { description: message });
+            onFailed?.(message);
           } finally {
             setLoading(false);
           }
@@ -95,17 +102,19 @@ export function RazorpaySubscriptionButton({
         onDismiss: () => {
           setLoading(false);
           toast('Checkout cancelled');
+          onDismiss?.();
         },
         onFailed: (description) => {
           setLoading(false);
           toast.error('Payment failed', { description });
+          onFailed?.(description || 'Payment failed');
         },
       });
     } catch (err: unknown) {
       setLoading(false);
-      toast.error('Checkout error', {
-        description: readRazorpayApiError(err, 'Could not start checkout.'),
-      });
+      const message = readRazorpayApiError(err, 'Could not start checkout.');
+      toast.error('Checkout error', { description: message });
+      onFailed?.(message);
     }
   };
 
@@ -115,11 +124,12 @@ export function RazorpaySubscriptionButton({
       onClick={handleCheckout}
       disabled={disabled || loading}
       className={className}
+      aria-busy={loading}
     >
       {loading ? (
         <>
-          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          Processing…
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden />
+          <span>Processing…</span>
         </>
       ) : (
         (children ?? 'Subscribe with Razorpay')
