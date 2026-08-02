@@ -11,8 +11,7 @@ function Shimmer({ className }: { className?: string }) {
 export default function DashboardLoading() {
   return (
     <div className="space-y-5 pb-10 animate-in fade-in duration-300">
-      { }
-      <div className="rounded-[26px] border border-[var(--card-border)] bg-muted/505 p-5 md:p-6">
+      <div className="rounded-[26px] border border-[var(--card-border)] bg-muted/50 p-5 md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
             <Shimmer className="w-10 h-10 rounded-2xl shrink-0" />
@@ -29,11 +28,9 @@ export default function DashboardLoading() {
           ))}
         </div>
       </div>
-
-      { }
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-[22px] border border-[var(--card-border)] bg-muted/505 p-5 space-y-3">
+          <div key={i} className="rounded-[22px] border border-[var(--card-border)] bg-muted/50 p-5 space-y-3">
             <div className="flex items-center justify-between">
               <Shimmer className="h-3 w-20 rounded-lg" />
               <Shimmer className="w-8 h-8 rounded-xl" />
@@ -43,17 +40,15 @@ export default function DashboardLoading() {
           </div>
         ))}
       </div>
-
-      { }
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <div className="rounded-[22px] border border-[var(--card-border)] bg-muted/505 p-5 space-y-4">
+        <div className="rounded-[22px] border border-[var(--card-border)] bg-muted/50 p-5 space-y-4">
           <div className="space-y-1.5">
             <Shimmer className="h-3 w-24 rounded-lg" />
             <Shimmer className="h-5 w-40 rounded-xl" />
           </div>
           <Shimmer className="h-[280px] w-full rounded-xl" />
         </div>
-        <div className="rounded-[22px] border border-[var(--card-border)] bg-muted/505 p-5 space-y-3">
+        <div className="rounded-[22px] border border-[var(--card-border)] bg-muted/50 p-5 space-y-3">
           <div className="space-y-1.5">
             <Shimmer className="h-3 w-24 rounded-lg" />
             <Shimmer className="h-5 w-36 rounded-xl" />

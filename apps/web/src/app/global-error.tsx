@@ -15,7 +15,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <body
         style={{
           margin: 0,
@@ -55,10 +55,12 @@ export default function GlobalError({
               borderRadius: '1rem',
               border: '1px solid rgba(239,68,68,0.2)',
               background: 'rgba(239,68,68,0.1)',
-              fontSize: '1.75rem',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: '#f87171',
             }}
           >
-            ⚠️
+            !
           </div>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 600, margin: '0 0 0.5rem' }}>
             Something went wrong
@@ -98,11 +100,11 @@ export default function GlobalError({
                 cursor: 'pointer',
                 background: '#368B9D',
                 color: '#ffffff',
+                minHeight: 44,
               }}
             >
               Try again
             </button>
-            { }
             {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/"
@@ -118,6 +120,7 @@ export default function GlobalError({
                 border: '1px solid rgba(255,255,255,0.15)',
                 textDecoration: 'none',
                 color: '#a1a1aa',
+                minHeight: 44,
               }}
             >
               Return home

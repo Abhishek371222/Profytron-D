@@ -42,8 +42,8 @@ export function MobileBottomNav() {
                 data-tour={item.tour}
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
-                  'relative flex min-h-[var(--touch-min)] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 py-1 transition-colors duration-200',
-                  isActive ? 'text-primary' : 'text-foreground/25 hover:text-foreground/50',
+                  'relative flex min-h-[var(--touch-min)] min-w-0 flex-col items-center justify-center gap-0.5 px-0.5 py-1 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+                  isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
                 {isActive && (
@@ -67,7 +67,7 @@ export function MobileBottomNav() {
                   <span
                     className={cn(
                       'w-full truncate text-center text-[10px] font-bold uppercase leading-none tracking-wide',
-                      isActive ? 'text-primary' : 'text-foreground/20',
+                      isActive ? 'text-primary' : 'text-muted-foreground',
                     )}
                   >
                     {item.name}

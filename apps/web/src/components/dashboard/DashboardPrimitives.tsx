@@ -106,23 +106,32 @@ export function DashErrorState({
 }) {
   return (
     <div
+      role="alert"
       className={cn(
         'flex flex-col items-center justify-center gap-3 rounded-[var(--radius-card)] border border-destructive/20 bg-destructive/5 px-6 py-12 text-center',
         className,
       )}
     >
       <div className="flex h-11 w-11 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-        <AlertTriangle className="h-5 w-5" />
+        <AlertTriangle className="h-5 w-5" aria-hidden />
       </div>
       <p className="text-sm font-medium text-foreground">{message}</p>
-      <button
-        type="button"
-        onClick={onRetry}
-        className="dash-btn-outline mt-1 inline-flex items-center gap-2"
-      >
-        <RefreshCw className="h-3.5 w-3.5" />
-        Retry
-      </button>
+      <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
+        <button
+          type="button"
+          onClick={onRetry}
+          className="dash-btn-outline inline-flex min-h-[44px] items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <RefreshCw className="h-3.5 w-3.5" aria-hidden />
+          Retry
+        </button>
+        <Link
+          href="/help"
+          className="text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          Help Center
+        </Link>
+      </div>
     </div>
   );
 }
@@ -366,19 +375,19 @@ export function DashboardEmptyState({
         <p className="text-sm text-muted-foreground max-w-sm mx-auto">{description}</p>
       ) : null}
       {actionLabel && actionHref ? (
-        <a
+        <Link
           href={actionHref}
           onClick={onAction}
-          className="inline-flex mt-2 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+          className="inline-flex mt-2 min-h-[44px] items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {actionLabel}
-        </a>
+        </Link>
       ) : null}
       {actionLabel && !actionHref && onAction ? (
         <button
           type="button"
           onClick={onAction}
-          className="inline-flex mt-2 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+          className="inline-flex mt-2 min-h-[44px] items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {actionLabel}
         </button>

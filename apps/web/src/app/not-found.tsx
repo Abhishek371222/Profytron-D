@@ -1,78 +1,73 @@
 'use client';
 
 import Link from 'next/link';
+import { useReducedMotion } from 'framer-motion';
 import { motion } from 'framer-motion';
-import { Home, ArrowLeft, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Home, ArrowLeft, CircleHelp, LifeBuoy } from 'lucide-react';
 
 export default function NotFound() {
- return (
- <div className="min-h-screen bg-bg-base flex items-center justify-center p-6 relative overflow-hidden">
- { }
- <div className="absolute inset-0 pointer-events-none">
- <div className="absolute top-1/4 left-1/4 w-150 h-150 bg-primary/5 rounded-full blur-[150px]" />
- <div className="absolute bottom-1/4 right-1/4 w-[400px] h-100 bg-s/5 rounded-full blur-[120px]" />
- </div>
+  const reduceMotion = useReducedMotion();
 
- <motion.div 
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ duration: 0.6 }}
- className="relative z-10 text-center max-w-2xl"
- >
- { }
- <motion.div 
- initial={{ opacity: 0, scale: 0.8 }}
- animate={{ opacity: 1, scale: 1 }}
- transition={{ delay: 0.2, duration: 0.5 }}
- className="mb-8"
- >
- <h1 className="text-[180px] font-semibold text-foreground/5 leading-tight select-none">
- 404
- </h1>
- <div className="relative -mt-16">
- <div className="w-24 h-1 bg-linear-to-r from-transparent via-primary to-transparent mx-auto" />
- </div>
- </motion.div>
+  return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-6">
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute top-1/4 left-1/4 h-72 w-72 rounded-full bg-primary/5 blur-[100px]" />
+        <div className="absolute right-1/4 bottom-1/4 h-64 w-64 rounded-full bg-primary/5 blur-[90px]" />
+      </div>
 
- { }
- <motion.div
- initial={{ opacity: 0, y: 20 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: 0.3, duration: 0.5 }}
- >
- <h2 className="text-4xl font-semibold text-foreground uppercase tracking-tight mb-4">
- Signal Lost
- </h2>
- <p className="text-foreground/40 text-lg font-medium mb-8 max-w-md mx-auto">
- The neural pathway you&apos;re searching for doesn&apos;t exist or has been decommissioned.
- </p>
+      <motion.div
+        initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="relative z-10 w-full max-w-lg text-center"
+        role="status"
+      >
+        <p className="font-mono text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+          Error 404
+        </p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          Page not found
+        </h1>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+          That URL does not exist or has been moved. Check the address, or use one of the links below
+          to continue.
+        </p>
 
- { }
- <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
- <Link href="/">
- <Button className="h-14 px-8 rounded-2xl bg-primary text-primary-foreground font-semibold uppercase tracking-widest gap-3 hover:bg-primary/90 transition-all">
- <Home className="w-5 h-5" />
- Return Home
- </Button>
- </Link>
- <Button 
- variant="outline"
- className="h-14 px-8 rounded-2xl border-border bg-foreground/5 text-foreground font-semibold uppercase tracking-widest gap-3 hover:bg-foreground/10"
- onClick={() => window.history.back()}
- >
- <ArrowLeft className="w-5 h-5" />
- Go Back
- </Button>
- </div>
+        <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+          <Link
+            href="/"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Home className="h-4 w-4" aria-hidden />
+            Home
+          </Link>
+          <button
+            type="button"
+            onClick={() => window.history.back()}
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-[var(--card-border)] bg-card px-5 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ArrowLeft className="h-4 w-4" aria-hidden />
+            Go back
+          </button>
+        </div>
 
- { }
- <div className="mt-16 flex items-center justify-center gap-2 text-foreground/20">
- <Search className="w-4 h-4" />
- <span className="text-xs font-bold uppercase tracking-[0.3em]">Lost in the void</span>
- </div>
- </motion.div>
- </motion.div>
- </div>
- );
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm">
+          <Link
+            href="/help"
+            className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <CircleHelp className="h-3.5 w-3.5" aria-hidden />
+            Help Center
+          </Link>
+          <Link
+            href="/settings/support"
+            className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <LifeBuoy className="h-3.5 w-3.5" aria-hidden />
+            Contact support
+          </Link>
+        </div>
+      </motion.div>
+    </div>
+  );
 }

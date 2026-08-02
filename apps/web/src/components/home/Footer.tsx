@@ -51,7 +51,6 @@ export function Footer() {
           <TrustBadges />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-16 lg:gap-24 mb-12 lg:mb-24">
-          { }
           <div className="lg:col-span-5">
             <Link href="/" className="flex items-center gap-3 mb-8 group">
               <BrandLogo size="lg" />
@@ -79,8 +78,6 @@ export function Footer() {
               ))}
             </div>
           </div>
-
-          { }
           <div className="lg:col-span-7 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12">
             {Object.entries(footerLinks).map(([title, links]) => (
               <div key={title} className="flex flex-col gap-3 md:gap-6">
@@ -103,8 +100,6 @@ export function Footer() {
             ))}
           </div>
         </div>
-
-        { }
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="hidden sm:flex items-center gap-4">
             <Link
@@ -116,21 +111,19 @@ export function Footer() {
             </Link>
           </div>
 
-          <p className="text-caption text-foreground/30 tracking-widest uppercase font-medium">
+          <p className="text-caption text-muted-foreground tracking-widest uppercase font-medium">
             © 2026 PROFYTRON
           </p>
 
-          <p className="text-caption text-foreground/30 tracking-widest uppercase font-medium">
-            Designed in India
+          <p className="text-caption text-muted-foreground tracking-widest uppercase font-medium">
+            Forex bots · MT4/MT5
           </p>
         </div>
-
-        { }
         <div className="mt-8 pt-8 border-t border-border text-center w-full">
-          <p className="text-micro text-foreground/35 leading-relaxed font-mono max-w-4xl mx-auto uppercase tracking-wide">
-            Risk Disclosure: Digital asset trading involves substantial risk of
-            loss and is not suitable for all investors. The performance of
-            algorithmic strategies is inherently speculative.
+          <p className="text-micro text-muted-foreground leading-relaxed font-mono max-w-4xl mx-auto uppercase tracking-wide">
+            Risk Disclosure: Forex and CFD trading involve substantial risk of
+            loss and are not suitable for all investors. Automated strategies are
+            inherently speculative. Capital remains with your broker.
           </p>
         </div>
       </div>
