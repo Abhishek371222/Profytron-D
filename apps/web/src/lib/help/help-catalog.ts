@@ -180,142 +180,235 @@ export const HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+/**
+ * Final Help Center FAQ copy (Ishit content pack).
+ * Restored as the approved long-form set after the Help foundation refactor
+ * truncated answers to short stubs — wording preserved for production FAQs.
+ */
 export const HELP_FAQ_ENTRIES: HelpFaqEntry[] = [
   {
     id: 'what-is-profytron',
     category: 'getting-started',
-    tags: ['product', 'overview'],
-    question: 'What is Profytron?',
+    tags: ['product', 'overview', 'india'],
+    question: 'What is Profytron and who is it built for?',
     answer:
-      'Profytron is a bots-first platform for automated trading on the forex market. Connect MT4/MT5 brokers, deploy marketplace forex bots, set risk limits, and monitor execution and analytics from one workspace.',
+      'Profytron is an institutional-grade algorithmic trading platform designed for Indian retail traders, HNIs, and proprietary desks. It combines AI-powered coaching, copy trading, a strategy marketplace, and real-time analytics — giving you the same tools that hedge funds use, without needing a quant team.',
   },
   {
-    id: 'markets-platforms',
+    id: 'brokers-platforms',
+    category: 'brokers',
+    tags: ['mt4', 'mt5', 'metaapi', 'paper'],
+    question: 'Which brokers and trading platforms are supported?',
+    answer:
+      'Profytron connects natively with MetaTrader 4 (MT4) and MetaTrader 5 (MT5) accounts via the MetaAPI cloud integration. Support for Binance, Bybit, KuCoin, and Interactive Brokers is on the roadmap. A built-in paper trading account is available for risk-free testing from day one.',
+  },
+  {
+    id: 'copy-trading',
     category: 'trading',
-    tags: ['forex', 'mt4', 'mt5'],
-    question: 'Which markets and platforms are supported?',
+    tags: ['copy trading', 'mirror', 'risk'],
+    question: 'How does copy trading work on Profytron?',
     answer:
-      'Profytron focuses on the forex market through your MT4/MT5 broker: currency pairs, metals such as XAUUSD, and other instruments your broker offers. You can paper trade first, then connect MetaTrader 4 or MetaTrader 5 for live automation.',
-  },
-  {
-    id: 'how-bots-work',
-    category: 'strategies',
-    tags: ['bots', 'automation'],
-    question: 'How do forex trading bots work on Profytron?',
-    answer:
-      'You connect a broker (or paper account), pick a marketplace bot or strategy, set risk limits, then the execution engine places trades into your own MT4/MT5 account. You control drawdown limits and sizing from the dashboard while the bot runs.',
+      "When you subscribe to a strategy, Profytron's execution engine mirrors eligible trades from the strategy source into your connected account. You can set your own risk parameters, including drawdown limits and position-size multipliers, while monitoring execution from your dashboard.",
   },
   {
     id: 'funds-custody',
     category: 'security',
-    tags: ['custody', 'safety'],
+    tags: ['custody', 'safety', 'funds'],
     question: 'Is my money safe? Where are my funds held?',
     answer:
-      'Profytron never holds your funds. Capital stays in your own forex broker account — we connect with scoped API access to execute. You retain custody at all times. Profytron is SaaS automation software, not a broker or fund manager.',
+      'Profytron never holds your funds. All capital stays in your own broker account — we only connect to execute trades on your behalf using read/write API access. You retain full custody of your money at all times. Our platform is a SaaS tool, not a broker or fund manager.',
   },
   {
     id: 'what-is-alpha-coach',
     category: 'alpha-coach',
-    tags: ['coach', 'ai'],
-    question: 'What is Alpha Coach?',
+    tags: ['coach', 'ai', 'feedback'],
+    question: 'What is Alpha Coach and how does it help me?',
     answer:
-      'Alpha Coach reviews trade behaviour — timing, risk-reward patterns, and session context — and surfaces plain-English feedback after sessions so you can improve rules and risk discipline around automated forex bots.',
+      'Alpha Coach analyzes every trade you take — entry timing, risk-reward ratio, emotional patterns, and market context — and delivers plain-English feedback after each session. It identifies your strengths (e.g., excellent trend identification) and weaknesses (e.g., early exits on winning trades) and gives you a structured improvement plan.',
   },
   {
     id: 'data-security',
     category: 'security',
-    tags: ['encryption', '2fa'],
-    question: 'How is my trading data secured?',
+    tags: ['encryption', '2fa', 'tls'],
+    question: 'How is my trading data and account secured?',
     answer:
-      'Credentials are encrypted at rest (AES-256), transit uses TLS, and broker passwords sit in encrypted vaults — never plaintext. 2FA via TOTP is available. Infrastructure runs on hardened cloud providers with encrypted backups.',
+      'Profytron uses AES-256 encryption for all stored credentials, TLS 1.3 for data in transit, and stores broker passwords in encrypted vaults — never in plaintext. Two-factor authentication (2FA) via TOTP authenticator apps is available. Our infrastructure runs on SOC 2-compliant cloud providers with daily encrypted backups.',
   },
   {
     id: 'pricing-plans',
     category: 'billing',
-    tags: ['pricing', 'plans'],
-    question: 'What are the pricing plans?',
+    tags: ['pricing', 'plans', 'inr'],
+    question: 'What are the pricing plans and what do they include?',
     answer:
-      'Plans range from Free paper trading through paid tiers for live MT5 bot capacity, analytics, and support. Exact prices and limits are always shown on the pricing page and checkout before you pay.',
+      'Profytron offers a Free plan for paper trading, Starter at ₹799/month, Pro at ₹999/month, and Business at ₹1,299/month. Enterprise deployments with white-label, colocation, or on-premise requirements use custom pricing. Annual billing and current plan limits are listed on the pricing page.',
   },
   {
     id: 'free-trial',
     category: 'billing',
-    tags: ['trial'],
+    tags: ['trial', 'free'],
     question: 'Is there a free trial?',
     answer:
-      'Yes. Paid plans include a trial window, and Free paper trading lets you test bot behaviour without a subscription. Checkout screens show any payment requirement before a paid plan starts.',
+      'Yes. Paid plans include a 7-day trial, and the Free plan lets you explore paper trading without a subscription. The signup and checkout screens show any payment requirement before a paid plan begins.',
   },
   {
     id: 'cancel-anytime',
     category: 'billing',
-    tags: ['cancel', 'subscription'],
-    question: 'Can I cancel anytime?',
+    tags: ['cancel', 'subscription', 'refund'],
+    question: 'Can I cancel my subscription at any time?',
     answer:
-      'Yes. Cancel from billing settings; access continues until the end of the current billing period. No cancellation fees. Refund eligibility is described in your plan terms and support FAQ.',
+      "Yes, you can cancel any time from your billing settings. Your access continues until the end of the current billing period. We do not charge cancellation fees. If you cancel within 48 hours of being billed and haven't actively used copy trading, you can request a full refund via our support team.",
   },
   {
     id: 'marketplace',
     category: 'marketplace',
-    tags: ['marketplace', 'subscribe'],
+    tags: ['marketplace', 'strategies', 'subscribe'],
     question: 'What is the Strategy Marketplace?',
     answer:
-      'Creators list verified algorithmic forex strategies and bots. Listings show track-record metrics such as win rate, drawdown, and returns derived from broker-linked activity where verification rules apply. Subscribe and deploy on your connected account.',
+      'The Strategy Marketplace is where verified strategy creators list their algorithmic trading strategies. Each listing shows a verified track record with real brokerage statements — win rate, Sharpe ratio, maximum drawdown, monthly returns, and subscriber count. You can subscribe to any strategy and start copy trading within minutes.',
+  },
+  {
+    id: 'creator-earnings',
+    category: 'marketplace',
+    tags: ['creators', 'earnings', 'wallet'],
+    question: 'How do strategy creators earn money?',
+    answer:
+      'Strategy creators earn 80% of every subscription fee paid by their followers. Profytron retains a 20% platform fee. Earnings accumulate in your Profytron wallet and can be withdrawn to your bank account weekly. Creators building a following of 50+ subscribers can earn ₹50,000–₹5,00,000+ per month passively.',
+  },
+  {
+    id: 'strategy-verified',
+    category: 'marketplace',
+    tags: ['verified', 'track record'],
+    question: "How is a strategy's performance verified?",
+    answer:
+      "Strategy performance is verified by connecting the creator's live MT4/MT5 account directly to Profytron. All trades are recorded in real time from the broker, not self-reported. The Profytron team additionally reviews performance data and tags strategies as 'Verified' only after a minimum 60-day live track record with consistent results.",
   },
   {
     id: 'risk-engine',
     category: 'risk',
-    tags: ['risk', 'drawdown'],
-    question: 'What is the AI Risk Engine?',
+    tags: ['risk', 'drawdown', 'kill switch'],
+    question: 'What is the AI Risk Engine and how does it protect me?',
     answer:
-      'It monitors portfolio drawdown and risk rules you configure. If limits are breached, it can pause bot trading and optional close logic. It can also respond to volatility spikes. You set thresholds; the engine enforces them without emotion.',
+      'The AI Risk Engine monitors your portfolio in real time and enforces the risk rules you set. If your account drawdown exceeds your limit, it automatically stops all copy trading and closes open positions. It also detects unusual volatility events (news spikes, flash crashes) and can pause trading temporarily. You set the thresholds — the engine enforces them without emotion.',
   },
   {
-    id: 'vps-bots',
-    category: 'trading',
-    tags: ['vps', 'uptime'],
-    question: 'Why use a VPS with forex bots?',
+    id: 'strategy-builder',
+    category: 'strategies',
+    tags: ['builder', 'no-code', 'backtest'],
+    question: 'What is the Strategy Builder?',
     answer:
-      'A VPS keeps MT4/MT5 bots online 24/5 even when your PC is off — critical for forex sessions across time zones. Missed exits from downtime often hurt more than missed entries.',
+      'The Strategy Builder is a visual, no-code editor where you can design your own trading strategies using a drag-and-drop node graph. Connect indicators (RSI, MACD, Bollinger Bands), conditions (if/else, crossovers), and actions (buy, sell, set stop loss) visually. Built strategies can be backtested on historical data and, once verified, listed on the marketplace.',
   },
   {
-    id: 'crypto-exchanges',
-    category: 'trading',
-    tags: ['crypto'],
-    question: 'Does Profytron support crypto-native exchanges?',
+    id: 'mobile-pwa',
+    category: 'getting-started',
+    tags: ['mobile', 'pwa', 'notifications'],
+    question: 'Can I use Profytron on my mobile phone?',
     answer:
-      'Core path today is broker-connected forex/CFD automation on MT4/MT5. Exchange-native crypto stack is not the primary product; check docs for current integrations.',
+      'Yes. Profytron is a Progressive Web App (PWA) optimized for mobile. Install it from your browser on iOS or Android and get an app-like experience with real-time push notifications for trade execution, drawdown alerts, and account milestones. A dedicated native app is in development.',
+  },
+  {
+    id: 'analytics-suite',
+    category: 'analytics',
+    tags: ['analytics', 'sharpe', 'export'],
+    question: 'What analytics does Profytron provide?',
+    answer:
+      'The analytics suite covers: equity curve visualization, win rate by symbol and session, drawdown analysis, trade duration distribution, risk-adjusted returns (Sharpe, Sortino), best/worst days and months, slippage tracking, and AI-generated insights. All charts are interactive, real-time, and exportable to PDF.',
+  },
+  {
+    id: 'trading-journal',
+    category: 'alpha-coach',
+    tags: ['journal', 'psychology'],
+    question: 'What is the Trading Journal?',
+    answer:
+      'The Trading Journal lets you attach notes, screenshots, and emotional tags to every trade. After each session, Alpha Coach analyzes your journal entries alongside trade data to detect psychological patterns — such as revenge trading after losses or position sizing inconsistency during high-volatility periods.',
+  },
+  {
+    id: 'vps-hosting',
+    category: 'trading',
+    tags: ['vps', 'uptime', 'latency'],
+    question: 'What is VPS hosting and why do I need it?',
+    answer:
+      "A VPS (Virtual Private Server) keeps your trading bots running 24/7 even when your computer is off. Profytron's VPS integration lets you deploy and manage your MT4/MT5 bots from the dashboard without any technical setup. Latency to major broker servers is under 5ms for faster order execution.",
+  },
+  {
+    id: 'crypto-support',
+    category: 'trading',
+    tags: ['crypto', 'forex', 'mt5'],
+    question: 'Does Profytron support cryptocurrency trading?',
+    answer:
+      'Profytron currently focuses on broker-connected Forex, commodities, and indices trading through MT4/MT5-compatible accounts. Broader exchange integrations may be added in the future; check the documentation for the current supported integrations.',
+  },
+  {
+    id: 'kyc',
+    category: 'account',
+    tags: ['kyc', 'verification', 'withdrawals'],
+    question: 'What is KYC and do I need to complete it?',
+    answer:
+      'KYC (Know Your Customer) verification is required to enable wallet withdrawals above ₹10,000 per day and to list strategies on the marketplace. The process takes 2–5 minutes: upload a government-issued ID (Aadhaar, PAN, Passport) and a selfie. Verification is completed within 24 hours by our compliance team.',
+  },
+  {
+    id: 'payment-methods',
+    category: 'billing',
+    tags: ['payments', 'upi', 'stripe'],
+    question: 'What payment methods are accepted?',
+    answer:
+      'We accept all major payment methods: UPI (PhonePe, Google Pay, Paytm), Debit/Credit Cards (Visa, Mastercard, RuPay), Net Banking, and Razorpay wallet. International payments are accepted via Stripe. All transactions are secured with 3D Secure authentication and PCI-DSS compliant payment gateways.',
+  },
+  {
+    id: 'multiple-brokers',
+    category: 'brokers',
+    tags: ['broker', 'accounts', 'multi'],
+    question: 'Can I have multiple broker accounts connected?',
+    answer:
+      "Yes. You can connect multiple MT4/MT5 accounts from different brokers simultaneously. Each account can be assigned a different strategy subscription with its own risk parameters. One account can be set as the 'master source' for your own copy trading setup.",
+  },
+  {
+    id: 'affiliate-program',
+    category: 'support',
+    tags: ['affiliate', 'referrals', 'commission'],
+    question: 'What is the Affiliate Program?',
+    answer:
+      'The Profytron Affiliate Program pays you 30% recurring commission on every subscription payment made by traders you refer — for the lifetime of their account. There are three tiers: Starter (0–10 referrals), Pro (11–50 referrals), and Elite (51+ referrals) with increasing commission rates and bonuses.',
+  },
+  {
+    id: 'support-tiers',
+    category: 'support',
+    tags: ['support', 'email', 'priority'],
+    question: 'What kind of support is available?',
+    answer:
+      'The Free plan includes community support, Starter includes email support, and Pro and Business include priority support options. Enterprise support and service levels are tailored to the deployment. The pricing page lists the current support entitlement for each plan.',
   },
   {
     id: 'get-started',
     category: 'getting-started',
-    tags: ['onboarding'],
-    question: 'How do I get started?',
+    tags: ['onboarding', 'signup'],
+    question: 'How do I get started on Profytron?',
     answer:
-      'Sign up free, start paper trading or connect MT4/MT5, pick a forex marketplace bot, set risk limits, then go live carefully. Docs and onboarding walk you through each step.',
+      'Sign up for free in under 2 minutes — no credit card required. Connect your MT4/MT5 broker account (or start with the built-in paper account), browse the strategy marketplace, and click Subscribe on any verified strategy. Your first copied trade can happen within 5 minutes of signing up. The onboarding flow guides you through each step.',
   },
   {
-    id: 'connect-broker',
-    category: 'brokers',
-    tags: ['broker', 'mt5'],
-    question: 'How do I connect a broker?',
+    id: 'api-access',
+    category: 'api',
+    tags: ['api', 'keys', 'integrations'],
+    question: 'Is there an API or developer integration?',
     answer:
-      'Open Connected Accounts, choose your broker from the directory, enter MT4/MT5 credentials or paper mode, then return to Get Bots or Marketplace to deploy. See the brokers hub for spread and region notes.',
+      'You can manage API keys under Settings → API keys for secured platform access where offered. Product docs cover integrations and limits. For Enterprise or custom integrations, contact support or sales via the Contact page.',
   },
   {
-    id: 'coach-empty',
+    id: 'coach-needs-account',
     category: 'alpha-coach',
-    tags: ['coach', 'sessions'],
-    question: 'Why does Alpha Coach say connect an account?',
+    tags: ['coach', 'broker', 'context'],
+    question: 'Why does Alpha Coach ask me to connect an account?',
     answer:
-      'Coach can answer general trading questions without a broker. For live book coaching (open trades, win rate, drawdown), connect MT4/MT5 or paper under Connected Accounts so explainability tools can read your account context.',
+      'Alpha Coach can answer general product and trading questions without a linked broker. For live book coaching — open trades, win rate, drawdown, and journal-linked insights — connect MT4/MT5 or paper under Connected Accounts so coaching tools can read your account context.',
   },
   {
-    id: 'support-ticket',
+    id: 'contact-support',
     category: 'support',
-    tags: ['support', 'ticket'],
+    tags: ['ticket', 'discord', 'status'],
     question: 'How do I contact support?',
     answer:
-      'Open a ticket from Settings → Support, email support@profytron.com, or join Discord via Community. System-wide incidents are listed on the Status page.',
+      'Open a ticket from Settings → Support, email support@profytron.com, or join Discord via the Community page. System-wide incidents are listed on the Status page. Plan tier determines email vs priority support response targets (see Pricing).',
   },
 ];
 

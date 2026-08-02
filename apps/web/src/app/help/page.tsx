@@ -34,14 +34,18 @@ import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 const FAQ_CATEGORIES: { id: HelpCategoryId | 'all'; label: string }[] = [
   { id: 'all', label: 'All' },
   { id: 'getting-started', label: 'Getting started' },
-  { id: 'billing', label: 'Billing' },
+  { id: 'account', label: 'Account' },
   { id: 'brokers', label: 'Brokers' },
-  { id: 'alpha-coach', label: 'Alpha Coach' },
-  { id: 'marketplace', label: 'Marketplace' },
-  { id: 'security', label: 'Security' },
-  { id: 'support', label: 'Support' },
   { id: 'trading', label: 'Trading' },
+  { id: 'strategies', label: 'Strategies' },
+  { id: 'marketplace', label: 'Marketplace' },
+  { id: 'billing', label: 'Billing' },
   { id: 'risk', label: 'Risk' },
+  { id: 'alpha-coach', label: 'Alpha Coach' },
+  { id: 'analytics', label: 'Analytics' },
+  { id: 'security', label: 'Security' },
+  { id: 'api', label: 'API' },
+  { id: 'support', label: 'Support' },
 ];
 
 function highlightMatch(text: string, query: string): ReactNode {
@@ -247,9 +251,13 @@ export default function HelpPage() {
         eyebrowIcon={CircleHelp}
         title="Answers,"
         titleAccent="paths & support."
-        description="Search FAQs, browse topics from getting started to Alpha Coach, or open a ticket. Built for future expansion without rewrites."
+        description="Search 25+ FAQs covering signup, billing, MT4/MT5 brokers, marketplace, Alpha Coach, risk, and security — or open a ticket when you need a human."
         sceneKey="heroTrading"
       />
+
+      <MarketingSection narrow className="pb-4">
+        <Breadcrumbs items={[{ label: 'Help' }]} />
+      </MarketingSection>
 
       <MarketingSection narrow className="pb-8">
         <label htmlFor={searchInputId} className="sr-only">
@@ -273,7 +281,7 @@ export default function HelpPage() {
             <button
               type="button"
               onClick={() => setQuery('')}
-              className="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="absolute right-2 top-1/2 inline-flex h-9 w-9 min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" />
@@ -302,7 +310,7 @@ export default function HelpPage() {
                 aria-selected={selected}
                 onClick={() => setCategory(cat.id)}
                 className={cn(
-                  'shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition',
+                  'min-h-[40px] shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                   selected
                     ? 'border-primary bg-primary text-primary-foreground'
                     : 'border-[var(--card-border)] bg-card text-muted-foreground hover:text-foreground',
@@ -389,26 +397,29 @@ export default function HelpPage() {
           <div className="flex flex-wrap gap-2">
             <Link
               href="/settings/support"
-              className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               Open ticket
             </Link>
             <Link
               href="/status"
-              className="inline-flex items-center justify-center rounded-lg border border-[var(--card-border)] bg-card px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[var(--card-border)] bg-card px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               System status
             </Link>
             <Link
               href="/alpha-coach"
-              className="inline-flex items-center justify-center rounded-lg border border-[var(--card-border)] bg-card px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[var(--card-border)] bg-card px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               Alpha Coach
             </Link>
+            <Link
+              href="/community"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[var(--card-border)] bg-card px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Community
+            </Link>
           </div>
-        </div>
-        <div className="mt-8">
-          <Breadcrumbs items={[{ label: 'Help' }]} />
         </div>
       </MarketingSection>
     </PublicPageLayout>

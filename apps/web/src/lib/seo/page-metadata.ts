@@ -51,9 +51,16 @@ export const pageSeo = {
   help: buildPageMetadata({
     title: 'Help Center — Support & FAQs',
     description:
-      'Help with Profytron accounts, billing, broker connections, forex bots, Alpha Coach, and platform features.',
+      'Profytron Help Center FAQs: signup, plans & trial, MT4/MT5 brokers, copy trading, marketplace, Alpha Coach, risk engine, security, KYC, payments, and support.',
     path: '/help',
-    keywords: ['Profytron help', 'forex trading bot FAQ', 'MT5 bot support'],
+    keywords: [
+      'Profytron help',
+      'Profytron FAQ',
+      'forex trading bot FAQ',
+      'MT5 bot support',
+      'copy trading help',
+      'Alpha Coach FAQ',
+    ],
   }),
   status: buildPageMetadata({
     title: 'System Status — Platform Health',
