@@ -66,9 +66,13 @@ Unit map cases:
 
 | Check | Result |
 | --- | --- |
-| Unit-level paper/live flag | **PASS** (above) |
-| Authenticated history HTML path with paper then real | **NOT VERIFIED live** without operator JWT — depends on web deploy of BFF |
-| Regression health API after web deploy | To fill post-deploy |
+| Unit-level paper/live flag | **PASS** (`map-saved-trade-is-paper` 3/3) |
+| Full API suite | **149 passed**, 35 skipped |
+| Web tsc | **PASS** |
+| Web deployed | **`web-00076-2f5`** image tag **`310f96e`** (includes fix + Dockerfile heap bump) |
+| History unauth | `GET /api/trading/trades/history` → **401** |
+| Authenticated paper/live history flags in production UI | **NOT VERIFIED live** without operator JWT; unit proof + code path on live revision |
+| API health / wallet / coach / plans | **200 / 401 / 401 / 200** (unchanged) |
 
 ### Operator smoke after web deploy (with JWT)
 
@@ -87,7 +91,9 @@ curl -sS -H "Authorization: Bearer $TOKEN" \
 
 ## Regression
 
-Unchanged subsystems: MetaAPI adapter, trading processor, wallet, AI Coach, trial, health. Code diff is web BFF + type only.
+Unchanged: MetaAPI adapter, trading processor, wallet, AI Coach, trial, API health.
+
+Deploy note: first two Cloud Builds OOMed on Next build; **Dockerfile** `NODE_OPTIONS=--max-old-space-size=6144` added in `310f96e` solely so the web image can compile. No runtime app logic change beyond heap for build.
 
 ---
 
@@ -97,7 +103,7 @@ Unchanged subsystems: MetaAPI adapter, trading processor, wallet, AI Coach, tria
 | --- | --- |
 | UI flash if callers assumed always-false | Low — real boolean is safer |
 | MetaAPI rows suddenly paper | None — still hard-false |
-| Deploy web only | Required for Next BFF |
+| Deploy web only | Done |
 
 ---
 
@@ -105,18 +111,21 @@ Unchanged subsystems: MetaAPI adapter, trading processor, wallet, AI Coach, tria
 
 ```text
 Tag: pre-paper-history-fix → b2b88e25e73216b82f0942676bba7e8478e32360
+(on origin)
 ```
 
-Redeploy web (and any co-deployed bits) from that SHA, or restore traffic to previous web Cloud Run revision.
+Redeploy web at that SHA, or `gcloud run services update-traffic web --to-revisions=<prev>=100`.
 
 ---
 
 ## Post-deploy
 
-_To complete after Cloud Build web._
-
 | Item | Value |
 | --- | --- |
-| Commit | _(pending)_ |
-| Web revision | _(pending)_ |
-| Final verdict | _(pending)_ |
+| Fix commit | `b8fff54` |
+| Deploy commit (build heap) | `310f96e` |
+| Cloud Build | `aeedce0d-59b4-4e47-8e0c-470f95bcff7c` **SUCCESS** |
+| Web revision | **`web-00076-2f5`** 100% |
+| Image | `web:310f96e831e22138fbafd6107adcd40282684622` |
+| Rollback tag | `pre-paper-history-fix` → `b2b88e2` |
+| Final verdict | **READY FOR PRODUCTION** |
