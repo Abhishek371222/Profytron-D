@@ -12,9 +12,9 @@ const configuredSiteUrl =
 export const SITE_URL = configuredSiteUrl.replace(/\/+$/, '');
 export const SITE_NAME = 'Profytron';
 export const SITE_TAGLINE = 'Forex trading bots for MT4/MT5';
-export const DEFAULT_OG_IMAGE = '/hero/hero-trading-3d.webp';
+export const DEFAULT_OG_IMAGE = '/og/default.jpg';
 export const DEFAULT_OG_IMAGE_ALT =
-  'Profytron forex trading dashboard with automated bots, live charts, and portfolio performance';
+  'Profytron forex trading bots for MT4/MT5 — marketplace strategies, risk controls, and portfolio analytics';
 export const TWITTER_HANDLE = '@profytron';
 export const SUPPORT_EMAIL = 'support@profytron.com';
 export const CONTACT_EMAIL = 'support@profytron.com';

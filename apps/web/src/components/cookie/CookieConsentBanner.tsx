@@ -1,44 +1,50 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
+import {
+  getAnalyticsConsent,
+  setAnalyticsConsent,
+  type AnalyticsConsent,
+} from '@/lib/cookie/consent';
 
-const STORAGE_KEY = 'profytron_analytics_consent';
-
-export type AnalyticsConsent = 'granted' | 'denied';
-
-export function getAnalyticsConsent(): AnalyticsConsent | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const v = localStorage.getItem(STORAGE_KEY);
-    if (v === 'granted' || v === 'denied') return v;
-  } catch {
-    /* ignore */
-  }
-  return null;
-}
-
-export function setAnalyticsConsent(value: AnalyticsConsent) {
-  try {
-    localStorage.setItem(STORAGE_KEY, value);
-  } catch {
-    /* ignore */
-  }
-  window.dispatchEvent(
-    new CustomEvent('profytron:analytics-consent', { detail: value }),
-  );
-}
+export type { AnalyticsConsent };
+export { getAnalyticsConsent, setAnalyticsConsent } from '@/lib/cookie/consent';
 
 /**
- * PT-L02 — first-visit consent for optional analytics (PostHog).
+ * PT-L02 — first-visit (and policy-version) consent for optional analytics (PostHog).
  * Necessary cookies (session) are unaffected.
  */
 export function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
+  const titleId = useId();
+  const acceptRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    // Client-only: avoid SSR mismatch; banner never paints on server.
     setVisible(getAnalyticsConsent() === null);
   }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    // Focus primary action for keyboard users without trapping the full page.
+    const t = window.setTimeout(() => acceptRef.current?.focus(), 50);
+    return () => window.clearTimeout(t);
+  }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const onKey = (e: KeyboardEvent) => {
+      // Escape = deny optional analytics (prefer not tracking over forced accept).
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setAnalyticsConsent('denied');
+        setVisible(false);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [visible]);
 
   const choose = useCallback((value: AnalyticsConsent) => {
     setAnalyticsConsent(value);
@@ -50,30 +56,54 @@ export function CookieConsentBanner() {
   return (
     <div
       role="dialog"
-      aria-label="Cookie preferences"
-      className="fixed inset-x-0 bottom-0 z-[90] border-t border-[var(--card-border)] bg-card/95 p-4 shadow-2xl backdrop-blur-md sm:p-5"
+      aria-modal="false"
+      aria-labelledby={titleId}
+      className="fixed inset-x-0 bottom-0 z-[90] border-t border-[var(--card-border)] bg-card/95 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl backdrop-blur-md sm:p-5 sm:pb-[max(1.25rem,env(safe-area-inset-bottom))]"
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          We use optional analytics cookies to improve Profytron. Strictly necessary cookies keep
-          you signed in. See our{' '}
-          <Link href="/cookies" className="font-medium text-primary underline-offset-2 hover:underline">
-            cookie policy
-          </Link>
-          .
-        </p>
+        <div className="min-w-0 space-y-1.5">
+          <p id={titleId} className="text-sm font-semibold text-foreground">
+            Cookie preferences
+          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            We use optional analytics cookies to improve Profytron. Strictly necessary cookies keep you
+            signed in. Read our{' '}
+            <Link
+              href="/cookies"
+              className="font-medium text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+            >
+              Cookie Policy
+            </Link>
+            ,{' '}
+            <Link
+              href="/privacy"
+              className="font-medium text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+            >
+              Privacy Policy
+            </Link>
+            , and{' '}
+            <Link
+              href="/terms"
+              className="font-medium text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+            >
+              Terms of Service
+            </Link>
+            .
+          </p>
+        </div>
         <div className="flex flex-wrap gap-2 sm:shrink-0">
           <button
             type="button"
             onClick={() => choose('denied')}
-            className="min-h-[44px] rounded-xl border border-[var(--card-border)] px-4 text-sm font-semibold text-foreground hover:bg-muted/40"
+            className="min-h-[44px] rounded-xl border border-[var(--card-border)] px-4 text-sm font-semibold text-foreground hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Reject optional
           </button>
           <button
+            ref={acceptRef}
             type="button"
             onClick={() => choose('granted')}
-            className="min-h-[44px] rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:brightness-110"
+            className="min-h-[44px] rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Accept analytics
           </button>

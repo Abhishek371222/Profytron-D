@@ -60,11 +60,11 @@ export const metadata: Metadata = {
       "Automated forex trading bots on MT4/MT5. Deploy marketplace strategies, connect brokers, and enforce risk limits.",
     images: [
       {
-        url: "/hero/hero-trading-3d.webp",
+        url: "/og/default.jpg",
         width: 1200,
         height: 630,
-        alt: "Profytron forex bots dashboard with live charts and portfolio analytics",
-        type: "image/webp",
+        alt: "Profytron forex trading bots for MT4/MT5 — marketplace strategies and portfolio analytics",
+        type: "image/jpeg",
       },
     ],
     locale: "en_IN",
@@ -76,7 +76,7 @@ export const metadata: Metadata = {
     title: "Profytron — Forex Trading Bots for MT4/MT5",
     description:
       "AI-assisted forex trading bots, marketplace strategies, and portfolio analytics on MT4/MT5.",
-    images: ["/hero/hero-trading-3d.webp"],
+    images: ["/og/default.jpg"],
   },
   keywords: [
     "forex trading bots",

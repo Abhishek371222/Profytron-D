@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { PublicPageLayout } from '@/components/layout/PublicPageLayout';
 import {
   MarketingHero,
@@ -8,6 +9,7 @@ import {
   MarketingCard,
 } from '@/components/marketing/MarketingPage';
 import { Cookie, Check, X } from 'lucide-react';
+import { CookiePreferenceControls } from '@/components/cookie/CookiePreferenceControls';
 
 const cookieTypes = [
   {
@@ -133,9 +135,17 @@ export default function CookiePolicyPage() {
       </MarketingSection>
 
       <MarketingSection narrow className="border-t border-[var(--card-border)] pb-20">
+        <div className="mb-10">
+          <CookiePreferenceControls />
+        </div>
         <MarketingCard>
           <h2 className="dash-section-title mb-5">How to Control Cookies</h2>
           <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
+            <p>
+              <span className="font-semibold text-foreground">On this site:</span> Use the preference
+              controls above to accept or reject optional analytics at any time. Your choice is stored
+              on this device only.
+            </p>
             <p>
               <span className="font-semibold text-foreground">Browser Settings:</span> All major browsers allow you to view, block, or delete cookies through their privacy or security settings.
             </p>
@@ -147,6 +157,14 @@ export default function CookiePolicyPage() {
               <a href="mailto:support@profytron.com" className="text-primary transition-colors hover:text-primary-hover">
                 support@profytron.com
               </a>
+              . See also our{' '}
+              <Link href="/privacy" className="text-primary hover:underline">
+                Privacy Policy
+              </Link>
+              {' '}and{' '}
+              <Link href="/terms" className="text-primary hover:underline">
+                Terms of Service
+              </Link>
               .
             </p>
           </div>

@@ -61,7 +61,7 @@ function buildSchema(props: JsonLdProps): object | null {
           width: 512,
           height: 512,
         },
-        image: `${SITE_URL}/hero/hero-trading-3d.webp`,
+        image: `${SITE_URL}/og/default.jpg`,
         description:
           'Automated forex trading bot platform with AI-assisted risk controls, marketplace strategies, and MT4/MT5 broker execution.',
         foundingDate: '2024',
@@ -138,7 +138,7 @@ function buildSchema(props: JsonLdProps): object | null {
         '@id': `${SITE_URL}/pricing#product`,
         name: 'Profytron Forex Bot Platform',
         url: `${SITE_URL}/pricing`,
-        image: `${SITE_URL}/hero/hero-trading-3d.webp`,
+        image: `${SITE_URL}/og/default.jpg`,
         category: 'Forex algorithmic trading software',
         description:
           'SaaS platform for automated forex trading bots with AI risk management and strategy marketplace.',
@@ -250,7 +250,7 @@ function buildSchema(props: JsonLdProps): object | null {
             ? `${SITE_URL}${article.path.startsWith('/') ? article.path : `/${article.path}`}`
             : `${SITE_URL}/blog/${article.slug}`,
         },
-        image: `${SITE_URL}/hero/hero-trading-3d.webp`,
+        image: `${SITE_URL}/og/default.jpg`,
         timeRequired: article.readTime,
       };
 

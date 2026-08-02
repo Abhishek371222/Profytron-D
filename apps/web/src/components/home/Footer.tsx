@@ -39,6 +39,7 @@ const footerLinks = {
     { name: "Terms of Service", href: "/terms" },
     { name: "Risk Disclosure", href: "/risk-disclosure" },
     { name: "Cookie Policy", href: "/cookies" },
+    { name: "Cookie preferences", href: "/cookies#manage-cookies" },
   ],
 };
 

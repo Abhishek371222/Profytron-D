@@ -74,7 +74,11 @@ export function buildPageMetadata({
             ? 'image/webp'
             : ogImage.endsWith('.avif')
               ? 'image/avif'
-              : undefined,
+              : ogImage.endsWith('.jpg') || ogImage.endsWith('.jpeg')
+                ? 'image/jpeg'
+                : ogImage.endsWith('.png')
+                  ? 'image/png'
+                  : undefined,
         },
       ],
       ...(type === 'article' && publishedTime

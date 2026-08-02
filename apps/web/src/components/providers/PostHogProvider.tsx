@@ -6,7 +6,7 @@ import type { PostHogClient } from '@/lib/analytics/track';
 import {
   getAnalyticsConsent,
   type AnalyticsConsent,
-} from '@/components/cookie/CookieConsentBanner';
+} from '@/lib/cookie/consent';
 
 let posthogInitialized = false;
 
