@@ -72,8 +72,10 @@ export class PaymentsService {
 
   private isRazorpayDemoMode(): boolean {
     return (
-      process.env.NODE_ENV !== 'production' &&
-      process.env.RAZORPAY_KEY_ID === 'DEMO_KEY'
+      (process.env.NODE_ENV === 'development' ||
+        process.env.NODE_ENV === 'test') &&
+      process.env.RAZORPAY_KEY_ID === 'DEMO_KEY' &&
+      process.env.ALLOW_DEMO_PAYMENTS === 'true'
     );
   }
 
@@ -582,38 +584,58 @@ export class PaymentsService {
           if (stripeSubId) {
             const failedSubs =
               await this.prisma.userStrategySubscription.findMany({
-                where: { stripeSubId },
+                where: { stripeSubId, status: 'ACTIVE' },
                 select: { id: true },
               });
-            await this.prisma.userStrategySubscription.updateMany({
-              where: { stripeSubId },
-              data: {
-                status: 'INACTIVE',
-                expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-              },
-            });
-            for (const sub of failedSubs) {
-              await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+            if (failedSubs.length) {
+              await this.prisma.userStrategySubscription.updateMany({
+                where: { id: { in: failedSubs.map((s) => s.id) }, status: 'ACTIVE' },
+                data: {
+                  status: 'INACTIVE',
+                  expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+                },
+              });
+              for (const sub of failedSubs) {
+                await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+              }
+            } else {
+              this.logger.warn(
+                `STRIPE_PAYMENT_FAILED_CONFLICT: no ACTIVE subscriptions for stripeSubId ${stripeSubId} (already modified by another process)`,
+              );
             }
           }
           break;
         }
         case 'customer.subscription.deleted': {
           const stripeSub = event.data.object;
+          const cancellableStatuses: SubscriptionStatus[] = [
+            SubscriptionStatus.ACTIVE,
+            SubscriptionStatus.PAUSED,
+            SubscriptionStatus.PROVISIONING,
+          ];
           const cancelledSubs =
             await this.prisma.userStrategySubscription.findMany({
-              where: { stripeSubId: stripeSub.id },
+              where: { stripeSubId: stripeSub.id, status: { in: cancellableStatuses } },
               select: { id: true },
             });
-          await this.prisma.userStrategySubscription.updateMany({
-            where: { stripeSubId: stripeSub.id },
-            data: {
-              status: 'CANCELLED',
-              cancelledAt: new Date(),
-            },
-          });
-          for (const sub of cancelledSubs) {
-            await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+          if (cancelledSubs.length) {
+            await this.prisma.userStrategySubscription.updateMany({
+              where: {
+                id: { in: cancelledSubs.map((s) => s.id) },
+                status: { in: cancellableStatuses },
+              },
+              data: {
+                status: 'CANCELLED',
+                cancelledAt: new Date(),
+              },
+            });
+            for (const sub of cancelledSubs) {
+              await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+            }
+          } else {
+            this.logger.warn(
+              `STRIPE_SUBSCRIPTION_DELETED_CONFLICT: no cancellable subscriptions for stripeSubId ${stripeSub.id} (already modified by another process)`,
+            );
           }
           break;
         }
@@ -818,17 +840,31 @@ export class PaymentsService {
       const userId = subscriptionEntity.notes.userId;
       const strategyId = subscriptionEntity.notes.strategyId;
       if (strategyId) {
+        const cancellableStatuses: SubscriptionStatus[] = [
+          SubscriptionStatus.ACTIVE,
+          SubscriptionStatus.PAUSED,
+          SubscriptionStatus.PROVISIONING,
+        ];
         const cancelledSubs =
           await this.prisma.userStrategySubscription.findMany({
-            where: { userId, strategyId },
+            where: { userId, strategyId, status: { in: cancellableStatuses } },
             select: { id: true },
           });
-        await this.prisma.userStrategySubscription.updateMany({
-          where: { userId, strategyId },
-          data: { status: 'CANCELLED', cancelledAt: new Date() },
-        });
-        for (const sub of cancelledSubs) {
-          await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+        if (cancelledSubs.length) {
+          await this.prisma.userStrategySubscription.updateMany({
+            where: {
+              id: { in: cancelledSubs.map((s) => s.id) },
+              status: { in: cancellableStatuses },
+            },
+            data: { status: 'CANCELLED', cancelledAt: new Date() },
+          });
+          for (const sub of cancelledSubs) {
+            await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+          }
+        } else {
+          this.logger.warn(
+            `RAZORPAY_SUBSCRIPTION_CANCELLED_CONFLICT: no cancellable subscriptions for user ${userId}, strategy ${strategyId} (already modified by another process)`,
+          );
         }
       }
       void this.agentEvents.emit({
@@ -1105,6 +1141,13 @@ export class PaymentsService {
       return;
     }
 
+    if (subscription.status === 'CANCELLED' || subscription.cancelledAt != null) {
+      this.logger.warn(
+        `Skipping renewal for subscription ${subscription.id} — already cancelled by user (cancelledAt=${subscription.cancelledAt}), refusing to reactivate`,
+      );
+      return;
+    }
+
     const amount = Number(invoice.amount_paid || 0) / 100;
     const expiresAt =
       this.getPeriodEndDate(invoice) ||
@@ -1112,15 +1155,31 @@ export class PaymentsService {
         ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
         : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000));
 
+    let renewed = false;
     await this.prisma.$transaction(async (tx) => {
-      await tx.userStrategySubscription.update({
-        where: { id: subscription.id },
+      // Conditional write closes TOCTOU: a cancel landing between the
+      // pre-check and this write must not silently reactivate the sub.
+      const updated = await tx.userStrategySubscription.updateMany({
+        where: {
+          id: subscription.id,
+          cancelledAt: null,
+          status: { not: 'CANCELLED' },
+        },
         data: {
           status: 'ACTIVE',
           expiresAt,
           cancelledAt: null,
         },
       });
+
+      if (updated.count === 0) {
+        this.logger.warn(
+          `Skipping renewal for subscription ${subscription.id} — concurrent cancel won the race`,
+        );
+        return;
+      }
+
+      renewed = true;
 
       await tx.marketplaceListing.update({
         where: { strategyId: subscription.strategyId },
@@ -1132,6 +1191,10 @@ export class PaymentsService {
         data: { totalRevenue: { increment: amount } },
       });
     });
+
+    if (!renewed) {
+      return;
+    }
 
     await this.createSubscriptionPaymentRecord(
       subscription.userId,
@@ -1296,7 +1359,11 @@ export class PaymentsService {
 
     if (dueWithLiability.length) {
       await this.prisma.userStrategySubscription.updateMany({
-        where: { id: { in: dueWithLiability } },
+        where: {
+          id: { in: dueWithLiability },
+          status: SubscriptionStatus.PAUSED,
+          profitShareState: ProfitShareState.PROFIT_SHARE_PAUSED,
+        },
         data: {
           status: SubscriptionStatus.ACTIVE,
           profitShareState: ProfitShareState.PROFIT_SHARE_DUE,
@@ -1305,7 +1372,11 @@ export class PaymentsService {
     }
     if (dueOk.length) {
       await this.prisma.userStrategySubscription.updateMany({
-        where: { id: { in: dueOk } },
+        where: {
+          id: { in: dueOk },
+          status: SubscriptionStatus.PAUSED,
+          profitShareState: ProfitShareState.PROFIT_SHARE_PAUSED,
+        },
         data: {
           status: SubscriptionStatus.ACTIVE,
           profitShareState: ProfitShareState.PROFIT_SHARE_OK,
@@ -1384,7 +1455,7 @@ export class PaymentsService {
   }
 
   async getSubscriptionPlans() {
-    const cacheKey = 'api:cache:subscription-plans:v1';
+    const cacheKey = 'api:cache:subscription-plans:v2';
     try {
       const hit = await this.redis.get(cacheKey);
       if (hit) return JSON.parse(hit);
@@ -1397,15 +1468,50 @@ export class PaymentsService {
     const plans = await this.prisma.subscriptionPlan.findMany({
       orderBy: { monthlyPrice: 'asc' },
     });
+
+    const enrich = (row: {
+      id: string;
+      name: string;
+      description: string | null;
+      monthlyPrice: number;
+      annualPrice: number | null;
+      features: unknown;
+      maxStrategies: number | null;
+      maxCopyTrades: number | null;
+      prioritySupport: boolean | null;
+    }) => {
+      const cfg = PLATFORM_PLANS.find(
+        (p) =>
+          p.name.toLowerCase() === row.name.toLowerCase() ||
+          p.slug === row.id ||
+          p.slug === row.name.toLowerCase(),
+      );
+      return {
+        id: row.id,
+        name: row.name,
+        description: row.description ?? cfg?.description ?? '',
+        monthlyPrice: row.monthlyPrice,
+        annualPrice: row.annualPrice ?? cfg?.annualPrice ?? row.monthlyPrice * 12,
+        features: Array.isArray(row.features)
+          ? row.features
+          : (cfg?.features ?? []),
+        maxStrategies: row.maxStrategies ?? cfg?.maxStrategies ?? 1,
+        maxCopyTrades: row.maxCopyTrades ?? cfg?.maxCopyTrades ?? 1,
+        prioritySupport: row.prioritySupport ?? cfg?.prioritySupport ?? false,
+        trialEligible: cfg?.trialEligible ?? false,
+        slug: cfg?.slug ?? row.name.toLowerCase().replace(/\s+/g, '-'),
+        tier: cfg?.tier ?? 'FREE',
+        maxBrokerAccounts: cfg?.maxBrokerAccounts ?? 1,
+        maxTeamMembers: cfg?.maxTeamMembers ?? 0,
+        recommended: cfg?.recommended ?? false,
+        cta: cfg?.cta ?? 'Choose plan',
+        ctaHref: cfg?.ctaHref ?? '/settings/billing',
+      };
+    };
+
     const result =
       plans.length > 0
-        ? plans.map((row) => ({
-            ...row,
-            trialEligible:
-              PLATFORM_PLANS.find(
-                (p) => p.name.toLowerCase() === row.name.toLowerCase(),
-              )?.trialEligible ?? false,
-          }))
+        ? plans.map(enrich)
         : PLATFORM_PLANS.filter((p) => p.monthlyPrice >= 0).map((p) => ({
             id: p.slug,
             name: p.name,
@@ -1417,6 +1523,13 @@ export class PaymentsService {
             maxCopyTrades: p.maxCopyTrades,
             prioritySupport: p.prioritySupport,
             trialEligible: p.trialEligible,
+            slug: p.slug,
+            tier: p.tier,
+            maxBrokerAccounts: p.maxBrokerAccounts,
+            maxTeamMembers: p.maxTeamMembers,
+            recommended: p.recommended,
+            cta: p.cta,
+            ctaHref: p.ctaHref,
           }));
 
     try {
@@ -1735,6 +1848,9 @@ export class PaymentsService {
         paymentId: payment.id,
         status: 'ACTIVE',
         billingCycle,
+        // Prepaid period (one-shot order): flag remains true for future
+        // compatibility + pre-expiry renew *reminders* only — no auto-charge.
+        autoRenewal: true,
         expiresAt,
         nextBillingAt: expiresAt,
       },
@@ -1742,6 +1858,7 @@ export class PaymentsService {
         paymentId: payment.id,
         status: 'ACTIVE',
         billingCycle,
+        autoRenewal: true,
         expiresAt,
         nextBillingAt: expiresAt,
         cancelledAt: null,

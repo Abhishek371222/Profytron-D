@@ -28,6 +28,11 @@ import {
 } from '../growth/activation.service';
 import { RedisService } from '../auth/redis.service';
 import { requireActiveMt5Broker } from '../../common/utils/broker-requirement.util';
+import {
+  buildStrategyWhereFragment,
+  computeAverageRating,
+  bustMarketplaceCaches,
+} from '../../common/utils/marketplace-query.util';
 import { PaymentsService } from '../payments/payments.service';
 import { SubscriptionProvisioningService } from '../provisioning/subscription-provisioning.service';
 import { CopyFactorySyncService } from '../copy-factory/copy-factory-sync.service';
@@ -90,33 +95,51 @@ export class MarketplaceService {
       strategy: {
         deletedAt: null,
         isPublished: true,
+        ...buildStrategyWhereFragment({
+          category: query.category,
+          riskLevel: query.riskLevel,
+          isVerified: query.verified,
+          search: query.q,
+          includeCreatorInSearch: true,
+        }),
       },
     };
 
-    if (typeof query.verified === 'boolean') {
-      where.strategy.isVerified = query.verified;
-    }
-    if (query.category) {
-      where.strategy.category = query.category;
-    }
-    if (query.riskLevel) {
-      where.strategy.riskLevel = query.riskLevel;
-    }
     if (query.assetClass) {
       where.strategy.assetClass = query.assetClass;
     }
     if (query.timeframe) {
       where.strategy.timeframe = query.timeframe;
     }
-    if (query.q) {
-      where.strategy.OR = [
-        { name: { contains: query.q, mode: 'insensitive' } },
-        { description: { contains: query.q, mode: 'insensitive' } },
-        { creator: { fullName: { contains: query.q, mode: 'insensitive' } } },
-      ];
+
+    if (typeof query.priceMin === 'number' || typeof query.priceMax === 'number') {
+      const priceRange: { gte?: number; lte?: number } = {};
+      if (typeof query.priceMin === 'number') priceRange.gte = query.priceMin;
+      if (typeof query.priceMax === 'number') priceRange.lte = query.priceMax;
+      // A listing matches if ANY of its three price tiers falls in range.
+      where.OR = ['monthlyPrice', 'annualPrice', 'lifetimePrice'].map((field) => ({
+        [field]: priceRange,
+      }));
     }
 
     const take = query.limit ?? 12;
+    // Sorts backed by a real column are pushed down to the database so
+    // cursor pagination stays correctly ordered across pages. `top-rated`,
+    // `performance`, and the default `trending` sort have no denormalized
+    // column to order by (rating/trending are computed post-fetch below), so
+    // those fall back to the previous behavior — each page is internally
+    // re-sorted, but is not guaranteed globally sorted across multiple
+    // pages. Fixing that fully needs a schema change (denormalized rating/
+    // trending columns), which is out of scope for this pass.
+    const dbOrderBy: any =
+      query.sort === 'newest'
+        ? [{ isFeatured: 'desc' }, { strategy: { createdAt: 'desc' } }]
+        : query.sort === 'price'
+          ? [{ isFeatured: 'desc' }, { monthlyPrice: 'asc' }]
+          : query.sort === 'subscribers'
+            ? [{ isFeatured: 'desc' }, { strategy: { copiesCount: 'desc' } }]
+            : [{ isFeatured: 'desc' }, { updatedAt: 'desc' }];
+
     const [listings, total] = await Promise.all([
       this.prisma.marketplaceListing.findMany({
         where,
@@ -143,7 +166,7 @@ export class MarketplaceService {
             }
           : {}),
         take,
-        orderBy: [{ isFeatured: 'desc' }, { updatedAt: 'desc' }],
+        orderBy: dbOrderBy,
       }),
       this.prisma.marketplaceListing.count({ where }),
     ]);
@@ -158,38 +181,17 @@ export class MarketplaceService {
       subCounts.map((s) => [s.strategyId, s._count.strategyId]),
     );
 
-    const normalized = listings
-      .filter((listing) => {
-        const prices = [
-          listing.monthlyPrice,
-          listing.annualPrice,
-          listing.lifetimePrice,
-        ];
-        const minPrice = Math.min(...prices);
-        const maxPrice = Math.max(...prices);
-        if (typeof query.priceMin === 'number' && maxPrice < query.priceMin) {
-          return false;
-        }
-        if (typeof query.priceMax === 'number' && minPrice > query.priceMax) {
-          return false;
-        }
-        return true;
-      })
-      .map((listing) => {
-        const avgRating =
-          listing.strategy.reviews.length > 0
-            ? listing.strategy.reviews.reduce(
-                (acc, curr) => acc + curr.rating,
-                0,
-              ) / listing.strategy.reviews.length
-            : 0;
-        return {
-          ...listing,
-          rating: avgRating,
-          reviewCount: listing.strategy.reviews.length,
-          trendingScore: trendingMap.get(listing.strategyId) ?? 0,
-        };
-      });
+    const normalized = listings.map((listing) => {
+      const { avgRating, reviewCount } = computeAverageRating(
+        listing.strategy.reviews,
+      );
+      return {
+        ...listing,
+        rating: avgRating,
+        reviewCount,
+        trendingScore: trendingMap.get(listing.strategyId) ?? 0,
+      };
+    });
 
     if (query.sort === 'top-rated') {
       normalized.sort((a, b) => b.rating - a.rating);
@@ -255,7 +257,7 @@ export class MarketplaceService {
       where: { id, deletedAt: null },
       include: {
         creator: {
-          select: { id: true, fullName: true, avatarUrl: true, country: true },
+          select: { id: true, fullName: true, avatarUrl: true, country: true, bio: true },
         },
         listing: true,
         performance: { orderBy: { date: 'desc' }, take: 30 },
@@ -528,7 +530,7 @@ export class MarketplaceService {
     if (!strategy) {
       throw new ForbiddenException('Only strategy creator can create listing');
     }
-    if (!strategy.isVerified && strategy.verificationStatus !== 'VERIFIED') {
+    if (!strategy.isVerified || strategy.verificationStatus !== 'VERIFIED') {
       throw new BadRequestException('Strategy must be verified before listing');
     }
 
@@ -564,19 +566,100 @@ export class MarketplaceService {
     });
 
     // Surface listing/price changes immediately instead of waiting out the
-    // TTL. Previously only `cache:mkt:featured` was busted here, so an edited
-    // price/listing could still be served stale (up to 60s) from the browse
-    // list (`cache:mkt:listings:*`) and detail (`cache:mkt:analytics:{id}:*`)
-    // caches — both are keyed per-filter/per-page, so a targeted prefix
-    // delete is used rather than trying to enumerate every variant.
-    await Promise.all([
-      this.redis.del('cache:mkt:featured'),
-      this.redis.delPrefix('cache:mkt:listings:'),
-      this.redis.delPrefix(`cache:mkt:analytics:${strategyId}:`),
-    ]);
-
+    // TTL. Uses the shared helper so `/marketplace` and `/strategies` (which
+    // cache listings under separate namespaces) go stale together rather
+    // than one at a time.
+    await bustMarketplaceCaches(this.redis, { strategyId });
 
     return listing;
+  }
+
+  /**
+   * Create or re-open a provisioning subscription under a per-user/strategy
+   * advisory lock so concurrent subscribe requests cannot double-activate.
+   * Only transitions from non-live statuses (not ACTIVE / PROVISIONING).
+   */
+  private async upsertProvisioningSubscription(params: {
+    userId: string;
+    strategyId: string;
+    brokerAccountId: string;
+    planType: string;
+    trialEndsAt?: Date | null;
+  }) {
+    const { userId, strategyId, brokerAccountId, planType, trialEndsAt } =
+      params;
+    const lockKey = `subscribe:${userId}:${strategyId}`;
+    const resubscribeable: SubscriptionStatus[] = [
+      SubscriptionStatus.INACTIVE,
+      SubscriptionStatus.CANCELLED,
+      SubscriptionStatus.EXPIRED,
+      SubscriptionStatus.FAILED,
+      SubscriptionStatus.BLOCKED,
+      SubscriptionStatus.PAUSED,
+    ];
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
+
+      const existing = await tx.userStrategySubscription.findUnique({
+        where: { userId_strategyId: { userId, strategyId } },
+      });
+
+      if (
+        existing &&
+        (existing.status === SubscriptionStatus.ACTIVE ||
+          existing.status === SubscriptionStatus.PROVISIONING)
+      ) {
+        throw new BadRequestException('Already subscribed to this bot');
+      }
+
+      const baseData = {
+        brokerAccountId,
+        status: SubscriptionStatus.PROVISIONING,
+        planType,
+        subscribedAt: new Date(),
+        lotMultiplier: 1,
+        cancelledAt: null as Date | null,
+        // Bot trials use the same wall-clock end for both trialEndsAt and
+        // expiresAt so the shared cleanup cron expires access consistently.
+        ...(trialEndsAt !== undefined
+          ? { trialEndsAt, expiresAt: trialEndsAt }
+          : {}),
+        executionProfileJson: {
+          sizingMode: 'MULTIPLIER',
+          copyFactoryPending: true,
+          autoRenew: false,
+        },
+      };
+
+      if (!existing) {
+        return tx.userStrategySubscription.create({
+          data: {
+            userId,
+            strategyId,
+            riskOverrideEnabled: false,
+            executionPriority: 0,
+            ...baseData,
+          },
+        });
+      }
+
+      const updated = await tx.userStrategySubscription.updateMany({
+        where: {
+          id: existing.id,
+          status: { in: resubscribeable },
+        },
+        data: baseData,
+      });
+
+      if (updated.count === 0) {
+        throw new BadRequestException('Already subscribed to this bot');
+      }
+
+      return tx.userStrategySubscription.findUniqueOrThrow({
+        where: { id: existing.id },
+      });
+    });
   }
 
   async subscribe(
@@ -652,34 +735,11 @@ export class MarketplaceService {
     }
 
     if (isFree && !isProfitShare) {
-      const subscription = await this.prisma.userStrategySubscription.upsert({
-        where: { userId_strategyId: { userId, strategyId } },
-        create: {
-          userId,
-          strategyId,
-          brokerAccountId: broker.id,
-          status: SubscriptionStatus.PROVISIONING,
-          planType,
-          subscribedAt: new Date(),
-          riskOverrideEnabled: false,
-          executionPriority: 0,
-          lotMultiplier: 1,
-          executionProfileJson: {
-            sizingMode: 'MULTIPLIER',
-            copyFactoryPending: true,
-          },
-        },
-        update: {
-          brokerAccountId: broker.id,
-          status: SubscriptionStatus.PROVISIONING,
-          planType,
-          subscribedAt: new Date(),
-          lotMultiplier: 1,
-          executionProfileJson: {
-            sizingMode: 'MULTIPLIER',
-            copyFactoryPending: true,
-          },
-        },
+      const subscription = await this.upsertProvisioningSubscription({
+        userId,
+        strategyId,
+        brokerAccountId: broker.id,
+        planType,
       });
       await this.activationService.track(
         userId,
@@ -711,36 +771,12 @@ export class MarketplaceService {
       const trialEndsAt = new Date(
         Date.now() + listing.trialDays * 24 * 60 * 60 * 1000,
       );
-      const subscription = await this.prisma.userStrategySubscription.upsert({
-        where: { userId_strategyId: { userId, strategyId } },
-        create: {
-          userId,
-          strategyId,
-          brokerAccountId: broker.id,
-          status: SubscriptionStatus.PROVISIONING,
-          planType,
-          trialEndsAt,
-          subscribedAt: new Date(),
-          riskOverrideEnabled: false,
-          executionPriority: 0,
-          lotMultiplier: 1,
-          executionProfileJson: {
-            sizingMode: 'MULTIPLIER',
-            copyFactoryPending: true,
-          },
-        },
-        update: {
-          brokerAccountId: broker.id,
-          status: SubscriptionStatus.PROVISIONING,
-          planType,
-          trialEndsAt,
-          subscribedAt: new Date(),
-          lotMultiplier: 1,
-          executionProfileJson: {
-            sizingMode: 'MULTIPLIER',
-            copyFactoryPending: true,
-          },
-        },
+      const subscription = await this.upsertProvisioningSubscription({
+        userId,
+        strategyId,
+        brokerAccountId: broker.id,
+        planType,
+        trialEndsAt,
       });
       await this.activationService.track(
         userId,
@@ -966,7 +1002,7 @@ export class MarketplaceService {
   }
 
   private async computeFeatured() {
-    return this.prisma.marketplaceListing.findMany({
+    const listings = await this.prisma.marketplaceListing.findMany({
       where: {
         isFeatured: true,
         strategy: { deletedAt: null, isPublished: true },
@@ -976,11 +1012,19 @@ export class MarketplaceService {
           include: {
             creator: { select: { id: true, fullName: true, avatarUrl: true } },
             performance: { take: 1, orderBy: { date: 'desc' } },
+            reviews: { where: { isVisible: true }, select: { rating: true } },
           },
         },
       },
       orderBy: [{ strategy: { copiesCount: 'desc' } }, { updatedAt: 'desc' }],
       take: 8,
+    });
+
+    return listings.map((listing) => {
+      const { avgRating, reviewCount } = computeAverageRating(
+        listing.strategy.reviews,
+      );
+      return { ...listing, rating: avgRating, reviewCount };
     });
   }
 

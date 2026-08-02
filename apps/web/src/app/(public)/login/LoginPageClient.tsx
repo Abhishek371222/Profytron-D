@@ -15,6 +15,9 @@ import { AuthChartPanel } from '@/components/auth/AuthChartPanel';
 import { BrandGradientText } from '@/components/brand/BrandGradientText';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { Button } from '@/components/ui/button';
+import { SceneProvider } from '@/components/3d/SceneProvider';
+import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
+import { AuthBrandScene } from '@/components/3d/AuthBrandScene';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { authApi } from '@/lib/api/auth';
 import { startSocialOAuth } from '@/lib/auth/social-oauth';
@@ -139,7 +142,7 @@ function LoginPageContent() {
       const { accessToken, user } = response as { accessToken: string; user: any };
       const dest = resolvePostLoginRedirect(user, redirectTo);
       login(accessToken, user);
-      window.location.href = dest;
+      window.location.assign(dest);
     } catch (error: unknown) {
       const payload =
         typeof error === 'object' &&
@@ -205,7 +208,7 @@ function LoginPageContent() {
       });
       login(response.accessToken, response.user);
       const dest = resolvePostLoginRedirect(response.user, redirectTo);
-      window.location.href = dest;
+      window.location.assign(dest);
     } catch (error: unknown) {
       const message =
         typeof error === 'object' &&
@@ -246,8 +249,9 @@ function LoginPageContent() {
     'flex w-full items-start gap-2 rounded-xl border px-3.5 py-2.5 text-sm leading-snug';
 
   return (
-    <main className="min-h-[100dvh] w-full min-w-0 overflow-x-hidden bg-background p-4 pb-safe pt-safe sm:p-6">
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(circle_at_20%_20%,color-mix(in_srgb,var(--primary)_25%,transparent),transparent_45%),radial-gradient(circle_at_80%_80%,color-mix(in_srgb,var(--primary)_20%,transparent),transparent_40%)]" />
+    <SceneProvider>
+    <main className="relative min-h-[100dvh] w-full min-w-0 overflow-x-hidden bg-background p-4 pb-safe pt-safe sm:p-6">
+      <AmbientDepthBackground variant="auth" position="fixed" />
 
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-6xl items-center justify-center sm:min-h-[calc(100vh-3rem)]">
         <motion.div
@@ -293,7 +297,10 @@ function LoginPageContent() {
               </motion.div>
 
               <motion.div variants={itemVariants} className="mb-8">
-                <BrandLogo size="xl" className="mb-6" />
+                <div className="mb-6 flex items-center gap-4">
+                  <AuthBrandScene className="hidden sm:block" />
+                  <BrandLogo size="xl" />
+                </div>
                 <h1 className="brand-display-heading text-3xl sm:text-4xl">
                   Sign <BrandGradientText>in.</BrandGradientText>
                 </h1>
@@ -323,10 +330,13 @@ function LoginPageContent() {
                 onSubmit={handleSubmit(onSubmit)}
                 className="space-y-5"
                 suppressHydrationWarning
+                noValidate
+                method="post"
               >
                 {urlErrorMessage && (
                   <div
                     role="alert"
+                    aria-live="assertive"
                     className={`${alertClassName} border-destructive/35 bg-destructive/[0.08] text-destructive`}
                   >
                     {urlErrorMessage}
@@ -335,6 +345,7 @@ function LoginPageContent() {
                 {errorMessage && (
                   <div
                     role="alert"
+                    aria-live="assertive"
                     className={`${alertClassName} border-destructive/35 bg-destructive/[0.08] text-destructive`}
                   >
                     {errorMessage}
@@ -344,6 +355,12 @@ function LoginPageContent() {
                   <FloatingLabelInput
                     label="Email"
                     type="email"
+                    autoComplete="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    inputMode="email"
+                    enterKeyHint="next"
                     icon={Mail}
                     {...register('email')}
                     error={errors.email?.message}
@@ -356,6 +373,11 @@ function LoginPageContent() {
                     <FloatingLabelInput
                       label="Password"
                       type="password"
+                      autoComplete="current-password"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      enterKeyHint="go"
                       icon={Lock}
                       {...register('password')}
                       error={errors.password?.message}
@@ -367,7 +389,7 @@ function LoginPageContent() {
                         <button
                           type="button"
                           onClick={handleForgotPassword}
-                          className="text-caption font-semibold text-primary transition-colors hover:brightness-110"
+                          className="min-h-[44px] px-1 text-caption font-semibold text-primary transition-colors hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded"
                           suppressHydrationWarning
                         >
                           Forgot password?
@@ -383,6 +405,11 @@ function LoginPageContent() {
                       label="Authenticator code"
                       type="text"
                       inputMode="numeric"
+                      autoComplete="one-time-code"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      name="otp"
                       icon={Shield}
                       value={twoFaCode}
                       onChange={(e) => setTwoFaCode(e.target.value)}
@@ -398,7 +425,7 @@ function LoginPageContent() {
                     disabled={isSubmitting || is2faSubmitting}
                     aria-busy={isSubmitting || is2faSubmitting}
                     suppressHydrationWarning
-                    className="group relative h-12 w-full overflow-hidden rounded-button bg-gradient-hero text-body font-semibold text-primary-foreground transition-all hover:brightness-110"
+                    className="group relative h-12 min-h-[48px] w-full overflow-hidden rounded-button bg-gradient-hero text-body font-semibold text-primary-foreground transition-all hover:brightness-110 focus-visible:ring-2 focus-visible:ring-primary/50"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {isSubmitting || is2faSubmitting ? (
@@ -439,6 +466,7 @@ function LoginPageContent() {
         </motion.div>
       </div>
     </main>
+    </SceneProvider>
   );
 }
 

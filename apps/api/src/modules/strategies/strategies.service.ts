@@ -25,6 +25,7 @@ import {
   SubscriptionStatus,
   VerificationStatus,
   TradeStatus,
+  Prisma,
 } from '@prisma/client';
 import axios from 'axios';
 import * as crypto from 'crypto';
@@ -33,6 +34,10 @@ import {
   findAnyActiveBroker,
   linkOrphanStrategySubscriptions,
 } from '../../common/utils/broker-requirement.util';
+import {
+  buildStrategyWhereFragment,
+  bustMarketplaceCaches,
+} from '../../common/utils/marketplace-query.util';
 
 @Injectable()
 export class StrategiesService {
@@ -89,24 +94,22 @@ export class StrategiesService {
     const where: any = {
       deletedAt: null,
       isPublished: true,
+      ...buildStrategyWhereFragment({
+        category,
+        riskLevel,
+        isVerified,
+        search,
+        // Preserves this endpoint's existing behavior: unlike /marketplace,
+        // /strategies has never matched on creator name.
+        includeCreatorInSearch: false,
+      }),
     };
-
-    if (category) where.category = category;
-    if (riskLevel) where.riskLevel = riskLevel;
-    if (isVerified !== undefined) where.isVerified = isVerified;
 
     if (priceMin !== undefined || priceMax !== undefined) {
       where.monthlyPrice = {
         gte: priceMin || 0,
         lte: priceMax || 1000000,
       };
-    }
-
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-      ];
     }
 
     // Deliberately loosely typed: both branches below use a `select` (not
@@ -477,12 +480,47 @@ export class StrategiesService {
   }
 
   async deactivate(strategyId: string, userId: string) {
-    const sub = await this.prisma.userStrategySubscription.update({
+    const existing = await this.prisma.userStrategySubscription.findUnique({
       where: { userId_strategyId: { userId, strategyId } },
-      data: { status: SubscriptionStatus.CANCELLED, cancelledAt: new Date() },
+      select: { id: true, executionProfileJson: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    const result = await this.prisma.userStrategySubscription.updateMany({
+      where: {
+        id: existing.id,
+        status: {
+          in: [
+            SubscriptionStatus.ACTIVE,
+            SubscriptionStatus.PAUSED,
+            SubscriptionStatus.PROVISIONING,
+          ],
+        },
+      },
+      data: {
+        status: SubscriptionStatus.CANCELLED,
+        cancelledAt: new Date(),
+        executionProfileJson: this.mergeExecutionProfile(
+          existing.executionProfileJson,
+          { autoRenew: false },
+        ),
+      },
     });
 
-    await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+    if (result.count === 0) {
+      this.logger.warn(
+        `STRATEGY_DEACTIVATE_CONFLICT: subscription ${existing.id} already modified by another process`,
+      );
+      return { success: true };
+    }
+
+    await this.redis
+      .set(this.autoRenewKey(userId, strategyId), '0')
+      .catch(() => undefined);
+
+    await this.copyFactorySync.enqueueUnlinkSubscription(existing.id);
 
     this.logger.log(
       `STRATEGY_DEACTIVATED: User ${userId} -> Strategy ${strategyId}`,
@@ -491,12 +529,27 @@ export class StrategiesService {
   }
 
   async pause(strategyId: string, userId: string) {
-    const sub = await this.prisma.userStrategySubscription.update({
+    const existing = await this.prisma.userStrategySubscription.findUnique({
       where: { userId_strategyId: { userId, strategyId } },
+      select: { id: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Subscription not found');
+    }
+
+    const result = await this.prisma.userStrategySubscription.updateMany({
+      where: { id: existing.id, status: SubscriptionStatus.ACTIVE },
       data: { status: SubscriptionStatus.PAUSED },
     });
 
-    await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+    if (result.count === 0) {
+      this.logger.warn(
+        `STRATEGY_PAUSE_CONFLICT: subscription ${existing.id} already modified by another process`,
+      );
+      return { success: true };
+    }
+
+    await this.copyFactorySync.enqueueUnlinkSubscription(existing.id);
 
     this.logger.log(
       `STRATEGY_PAUSED: User ${userId} -> Strategy ${strategyId}`,
@@ -513,16 +566,31 @@ export class StrategiesService {
       );
     }
 
-    const sub = await this.prisma.userStrategySubscription.update({
+    const existing = await this.prisma.userStrategySubscription.findUnique({
       where: { userId_strategyId: { userId, strategyId } },
-      data: { status: SubscriptionStatus.ACTIVE },
-      include: {
+      select: {
+        id: true,
         strategy: { select: { masterBrokerAccountId: true } },
       },
     });
+    if (!existing) {
+      throw new NotFoundException('Subscription not found');
+    }
 
-    if (sub.strategy.masterBrokerAccountId) {
-      await this.copyFactorySync.enqueueLinkSubscription(sub.id);
+    const result = await this.prisma.userStrategySubscription.updateMany({
+      where: { id: existing.id, status: SubscriptionStatus.PAUSED },
+      data: { status: SubscriptionStatus.ACTIVE },
+    });
+
+    if (result.count === 0) {
+      this.logger.warn(
+        `STRATEGY_RESUME_CONFLICT: subscription ${existing.id} already modified by another process`,
+      );
+      return { success: true };
+    }
+
+    if (existing.strategy.masterBrokerAccountId) {
+      await this.copyFactorySync.enqueueLinkSubscription(existing.id);
     }
 
     this.logger.log(
@@ -535,18 +603,78 @@ export class StrategiesService {
     return `subscription:autorenew:${userId}:${strategyId}`;
   }
 
+  /** null = not set in profile (fall back to Redis / default). */
+  private autoRenewFromProfile(profile: unknown): boolean | null {
+    if (!profile || typeof profile !== 'object' || Array.isArray(profile)) {
+      return null;
+    }
+    const value = (profile as { autoRenew?: unknown }).autoRenew;
+    if (value === true || value === false) return value;
+    return null;
+  }
+
+  private mergeExecutionProfile(
+    existing: unknown,
+    patch: Record<string, unknown>,
+  ): Prisma.InputJsonObject {
+    const base =
+      existing && typeof existing === 'object' && !Array.isArray(existing)
+        ? { ...(existing as Record<string, unknown>) }
+        : {};
+    return { ...base, ...patch } as Prisma.InputJsonObject;
+  }
+
+  private async resolveAutoRenew(
+    userId: string,
+    strategyId: string,
+    executionProfileJson: unknown,
+  ): Promise<boolean> {
+    const fromProfile = this.autoRenewFromProfile(executionProfileJson);
+    if (fromProfile !== null) return fromProfile;
+    const redisFlag = await this.redis.get(
+      this.autoRenewKey(userId, strategyId),
+    );
+    // Default on when unset (matches prior Redis-only behavior).
+    return redisFlag !== '0';
+  }
+
   async setAutoRenew(strategyId: string, userId: string, autoRenew: boolean) {
     const sub = await this.prisma.userStrategySubscription.findUnique({
       where: { userId_strategyId: { userId, strategyId } },
-      select: { id: true },
+      select: {
+        id: true,
+        status: true,
+        executionProfileJson: true,
+      },
     });
     if (!sub) {
       throw new NotFoundException('Subscription not found');
     }
+    if (
+      sub.status === SubscriptionStatus.CANCELLED ||
+      sub.status === SubscriptionStatus.EXPIRED ||
+      sub.status === SubscriptionStatus.INACTIVE
+    ) {
+      throw new BadRequestException(
+        'Cannot change auto-renew on a cancelled or expired subscription',
+      );
+    }
+
+    const nextProfile = this.mergeExecutionProfile(sub.executionProfileJson, {
+      autoRenew,
+    });
+
+    await this.prisma.userStrategySubscription.update({
+      where: { id: sub.id },
+      data: { executionProfileJson: nextProfile },
+    });
+
+    // Redis cache for fast list reads / legacy consumers (no TTL — mirror PG).
     await this.redis.set(
       this.autoRenewKey(userId, strategyId),
       autoRenew ? '1' : '0',
     );
+
     this.logger.log(
       `AUTO_RENEW_${autoRenew ? 'ENABLED' : 'DISABLED'}: User ${userId} -> Strategy ${strategyId}`,
     );
@@ -622,11 +750,13 @@ export class StrategiesService {
     }
 
     const autoRenewFlags = await Promise.all(
-      subs.map((s) => this.redis.get(this.autoRenewKey(userId, s.strategyId))),
+      subs.map((s) =>
+        this.resolveAutoRenew(userId, s.strategyId, s.executionProfileJson),
+      ),
     );
 
     return subs.map((s, idx) => {
-      const autoRenew = autoRenewFlags[idx] !== '0';
+      const autoRenew = autoRenewFlags[idx];
       const stats = pnlByStrategy.get(s.strategyId) ?? {
         net: 0,
         wins: 0,
@@ -1141,11 +1271,7 @@ export class StrategiesService {
       });
     });
 
-    await Promise.all([
-      this.redis.del('cache:mkt:featured'),
-      this.redis.delPrefix('cache:mkt:listings:'),
-      this.redis.delPrefix('cache:strategies:'),
-    ]);
+    await bustMarketplaceCaches(this.redis, { strategyId: id });
 
     return this.prisma.strategy.findUnique({
       where: { id },

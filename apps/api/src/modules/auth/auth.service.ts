@@ -1310,7 +1310,11 @@ export class AuthService {
   }
 
   private async generateTokenPair(userId: string, email: string, role: string) {
-    const jti = randomUUID();
+    // Access and refresh MUST use distinct JTIs. Rotation blacklists the refresh
+    // jti only; sharing one jti made freshly-issued access tokens appear revoked
+    // whenever a concurrent/sequential /auth/refresh landed first.
+    const accessJti = randomUUID();
+    const refreshJti = randomUUID();
     const accessExpiresIn = this.parseExpirySeconds(
       process.env.JWT_ACCESS_EXPIRES,
       24 * 3600,
@@ -1321,20 +1325,20 @@ export class AuthService {
     );
 
     const accessToken = this.jwtService.sign(
-      { sub: userId, email, role, jti },
+      { sub: userId, email, role, jti: accessJti },
       {
         expiresIn: accessExpiresIn,
         secret: process.env.JWT_ACCESS_SECRET,
       },
     );
     const refreshToken = this.jwtService.sign(
-      { sub: userId, jti },
+      { sub: userId, jti: refreshJti },
       {
         expiresIn: refreshExpiresIn,
         secret: process.env.JWT_REFRESH_SECRET,
       },
     );
-    return { accessToken, refreshToken, jti };
+    return { accessToken, refreshToken, jti: refreshJti };
   }
 
   async sendMagicLink(email: string) {

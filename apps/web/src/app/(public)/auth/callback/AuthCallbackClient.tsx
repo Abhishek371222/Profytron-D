@@ -117,7 +117,7 @@ export default function AuthCallbackClient() {
           login(accessToken, user);
           const redirectTo = searchParams.get('redirect') || '/dashboard';
           const dest = resolvePostLoginRedirect(user, redirectTo);
-          window.location.href = dest;
+          window.location.assign(dest);
         } catch (e) {
           console.error('OAuth code exchange failed:', e);
           fail('Google/GitHub sign-in could not finish. Please try again.');
@@ -229,7 +229,7 @@ export default function AuthCallbackClient() {
         login(accessToken, user);
         const redirectTo = searchParams.get('redirect') || '/dashboard';
         const dest = resolvePostLoginRedirect(user, redirectTo);
-        window.location.href = dest;
+        window.location.assign(dest);
       } catch (e) {
         console.error('Backend synchronization failed:', e);
         const code = mapSyncError(e);
@@ -248,13 +248,14 @@ export default function AuthCallbackClient() {
 
   if (failMessage) {
     return (
-      <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center px-4">
-        <div className="max-w-md w-full space-y-4 text-center">
+      <div className="min-h-[100dvh] w-full bg-background flex flex-col items-center justify-center px-4 pb-safe pt-safe">
+        <div className="max-w-md w-full space-y-4 text-center" role="alert" aria-live="assertive">
           <h1 className="text-heading-4 font-semibold text-foreground">Sign-in interrupted</h1>
           <p className="text-sm text-muted-foreground">{failMessage}</p>
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
             <Button
               type="button"
+              className="min-h-[44px]"
               onClick={() => {
                 syncStartedRef.current = false;
                 setRetryKey((k) => k + 1);
@@ -264,7 +265,7 @@ export default function AuthCallbackClient() {
             </Button>
             <Link
               href="/login"
-              className={cn(buttonVariants({ variant: 'outline' }))}
+              className={cn(buttonVariants({ variant: 'outline' }), 'min-h-[44px]')}
             >
               Back to login
             </Link>
@@ -275,9 +276,14 @@ export default function AuthCallbackClient() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-background flex flex-col items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" aria-label="Signing in" />
+    <div className="min-h-[100dvh] w-full bg-background flex flex-col items-center justify-center pb-safe pt-safe">
+      <div
+        className="flex flex-col items-center gap-4"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
+        <Loader2 className="w-8 h-8 text-primary animate-spin" aria-hidden />
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Signing you in…
         </p>

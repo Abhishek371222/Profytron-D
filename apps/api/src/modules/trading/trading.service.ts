@@ -634,19 +634,62 @@ export class TradingService {
     });
     if (!sub) throw new NotFoundException('Subscription not found');
 
-    const update: Record<string, any> = {};
-    if (data.lotMultiplier !== undefined) {
-      update.lotMultiplier = Math.min(Math.max(data.lotMultiplier, 0.01), 5.0);
-    }
-    if (data.isPaused !== undefined) {
-      update.status = data.isPaused
-        ? SubscriptionStatus.PAUSED
-        : SubscriptionStatus.ACTIVE;
+    const lotMultiplier =
+      data.lotMultiplier !== undefined
+        ? Math.min(Math.max(data.lotMultiplier, 0.01), 5.0)
+        : undefined;
+
+    // Pause/resume must be conditional so concurrent cancel/deactivate cannot
+    // be overwritten by a racing isPaused toggle.
+    if (data.isPaused === true) {
+      const result = await this.prisma.userStrategySubscription.updateMany({
+        where: {
+          id: subscriptionId,
+          userId,
+          status: SubscriptionStatus.ACTIVE,
+        },
+        data: {
+          status: SubscriptionStatus.PAUSED,
+          ...(lotMultiplier !== undefined ? { lotMultiplier } : {}),
+        },
+      });
+      if (result.count === 0) {
+        this.logger.warn(
+          `TRADING_PAUSE_CONFLICT: subscription ${subscriptionId} not ACTIVE`,
+        );
+      }
+    } else if (data.isPaused === false) {
+      const result = await this.prisma.userStrategySubscription.updateMany({
+        where: {
+          id: subscriptionId,
+          userId,
+          status: SubscriptionStatus.PAUSED,
+        },
+        data: {
+          status: SubscriptionStatus.ACTIVE,
+          ...(lotMultiplier !== undefined ? { lotMultiplier } : {}),
+        },
+      });
+      if (result.count === 0) {
+        this.logger.warn(
+          `TRADING_RESUME_CONFLICT: subscription ${subscriptionId} not PAUSED`,
+        );
+      }
+    } else if (lotMultiplier !== undefined) {
+      await this.prisma.userStrategySubscription.updateMany({
+        where: {
+          id: subscriptionId,
+          userId,
+          status: {
+            in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.PAUSED],
+          },
+        },
+        data: { lotMultiplier },
+      });
     }
 
-    return this.prisma.userStrategySubscription.update({
-      where: { id: subscriptionId },
-      data: update,
+    return this.prisma.userStrategySubscription.findFirst({
+      where: { id: subscriptionId, userId },
     });
   }
 

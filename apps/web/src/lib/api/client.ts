@@ -174,18 +174,30 @@ export function refreshSession(): Promise<string> {
   if (refreshPromise) return refreshPromise;
 
   const existing = useAuthStore.getState().accessToken;
+  // Prefer any non-stale token issued within the grace window so sequential
+  // 401 storms do not each rotate the session again.
   if (
     existing &&
     !isAccessTokenStale(existing) &&
+    lastRefreshAt > 0 &&
     Date.now() - lastRefreshAt < REFRESH_GRACE_MS
   ) {
     return Promise.resolve(existing);
   }
-  if (existing && Date.now() - lastRefreshAt < REFRESH_GRACE_MS) {
-    return Promise.resolve(existing);
-  }
 
   const pending = (async () => {
+    // Re-check after awaiting: a concurrent refresh may have finished between
+    // the outer null check and this async body start.
+    const raced = useAuthStore.getState().accessToken;
+    if (
+      raced &&
+      !isAccessTokenStale(raced) &&
+      lastRefreshAt > 0 &&
+      Date.now() - lastRefreshAt < REFRESH_GRACE_MS
+    ) {
+      return raced;
+    }
+
     let response;
     try {
       response = await postRefreshOnce();
@@ -201,18 +213,40 @@ export function refreshSession(): Promise<string> {
         throw err;
       }
 
+      // Another tab/request may have won rotation; reuse in-memory winner.
+      const winner = useAuthStore.getState().accessToken;
+      if (
+        winner &&
+        !isAccessTokenStale(winner) &&
+        Date.now() - lastRefreshAt < REFRESH_GRACE_MS
+      ) {
+        return winner;
+      }
+
       if (
         status === 401 &&
         (code === 'SESSION_SUPERSEDED' || code === 'INVALID_REFRESH_SESSION')
       ) {
         await new Promise((r) => setTimeout(r, 500));
-        const winner = useAuthStore.getState().accessToken;
-        if (winner && Date.now() - lastRefreshAt < REFRESH_GRACE_MS) {
-          return winner;
+        const afterWait = useAuthStore.getState().accessToken;
+        if (
+          afterWait &&
+          !isAccessTokenStale(afterWait) &&
+          Date.now() - lastRefreshAt < REFRESH_GRACE_MS
+        ) {
+          return afterWait;
         }
         response = await postRefreshOnce();
       } else if (status === 401 || status === 403) {
         await new Promise((r) => setTimeout(r, 600));
+        const afterWait = useAuthStore.getState().accessToken;
+        if (
+          afterWait &&
+          !isAccessTokenStale(afterWait) &&
+          Date.now() - lastRefreshAt < REFRESH_GRACE_MS
+        ) {
+          return afterWait;
+        }
         response = await postRefreshOnce();
       } else if (isTransientRefreshFailure(err)) {
         await new Promise((r) => setTimeout(r, 800));

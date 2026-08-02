@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { resolvePostLoginRedirect } from '@/lib/utils';
@@ -33,7 +32,6 @@ function hasSessionEvidence(): boolean {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const { hydrate, login, isHydrating, isAuthenticated } = useAuthStore();
   const bootstrapActive = useWorkspaceBootstrapStore((s) => s.active);
 
@@ -62,12 +60,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           const url = new URL(window.location.href);
           const redirectTo = url.searchParams.get('redirect');
-          url.searchParams.delete('oauthCode');
-          url.searchParams.delete('redirect');
-          window.history.replaceState({}, '', url.toString());
           const dest = resolvePostLoginRedirect(user, redirectTo);
-          useWorkspaceBootstrapStore.getState().startBootstrap(dest);
-          router.replace(dest);
+          // Hard navigation: soft client nav can race httpOnly cookie visibility
+          // in Safari/middleware and bounce back to /login.
+          window.location.assign(dest);
         } catch {
           hydrate();
         }
@@ -86,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       void hydrate().catch(() => undefined);
     }
-  }, [hydrate, login, router]);
+  }, [hydrate, login]);
 
   useEffect(() => {
     if (!bootstrapActive) return;

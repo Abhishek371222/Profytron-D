@@ -128,6 +128,7 @@ export async function GET(req: NextRequest) {
         s."subscribedAt",
         s."expiresAt",
         s."brokerAccountId",
+        s."executionProfileJson",
         st.id,
         st.name,
         st.category,
@@ -196,6 +197,15 @@ export async function GET(req: NextRequest) {
           : String(r.ba_brokerName)
         : null;
 
+      const profile = r.executionProfileJson as
+        | { autoRenew?: boolean }
+        | null
+        | undefined;
+      const autoRenew =
+        profile && typeof profile.autoRenew === 'boolean'
+          ? profile.autoRenew
+          : true;
+
       return {
         id: r.id,
         name: r.name,
@@ -229,7 +239,7 @@ export async function GET(req: NextRequest) {
         monthlyFee: r.monthlyPrice ?? 0,
         renewsAt: r.expiresAt ?? undefined,
         nextBillingDate: r.expiresAt ?? undefined,
-        autoRenew: true,
+        autoRenew,
         latestPerformance: {
           winRate,
           totalReturn: currentPnlPct,
@@ -241,7 +251,7 @@ export async function GET(req: NextRequest) {
           planType: r.planType ?? 'MONTHLY',
           renewalDate: r.expiresAt ?? undefined,
           startedAt: r.subscribedAt,
-          autoRenew: true,
+          autoRenew,
           brokerAccount: brokerLabel,
         },
         botName: r.name,
