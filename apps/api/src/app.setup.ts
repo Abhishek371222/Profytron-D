@@ -2,7 +2,9 @@ import {
   INestApplication,
   RequestMethod,
   ValidationPipe,
+  BadRequestException,
 } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
@@ -11,6 +13,8 @@ import helmet from 'helmet';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { SentryInterceptor } from './common/interceptors/sentry.interceptor';
+import { requestIdMiddleware } from './common/middleware/request-id.middleware';
+import { csrfOriginGuardMiddleware } from './common/middleware/csrf-origin.middleware';
 
 const JSON_BODY_LIMIT = '100kb';
 const URLENCODED_BODY_LIMIT = '100kb';
@@ -22,6 +26,8 @@ export function configureApp(app: INestApplication) {
   if (expressInstance?.set) {
     expressInstance.set('trust proxy', 1);
   }
+
+  app.use(requestIdMiddleware);
 
   app.use(
     compression({
@@ -63,7 +69,12 @@ export function configureApp(app: INestApplication) {
     const contentLength = parseInt(req.headers['content-length'] || '0', 10);
     const MAX_BYTES = 200 * 1024;
     if (contentLength > MAX_BYTES) {
-      res.status(413).json({ success: false, error: 'Payload too large' });
+      res.status(413).json({
+        success: false,
+        error: 'Payload too large',
+        code: 'PAYLOAD_TOO_LARGE',
+        requestId: req.requestId ?? null,
+      });
       return;
     }
     next();
@@ -74,12 +85,13 @@ export function configureApp(app: INestApplication) {
       { path: 'health', method: RequestMethod.ALL },
       { path: 'live', method: RequestMethod.ALL },
       { path: 'ready', method: RequestMethod.ALL },
+      { path: 'metrics', method: RequestMethod.ALL },
     ],
   });
 
   app.use((req: Request, _res: Response, next: NextFunction) => {
     if (req.method === 'GET') {
-      for (const path of ['health', 'live', 'ready'] as const) {
+      for (const path of ['health', 'live', 'ready', 'metrics'] as const) {
         if (req.url === `/v1/${path}` || req.url?.startsWith(`/v1/${path}?`)) {
           req.url = req.url.replace(`/v1/${path}`, `/${path}`);
           break;
@@ -118,6 +130,7 @@ export function configureApp(app: INestApplication) {
   );
 
   app.use(cookieParser());
+  app.use(csrfOriginGuardMiddleware(allowedOrigins));
 
   app.enableCors({
     origin(
@@ -130,13 +143,20 @@ export function configureApp(app: INestApplication) {
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: [],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'X-Request-Id',
+      'X-Correlation-Id',
+      'stripe-signature',
+      'x-razorpay-signature',
+    ],
+    exposedHeaders: ['X-Request-Id', 'X-Correlation-Id'],
   });
 
-  app.useGlobalFilters(
-    new AllExceptionsFilter({ httpAdapter: app.getHttpAdapter() } as any),
-  );
+  const httpAdapterHost = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
   app.useGlobalInterceptors(new SentryInterceptor(), new TransformInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
@@ -144,6 +164,16 @@ export function configureApp(app: INestApplication) {
       transform: true,
       forbidNonWhitelisted: true,
       transformOptions: { enableImplicitConversion: true },
+      exceptionFactory: (errors) => {
+        const messages = errors.flatMap((e) =>
+          Object.values(e.constraints ?? { invalid: `${e.property} is invalid` }),
+        );
+        return new BadRequestException({
+          message: messages,
+          error: 'VALIDATION_ERROR',
+          code: 'VALIDATION_ERROR',
+        });
+      },
     }),
   );
 

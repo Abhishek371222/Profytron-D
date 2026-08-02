@@ -28,9 +28,15 @@ export class SentryInterceptor implements NestInterceptor {
             Sentry.withScope((scope: any) => {
               scope.setTag('route', req?.route?.path ?? req?.url);
               scope.setTag('method', req?.method);
+              if (req?.requestId) scope.setTag('requestId', req.requestId);
+              if (req?.correlationId) {
+                scope.setTag('correlationId', req.correlationId);
+              }
               scope.setContext('request', {
                 url: req?.url,
                 method: req?.method,
+                requestId: req?.requestId,
+                correlationId: req?.correlationId,
                 headers: {
                   'user-agent': req?.headers?.['user-agent'],
                   'content-type': req?.headers?.['content-type'],

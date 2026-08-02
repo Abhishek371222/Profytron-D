@@ -5,6 +5,8 @@ import { BullModule } from '@nestjs/bull';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { join } from 'path';
 import { AppThrottlerGuard } from './common/guards/throttler.guard';
+import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
+import { MetricsService } from './common/metrics/metrics.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { StrategiesModule } from './modules/strategies/strategies.module';
@@ -157,9 +159,11 @@ const parseRedisConfig = () => {
   controllers: [AppController],
   providers: [
     AppService,
+    MetricsService,
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: AppThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: MetricsInterceptor },
   ],
 })
 export class AppModule {}

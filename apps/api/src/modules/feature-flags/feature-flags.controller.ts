@@ -32,8 +32,12 @@ export class FeatureFlagsController {
   }
 
   @Get(':key')
-  isEnabled(@Param('key') key: string) {
-    return this.service.isEnabled(key);
+  async isEnabled(
+    @Param('key') key: string,
+    // optional target user for rollout evaluation
+  ) {
+    const enabled = await this.service.isEnabled(key);
+    return { key, enabled };
   }
 
   @Put(':key')

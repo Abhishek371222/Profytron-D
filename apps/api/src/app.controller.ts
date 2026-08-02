@@ -1,4 +1,4 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Header, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
@@ -7,6 +7,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { RedisService } from './modules/auth/redis.service';
 import { TradingGateway } from './modules/trading/trading.gateway';
 import { Public } from './modules/auth/guards/auth.guard';
+import { MetricsService } from './common/metrics/metrics.service';
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
@@ -19,7 +20,6 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 
 @Controller()
 export class AppController {
-  /** Short-lived health snapshot to avoid repeated ~300ms probe RTT (API Phase 2). */
   private healthCache: {
     at: number;
     statusCode: number;
@@ -32,6 +32,7 @@ export class AppController {
     private readonly prismaService: PrismaService,
     private readonly redisService: RedisService,
     private readonly tradingGateway: TradingGateway,
+    private readonly metricsService: MetricsService,
     @InjectQueue('trade_execution') private readonly tradeQueue: Queue,
   ) {}
 
@@ -60,10 +61,9 @@ export class AppController {
 
   @Public()
   @Get('live')
-  /** Liveness — process is up. Never depends on DB/Redis. */
   getLive() {
     return {
-      status: 'ok',
+      status: this.metricsService.isShuttingDown() ? 'shutting_down' : 'ok',
       check: 'live',
       uptime: Math.floor(process.uptime()),
       timestamp: new Date().toISOString(),
@@ -77,11 +77,17 @@ export class AppController {
 
   @Public()
   @Get('ready')
-  /** Readiness — safe to receive traffic only if database is connected. */
   async getReady(@Res({ passthrough: true }) res: Response) {
-    // Production keeps a tight 500ms probe. Local/dev may hit remote Neon RTT
-    // near that budget — override with READY_PROBE_TIMEOUT_MS (ms) only when
-    // NODE_ENV !== 'production'. Never weakens production readiness.
+    if (this.metricsService.isShuttingDown()) {
+      res.status(503);
+      return {
+        status: 'not_ready',
+        check: 'ready',
+        reason: 'shutting_down',
+        timestamp: new Date().toISOString(),
+      };
+    }
+
     const readyTimeoutMs =
       process.env.NODE_ENV === 'production'
         ? 500
@@ -93,10 +99,29 @@ export class AppController {
         this.prismaService.$queryRaw`SELECT 1 AS ok`,
         readyTimeoutMs,
       );
+
+      let redis: 'ok' | 'skipped' | 'unavailable' = 'skipped';
+      if (process.env.READY_REQUIRE_REDIS === 'true') {
+        try {
+          await withTimeout(this.redisService.ping(), readyTimeoutMs);
+          redis = 'ok';
+        } catch {
+          res.status(503);
+          return {
+            status: 'not_ready',
+            check: 'ready',
+            database: 'connected',
+            redis: 'unavailable',
+            timestamp: new Date().toISOString(),
+          };
+        }
+      }
+
       return {
         status: 'ok',
         check: 'ready',
         database: 'connected',
+        redis,
         timestamp: new Date().toISOString(),
       };
     } catch {
@@ -108,6 +133,14 @@ export class AppController {
         timestamp: new Date().toISOString(),
       };
     }
+  }
+
+  @Public()
+  @Get('metrics')
+  @Header('Content-Type', 'text/plain; version=0.0.4; charset=utf-8')
+  getMetrics(@Res({ passthrough: true }) res: Response) {
+    res.setHeader('Cache-Control', 'no-store');
+    return this.metricsService.toPrometheus();
   }
 
   @Public()
@@ -142,13 +175,13 @@ export class AppController {
         : 'degraded';
     const websocket = this.tradingGateway?.server ? 'healthy' : 'degraded';
 
-    // MetaAPI: configuration presence only — never hard-fail health on vendor outage.
     const metaApiConfigured = Boolean(
       (process.env.METAAPI_TOKEN || '').trim().length > 10,
     );
     const metaApi = metaApiConfigured ? 'configured' : 'not_configured';
 
-    const criticalDown = database !== 'connected';
+    const criticalDown =
+      database !== 'connected' || this.metricsService.isShuttingDown();
     const anyDegraded =
       redis !== 'connected' || queue !== 'healthy' || websocket !== 'healthy';
 
@@ -170,6 +203,7 @@ export class AppController {
       queue,
       websocket,
       metaApi,
+      shuttingDown: this.metricsService.isShuttingDown(),
       uptime: Math.floor(process.uptime()),
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version ?? 'unknown',

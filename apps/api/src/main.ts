@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 import { winstonConfig } from './config/winston.config';
 import { configureApp } from './app.setup';
 import { RedisIoAdapter } from './adapters/redis-io.adapter';
+import { MetricsService } from './common/metrics/metrics.service';
 
 async function isPortInUse(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -87,6 +88,18 @@ function validateEnv() {
 
   const missing: string[] = [];
   const invalid: string[] = [];
+
+  // Soft require when payment provider is partially configured
+  if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_ID !== 'DEMO_KEY') {
+    if (isStrict && !process.env.RAZORPAY_KEY_SECRET?.trim()) {
+      missing.push('RAZORPAY_KEY_SECRET');
+    }
+    if (isStrict && !process.env.RAZORPAY_WEBHOOK_SECRET?.trim()) {
+      logger.warn(
+        'RAZORPAY_WEBHOOK_SECRET is not set — webhook signatures cannot be verified',
+      );
+    }
+  }
 
   for (const key of required) {
     if (!process.env[key]?.trim()) missing.push(key);
@@ -232,19 +245,30 @@ function validateEnv() {
 
 function installProcessSafetyNet() {
   const logger = new Logger('ProcessSafety');
+  const isStrict =
+    process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'staging';
+
   process.on('unhandledRejection', (reason) => {
     logger.error(
-      `Unhandled promise rejection (process kept alive): ${
+      `Unhandled promise rejection: ${
         reason instanceof Error
           ? (reason.stack ?? reason.message)
           : String(reason)
       }`,
     );
+    if (isStrict && process.env.EXIT_ON_UNHANDLED_REJECTION === 'true') {
+      process.exit(1);
+    }
   });
   process.on('uncaughtException', (err) => {
     logger.error(
-      `Uncaught exception (process kept alive): ${err.stack ?? err.message}`,
+      `Uncaught exception: ${err.stack ?? err.message}`,
     );
+    if (isStrict) {
+      // Leave the process to k8s/Cloud Run after fatal uncaught errors —
+      // keeping a zombie Node process serves bad traffic.
+      setTimeout(() => process.exit(1), 250).unref?.();
+    }
   });
 }
 
@@ -265,6 +289,12 @@ async function bootstrap() {
   }
 
   app.enableShutdownHooks();
+  const metrics = app.get(MetricsService, { strict: false });
+  if (metrics) {
+    const mark = () => metrics.markShuttingDown();
+    process.once('SIGTERM', mark);
+    process.once('SIGINT', mark);
+  }
 
   const requestedPort = Number(
     process.env.PORT || process.env.API_PORT || 4000,

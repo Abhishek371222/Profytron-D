@@ -3,11 +3,19 @@ import { BullModule } from '@nestjs/bull';
 import { WalletService } from './wallet.service';
 import { WalletController } from './wallet.controller';
 import { WalletProcessor } from './wallet.processor';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
+    NotificationsModule,
     BullModule.registerQueue({
       name: 'withdrawal-processing',
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 2000 },
+        removeOnComplete: 100,
+        removeOnFail: 200,
+      },
     }),
     BullModule.registerQueue({
       name: 'copyfactory_sync',

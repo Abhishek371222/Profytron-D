@@ -92,12 +92,12 @@ export class AdminService {
         pendingVerifications,
       },
 
-      systemHealth: 'OPTIMAL',
+      systemHealth: process.env.METAAPI_TOKEN ? 'OPTIMAL' : 'DEGRADED',
       activeServices: {
         api: 'UP',
-        ai_engine: 'UP',
+        ai_engine: process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY ? 'UP' : 'DEGRADED',
         backtest_engine: 'UP',
-        redis: 'CONNECTED',
+        redis: process.env.REDIS_URL || process.env.UPSTASH_REDIS_REST_URL ? 'CONFIGURED' : 'UNKNOWN',
       },
       lastUpdated: new Date().toISOString(),
     };
@@ -511,6 +511,98 @@ export class AdminService {
       pendingKyc,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  async listAuditLogs(limit = 50, skip = 0, eventType?: string) {
+    const take = Math.min(Math.max(limit, 1), 200);
+    const where = eventType?.trim()
+      ? { eventType: { contains: eventType.trim(), mode: 'insensitive' as const } }
+      : {};
+    const [rows, total] = await Promise.all([
+      this.prisma.auditLog.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip,
+        select: {
+          id: true,
+          eventType: true,
+          userId: true,
+          triggeredBy: true,
+          ipAddress: true,
+          createdAt: true,
+          detailsJson: true,
+        },
+      }),
+      this.prisma.auditLog.count({ where }),
+    ]);
+    return { items: rows, total, limit: take, skip };
+  }
+
+  async listPayments(limit = 50, skip = 0, status?: string) {
+    const take = Math.min(Math.max(limit, 1), 200);
+    const where = status?.trim()
+      ? { status: status.trim().toUpperCase() as any }
+      : {};
+    const [rows, total] = await Promise.all([
+      this.prisma.payment.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip,
+        include: {
+          user: { select: { id: true, email: true, fullName: true } },
+          invoice: { select: { id: true, invoiceNumber: true, total: true } },
+        },
+      }),
+      this.prisma.payment.count({ where }),
+    ]);
+    return { items: rows, total, limit: take, skip };
+  }
+
+  async listPlatformSubscriptions(limit = 50, skip = 0, status?: string) {
+    const take = Math.min(Math.max(limit, 1), 200);
+    const where = status?.trim()
+      ? { status: status.trim().toUpperCase() as any }
+      : {};
+    const [rows, total] = await Promise.all([
+      this.prisma.userSubscription.findMany({
+        where,
+        orderBy: { subscribedAt: 'desc' },
+        take,
+        skip,
+        include: {
+          plan: { select: { id: true, name: true, monthlyPrice: true } },
+          user: { select: { id: true, email: true, fullName: true } },
+        },
+      }),
+      this.prisma.userSubscription.count({ where }),
+    ]);
+    return { items: rows, total, limit: take, skip };
+  }
+
+  async forceCancelPlatformSubscription(subscriptionId: string, adminId: string) {
+    const sub = await this.prisma.userSubscription.findUnique({
+      where: { id: subscriptionId },
+    });
+    if (!sub) throw new NotFoundException('Subscription not found');
+    const updated = await this.prisma.userSubscription.update({
+      where: { id: subscriptionId },
+      data: {
+        status: 'CANCELLED',
+        cancelledAt: new Date(),
+        autoRenewal: false,
+      },
+    });
+    await this.prisma.auditLog.create({
+      data: {
+        eventType: 'ADMIN_PLATFORM_SUBSCRIPTION_CANCELLED',
+        userId: sub.userId,
+        detailsJson: { subscriptionId, adminId },
+        triggeredBy: adminId,
+      },
+    });
+    return updated;
   }
 
   async handleVerification(

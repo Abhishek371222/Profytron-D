@@ -132,11 +132,19 @@ export default function RootLayout({
         className={`${geist.variable} ${jetbrainsMono.variable} font-sans text-body bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground`}
       >
         <ThemeProvider>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          Skip to main content
+        </a>
         <WebVitalsProvider />
         <JsonLd type="organization" />
         <JsonLd type="software" />
         <Suspense fallback={null}>
-          <PostHogProvider>{children}</PostHogProvider>
+          <PostHogProvider>
+            <div id="main-content">{children}</div>
+          </PostHogProvider>
         </Suspense>
         <LazyChatbotWidget />
         </ThemeProvider>

@@ -15,6 +15,15 @@ import { AGENT_EVENTS } from '../../modules/agents/agent.types';
 
 const AUTHENTICATED_LIMIT = 1000;
 
+const SKIP_PATH_PREFIXES = [
+  '/health',
+  '/live',
+  '/ready',
+  '/metrics',
+  '/v1/webhooks/',
+  '/v1/wallet/webhook',
+];
+
 @Injectable()
 export class AppThrottlerGuard extends ThrottlerGuard {
   constructor(
@@ -29,6 +38,17 @@ export class AppThrottlerGuard extends ThrottlerGuard {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     if (process.env.NODE_ENV === 'test') return true;
     if (context.getType() !== 'http') return true;
+
+    const req = context.switchToHttp().getRequest<{
+      url?: string;
+      path?: string;
+      originalUrl?: string;
+    }>();
+    const path = String(req?.originalUrl ?? req?.url ?? req?.path ?? '');
+    if (SKIP_PATH_PREFIXES.some((p) => path === p || path.startsWith(p))) {
+      return true;
+    }
+
     return super.canActivate(context);
   }
 

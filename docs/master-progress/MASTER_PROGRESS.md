@@ -1,7 +1,7 @@
 # Profytron Master Progress (Verified)
 
 **Authority:** This file overrides any pasted chat “progress summary.”
-Update only after code + doc evidence is checked. Last verification: 2026-08-02 (Phase 9C included).
+Update only after code + doc evidence is checked. Last verification: 2026-08-02 (Phase 10 included).
 
 | Phase | Status | Notes |
 |---|---|---|
@@ -13,10 +13,11 @@ Update only after code + doc evidence is checked. Last verification: 2026-08-02 
 | 6 — Trading Platform | VERIFIED COMPLETE | `phase6-trading-AUDIT.md` |
 | 7 — Marketplace | VERIFIED COMPLETE | `phase7-marketplace-READINESS.md` |
 | 8 — AI Coach | VERIFIED COMPLETE | `phase8-ai-coach-READINESS.md` |
-| 9A — Wallet / Billing / Payments P0s | COMPLETE (local) | `phase9a-wallet-payments-EVIDENCE.md` |
-| 9B — Subscription Lifecycle & Billing Engine | COMPLETE (local) | Items 1–6; reports under `phase9b-*` |
-| **9C — Billing Experience & Financial UX** | **COMPLETE (local)** | `phase9c-billing-experience.md` |
-| Auth session (handoff) | FIXED (local) | Distinct JTIs, hard-nav, refresh grace |
+| 9A — Wallet / Billing / Payments P0s | COMPLETE (pushed) | `phase9a-wallet-payments-EVIDENCE.md` |
+| 9B — Subscription Lifecycle & Billing Engine | COMPLETE (pushed) | reports under `phase9b-*` |
+| 9C — Billing Experience & Financial UX | COMPLETE (pushed) | `phase9c-billing-experience.md` |
+| **10 — Production Readiness & Launch** | **COMPLETE (local)** | `phase10-production-readiness.md` |
+| Auth session (handoff) | FIXED | Distinct JTIs, hard-nav, refresh grace |
 
 ## Phase 9B inventory
 

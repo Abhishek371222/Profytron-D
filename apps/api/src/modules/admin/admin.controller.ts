@@ -437,6 +437,63 @@ export class AdminController {
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'List payments for ops (paginated)' })
+  @Get('payments')
+  async listPayments(
+    @Query('limit') limit?: string,
+    @Query('skip') skip?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.adminService.listPayments(
+      limit ? Number(limit) : 50,
+      skip ? Number(skip) : 0,
+      status,
+    );
+  }
+
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'List audit log events (paginated)' })
+  @Get('audit')
+  async listAudit(
+    @Query('limit') limit?: string,
+    @Query('skip') skip?: string,
+    @Query('eventType') eventType?: string,
+  ) {
+    return this.adminService.listAuditLogs(
+      limit ? Number(limit) : 50,
+      skip ? Number(skip) : 0,
+      eventType,
+    );
+  }
+
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiOperation({ summary: 'List platform subscriptions (paginated)' })
+  @Get('subscriptions')
+  async listSubscriptions(
+    @Query('limit') limit?: string,
+    @Query('skip') skip?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.adminService.listPlatformSubscriptions(
+      limit ? Number(limit) : 50,
+      skip ? Number(skip) : 0,
+      status,
+    );
+  }
+
+  @ApiResponse({ status: 200, description: 'OK' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  @ApiOperation({ summary: 'Force-cancel a platform subscription row' })
+  @Post('subscriptions/:id/cancel')
+  async cancelPlatformSubscription(
+    @Req() req: AdminRequest,
+    @Param('id') id: string,
+  ) {
+    const adminId = req.user.id || req.user.userId || '';
+    return this.adminService.forceCancelPlatformSubscription(id, adminId);
+  }
+
+  @ApiResponse({ status: 200, description: 'OK' })
   @ApiOperation({ summary: 'Get live system metrics for ops dashboard' })
   @Get('system/metrics')
   async getSystemMetrics() {
