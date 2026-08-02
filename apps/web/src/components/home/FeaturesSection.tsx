@@ -76,7 +76,7 @@ export function FeaturesSection() {
             <span className="landing-gradient-text">trade with confidence</span>
           </h2>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            One platform for bots, copy trading, analytics, and AI coaching —
+            One platform for forex trading bots, analytics, and AI coaching —
             precise, calm, and fast.
           </p>
         </motion.div>

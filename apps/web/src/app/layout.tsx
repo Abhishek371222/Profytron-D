@@ -7,6 +7,7 @@ import { WebVitalsProvider } from "@/components/providers/WebVitalsProvider";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LazyChatbotWidget } from "@/components/chatbot/LazyChatbotWidget";
+import { CookieConsentBanner } from "@/components/cookie/CookieConsentBanner";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SITE_URL } from "@/lib/seo/constants";
 
@@ -28,11 +29,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   applicationName: "Profytron",
   title: {
-    default: "Profytron — Algorithmic Trading Platform for Indian Traders",
+    default: "Profytron — Forex Trading Bots for MT4/MT5",
     template: "%s | Profytron",
   },
   description:
-    "Profytron is an algorithmic trading platform for Indian traders. Copy top strategies, deploy AI-powered bots, and manage your portfolio with institutional-grade tools. Free trial available.",
+    "Profytron runs automated trading bots on the forex market via MT4/MT5. Marketplace strategies, paper trading, AI risk limits, and broker connect. Bots-only platform — not a retail India app.",
   manifest: "/manifest.json",
   // Absolute www icons — Bing/Google often resolve relative /favicon.ico against
   // the indexed host (apex). Apex currently 404s favicon via GoDaddy forwarding,
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
       { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/icons/icon-192.png", sizes: "180x180", type: "image/png" }],
     shortcut: ["/favicon.ico"],
   },
   appleWebApp: {
@@ -54,15 +55,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Profytron",
-    title: "Profytron — Algorithmic Trading Platform for Indian Traders",
+    title: "Profytron — Forex Trading Bots for MT4/MT5",
     description:
-      "Copy top strategies, deploy AI-powered trading bots, and grow your portfolio with institutional-grade tools.",
+      "Automated forex trading bots on MT4/MT5. Deploy marketplace strategies, connect brokers, and enforce risk limits.",
     images: [
       {
         url: "/hero/hero-trading-3d.webp",
         width: 1200,
         height: 630,
-        alt: "Profytron trading dashboard showing AI analytics and live portfolio",
+        alt: "Profytron forex bots dashboard with live charts and portfolio analytics",
         type: "image/webp",
       },
     ],
@@ -72,24 +73,24 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     site: "@profytron",
-    title: "Profytron — Algorithmic Trading Platform for Indian Traders",
+    title: "Profytron — Forex Trading Bots for MT4/MT5",
     description:
-      "AI-powered copy trading, strategy marketplace, and portfolio analytics for Indian traders.",
+      "AI-assisted forex trading bots, marketplace strategies, and portfolio analytics on MT4/MT5.",
     images: ["/hero/hero-trading-3d.webp"],
   },
   keywords: [
-    "algorithmic trading India",
-    "copy trading platform",
     "forex trading bots",
-    "MT4 MT5 copy trading",
-    "AI trading coach",
-    "trading strategy marketplace",
-    "XAUUSD trading",
-    "automated trading India",
-    "portfolio analytics",
-    "trading platform India",
-    "algo trading",
-    "prop trading platform",
+    "MT5 forex bots",
+    "MT4 automated forex",
+    "forex algorithmic trading",
+    "automated forex trading platform",
+    "forex EA bots",
+    "algo forex trading",
+    "MetaTrader 5 bots",
+    "forex strategy marketplace",
+    "AI forex trading bots",
+    "XAUUSD trading bots",
+    "forex bot risk management",
   ],
   authors: [{ name: "Profytron", url: SITE_URL }],
   creator: "Profytron",
@@ -147,6 +148,7 @@ export default function RootLayout({
           </PostHogProvider>
         </Suspense>
         <LazyChatbotWidget />
+        <CookieConsentBanner />
         </ThemeProvider>
       </body>
     </html>

@@ -15,11 +15,21 @@ import { useMounted } from '@/lib/hooks/useMounted';
 
 const navLinks = [
   {
+    name: 'Product',
+    children: [
+      { name: 'Pricing', href: '/pricing' },
+      { name: 'Brokers', href: '/brokers' },
+      { name: 'Status', href: '/status' },
+      { name: 'Help', href: '/help' },
+    ],
+  },
+  {
     name: 'Company',
     children: [
       { name: 'About Us', href: '/about' },
       { name: 'Careers', href: '/careers' },
       { name: 'Blog', href: '/blog' },
+      { name: 'Contact', href: '/contact' },
     ],
   },
   {
@@ -100,7 +110,7 @@ function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: ()
         </Link>
         <Link href="/register" onClick={onNavigate}>
           <Button className="w-full h-11 rounded-button bg-primary text-primary-foreground font-semibold">
-            Open Terminal
+            Start free trial
           </Button>
         </Link>
       </>
@@ -116,7 +126,7 @@ function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: ()
       </Link>
       <Link href="/register">
         <Button className="h-10 px-5 text-sm font-semibold rounded-button bg-primary text-primary-foreground hover:brightness-110 shadow-[var(--shadow-cta)] gap-2">
-          Open Terminal
+          Start free trial
           <ArrowRight className="w-4 h-4" />
         </Button>
       </Link>
@@ -134,6 +144,15 @@ export function PublicNavbar() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -176,7 +195,7 @@ export function PublicNavbar() {
           )}
           aria-label="Site navigation"
         >
-          <Link href="/" className="group shrink-0" aria-label="Profytron Home">
+          <Link href="/" className="group shrink-0">
             <BrandLogo size="home" />
           </Link>
 
@@ -251,7 +270,7 @@ export function PublicNavbar() {
             })}
           </div>
 
-          <div className="hidden md:flex items-center gap-2.5">
+          <div className="hidden lg:flex items-center gap-2.5">
             <ThemeToggle size="sm" />
             <AuthActions />
           </div>

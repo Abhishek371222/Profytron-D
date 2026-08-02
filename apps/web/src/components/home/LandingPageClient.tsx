@@ -4,13 +4,8 @@ import dynamic from "next/dynamic";
 import { AppProviders } from "@/components/providers/AppProviders";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { HeroSection } from "@/components/home/HeroSection";
-import { SectionRevealer } from "@/components/ui/SectionRevealer";
-import { LenisProvider } from "@/components/providers/LenisProvider";
 import React from "react";
 import { isExperienceEngineEnabled } from "@/platform/experience/index-flag";
-import { SceneProvider } from "@/components/3d/SceneProvider";
-import { AmbientDepthBackground } from "@/components/3d/AmbientDepthBackground";
-import { MarketingTransitionFrame } from "@/components/3d/MarketingTransitionFrame";
 import {
   HowItWorksSkeleton,
   FeaturesSkeleton,
@@ -58,9 +53,84 @@ const ExperienceDevPanel = dynamic(
   { ssr: false },
 );
 
+/** 3D / Lenis shell — pulled only after LCP window (PT-W01). */
+const LandingHeavyShell = dynamic(
+  () =>
+    import("@/components/home/LandingHeavyShell").then((m) => ({
+      default: m.LandingHeavyShell,
+    })),
+  { ssr: false },
+);
+
+function scheduleAfterFirstPaint(fn: () => void) {
+  const run = () => {
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(() => fn(), { timeout: 5000 });
+    } else {
+      window.setTimeout(fn, 2000);
+    }
+  };
+
+  if (typeof window === "undefined") return;
+  if (document.readyState === "complete") {
+    run();
+    return;
+  }
+  window.addEventListener("load", run, { once: true });
+}
+
+function LandingContent({
+  footer,
+  allowHeavyFx,
+}: {
+  footer: React.ReactNode;
+  allowHeavyFx: boolean;
+}) {
+  return (
+    <>
+      <PublicNavbar />
+      <HeroSection deferAmbient={!allowHeavyFx} />
+
+      <section className="relative">
+        <HowItWorks />
+      </section>
+      <section className="relative">
+        <FeaturesSection />
+      </section>
+      <section className="relative">
+        <ValuePillars />
+      </section>
+      <section className="relative">
+        <PricingSection />
+      </section>
+      <section className="relative">
+        <CTABanner />
+      </section>
+      <section className="relative">
+        <FaqSection />
+      </section>
+
+      {footer}
+    </>
+  );
+}
+
 export function LandingPageClient({ footer }: { footer: React.ReactNode }) {
+  // Keep ambient WebGL / experience engine off the LCP-critical window (PT-W01).
+  const [allowHeavyFx, setAllowHeavyFx] = React.useState(false);
+
   React.useEffect(() => {
-    if (!isExperienceEngineEnabled()) return;
+    let cancelled = false;
+    scheduleAfterFirstPaint(() => {
+      if (!cancelled) setAllowHeavyFx(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!allowHeavyFx || !isExperienceEngineEnabled()) return;
 
     let cancelled = false;
     let cleanup: (() => void) | undefined;
@@ -78,49 +148,25 @@ export function LandingPageClient({ footer }: { footer: React.ReactNode }) {
       cancelled = true;
       cleanup?.();
     };
-  }, []);
+  }, [allowHeavyFx]);
+
+  const content = <LandingContent footer={footer} allowHeavyFx={allowHeavyFx} />;
 
   return (
     <AppProviders>
-      <SceneProvider>
-        <LenisProvider>
-          <main className="relative min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background exp-lighting">
-            <AmbientDepthBackground variant="marketing" position="fixed" enableAmbientScene />
-            <MarketingTransitionFrame transition="cameraPush" className="relative z-10">
-              <PublicNavbar />
-              <HeroSection />
-
-              <SectionRevealer delay={0.08}>
-                <HowItWorks />
-              </SectionRevealer>
-
-              <SectionRevealer delay={0.1}>
-                <FeaturesSection />
-              </SectionRevealer>
-
-              <SectionRevealer delay={0.1}>
-                <ValuePillars />
-              </SectionRevealer>
-
-              <SectionRevealer delay={0.1}>
-                <PricingSection />
-              </SectionRevealer>
-
-              <SectionRevealer delay={0.1}>
-                <CTABanner />
-              </SectionRevealer>
-
-              <SectionRevealer delay={0.08}>
-                <FaqSection />
-              </SectionRevealer>
-
-              {footer}
-            </MarketingTransitionFrame>
-            {process.env.NEXT_PUBLIC_PLATFORM_METRICS === "1" &&
-              isExperienceEngineEnabled() && <ExperienceDevPanel />}
-          </main>
-        </LenisProvider>
-      </SceneProvider>
+      {allowHeavyFx ? (
+        <LandingHeavyShell
+          experienceMetrics={process.env.NEXT_PUBLIC_PLATFORM_METRICS === "1"}
+        >
+          {content}
+          {process.env.NEXT_PUBLIC_PLATFORM_METRICS === "1" &&
+            isExperienceEngineEnabled() && <ExperienceDevPanel />}
+        </LandingHeavyShell>
+      ) : (
+        <main className="relative min-h-screen w-full min-w-0 overflow-x-hidden bg-[var(--bg-secondary)] dark:bg-background">
+          <div className="relative z-10">{content}</div>
+        </main>
+      )}
     </AppProviders>
   );
 }

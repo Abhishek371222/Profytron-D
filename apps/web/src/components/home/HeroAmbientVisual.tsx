@@ -79,6 +79,15 @@ export function HeroAmbientVisual({
 
     const mountWhenReady = () => {
       if (cancelled) return;
+      // Mobile: keep CSS/SVG layers only — WebGL fights LCP (PT-W01 / W02)
+      const isMobile =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(max-width: 767px)').matches;
+      if (isMobile) {
+        setLayer('animated');
+        setMountScene(false);
+        return;
+      }
       const gate = evaluateSceneGate('heroTrading');
       if (engineOn) {
         heroRuntimeApi.start({

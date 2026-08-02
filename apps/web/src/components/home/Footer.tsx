@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Globe, MessageSquare, Mail } from "lucide-react";
 import { TrustBadges } from "@/components/trust/TrustBadges";
 import { BrandLogo } from "@/components/brand/BrandLogo";
+import { DISCORD_URL, INSTAGRAM_URL } from "@/lib/seo/constants";
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
@@ -14,10 +15,10 @@ const InstagramIcon = ({ className }: { className?: string }) => (
 const footerLinks = {
   Product: [
     { name: "Features", href: "/#features" },
-    { name: "Strategy Marketplace", href: "/register" },
-    { name: "Copy Trading", href: "/register" },
-    { name: "Get Bots", href: "/register" },
-    { name: "Pricing", href: "/#pricing" },
+    { name: "Pricing", href: "/pricing" },
+    { name: "Get Bots", href: "/get-bots" },
+    { name: "Brokers", href: "/brokers" },
+    { name: "Help", href: "/help" },
   ],
   Company: [
     { name: "About Us", href: "/about" },
@@ -31,6 +32,7 @@ const footerLinks = {
     { name: "Market Guides", href: "/guides" },
     { name: "Brokers", href: "/brokers" },
     { name: "Community", href: "/community" },
+    { name: "System Status", href: "/status" },
   ],
   Legal: [
     { name: "Privacy Policy", href: "/privacy" },
@@ -53,13 +55,14 @@ export function Footer() {
             <Link href="/" className="flex items-center gap-3 mb-8 group">
               <BrandLogo size="lg" />
             </Link>
-            <p className="text-foreground/40 text-sm mb-8 leading-relaxed max-w-sm font-medium">
-              Building the future of trading success. Your edge, refined for tomorrow's markets.
+            <p className="text-muted-foreground text-sm mb-8 leading-relaxed max-w-sm font-medium">
+              Forex trading bots for MT4/MT5 — marketplace strategies, paper trading, and AI risk
+              controls. Capital stays at your broker.
             </p>
             <div className="flex gap-3">
               {([
-                { icon: MessageSquare, href: 'https://discord.gg/profytron', label: 'Discord', external: true },
-                { icon: InstagramIcon, href: 'https://www.instagram.com/profytron/', label: 'Instagram', external: true },
+                { icon: MessageSquare, href: DISCORD_URL, label: 'Discord', external: true },
+                { icon: InstagramIcon, href: INSTAGRAM_URL, label: 'Instagram', external: true },
                 { icon: Globe, href: '/', label: 'Website', external: false },
                 { icon: Mail, href: 'mailto:support@profytron.com', label: 'Email', external: false },
               ] as const).map(({ icon: Icon, href, label, external }) => (
@@ -68,7 +71,7 @@ export function Footer() {
                   href={href}
                   {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
                   aria-label={label}
-                  className="w-10 h-10 rounded-full bg-foreground/2 border border-border flex items-center justify-center text-foreground/40 hover:text-foreground hover:bg-foreground/10 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/70 focus-visible:rounded-full"
+                  className="w-10 h-10 rounded-full bg-foreground/2 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-foreground/10 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/70 focus-visible:rounded-full"
                 >
                   <Icon className="w-4 h-4" />
                 </a>
@@ -88,7 +91,7 @@ export function Footer() {
                     <li key={link.name}>
                       <Link
                         href={link.href}
-                        className="text-foreground/40 hover:text-foreground transition-colors text-sm font-medium inline-flex items-center"
+                        className="text-muted-foreground hover:text-foreground transition-colors text-sm font-medium inline-flex items-center"
                       >
                         {link.name}
                       </Link>

@@ -63,15 +63,15 @@ function buildSchema(props: JsonLdProps): object | null {
         },
         image: `${SITE_URL}/hero/hero-trading-3d.webp`,
         description:
-          'Institutional-grade algorithmic trading platform with AI coaching, copy trading, strategy marketplace, and real-time analytics for Indian traders.',
+          'Automated forex trading bot platform with AI-assisted risk controls, marketplace strategies, and MT4/MT5 broker execution.',
         foundingDate: '2024',
-        areaServed: { '@type': 'Country', name: 'India' },
+        areaServed: 'Worldwide',
         contactPoint: [
           {
             '@type': 'ContactPoint',
             contactType: 'customer support',
             email: 'support@profytron.com',
-            availableLanguage: ['English', 'Hindi'],
+            availableLanguage: ['English'],
             url: `${SITE_URL}/contact`,
           },
           {
@@ -84,6 +84,8 @@ function buildSchema(props: JsonLdProps): object | null {
         sameAs: [
           'https://twitter.com/profytron',
           'https://www.linkedin.com/company/profytron',
+          'https://discord.gg/profytron',
+          'https://www.instagram.com/profytron/',
         ],
       };
 
@@ -95,8 +97,10 @@ function buildSchema(props: JsonLdProps): object | null {
         name: 'Profytron',
         url: SITE_URL,
         description:
-          'Algorithmic trading platform for Indian traders — copy trading, AI coach, strategy marketplace.',
+          'Forex trading bots for MT4/MT5 — marketplace strategies, AI risk controls, broker connect.',
+        inLanguage: 'en-IN',
         publisher: { '@id': `${SITE_URL}/#organization` },
+        isPartOf: { '@id': `${SITE_URL}/#organization` },
       };
 
     case 'software':
@@ -118,10 +122,10 @@ function buildSchema(props: JsonLdProps): object | null {
           availability: 'https://schema.org/InStock',
         })),
         featureList: [
-          'Automated Trading Bots',
+          'Forex Trading Bots',
           'Alpha Coach',
           'Strategy Marketplace',
-          'MT4/MT5 Integration',
+          'MT4/MT5 Forex Integration',
           'Paper Trading',
           'Portfolio Analytics',
         ],
@@ -132,12 +136,12 @@ function buildSchema(props: JsonLdProps): object | null {
         '@context': 'https://schema.org',
         '@type': 'Product',
         '@id': `${SITE_URL}/pricing#product`,
-        name: 'Profytron Trading Platform',
+        name: 'Profytron Forex Bot Platform',
         url: `${SITE_URL}/pricing`,
         image: `${SITE_URL}/hero/hero-trading-3d.webp`,
-        category: 'Algorithmic trading software',
+        category: 'Forex algorithmic trading software',
         description:
-          'SaaS algorithmic trading platform with copy trading, AI risk management, and strategy marketplace.',
+          'SaaS platform for automated forex trading bots with AI risk management and strategy marketplace.',
         brand: { '@type': 'Brand', name: 'Profytron' },
         offers: INR_PLANS.map((plan) => ({
           '@type': 'Offer',
@@ -167,37 +171,37 @@ function buildSchema(props: JsonLdProps): object | null {
       return {
         '@context': 'https://schema.org',
         '@type': 'HowTo',
-        name: 'How to start algorithmic trading on Profytron',
+        name: 'How to start automated forex trading on Profytron',
         description:
-          'Sign up, connect your broker or use paper trading, browse the strategy marketplace, and start copy trading in minutes.',
+          'Sign up, connect your MT4/MT5 forex broker or use paper trading, deploy a marketplace bot, and run automated forex strategies.',
         totalTime: 'PT10M',
         step: [
           {
             '@type': 'HowToStep',
             position: 1,
             name: 'Create your account',
-            text: `Sign up free at ${new URL(SITE_URL).host} with email or Google. No credit card required.`,
+            text: `Sign up free at ${new URL(SITE_URL).host} with email or Google. No credit card required to explore.`,
             url: `${SITE_URL}/register`,
           },
           {
             '@type': 'HowToStep',
             position: 2,
             name: 'Connect MT5 or use paper trading',
-            text: 'Link your MetaTrader 5 account or start with a built-in paper trading account.',
+            text: 'Link your MetaTrader 5 forex account or start with a built-in paper trading account.',
             url: `${SITE_URL}/docs`,
           },
           {
             '@type': 'HowToStep',
             position: 3,
-            name: 'Subscribe to a verified strategy',
-            text: 'Browse the marketplace, review live track records, and subscribe to copy trades automatically.',
+            name: 'Deploy a verified forex bot',
+            text: 'Browse marketplace forex strategies, set risk limits, and run the bot on your broker.',
             url: `${SITE_URL}/pricing`,
           },
           {
             '@type': 'HowToStep',
             position: 4,
             name: 'Set risk limits and monitor',
-            text: 'Configure drawdown limits, lot multipliers, and monitor performance from your dashboard.',
+            text: 'Configure drawdown limits and lot sizing, then monitor equity from your dashboard.',
             url: `${SITE_URL}/docs`,
           },
         ],

@@ -3,12 +3,17 @@
 import { useEffect, type ReactNode } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import type { PostHogClient } from '@/lib/analytics/track';
+import {
+  getAnalyticsConsent,
+  type AnalyticsConsent,
+} from '@/components/cookie/CookieConsentBanner';
 
 let posthogInitialized = false;
 
 async function initPostHog() {
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   if (!key || posthogInitialized || typeof window === 'undefined') return;
+  if (getAnalyticsConsent() !== 'granted') return;
 
   try {
     const posthog = (await import('posthog-js')).default;
@@ -21,6 +26,7 @@ async function initPostHog() {
     window.posthog = posthog as PostHogClient;
     posthogInitialized = true;
   } catch {
+    /* optional */
   }
 }
 
@@ -49,10 +55,24 @@ export function PostHogProvider({ children }: { children: ReactNode }) {
     scheduleAfterLoad(() => {
       void initPostHog();
     });
+
+    const onConsent = (e: Event) => {
+      const detail = (e as CustomEvent<AnalyticsConsent>).detail;
+      if (detail === 'granted') {
+        void initPostHog();
+      } else if (window.posthog) {
+        window.posthog.reset();
+        posthogInitialized = false;
+        window.posthog = undefined;
+      }
+    };
+    window.addEventListener('profytron:analytics-consent', onConsent);
+    return () => window.removeEventListener('profytron:analytics-consent', onConsent);
   }, []);
 
   useEffect(() => {
     if (!window.posthog || !pathname) return;
+    if (getAnalyticsConsent() !== 'granted') return;
     const url = searchParams?.toString()
       ? `${pathname}?${searchParams.toString()}`
       : pathname;

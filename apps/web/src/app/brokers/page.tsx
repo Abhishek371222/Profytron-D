@@ -36,6 +36,95 @@ export default function BrokersIndexPage() {
       />
 
       <MarketingSection className="pb-24">
+        <div className="mb-10 max-w-3xl space-y-4 text-sm leading-relaxed text-muted-foreground">
+          <h2 className="text-lg font-bold tracking-tight text-foreground">
+            How broker connections work on Profytron
+          </h2>
+          <p>
+            Profytron links automated strategies and copy bots to your own brokerage account
+            over MT4/MT5. You keep custody of funds at the broker; Profytron does not hold
+            client money. Paper mode is available if you want to validate execution before
+            going live.
+          </p>
+          <p>
+            Pick a broker below for spreads, minimum deposit, and region notes, then create a
+            free account and open Connected Accounts (or Get Bots) to finish credential
+            linking. Prefer support? See{' '}
+            <Link href="/docs" className="font-medium text-primary hover:underline">
+              docs
+            </Link>
+            ,{' '}
+            <Link href="/help" className="font-medium text-primary hover:underline">
+              help
+            </Link>
+            , or{' '}
+            <Link href="/guides" className="font-medium text-primary hover:underline">
+              trading guides
+            </Link>
+            .
+          </p>
+          <h2 className="pt-2 text-lg font-bold tracking-tight text-foreground">
+            MT4 vs MT5 for automated forex bots
+          </h2>
+          <p>
+            Most brokers on this list offer MetaTrader 5 (MT5) and many still support
+            MetaTrader 4 (MT4). Profytron is built for live execution through your existing
+            terminal login: when a strategy places a trade, signals route to the connected
+            account with risk limits you set on the platform. Choose an ECN/RAW account if
+            you care about tight spreads; choose an STP or beginner-friendly account if
+            deposit size and education matter more.
+          </p>
+          <h2 className="pt-2 text-lg font-bold tracking-tight text-foreground">
+            What to check before you connect
+          </h2>
+          <ul className="list-disc space-y-2 pl-5">
+            <li>
+              <span className="font-medium text-foreground">Server name</span> — exact MT
+              server string from your broker portal (wrong server = failed login).
+            </li>
+            <li>
+              <span className="font-medium text-foreground">Account type</span> — demo vs
+              live; hedging vs netting if your strategy assumes it.
+            </li>
+            <li>
+              <span className="font-medium text-foreground">Minimum deposit & region</span>{' '}
+              — confirm you can fund and trade the instruments your bots need.
+            </li>
+            <li>
+              <span className="font-medium text-foreground">Risk first</span> — start on
+              paper or a small live size; enable stop limits in Profytron before scaling.
+            </li>
+          </ul>
+          <h2 className="pt-2 text-lg font-bold tracking-tight text-foreground">
+            From connection to first bot
+          </h2>
+          <ol className="list-decimal space-y-2 pl-5">
+            <li>
+              Create a free Profytron account and complete onboarding risk preferences.
+            </li>
+            <li>
+              Open Connected Accounts (or Get Bots) and choose a broker from this directory.
+            </li>
+            <li>
+              Enter credentials once; tokens stay broker-side and encrypted for re-use.
+            </li>
+            <li>
+              Deploy a marketplace bot or your own strategy and monitor from the dashboard.
+            </li>
+          </ol>
+          <p>
+            Looking for pricing? See{' '}
+            <Link href="/pricing" className="font-medium text-primary hover:underline">
+              plans and the 7-day free trial
+            </Link>
+            . Need a community second opinion? Join{' '}
+            <Link href="/community" className="font-medium text-primary hover:underline">
+              Discord
+            </Link>
+            .
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {brokers.map((broker) => {
             const slug = broker.id.toLowerCase().replace(/_/g, '-');
@@ -79,6 +168,42 @@ export default function BrokersIndexPage() {
               </Link>
             );
           })}
+        </div>
+
+        <div className="mt-10 rounded-xl border border-[var(--card-border)] bg-card p-6">
+          <p className="text-sm font-semibold text-foreground">Related</p>
+          <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+            <li>
+              <Link href="/pricing" className="text-primary hover:underline">
+                Pricing
+              </Link>
+            </li>
+            <li>
+              <Link href="/get-bots" className="text-primary hover:underline">
+                Get bots
+              </Link>
+            </li>
+            <li>
+              <Link href="/guides" className="text-primary hover:underline">
+                Guides
+              </Link>
+            </li>
+            <li>
+              <Link href="/blog" className="text-primary hover:underline">
+                Blog
+              </Link>
+            </li>
+            <li>
+              <Link href="/docs" className="text-primary hover:underline">
+                Docs
+              </Link>
+            </li>
+            <li>
+              <Link href="/register" className="text-primary hover:underline">
+                Start free trial
+              </Link>
+            </li>
+          </ul>
         </div>
 
         <div className="mt-10">

@@ -67,8 +67,8 @@ export function buildPageMetadata({
       images: [
         {
           url: ogImage.startsWith('http') ? ogImage : absoluteUrl(ogImage),
-          width: 1536,
-          height: 1024,
+          width: 1200,
+          height: 630,
           alt: ogImageAlt,
           type: ogImage.endsWith('.webp')
             ? 'image/webp'

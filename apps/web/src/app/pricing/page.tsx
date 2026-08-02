@@ -8,7 +8,7 @@ import { SectionRevealer } from '@/components/ui/SectionRevealer';
 import type { Metadata } from 'next';
 import { pageSeo } from '@/lib/seo/page-metadata';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { PRICING_TRUST_ITEMS } from '@/lib/pricing/plans';
+import { PRICING_TRUST_ITEMS, PRICING_FAQ_ITEMS } from '@/lib/pricing/plans';
 
 export const metadata: Metadata = pageSeo.pricing;
 
@@ -16,6 +16,13 @@ export default function PricingPage() {
   return (
     <PublicPageLayout transition="depthShift">
       <JsonLd type="product" />
+      <JsonLd
+        type="faq"
+        faqs={PRICING_FAQ_ITEMS.map((item) => ({
+          question: item.question,
+          answer: item.answer,
+        }))}
+      />
 
       <MarketingHero
         eyebrow="Pricing"
@@ -129,6 +136,37 @@ export default function PricingPage() {
             >
               Contact sales
             </a>
+          </div>
+
+          <div className="mt-10">
+            <p className="text-sm font-semibold text-foreground">Related</p>
+            <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link href="/brokers" className="text-primary hover:underline">
+                  Supported brokers
+                </Link>
+              </li>
+              <li>
+                <Link href="/help" className="text-primary hover:underline">
+                  Help &amp; FAQs
+                </Link>
+              </li>
+              <li>
+                <Link href="/docs" className="text-primary hover:underline">
+                  Documentation
+                </Link>
+              </li>
+              <li>
+                <Link href="/get-bots" className="text-primary hover:underline">
+                  Get bots
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="text-primary hover:underline">
+                  Contact
+                </Link>
+              </li>
+            </ul>
           </div>
         </section>
       </SectionRevealer>

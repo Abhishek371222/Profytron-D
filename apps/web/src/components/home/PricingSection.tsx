@@ -29,7 +29,7 @@ export function PricingSection() {
         >
           <span className="landing-eyebrow mb-6">
             <span className="landing-live-dot" aria-hidden />
-            Plans in INR
+            Forex bot plans
           </span>
 
           <h2 className="brand-display-heading mb-5 text-3xl sm:text-4xl md:text-5xl">
@@ -38,8 +38,8 @@ export function PricingSection() {
           </h2>
 
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Start free with paper trading. Upgrade for live MT5 bot execution, AI coach, and
-            copy trading. 7-day trial on all paid plans.
+            Start free with paper trading. Upgrade for live MT5 forex bots, AI coach, and
+            portfolio analytics. Trial on paid plans.
           </p>
         </motion.div>
 

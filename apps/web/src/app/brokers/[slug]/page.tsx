@@ -21,9 +21,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `Step-by-step guide to connect ${broker.displayName} (${broker.platform}) with Profytron for automated bot trading. ${broker.description}`,
     path: `/brokers/${slug}`,
     keywords: [
-      `${broker.name} MT5 setup`,
-      `${broker.name} copy trading`,
-      'MT5 automated trading India',
+      `${broker.name} trading bots`,
+      `${broker.name} MT5 bot setup`,
+      'MT5 automated forex trading',
       'Profytron broker connect',
     ],
   });

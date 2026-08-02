@@ -17,7 +17,7 @@ const steps = [
     layer: "STEP_01",
     title: "Connect Your Broker",
     description:
-      "Link your MT5 trading account through an encrypted connection. Your funds stay at your broker — Profytron never holds or custodies your capital.",
+      "Link your MT5 forex account through an encrypted connection. Funds stay at your broker — Profytron never holds capital.",
     icon: Link2,
     theme: "violet" as const,
   },
@@ -25,15 +25,15 @@ const steps = [
     layer: "STEP_02",
     title: "Set Your Risk Profile",
     description:
-      "A short questionnaire captures your risk tolerance and capital constraints, so bot and strategy suggestions match how you actually want to trade.",
+      "Capture risk tolerance and capital constraints so forex bot and strategy suggestions match how you want to trade.",
     icon: ClipboardCheck,
     theme: "violet" as const,
   },
   {
     layer: "STEP_03",
-    title: "Choose a Strategy",
+    title: "Deploy a Forex Bot",
     description:
-      "Subscribe to a vetted strategy from the marketplace or follow a proven trader through copy trading — no coding required.",
+      "Subscribe to a vetted marketplace bot with a live track record — no coding required.",
     icon: Store,
     theme: "indigo" as const,
   },
