@@ -66,9 +66,9 @@ export function ExecutiveWaitBar({
       className={cn(
         'flex shrink-0 items-center gap-3 rounded-xl border px-3 py-2.5',
         status === 'CLAIMED'
-          ? 'border-[#348398]/30 bg-[#348398]/8'
+          ? 'border-primary/30 bg-primary/8'
           : overdue
-            ? 'border-[#973336]/30 bg-[#973336]/8'
+            ? 'border-destructive/30 bg-destructive/8'
             : 'border-[var(--card-border)] bg-muted/40',
       )}
     >
@@ -83,8 +83,7 @@ export function ExecutiveWaitBar({
         ) : (
           <div
             className={cn(
-              'flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold text-white',
-              status === 'CLAIMED' ? 'bg-[#348398]' : 'bg-[#348398]',
+              'flex h-9 w-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground',
             )}
           >
             {status === 'CLAIMED' ? initials : <Headset className="h-4 w-4" />}
@@ -93,7 +92,7 @@ export function ExecutiveWaitBar({
         <span
           className={cn(
             'absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-card',
-            status === 'CLAIMED' ? 'bg-[#348398]' : 'animate-pulse bg-[#973336]',
+            status === 'CLAIMED' ? 'bg-primary' : 'animate-pulse bg-destructive',
           )}
         />
       </div>
@@ -116,7 +115,7 @@ export function ExecutiveWaitBar({
       {status === 'OPEN' && (
         <div className="inline-flex shrink-0 flex-col items-end rounded-lg border border-[var(--card-border)] bg-card px-2.5 py-1.5">
           <span className="inline-flex items-center gap-1 font-mono text-sm font-bold tabular-nums text-foreground">
-            <Clock3 className="h-3.5 w-3.5 text-[#348398]" />
+            <Clock3 className="h-3.5 w-3.5 text-primary" />
             {overdue ? '—' : formatRemain(remain)}
           </span>
           <span className="text-[9px] font-semibold uppercase tracking-wide text-muted-foreground">

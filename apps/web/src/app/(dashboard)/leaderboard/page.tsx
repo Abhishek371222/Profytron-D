@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
 import { leaderboardApi, type LeaderboardEntry, type TopStrategy } from '@/lib/api/leaderboard';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -444,11 +445,20 @@ export default function LeaderboardPage() {
           <div className="space-y-3">
             <p className="text-micro text-foreground/20 uppercase tracking-widest font-bold">{strategies.length} strategies</p>
             {strategies.length === 0 ? (
-              <div className="py-20 text-center space-y-4">
+              <div className="py-20 text-center space-y-4" role="status">
                 <div className="w-16 h-16 rounded-[20px] bg-muted border border-[var(--card-border)] flex items-center justify-center mx-auto">
                   <Star className="w-7 h-7 text-foreground/10" />
                 </div>
-                <p className="text-sm text-foreground/20 uppercase tracking-widest">No top strategies yet</p>
+                <p className="text-sm font-medium text-muted-foreground">No top strategies yet</p>
+                <p className="mx-auto max-w-sm text-sm text-muted-foreground/80">
+                  Browse the marketplace to copy a live bot, or publish your own strategy.
+                </p>
+                <Link
+                  href="/marketplace"
+                  className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                >
+                  Open marketplace
+                </Link>
               </div>
             ) : (
               strategies.map((s, i) => <StrategyRow key={s.id} strategy={s} idx={i} />)
@@ -471,11 +481,22 @@ export default function LeaderboardPage() {
             { }
             <div className="space-y-2">
               {rest.length === 0 && entries.length === 0 ? (
-                <div className="py-20 text-center space-y-4">
+                <div className="py-20 text-center space-y-4" role="status">
                   <div className="w-16 h-16 rounded-[20px] bg-muted border border-[var(--card-border)] flex items-center justify-center mx-auto">
                     <Trophy className="w-7 h-7 text-foreground/10" />
                   </div>
-                  <p className="text-sm text-foreground/20 uppercase tracking-widest">No one ranked yet — make your first trade!</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    No one ranked yet
+                  </p>
+                  <p className="mx-auto max-w-sm text-sm text-muted-foreground/80">
+                    Connect a broker and make your first trade to appear on the board.
+                  </p>
+                  <a
+                    href="/connected-accounts"
+                    className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                  >
+                    Connect account
+                  </a>
                 </div>
               ) : (
                 <>

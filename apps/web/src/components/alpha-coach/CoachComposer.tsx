@@ -41,12 +41,12 @@ export function CoachComposer({
         }}
         className={cn(
           'flex items-end gap-1 rounded-2xl border border-[var(--card-border)] bg-card px-2 py-2 shadow-sm',
-          'transition focus-within:border-[#348398]/45 focus-within:ring-2 focus-within:ring-[#348398]/15',
+          'transition focus-within:border-primary/45 focus-within:ring-2 focus-within:ring-primary/15',
         )}
       >
         <button
           type="button"
-          className="mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label="More options"
           title="More"
         >
@@ -74,7 +74,7 @@ export function CoachComposer({
             type="button"
             onClick={onStop}
             whileTap={{ scale: 0.92 }}
-            className="mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#348398] text-white transition hover:bg-[#2d7284]"
+            className="mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Stop generating"
             title="Stop generating"
           >
@@ -86,9 +86,9 @@ export function CoachComposer({
             disabled={!canSend}
             whileTap={canSend ? { scale: 0.92 } : undefined}
             className={cn(
-              'mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition',
+              'mb-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
               canSend
-                ? 'bg-[#348398] text-white hover:bg-[#2d7284]'
+                ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
                 : 'bg-muted text-muted-foreground',
             )}
             aria-label="Send message"

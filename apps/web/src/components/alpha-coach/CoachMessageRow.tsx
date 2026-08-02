@@ -10,6 +10,7 @@ import {
   ThumbsDown,
   ThumbsUp,
 } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import type { CoachMessage } from '@/lib/api/coach';
 import type { ExplainabilityResult } from '@profytron/ai-coach';
@@ -71,7 +72,7 @@ export const CoachMessageRow = React.memo(function CoachMessageRow({
       </div>
       <div className="min-w-0 flex-1">
         {isExec && (
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#348398]">
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
             Executive
           </p>
         )}
@@ -79,9 +80,10 @@ export const CoachMessageRow = React.memo(function CoachMessageRow({
           <CoachMessageBody content={message.content} />
           {isStreaming && (
             <motion.span
-              className="ml-0.5 inline-block h-[1.05em] w-[2px] bg-[#348398] align-[-0.1em]"
+              className="ml-0.5 inline-block h-[1.05em] w-[2px] bg-primary align-[-0.1em]"
               animate={{ opacity: [1, 0.2, 1] }}
               transition={{ duration: 0.9, repeat: Infinity }}
+              aria-hidden
             />
           )}
         </div>
@@ -94,12 +96,12 @@ export const CoachMessageRow = React.memo(function CoachMessageRow({
             <button
               type="button"
               onClick={() => void copy()}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted hover:text-foreground"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               aria-label="Copy"
               title="Copy"
             >
               {copied ? (
-                <Check className="h-4 w-4 text-[#348398]" />
+                <Check className="h-4 w-4 text-primary" />
               ) : (
                 <Copy className="h-4 w-4" />
               )}
@@ -108,7 +110,7 @@ export const CoachMessageRow = React.memo(function CoachMessageRow({
               <button
                 type="button"
                 onClick={onRegenerate}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted hover:text-foreground"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label="Regenerate"
                 title="Regenerate"
               >
@@ -119,8 +121,8 @@ export const CoachMessageRow = React.memo(function CoachMessageRow({
               type="button"
               onClick={() => giveFeedback('up')}
               className={cn(
-                'inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted hover:text-foreground',
-                feedback === 'up' && 'text-[#348398]',
+                'inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                feedback === 'up' && 'text-primary',
               )}
               aria-label="Helpful"
               title="Helpful"
@@ -132,8 +134,8 @@ export const CoachMessageRow = React.memo(function CoachMessageRow({
               type="button"
               onClick={() => giveFeedback('down')}
               className={cn(
-                'inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#973336]/10 hover:text-[#973336]',
-                feedback === 'down' && 'text-[#973336]',
+                'inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                feedback === 'down' && 'text-destructive',
               )}
               aria-label="Not helpful"
               title="Not helpful"
@@ -156,13 +158,35 @@ export function CoachErrorBanner({
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-sm">
-      <p className="min-w-0 flex-1 leading-relaxed text-destructive/90">{text}</p>
+    <div
+      role="alert"
+      className="flex flex-wrap items-start gap-3 rounded-2xl border border-destructive/20 bg-destructive/5 px-3 py-2.5 text-sm"
+    >
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="leading-relaxed text-destructive/90">{text}</p>
+        <p className="text-xs text-muted-foreground">
+          If this keeps happening,{' '}
+          <Link
+            href="/help#help-alpha-coach"
+            className="font-semibold text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            open Coach help
+          </Link>
+          {' '}or{' '}
+          <Link
+            href="/settings/support"
+            className="font-semibold text-primary underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            contact support
+          </Link>
+          .
+        </p>
+      </div>
       {onRetry && (
         <button
           type="button"
           onClick={onRetry}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/10"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-primary hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <RefreshCw className="h-3.5 w-3.5" />
           Retry
@@ -181,7 +205,7 @@ export function CoachTypingRow() {
           <motion.span
             key={i}
             aria-hidden="true"
-            className="h-1.5 w-1.5 rounded-full bg-[#348398]"
+            className="h-1.5 w-1.5 rounded-full bg-primary"
             animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
             transition={{
               duration: 0.7,

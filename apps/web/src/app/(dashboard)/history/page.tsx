@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { 
@@ -129,6 +130,7 @@ export default function HistoryPage() {
   },
   staleTime: 60_000,
   refetchInterval: 60_000,
+  refetchIntervalInBackground: false,
   placeholderData: (previous) => previous,
   refetchOnMount: false,
  });
@@ -469,13 +471,29 @@ export default function HistoryPage() {
   className="my-6"
  />
  ) : !historyLoading && filteredHistory.length === 0 && (
- <div className="py-24 flex flex-col items-center justify-center space-y-4">
+ <div className="py-24 flex flex-col items-center justify-center space-y-4 px-4">
  <div className="w-16 h-16 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center">
  <Brain className="w-8 h-8 text-foreground/15" />
  </div>
- <div className="text-center space-y-1">
+ <div className="text-center space-y-1 max-w-sm">
   <p className="text-sm font-medium text-foreground">No trades in this range</p>
-  <p className="text-xs text-muted-foreground">Try another date range or clear your search.</p>
+  <p className="text-xs text-muted-foreground">
+    Try another date range, clear search, or run a bot / paper account so closes can appear here.
+  </p>
+ </div>
+ <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+  <Link
+    href="/get-bots"
+    className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 text-xs font-bold uppercase tracking-wide text-primary-foreground"
+  >
+    Get bots
+  </Link>
+  <Link
+    href="/marketplace"
+    className="inline-flex min-h-[44px] items-center rounded-xl border border-border px-4 text-xs font-bold uppercase tracking-wide text-foreground hover:bg-muted/40"
+  >
+    Marketplace
+  </Link>
  </div>
  </div>
  )}

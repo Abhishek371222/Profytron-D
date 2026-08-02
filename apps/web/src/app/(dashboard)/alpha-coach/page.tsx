@@ -702,6 +702,7 @@ export default function AlphaCoachPage() {
               onSend={() => void handleSend(undefined, { source: 'typed' })}
               onStop={handleStop}
               isGenerating={isTyping || Boolean(streamingText)}
+              bootstrapLoading={listLoading}
               onSuggestion={(label) => {
                 trackCoachEvent(COACH_EVENTS.SUGGESTION_CLICKED, {
                   conversationId: activeIdRef.current,

@@ -85,7 +85,7 @@ export function ChatHistorySidebar({
           onClick={onNew}
           disabled={creating}
           whileTap={{ scale: 0.98 }}
-          className="flex h-10 w-full items-center gap-2.5 rounded-xl bg-[#348398] px-3 text-sm font-semibold text-white transition hover:bg-[#2d7284] disabled:opacity-50"
+          className="flex h-10 w-full items-center gap-2.5 rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <MessageSquarePlus className="h-4 w-4" strokeWidth={2} />
           {creating ? 'Creating…' : 'New chat'}
@@ -113,7 +113,7 @@ export function ChatHistorySidebar({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search…"
-                className="mt-1 h-9 w-full rounded-xl border border-[var(--card-border)] bg-card px-3 text-sm outline-none focus:border-[#348398]/40"
+                className="mt-1 h-9 w-full rounded-xl border border-[var(--card-border)] bg-card px-3 text-sm outline-none focus:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring"
               />
             </motion.div>
           )}
@@ -132,9 +132,38 @@ export function ChatHistorySidebar({
           </div>
         )}
         {!loading && filtered.length === 0 && (
-          <p className="px-2.5 py-6 text-xs text-muted-foreground">
-            {query ? 'No matches' : 'No chats yet'}
-          </p>
+          <div
+            role="status"
+            className="mx-1 mt-2 space-y-3 rounded-xl border border-dashed border-[var(--card-border)] bg-card/60 px-3 py-6 text-center"
+          >
+            <MessageSquarePlus className="mx-auto h-7 w-7 text-muted-foreground" aria-hidden />
+            <p className="text-sm font-semibold text-foreground">
+              {query ? 'No matching chats' : 'No chats yet'}
+            </p>
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              {query
+                ? 'Try another term or clear search.'
+                : 'Start a new session — Coach keeps recents here.'}
+            </p>
+            {query ? (
+              <button
+                type="button"
+                onClick={() => setQuery('')}
+                className="text-xs font-semibold text-primary hover:underline"
+              >
+                Clear search
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onNew}
+                disabled={creating}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-50"
+              >
+                New chat
+              </button>
+            )}
+          </div>
         )}
         <ul className="space-y-0.5">
           {filtered.map((c) => {
@@ -157,11 +186,11 @@ export function ChatHistorySidebar({
                   )}
                 >
                   {active && (
-                    <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-[#348398]" />
+                    <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r bg-primary" />
                   )}
                   <span className="min-w-0 flex-1 truncate">{c.title}</span>
                   {escalated && (
-                    <Headset className="h-3 w-3 shrink-0 text-[#973336]" />
+                    <Headset className="h-3 w-3 shrink-0 text-destructive" />
                   )}
                   <span className="shrink-0 text-[10px] text-muted-foreground group-hover:opacity-0">
                     {timeAgo(c.updatedAt)}
@@ -180,7 +209,7 @@ export function ChatHistorySidebar({
                     className={cn(
                       'absolute right-1 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition',
                       'opacity-100 sm:opacity-0 sm:group-hover:opacity-100',
-                      'hover:bg-[#973336]/10 hover:text-[#973336]',
+                      'hover:bg-destructive/10 hover:text-destructive',
                       deleting && 'opacity-100',
                     )}
                   >

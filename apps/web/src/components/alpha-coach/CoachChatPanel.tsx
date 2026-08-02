@@ -30,6 +30,7 @@ import {
   CoachWordmark,
 } from '@/components/alpha-coach/CoachBrandMark';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 const SUGGESTIONS = MVP_FOLLOW_UPS.map((label) => ({
   label,
@@ -76,6 +77,7 @@ export function CoachChatPanel({
   hasBrokerAccount,
   winRate,
   openTradeCount,
+  bootstrapLoading,
 }: {
   messages: UiCoachMessage[];
   isTyping: boolean;
@@ -111,6 +113,8 @@ export function CoachChatPanel({
   hasBrokerAccount?: boolean;
   winRate?: number;
   openTradeCount?: number;
+  /** True while conversation list is bootstrapping */
+  bootstrapLoading?: boolean;
 }) {
   const scrollRef = React.useRef<HTMLDivElement>(null);
   const hasUserMsgs = messages.some((m) => m.role === 'USER');
@@ -203,9 +207,9 @@ export function CoachChatPanel({
                   : 'Chat with executive'
               }
               className={cn(
-                'inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition',
+                'inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                 escalated
-                  ? 'bg-[#348398]/12 text-[#348398]'
+                  ? 'bg-primary/12 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
@@ -264,7 +268,14 @@ export function CoachChatPanel({
             />
           )}
 
-          {empty ? (
+          {bootstrapLoading ? (
+            <div className="flex h-full min-h-[240px] flex-col gap-3" aria-busy="true">
+              <div className="h-4 w-1/3 animate-pulse rounded bg-muted/60" />
+              <div className="h-16 animate-pulse rounded-xl bg-muted/50" />
+              <div className="h-16 animate-pulse rounded-xl bg-muted/40" />
+              <div className="h-16 animate-pulse rounded-xl bg-muted/30" />
+            </div>
+          ) : empty ? (
             <EmptyState
               hasBrokerAccount={Boolean(hasBrokerAccount)}
               onSuggestion={onSuggestion}
@@ -361,27 +372,44 @@ function EmptyState({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
       className="flex min-h-full flex-1 flex-col items-center justify-center py-10 text-center"
+      role="status"
     >
       <CoachBrandMark size={48} pulse className="mb-5 rounded-2xl" />
 
       <h1 className="text-[1.75rem] font-semibold tracking-tight text-foreground sm:text-[2rem]">
-        Where should we start?
+        {hasBrokerAccount ? 'Where should we start?' : 'Start your first coaching session'}
       </h1>
       <p className="mt-2 max-w-md text-[15px] leading-relaxed text-muted-foreground">
         {hasBrokerAccount
-          ? `Live book ready · ${Math.round(winRate ?? 0)}% WR · ${openTradeCount ?? 0} open`
-          : 'Ask a trading question — or connect an account for live coaching.'}
+          ? `Live book ready · ${Math.round(winRate ?? 0)}% WR · ${openTradeCount ?? 0} open — ask about a trade, week, or drawdown.`
+          : 'Ask anything about risk, sessions, or strategy. Connect a broker for live book coaching on your open positions.'}
       </p>
 
-      {!hasBrokerAccount && (
-        <a
-          href="/connected-accounts"
-          className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-[#348398] px-4 py-2 text-sm font-semibold text-white hover:bg-[#2d7284]"
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        {!hasBrokerAccount && (
+          <Link
+            href="/connected-accounts"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Link2 className="h-3.5 w-3.5" />
+            Connect broker
+          </Link>
+        )}
+        <Link
+          href="/help#help-alpha-coach"
+          className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--card-border)] bg-card px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <Link2 className="h-3.5 w-3.5" />
-          Connect account
-        </a>
-      )}
+          Coach help
+        </Link>
+        {hasBrokerAccount && (
+          <Link
+            href="/marketplace"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--card-border)] bg-card px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Browse marketplace
+          </Link>
+        )}
+      </div>
 
       <div className="mt-10 flex w-full max-w-xl flex-wrap justify-center gap-2">
         {SUGGESTIONS.map((s, i) => (
@@ -394,9 +422,9 @@ function EmptyState({
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onSuggestion(s.label)}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-card px-3.5 py-2 text-sm text-foreground/85 transition hover:border-[#348398]/40 hover:bg-muted"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-card px-3.5 py-2 text-sm text-foreground/85 transition hover:border-primary/40 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <s.icon className="h-3.5 w-3.5 text-[#348398]" strokeWidth={1.75} />
+            <s.icon className="h-3.5 w-3.5 text-primary" strokeWidth={1.75} />
             {s.label}
           </motion.button>
         ))}
