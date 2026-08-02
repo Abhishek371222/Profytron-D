@@ -280,6 +280,9 @@ describe('AuthService (UNIT TESTS)', () => {
         ...mockUser,
         passwordHash: hashedPassword,
         emailVerified: true,
+        isActive: true,
+        isSuspended: false,
+        deletedAt: null,
       });
 
       const tokens = await authService.login(loginDto, req);
@@ -301,6 +304,9 @@ describe('AuthService (UNIT TESTS)', () => {
         ...mockUser,
         passwordHash: mockUser.passwordHash,
         emailVerified: true,
+        isActive: true,
+        isSuspended: false,
+        deletedAt: null,
       });
 
       await authService.login(loginDto, req);
@@ -312,6 +318,109 @@ describe('AuthService (UNIT TESTS)', () => {
           jti: expect.any(String),
         }),
         expect.any(Object),
+      );
+    });
+  });
+
+  describe('3b. LOGIN USER ENUMERATION HARDENING', () => {
+    const req = {
+      ip: '127.0.0.1',
+      headers: { 'user-agent': 'jest-test' },
+    } as Partial<Request> as Request;
+
+    const expectGenericLoginFailure = async (
+      email: string,
+      password: string,
+      user: Record<string, unknown> | null,
+      compareResult = false,
+    ) => {
+      (prismaService.user.findUnique as jest.Mock).mockResolvedValue(user);
+      (mockedBcrypt.compare as jest.Mock).mockResolvedValue(compareResult);
+      (redisService.get as jest.Mock).mockResolvedValue('0');
+
+      try {
+        await authService.login({ email, password }, req);
+        throw new Error('expected login to reject');
+      } catch (err) {
+        expect(err).toBeInstanceOf(HttpException);
+        const e = err as HttpException;
+        expect(e.getStatus()).toBe(401);
+        const body = e.getResponse() as { message: string; code: string };
+        expect(body.message).toBe('Invalid email or password.');
+        expect(body.code).toBe('INVALID_CREDENTIALS');
+      }
+    };
+
+    it('returns identical client error for unknown email', async () => {
+      await expectGenericLoginFailure(
+        'nobody@example.com',
+        'AnyPass123!',
+        null,
+        false,
+      );
+    });
+
+    it('returns identical client error for wrong password', async () => {
+      await expectGenericLoginFailure(
+        'test@example.com',
+        'WrongPass123!',
+        {
+          ...mockUser,
+          passwordHash: mockUser.passwordHash,
+          emailVerified: true,
+          isActive: true,
+          isSuspended: false,
+          deletedAt: null,
+        },
+        false,
+      );
+    });
+
+    it('returns identical client error for deleted account', async () => {
+      await expectGenericLoginFailure(
+        'test@example.com',
+        'Pass123!',
+        {
+          ...mockUser,
+          passwordHash: mockUser.passwordHash,
+          emailVerified: true,
+          isActive: true,
+          isSuspended: false,
+          deletedAt: new Date(),
+        },
+        true,
+      );
+    });
+
+    it('returns identical client error for disabled/inactive account', async () => {
+      await expectGenericLoginFailure(
+        'test@example.com',
+        'Pass123!',
+        {
+          ...mockUser,
+          passwordHash: mockUser.passwordHash,
+          emailVerified: true,
+          isActive: false,
+          isSuspended: false,
+          deletedAt: null,
+        },
+        true,
+      );
+    });
+
+    it('returns identical client error for suspended account', async () => {
+      await expectGenericLoginFailure(
+        'test@example.com',
+        'Pass123!',
+        {
+          ...mockUser,
+          passwordHash: mockUser.passwordHash,
+          emailVerified: true,
+          isActive: true,
+          isSuspended: true,
+          deletedAt: null,
+        },
+        true,
       );
     });
   });

@@ -467,10 +467,14 @@ export class AuthService {
 
     if (user && isClosedAccount(user)) {
       await bcrypt.compare(dto.password, user.passwordHash ?? DUMMY_HASH);
+      // Client response must not reveal account existence/status (enumeration).
+      this.logger.warn(
+        `Login rejected: closed_or_deleted account email=${dto.email}`,
+      );
       appError(
-        HttpStatus.FORBIDDEN,
-        'This account has been deleted and can no longer be accessed.',
-        ErrorCode.USER_NOT_FOUND,
+        HttpStatus.UNAUTHORIZED,
+        'Invalid email or password.',
+        ErrorCode.INVALID_CREDENTIALS,
       );
     }
 
@@ -503,26 +507,31 @@ export class AuthService {
         /* ignore */
       }
 
-      if (!activeUser) {
-        appError(
-          HttpStatus.UNAUTHORIZED,
-          'No account found with this email. Create a new account to continue.',
-          ErrorCode.USER_NOT_FOUND,
-        );
-      }
-
+      const internalReason = !activeUser
+        ? 'user_not_found'
+        : !activeUser.passwordHash
+          ? 'missing_password_hash'
+          : 'invalid_password';
+      this.logger.warn(
+        `Login rejected: ${internalReason} email=${dto.email}`,
+      );
       appError(
         HttpStatus.UNAUTHORIZED,
-        'Invalid credentials',
+        'Invalid email or password.',
         ErrorCode.INVALID_CREDENTIALS,
       );
     }
-    if (activeUser.isSuspended)
-      appError(
-        HttpStatus.FORBIDDEN,
-        'Account suspended',
-        ErrorCode.ACCOUNT_SUSPENDED,
+    if (activeUser.isSuspended) {
+      // Client response must not reveal account existence/status (enumeration).
+      this.logger.warn(
+        `Login rejected: account_suspended email=${dto.email} userId=${activeUser.id}`,
       );
+      appError(
+        HttpStatus.UNAUTHORIZED,
+        'Invalid email or password.',
+        ErrorCode.INVALID_CREDENTIALS,
+      );
+    }
     if (!activeUser.emailVerified)
       appError(
         HttpStatus.FORBIDDEN,

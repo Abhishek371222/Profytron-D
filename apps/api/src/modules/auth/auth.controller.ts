@@ -154,10 +154,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @ApiResponse({ status: 200, description: 'Authenticated — tokens issued' })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid email or password',
+  })
   @ApiResponse({
     status: 403,
-    description: 'Account suspended or email unverified',
+    description: 'Email unverified',
   })
   @ApiOperation({ summary: 'Authenticate a user' })
   async login(
