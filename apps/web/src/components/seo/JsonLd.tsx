@@ -1,4 +1,4 @@
-import { SITE_URL } from '@/lib/seo/constants';
+import { SITE_URL, SOCIAL_SAME_AS } from '@/lib/seo/constants';
 import { PLATFORM_PLANS } from '@/lib/pricing/plans';
 
 export interface FaqItem {
@@ -84,8 +84,7 @@ function buildSchema(props: JsonLdProps): object | null {
         sameAs: [
           'https://twitter.com/profytron',
           'https://www.linkedin.com/company/profytron',
-          'https://discord.gg/profytron',
-          'https://www.instagram.com/profytron/',
+          ...SOCIAL_SAME_AS,
         ],
       };
 

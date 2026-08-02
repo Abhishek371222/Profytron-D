@@ -69,7 +69,7 @@ export function Footer() {
                 <a
                   key={label}
                   href={href}
-                  {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                   aria-label={label}
                   className="w-10 h-10 rounded-full bg-foreground/2 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-foreground/10 transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/70 focus-visible:rounded-full"
                 >

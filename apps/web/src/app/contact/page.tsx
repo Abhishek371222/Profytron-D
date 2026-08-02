@@ -11,7 +11,7 @@ import {
 } from '@/components/marketing/MarketingPage';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
-import { CONTACT_EMAIL, SUPPORT_EMAIL, SITE_URL } from '@/lib/seo/constants';
+import { CONTACT_EMAIL, SUPPORT_EMAIL, SITE_URL, DISCORD_URL } from '@/lib/seo/constants';
 
 const CONTACT_CHANNELS = [
   {
@@ -32,7 +32,7 @@ const CONTACT_CHANNELS = [
     icon: MessageSquare,
     title: 'Community',
     description: 'Join traders and strategy creators on Discord.',
-    href: 'https://discord.gg/profytron',
+    href: DISCORD_URL,
     cta: 'Join Discord',
   },
 ] as const;
@@ -77,8 +77,11 @@ export default function ContactPage() {
                 <a
                   href={href}
                   target={href.startsWith('http') ? '_blank' : undefined}
-                  rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-4"
+                  rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                  aria-label={
+                    href.startsWith('http') ? `${channel.cta} (opens in a new tab)` : undefined
+                  }
+                  className="inline-flex min-h-[44px] items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70 focus-visible:ring-offset-2"
                 >
                   <Mail className="h-4 w-4" aria-hidden />
                   {channel.cta}
@@ -114,6 +117,25 @@ export default function ContactPage() {
             </div>
           </div>
         </MarketingCard>
+
+        <div className="mt-10">
+          <p className="text-sm font-semibold text-foreground">Quick links</p>
+          <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            {[
+              { href: '/help', label: 'Help center' },
+              { href: '/status', label: 'System status' },
+              { href: '/pricing', label: 'Pricing' },
+              { href: '/community', label: 'Community' },
+              { href: '/careers', label: 'Careers' },
+            ].map((item) => (
+              <li key={item.href}>
+                <Link href={item.href} className="text-primary hover:underline">
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </MarketingSection>
     </PublicPageLayout>
   );
