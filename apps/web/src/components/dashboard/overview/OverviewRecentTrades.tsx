@@ -33,35 +33,60 @@ export function OverviewRecentTrades({
     <div className="flex h-full min-h-[280px] flex-col overflow-hidden rounded-xl border border-[var(--card-border)] bg-card">
       <div className="flex items-center justify-between gap-3 border-b border-[var(--card-border)] px-4 py-3.5 sm:px-5">
         <h2 className="text-sm font-semibold text-foreground">Recent Trades</h2>
-        <Link href="/history" className="text-[11px] font-medium text-primary hover:underline">
+        <Link
+          href="/history"
+          className="min-h-[40px] inline-flex items-center text-[11px] font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
           View all
         </Link>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto">
+      <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto [-webkit-overflow-scrolling:touch]">
         {showSkeleton ? (
-          <div className="space-y-2 p-4">
+          <div className="space-y-2 p-4" role="status" aria-label="Loading recent trades">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="h-9 animate-pulse rounded-lg bg-muted/40" />
             ))}
           </div>
         ) : trades.length === 0 ? (
-          <div className="flex min-h-[160px] flex-col items-center justify-center gap-1 px-6 text-center">
-            <p className="text-sm font-medium text-foreground">No recent trades</p>
-            <p className="text-xs text-muted-foreground">
-              {syncError === 'METAAPI_UNAUTHORIZED'
-                ? syncMessage ||
-                  'Broker sync authorization failed. Reconnect your account.'
-                : syncError
+          <div
+            role="status"
+            className="flex min-h-[160px] flex-col items-center justify-center gap-3 px-6 text-center"
+          >
+            <div>
+              <p className="text-sm font-medium text-foreground">No recent trades</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {syncError === 'METAAPI_UNAUTHORIZED'
                   ? syncMessage ||
-                    'Broker sync is temporarily unavailable. Retrying…'
-                  : syncMessage
-                    ? syncMessage
-                    : 'Closed trades will show here.'}
-            </p>
+                    'Broker sync authorization failed. Reconnect your account.'
+                  : syncError
+                    ? syncMessage ||
+                      'Broker sync is temporarily unavailable. Retrying…'
+                    : syncMessage
+                      ? syncMessage
+                      : 'Closed trades will show here.'}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {syncError === 'METAAPI_UNAUTHORIZED' ? (
+                <Link
+                  href="/connected-accounts"
+                  className="inline-flex min-h-[44px] items-center rounded-lg bg-primary px-4 text-xs font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Reconnect broker
+                </Link>
+              ) : (
+                <Link
+                  href="/marketplace"
+                  className="inline-flex min-h-[44px] items-center rounded-lg border border-[var(--card-border)] bg-card px-4 text-xs font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  Browse marketplace
+                </Link>
+              )}
+            </div>
           </div>
         ) : (
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[17rem] text-left text-xs">
             <thead className="sticky top-0 bg-card text-[10px] uppercase tracking-wider text-muted-foreground">
               <tr className="border-b border-[var(--card-border)]">
                 <th className="px-4 py-2.5 font-medium sm:px-5">Ticket</th>

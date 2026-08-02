@@ -360,26 +360,50 @@ export default function DashboardPage() {
               newsQuery.refetch();
               calendarQuery.refetch();
             }}
-            className="inline-flex h-7 items-center gap-1.5 rounded-lg border border-transparent px-2 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary/20 hover:bg-muted/60 hover:text-foreground"
-            aria-label="Refresh"
+            className="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg border border-transparent px-3 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary/20 hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Refresh dashboard data"
           >
-            <RefreshCcw className="h-3.5 w-3.5" />
+            <RefreshCcw className="h-3.5 w-3.5" aria-hidden />
             Refresh
           </button>
         </div>
       </div>
 
       {metaApiBroken && (
-        <div className="flex items-start gap-3 rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-          <div className="min-w-0 text-sm">
-            <p className="font-semibold text-foreground">
-              Live account sync is offline
-            </p>
-            <p className="mt-0.5 text-muted-foreground">
-              We couldn&apos;t refresh your broker connection. Try again in a
-              moment, or reconnect your account from Connected Accounts.
-            </p>
+        <div
+          role="alert"
+          className="flex flex-col gap-3 rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 sm:flex-row sm:items-start sm:justify-between"
+        >
+          <div className="flex items-start gap-3 min-w-0">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden />
+            <div className="min-w-0 text-sm">
+              <p className="font-semibold text-foreground">
+                Live account sync is offline
+              </p>
+              <p className="mt-0.5 text-muted-foreground">
+                We couldn&apos;t refresh your broker connection. Try again, or
+                reconnect from Connected Accounts.
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 sm:shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="min-h-[44px]"
+              onClick={() => refreshAll()}
+            >
+              Retry
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              className="min-h-[44px]"
+              onClick={() => router.push('/connected-accounts')}
+            >
+              Reconnect
+            </Button>
           </div>
         </div>
       )}
@@ -387,11 +411,11 @@ export default function DashboardPage() {
       {!hasBrokerAccount && !accountsStillLoading && (
         <div className="rounded-xl border border-primary/20 bg-primary/[0.04] p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-3 min-w-0">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-primary/15">
-                <Link2 className="h-5 w-5 text-primary" />
+                <Link2 className="h-5 w-5 text-primary" aria-hidden />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm font-semibold text-foreground">
                   Connect your first account
                 </p>
@@ -403,9 +427,9 @@ export default function DashboardPage() {
             </div>
             <Button
               onClick={() => router.push('/connected-accounts')}
-              className="shrink-0 gap-2"
+              className="w-full min-h-[44px] shrink-0 gap-2 sm:w-auto"
             >
-              <Zap className="h-4 w-4" />
+              <Zap className="h-4 w-4" aria-hidden />
               Connect Account
             </Button>
           </div>

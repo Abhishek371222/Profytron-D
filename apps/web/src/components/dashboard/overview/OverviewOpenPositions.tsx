@@ -93,42 +93,69 @@ export function OverviewOpenPositions({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {onNewOrder && (
-            <Button variant="outline" size="sm" onClick={onNewOrder} className="h-8 gap-1.5 text-xs">
-              <Plus className="h-3.5 w-3.5" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onNewOrder}
+              className="min-h-[40px] gap-1.5 text-xs sm:h-8 sm:min-h-0"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden />
               New
             </Button>
           )}
-          <Link href="/history" className="text-[11px] font-medium text-primary hover:underline">
+          <Link
+            href="/history"
+            className="min-h-[40px] inline-flex items-center text-[11px] font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
             View all
           </Link>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto">
+      <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto [-webkit-overflow-scrolling:touch]">
         {loading && rows.length === 0 ? (
-          <div className="space-y-2 p-4">
+          <div className="space-y-2 p-4" role="status" aria-label="Loading open positions">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-10 animate-pulse rounded-lg bg-muted/40" />
             ))}
           </div>
         ) : rows.length === 0 ? (
-          <div className="flex h-full min-h-[180px] flex-col items-center justify-center gap-1 px-6 text-center">
-            <p className="text-sm font-medium text-foreground">No open positions</p>
-            <p className="text-xs text-muted-foreground">
-              Live trades from your connected account will appear here.
-            </p>
+          <div
+            role="status"
+            className="flex h-full min-h-[180px] flex-col items-center justify-center gap-3 px-6 text-center"
+          >
+            <div>
+              <p className="text-sm font-medium text-foreground">No open positions</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Live trades from your connected account will appear here.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {onNewOrder ? (
+                <Button type="button" size="sm" className="min-h-[44px]" onClick={onNewOrder}>
+                  <Plus className="mr-1.5 h-3.5 w-3.5" aria-hidden />
+                  New order
+                </Button>
+              ) : null}
+              <Link
+                href="/markets"
+                className="inline-flex min-h-[44px] items-center rounded-lg border border-[var(--card-border)] bg-card px-4 text-xs font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                View markets
+              </Link>
+            </div>
           </div>
         ) : (
-          <table className="w-full text-left text-xs">
+          <table className="w-full min-w-[18rem] text-left text-xs">
             <thead className="sticky top-0 bg-card text-[10px] uppercase tracking-wider text-muted-foreground">
               <tr className="border-b border-[var(--card-border)]">
-                <th className="px-4 py-2.5 font-medium sm:px-5">Symbol</th>
+                <th className="px-3 py-2.5 font-medium sm:px-5">Symbol</th>
                 <th className="px-2 py-2.5 font-medium">Type</th>
-                <th className="px-2 py-2.5 font-medium text-right">Vol</th>
+                <th className="hidden px-2 py-2.5 font-medium text-right min-[360px]:table-cell">Vol</th>
                 <th className="hidden px-2 py-2.5 font-medium text-right sm:table-cell">Open</th>
                 <th className="hidden px-2 py-2.5 font-medium text-right md:table-cell">Current</th>
                 <th className="px-2 py-2.5 font-medium text-right">P/L</th>
-                <th className="px-4 py-2.5 font-medium text-right sm:px-5">%</th>
+                <th className="hidden px-3 py-2.5 font-medium text-right min-[400px]:table-cell sm:px-5">%</th>
               </tr>
             </thead>
             <tbody>
@@ -140,7 +167,7 @@ export function OverviewOpenPositions({
                     flashIds[r.id] && 'bg-primary/5',
                   )}
                 >
-                  <td className="px-4 py-2.5 font-semibold text-foreground sm:px-5">
+                  <td className="px-3 py-2.5 font-semibold text-foreground sm:px-5">
                     {formatSymbol(r.asset)}
                   </td>
                   <td className="px-2 py-2.5">
@@ -155,7 +182,7 @@ export function OverviewOpenPositions({
                       {r.type === 'Long' ? 'Buy' : 'Sell'}
                     </span>
                   </td>
-                  <td className="px-2 py-2.5 text-right tabular-nums text-foreground">
+                  <td className="hidden px-2 py-2.5 text-right tabular-nums text-foreground min-[360px]:table-cell">
                     {r.amount.toFixed(2)}
                   </td>
                   <td className="hidden px-2 py-2.5 text-right tabular-nums text-muted-foreground sm:table-cell">
@@ -167,7 +194,12 @@ export function OverviewOpenPositions({
                   <td className={cn('px-2 py-2.5 text-right tabular-nums font-medium', pnlClass(r.pnl))}>
                     {formatSignedMoney(r.pnl, currency)}
                   </td>
-                  <td className={cn('px-4 py-2.5 text-right tabular-nums font-medium sm:px-5', pnlClass(r.pnlPct))}>
+                  <td
+                    className={cn(
+                      'hidden px-3 py-2.5 text-right tabular-nums font-medium min-[400px]:table-cell sm:px-5',
+                      pnlClass(r.pnlPct),
+                    )}
+                  >
                     {formatPct(r.pnlPct)}
                   </td>
                 </tr>
@@ -175,16 +207,18 @@ export function OverviewOpenPositions({
             </tbody>
             <tfoot>
               <tr className="border-t border-[var(--card-border)] bg-muted/20 text-xs font-semibold">
-                <td className="px-4 py-2.5 text-muted-foreground sm:px-5" colSpan={2}>
+                <td className="px-3 py-2.5 text-muted-foreground sm:px-5" colSpan={2}>
                   Total
                 </td>
-                <td className="px-2 py-2.5 text-right tabular-nums">{totalVolume.toFixed(2)}</td>
+                <td className="hidden px-2 py-2.5 text-right tabular-nums min-[360px]:table-cell">
+                  {totalVolume.toFixed(2)}
+                </td>
                 <td className="hidden sm:table-cell" />
                 <td className="hidden md:table-cell" />
                 <td className={cn('px-2 py-2.5 text-right tabular-nums', pnlClass(totalPnl))}>
                   {formatSignedMoney(totalPnl, currency)}
                 </td>
-                <td className="px-4 sm:px-5" />
+                <td className="hidden min-[400px]:table-cell px-3 sm:px-5" />
               </tr>
             </tfoot>
           </table>

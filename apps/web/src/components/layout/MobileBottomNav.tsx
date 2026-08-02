@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Server, ShoppingBag, Wallet, Trophy } from '@/components/ui/icons';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const bottomNavItems = [
   { name: 'Home', icon: LayoutDashboard, href: '/dashboard', tour: 'mobilenav-dashboard' },
@@ -17,6 +17,7 @@ const bottomNavItems = [
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const reduceMotion = useReducedMotion();
   const isBuilder = pathname?.includes('/strategies/builder');
   const isCoach = pathname?.includes('/alpha-coach');
 
@@ -46,21 +47,26 @@ export function MobileBottomNav() {
                   isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground',
                 )}
               >
-                {isActive && (
-                  <motion.div
-                    layoutId="mobile-nav-bar"
-                    className="absolute top-0 inset-x-3 h-[2px] rounded-b-sm bg-primary"
-                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                  />
-                )}
-
-                {isActive && (
-                  <motion.div
-                    layoutId="mobile-nav-bg"
-                    className="absolute inset-x-0.5 inset-y-1 rounded-lg border border-primary/20 bg-primary/10"
-                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                  />
-                )}
+                {isActive &&
+                  (reduceMotion ? (
+                    <>
+                      <div className="absolute top-0 inset-x-3 h-[2px] rounded-b-sm bg-primary" />
+                      <div className="absolute inset-x-0.5 inset-y-1 rounded-lg border border-primary/20 bg-primary/10" />
+                    </>
+                  ) : (
+                    <>
+                      <motion.div
+                        layoutId="mobile-nav-bar"
+                        className="absolute top-0 inset-x-3 h-[2px] rounded-b-sm bg-primary"
+                        transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                      />
+                      <motion.div
+                        layoutId="mobile-nav-bg"
+                        className="absolute inset-x-0.5 inset-y-1 rounded-lg border border-primary/20 bg-primary/10"
+                        transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                      />
+                    </>
+                  ))}
 
                 <div className="relative z-10 flex min-w-0 w-full flex-col items-center gap-0.5 overflow-hidden px-0.5">
                   <Icon className={cn('h-[18px] w-[18px] shrink-0 transition-transform duration-200', isActive && 'scale-105')} />

@@ -20,11 +20,11 @@ import { AlertDialog } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 const TIER_STYLES: Record<string, { bg: string; text: string; dot: string }> = {
-  FREE:    { bg: "bg-muted/6",         text: "text-foreground/40",     dot: "bg-foreground/30"     },
-  BASIC:   { bg: "bg-chart-5/[0.12]",      text: "text-chart-5",     dot: "bg-chart-5"     },
-  PRO:     { bg: "bg-primary/[0.12]",    text: "text-primary",   dot: "bg-primary"   },
-  VIP:     { bg: "bg-chart-2/[0.12]",    text: "text-chart-2",   dot: "bg-chart-2"   },
-  PREMIUM: { bg: "bg-chart-4/[0.12]",     text: "text-chart-4",    dot: "bg-chart-4"    },
+  FREE:    { bg: "bg-muted", text: "text-muted-foreground", dot: "bg-muted-foreground" },
+  BASIC:   { bg: "bg-chart-5/[0.12]", text: "text-chart-5",  dot: "bg-chart-5" },
+  PRO:     { bg: "bg-primary/[0.12]", text: "text-primary",  dot: "bg-primary" },
+  VIP:     { bg: "bg-chart-2/[0.12]", text: "text-chart-2",  dot: "bg-chart-2" },
+  PREMIUM: { bg: "bg-chart-4/[0.12]", text: "text-chart-4",  dot: "bg-chart-4" },
 };
 
 export function TopBar() {
@@ -114,11 +114,11 @@ export function TopBar() {
 
           <Search className={cn(
             "w-3.5 h-3.5 shrink-0 transition-colors duration-200",
-            searchFocused ? "text-primary" : "text-foreground/25 group-hover:text-foreground/40",
+            searchFocused ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
           )} />
           <span className={cn(
             "text-caption sm:text-body-sm truncate transition-colors duration-200 font-medium",
-            searchFocused ? "text-foreground/50" : "text-foreground/20 group-hover:text-foreground/30",
+            searchFocused ? "text-muted-foreground" : "text-muted-foreground group-hover:text-foreground",
           )}>
             <span className="sm:hidden">Search</span>
             <span className="hidden sm:inline">Search markets, bots, or commands...</span>
@@ -137,7 +137,7 @@ export function TopBar() {
           onClick={() => router.push("/connected-accounts")}
           title="Enable trading bot"
           aria-label="Enable trading bot"
-          className="hidden sm:flex relative h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all items-center justify-center outline-none shrink-0"
+          className="hidden sm:flex relative h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] rounded-xl border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-all items-center justify-center outline-none shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Link2 className="w-[18px] h-[18px]" />
         </button>
@@ -147,7 +147,7 @@ export function TopBar() {
           onClick={openDeposit}
           title="Add funds"
           aria-label="Add funds"
-          className="hidden sm:flex relative h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] rounded-xl border border-border bg-card hover:bg-muted text-foreground/40 hover:text-foreground transition-all items-center justify-center outline-none shrink-0"
+          className="hidden sm:flex relative h-10 w-10 min-h-[var(--touch-min)] min-w-[var(--touch-min)] rounded-xl border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-all items-center justify-center outline-none shrink-0 focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Wallet className="w-[18px] h-[18px]" />
         </button>
@@ -187,7 +187,7 @@ export function TopBar() {
                 </div>
               </div>
 
-              <ChevronDown className="w-3 h-3 text-foreground/25 group-hover:text-foreground/50 transition-colors hidden md:block" />
+              <ChevronDown className="w-3 h-3 text-muted-foreground group-hover:text-foreground transition-colors hidden md:block" />
             </button>
           </DropdownMenuTrigger>
 
@@ -198,7 +198,7 @@ export function TopBar() {
             {/* User header */}
             <div className="px-3 py-2.5 mb-1">
               <p className="text-caption font-semibold text-foreground truncate">{displayName}</p>
-              <p className="text-micro text-foreground/30 truncate mt-0.5">{resolvedUser?.email || ''}</p>
+              <p className="text-micro text-muted-foreground truncate mt-0.5">{resolvedUser?.email || ''}</p>
             </div>
             <div className="h-px bg-muted/6 mx-1 mb-1" />
 
