@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { analyticsApi, type AnalyticsRange, type RiskAnalytics } from '@/lib/api/analytics';
@@ -146,7 +147,7 @@ export default function RiskAnalyticsPage() {
       <div className="space-y-5 pb-8">
         <AnalyticsPageHeader
           title="Risk Radar"
-          description="Scenario-aware drawdown tracking, exposure pressure, and capital protection intelligence."
+          description="Drawdown, value-at-risk, and risk-adjusted performance from your closed trades."
           icon={Shield}
           iconBg="bg-destructive/10 text-destructive"
           onRefresh={refreshData}
@@ -160,7 +161,7 @@ export default function RiskAnalyticsPage() {
     <div className="space-y-5 pb-8">
       <AnalyticsPageHeader
         title="Risk Radar"
-        description="Scenario-aware drawdown tracking, exposure pressure, and capital protection intelligence."
+        description="Drawdown, value-at-risk, and risk-adjusted performance from your closed trades."
         icon={Shield}
         iconBg="bg-destructive/10 text-destructive"
         onRefresh={refreshData}
@@ -211,7 +212,29 @@ export default function RiskAnalyticsPage() {
       </div>
 
       {!hasData && !riskQuery.isLoading && (
-        <AnalyticsInfoBanner message="Risk metrics populate once closed trades exist in your connected account history." />
+        <div className="space-y-3">
+          <AnalyticsInfoBanner message="Risk metrics populate once closed trades exist in your connected account history." />
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/connected-accounts"
+              className="inline-flex min-h-[44px] items-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Connect broker
+            </Link>
+            <Link
+              href="/history"
+              className="inline-flex min-h-[44px] items-center rounded-lg border border-[var(--card-border)] bg-card px-4 text-sm font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              View trade history
+            </Link>
+            <Link
+              href="/settings/trading"
+              className="inline-flex min-h-[44px] items-center rounded-lg px-3 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              Configure risk limits
+            </Link>
+          </div>
+        </div>
       )}
 
       <div className="grid gap-3 lg:grid-cols-[2fr_1fr]">

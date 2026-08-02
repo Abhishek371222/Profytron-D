@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -9,8 +10,9 @@ import {
   SettingsField,
   SettingsInput,
 } from '@/components/settings/SettingsUi';
-import { DashButton } from '@/components/dashboard/DashboardPrimitives';
+import { DashButton, DashErrorState } from '@/components/dashboard/DashboardPrimitives';
 import { riskApi, type RiskPolicy } from '@/lib/api/risk';
+import { AlertTriangle } from 'lucide-react';
 
 type FormState = {
   maxDailyLossUsd: string;
@@ -101,19 +103,48 @@ export default function TradingSettingsPage() {
         description: 'Limits are now enforced before every trade.',
       });
     },
-    onError: (e: any) =>
+    onError: (e: unknown) => {
+      const err = e as { response?: { data?: { error?: string } }; message?: string };
       toast.error('Could not save risk policy', {
-        description: e?.response?.data?.error || e?.message,
-      }),
+        description: err?.response?.data?.error || err?.message || 'Please try again.',
+      });
+    },
   });
+
+  if (policyQuery.isPending) {
+    return (
+      <div className="space-y-6 animate-pulse" aria-busy="true" aria-label="Loading risk settings">
+        <div className="dashboard-card h-28" />
+        <div className="dashboard-card h-48" />
+        <div className="dashboard-card h-32" />
+      </div>
+    );
+  }
+
+  if (policyQuery.isError) {
+    return (
+      <DashErrorState
+        message="Couldn't load your risk policy."
+        onRetry={() => void policyQuery.refetch()}
+      />
+    );
+  }
 
   return (
     <div className="space-y-8">
+      <div className="rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+        <p className="font-semibold text-foreground">How these limits work</p>
+        <p className="mt-1 leading-relaxed">
+          Hard caps are checked before orders. Leave a field blank to disable that limit. Automatic
+          protection can pause copying and flatten when a breach is detected — enable thoughtfully.
+        </p>
+      </div>
+
       <SettingsSection
         title="Risk limits"
-        description="Hard caps enforced before every order — on copy trades, signals, and manual entries. Leave a field blank to disable that limit."
+        description="Hard caps enforced before every order — on bots, copy trades, and manual entries."
       >
-        <div className="grid gap-6 sm:grid-cols-2 max-w-2xl">
+        <div className="grid max-w-2xl gap-6 sm:grid-cols-2">
           <SettingsField
             label="Max daily loss (USD)"
             hint="Halts trading once today's realized loss reaches this amount."
@@ -206,24 +237,36 @@ export default function TradingSettingsPage() {
 
       <SettingsSection
         title="Automatic protection"
-        description="When a hard limit (daily loss or drawdown) is breached, automatically pause copying and close open positions."
+        description="When a hard limit is breached, Profytron can pause bots/copy and close open positions."
       >
+        {(form.autoStopAfterLoss || form.autoStopAfterWin) && (
+          <div
+            role="status"
+            className="mb-4 flex gap-3 rounded-xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-foreground"
+          >
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" aria-hidden />
+            <p>
+              Auto-stop is enabled. A limit breach can close open positions and pause automation —
+              confirm thresholds carefully before saving.
+            </p>
+          </div>
+        )}
         <SettingsToggle
           label="Auto-stop on limit breach"
-          description="Pause all active copy subscriptions and close open trades when a daily-loss or drawdown limit is hit."
+          description="Pause active bot/copy subscriptions and close open trades when a daily-loss or drawdown limit is hit."
           checked={form.autoStopAfterLoss}
           onChange={(v) => set('autoStopAfterLoss', v)}
         />
         <SettingsToggle
           label="Auto-stop after daily win target"
-          description="Pause copying when today's realized profit exceeds your configured win threshold."
+          description="Pause automation when today's realized profit exceeds your win threshold."
           checked={form.autoStopAfterWin}
           onChange={(v) => set('autoStopAfterWin', v)}
         />
         {form.autoStopAfterWin && (
           <SettingsField
             label="Daily win target ($)"
-            hint="Once today's realized profit reaches this amount, new trades are blocked and copying pauses for the rest of the day."
+            hint="Once today's realized profit reaches this amount, new trades are blocked for the rest of the day."
           >
             <SettingsInput
               type="number"
@@ -240,17 +283,32 @@ export default function TradingSettingsPage() {
       <SettingsSection title="Connected brokers" description="Brokers linked for live execution.">
         <p className="text-sm text-muted-foreground">
           Manage broker connections from{' '}
-          <a href="/get-bots" className="text-primary hover:underline">Get Bots</a>
-          {' '}or the dashboard connect flow.
+          <Link
+            href="/connected-accounts"
+            className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Connected accounts
+          </Link>
+          {' '}or{' '}
+          <Link
+            href="/get-bots"
+            className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            Get Bots
+          </Link>
+          .
         </p>
       </SettingsSection>
 
-      <div className="flex justify-end pt-2 border-t border-[var(--card-border)]">
+      <div className="flex flex-col-reverse items-stretch gap-3 border-t border-[var(--card-border)] pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-muted-foreground">
+          {isDirty ? 'You have unsaved changes.' : 'All changes saved.'}
+        </p>
         <DashButton
           onClick={() => saveMutation.mutate()}
           disabled={!isDirty || saveMutation.isPending || policyQuery.isLoading}
         >
-          {saveMutation.isPending ? 'Saving…' : 'Save Risk Policy'}
+          {saveMutation.isPending ? 'Saving…' : 'Save risk policy'}
         </DashButton>
       </div>
     </div>

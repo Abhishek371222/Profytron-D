@@ -27,9 +27,11 @@ export function ChoiceCard({
       type="button"
       onClick={onClick}
       disabled={disabled}
+      aria-pressed={selected}
       whileTap={{ scale: disabled ? 1 : 0.98 }}
       className={cn(
-        "choice-card group relative w-full text-left",
+        "choice-card group relative w-full min-h-[48px] text-left",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         selected && "choice-card-selected",
         disabled && "opacity-50 cursor-not-allowed",
         className,

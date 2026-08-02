@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   ShieldCheck,
   Target,
@@ -11,6 +12,7 @@ import {
   ArrowRight,
   Brain,
   Sparkles,
+  Info,
 } from '@/components/ui/icons';
 import { Button } from '@/components/ui/button';
 import { ChoiceCard } from '@/components/ui/ChoiceCard';
@@ -20,12 +22,14 @@ import { usersApi } from '@/lib/api/users';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { SceneProvider } from '@/components/3d/SceneProvider';
 import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
+import { ACTIVATION_EVENTS, trackActivation, trackEvent } from '@/lib/analytics/track';
 
 const STEPS = [
   {
     id: 'capital',
     title: 'Capital allocation',
-    description: 'Tell us how much you plan to deploy so we can size risk limits appropriately.',
+    description:
+      'Tell us roughly how much you plan to deploy so we can size risk limits appropriately.',
     icon: Target,
     questions: [
       {
@@ -36,14 +40,20 @@ const STEPS = [
       {
         id: 'source',
         label: 'Where is this capital coming from?',
-        options: ['Personal savings', 'Trading fund', 'Venture capital', 'Treasury'],
+        options: [
+          'Personal savings',
+          'Trading profits',
+          'Pooled / prop account',
+          'Other',
+        ],
       },
     ],
   },
   {
     id: 'aggressiveness',
     title: 'Risk appetite',
-    description: 'We use this to tune leverage caps, drawdown alerts, and strategy recommendations.',
+    description:
+      'We use this to tune leverage caps, drawdown alerts, and strategy recommendations.',
     icon: Zap,
     questions: [
       {
@@ -67,30 +77,39 @@ const STEPS = [
       {
         id: 'mfa',
         label: 'Preferred security level',
-        options: ['Standard MFA', 'Hardware key', 'Multi-sig approval', 'Air-gapped proxy'],
+        options: [
+          'Standard (password + MFA path)',
+          'Authenticator app (TOTP)',
+          'Hardware security key',
+          'Maximum session security',
+        ],
       },
       {
         id: 'killswitch',
-        label: 'Auto kill-switch trigger',
-        options: ['Manual only', '2% equity drop', '5% anomaly detected', 'Instant disconnect'],
+        label: 'Auto pause / kill-switch trigger',
+        options: [
+          'Manual only',
+          'Pause on 2% equity drop',
+          'Pause on 5% shock',
+          'Immediate flatten (aggressive)',
+        ],
       },
     ],
   },
-];
+] as const;
 
 export default function RiskOnboardingPage() {
+  const reduceMotion = useReducedMotion();
   const { isAuthenticated, isHydrating, user } = useAuthStore();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isFinalizing, setIsFinalizing] = useState(false);
-  /** PRODUCT_DEBT / EMPTY_STATE_GUIDE — completion choice instead of hard redirect only */
   const [showCompletion, setShowCompletion] = useState(false);
 
   React.useEffect(() => {
     if (isHydrating) return;
     if (!isAuthenticated) {
       window.location.replace('/login?redirect=/onboarding/risk');
-      // Stay on completion choice after save; API sets onboardingCompleted=true
     } else if (user?.onboardingCompleted && !showCompletion) {
       window.location.replace('/dashboard');
     }
@@ -124,11 +143,19 @@ export default function RiskOnboardingPage() {
         useAuthStore.getState().login(token, updated);
       }
       if (typeof document !== 'undefined') {
-        document.cookie = 'onboarding_completed=1; path=/; max-age=7776000; samesite=lax';
+        const secure =
+          typeof window !== 'undefined' && window.location.protocol === 'https:'
+            ? '; secure'
+            : '';
+        document.cookie = `onboarding_completed=1; path=/; max-age=7776000; samesite=lax${secure}`;
       }
       if (typeof window !== 'undefined') {
         window.sessionStorage.setItem('profytron_just_onboarded', '1');
       }
+      trackEvent('onboarding_completed', { source: 'risk_dna' });
+      void trackActivation(ACTIVATION_EVENTS.ONBOARDING_COMPLETED, {
+        source: 'risk_dna',
+      });
       toast.success('Risk profile saved', {
         description: 'Next: connect a paper account or browse strategies.',
       });
@@ -146,8 +173,6 @@ export default function RiskOnboardingPage() {
           axiosErr?.code === 'ERR_NETWORK' ||
           axiosErr?.message?.includes('Network Error'));
 
-      console.error('Failed to save risk profile', error);
-      // ERROR_GUIDE — customer-facing copy; no internal port/API hints
       toast.error(
         isNetwork
           ? 'Cannot reach the server'
@@ -165,12 +190,27 @@ export default function RiskOnboardingPage() {
   const step = STEPS[currentStep];
   const progress = ((currentStep + 1) / STEPS.length) * 100;
   const stepComplete = step.questions.every((q) => Boolean(answers[q.id]));
+  const motionProps = reduceMotion
+    ? { initial: false as const, animate: { opacity: 1 }, exit: { opacity: 1 } }
+    : {
+        initial: { opacity: 0, y: 16 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -12 },
+        transition: { duration: 0.35, ease: [0.23, 1, 0.32, 1] as const },
+      };
 
   if (isHydrating || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
+      <div
+        className="flex min-h-screen items-center justify-center bg-background text-muted-foreground"
+        aria-busy="true"
+        aria-live="polite"
+      >
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+          <div
+            className="h-8 w-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary"
+            aria-hidden
+          />
           <p className="text-sm">Loading your profile…</p>
         </div>
       </div>
@@ -179,194 +219,236 @@ export default function RiskOnboardingPage() {
 
   return (
     <SceneProvider>
-    <div className="relative min-h-screen bg-background text-foreground flex flex-col items-center justify-center px-4 py-12 overflow-hidden">
-      <AmbientDepthBackground variant="auth" position="fixed" />
+      <div className="relative flex min-h-screen min-w-0 flex-col items-center justify-center overflow-x-hidden bg-background px-4 py-12 pb-[max(3rem,env(safe-area-inset-bottom))] text-foreground">
+        <AmbientDepthBackground variant="auth" position="fixed" />
 
-      <div className="relative z-10 w-full max-w-2xl">
-        <AnimatePresence mode="wait">
-          {showCompletion ? (
-            <motion.div
-              key="completion"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-              className="dashboard-card p-6 sm:p-8 lg:p-10 space-y-8 text-center"
-            >
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20">
-                <ShieldCheck className="h-8 w-8 text-primary" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-heading-4 font-bold tracking-tight text-foreground">
-                  Risk profile saved
-                </h2>
-                <p className="text-body text-muted-foreground max-w-md mx-auto leading-relaxed">
-                  Choose where to go next — connect a paper account or browse strategies.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Button
-                  variant="primary"
-                  className="sm:flex-1 h-12"
-                  onClick={() => {
-                    // Hard navigate across public → dashboard layout groups.
-                    // Soft router.push can throw "Failed to fetch" if the RSC
-                    // flight request drops (dev HMR / server restart).
-                    window.location.assign('/get-bots?paper=1');
-                  }}
-                >
-                  Connect paper account
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button
-                  variant="outline"
-                  className="sm:flex-1 h-12"
-                  onClick={() => {
-                    window.location.assign('/strategies');
-                  }}
-                >
-                  Browse strategies
-                </Button>
-              </div>
-            </motion.div>
-          ) : !isFinalizing ? (
-            <motion.div
-              key={`step-${currentStep}`}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-              className="dashboard-card p-6 sm:p-8 lg:p-10 space-y-8"
-            >
-              { }
-              <div className="text-center space-y-4">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-primary/5 px-3 py-1 text-caption font-medium text-primary">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Risk DNA · Step {currentStep + 1} of {STEPS.length}
+        <div className="relative z-10 w-full max-w-2xl">
+          <AnimatePresence mode="wait">
+            {showCompletion ? (
+              <motion.div
+                key="completion"
+                {...motionProps}
+                className="dashboard-card space-y-8 p-6 text-center sm:p-8 lg:p-10"
+                role="status"
+              >
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+                  <ShieldCheck className="h-8 w-8 text-primary" aria-hidden />
                 </div>
-                <motion.div
-                  layoutId="step-icon"
-                  className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 shadow-[var(--shadow-card)]"
-                >
-                  <step.icon className="h-8 w-8 text-primary" />
-                </motion.div>
                 <div className="space-y-2">
-                  <h1 className="text-heading-3 font-bold tracking-tight text-foreground">
-                    {step.title}
-                  </h1>
-                  <p className="text-body text-muted-foreground max-w-md mx-auto leading-relaxed">
-                    {step.description}
+                  <h2 className="text-heading-4 font-bold tracking-tight text-foreground">
+                    Risk profile saved
+                  </h2>
+                  <p className="mx-auto max-w-md text-body leading-relaxed text-muted-foreground">
+                    You&apos;re on step 2 of 3. Connect a paper or live broker, then deploy a bot
+                    within your limits.
                   </p>
                 </div>
-              </div>
-
-              { }
-              <div className="space-y-2">
-                <div className="flex justify-between text-caption text-muted-foreground">
-                  <span>Profile completion</span>
-                  <span className="font-semibold text-primary">{Math.round(progress)}%</span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-[var(--indigo)]"
-                  />
-                </div>
-              </div>
-
-              { }
-              <div className="space-y-8">
-                {step.questions.map((q) => (
-                  <div key={q.id} className="space-y-3">
-                    <p className="text-sm font-semibold text-foreground">{q.label}</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {q.options.map((option) => (
-                        <ChoiceCard
-                          key={option}
-                          label={option}
-                          selected={answers[q.id] === option}
-                          onClick={() => handleSelect(q.id, option)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              { }
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                {currentStep > 0 && (
+                <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                  <Button
+                    variant="primary"
+                    className="h-12 min-h-[48px] sm:flex-1"
+                    onClick={() => {
+                      window.location.assign('/get-bots?paper=1');
+                    }}
+                  >
+                    Connect paper account
+                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
+                  </Button>
                   <Button
                     variant="outline"
-                    className="sm:flex-1 h-12"
-                    onClick={() => setCurrentStep((c) => c - 1)}
+                    className="h-12 min-h-[48px] sm:flex-1"
+                    onClick={() => {
+                      window.location.assign('/marketplace');
+                    }}
                   >
-                    Back
+                    Browse marketplace
                   </Button>
-                )}
-                <Button
-                  variant="primary"
-                  onClick={handleNext}
-                  disabled={!stepComplete}
-                  className={cn('h-12 text-base', currentStep === 0 ? 'w-full' : 'sm:flex-[2]')}
-                >
-                  {currentStep === STEPS.length - 1 ? 'Save risk profile' : 'Continue'}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="finalizing"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="dashboard-card p-10 text-center space-y-8"
-            >
-              <div className="relative mx-auto h-28 w-28">
-                <div className="absolute inset-0 rounded-full border-2 border-[var(--card-border)]" />
-                <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-primary animate-spin" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Brain className="h-10 w-10 text-primary" />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-heading-4 font-bold">Building your risk profile</h2>
-                <p className="text-muted-foreground max-w-sm mx-auto">
-                  Calibrating limits, alerts, and strategy filters to match your answers.
-                </p>
-              </div>
-              <div className="premium-surface p-5 space-y-3 max-w-sm mx-auto text-left">
-                {['Analyzing capital allocation', 'Setting drawdown guardrails', 'Applying safety controls'].map(
-                  (line, i) => (
+                <button
+                  type="button"
+                  className="min-h-[44px] text-sm font-medium text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                  onClick={() => window.location.assign('/dashboard')}
+                >
+                  Go to dashboard
+                </button>
+              </motion.div>
+            ) : !isFinalizing ? (
+              <motion.div
+                key={`step-${currentStep}`}
+                {...motionProps}
+                className="dashboard-card space-y-8 p-6 sm:p-8 lg:p-10"
+              >
+                <div className="space-y-4 text-center">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-primary/5 px-3 py-1 text-caption font-medium text-primary">
+                    <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                    Risk DNA · Step {currentStep + 1} of {STEPS.length}
+                  </div>
+                  <motion.div
+                    layoutId={reduceMotion ? undefined : 'step-icon'}
+                    className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 shadow-[var(--shadow-card)]"
+                  >
+                    <step.icon className="h-8 w-8 text-primary" aria-hidden />
+                  </motion.div>
+                  <div className="space-y-2">
+                    <h1 className="text-heading-3 font-bold tracking-tight text-foreground">
+                      {step.title}
+                    </h1>
+                    <p className="mx-auto max-w-md text-body leading-relaxed text-muted-foreground">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-caption text-muted-foreground">
+                    <span>Profile completion</span>
+                    <span className="font-semibold text-primary">{Math.round(progress)}%</span>
+                  </div>
+                  <div
+                    className="h-2 w-full overflow-hidden rounded-full bg-muted"
+                    role="progressbar"
+                    aria-valuenow={Math.round(progress)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="Risk profile completion"
+                  >
+                    <motion.div
+                      initial={reduceMotion ? false : { width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 0.45, ease: [0.23, 1, 0.32, 1] }}
+                      className="h-full rounded-full bg-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  {step.questions.map((q) => (
+                    <fieldset key={q.id} className="space-y-3 border-0 p-0 m-0 min-w-0">
+                      <legend className="mb-0 text-sm font-semibold text-foreground">
+                        {q.label}
+                      </legend>
+                      <div
+                        className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                        role="group"
+                        aria-label={q.label}
+                      >
+                        {q.options.map((option) => (
+                          <ChoiceCard
+                            key={option}
+                            label={option}
+                            selected={answers[q.id] === option}
+                            onClick={() => handleSelect(q.id, option)}
+                          />
+                        ))}
+                      </div>
+                    </fieldset>
+                  ))}
+                </div>
+
+                <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                  {currentStep > 0 && (
+                    <Button
+                      variant="outline"
+                      className="h-12 min-h-[48px] sm:flex-1"
+                      onClick={() => setCurrentStep((c) => c - 1)}
+                    >
+                      Back
+                    </Button>
+                  )}
+                  <Button
+                    variant="primary"
+                    onClick={() => void handleNext()}
+                    disabled={!stepComplete}
+                    className={cn(
+                      'h-12 min-h-[48px] text-base',
+                      currentStep === 0 ? 'w-full' : 'sm:flex-[2]',
+                    )}
+                  >
+                    {currentStep === STEPS.length - 1 ? 'Save risk profile' : 'Continue'}
+                    <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
+                  </Button>
+                </div>
+                {!stepComplete && (
+                  <p className="text-center text-xs text-muted-foreground" role="status">
+                    Answer every question on this step to continue.
+                  </p>
+                )}
+
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-t border-[var(--card-border)] pt-4 text-sm">
+                  <Link
+                    href="/onboarding"
+                    className="text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                  >
+                    ← Back to overview
+                  </Link>
+                  <Link
+                    href="/help"
+                    className="inline-flex items-center gap-1.5 text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                  >
+                    <Info className="h-3.5 w-3.5" aria-hidden />
+                    Help
+                  </Link>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="finalizing"
+                {...(reduceMotion
+                  ? { initial: false, animate: { opacity: 1 } }
+                  : {
+                      initial: { opacity: 0, scale: 0.98 },
+                      animate: { opacity: 1, scale: 1 },
+                    })}
+                className="dashboard-card space-y-8 p-10 text-center"
+                role="status"
+                aria-live="polite"
+                aria-busy="true"
+              >
+                <div className="relative mx-auto h-28 w-28">
+                  <div className="absolute inset-0 rounded-full border-2 border-[var(--card-border)]" />
+                  <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-primary" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Brain className="h-10 w-10 text-primary" aria-hidden />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-heading-4 font-bold">Saving your risk profile</h2>
+                  <p className="mx-auto max-w-sm text-muted-foreground">
+                    Applying drawdown guardrails and safety preferences from your answers.
+                  </p>
+                </div>
+                <div className="premium-surface mx-auto max-w-sm space-y-3 p-5 text-left">
+                  {[
+                    'Recording capital band',
+                    'Setting drawdown guardrails',
+                    'Storing safety controls',
+                  ].map((line, i) => (
                     <div key={line} className="flex items-center gap-3 text-sm text-muted-foreground">
                       <span
-                        className="h-2 w-2 rounded-full bg-primary animate-pulse"
+                        className="h-2 w-2 animate-pulse rounded-full bg-primary"
                         style={{ animationDelay: `${i * 200}ms` }}
+                        aria-hidden
                       />
                       {line}
                     </div>
-                  ),
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-      { }
-      <div className="relative z-10 mt-10 flex flex-wrap items-center justify-center gap-6 text-caption text-muted-foreground">
-        <span className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-primary" />
-          End-to-end encrypted
-        </span>
-        <span className="flex items-center gap-2">
-          <ChevronRight className="h-4 w-4" />
-          Takes under 2 minutes
-        </span>
+        <div className="relative z-10 mt-10 flex flex-wrap items-center justify-center gap-6 text-caption text-muted-foreground">
+          <span className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-primary" aria-hidden />
+            Encrypted in transit
+          </span>
+          <span className="flex items-center gap-2">
+            <ChevronRight className="h-4 w-4" aria-hidden />
+            Takes under 2 minutes
+          </span>
+        </div>
       </div>
-    </div>
     </SceneProvider>
   );
 }
