@@ -93,6 +93,8 @@ ENV NEXT_PUBLIC_FIREBASE_LOGIN_AUTH_DOMAIN=$NEXT_PUBLIC_FIREBASE_LOGIN_AUTH_DOMA
 ENV NEXT_PUBLIC_FIREBASE_LOGIN_PROJECT_ID=$NEXT_PUBLIC_FIREBASE_LOGIN_PROJECT_ID
 ENV NEXT_PUBLIC_FIREBASE_LOGIN_APP_ID=$NEXT_PUBLIC_FIREBASE_LOGIN_APP_ID
 
+# Next 16 webpack production build OOMs under default ~2GB heap on Cloud Build.
+ENV NODE_OPTIONS=--max-old-space-size=6144
 RUN pnpm run build
 
 # ─── Production stage ───────────────────────────────────────────────────────────
