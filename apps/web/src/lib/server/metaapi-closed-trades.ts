@@ -49,8 +49,38 @@ export type ClosedHistoryRow = {
   openedAt: string | null;
   closedAt: string | null;
   strategyId: null;
-  isPaper: false;
+  /** True for paper ledger closes from DB; MetaAPI deal history is always live. */
+  isPaper: boolean;
 };
+
+/** Map a Neon `Trade` row (includes `"isPaper"`) into history row shape. */
+export function mapSavedTradeRow(row: {
+  id?: unknown;
+  symbol?: unknown;
+  direction?: unknown;
+  volume?: unknown;
+  openPrice?: unknown;
+  closePrice?: unknown;
+  profit?: unknown;
+  openedAt?: unknown;
+  closedAt?: unknown;
+  isPaper?: unknown;
+}): ClosedHistoryRow {
+  return {
+    id: String(row.id),
+    symbol: String(row.symbol || ''),
+    direction: row.direction === 'SHORT' ? 'SHORT' : 'LONG',
+    volume: Number(row.volume || 0),
+    openPrice: Number(row.openPrice || 0),
+    closePrice: Number(row.closePrice || 0),
+    profit: Number(row.profit || 0),
+    status: 'CLOSED',
+    openedAt: row.openedAt ? new Date(row.openedAt as string | Date).toISOString() : null,
+    closedAt: row.closedAt ? new Date(row.closedAt as string | Date).toISOString() : null,
+    strategyId: null,
+    isPaper: Boolean(row.isPaper),
+  };
+}
 
 export function closedTradesFromMetaDeals(
   deals: any[],

@@ -11,7 +11,10 @@ import {
   withResolvedRegion,
   type LiveBroker,
 } from '@/lib/server/metaapi-trading';
-import { closedTradesFromMetaDeals } from '@/lib/server/metaapi-closed-trades';
+import {
+  closedTradesFromMetaDeals,
+  mapSavedTradeRow,
+} from '@/lib/server/metaapi-closed-trades';
 import type { ClosedHistoryRow } from '@/lib/server/metaapi-closed-trades';
 
 export const runtime = 'nodejs';
@@ -117,26 +120,7 @@ async function loadSavedClosedTrades(
           LIMIT ${limit}
         `;
 
-    return (rows as any[]).map((row) => ({
-      id: String(row.id),
-      symbol: String(row.symbol || ''),
-      direction: row.direction === 'SHORT' ? ('SHORT' as const) : ('LONG' as const),
-      volume: Number(row.volume || 0),
-      openPrice: Number(row.openPrice || 0),
-      closePrice: Number(row.closePrice || 0),
-      profit: Number(row.profit || 0),
-      status: 'CLOSED' as const,
-      openedAt: row.openedAt
-        ? new Date(row.openedAt).toISOString()
-        : null,
-      closedAt: row.closedAt
-        ? new Date(row.closedAt).toISOString()
-        : null,
-      strategyId: null,
-      // ClosedHistoryRow historically typed isPaper as literal false; coerce
-      // DB boolean into that contract without widening the shared type.
-      isPaper: false as const,
-    }));
+    return (rows as any[]).map((row) => mapSavedTradeRow(row));
   } catch (e: any) {
     console.error('[trades/history] DB fallback failed', e?.message || e);
     return [];
