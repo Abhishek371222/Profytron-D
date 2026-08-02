@@ -2,7 +2,15 @@
 
 On-call production verification for Profytron Trading OS frontend UI stability and **PostHog registration funnel** measurability (2026-08-03).
 
-Public production routes return HTTP 200. Prior FE ship remains live at image tag **`edd6a313…`** until this observability patch is deployed. Code changes **close registration funnel gaps** (landing → signup CTA → register → validation → complete → OAuth → email verify → login → dashboard → onboarding) and fix a **post-idle-init first `$pageview` miss**.
+Public production routes return HTTP 200. Funnel observability landed in **`02a484f`**, deployed to Cloud Run as **`web-00082-f6j`** (`web:02a484f72…`).
+
+Code changes **close registration funnel gaps** (landing → signup CTA → register → validation → complete → OAuth → email verify → login → dashboard → onboarding) and fix a **post-idle-init first `$pageview` miss**.
+
+| Gate | Result |
+|------|--------|
+| Commit / push | `02a484f` → `origin/main` |
+| Cloud Build | `79dcfc38-e1f3-42c3-a446-bd49d290e6ba` **SUCCESS** |
+| Cloud Run | revision `web-00082-f6j` @ 100% traffic, image tag = commit SHA |
 
 **Verdict: PASS WITH OBSERVATIONS**
 
@@ -172,11 +180,13 @@ Production public shells return 200; overflow issues not found in static review 
 
 | Check | Status |
 |-------|--------|
-| Live public UI (prior ship) | Healthy HTTP 200 |
-| PostHog key in Cloud Run | **Must be set** as `NEXT_PUBLIC_POSTHOG_KEY` (build-time) |
+| Live public UI | Healthy HTTP 200 |
+| Image on prod | `web:02a484f72…` revision `web-00082-f6j` |
+| PostHog key in Cloud Build | **Empty / not set** in last substitutions (`_NEXT_PUBLIC_POSTHOG_KEY` falsy) — events only fire after key is build-injected |
 | Cookie consent | Analytics only after grant |
 | Sentry root errors | Present |
-| This patch on prod | **Deploy after merge** — funnel events not on `edd6a313` until redeploy |
+
+**Action required for live funnel metrics:** set `NEXT_PUBLIC_POSTHOG_KEY` (and host) on the next web Cloud Build, then re-verify events in PostHog UI with consent accepted.
 
 ---
 
@@ -199,4 +209,4 @@ Production public shells return 200; overflow issues not found in static review 
 **Verdict:**  
 **PASS WITH OBSERVATIONS**
 
-Deploy revision required to activate funnel events in production analytics.
+Deploy revision required to activate funnel events in production analytics. **Code is now live** on `web-00082-f6j`; **PostHog project key still missing in build substitutions** until ops supplies it.
