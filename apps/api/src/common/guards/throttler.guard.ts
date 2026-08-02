@@ -13,6 +13,8 @@ import { Reflector } from '@nestjs/core';
 import { AgentEventService } from '../../modules/agents/agent-event.service';
 import { AGENT_EVENTS } from '../../modules/agents/agent.types';
 
+/** Must match ThrottlerModule.forRoot throttlers[0].limit in app.module.ts */
+const MODULE_DEFAULT_LIMIT = 100;
 const AUTHENTICATED_LIMIT = 1000;
 
 const SKIP_PATH_PREFIXES = [
@@ -66,11 +68,16 @@ export class AppThrottlerGuard extends ThrottlerGuard {
       .switchToHttp()
       .getRequest<{ user?: { id?: string; userId?: string } }>();
     const isAuthenticated = Boolean(req?.user?.userId ?? req?.user?.id);
-    return super.handleRequest(
-      isAuthenticated
-        ? { ...requestProps, limit: AUTHENTICATED_LIMIT }
-        : requestProps,
-    );
+    // Raise the module-wide default (100/min) for signed-in users, but never
+    // override a route @Throttle that intentionally used a different limit
+    // (stricter coach quotas or higher streaming caps).
+    if (isAuthenticated && requestProps.limit === MODULE_DEFAULT_LIMIT) {
+      return super.handleRequest({
+        ...requestProps,
+        limit: AUTHENTICATED_LIMIT,
+      });
+    }
+    return super.handleRequest(requestProps);
   }
 
   protected async throwThrottlingException(

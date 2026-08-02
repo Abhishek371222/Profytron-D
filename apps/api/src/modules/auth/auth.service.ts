@@ -445,9 +445,17 @@ export class AuthService {
         );
       }
     } catch {
-      this.logger.warn(
-        `Redis unavailable for login fail-counter ${failKey}. Skipping lockout check.`,
-      );
+      this.logger.error(`Redis unavailable for login fail-counter ${failKey}.`);
+      if (
+        process.env.NODE_ENV === 'production' ||
+        process.env.NODE_ENV === 'staging'
+      ) {
+        appError(
+          HttpStatus.SERVICE_UNAVAILABLE,
+          'Login temporarily unavailable. Please try again shortly.',
+          ErrorCode.SERVICE_UNAVAILABLE,
+        );
+      }
     }
 
     const user = await this.prisma.user.findUnique({
@@ -711,13 +719,20 @@ export class AuthService {
       }
     } catch (error) {
       redisSessionsUnavailable = true;
-      this.logger.warn(
-        `Refresh session lookup failed for ${userId}; trusting verified JWT. ${String(error)}`,
+      this.logger.error(
+        `Refresh session lookup failed for ${userId}. ${String(error)}`,
       );
     }
 
-    const usingEphemeralRedis =
-      process.env.REDIS_INMEMORY === 'true' || redisSessionsUnavailable;
+    // Fail closed in production/staging unless explicit in-memory Redis mode.
+    const usingEphemeralRedis = process.env.REDIS_INMEMORY === 'true';
+    if (redisSessionsUnavailable && !usingEphemeralRedis) {
+      appError(
+        HttpStatus.SERVICE_UNAVAILABLE,
+        'Session store unavailable. Please try again shortly.',
+        ErrorCode.SERVICE_UNAVAILABLE,
+      );
+    }
     if (stored && stored !== refreshToken) {
       appError(
         HttpStatus.UNAUTHORIZED,
@@ -784,8 +799,44 @@ export class AuthService {
     };
   }
 
-  async logout(userId: string, jti: string, _refreshToken?: string) {
-    await this.revokeRefreshSession(userId, jti);
+  async logout(userId: string, jti: string, refreshToken?: string) {
+    // Access jti is blacklisted below; refresh session uses a *separate* jti
+    // stored in the refresh cookie JWT — always revoke that when present.
+    let refreshJti: string | null = null;
+    if (refreshToken) {
+      try {
+        const decoded = this.jwtService.verify(refreshToken, {
+          secret: process.env.JWT_REFRESH_SECRET,
+        });
+        if (decoded?.sub && decoded.sub !== userId) {
+          appError(
+            HttpStatus.UNAUTHORIZED,
+            'Invalid session',
+            ErrorCode.UNAUTHORIZED,
+          );
+        }
+        refreshJti = decoded?.jti ?? null;
+      } catch {
+        /* cookie may already be invalid — still blacklist access jti */
+      }
+    }
+
+    if (refreshJti) {
+      await this.revokeRefreshSession(userId, refreshJti);
+      const refreshExpiry = this.parseExpirySeconds(
+        process.env.JWT_REFRESH_EXPIRES,
+        7 * 24 * 3600,
+      );
+      await this.redisService.set(
+        `auth:blacklist:${refreshJti}`,
+        'true',
+        refreshExpiry,
+      );
+    } else {
+      // No cookie: still drop all refresh sessions so logout fully ends the device set.
+      await this.revokeAllRefreshSessions(userId);
+    }
+
     if (jti) {
       const accessExpiry = this.parseExpirySeconds(
         process.env.JWT_ACCESS_EXPIRES,
@@ -805,7 +856,7 @@ export class AuthService {
       data: {
         eventType: 'LOGOUT',
         userId,
-        detailsJson: {},
+        detailsJson: { refreshRevoked: Boolean(refreshJti) },
         triggeredBy: userId,
       },
     });
@@ -1317,7 +1368,10 @@ export class AuthService {
     const refreshJti = randomUUID();
     const accessExpiresIn = this.parseExpirySeconds(
       process.env.JWT_ACCESS_EXPIRES,
-      24 * 3600,
+      process.env.NODE_ENV === 'production' ||
+        process.env.NODE_ENV === 'staging'
+        ? 15 * 60
+        : 24 * 3600,
     );
     const refreshExpiresIn = this.parseExpirySeconds(
       process.env.JWT_REFRESH_EXPIRES,
@@ -1492,10 +1546,15 @@ export class AuthService {
   }
 
   public sanitizeUser(user: any) {
-    const { passwordHash, ...safeUser } = user;
+    if (!user || typeof user !== 'object') {
+      return user;
+    }
+    const { passwordHash, twoFactorSecret, twoFactorBackupCodes, ...safeUser } =
+      user;
     return {
       ...safeUser,
       hasPassword: Boolean(passwordHash),
+      twoFactorEnabled: Boolean(user.twoFactorEnabled),
     };
   }
 
@@ -1512,7 +1571,13 @@ export class AuthService {
         .map((e) => e.trim().toLowerCase())
         .filter(Boolean),
     );
-    if (!allowed.has(String(email || '').trim().toLowerCase())) {
+    if (
+      !allowed.has(
+        String(email || '')
+          .trim()
+          .toLowerCase(),
+      )
+    ) {
       appError(
         HttpStatus.FORBIDDEN,
         'Closed beta — this email is not on the invite list. Request access from the Profytron team.',

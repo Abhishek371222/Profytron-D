@@ -196,6 +196,8 @@ export class UsersService {
     });
 
     delete (user as any).passwordHash;
+    delete (user as any).twoFactorSecret;
+    delete (user as any).twoFactorBackupCodes;
     return user;
   }
 

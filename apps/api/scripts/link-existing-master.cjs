@@ -36,7 +36,13 @@ function encrypt(plaintext) {
     const email = process.env.ADMIN_EMAIL || 'admin@profytron.com';
     let admin = await prisma.user.findFirst({ where: { email }, select: { id: true, email: true, role: true } });
     if (!admin) {
-      const passwordHash = await bcrypt.hash(process.env.ADMIN_DEFAULT_PASSWORD || 'Demo@123', 12);
+      const rawPassword = (process.env.ADMIN_DEFAULT_PASSWORD || '').trim();
+      if (!rawPassword) {
+        throw new Error(
+          'ADMIN_DEFAULT_PASSWORD must be set to create bootstrap admin',
+        );
+      }
+      const passwordHash = await bcrypt.hash(rawPassword, 12);
       admin = await prisma.user.create({
         data: {
           email,

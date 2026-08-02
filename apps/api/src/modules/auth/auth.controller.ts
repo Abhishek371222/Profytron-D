@@ -321,7 +321,9 @@ export class AuthController {
     }
 
     await this.authService.logout(userId, jti, refreshToken);
-    const isSecure = process.env.NODE_ENV === 'production';
+    const isSecure =
+      process.env.NODE_ENV === 'production' ||
+      process.env.COOKIE_SECURE === 'true';
     const cookieOpts = {
       path: '/',
       httpOnly: true,
@@ -499,8 +501,7 @@ export class AuthController {
   @UseGuards(GoogleAuthGuard)
   @ApiResponse({ status: 302, description: 'Redirect to Google OAuth2' })
   @ApiOperation({ summary: 'Initiate Google OAuth2 SSO' })
-  async googleAuth() {
-  }
+  async googleAuth() {}
 
   @Public()
   @Get('google/callback')

@@ -59,7 +59,10 @@ function sanitizeEnvSecrets() {
   for (const key of keys) {
     const raw = process.env[key];
     if (raw == null || raw === '') continue;
-    const cleaned = raw.replace(/^\uFEFF/, '').replace(/\r/g, '').trim();
+    const cleaned = raw
+      .replace(/^\uFEFF/, '')
+      .replace(/\r/g, '')
+      .trim();
     if (cleaned !== raw) {
       process.env[key] = cleaned;
     }
@@ -90,7 +93,10 @@ function validateEnv() {
   const invalid: string[] = [];
 
   // Soft require when payment provider is partially configured
-  if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_ID !== 'DEMO_KEY') {
+  if (
+    process.env.RAZORPAY_KEY_ID &&
+    process.env.RAZORPAY_KEY_ID !== 'DEMO_KEY'
+  ) {
     if (isStrict && !process.env.RAZORPAY_KEY_SECRET?.trim()) {
       missing.push('RAZORPAY_KEY_SECRET');
     }
@@ -203,23 +209,18 @@ function validateEnv() {
     }
   }
 
-  if (missing.length > 0) {
-    logger.error(
-      `Missing required environment variables: ${missing.join(', ')}`,
-    );
-  }
-  if (invalid.length > 0) {
-    logger.error(`Invalid environment variables:\n - ${invalid.join('\n - ')}`);
-  }
-  if ((missing.length > 0 || invalid.length > 0) && isStrict) {
-    logger.error(
-      'Refusing to start with an invalid configuration. Exiting (NODE_ENV=' +
-        `${nodeEnv}).`,
-    );
-    process.exit(1);
-  }
-
   if (isStrict) {
+    if (
+      !process.env.RESEND_API_KEY?.trim() &&
+      process.env.ALLOW_MOCK_EMAIL !== 'true'
+    ) {
+      logger.warn(
+        'RESEND_API_KEY is not set — transactional email will fail closed (status FAILED). Set RESEND_API_KEY for production mail.',
+      );
+    }
+    if (process.env.EXPOSE_DEV_OTP === 'true') {
+      invalid.push('EXPOSE_DEV_OTP must not be true in production/staging');
+    }
     if (!process.env.METAAPI_TOKEN) {
       logger.warn(
         'METAAPI_TOKEN is not set — all broker trades will be mocked',
@@ -241,6 +242,22 @@ function validateEnv() {
       );
     }
   }
+
+  if (missing.length > 0) {
+    logger.error(
+      `Missing required environment variables: ${missing.join(', ')}`,
+    );
+  }
+  if (invalid.length > 0) {
+    logger.error(`Invalid environment variables:\n - ${invalid.join('\n - ')}`);
+  }
+  if ((missing.length > 0 || invalid.length > 0) && isStrict) {
+    logger.error(
+      'Refusing to start with an invalid configuration. Exiting (NODE_ENV=' +
+        `${nodeEnv}).`,
+    );
+    process.exit(1);
+  }
 }
 
 function installProcessSafetyNet() {
@@ -261,9 +278,7 @@ function installProcessSafetyNet() {
     }
   });
   process.on('uncaughtException', (err) => {
-    logger.error(
-      `Uncaught exception: ${err.stack ?? err.message}`,
-    );
+    logger.error(`Uncaught exception: ${err.stack ?? err.message}`);
     if (isStrict) {
       // Leave the process to k8s/Cloud Run after fatal uncaught errors —
       // keeping a zombie Node process serves bad traffic.

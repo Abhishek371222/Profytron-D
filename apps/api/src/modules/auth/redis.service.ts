@@ -165,11 +165,12 @@ export class RedisService {
           return true;
         }
         this.logger.error(
-          `Redis unavailable for security-critical exists(${key}); treating as not-blacklisted to avoid app-wide auth storms. ${
+          `Redis unavailable for security-critical exists(${key}); fail-closed (treat as revoked). ${
             error instanceof Error ? error.message : 'unknown error'
           }`,
         );
-        return false;
+        // Fail-closed: unknown blacklist state => force re-auth (do not accept access).
+        return true;
       }
       this.logger.warn(
         `Redis unavailable for exists(${key}), checking in-memory fallback: ${error instanceof Error ? error.message : 'unknown error'}`,

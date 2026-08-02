@@ -95,9 +95,15 @@ export class AdminService {
       systemHealth: process.env.METAAPI_TOKEN ? 'OPTIMAL' : 'DEGRADED',
       activeServices: {
         api: 'UP',
-        ai_engine: process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY ? 'UP' : 'DEGRADED',
+        ai_engine:
+          process.env.OPENAI_API_KEY || process.env.ANTHROPIC_API_KEY
+            ? 'UP'
+            : 'DEGRADED',
         backtest_engine: 'UP',
-        redis: process.env.REDIS_URL || process.env.UPSTASH_REDIS_REST_URL ? 'CONFIGURED' : 'UNKNOWN',
+        redis:
+          process.env.REDIS_URL || process.env.UPSTASH_REDIS_REST_URL
+            ? 'CONFIGURED'
+            : 'UNKNOWN',
       },
       lastUpdated: new Date().toISOString(),
     };
@@ -326,10 +332,13 @@ export class AdminService {
     });
 
     if (!admin) {
-      const passwordHash = await bcrypt.hash(
-        process.env.ADMIN_DEFAULT_PASSWORD || 'Demo@123',
-        12,
-      );
+      const rawPassword = process.env.ADMIN_DEFAULT_PASSWORD?.trim();
+      if (!rawPassword) {
+        throw new BadRequestException(
+          'ADMIN_DEFAULT_PASSWORD must be set to provision the bootstrap admin',
+        );
+      }
+      const passwordHash = await bcrypt.hash(rawPassword, 12);
       admin = await this.prisma.user.create({
         data: {
           email,
@@ -516,7 +525,12 @@ export class AdminService {
   async listAuditLogs(limit = 50, skip = 0, eventType?: string) {
     const take = Math.min(Math.max(limit, 1), 200);
     const where = eventType?.trim()
-      ? { eventType: { contains: eventType.trim(), mode: 'insensitive' as const } }
+      ? {
+          eventType: {
+            contains: eventType.trim(),
+            mode: 'insensitive' as const,
+          },
+        }
       : {};
     const [rows, total] = await Promise.all([
       this.prisma.auditLog.findMany({
@@ -581,7 +595,10 @@ export class AdminService {
     return { items: rows, total, limit: take, skip };
   }
 
-  async forceCancelPlatformSubscription(subscriptionId: string, adminId: string) {
+  async forceCancelPlatformSubscription(
+    subscriptionId: string,
+    adminId: string,
+  ) {
     const sub = await this.prisma.userSubscription.findUnique({
       where: { id: subscriptionId },
     });

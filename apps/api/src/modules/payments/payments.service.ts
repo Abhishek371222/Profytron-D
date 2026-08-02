@@ -261,19 +261,32 @@ export class PaymentsService {
       };
     }
 
-    await this.creditWallet(
-      userId,
-      amountRupees,
-      'DEPOSIT',
-      {
-        source: 'razorpay_demo',
-        orderId,
-        paymentId,
-      },
-      `razorpay_payment_${paymentId}`,
-    );
+    const isPlatformDemo =
+      notes.type === 'platform_subscription' && notes.planId;
+    const isMarketplaceDemo =
+      notes.type === 'marketplace_subscription' && notes.strategyId;
+    const isProfitShareDemo =
+      Boolean(isMarketplaceDemo) &&
+      this.isProfitShareBilling(notes.billingModel);
 
-    if (notes.type === 'platform_subscription' && notes.planId) {
+    // Align with live verifyPayment: never wallet-credit pure platform checkout.
+    if ((!isMarketplaceDemo && !isPlatformDemo) || isProfitShareDemo) {
+      await this.creditWallet(
+        userId,
+        amountRupees,
+        'DEPOSIT',
+        {
+          source: isProfitShareDemo ? 'profit_share_upfront' : 'razorpay_demo',
+          orderId,
+          paymentId,
+        },
+        isProfitShareDemo
+          ? `profit_share_upfront_${paymentId}`
+          : `razorpay_payment_${paymentId}`,
+      );
+    }
+
+    if (isPlatformDemo) {
       await this.activatePlatformSubscriptionFromPayment(
         userId,
         notes.planId,
@@ -281,7 +294,7 @@ export class PaymentsService {
         paymentId,
         amountRupees,
       );
-    } else if (notes.type === 'marketplace_subscription' && notes.strategyId) {
+    } else if (isMarketplaceDemo) {
       await this.activateSubscription(
         userId,
         notes.strategyId,
@@ -289,6 +302,8 @@ export class PaymentsService {
         {
           id: paymentId,
           amount_total: stored.amount,
+          billingModel: notes.billingModel,
+          profitSharePct: notes.profitSharePct,
         },
       );
     } else {
@@ -310,8 +325,10 @@ export class PaymentsService {
 
     await this.notifications.create(
       userId,
-      'Deposit Successful',
-      `₹${amountRupees.toFixed(2)} has been added to your wallet (demo mode).`,
+      isPlatformDemo ? 'Subscription Active' : 'Deposit Successful',
+      isPlatformDemo
+        ? `Demo mode: platform plan payment of ₹${amountRupees.toFixed(2)} confirmed.`
+        : `₹${amountRupees.toFixed(2)} has been added to your wallet (demo mode).`,
     );
 
     await this.redis.del(this.demoOrderRedisKey(orderId));
@@ -390,8 +407,7 @@ export class PaymentsService {
     // Marketplace fixed subscriptions do not deposit. Profit-share upfront does.
     // Wallet top-up (no subscription type notes) deposits.
     const shouldCreditWallet =
-      isProfitShareMarketplace ||
-      (!isMarketplacePayment && !isPlatformPayment);
+      isProfitShareMarketplace || (!isMarketplacePayment && !isPlatformPayment);
 
     if (shouldCreditWallet) {
       await this.creditWallet(
@@ -611,7 +627,10 @@ export class PaymentsService {
               });
             if (failedSubs.length) {
               await this.prisma.userStrategySubscription.updateMany({
-                where: { id: { in: failedSubs.map((s) => s.id) }, status: 'ACTIVE' },
+                where: {
+                  id: { in: failedSubs.map((s) => s.id) },
+                  status: 'ACTIVE',
+                },
                 data: {
                   status: 'INACTIVE',
                   expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
@@ -637,7 +656,10 @@ export class PaymentsService {
           ];
           const cancelledSubs =
             await this.prisma.userStrategySubscription.findMany({
-              where: { stripeSubId: stripeSub.id, status: { in: cancellableStatuses } },
+              where: {
+                stripeSubId: stripeSub.id,
+                status: { in: cancellableStatuses },
+              },
               select: { id: true },
             });
           if (cancelledSubs.length) {
@@ -664,6 +686,62 @@ export class PaymentsService {
         case 'charge.refunded': {
           const charge = event.data.object;
           await this.handleStripeChargeRefunded(charge);
+          break;
+        }
+        case 'payment_intent.succeeded': {
+          // Wallet deposits use PaymentIntent; canonical /webhooks/stripe must confirm them
+          // even when deploy only wires this endpoint (not /wallet/webhook).
+          const intent = event.data.object;
+          const userId = intent?.metadata?.userId;
+          if (userId && intent?.id) {
+            try {
+              const pending = await this.prisma.walletTransaction.findUnique({
+                where: { idempotencyKey: intent.id },
+              });
+              if (pending && pending.userId === userId) {
+                if (pending.status !== 'CONFIRMED') {
+                  const sums = await this.prisma.walletTransaction.groupBy({
+                    by: ['direction'],
+                    where: { userId, status: 'CONFIRMED' },
+                    _sum: { amount: true },
+                  });
+                  const credits =
+                    sums.find((s) => s.direction === 'IN')?._sum.amount ?? 0;
+                  const debits =
+                    sums.find((s) => s.direction === 'OUT')?._sum.amount ?? 0;
+                  await this.prisma.walletTransaction.update({
+                    where: { id: pending.id },
+                    data: {
+                      status: 'CONFIRMED',
+                      balanceAfter: credits - debits + pending.amount,
+                      description: 'Wallet deposit confirmed',
+                    },
+                  });
+                }
+              } else if (
+                !pending &&
+                Number(intent.amount_received || intent.amount || 0) > 0
+              ) {
+                // Deposit row missing (race) — credit via idempotent wallet deposit path
+                await this.creditWallet(
+                  userId,
+                  Number(intent.amount_received || intent.amount || 0) / 100,
+                  'DEPOSIT',
+                  {
+                    source: 'stripe_payment_intent',
+                    paymentIntentId: intent.id,
+                  },
+                  `stripe_deposit_${intent.id}`,
+                );
+              }
+            } catch (err) {
+              this.logger.error(
+                `payment_intent.succeeded handling failed for ${intent.id}`,
+                err instanceof Error ? err.stack : err,
+              );
+              throw err;
+            }
+          }
           break;
         }
         default:
@@ -718,10 +796,11 @@ export class PaymentsService {
 
     const entityId =
       paymentEntity?.id ?? refundEntity?.id ?? subscriptionEntity?.id;
+    let razorpayEventKey: string | null = null;
     if (eventType && entityId) {
-      const idempotencyKey = `razorpay:event:${eventType}:${entityId}`;
+      razorpayEventKey = `razorpay:event:${eventType}:${entityId}`;
       const lock = await this.redis.set(
-        idempotencyKey,
+        razorpayEventKey,
         'processing',
         'EX',
         86400,
@@ -732,173 +811,185 @@ export class PaymentsService {
       }
     }
 
-    if (eventType === 'payment.captured' && paymentEntity?.notes?.userId) {
-      const userId = paymentEntity.notes.userId;
-      const strategyId = paymentEntity.notes.strategyId;
-      const planType = paymentEntity.notes.planType ?? 'MONTHLY';
-      const notes = paymentEntity.notes;
+    try {
+      if (eventType === 'payment.captured' && paymentEntity?.notes?.userId) {
+        const userId = paymentEntity.notes.userId;
+        const strategyId = paymentEntity.notes.strategyId;
+        const planType = paymentEntity.notes.planType ?? 'MONTHLY';
+        const notes = paymentEntity.notes;
 
-      if (notes.type === 'platform_subscription' && notes.planId) {
-        await this.activatePlatformSubscriptionFromPayment(
-          userId,
-          notes.planId,
-          notes.billingCycle ?? 'MONTHLY',
-          paymentEntity.id,
-          Number(paymentEntity.amount || 0) / 100,
-        );
-        void this.agentEvents.emit({
-          type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
-          entityType: 'payment',
-          entityId: paymentEntity.id,
-          userId,
-          payload: { planId: notes.planId, type: 'platform_subscription' },
-          idempotencyKey: `payment-ok:${paymentEntity.id}`,
-        });
-        return { ok: true };
-      }
-
-      if (notes.type === 'marketplace_subscription' && strategyId) {
-        const isProfitShare = this.isProfitShareBilling(notes.billingModel);
-        if (isProfitShare) {
-          await this.creditWallet(
+        if (notes.type === 'platform_subscription' && notes.planId) {
+          await this.activatePlatformSubscriptionFromPayment(
             userId,
+            notes.planId,
+            notes.billingCycle ?? 'MONTHLY',
+            paymentEntity.id,
             Number(paymentEntity.amount || 0) / 100,
-            'DEPOSIT',
-            {
-              source: 'profit_share_upfront',
-              paymentId: paymentEntity.id,
-              strategyId,
-              billingModel: notes.billingModel,
-            },
-            `profit_share_upfront_${paymentEntity.id}`,
           );
+          void this.agentEvents.emit({
+            type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
+            entityType: 'payment',
+            entityId: paymentEntity.id,
+            userId,
+            payload: { planId: notes.planId, type: 'platform_subscription' },
+            idempotencyKey: `payment-ok:${paymentEntity.id}`,
+          });
+          return { ok: true };
         }
-        await this.activateSubscription(userId, strategyId, planType, {
-          id: paymentEntity.id,
-          amount_total: paymentEntity.amount,
-          billingModel: notes.billingModel,
-          profitSharePct: notes.profitSharePct,
-        });
+
+        if (notes.type === 'marketplace_subscription' && strategyId) {
+          const isProfitShare = this.isProfitShareBilling(notes.billingModel);
+          if (isProfitShare) {
+            await this.creditWallet(
+              userId,
+              Number(paymentEntity.amount || 0) / 100,
+              'DEPOSIT',
+              {
+                source: 'profit_share_upfront',
+                paymentId: paymentEntity.id,
+                strategyId,
+                billingModel: notes.billingModel,
+              },
+              `profit_share_upfront_${paymentEntity.id}`,
+            );
+          }
+          await this.activateSubscription(userId, strategyId, planType, {
+            id: paymentEntity.id,
+            amount_total: paymentEntity.amount,
+            billingModel: notes.billingModel,
+            profitSharePct: notes.profitSharePct,
+          });
+          void this.agentEvents.emit({
+            type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
+            entityType: 'payment',
+            entityId: paymentEntity.id,
+            userId,
+            payload: { strategyId, type: 'marketplace_subscription' },
+            idempotencyKey: `payment-ok:${paymentEntity.id}`,
+          });
+          return { ok: true };
+        }
+
+        await this.creditWallet(
+          userId,
+          Number(paymentEntity.amount || 0) / 100,
+          'DEPOSIT',
+          { source: 'razorpay', paymentId: paymentEntity.id },
+          `razorpay_payment_${paymentEntity.id}`,
+        );
+
         void this.agentEvents.emit({
           type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
           entityType: 'payment',
           entityId: paymentEntity.id,
           userId,
-          payload: { strategyId, type: 'marketplace_subscription' },
+          payload: { strategyId, amount: paymentEntity.amount },
           idempotencyKey: `payment-ok:${paymentEntity.id}`,
         });
-        return { ok: true };
       }
 
-      await this.creditWallet(
-        userId,
-        Number(paymentEntity.amount || 0) / 100,
-        'DEPOSIT',
-        { source: 'razorpay', paymentId: paymentEntity.id },
-        `razorpay_payment_${paymentEntity.id}`,
-      );
+      if (eventType === 'payment.failed' && paymentEntity?.notes?.userId) {
+        const userId = paymentEntity.notes.userId;
+        const strategyId = paymentEntity.notes.strategyId;
+        this.logger.warn(
+          `Razorpay payment failed for user ${userId}, payment ${paymentEntity.id}`,
+        );
 
-      void this.agentEvents.emit({
-        type: AGENT_EVENTS.PAYMENT_SUCCEEDED,
-        entityType: 'payment',
-        entityId: paymentEntity.id,
-        userId,
-        payload: { strategyId, amount: paymentEntity.amount },
-        idempotencyKey: `payment-ok:${paymentEntity.id}`,
-      });
-    }
-
-    if (eventType === 'payment.failed' && paymentEntity?.notes?.userId) {
-      const userId = paymentEntity.notes.userId;
-      const strategyId = paymentEntity.notes.strategyId;
-      this.logger.warn(
-        `Razorpay payment failed for user ${userId}, payment ${paymentEntity.id}`,
-      );
-
-      if (strategyId) {
-        const failedSubs = await this.prisma.userStrategySubscription.findMany({
-          where: { userId, strategyId, status: 'ACTIVE' },
-          select: { id: true },
-        });
-        await this.prisma.userStrategySubscription.updateMany({
-          where: { userId, strategyId, status: 'ACTIVE' },
-          data: { status: 'INACTIVE' },
-        });
-        for (const sub of failedSubs) {
-          await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
-        }
-      }
-
-      await this.notifications.create(
-        userId,
-        'Payment Failed',
-        'Your payment could not be processed. Please try again.',
-        'ERROR',
-      );
-
-      void this.agentEvents.emit({
-        type: AGENT_EVENTS.PAYMENT_FAILED,
-        entityType: 'payment',
-        entityId: paymentEntity.id,
-        userId,
-        payload: {
-          strategyId,
-          errorCode: paymentEntity.error_code,
-          amount: paymentEntity.amount,
-        },
-        idempotencyKey: `payment-failed:${paymentEntity.id}`,
-      });
-    }
-
-    if (eventType === 'refund.created' && refundEntity?.id) {
-      await this.handleRazorpayRefundCreated(refundEntity);
-    }
-
-    if (
-      eventType === 'subscription.cancelled' &&
-      subscriptionEntity?.notes?.userId
-    ) {
-      const userId = subscriptionEntity.notes.userId;
-      const strategyId = subscriptionEntity.notes.strategyId;
-      if (strategyId) {
-        const cancellableStatuses: SubscriptionStatus[] = [
-          SubscriptionStatus.ACTIVE,
-          SubscriptionStatus.PAUSED,
-          SubscriptionStatus.PROVISIONING,
-        ];
-        const cancelledSubs =
-          await this.prisma.userStrategySubscription.findMany({
-            where: { userId, strategyId, status: { in: cancellableStatuses } },
-            select: { id: true },
-          });
-        if (cancelledSubs.length) {
+        if (strategyId) {
+          const failedSubs =
+            await this.prisma.userStrategySubscription.findMany({
+              where: { userId, strategyId, status: 'ACTIVE' },
+              select: { id: true },
+            });
           await this.prisma.userStrategySubscription.updateMany({
-            where: {
-              id: { in: cancelledSubs.map((s) => s.id) },
-              status: { in: cancellableStatuses },
-            },
-            data: { status: 'CANCELLED', cancelledAt: new Date() },
+            where: { userId, strategyId, status: 'ACTIVE' },
+            data: { status: 'INACTIVE' },
           });
-          for (const sub of cancelledSubs) {
+          for (const sub of failedSubs) {
             await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
           }
-        } else {
-          this.logger.warn(
-            `RAZORPAY_SUBSCRIPTION_CANCELLED_CONFLICT: no cancellable subscriptions for user ${userId}, strategy ${strategyId} (already modified by another process)`,
-          );
         }
-      }
-      void this.agentEvents.emit({
-        type: AGENT_EVENTS.SUBSCRIPTION_CANCELLED,
-        entityType: 'subscription',
-        entityId: subscriptionEntity.id ?? userId,
-        userId,
-        payload: { strategyId },
-        idempotencyKey: `sub-cancel:${subscriptionEntity.id ?? userId}`,
-      });
-    }
 
-    return { ok: true };
+        await this.notifications.create(
+          userId,
+          'Payment Failed',
+          'Your payment could not be processed. Please try again.',
+          'ERROR',
+        );
+
+        void this.agentEvents.emit({
+          type: AGENT_EVENTS.PAYMENT_FAILED,
+          entityType: 'payment',
+          entityId: paymentEntity.id,
+          userId,
+          payload: {
+            strategyId,
+            errorCode: paymentEntity.error_code,
+            amount: paymentEntity.amount,
+          },
+          idempotencyKey: `payment-failed:${paymentEntity.id}`,
+        });
+      }
+
+      if (eventType === 'refund.created' && refundEntity?.id) {
+        await this.handleRazorpayRefundCreated(refundEntity);
+      }
+
+      if (
+        eventType === 'subscription.cancelled' &&
+        subscriptionEntity?.notes?.userId
+      ) {
+        const userId = subscriptionEntity.notes.userId;
+        const strategyId = subscriptionEntity.notes.strategyId;
+        if (strategyId) {
+          const cancellableStatuses: SubscriptionStatus[] = [
+            SubscriptionStatus.ACTIVE,
+            SubscriptionStatus.PAUSED,
+            SubscriptionStatus.PROVISIONING,
+          ];
+          const cancelledSubs =
+            await this.prisma.userStrategySubscription.findMany({
+              where: {
+                userId,
+                strategyId,
+                status: { in: cancellableStatuses },
+              },
+              select: { id: true },
+            });
+          if (cancelledSubs.length) {
+            await this.prisma.userStrategySubscription.updateMany({
+              where: {
+                id: { in: cancelledSubs.map((s) => s.id) },
+                status: { in: cancellableStatuses },
+              },
+              data: { status: 'CANCELLED', cancelledAt: new Date() },
+            });
+            for (const sub of cancelledSubs) {
+              await this.copyFactorySync.enqueueUnlinkSubscription(sub.id);
+            }
+          } else {
+            this.logger.warn(
+              `RAZORPAY_SUBSCRIPTION_CANCELLED_CONFLICT: no cancellable subscriptions for user ${userId}, strategy ${strategyId} (already modified by another process)`,
+            );
+          }
+        }
+        void this.agentEvents.emit({
+          type: AGENT_EVENTS.SUBSCRIPTION_CANCELLED,
+          entityType: 'subscription',
+          entityId: subscriptionEntity.id ?? userId,
+          userId,
+          payload: { strategyId },
+          idempotencyKey: `sub-cancel:${subscriptionEntity.id ?? userId}`,
+        });
+      }
+
+      return { ok: true };
+    } catch (error) {
+      if (razorpayEventKey) {
+        await this.redis.del(razorpayEventKey).catch(() => undefined);
+      }
+      throw error;
+    }
   }
 
   async activateSubscription(
@@ -1179,9 +1270,12 @@ export class PaymentsService {
       return;
     }
 
-    if (subscription.status === 'CANCELLED' || subscription.cancelledAt != null) {
+    if (
+      subscription.status === 'CANCELLED' ||
+      subscription.cancelledAt != null
+    ) {
       this.logger.warn(
-        `Skipping renewal for subscription ${subscription.id} — already cancelled by user (cancelledAt=${subscription.cancelledAt}), refusing to reactivate`,
+        `Skipping renewal for subscription ${subscription.id} — already cancelled by user (cancelledAt=${subscription.cancelledAt?.toISOString() ?? 'unknown'}), refusing to reactivate`,
       );
       return;
     }
@@ -1234,18 +1328,47 @@ export class PaymentsService {
       return;
     }
 
-    await this.createSubscriptionPaymentRecord(
-      subscription.userId,
-      amount,
-      invoice.id,
-      `subscription_invoice_${invoice.id}`,
-      {
-        source: 'stripe_invoice',
-        invoiceId: invoice.id,
-        stripeSubId,
-        strategyId: subscription.strategyId,
-      },
-    );
+    // Record history as Payment row only — card renewals must NOT create a wallet OUT
+    // against the buyer (that wrongly debits deposits unrelated to the charge).
+    try {
+      const pi =
+        typeof invoice.payment_intent === 'string'
+          ? invoice.payment_intent
+          : invoice.id;
+      await this.prisma.payment.create({
+        data: {
+          userId: subscription.userId,
+          amount,
+          currency: String(invoice.currency || 'usd').toUpperCase(),
+          method: 'STRIPE',
+          status: 'COMPLETED',
+          stripePaymentId: pi,
+          description: `Marketplace renewal (${subscription.strategyId})`,
+          completedAt: new Date(),
+          metadataJson: {
+            source: 'stripe_invoice',
+            invoiceId: invoice.id,
+            stripeSubId,
+            strategyId: subscription.strategyId,
+          },
+        },
+      });
+    } catch (err: unknown) {
+      if (
+        !(
+          err &&
+          typeof err === 'object' &&
+          'code' in err &&
+          (err as { code?: string }).code === 'P2002'
+        )
+      ) {
+        this.logger.warn(
+          `Renewal payment record create failed for invoice ${invoice.id}: ${
+            err instanceof Error ? err.message : 'unknown'
+          }`,
+        );
+      }
+    }
 
     const [renewalStrategy, renewalListing] = await Promise.all([
       this.prisma.strategy.findUniqueOrThrow({
@@ -1560,7 +1683,8 @@ export class PaymentsService {
         name: row.name,
         description: row.description ?? cfg?.description ?? '',
         monthlyPrice: row.monthlyPrice,
-        annualPrice: row.annualPrice ?? cfg?.annualPrice ?? row.monthlyPrice * 12,
+        annualPrice:
+          row.annualPrice ?? cfg?.annualPrice ?? row.monthlyPrice * 12,
         features: Array.isArray(row.features)
           ? row.features
           : (cfg?.features ?? []),
@@ -1816,7 +1940,13 @@ export class PaymentsService {
       .catch(() => undefined);
 
     await this.emailService
-      .sendTrialStartedEmail(user.email, user.fullName, plan.name, trialEndsAt, userId)
+      .sendTrialStartedEmail(
+        user.email,
+        user.fullName,
+        plan.name,
+        trialEndsAt,
+        userId,
+      )
       .catch(() => undefined);
 
     void this.agentEvents.emit({
@@ -1824,7 +1954,11 @@ export class PaymentsService {
       entityType: 'subscription',
       entityId: subscription.id,
       userId,
-      payload: { planId: plan.id, planName: plan.name, trialEndsAt: trialEndsAt.toISOString() },
+      payload: {
+        planId: plan.id,
+        planName: plan.name,
+        trialEndsAt: trialEndsAt.toISOString(),
+      },
       idempotencyKey: `trial-started:${subscription.id}`,
     });
 
@@ -2166,7 +2300,9 @@ export class PaymentsService {
     const spentThisYear = completed
       .filter((p) => {
         const d = new Date(p.date);
-        return p.status === 'COMPLETED' && d.getFullYear() === now.getFullYear();
+        return (
+          p.status === 'COMPLETED' && d.getFullYear() === now.getFullYear()
+        );
       })
       .reduce((sum, p) => sum + p.amount, 0);
 
@@ -2209,8 +2345,7 @@ export class PaymentsService {
       data: {
         downloadedCount: { increment: 1 },
         pdfUrl:
-          invoice.pdfUrl ??
-          `/v1/subscriptions/invoices/${invoice.id}/download`,
+          invoice.pdfUrl ?? `/v1/subscriptions/invoices/${invoice.id}/download`,
       },
     });
 
@@ -2259,21 +2394,30 @@ export class PaymentsService {
         );
       }
       if (invoice.payment?.razorpayPaymentId) {
-        doc.text(`Gateway ref (Razorpay): ${invoice.payment.razorpayPaymentId}`);
+        doc.text(
+          `Gateway ref (Razorpay): ${invoice.payment.razorpayPaymentId}`,
+        );
       }
       if (invoice.payment?.stripePaymentId) {
         doc.text(`Gateway ref (Stripe): ${invoice.payment.stripePaymentId}`);
       }
       doc.moveDown();
-      doc.fillColor('#000000').fontSize(12).text('Line items', { underline: true });
+      doc
+        .fillColor('#000000')
+        .fontSize(12)
+        .text('Line items', { underline: true });
       doc.moveDown(0.4);
       doc.fontSize(10);
       doc.text(invoice.description || 'Service charge');
-      doc.text(`Taxable amount: ${invoice.currency} ${invoice.amount.toFixed(2)}`);
+      doc.text(
+        `Taxable amount: ${invoice.currency} ${invoice.amount.toFixed(2)}`,
+      );
       doc.text(`Tax (GST): ${invoice.currency} ${invoice.tax.toFixed(2)}`);
-      doc.fontSize(12).text(`Total: ${invoice.currency} ${invoice.total.toFixed(2)}`, {
-        underline: true,
-      });
+      doc
+        .fontSize(12)
+        .text(`Total: ${invoice.currency} ${invoice.total.toFixed(2)}`, {
+          underline: true,
+        });
       doc.moveDown();
       doc
         .fontSize(9)
@@ -2316,8 +2460,12 @@ export class PaymentsService {
           status: 'COMPLETED',
           description: params.description,
           completedAt: new Date(),
-          razorpayPaymentId: params.isRazorpay ? params.paymentReference : undefined,
-          stripePaymentId: params.isRazorpay ? undefined : params.paymentReference,
+          razorpayPaymentId: params.isRazorpay
+            ? params.paymentReference
+            : undefined,
+          stripePaymentId: params.isRazorpay
+            ? undefined
+            : params.paymentReference,
           metadataJson: {
             type: 'marketplace_subscription',
             strategyId: params.strategyId,
@@ -2350,7 +2498,9 @@ export class PaymentsService {
     const userIdFromNotes = refundEntity.notes?.userId;
 
     let payment = paymentIdFromNotes
-      ? await this.prisma.payment.findUnique({ where: { id: paymentIdFromNotes } })
+      ? await this.prisma.payment.findUnique({
+          where: { id: paymentIdFromNotes },
+        })
       : null;
 
     if (!payment && refundEntity.payment_id) {
@@ -2387,7 +2537,12 @@ export class PaymentsService {
   }) {
     const refundEntries = charge.refunds?.data?.length
       ? charge.refunds.data
-      : [{ id: charge.id ? `ch_refund_${charge.id}` : undefined, amount: charge.amount_refunded }];
+      : [
+          {
+            id: charge.id ? `ch_refund_${charge.id}` : undefined,
+            amount: charge.amount_refunded,
+          },
+        ];
 
     const pi =
       typeof charge.payment_intent === 'string'
@@ -2396,10 +2551,14 @@ export class PaymentsService {
 
     const payment =
       (pi
-        ? await this.prisma.payment.findFirst({ where: { stripePaymentId: pi } })
+        ? await this.prisma.payment.findFirst({
+            where: { stripePaymentId: pi },
+          })
         : null) ??
       (charge.id
-        ? await this.prisma.payment.findFirst({ where: { stripePaymentId: charge.id } })
+        ? await this.prisma.payment.findFirst({
+            where: { stripePaymentId: charge.id },
+          })
         : null);
 
     const userId = charge.metadata?.userId || payment?.userId;
@@ -2412,8 +2571,7 @@ export class PaymentsService {
 
     for (const entry of refundEntries) {
       const refundId = entry.id ?? `stripe_refund_${charge.id}`;
-      const amount =
-        Number(entry.amount ?? charge.amount_refunded ?? 0) / 100;
+      const amount = Number(entry.amount ?? charge.amount_refunded ?? 0) / 100;
       if (amount <= 0) continue;
       await this.reconcileRefund({
         userId,
@@ -2624,6 +2782,7 @@ export class PaymentsService {
     }
 
     let gatewayRefundId = `admin_${payment.id}_${Date.now()}`;
+    let gatewayRefundSucceeded = false;
 
     if (payment.razorpayPaymentId && this.razorpay) {
       try {
@@ -2639,8 +2798,8 @@ export class PaymentsService {
             },
           },
         );
-        gatewayRefundId =
-          (refund as { id?: string })?.id ?? gatewayRefundId;
+        gatewayRefundId = (refund as { id?: string })?.id ?? gatewayRefundId;
+        gatewayRefundSucceeded = true;
       } catch (err) {
         this.logger.error(
           `Razorpay refund failed for payment ${payment.id}`,
@@ -2650,6 +2809,10 @@ export class PaymentsService {
           `Razorpay refund failed: ${err instanceof Error ? err.message : 'unknown'}`,
         );
       }
+    } else if (payment.razorpayPaymentId && !this.razorpay) {
+      throw new BadRequestException(
+        'Razorpay is not configured; cannot refund this payment at the gateway',
+      );
     } else if (payment.stripePaymentId && this.stripe) {
       try {
         const stripeParams: {
@@ -2677,14 +2840,32 @@ export class PaymentsService {
         }
         const refund = await this.stripe.refunds.create(stripeParams);
         gatewayRefundId = refund.id;
+        gatewayRefundSucceeded = true;
       } catch (err) {
-        // Fallback: store-only recon when payment_intent/charge invalid (session ids etc.)
-        this.logger.warn(
-          `Stripe refund API failed for ${payment.id}; reconciling ledger only: ${
-            err instanceof Error ? err.message : 'unknown'
-          }`,
+        this.logger.error(
+          `Stripe refund failed for payment ${payment.id}`,
+          err instanceof Error ? err.stack : err,
+        );
+        throw new BadRequestException(
+          `Stripe refund failed: ${err instanceof Error ? err.message : 'unknown'}`,
         );
       }
+    } else if (payment.stripePaymentId && !this.stripe) {
+      throw new BadRequestException(
+        'Stripe is not configured; cannot refund this payment at the gateway',
+      );
+    } else {
+      // Manual ledger-only refunds require explicit operator opt-in.
+      if (process.env.ALLOW_LEDGER_ONLY_REFUNDS !== 'true') {
+        throw new BadRequestException(
+          'Payment has no refundable gateway id. Set ALLOW_LEDGER_ONLY_REFUNDS=true only for controlled manual reconciliation.',
+        );
+      }
+      gatewayRefundSucceeded = true;
+    }
+
+    if (!gatewayRefundSucceeded) {
+      throw new BadRequestException('Gateway refund did not succeed');
     }
 
     const source: 'razorpay' | 'stripe' | 'admin' = payment.razorpayPaymentId

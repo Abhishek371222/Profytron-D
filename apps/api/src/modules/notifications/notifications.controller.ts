@@ -95,7 +95,7 @@ export class NotificationsController {
     return this.notificationsService.findAll(
       authUserId(req),
       Number(page || 1),
-      Number(limit || 20),
+      Math.min(Math.max(Number(limit || 20) || 20, 1), 100),
       unreadOnly === 'true',
       category,
     );

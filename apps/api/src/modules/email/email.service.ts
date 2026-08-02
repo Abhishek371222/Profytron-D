@@ -303,11 +303,16 @@ export class EmailService {
       <p style="color:#94a3b8;margin:0 0 20px;">Hi ${esc(name) || 'Trader'}, you now have full ${esc(planName)} access for 7 days — no payment required. Your trial ends on <strong>${esc(trialEndsAt.toDateString())}</strong>. Upgrade anytime to keep your access after that.</p>
       <a href="${process.env.FRONTEND_URL}/settings/billing" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;display:inline-block;font-weight:600;">Manage Billing</a>
     ${FOOTER}`;
-    return this.send(email, `Profytron: Your ${planName} trial has started`, html, {
-      type: 'TRIAL_STARTED',
-      userId,
-      metadata: { planName, trialEndsAt: trialEndsAt.toISOString() },
-    });
+    return this.send(
+      email,
+      `Profytron: Your ${planName} trial has started`,
+      html,
+      {
+        type: 'TRIAL_STARTED',
+        userId,
+        metadata: { planName, trialEndsAt: trialEndsAt.toISOString() },
+      },
+    );
   }
 
   async sendTrialEndingSoonEmail(
@@ -330,7 +335,11 @@ export class EmailService {
       {
         type: 'TRIAL_ENDING_SOON',
         userId,
-        metadata: { planName, daysLeft, trialEndsAt: trialEndsAt.toISOString() },
+        metadata: {
+          planName,
+          daysLeft,
+          trialEndsAt: trialEndsAt.toISOString(),
+        },
       },
     );
   }
@@ -469,7 +478,7 @@ export class EmailService {
       type: 'GENERIC',
     },
   ) {
-    let status = 'SENT';
+    let status: 'SENT' | 'FAILED' | 'SKIPPED' = 'FAILED';
     if (this.resend) {
       try {
         const result = await this.resend.emails.send({
@@ -483,6 +492,8 @@ export class EmailService {
           this.logger.error(
             `Resend API error for ${to}: ${result.error.message}`,
           );
+        } else {
+          status = 'SENT';
         }
       } catch (err) {
         status = 'FAILED';
@@ -491,11 +502,25 @@ export class EmailService {
         );
       }
     } else {
+      const allowMock =
+        process.env.NODE_ENV === 'test' ||
+        process.env.NODE_ENV === 'development' ||
+        process.env.ALLOW_MOCK_EMAIL === 'true';
       this.logger.warn(`[MOCK EMAIL] To: ${to} | Subject: ${subject}`);
+      if (allowMock) {
+        status = 'SENT';
+      } else {
+        status = 'FAILED';
+        this.logger.error(
+          'RESEND_API_KEY is not configured — email not delivered (status FAILED)',
+        );
+      }
       if (
         meta.type === 'OTP' &&
         (process.env.NODE_ENV === 'test' ||
-          process.env.EXPOSE_DEV_OTP === 'true')
+          (process.env.EXPOSE_DEV_OTP === 'true' &&
+            process.env.NODE_ENV !== 'production' &&
+            process.env.NODE_ENV !== 'staging'))
       ) {
         this.logger.warn(
           `[MOCK EMAIL] OTP payload logged for local testing only`,

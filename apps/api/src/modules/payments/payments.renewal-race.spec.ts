@@ -69,7 +69,8 @@ describe('PaymentsService.handleSubscriptionInvoicePaid race', () => {
   }
 
   it('reactivates when updateMany matches a non-cancelled row', async () => {
-    const { service, updateMany, marketplaceListingUpdate } = buildService(1);
+    const { service, updateMany, marketplaceListingUpdate, prisma } =
+      buildService(1);
 
     await (service as any).handleSubscriptionInvoicePaid('sub_stripe_1', {
       id: 'inv_1',
@@ -87,13 +88,18 @@ describe('PaymentsService.handleSubscriptionInvoicePaid race', () => {
       }),
     );
     expect(marketplaceListingUpdate).toHaveBeenCalled();
-    expect((service as any).createSubscriptionPaymentRecord).toHaveBeenCalled();
+    expect(prisma.payment.create).toHaveBeenCalled();
     expect((service as any).creditWallet).toHaveBeenCalled();
   });
 
   it('skips revenue/payment side effects when concurrent cancel wins', async () => {
-    const { service, updateMany, marketplaceListingUpdate, strategyUpdate } =
-      buildService(0);
+    const {
+      service,
+      updateMany,
+      marketplaceListingUpdate,
+      strategyUpdate,
+      prisma,
+    } = buildService(0);
 
     await (service as any).handleSubscriptionInvoicePaid('sub_stripe_1', {
       id: 'inv_race',
@@ -103,9 +109,7 @@ describe('PaymentsService.handleSubscriptionInvoicePaid race', () => {
     expect(updateMany).toHaveBeenCalled();
     expect(marketplaceListingUpdate).not.toHaveBeenCalled();
     expect(strategyUpdate).not.toHaveBeenCalled();
-    expect(
-      (service as any).createSubscriptionPaymentRecord,
-    ).not.toHaveBeenCalled();
+    expect(prisma.payment.create).not.toHaveBeenCalled();
     expect((service as any).creditWallet).not.toHaveBeenCalled();
   });
 

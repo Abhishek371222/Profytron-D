@@ -262,6 +262,27 @@ export class TradeProcessor {
         brokerAccount.isPaperTrading ? 'paper' : 'ledger_mirror';
       let queueBridgeOpen = false;
 
+      // Retry safety: if a prior attempt already opened a trade for this signal, do not re-hit MetaAPI.
+      if (signalId) {
+        const prior = await this.prisma.trade.findFirst({
+          where: {
+            userId,
+            brokerAccountId: brokerAccount.id,
+            status: TradeStatus.OPEN,
+            executionMetadataJson: {
+              path: ['signalId'],
+              equals: signalId,
+            },
+          },
+        });
+        if (prior) {
+          this.logger.warn(
+            `Skipping re-execution for signal ${signalId} — trade ${prior.id} already open`,
+          );
+          return prior;
+        }
+      }
+
       if (!brokerAccount.isPaperTrading && this.mtAdapter.isLive) {
         try {
           const creds = JSON.parse(
@@ -289,6 +310,17 @@ export class TradeProcessor {
             );
             brokerOrderId = result.orderId;
             liveFillMode = 'metaapi';
+            if (brokerOrderId) {
+              const byTicket = await this.prisma.trade.findFirst({
+                where: { brokerTicket: brokerOrderId },
+              });
+              if (byTicket) {
+                this.logger.warn(
+                  `Broker ticket ${brokerOrderId} already recorded as trade ${byTicket.id}`,
+                );
+                return byTicket;
+              }
+            }
           } else {
             queueBridgeOpen = true;
             liveFillMode = 'bridge';

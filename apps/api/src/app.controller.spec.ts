@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
 import { RedisService } from './modules/auth/redis.service';
 import { TradingGateway } from './modules/trading/trading.gateway';
+import { MetricsService } from './common/metrics/metrics.service';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -31,6 +32,13 @@ describe('AppController', () => {
           useValue: {
             server: null,
             sendToUser: jest.fn(),
+          },
+        },
+        {
+          provide: MetricsService,
+          useValue: {
+            isShuttingDown: jest.fn().mockReturnValue(false),
+            getPrometheusText: jest.fn().mockReturnValue(''),
           },
         },
         {
