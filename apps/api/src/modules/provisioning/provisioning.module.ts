@@ -4,7 +4,10 @@ import { TradingModule } from '../trading/trading.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-  imports: [NotificationsModule, forwardRef(() => TradingModule)],
+  imports: [
+    forwardRef(() => NotificationsModule),
+    forwardRef(() => TradingModule),
+  ],
   providers: [SubscriptionProvisioningService],
   exports: [SubscriptionProvisioningService],
 })

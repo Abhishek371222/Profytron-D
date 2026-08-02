@@ -1,4 +1,4 @@
-import { Module, Global } from '@nestjs/common';
+import { Module, Global, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { NotificationsService } from './notifications.service';
 import { NotificationsController } from './notifications.controller';
@@ -9,7 +9,7 @@ import { TradingModule } from '../trading/trading.module';
 @Global()
 @Module({
   imports: [
-    TradingModule,
+    forwardRef(() => TradingModule),
     BullModule.registerQueue({
       name: 'notifications_dispatch',
       defaultJobOptions: {

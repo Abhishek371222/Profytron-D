@@ -33,7 +33,7 @@ import { AgentsModule } from '../agents/agents.module';
     MarketModule,
     AiRiskModule,
     CopyBridgeModule,
-    WalletModule,
+    forwardRef(() => WalletModule),
     AgentsModule,
     BullModule.registerQueue(
       {

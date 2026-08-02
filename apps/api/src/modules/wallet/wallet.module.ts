@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bull';
 import { WalletService } from './wallet.service';
 import { WalletController } from './wallet.controller';
@@ -7,7 +7,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
-    NotificationsModule,
+    forwardRef(() => NotificationsModule),
     BullModule.registerQueue({
       name: 'withdrawal-processing',
       defaultJobOptions: {

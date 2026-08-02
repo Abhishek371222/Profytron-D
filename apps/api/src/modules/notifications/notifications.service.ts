@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import type { Queue } from 'bull';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -54,6 +54,7 @@ export class NotificationsService {
 
   constructor(
     private prisma: PrismaService,
+    @Inject(forwardRef(() => TradingGateway))
     private gateway: TradingGateway,
     @InjectQueue('notifications_dispatch') private dispatchQueue: Queue,
   ) {}
