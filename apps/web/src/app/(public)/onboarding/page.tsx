@@ -5,12 +5,17 @@
  * Visible welcome shell so /onboarding never leaves body hidden mid-redirect.
  * PT-W06 — clearer steps + mobile-safe touch targets.
  */
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowRight, ShieldCheck, Sparkles, Target, Box } from '@/components/ui/icons';
 import { buttonVariants } from '@/components/ui/button';
 import { SceneProvider } from '@/components/3d/SceneProvider';
 import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
 import { cn } from '@/lib/utils';
+import {
+  REGISTRATION_FUNNEL_EVENTS,
+  trackRegistrationFunnelOnce,
+} from '@/lib/analytics/track';
 
 const STEPS = [
   {
@@ -31,6 +36,14 @@ const STEPS = [
 ] as const;
 
 export default function OnboardingWelcomePage() {
+  useEffect(() => {
+    trackRegistrationFunnelOnce(
+      'onboarding_started',
+      REGISTRATION_FUNNEL_EVENTS.ONBOARDING_STARTED,
+      { path: '/onboarding' },
+    );
+  }, []);
+
   return (
     <SceneProvider>
       <div className="animate-page-in relative flex min-h-screen min-w-0 flex-col items-center justify-center overflow-x-hidden bg-background px-4 py-12 text-foreground pb-[max(3rem,env(safe-area-inset-bottom))]">

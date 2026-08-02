@@ -22,7 +22,14 @@ import { AuthBrandScene } from '@/components/3d/AuthBrandScene';
 import { authApi } from '@/lib/api/auth';
 import { startSocialOAuth } from '@/lib/auth/social-oauth';
 import { toast } from 'sonner';
-import { trackEvent, ACTIVATION_EVENTS } from '@/lib/analytics/track';
+import {
+  trackEvent,
+  ACTIVATION_EVENTS,
+  markActivationStart,
+  REGISTRATION_FUNNEL_EVENTS,
+  trackRegistrationFunnel,
+  trackRegistrationFunnelOnce,
+} from '@/lib/analytics/track';
 import { useMounted } from '@/lib/hooks/useMounted';
 import { cn } from '@/lib/utils';
 
@@ -85,6 +92,14 @@ export default function RegisterPage() {
   const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
+    trackRegistrationFunnelOnce(
+      'register_viewed',
+      REGISTRATION_FUNNEL_EVENTS.REGISTER_VIEWED,
+      { path: '/register' },
+    );
+  }, []);
+
+  React.useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     if (params.get('error') === 'oauth_failed') {
@@ -125,12 +140,22 @@ export default function RegisterPage() {
     persistReferralCookie(referralCode);
   }, [setValue]);
 
+  const onInvalid = (formErrors: Record<string, unknown>) => {
+    trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.REGISTER_VALIDATION_FAILED, {
+      fields: Object.keys(formErrors).join(',') || 'unknown',
+    });
+  };
+
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     setErrorMessage(null);
     setSuccessMessage(null);
+    trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.REGISTER_STARTED, {
+      method: 'email',
+    });
     try {
       const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+      const plan = params.get('plan') || 'free';
       const manualReferral = data.referralCode?.trim();
       const referralCode =
         manualReferral || readReferralFromUrl() || readReferralFromCookie();
@@ -143,7 +168,12 @@ export default function RegisterPage() {
         referralCode: referralCode || undefined,
         plan: params.get('plan') || undefined,
       });
-      trackEvent(ACTIVATION_EVENTS.SIGNUP, { plan: params.get('plan') || 'free' });
+      trackEvent(ACTIVATION_EVENTS.SIGNUP, { plan });
+      trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.REGISTER_COMPLETED, {
+        plan,
+        method: 'email',
+      });
+      markActivationStart();
       setSuccessMessage('Signup successful. Enter the OTP sent to your email.');
       sessionStorage.setItem('verificationEmail', data.email);
       sessionStorage.removeItem('verificationOtp');
@@ -225,7 +255,7 @@ export default function RegisterPage() {
                 <div className="h-px flex-1 bg-border" />
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
                 {successMessage && (
                   <div role="status" className="rounded-input border border-success/20 bg-success/[0.08] px-4 py-3 text-sm text-success">
                     {successMessage}

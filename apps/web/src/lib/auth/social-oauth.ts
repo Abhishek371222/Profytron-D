@@ -3,6 +3,10 @@ import { apiClient, unwrapApiResponse } from '@/lib/api/client';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
 import { resolvePostLoginRedirect } from '@/lib/utils';
+import {
+  REGISTRATION_FUNNEL_EVENTS,
+  trackRegistrationFunnel,
+} from '@/lib/analytics/track';
 import type { User } from 'firebase/auth';
 
 type SocialProvider = 'google' | 'github';
@@ -59,6 +63,13 @@ async function completeFirebaseLogin(fbUser: User, redirectTarget: string) {
 
   const { accessToken, user } = data as { accessToken: string; user: any };
   useAuthStore.getState().login(accessToken, user);
+  trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.OAUTH_COMPLETED, {
+    provider,
+  });
+  trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.LOGIN_SUCCESS, {
+    method: 'oauth',
+    provider,
+  });
   const dest = resolvePostLoginRedirect(user, redirectTarget);
   useWorkspaceBootstrapStore.getState().startBootstrap(dest);
   window.location.assign(dest);
@@ -69,6 +80,10 @@ export async function startSocialOAuth(
   context: SocialAuthContext = 'login',
 ) {
   const action = context === 'login' ? 'sign in' : 'sign up';
+  trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.OAUTH_STARTED, {
+    provider,
+    context,
+  });
   const isLocalhost =
     typeof window !== 'undefined' &&
     /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname);

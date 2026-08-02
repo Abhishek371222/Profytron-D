@@ -12,6 +12,10 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useMounted } from '@/lib/hooks/useMounted';
+import {
+  REGISTRATION_FUNNEL_EVENTS,
+  trackRegistrationFunnel,
+} from '@/lib/analytics/track';
 
 const navLinks = [
   {
@@ -108,7 +112,16 @@ function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: ()
             Client Portal
           </Button>
         </Link>
-        <Link href="/register" onClick={onNavigate}>
+        <Link
+          href="/register"
+          onClick={() => {
+            trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.SIGNUP_CTA_CLICKED, {
+              href: '/register',
+              source: 'nav_mobile',
+            });
+            onNavigate?.();
+          }}
+        >
           <Button className="w-full h-11 rounded-button bg-primary text-primary-foreground font-semibold">
             Start free trial
           </Button>
@@ -124,7 +137,15 @@ function AuthActions({ mobile, onNavigate }: { mobile?: boolean; onNavigate?: ()
           Client Portal
         </Button>
       </Link>
-      <Link href="/register">
+      <Link
+        href="/register"
+        onClick={() =>
+          trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.SIGNUP_CTA_CLICKED, {
+            href: '/register',
+            source: 'nav_desktop',
+          })
+        }
+      >
         <Button className="h-10 px-5 text-sm font-semibold rounded-button bg-primary text-primary-foreground hover:brightness-110 shadow-[var(--shadow-cta)] gap-2">
           Start free trial
           <ArrowRight className="w-4 h-4" />

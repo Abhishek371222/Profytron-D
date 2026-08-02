@@ -21,6 +21,43 @@ declare global {
   }
 }
 
+const ACTIVATION_T0_KEY = 'pf_activation_t0';
+
+/** Mark signup/verify funnel clock for PT-K03 time-to-first-broker. */
+export function markActivationStart() {
+  if (typeof window === 'undefined') return;
+  try {
+    if (!sessionStorage.getItem(ACTIVATION_T0_KEY)) {
+      sessionStorage.setItem(ACTIVATION_T0_KEY, String(Date.now()));
+    }
+  } catch {
+    /* private mode */
+  }
+}
+
+/** Seconds from activation start to now; does not clear (call clear after fire). */
+export function getTimeToFirstBrokerSeconds(): number | undefined {
+  if (typeof window === 'undefined') return undefined;
+  try {
+    const t0 = sessionStorage.getItem(ACTIVATION_T0_KEY);
+    if (!t0) return undefined;
+    const n = Number(t0);
+    if (!Number.isFinite(n) || n <= 0) return undefined;
+    return Math.max(0, Math.round((Date.now() - n) / 1000));
+  } catch {
+    return undefined;
+  }
+}
+
+export function clearActivationStart() {
+  if (typeof window === 'undefined') return;
+  try {
+    sessionStorage.removeItem(ACTIVATION_T0_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function trackEvent(event: string, properties?: AnalyticsPayload) {
   if (typeof window === 'undefined') return;
 
@@ -66,3 +103,57 @@ export const ACTIVATION_EVENTS = {
   PLAN_SELECTED: 'plan_selected',
   CHECKOUT_STARTED: 'checkout_started',
 } as const;
+
+/**
+ * Registration → activation funnel (PostHog + gtag via trackEvent).
+ * Stable snake_case names for funnel builders; keep ACTIVATION_EVENTS.SIGNUP
+ * as the durable "account created" milestone.
+ */
+export const REGISTRATION_FUNNEL_EVENTS = {
+  LANDING_VIEWED: 'funnel_landing_viewed',
+  SIGNUP_CTA_CLICKED: 'funnel_signup_cta_clicked',
+  REGISTER_VIEWED: 'funnel_register_viewed',
+  REGISTER_STARTED: 'funnel_register_started',
+  REGISTER_VALIDATION_FAILED: 'funnel_register_validation_failed',
+  /** Prefer ACTIVATION_EVENTS.SIGNUP for completion; alias for funnel clarity */
+  REGISTER_COMPLETED: 'funnel_register_completed',
+  OAUTH_STARTED: 'funnel_oauth_started',
+  OAUTH_COMPLETED: 'funnel_oauth_completed',
+  EMAIL_VERIFIED: 'funnel_email_verified',
+  LOGIN_SUCCESS: 'funnel_login_success',
+  DASHBOARD_VIEWED: 'funnel_dashboard_viewed',
+  ONBOARDING_STARTED: 'funnel_onboarding_started',
+  ONBOARDING_COMPLETED: 'funnel_onboarding_completed',
+} as const;
+
+/** Session-scoped once (reloads / Strict Mode double-mount still can fire twice if storage clears). */
+export function trackEventOnce(
+  onceKey: string,
+  event: string,
+  properties?: AnalyticsPayload,
+) {
+  if (typeof window === 'undefined') return;
+  const storageKey = `pf_ph_once_${onceKey}`;
+  try {
+    if (sessionStorage.getItem(storageKey)) return;
+    sessionStorage.setItem(storageKey, '1');
+  } catch {
+    /* private mode — still emit once per call site */
+  }
+  trackEvent(event, properties);
+}
+
+export function trackRegistrationFunnel(
+  event: (typeof REGISTRATION_FUNNEL_EVENTS)[keyof typeof REGISTRATION_FUNNEL_EVENTS],
+  properties?: AnalyticsPayload,
+) {
+  trackEvent(event, { funnel: 'registration', ...properties });
+}
+
+export function trackRegistrationFunnelOnce(
+  onceKey: string,
+  event: (typeof REGISTRATION_FUNNEL_EVENTS)[keyof typeof REGISTRATION_FUNNEL_EVENTS],
+  properties?: AnalyticsPayload,
+) {
+  trackEventOnce(onceKey, event, { funnel: 'registration', ...properties });
+}

@@ -5,21 +5,37 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
 import { MagneticWrap } from '@/components/animations';
+import {
+  REGISTRATION_FUNNEL_EVENTS,
+  trackRegistrationFunnel,
+} from '@/lib/analytics/track';
+
+function trackSignupCta(href: string, source: string) {
+  if (!href.includes('/register')) return;
+  trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.SIGNUP_CTA_CLICKED, {
+    href,
+    source,
+  });
+}
 
 export function LandingPrimaryLink({
   href,
   children,
   className,
   magnetic = true,
+  source = 'landing_primary',
 }: {
   href: string;
   children: React.ReactNode;
   className?: string;
   magnetic?: boolean;
+  /** Analytics source label for registration CTAs */
+  source?: string;
 }) {
   const link = (
     <Link
       href={href}
+      onClick={() => trackSignupCta(href, source)}
       className={cn(
         "btn-landing-primary exp-cta",
         className,
@@ -48,7 +64,10 @@ export function LandingSecondaryLink({
   return (
     <Link
       href={href}
-      onClick={onClick}
+      onClick={(e) => {
+        trackSignupCta(href, 'landing_secondary');
+        onClick?.(e);
+      }}
       className={cn(
         'inline-flex items-center justify-center gap-2 h-12 px-7 rounded-xl',
         'border border-[var(--card-border)] bg-card/80 backdrop-blur-sm text-foreground font-semibold text-sm',

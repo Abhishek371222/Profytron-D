@@ -22,7 +22,14 @@ import { usersApi } from '@/lib/api/users';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { SceneProvider } from '@/components/3d/SceneProvider';
 import { AmbientDepthBackground } from '@/components/3d/AmbientDepthBackground';
-import { ACTIVATION_EVENTS, trackActivation, trackEvent } from '@/lib/analytics/track';
+import {
+  ACTIVATION_EVENTS,
+  trackActivation,
+  trackEvent,
+  REGISTRATION_FUNNEL_EVENTS,
+  trackRegistrationFunnel,
+  trackRegistrationFunnelOnce,
+} from '@/lib/analytics/track';
 
 const STEPS = [
   {
@@ -107,6 +114,14 @@ export default function RiskOnboardingPage() {
   const [showCompletion, setShowCompletion] = useState(false);
 
   React.useEffect(() => {
+    trackRegistrationFunnelOnce(
+      'onboarding_started',
+      REGISTRATION_FUNNEL_EVENTS.ONBOARDING_STARTED,
+      { path: '/onboarding/risk' },
+    );
+  }, []);
+
+  React.useEffect(() => {
     if (isHydrating) return;
     if (!isAuthenticated) {
       window.location.replace('/login?redirect=/onboarding/risk');
@@ -153,6 +168,9 @@ export default function RiskOnboardingPage() {
         window.sessionStorage.setItem('profytron_just_onboarded', '1');
       }
       trackEvent('onboarding_completed', { source: 'risk_dna' });
+      trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.ONBOARDING_COMPLETED, {
+        source: 'risk_dna',
+      });
       void trackActivation(ACTIVATION_EVENTS.ONBOARDING_COMPLETED, {
         source: 'risk_dna',
       });

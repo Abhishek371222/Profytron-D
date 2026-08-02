@@ -40,6 +40,10 @@ import { OverviewAccountHealth } from '@/components/dashboard/overview/OverviewA
 import dynamic from 'next/dynamic';
 import { Mt5SyncBadge } from '@/platform/dashboard/Mt5SyncBadge';
 import { DashboardSceneStrip } from '@/components/3d/DashboardSceneStrip';
+import {
+  REGISTRATION_FUNNEL_EVENTS,
+  trackRegistrationFunnelOnce,
+} from '@/lib/analytics/track';
 
 const engineOn = isRenderEngineEnabled();
 
@@ -60,6 +64,14 @@ export default function DashboardPage() {
   const [watchTab, setWatchTab] = React.useState<WatchTab>('forex');
   const [newsCategory, setNewsCategory] =
     React.useState<MarketNewsCategory>('forex');
+
+  React.useEffect(() => {
+    trackRegistrationFunnelOnce(
+      'dashboard_viewed',
+      REGISTRATION_FUNNEL_EVENTS.DASHBOARD_VIEWED,
+      { path: '/dashboard' },
+    );
+  }, []);
 
   const { data: currentUser } = useCurrentUser();
   const currency = 'USD';

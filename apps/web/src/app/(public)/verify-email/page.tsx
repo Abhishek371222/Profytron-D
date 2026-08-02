@@ -16,7 +16,14 @@ import { Magnetic } from '@/components/ui/Interactions';
 import { authApi } from '@/lib/api/auth';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { toast } from 'sonner';
-import { trackEvent, trackActivation, ACTIVATION_EVENTS } from '@/lib/analytics/track';
+import {
+  trackEvent,
+  trackActivation,
+  ACTIVATION_EVENTS,
+  markActivationStart,
+  REGISTRATION_FUNNEL_EVENTS,
+  trackRegistrationFunnel,
+} from '@/lib/analytics/track';
 
 export default function VerifyEmailPage() {
  const router = useRouter();
@@ -88,8 +95,13 @@ export default function VerifyEmailPage() {
       const response = await authApi.verifyEmail({ email, otp: code });
       setIsSuccess(true);
       useAuthStore.getState().login(response.accessToken, response.user);
+      trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.EMAIL_VERIFIED);
       trackEvent(ACTIVATION_EVENTS.FIRST_LOGIN);
       void trackActivation(ACTIVATION_EVENTS.FIRST_LOGIN);
+      trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.LOGIN_SUCCESS, {
+        method: 'email_verify',
+      });
+      markActivationStart();
       const dest = !response.user?.onboardingCompleted
         ? '/onboarding/risk'
         : response.selectedPlan && response.selectedPlan !== 'free'
@@ -288,12 +300,12 @@ export default function VerifyEmailPage() {
  {isLoading ? (
  <>
  <Loader2 className="w-6 h-6 animate-spin" />
- Verifying Node...
+ Verifying...
  </>
  ) : isSuccess ? (
- <>Access Granted <CheckCircle2 className="w-5 h-5" /></>
+ <>Verified <CheckCircle2 className="w-5 h-5" /></>
  ) : (
- <>Verify Authorization <Sparkles className="w-5 h-5 fill-white" /></>
+ <>Verify email <Sparkles className="w-5 h-5 fill-white" /></>
  )}
  </span>
  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer" />
@@ -305,8 +317,8 @@ export default function VerifyEmailPage() {
  </form>
 
  <motion.div variants={itemVariants} className="mt-12 flex flex-col items-center gap-4">
- <p className="text-foreground0 text-sm">
- Didn't receive the signal?
+ <p className="text-muted-foreground text-sm">
+ Didn't get the code?
  </p>
  <button
    onClick={async () => {

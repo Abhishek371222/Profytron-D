@@ -23,6 +23,11 @@ import { authApi } from '@/lib/api/auth';
 import { startSocialOAuth } from '@/lib/auth/social-oauth';
 import { resolvePostLoginRedirect } from '@/lib/utils';
 import { toast } from 'sonner';
+import {
+  markActivationStart,
+  REGISTRATION_FUNNEL_EVENTS,
+  trackRegistrationFunnel,
+} from '@/lib/analytics/track';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid institutional email'),
@@ -142,6 +147,10 @@ function LoginPageContent() {
       const { accessToken, user } = response as { accessToken: string; user: any };
       const dest = resolvePostLoginRedirect(user, redirectTo);
       login(accessToken, user);
+      trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.LOGIN_SUCCESS, {
+        method: 'password',
+      });
+      markActivationStart();
       window.location.assign(dest);
     } catch (error: unknown) {
       const payload =
@@ -207,6 +216,10 @@ function LoginPageContent() {
         code: twoFaCode.trim(),
       });
       login(response.accessToken, response.user);
+      trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.LOGIN_SUCCESS, {
+        method: 'password_2fa',
+      });
+      markActivationStart();
       const dest = resolvePostLoginRedirect(response.user, redirectTo);
       window.location.assign(dest);
     } catch (error: unknown) {
