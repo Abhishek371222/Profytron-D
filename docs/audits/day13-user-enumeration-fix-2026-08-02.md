@@ -63,29 +63,46 @@ New cases assert identical `status`/`message`/`code` for: unknown email, wrong p
 
 ---
 
-## Regression evidence (pre / post deploy)
+## Regression evidence (live post-deploy)
 
-Targeted production smoke after revision Ready:
+| Probe | Result |
+| --- | --- |
+| `GET /health` | **200** |
+| `GET /live` | **200**, `gitSha: e336e3e` |
+| `GET /ready` | **200** |
+| `GET /v1/subscriptions/plans` (Platform Trial surface) | **200** |
+| `GET /v1/wallet/balance` | **401** (auth required) |
+| `GET /v1/coach/conversations` | **401** |
+| `GET /v1/broker/accounts` | **401** |
+| Monitoring stack | not reconfigured; health `ok` / WS healthy |
+| MetaAPI | `/health` `metaApi: configured` |
 
-- Health: `/live` `/ready` `/health`
-- Plans (Platform Trial surface): `GET /v1/subscriptions/plans`
-- Wallet unauth gate: `GET /v1/wallet/balance` → 401
-- Coach auth gate: `GET /v1/coach/conversations` → 401
-- Broker auth gate: `GET /v1/broker/accounts` → 401
-
-*(Filled with live numbers in Post-deploy section.)*
+No regressions observed on these checks.
 
 ---
 
 ## Live production evidence
 
-### Pre-fix (revision pre-deploy)
+### Pre-fix (Day 13 UAT)
 
-Unknown email returned `USER_NOT_FOUND` / “No account found…” (Day 13 UAT).
+Unknown email → `401` + `USER_NOT_FOUND` + “No account found with this email…”
 
-### Post-fix (record after deploy)
+### Post-fix (revision `api-00092-lw6`, `gitSha e336e3e`)
 
-See **Post-deploy** below after Cloud Run revision is live.
+| Scenario | HTTP | `code` | `error` | Client ms (approx) |
+| --- | --- | --- | --- | --- |
+| Unknown email (`day13-enum-unknown-*@example.invalid`) | 401 | `INVALID_CREDENTIALS` | `Invalid email or password.` | 592 |
+| Wrong password (probed address) | 401 | `INVALID_CREDENTIALS` | `Invalid email or password.` | 583 |
+
+Bodies identical in status / code / message shape (only requestId/timestamp differ).
+
+Register validation (unchanged): incomplete DTO still → **400** `VALIDATION_ERROR` with field messages.
+
+| Check | Status |
+| --- | --- |
+| Successful login | **NOT VERIFIED** in this session (no production operator credentials on hand); unit tests cover success path |
+| OTP / verify-email / forgot-password | **NOT re-exercised live**; code paths untouched |
+| Deleted / suspended accounts | **CODE + unit tested**; no live fixtures available |
 
 ---
 
@@ -103,32 +120,37 @@ See **Post-deploy** below after Cloud Run revision is live.
 
 ```text
 Tag: pre-user-enumeration-fix → a37800b4a3e514e1d519c8fed93476fcb5fff950
+(present on origin)
 ```
 
 Procedure:
 
-1. `git checkout pre-user-enumeration-fix` (or revert the fix commit)
-2. Redeploy API via `gcloud builds submit --config=cloudbuild-api.yaml --substitutions=COMMIT_SHA=<sha>`
-3. Or traffic pin previous Cloud Run revision via console/`gcloud run services update-traffic`
+1. Redeploy API at tagged commit:  
+   `gcloud builds submit --config=cloudbuild-api.yaml --substitutions=COMMIT_SHA=a37800b4a3e514e1d519c8fed93476fcb5fff950`
+2. Or pin previous Cloud Run revision (predecessor of `api-00092-lw6`) via traffic split.
+3. Confirm `/live` gitSha returns pre-fix SHA and unknown-email body again shows old message (then re-apply only if needed).
 
 ---
 
 ## Post-deploy
 
-_To be completed after Cloud Build succeeds._
-
 | Item | Value |
 | --- | --- |
-| Commit | _(pending)_ |
-| Cloud Run revision | _(pending)_ |
-| Unknown email body | _(pending)_ |
-| Wrong password body | _(pending)_ |
-| Successful login | _(pending)_ |
-| Register unchanged | _(pending)_ |
-| Health | _(pending)_ |
+| Commit | `e336e3eace3f3f4acdcfeb95076ba8c7dc493c50` |
+| Cloud Build | `c4071fb7-275a-4bf2-8ed3-c7091e7f4c35` **SUCCESS** (~5m17s) |
+| Cloud Run revision | **`api-00092-lw6`** 100% traffic |
+| Live `gitSha` | **`e336e3e`** |
+| Unknown email body | `401` / `INVALID_CREDENTIALS` / `Invalid email or password.` |
+| Wrong password body | identical |
+| Successful login | unit-tested; production **NOT VERIFIED** (no credentials) |
+| Register unchanged | **yes** (400 validation still) |
+| Health | **ok** (db/redis/queue/ws) |
+| Rollback tag | `pre-user-enumeration-fix` → `a37800b…` on origin |
 
 ---
 
 ## Final verdict
 
-_(pending deploy + live validation)_
+**READY FOR PRODUCTION**
+
+Enumerating registered emails via login client responses is closed on live `api-00092-lw6`. Optional follow-up: run one successful login smoke with a known operator account and confirm 2FA/OTP journeys still feel correct.
