@@ -15,14 +15,14 @@ import Link from 'next/link';
 const quickstart = [
   { step: '01', title: 'Create an Account', desc: 'Register with your institutional email and complete identity verification.', link: '/register' },
   { step: '02', title: 'Configure API Keys', desc: 'Generate your API key from the dashboard Settings → Developer panel.', link: '/dashboard' },
-  { step: '03', title: 'Connect a Broker', desc: 'Link your broker via the supported FIX/REST adapters in the Connections module.', link: '/get-bots' },
-  { step: '04', title: 'Deploy Your First Strategy', desc: 'Use the Visual Builder or submit a strategy via the REST API and go live.', link: '/strategies/builder' },
+  { step: '03', title: 'Connect a Broker', desc: 'Link paper or live MT4/MT5 from Connected Accounts or Bot Plans.', link: '/connected-accounts' },
+  { step: '04', title: 'Deploy Your First Strategy', desc: 'Subscribe from Marketplace or Bot Plans and go live with your risk limits.', link: '/marketplace' },
 ];
 
 const guides = [
-  { icon: Zap, title: 'Get Bots Setup', href: '/docs#get-bots', desc: 'Connect MT5 and buy verified bots in minutes.' },
+  { icon: Zap, title: 'Bot Plans Setup', href: '/get-bots', desc: 'Connect MT5 and buy verified bots in minutes.' },
   { icon: Cpu, title: 'AI Risk Engine', href: '/analytics/risk', desc: 'Drawdown limits, kill-switches, and position size rules.' },
-  { icon: Shield, title: 'Broker Connect', href: '/get-bots', desc: 'Link paper or live MT4/MT5 accounts from 20+ brokers.' },
+  { icon: Shield, title: 'Broker Connect', href: '/connected-accounts', desc: 'Link paper or live MT4/MT5 accounts from 20+ brokers.' },
   { icon: Activity, title: 'Marketplace Strategies', href: '/marketplace', desc: 'Browse verified track records before you subscribe.' },
   { icon: Code2, title: 'REST API Reference', href: '/api-reference', desc: 'Full endpoint documentation, auth, rate limits, and code samples.' },
   { icon: Terminal, title: 'Broker Setup Guides', href: '/brokers', desc: 'Step-by-step MT5 server setup for 20+ supported brokers.' },

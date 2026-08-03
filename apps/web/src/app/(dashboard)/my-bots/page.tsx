@@ -23,6 +23,7 @@ import {
   persistDashboardQuery,
 } from '@/lib/queries/dashboard-cache';
 import { ensureWorkspaceCacheOwner } from '@/lib/queries/purge-workspace-caches';
+import { EMPTY_STATES } from '@/lib/content/empty-states';
 
 const RecommendedBots = dynamic(
   () =>
@@ -387,10 +388,10 @@ export default function MyBotsPage() {
         ) : (
           <DashboardEmptyState
             icon={ShoppingBag}
-            title="No bots running yet"
-            description="Open Marketplace to pick a strategy, or Bot Plans to subscribe. Active bots show up here."
-            actionLabel="Browse Marketplace"
-            actionHref="/marketplace"
+            title={EMPTY_STATES.myBots.title}
+            description={EMPTY_STATES.myBots.description}
+            actionLabel={EMPTY_STATES.myBots.ctaLabel}
+            actionHref={EMPTY_STATES.myBots.ctaHref}
             showScene
           />
         )

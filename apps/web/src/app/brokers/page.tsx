@@ -48,7 +48,7 @@ export default function BrokersIndexPage() {
           </p>
           <p>
             Pick a broker below for spreads, minimum deposit, and region notes, then create a
-            free account and open Connected Accounts (or Get Bots) to finish credential
+            free account and open Connected Accounts (or Bot Plans) to finish credential
             linking. Prefer support? See{' '}
             <Link href="/docs" className="font-medium text-primary hover:underline">
               docs
@@ -103,7 +103,7 @@ export default function BrokersIndexPage() {
               Create a free Profytron account and complete onboarding risk preferences.
             </li>
             <li>
-              Open Connected Accounts (or Get Bots) and choose a broker from this directory.
+              Open Connected Accounts (or Bot Plans) and choose a broker from this directory.
             </li>
             <li>
               Enter credentials once; tokens stay broker-side and encrypted for re-use.

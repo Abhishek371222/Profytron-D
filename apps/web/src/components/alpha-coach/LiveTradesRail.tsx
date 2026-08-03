@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Activity, AlertTriangle, Link2, Radio, X } from 'lucide-react';
+import { EMPTY_STATES } from '@/lib/content/empty-states';
 
 type OpenTrade = {
   id?: string;
@@ -170,15 +171,17 @@ export function LiveTradesRail({
               className="space-y-3 rounded-xl border border-dashed border-[var(--card-border)] bg-muted/30 px-3 py-4 text-center"
             >
               <Link2 className="mx-auto h-6 w-6 text-muted-foreground" aria-hidden />
-              <p className="text-sm font-semibold text-foreground">No broker connected</p>
+              <p className="text-sm font-semibold text-foreground">
+                {EMPTY_STATES.coachNoBroker.title}
+              </p>
               <p className="text-[12px] leading-snug text-muted-foreground">
-                Connect a broker to stream live positions into this desk.
+                {EMPTY_STATES.coachNoBroker.description}
               </p>
               <Link
-                href="/connected-accounts"
+                href={EMPTY_STATES.coachNoBroker.ctaHref}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Connect broker
+                {EMPTY_STATES.coachNoBroker.ctaLabel}
               </Link>
             </div>
           )}
@@ -187,15 +190,17 @@ export function LiveTradesRail({
               role="status"
               className="space-y-2 rounded-xl border border-dashed border-[var(--card-border)] bg-muted/30 px-3 py-4 text-center"
             >
-              <p className="text-sm font-semibold text-foreground">No open positions</p>
+              <p className="text-sm font-semibold text-foreground">
+                {EMPTY_STATES.coachNoPositions.title}
+              </p>
               <p className="text-[12px] leading-snug text-muted-foreground">
-                When you have live trades, they appear here for coach context.
+                {EMPTY_STATES.coachNoPositions.description}
               </p>
               <Link
-                href="/markets"
+                href={EMPTY_STATES.coachNoPositions.ctaHref}
                 className="inline-flex text-xs font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Open markets
+                {EMPTY_STATES.coachNoPositions.ctaLabel}
               </Link>
             </div>
           )}

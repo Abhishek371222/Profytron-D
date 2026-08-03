@@ -23,6 +23,7 @@ import {
   Loader2,
   ExternalLink,
 } from 'lucide-react';
+import { EMPTY_STATES } from '@/lib/content/empty-states';
 import { toast } from 'sonner';
 
 function timeAgo(iso: string): string {
@@ -249,15 +250,33 @@ export default function NotificationsPage() {
             <BellOff className="w-7 h-7 text-foreground/10" />
           </div>
           <div className="space-y-2">
-            <p className="text-sm font-bold text-foreground/20 uppercase tracking-widest">
-              {unreadOnly ? 'All caught up' : 'No notifications yet'}
-            </p>
-            <p className="text-xs text-foreground/15 max-w-xs mx-auto">
+            <p className="text-sm font-semibold text-foreground">
               {unreadOnly
-                ? 'You have no unread notifications right now.'
-                : 'Trade alerts, system messages, and updates will appear here.'}
+                ? EMPTY_STATES.notifications.unreadTitle
+                : EMPTY_STATES.notifications.emptyTitle}
+            </p>
+            <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+              {unreadOnly
+                ? EMPTY_STATES.notifications.unreadDescription
+                : EMPTY_STATES.notifications.emptyDescription}
             </p>
           </div>
+          {!unreadOnly && (
+            <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+              <a
+                href="/settings/notifications"
+                className="inline-flex min-h-[44px] items-center rounded-xl border border-[var(--card-border)] px-4 text-xs font-bold uppercase tracking-wide"
+              >
+                Notification settings
+              </a>
+              <a
+                href="/dashboard"
+                className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 text-xs font-bold uppercase tracking-wide text-primary-foreground"
+              >
+                Dashboard
+              </a>
+            </div>
+          )}
         </motion.div>
       ) : (
         <div className="space-y-2.5">

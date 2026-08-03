@@ -355,7 +355,7 @@ export function DashboardEmptyState({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="dashboard-card py-16 px-6 text-center space-y-3">
+    <div className="dashboard-card py-16 px-6 text-center space-y-3" role="status">
       {showScene ? (
         <div className="mx-auto h-20 max-h-20 w-full max-w-[7.5rem]">
           <SceneSlot

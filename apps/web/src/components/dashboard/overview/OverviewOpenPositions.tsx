@@ -15,6 +15,7 @@ import {
   normalizeQuoteKey,
   pnlClass,
 } from './overview-utils';
+import { EMPTY_STATES } from '@/lib/content/empty-states';
 
 export type OverviewPosition = {
   id: string;
@@ -125,9 +126,11 @@ export function OverviewOpenPositions({
             className="flex h-full min-h-[180px] flex-col items-center justify-center gap-3 px-6 text-center"
           >
             <div>
-              <p className="text-sm font-medium text-foreground">No open positions</p>
+              <p className="text-sm font-medium text-foreground">
+                {EMPTY_STATES.openPositions.title}
+              </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Open trades from your connected paper or live account appear here.
+                {EMPTY_STATES.openPositions.description}
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">

@@ -33,6 +33,7 @@ import { strategiesApi } from '@/lib/api/strategies';
 import { formatBotName } from '@/lib/bot-labels';
 import { toast } from 'sonner';
 import { persistDashboardQuery } from '@/lib/queries/dashboard-cache';
+import { EMPTY_STATES } from '@/lib/content/empty-states';
 
 const mapRangeToAnalytics = (range: HistoryDateRange): AnalyticsRange => {
  if (range.type === 'custom') return 'all';
@@ -476,23 +477,23 @@ export default function HistoryPage() {
  <Brain className="w-8 h-8 text-foreground/15" />
  </div>
  <div className="text-center space-y-1 max-w-sm">
-  <p className="text-sm font-medium text-foreground">No trades in this range</p>
+  <p className="text-sm font-medium text-foreground">{EMPTY_STATES.history.title}</p>
   <p className="text-xs text-muted-foreground">
-    Try another date range, clear search, or run a bot / paper account so closes can appear here.
+    {EMPTY_STATES.history.description}
   </p>
  </div>
  <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
   <Link
-    href="/get-bots"
+    href={EMPTY_STATES.history.ctaHref}
     className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 text-xs font-bold uppercase tracking-wide text-primary-foreground"
   >
-    Get bots
+    {EMPTY_STATES.history.ctaLabel}
   </Link>
   <Link
-    href="/marketplace"
+    href={EMPTY_STATES.history.secondaryHref}
     className="inline-flex min-h-[44px] items-center rounded-xl border border-border px-4 text-xs font-bold uppercase tracking-wide text-foreground hover:bg-muted/40"
   >
-    Marketplace
+    {EMPTY_STATES.history.secondaryLabel}
   </Link>
  </div>
  </div>

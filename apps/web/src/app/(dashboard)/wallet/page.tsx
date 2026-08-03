@@ -15,6 +15,7 @@ import { TransactionDetailModal } from '@/components/wallet/TransactionDetailMod
 import type { WalletTransaction } from '@/lib/api/wallet';
 import { Button } from '@/components/ui/button';
 import { DashErrorState } from '@/components/dashboard/DashboardPrimitives';
+import { EMPTY_STATES } from '@/lib/content/empty-states';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
@@ -647,15 +648,15 @@ export default function WalletPage() {
               <WalletIcon className="h-7 w-7 text-muted-foreground" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-sm font-semibold text-foreground">No transactions yet</p>
-              <p className="text-xs text-muted-foreground">Make your first deposit to get started</p>
+              <p className="text-sm font-semibold text-foreground">{EMPTY_STATES.wallet.title}</p>
+              <p className="text-xs text-muted-foreground">{EMPTY_STATES.wallet.description}</p>
             </div>
             <Button
               type="button"
               onClick={() => setIsDepositOpen(true)}
-              className="h-9 px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90"
+              className="min-h-[44px] h-auto px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90"
             >
-              Make a Deposit
+              {EMPTY_STATES.wallet.ctaLabel}
             </Button>
           </div>
         )}

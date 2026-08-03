@@ -42,7 +42,7 @@ export function BrokerSetupClient({ broker }: { broker: BrokerEntry }) {
           <h2 className="dash-section-title mb-4">Quick setup</h2>
           <ol className="list-inside list-decimal space-y-3 text-sm leading-relaxed text-muted-foreground">
             <li>Create a Profytron account and complete onboarding</li>
-            <li>Open Get Bots → Connect Broker → select {broker.displayName}</li>
+            <li>Open Connected Accounts or Bot Plans → Connect Broker → select {broker.displayName}</li>
             <li>Enter your MT login, password, and server name</li>
             <li>Subscribe to a verified marketplace strategy</li>
             <li>Configure lot multiplier and risk limits — trades copy automatically</li>

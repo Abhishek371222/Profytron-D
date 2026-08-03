@@ -10,6 +10,7 @@ import {
   pnlClass,
   relativeTime,
 } from './overview-utils';
+import { EMPTY_STATES } from '@/lib/content/empty-states';
 
 type Props = {
   trades: TradeHistoryRow[];
@@ -54,7 +55,9 @@ export function OverviewRecentTrades({
             className="flex min-h-[160px] flex-col items-center justify-center gap-3 px-6 text-center"
           >
             <div>
-              <p className="text-sm font-medium text-foreground">No recent trades</p>
+              <p className="text-sm font-medium text-foreground">
+                {EMPTY_STATES.recentTrades.title}
+              </p>
               <p className="mt-1 text-xs text-muted-foreground">
                 {syncError === 'METAAPI_UNAUTHORIZED'
                   ? syncMessage ||
@@ -64,7 +67,7 @@ export function OverviewRecentTrades({
                       'Broker sync is temporarily unavailable. Retrying…'
                     : syncMessage
                       ? syncMessage
-                      : 'Closed trades will show here.'}
+                      : EMPTY_STATES.recentTrades.description}
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">
@@ -77,10 +80,10 @@ export function OverviewRecentTrades({
                 </Link>
               ) : (
                 <Link
-                  href="/marketplace"
+                  href={EMPTY_STATES.recentTrades.ctaHref}
                   className="inline-flex min-h-[44px] items-center rounded-lg border border-[var(--card-border)] bg-card px-4 text-xs font-semibold text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  Browse marketplace
+                  {EMPTY_STATES.recentTrades.ctaLabel}
                 </Link>
               )}
             </div>

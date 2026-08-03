@@ -33,6 +33,7 @@ import {
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import { formatBotName, findBotStrategy } from '@/lib/bot-labels';
+import { EMPTY_STATES } from '@/lib/content/empty-states';
 
 const PLANS = [
   {
@@ -179,9 +180,9 @@ export default function CopyTradingPage() {
       {!brokersLoading && !brokersError && !hasConnectedBroker && (
         <DashboardEmptyState
           icon={Link2}
-          title="Connect a broker to buy bots"
-          description="Link MT5 live trading or start paper trading so plan purchases can run executions into an account."
-          actionLabel="Connect broker"
+          title={EMPTY_STATES.botPlansNoBroker.title}
+          description={EMPTY_STATES.botPlansNoBroker.description}
+          actionLabel={EMPTY_STATES.botPlansNoBroker.ctaLabel}
           onAction={() => setConnectOpen(true)}
         >
           <Link
@@ -362,13 +363,18 @@ export default function CopyTradingPage() {
         ) : subscriptions.length === 0 ? (
           <DashboardEmptyState
             icon={Zap}
-            title="No active bots yet"
+            title={EMPTY_STATES.botPlansNoActive.title}
             description={
               hasConnectedBroker
-                ? 'Choose a plan above to enable automated execution. Active bots will show here.'
+                ? EMPTY_STATES.botPlansNoActive.description
                 : 'Connect a broker first, then pick a plan to enable bots.'
             }
-            actionLabel={hasConnectedBroker ? undefined : 'Connect broker'}
+            actionLabel={
+              hasConnectedBroker
+                ? EMPTY_STATES.botPlansNoActive.ctaLabel
+                : EMPTY_STATES.botPlansNoBroker.ctaLabel
+            }
+            actionHref={hasConnectedBroker ? EMPTY_STATES.botPlansNoActive.ctaHref : undefined}
             onAction={hasConnectedBroker ? undefined : () => setConnectOpen(true)}
           />
         ) : (
