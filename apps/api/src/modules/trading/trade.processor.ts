@@ -4,6 +4,7 @@ import type { Job, Queue } from 'bull';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TradingGateway } from './trading.gateway';
 import { MetaTraderAdapter } from '../broker/adapters/metatrader.adapter';
+import { PaperBrokerAdapter } from '../broker/adapters/paper.adapter';
 import { CryptoService } from '../../common/crypto.service';
 import {
   TradeDirection,
@@ -42,6 +43,7 @@ export class TradeProcessor {
     private prisma: PrismaService,
     private gateway: TradingGateway,
     private mtAdapter: MetaTraderAdapter,
+    private paperAdapter: PaperBrokerAdapter,
     private crypto: CryptoService,
     private activationService: ActivationService,
     private market: MarketService,
@@ -741,25 +743,67 @@ export class TradeProcessor {
         );
       }
 
-      const profit =
-        trade.profit ??
-        estimateUnrealizedPnl(
+      // Paper: close via adapter so close_price/profit match estimateUnrealizedPnl
+      // (same estimator the open-position mark uses). Live keeps prior path.
+      let closePrice = currentPrice;
+      let profit: number;
+      let closedAt = new Date();
+
+      if (isPaper) {
+        const paperClose = await this.paperAdapter.closeTrade(
+          trade.brokerTicket ?? trade.id,
           {
             direction: trade.direction,
             volume: trade.volume,
             openPrice: trade.openPrice,
             fillPrice: trade.fillPrice,
+            closePrice: currentPrice,
+            openedAt: trade.openedAt,
           },
-          currentPrice,
         );
+        if (
+          paperClose.calculated &&
+          paperClose.close_price != null &&
+          paperClose.profit != null
+        ) {
+          closePrice = paperClose.close_price;
+          profit = paperClose.profit;
+          closedAt = new Date(paperClose.closedAt);
+        } else {
+          // Insufficient ticket-only / bad inputs: do not store placeholder zeros.
+          profit =
+            trade.profit ??
+            estimateUnrealizedPnl(
+              {
+                direction: trade.direction,
+                volume: trade.volume,
+                openPrice: trade.openPrice,
+                fillPrice: trade.fillPrice,
+              },
+              currentPrice,
+            );
+        }
+      } else {
+        profit =
+          trade.profit ??
+          estimateUnrealizedPnl(
+            {
+              direction: trade.direction,
+              volume: trade.volume,
+              openPrice: trade.openPrice,
+              fillPrice: trade.fillPrice,
+            },
+            currentPrice,
+          );
+      }
 
       const { count } = await this.prisma.trade.updateMany({
         where: { id: trade.id, status: TradeStatus.OPEN },
         data: {
           status: TradeStatus.CLOSED,
-          closePrice: currentPrice,
+          closePrice,
           profit,
-          closedAt: new Date(),
+          closedAt,
         },
       });
       if (count > 0) {

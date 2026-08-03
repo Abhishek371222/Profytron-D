@@ -40,6 +40,7 @@ import { SyncModule } from '../sync/sync.module';
   exports: [
     BrokerService,
     MetaTraderAdapter,
+    PaperBrokerAdapter,
     CryptoService,
     AccountHistorySyncService,
     AccountSnapshotGateway,
