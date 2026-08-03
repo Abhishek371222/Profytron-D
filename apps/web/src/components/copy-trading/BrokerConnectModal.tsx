@@ -13,6 +13,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useModalMotionProps } from '@/platform/motion';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { celebrateSuccessMoment } from '@/lib/activation/success-moments';
 import {
   ADOPTION_EVENTS,
@@ -54,6 +55,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
   const [error, setError] = React.useState('');
   const [pending, setPending] = React.useState(false);
   const [bridgeToken, setBridgeToken] = React.useState('');
+  const [bridgeTokenRevealed, setBridgeTokenRevealed] = React.useState(false);
   const [brokerFilter, setBrokerFilter] = React.useState('BITRAGE');
   const [serverChoice, setServerChoice] = React.useState(
     'BitrageCapitalMarkets-Server',
@@ -116,6 +118,9 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
       setBridgeToken(
         typeof result?.bridgeToken === 'string' ? result.bridgeToken : '',
       );
+      setBridgeTokenRevealed(false);
+      // Drop MT5 password from client state as soon as connect succeeds.
+      setForm((f) => ({ ...f, password: '' }));
       setStep('success');
       celebrateSuccessMoment(
         'broker_connected',
@@ -156,6 +161,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
     setError('');
     setPending(false);
     setBridgeToken('');
+    setBridgeTokenRevealed(false);
     setMode('live');
     setBrokerFilter('BITRAGE');
     setServerChoice('BitrageCapitalMarkets-Server');
@@ -384,6 +390,9 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                             setForm({ ...form, password: e.target.value })
                           }
                           placeholder="Master (trading) password"
+                          autoComplete="off"
+                          autoCapitalize="off"
+                          spellCheck={false}
                           className="w-full px-3 py-2.5 rounded-xl bg-bg-card border border-border-default text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-chart-2/50"
                           required={mode === 'live'}
                         />
@@ -456,20 +465,51 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
                       </p>
                       <p className="text-[11px] text-text-muted">
                         Paste into ProfytronCopyBridge EA on your MT5 so live
-                        orders place on your broker. Keep MT5 + EA running.
+                        orders place on your broker. Keep MT5 + EA running. Token
+                        is hidden by default — reveal only when pasting.
                       </p>
-                      <code className="block break-all rounded-lg bg-muted/40 px-2 py-2 text-[11px] text-text-primary">
-                        {bridgeToken}
-                      </code>
-                      <button
-                        type="button"
-                        className="text-xs text-chart-2 underline"
-                        onClick={() =>
-                          void navigator.clipboard.writeText(bridgeToken)
+                      <code
+                        className="block break-all rounded-lg bg-muted/40 px-2 py-2 text-[11px] text-text-primary"
+                        aria-label={
+                          bridgeTokenRevealed
+                            ? 'Bridge token value'
+                            : 'Bridge token value, hidden'
                         }
                       >
-                        Copy token
-                      </button>
+                        {bridgeTokenRevealed
+                          ? bridgeToken
+                          : '•'.repeat(Math.min(40, Math.max(20, bridgeToken.length)))}
+                      </code>
+                      <div className="flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          className="text-xs text-chart-2 underline"
+                          aria-pressed={bridgeTokenRevealed}
+                          onClick={() => setBridgeTokenRevealed((v) => !v)}
+                        >
+                          {bridgeTokenRevealed ? 'Hide token' : 'Reveal token'}
+                        </button>
+                        <button
+                          type="button"
+                          className="text-xs text-chart-2 underline"
+                          onClick={() => {
+                            void (async () => {
+                              try {
+                                await navigator.clipboard.writeText(bridgeToken);
+                                toast.success(
+                                  'Bridge token copied — paste into the EA only',
+                                );
+                              } catch {
+                                toast.error(
+                                  'Could not copy — reveal the token and copy manually',
+                                );
+                              }
+                            })();
+                          }}
+                        >
+                          Copy token
+                        </button>
+                      </div>
                     </div>
                   )}
                   <Button

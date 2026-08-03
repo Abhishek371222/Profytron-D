@@ -341,12 +341,18 @@ export default function ConnectedAccountsPage() {
       if (token) {
         try {
           await navigator.clipboard.writeText(token);
+          toast.success('Bridge token rotated and copied', {
+            description:
+              'Paste into ProfytronCopyBridge on MT5. The token is not shown here for security.',
+            duration: 12_000,
+          });
         } catch {
+          toast.success('Bridge token rotated', {
+            description:
+              'Clipboard unavailable — re-open Bridge EA token flow if you need another copy.',
+            duration: 12_000,
+          });
         }
-        toast.success('Bridge token rotated (copied)', {
-          description: token.slice(0, 12) + '… — paste into ProfytronCopyBridge EA',
-          duration: 12_000,
-        });
       } else {
         toast.success('Bridge token rotated');
       }

@@ -10,6 +10,7 @@ import {
   Zap,
   CreditCard,
   MessageSquare,
+  Key,
 } from '@/components/ui/icons';
 import {
   DashboardPage,
@@ -21,6 +22,7 @@ import {
 const navItems = [
   { name: 'Profile', icon: User, href: '/settings/profile' },
   { name: 'Security', icon: Shield, href: '/settings/security' },
+  { name: 'API access', icon: Key, href: '/settings/api-keys' },
   { name: 'Verification', icon: ShieldCheck, href: '/settings/kyc' },
   { name: 'Notifications', icon: Bell, href: '/settings/notifications' },
   { name: 'Trading', icon: Zap, href: '/settings/trading' },

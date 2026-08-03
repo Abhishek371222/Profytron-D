@@ -42,6 +42,7 @@ export default function SecuritySettingsPage() {
   const [is2faSetupLoading, setIs2faSetupLoading] = React.useState(false);
   const [is2faVerifyBusy, setIs2faVerifyBusy] = React.useState(false);
   const [is2faDisableBusy, setIs2faDisableBusy] = React.useState(false);
+  const [secretRevealed, setSecretRevealed] = React.useState(false);
   const setupInFlightRef = React.useRef(false);
 
   const [passwordResetStep, setPasswordResetStep] =
@@ -262,6 +263,28 @@ export default function SecuritySettingsPage() {
     setSetupSecret(null);
     setSetupQr(null);
     setVerifyToken('');
+    setSecretRevealed(false);
+  };
+
+  /** Do not keep TOTP seed, QR, or backup codes in memory after leaving Security. */
+  React.useEffect(() => {
+    return () => {
+      setSetupSecret(null);
+      setSetupQr(null);
+      setVerifyToken('');
+      setSecretRevealed(false);
+      setBackupCodes([]);
+      setDisableToken('');
+    };
+  }, []);
+
+  const copyToClipboard = async (value: string, success: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success(success);
+    } catch {
+      toast.error('Could not copy — select the text manually');
+    }
   };
 
   const begin2faSetup = async () => {
@@ -320,6 +343,13 @@ export default function SecuritySettingsPage() {
       toast.error('Enter your authenticator or backup code');
       return;
     }
+    if (
+      !window.confirm(
+        'Disable two-factor authentication? Your account will only require password (or Google) until you enable 2FA again.',
+      )
+    ) {
+      return;
+    }
     setIs2faDisableBusy(true);
     try {
       await authApi.disableTwoFactor(disableToken.trim());
@@ -329,7 +359,7 @@ export default function SecuritySettingsPage() {
       setBackupCodes([]);
       toast.success('Two-factor authentication disabled');
     } catch (error) {
-      toast.error(apiErrorMessage(error, 'Could not disable 2FA — check your code'));
+      toast.error(apiErrorMessage(error, 'Could not disable 2FA'));
     } finally {
       setIs2faDisableBusy(false);
     }
@@ -433,9 +463,49 @@ export default function SecuritySettingsPage() {
               </ol>
               <img src={setupQr} alt="2FA QR code" className="h-40 w-40 rounded-lg bg-white p-2" />
               {setupSecret && (
-                <div className="space-y-1">
+                <div className="space-y-2 min-w-0">
                   <p className="text-xs font-medium text-foreground">Manual setup key</p>
-                  <p className="text-xs font-mono text-muted-foreground break-all">{setupSecret}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Hidden by default. Reveal only if your authenticator cannot scan the QR code.
+                  </p>
+                  <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center">
+                    <code
+                      className="min-w-0 flex-1 break-all rounded-lg border border-[var(--card-border)] bg-muted/30 px-3 py-2 text-xs font-mono text-foreground select-all"
+                      aria-label={
+                        secretRevealed
+                          ? 'Authenticator manual setup key'
+                          : 'Authenticator manual setup key, hidden'
+                      }
+                    >
+                      {secretRevealed
+                        ? setupSecret
+                        : '•'.repeat(Math.min(32, Math.max(16, setupSecret.length)))}
+                    </code>
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      <DashButton
+                        type="button"
+                        variant="outline"
+                        className="font-sans text-xs"
+                        onClick={() => setSecretRevealed((v) => !v)}
+                        aria-pressed={secretRevealed}
+                      >
+                        {secretRevealed ? 'Hide key' : 'Reveal key'}
+                      </DashButton>
+                      <DashButton
+                        type="button"
+                        variant="outline"
+                        className="font-sans text-xs"
+                        onClick={() =>
+                          void copyToClipboard(
+                            setupSecret,
+                            'Setup key copied — paste into your authenticator only',
+                          )
+                        }
+                      >
+                        Copy key
+                      </DashButton>
+                    </div>
+                  </div>
                 </div>
               )}
               <SettingsField label="Verification code">
@@ -475,20 +545,39 @@ export default function SecuritySettingsPage() {
           {is2faEnabled && (
             <div className="space-y-3 max-w-md border-t border-[var(--card-border)] pt-4">
               {backupCodes.length > 0 && (
-                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs font-mono space-y-1">
-                  <p className="font-semibold text-foreground mb-2 font-sans">
+                <div
+                  className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-xs space-y-2"
+                  role="status"
+                >
+                  <p className="font-semibold text-foreground font-sans">
                     Save these backup codes now — each works once if you lose your authenticator
                   </p>
-                  {backupCodes.map((code) => (
-                    <div key={code}>{code}</div>
-                  ))}
-                  <DashButton
-                    variant="outline"
-                    className="mt-3 font-sans"
-                    onClick={() => setBackupCodes([])}
-                  >
-                    I saved these codes
-                  </DashButton>
+                  <ul className="font-mono space-y-1 select-all" aria-label="2FA backup codes">
+                    {backupCodes.map((code) => (
+                      <li key={code}>{code}</li>
+                    ))}
+                  </ul>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <DashButton
+                      variant="outline"
+                      className="font-sans"
+                      onClick={() =>
+                        void copyToClipboard(
+                          backupCodes.join('\n'),
+                          'Backup codes copied — store them offline securely',
+                        )
+                      }
+                    >
+                      Copy all codes
+                    </DashButton>
+                    <DashButton
+                      variant="outline"
+                      className="font-sans"
+                      onClick={() => setBackupCodes([])}
+                    >
+                      I saved these codes
+                    </DashButton>
+                  </div>
                 </div>
               )}
               <SettingsField label="Code to disable 2FA">
@@ -530,8 +619,17 @@ export default function SecuritySettingsPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => usersApi.revokeSession(s.id).then(() => refreshSessions())}
-                  className="text-xs text-destructive"
+                  onClick={() => {
+                    if (
+                      !window.confirm(
+                        `Revoke session on ${s.device || 'this device'}? You will need to sign in again on that device.`,
+                      )
+                    ) {
+                      return;
+                    }
+                    void usersApi.revokeSession(s.id).then(() => refreshSessions());
+                  }}
+                  className="text-xs text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 >
                   Revoke
                 </button>
