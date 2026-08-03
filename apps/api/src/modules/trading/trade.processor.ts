@@ -268,13 +268,21 @@ export class TradeProcessor {
       if (signalId) {
         const prior = await this.prisma.trade.findFirst({
           where: {
-            userId,
-            brokerAccountId: brokerAccount.id,
-            status: TradeStatus.OPEN,
-            executionMetadataJson: {
-              path: ['signalId'],
-              equals: signalId,
-            },
+            OR: [
+              {
+                brokerAccountId: brokerAccount.id,
+                signalId,
+              },
+              {
+                userId,
+                brokerAccountId: brokerAccount.id,
+                status: TradeStatus.OPEN,
+                executionMetadataJson: {
+                  path: ['signalId'],
+                  equals: signalId,
+                },
+              },
+            ],
           },
         });
         if (prior) {
@@ -361,38 +369,56 @@ export class TradeProcessor {
         liveFillMode = 'bridge';
       }
 
-      const trade = await this.prisma.trade.create({
-        data: {
-          userId,
-          strategyId: strategyId ?? null,
-          brokerAccountId: brokerAccount.id,
-          symbol: pair,
-          direction,
-          volume,
-          openPrice: adjustedFillPrice,
-          status: TradeStatus.OPEN,
-          openedAt: new Date(),
-          isPaper: brokerAccount.isPaperTrading,
-          stopLoss: requestedStopLoss ?? null,
-          takeProfit: requestedTakeProfit ?? null,
-          requestedPrice: requestedPrice ?? price,
-          fillPrice: adjustedFillPrice,
-          slippageBps: slippageBps ?? 0,
-          executionLatencyMs,
-          brokerTicket: brokerOrderId,
-          icebergSliceIndex: icebergSliceIndex ?? null,
-          icebergSliceCount: icebergSliceCount ?? null,
-          executionMode: executionMode ?? 'STREAMED',
-          executionMetadataJson: {
-            ...(executionMetadataJson ?? {}),
-            signalId: signalId ?? null,
-            subscriptionId: subscriptionId ?? null,
-            masterPositionId: masterPositionId ?? null,
+      let trade;
+      try {
+        trade = await this.prisma.trade.create({
+          data: {
+            userId,
+            strategyId: strategyId ?? null,
+            brokerAccountId: brokerAccount.id,
+            symbol: pair,
+            direction,
+            volume,
+            openPrice: adjustedFillPrice,
+            status: TradeStatus.OPEN,
+            openedAt: new Date(),
+            isPaper: brokerAccount.isPaperTrading,
+            stopLoss: requestedStopLoss ?? null,
+            takeProfit: requestedTakeProfit ?? null,
+            requestedPrice: requestedPrice ?? price,
+            fillPrice: adjustedFillPrice,
+            slippageBps: slippageBps ?? 0,
             executionLatencyMs,
-            liveFillMode,
+            brokerTicket: brokerOrderId,
+            icebergSliceIndex: icebergSliceIndex ?? null,
+            icebergSliceCount: icebergSliceCount ?? null,
+            executionMode: executionMode ?? 'STREAMED',
+            signalId: signalId ?? null,
+            executionMetadataJson: {
+              ...(executionMetadataJson ?? {}),
+              signalId: signalId ?? null,
+              subscriptionId: subscriptionId ?? null,
+              masterPositionId: masterPositionId ?? null,
+              executionLatencyMs,
+              liveFillMode,
+            },
           },
-        },
-      });
+        });
+      } catch (err: any) {
+        // Concurrent worker won the signal unique race — treat as success/idempotent.
+        if (err?.code === 'P2002' && signalId) {
+          const prior = await this.prisma.trade.findFirst({
+            where: { brokerAccountId: brokerAccount.id, signalId },
+          });
+          if (prior) {
+            this.logger.warn(
+              `Race-safe skip after unique signal violation: signal=${signalId} trade=${prior.id}`,
+            );
+            return prior;
+          }
+        }
+        throw err;
+      }
 
       if (subscriptionId || masterPositionId) {
         await this.ledger.recordExecution({

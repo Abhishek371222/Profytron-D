@@ -449,6 +449,29 @@ export default function BillingCenterPage() {
               <PlanCardSkeleton />
             </>
           )}
+          {!billingQuery.isLoading && plans.length === 0 && (
+            <div className="col-span-full rounded-2xl border border-border bg-muted/20 p-8 text-center">
+              <p className="text-sm font-semibold text-foreground">Plans unavailable</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                We couldn&apos;t load plan cards. Retry or view public pricing.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => refreshBilling()}
+                  className="min-h-[44px] rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground"
+                >
+                  Retry
+                </button>
+                <Link
+                  href="/pricing"
+                  className="min-h-[44px] inline-flex items-center rounded-lg border border-border px-4 text-sm font-semibold"
+                >
+                  Open pricing
+                </Link>
+              </div>
+            </div>
+          )}
           {plans.map((plan) => {
             const isActive = activePlanId === plan.id || activePlanName === plan.name;
             const price =
@@ -490,7 +513,7 @@ export default function BillingCenterPage() {
                 )}
                 <p className="text-sm text-muted-foreground mt-2 flex-1 leading-relaxed">{plan.description}</p>
                 <ul className="mt-4 space-y-1.5 mb-6">
-                  {features.slice(0, 4).map((f) => (
+                  {features.map((f) => (
                     <li key={f} className="text-xs text-foreground/60 flex gap-1.5">
                       <span className="text-primary" aria-hidden>
                         ·
@@ -695,7 +718,13 @@ export default function BillingCenterPage() {
             ))}
           </div>
         ) : invoices.length === 0 ? (
-          <p className="p-8 text-center text-sm text-muted-foreground">No invoices yet.</p>
+          <p className="p-8 text-center text-sm text-muted-foreground">
+            No invoices yet.{' '}
+            <a href="#billing-plans" className="text-primary underline-offset-2 hover:underline">
+              Choose a plan
+            </a>{' '}
+            to get started.
+          </p>
         ) : (
           <div className="responsive-table-shell">
             <div className="responsive-table-inner">

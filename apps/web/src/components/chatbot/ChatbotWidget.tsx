@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUIStore } from '@/lib/stores/useUIStore';
+import { trackEvent } from '@/lib/analytics/track';
 import { CoachOrb } from '@/components/experience/CoachOrb';
 import {
   coachVisualApi,
@@ -176,6 +177,7 @@ export function ChatbotWidget({ initialOpen = false }: { initialOpen?: boolean }
   useEffect(() => {
     if (isOpen) {
       setHasUnread(false);
+      trackEvent('chatbot_opened');
       const t = setTimeout(() => inputRef.current?.focus(), 300);
       return () => clearTimeout(t);
     }

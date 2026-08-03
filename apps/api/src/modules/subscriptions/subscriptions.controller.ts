@@ -20,7 +20,10 @@ import { Throttle } from '@nestjs/throttler';
 import type { Response } from 'express';
 import { JwtAuthGuard, Public } from '../auth/guards/auth.guard';
 import { PaymentsService } from '../payments/payments.service';
-import { CheckoutSubscriptionDto, StartTrialDto } from './dto/subscriptions.dto';
+import {
+  CheckoutSubscriptionDto,
+  StartTrialDto,
+} from './dto/subscriptions.dto';
 
 @ApiTags('Subscriptions')
 @Controller('subscriptions')

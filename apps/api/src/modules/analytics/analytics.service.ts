@@ -209,9 +209,7 @@ export class AnalyticsService {
     return maxWins;
   }
 
-  private dailyReturnPctSeries(
-    curve: { equity: number }[],
-  ): number[] {
+  private dailyReturnPctSeries(curve: { equity: number }[]): number[] {
     const returns: number[] = [];
     for (let i = 1; i < curve.length; i++) {
       const prev = curve[i - 1].equity;
@@ -703,7 +701,8 @@ export class AnalyticsService {
         session: name,
         pnl: this.round(row.pnl),
         trades: row.trades,
-        winRatePct: row.trades > 0 ? this.round((row.wins / row.trades) * 100) : 0,
+        winRatePct:
+          row.trades > 0 ? this.round((row.wins / row.trades) * 100) : 0,
       };
     });
 
@@ -716,7 +715,13 @@ export class AnalyticsService {
       dowMap.set(dow, row);
     }
     const dayOfWeekPerformance = [
-      'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
     ].map((name, idx) => {
       const row = dowMap.get(idx) ?? { pnl: 0, trades: 0 };
       return { day: name, pnl: this.round(row.pnl), trades: row.trades };

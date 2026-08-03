@@ -59,10 +59,7 @@ export class TelegramController {
   @ApiResponse({ status: 201, description: 'Linked' })
   @UseGuards(JwtAuthGuard)
   @Post('link')
-  async linkAccount(
-    @Req() req: AuthRequest,
-    @Body() body: LinkTelegramDto,
-  ) {
+  async linkAccount(@Req() req: AuthRequest, @Body() body: LinkTelegramDto) {
     return this.telegramService.registerTelegramUser(
       req.user.id,
       body.telegramChatId,

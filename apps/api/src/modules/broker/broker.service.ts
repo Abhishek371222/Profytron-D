@@ -415,10 +415,7 @@ export class BrokerService {
     ];
   }
 
-  private async enrichAccount(
-    account: any,
-    opts?: { forceLive?: boolean },
-  ) {
+  private async enrichAccount(account: any, opts?: { forceLive?: boolean }) {
     const { credentialsEncrypted, ...safe } = account;
 
     if (account.isPaperTrading) {
@@ -607,7 +604,10 @@ export class BrokerService {
         };
         lastSyncedAt = lastConnectedAt;
         liveSynced = true;
-        if (connectionStatus === 'SYNCING' || connectionStatus === 'CONNECTING') {
+        if (
+          connectionStatus === 'SYNCING' ||
+          connectionStatus === 'CONNECTING'
+        ) {
           connectionStatus = 'CONNECTED';
         }
       }
@@ -647,7 +647,11 @@ export class BrokerService {
       syncDurationMs,
       metaApiLatencyMs,
       apiVersion,
-      source: live ? (syncStatus === 'LIVE_SOFT' ? 'metaapi' : 'database') : 'last_known',
+      source: live
+        ? syncStatus === 'LIVE_SOFT'
+          ? 'metaapi'
+          : 'database'
+        : 'last_known',
       fillMode: 'metaapi',
       storeOnly: false,
     };

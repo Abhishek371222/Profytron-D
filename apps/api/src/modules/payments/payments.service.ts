@@ -731,7 +731,8 @@ export class PaymentsService {
                     source: 'stripe_payment_intent',
                     paymentIntentId: intent.id,
                   },
-                  `stripe_deposit_${intent.id}`,
+                  // Canonical deposit key = PaymentIntent id (matches initiateDeposit)
+                  intent.id,
                 );
               }
             } catch (err) {
@@ -2668,6 +2669,8 @@ export class PaymentsService {
         : null,
       gatewayPaymentId ? `razorpay_payment_${gatewayPaymentId}` : null,
       gatewayPaymentId ? `profit_share_upfront_${gatewayPaymentId}` : null,
+      // Canonical Stripe deposit key is the PaymentIntent id; keep legacy prefix for older rows.
+      gatewayPaymentId ? gatewayPaymentId : null,
       gatewayPaymentId ? `stripe_deposit_${gatewayPaymentId}` : null,
     ].filter((k): k is string => Boolean(k));
 

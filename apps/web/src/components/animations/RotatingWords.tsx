@@ -28,6 +28,11 @@ export function RotatingWords({
 
   useEffect(() => {
     if (reduceMotion || words.length <= 1) return;
+    const mobile =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(max-width: 767px)').matches;
+    // Keep mobile LCP stable — first word only (PT-W01 / W02)
+    if (mobile) return;
     const id = setInterval(() => {
       setHasRotated(true);
       setIndex((i) => (i + 1) % words.length);

@@ -9,6 +9,8 @@ import {
   MarketingCard,
 } from '@/components/marketing/MarketingPage';
 import { ArrowRight, Mail, CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+import { trackEvent } from '@/lib/analytics/track';
 
 export default function CareersPage() {
   const [email, setEmail] = useState('');
@@ -16,7 +18,10 @@ export default function CareersPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) setSubmitted(true);
+    if (email) {
+      trackEvent('careers_notify_submit', { source: 'careers_page' });
+      setSubmitted(true);
+    }
   };
 
   return (
@@ -97,12 +102,29 @@ export default function CareersPage() {
             Send us your work now. Exceptional people don&apos;t wait for job postings.
           </p>
           <a
-            href="mailto:support@profytron.com"
+            href="mailto:support@profytron.com?subject=Careers%20intro"
             className="inline-flex items-center gap-3 rounded-xl bg-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground shadow-[0_0_24px_color-mix(in_srgb,var(--primary)_30%,transparent)] transition-all hover:bg-primary-hover"
           >
             <Mail className="h-4 w-4" /> support@profytron.com
           </a>
         </MarketingCard>
+        <div className="mt-10 text-center">
+          <p className="text-sm font-semibold text-foreground">Also explore</p>
+          <ul className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            {[
+              { href: '/about', label: 'About' },
+              { href: '/community', label: 'Community' },
+              { href: '/blog', label: 'Blog' },
+              { href: '/contact', label: 'Contact' },
+            ].map((item) => (
+              <li key={item.href}>
+                <Link href={item.href} className="text-primary hover:underline">
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </MarketingSection>
     </PublicPageLayout>
   );

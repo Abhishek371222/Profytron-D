@@ -59,7 +59,10 @@ export class AnalyticsController {
     // resets expiry) — silently quadrupling recompute frequency and issuing
     // a redundant extra Redis round trip per request. Call the service
     // directly and let it own its own cache lifetime.
-    return this.analyticsService.getPortfolioStats(req.user.id, normalizedRange);
+    return this.analyticsService.getPortfolioStats(
+      req.user.id,
+      normalizedRange,
+    );
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -107,10 +110,7 @@ export class AnalyticsController {
       `analytics:advanced:${req.user.id}:${normalizedRange}`,
       120,
       () =>
-        this.analyticsService.getAdvancedMetrics(
-          req.user.id,
-          normalizedRange,
-        ),
+        this.analyticsService.getAdvancedMetrics(req.user.id, normalizedRange),
     );
   }
 
@@ -122,7 +122,10 @@ export class AnalyticsController {
   async getTrades(@Req() req: any, @Query('range') range?: string) {
     const normalizedRange = this.normalizeRange(range);
     // Already Redis-cached inside the service under this exact key/TTL.
-    return this.analyticsService.getTradeAnalytics(req.user.id, normalizedRange);
+    return this.analyticsService.getTradeAnalytics(
+      req.user.id,
+      normalizedRange,
+    );
   }
 
   @ApiResponse({ status: 200, description: 'OK' })
@@ -142,7 +145,10 @@ export class AnalyticsController {
     const normalizedRange = this.normalizeRange(range);
     // Already Redis-cached inside the service (under a different key,
     // `analytics:execution-metrics:*`) — this outer layer was pure duplicate work.
-    return this.analyticsService.getExecutionMetrics(req.user.id, normalizedRange);
+    return this.analyticsService.getExecutionMetrics(
+      req.user.id,
+      normalizedRange,
+    );
   }
 
   @ApiResponse({ status: 200, description: 'OK' })

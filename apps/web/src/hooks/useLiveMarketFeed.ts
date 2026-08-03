@@ -136,7 +136,13 @@ export function useLiveMarketFeed(
     queryFn: fetchLiveQuotesFromVercel,
     enabled,
     staleTime: 10_000,
-    refetchInterval: 12_000,
+    refetchInterval: (q) => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return 18_000;
+    },
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
     retry: 2,
   });

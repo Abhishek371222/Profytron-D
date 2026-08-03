@@ -1,12 +1,18 @@
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 
-function buildService(overrides: {
-  plan?: any;
-  user?: any;
-  existingActive?: any;
-  txSub?: any;
-} = {}) {
+function buildService(
+  overrides: {
+    plan?: any;
+    user?: any;
+    existingActive?: any;
+    txSub?: any;
+  } = {},
+) {
   const plan = overrides.plan ?? {
     id: 'plan_starter',
     name: 'Starter',
@@ -95,7 +101,9 @@ describe('PaymentsService.startPlatformTrial', () => {
   });
 
   it('rejects when the plan is not trial-eligible', async () => {
-    const { service } = buildService({ plan: { id: 'plan_business', name: 'Business' } });
+    const { service } = buildService({
+      plan: { id: 'plan_business', name: 'Business' },
+    });
     await expect(
       service.startPlatformTrial('user_1', 'plan_business'),
     ).rejects.toBeInstanceOf(BadRequestException);
@@ -138,14 +146,17 @@ describe('PaymentsService.startPlatformTrial', () => {
   });
 
   it('rejects when the user already has an active subscription', async () => {
-    const { service } = buildService({ existingActive: { id: 'existing_sub' } });
+    const { service } = buildService({
+      existingActive: { id: 'existing_sub' },
+    });
     await expect(
       service.startPlatformTrial('user_1', 'plan_starter'),
     ).rejects.toBeInstanceOf(ForbiddenException);
   });
 
   it('grants the trial, marks hasUsedPlatformTrial, and fires notifications on success', async () => {
-    const { service, prisma, notifications, emailService, agentEvents } = buildService();
+    const { service, prisma, notifications, emailService, agentEvents } =
+      buildService();
 
     const result = await service.startPlatformTrial('user_1', 'plan_starter');
 

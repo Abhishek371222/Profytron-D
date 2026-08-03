@@ -527,12 +527,20 @@ export default function SubscriptionsPage() {
               </p>
             </div>
             {activeFilter === 'ALL' && (
-              <Link
-                href="/marketplace"
-                className="inline-flex items-center gap-2 h-9 px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors"
-              >
-                Browse Marketplace
-              </Link>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Link
+                  href="/marketplace"
+                  className="inline-flex min-h-[44px] items-center gap-2 px-5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wide hover:bg-primary/90 transition-colors"
+                >
+                  Browse marketplace
+                </Link>
+                <Link
+                  href="/get-bots"
+                  className="inline-flex min-h-[44px] items-center gap-2 px-5 rounded-xl border border-[var(--card-border)] text-xs font-bold uppercase tracking-wide hover:bg-muted/40 transition-colors"
+                >
+                  Get bots
+                </Link>
+              </div>
             )}
           </div>
         )}

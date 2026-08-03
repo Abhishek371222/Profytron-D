@@ -131,7 +131,7 @@ function BrandMark({
       >
         <Image
           src={src}
-          alt=""
+          alt="Profytron logo"
           width={175}
           height={177}
           sizes="64px"
@@ -150,7 +150,7 @@ function BrandMark({
     >
       <Image
         src={src}
-        alt=""
+        alt="Profytron logo"
         width={624}
         height={400}
         sizes="160px"

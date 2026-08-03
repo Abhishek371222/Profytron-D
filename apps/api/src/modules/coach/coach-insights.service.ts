@@ -171,7 +171,9 @@ export class CoachInsightsService {
       .map(([question, count]) => ({ question, count }));
 
     const suggestionClickCounts = new Map<string, number>();
-    for (const r of rows.filter((x) => x.event === 'coach_suggestion_clicked')) {
+    for (const r of rows.filter(
+      (x) => x.event === 'coach_suggestion_clicked',
+    )) {
       const m = r.metadata as Record<string, unknown> | null;
       const label = String(m?.label || r.questionPreview || 'unknown');
       suggestionClickCounts.set(
@@ -191,8 +193,9 @@ export class CoachInsightsService {
       if (!daysByUser.has(r.userId)) daysByUser.set(r.userId, new Set());
       daysByUser.get(r.userId)!.add(day);
     }
-    const multiDayUsers = [...daysByUser.values()].filter((d) => d.size >= 2)
-      .length;
+    const multiDayUsers = [...daysByUser.values()].filter(
+      (d) => d.size >= 2,
+    ).length;
 
     const toolFailByTool = new Map<string, number>();
     for (const r of grounded) {

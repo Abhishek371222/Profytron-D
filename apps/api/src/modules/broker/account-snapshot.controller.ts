@@ -52,14 +52,18 @@ export class AccountSnapshotController {
 
   @Get('positions')
   @ApiResponse({ status: 200, description: 'OK' })
-  @ApiOperation({ summary: 'Get open positions from the latest stored snapshot' })
+  @ApiOperation({
+    summary: 'Get open positions from the latest stored snapshot',
+  })
   async getPositions(@Req() req: AuthReq, @Param('id') accountId: string) {
     return this.snapshots.getPositions(req.user.userId, accountId);
   }
 
   @Get('pending-orders')
   @ApiResponse({ status: 200, description: 'OK' })
-  @ApiOperation({ summary: 'Get pending orders from the latest stored snapshot' })
+  @ApiOperation({
+    summary: 'Get pending orders from the latest stored snapshot',
+  })
   async getPendingOrders(@Req() req: AuthReq, @Param('id') accountId: string) {
     return this.snapshots.getPendingOrders(req.user.userId, accountId);
   }

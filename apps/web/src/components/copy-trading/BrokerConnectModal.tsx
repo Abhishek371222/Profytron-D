@@ -18,6 +18,13 @@ import {
   ADOPTION_EVENTS,
   trackAdoptionEvent,
 } from '@/lib/analytics/track-adoption';
+import {
+  ACTIVATION_EVENTS,
+  clearActivationStart,
+  getTimeToFirstBrokerSeconds,
+  trackActivation,
+  trackEvent,
+} from '@/lib/analytics/track';
 
 interface Props {
   open: boolean;
@@ -83,6 +90,7 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
     e.preventDefault();
     setStep('testing');
     setError('');
+    trackEvent('broker_connect_started', { mode });
     try {
       let result: any;
       if (mode === 'paper') {
@@ -117,6 +125,27 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
         mode === 'paper' ? 'Paper account ready' : 'Broker connected',
         'Next: ask Alpha Coach or activate a strategy from the checklist.',
       );
+      const timeToFirstBrokerSeconds = getTimeToFirstBrokerSeconds();
+      void trackActivation(ACTIVATION_EVENTS.BROKER_CONNECTED, {
+        mode,
+        ...(timeToFirstBrokerSeconds != null
+          ? { time_to_first_broker_seconds: timeToFirstBrokerSeconds }
+          : {}),
+      });
+      trackEvent('broker_connected', {
+        mode,
+        ...(timeToFirstBrokerSeconds != null
+          ? { time_to_first_broker_seconds: timeToFirstBrokerSeconds }
+          : {}),
+      });
+      // PT-K03 — dedicated funnel event for PostHog dashboards
+      if (timeToFirstBrokerSeconds != null) {
+        trackEvent('time_to_first_broker', {
+          mode,
+          seconds: timeToFirstBrokerSeconds,
+        });
+        clearActivationStart();
+      }
       trackAdoptionEvent(ADOPTION_EVENTS.RECOVERY_SUCCESS, {
         step: 'broker',
         metadata: { mode, recovered: false },
@@ -128,8 +157,13 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
       void queryClient.invalidateQueries({ queryKey: ['activation-progress'] });
       onConnected?.();
     } catch (err: any) {
-      setError(extractErrorMessage(err));
+      const msg = extractErrorMessage(err);
+      setError(msg);
       setStep('error');
+      trackEvent('broker_connect_failed', {
+        mode,
+        reason: String(msg).slice(0, 120),
+      });
       trackAdoptionEvent(ADOPTION_EVENTS.RETRY, {
         step: 'broker',
         metadata: { phase: 'failed' },

@@ -147,10 +147,7 @@ export class AppController {
   @Get('health')
   async getHealth(@Res({ passthrough: true }) res: Response) {
     const cached = this.healthCache;
-    if (
-      cached &&
-      Date.now() - cached.at < AppController.HEALTH_CACHE_TTL_MS
-    ) {
+    if (cached && Date.now() - cached.at < AppController.HEALTH_CACHE_TTL_MS) {
       if (cached.statusCode !== 200) res.status(cached.statusCode);
       return cached.body;
     }
@@ -185,11 +182,7 @@ export class AppController {
     const anyDegraded =
       redis !== 'connected' || queue !== 'healthy' || websocket !== 'healthy';
 
-    const status = criticalDown
-      ? 'unhealthy'
-      : anyDegraded
-        ? 'degraded'
-        : 'ok';
+    const status = criticalDown ? 'unhealthy' : anyDegraded ? 'degraded' : 'ok';
     const statusCode = criticalDown ? 503 : 200;
     if (statusCode !== 200) {
       res.status(statusCode);

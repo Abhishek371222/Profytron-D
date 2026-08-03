@@ -169,7 +169,6 @@ export class MarketService {
       // Cache synthetic data with the same TTL to avoid re-generating on every request.
       return this.buildSyntheticOHLC(symbol, timeframe, safeLimit);
     });
-
   }
 
   private async fetchTwelveDataOHLC(

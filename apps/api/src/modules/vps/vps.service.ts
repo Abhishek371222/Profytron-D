@@ -136,7 +136,6 @@ export class VpsService {
     amount: number,
     reference: string,
   ) {
-
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`wallet:${userId}`}))`;
@@ -438,7 +437,7 @@ export class VpsService {
       });
       await this.waitForOperation(op.name!, zone);
     } catch (err: any) {
-      if (err?.code !== 5  ) throw err;
+      if (err?.code !== 5) throw err;
     }
 
     await this.prisma.botInstance.deleteMany({ where: { vpsId } });

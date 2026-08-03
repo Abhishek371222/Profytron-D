@@ -112,14 +112,19 @@ export class MarketplaceService {
       where.strategy.timeframe = query.timeframe;
     }
 
-    if (typeof query.priceMin === 'number' || typeof query.priceMax === 'number') {
+    if (
+      typeof query.priceMin === 'number' ||
+      typeof query.priceMax === 'number'
+    ) {
       const priceRange: { gte?: number; lte?: number } = {};
       if (typeof query.priceMin === 'number') priceRange.gte = query.priceMin;
       if (typeof query.priceMax === 'number') priceRange.lte = query.priceMax;
       // A listing matches if ANY of its three price tiers falls in range.
-      where.OR = ['monthlyPrice', 'annualPrice', 'lifetimePrice'].map((field) => ({
-        [field]: priceRange,
-      }));
+      where.OR = ['monthlyPrice', 'annualPrice', 'lifetimePrice'].map(
+        (field) => ({
+          [field]: priceRange,
+        }),
+      );
     }
 
     const take = query.limit ?? 12;
@@ -257,7 +262,13 @@ export class MarketplaceService {
       where: { id, deletedAt: null },
       include: {
         creator: {
-          select: { id: true, fullName: true, avatarUrl: true, country: true, bio: true },
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
+            country: true,
+            bio: true,
+          },
         },
         listing: true,
         performance: { orderBy: { date: 'desc' }, take: 30 },

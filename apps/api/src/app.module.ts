@@ -5,6 +5,8 @@ import { BullModule } from '@nestjs/bull';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { join } from 'path';
 import { AppThrottlerGuard } from './common/guards/throttler.guard';
+import { RedisThrottlerStorage } from './common/throttler-redis.storage';
+import { redisClient } from './config/redis.config';
 import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
 import { MetricsService } from './common/metrics/metrics.service';
 import { AuthModule } from './modules/auth/auth.module';
@@ -113,6 +115,8 @@ const parseRedisConfig = () => {
     }),
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60_000, limit: 100 }],
+      // Shared store: multi-replica Cloud Run shares the same limit counters.
+      storage: new RedisThrottlerStorage(redisClient),
     }),
     BullModule.forRoot({ redis: parseRedisConfig() }),
     BullModule.registerQueue({ name: 'trade_execution' }),

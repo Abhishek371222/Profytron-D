@@ -24,7 +24,9 @@ describe('Trial entitlement mapping (Stage 3 verification — no new entitlement
   });
 
   it('only Starter and Pro are trial-eligible', () => {
-    const eligible = PLATFORM_PLANS.filter((p) => p.trialEligible).map((p) => p.name);
+    const eligible = PLATFORM_PLANS.filter((p) => p.trialEligible).map(
+      (p) => p.name,
+    );
     expect(eligible).toEqual(['Starter', 'Pro']);
   });
 });

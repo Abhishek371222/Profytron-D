@@ -16,6 +16,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
+import { CryptoService } from '../../common/crypto.service';
 
 const oauthProviders = [
   ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -48,6 +49,7 @@ const oauthProviders = [
   providers: [
     AuthService,
     TwoFaService,
+    CryptoService,
     JwtStrategy,
     JwtRefreshStrategy,
     ...oauthProviders,

@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { generate, generateSecret } from 'otplib';
+import * as crypto from 'crypto';
 import { TwoFaService } from './twofa.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from './redis.service';
+import { CryptoService } from '../../common/crypto.service';
 import { HttpException } from '@nestjs/common';
 
 describe('TwoFaService', () => {
@@ -15,12 +17,14 @@ describe('TwoFaService', () => {
     get: jest.Mock;
     del: jest.Mock;
   };
+  let cryptoService: CryptoService;
 
   const userId = 'user-2fa';
   const email = 'trader@example.com';
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    process.env.AES_MASTER_KEY = '00'.repeat(32);
 
     prisma = {
       user: {
@@ -35,11 +39,14 @@ describe('TwoFaService', () => {
       del: jest.fn().mockResolvedValue(undefined),
     };
 
+    cryptoService = new CryptoService();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TwoFaService,
         { provide: PrismaService, useValue: prisma },
         { provide: RedisService, useValue: redis },
+        { provide: CryptoService, useValue: cryptoService },
       ],
     }).compile();
 
@@ -65,7 +72,7 @@ describe('TwoFaService', () => {
     expect(prisma.user.update).not.toHaveBeenCalled();
   });
 
-  it('enables 2FA with a valid authenticator code from pending Redis secret', async () => {
+  it('enables 2FA with a valid authenticator code and stores encrypted secret', async () => {
     const secret = generateSecret();
     const token = await generate({ secret });
     redis.get.mockResolvedValue(secret);
@@ -79,10 +86,14 @@ describe('TwoFaService', () => {
       where: { id: userId },
       data: {
         twoFactorEnabled: true,
-        twoFactorSecret: secret,
-        twoFactorBackupCodes: result.backupCodes,
+        twoFactorSecret: expect.stringMatching(/^\{/),
+        twoFactorBackupCodes: expect.arrayContaining([
+          expect.stringMatching(/^[a-f0-9]{64}$/i),
+        ]),
       },
     });
+    const sealed = prisma.user.update.mock.calls[0][0].data.twoFactorSecret;
+    expect(cryptoService.decrypt(sealed)).toBe(secret);
     expect(redis.del).toHaveBeenCalledWith(`auth:2fa:setup:${userId}`);
   });
 
@@ -105,7 +116,20 @@ describe('TwoFaService', () => {
     await expect(service.verifyToken(secret, '111111')).resolves.toBe(false);
   });
 
-  it('login verification accepts valid TOTP and rejects invalid TOTP', async () => {
+  it('login verification accepts valid TOTP against encrypted secret', async () => {
+    const secret = generateSecret();
+    const token = await generate({ secret });
+    prisma.user.findUnique.mockResolvedValue({
+      twoFactorSecret: cryptoService.encrypt(secret),
+      twoFactorBackupCodes: [],
+    });
+    redis.get.mockResolvedValue('0');
+
+    await expect(service.verifyForLogin(userId, token)).resolves.toBe(true);
+    await expect(service.verifyForLogin(userId, '000000')).resolves.toBe(false);
+  });
+
+  it('login verification accepts legacy plaintext secret', async () => {
     const secret = generateSecret();
     const token = await generate({ secret });
     prisma.user.findUnique.mockResolvedValue({
@@ -115,13 +139,16 @@ describe('TwoFaService', () => {
     redis.get.mockResolvedValue('0');
 
     await expect(service.verifyForLogin(userId, token)).resolves.toBe(true);
-    await expect(service.verifyForLogin(userId, '000000')).resolves.toBe(false);
   });
 
-  it('consumes backup codes as single-use', async () => {
+  it('consumes hashed and legacy plaintext backup codes as single-use', async () => {
+    const hashed = crypto
+      .createHash('sha256')
+      .update('ABCD1234')
+      .digest('hex');
     prisma.user.findUnique.mockResolvedValue({
       twoFactorSecret: generateSecret(),
-      twoFactorBackupCodes: ['ABCD1234'],
+      twoFactorBackupCodes: [hashed],
     });
     redis.get.mockResolvedValue('0');
 
@@ -139,7 +166,7 @@ describe('TwoFaService', () => {
     const token = await generate({ secret });
     prisma.user.findUnique.mockResolvedValue({
       twoFactorEnabled: true,
-      twoFactorSecret: secret,
+      twoFactorSecret: cryptoService.encrypt(secret),
       twoFactorBackupCodes: ['CODE1'],
     });
 
@@ -165,7 +192,6 @@ describe('TwoFaService', () => {
 
   it('verifyAndEnable fails when pending setup is missing/expired', async () => {
     redis.get.mockResolvedValue(null);
-
     await expect(
       service.verifyAndEnable(userId, '123456'),
     ).rejects.toBeInstanceOf(HttpException);

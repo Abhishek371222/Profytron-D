@@ -19,6 +19,8 @@ COPY apps/web ./apps/web
 
 WORKDIR /app/apps/web
 ENV NEXT_TELEMETRY_DISABLED=1
+# Next 16 webpack build OOM'd at ~2GB default heap under Cloud Build.
+ENV NODE_OPTIONS=--max-old-space-size=6144
 
 # NEXT_PUBLIC_* values are inlined into the client bundle at build time, so
 # they must be passed as build args (not runtime env vars) to take effect.

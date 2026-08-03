@@ -125,6 +125,28 @@ export default function AboutPage() {
           View Open Roles <ArrowRight className="h-4 w-4" />
         </Link>
       </MarketingCta>
+
+      <MarketingSection className="pb-20">
+        <p className="text-sm font-semibold text-foreground">Explore Profytron</p>
+        <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+          {[
+            { href: '/pricing', label: 'Pricing' },
+            { href: '/brokers', label: 'Brokers' },
+            { href: '/docs', label: 'Docs' },
+            { href: '/guides', label: 'Guides' },
+            { href: '/blog', label: 'Blog' },
+            { href: '/community', label: 'Community' },
+            { href: '/contact', label: 'Contact' },
+            { href: '/register', label: 'Start free trial' },
+          ].map((item) => (
+            <li key={item.href}>
+              <Link href={item.href} className="text-primary hover:underline">
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </MarketingSection>
     </PublicPageLayout>
   );
 }

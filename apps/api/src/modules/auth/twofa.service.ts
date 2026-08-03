@@ -4,6 +4,7 @@ import * as qrcode from 'qrcode';
 import * as crypto from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from './redis.service';
+import { CryptoService } from '../../common/crypto.service';
 import { appError, ErrorCode } from '../../common/errors';
 
 const TOTP_ATTEMPT_KEY = (userId: string) => `auth:2fa:attempts:${userId}`;
@@ -18,6 +19,7 @@ export class TwoFaService {
   constructor(
     private prisma: PrismaService,
     private redisService: RedisService,
+    private cryptoService: CryptoService,
   ) {}
 
   private async isTotpValid(secret: string, token: string): Promise<boolean> {
@@ -29,6 +31,62 @@ export class TwoFaService {
     } catch {
       return false;
     }
+  }
+
+  /** Prefer AES-GCM ciphertext at rest; accept legacy plaintext for migration. */
+  private sealSecret(plaintext: string): string {
+    return this.cryptoService.encrypt(plaintext);
+  }
+
+  private unsealSecret(stored: string): string {
+    const trimmed = String(stored ?? '').trim();
+    if (!trimmed) return trimmed;
+    if (trimmed.startsWith('{')) {
+      try {
+        return this.cryptoService.decrypt(trimmed);
+      } catch {
+        // fall through — may still be legacy TOTP base32 that happens to look like JSON start
+      }
+    }
+    return trimmed;
+  }
+
+  private hashBackupCode(code: string): string {
+    return crypto.createHash('sha256').update(code.toUpperCase()).digest('hex');
+  }
+
+  private sealBackupCodes(plainCodes: string[]): string[] {
+    return plainCodes.map((code) => this.hashBackupCode(code));
+  }
+
+  private matchesBackupCode(
+    stored: unknown,
+    presented: string,
+  ): { matched: boolean; remaining: string[] } {
+    const codes = Array.isArray(stored)
+      ? stored.map((c) => String(c))
+      : [];
+    const presentedUpper = presented.trim().toUpperCase();
+    const presentedHash = this.hashBackupCode(presentedUpper);
+    let matchedIndex = -1;
+    for (let i = 0; i < codes.length; i++) {
+      const entry = codes[i];
+      const isHash = /^[a-f0-9]{64}$/i.test(entry);
+      if (
+        (isHash && entry.toLowerCase() === presentedHash) ||
+        (!isHash && entry.toUpperCase() === presentedUpper)
+      ) {
+        matchedIndex = i;
+        break;
+      }
+    }
+    if (matchedIndex === -1) {
+      return { matched: false, remaining: codes };
+    }
+    return {
+      matched: true,
+      remaining: codes.filter((_, i) => i !== matchedIndex),
+    };
   }
 
   async setupTwoFa(userId: string) {
@@ -64,7 +122,6 @@ export class TwoFaService {
       secret,
       SETUP_SECRET_TTL,
     );
-
 
     return { qrCode: qrCodeDataUrl, secret, otpUri };
   }
@@ -110,13 +167,14 @@ export class TwoFaService {
       where: { id: userId },
       data: {
         twoFactorEnabled: true,
-        twoFactorSecret: pendingSecret,
-        twoFactorBackupCodes: backupCodes,
+        twoFactorSecret: this.sealSecret(pendingSecret),
+        twoFactorBackupCodes: this.sealBackupCodes(backupCodes),
       },
     });
     await this.redisService.del(SETUP_SECRET_KEY(userId));
 
     this.logger.log(`2FA enabled for user ${userId}`);
+    // Return plaintext backup codes once; hashed at rest thereafter.
     return { success: true, backupCodes };
   }
 
@@ -137,13 +195,13 @@ export class TwoFaService {
       );
     }
 
-    const valid = user.twoFactorSecret
-      ? await this.isTotpValid(user.twoFactorSecret, token)
-      : false;
-    const backupCodes = (user.twoFactorBackupCodes as string[]) ?? [];
-    const normalizedToken = token.trim().toUpperCase();
-    const isBackup = backupCodes.some(
-      (code) => String(code).toUpperCase() === normalizedToken,
+    const secret = user.twoFactorSecret
+      ? this.unsealSecret(user.twoFactorSecret)
+      : '';
+    const valid = secret ? await this.isTotpValid(secret, token) : false;
+    const { matched: isBackup } = this.matchesBackupCode(
+      user.twoFactorBackupCodes,
+      token,
     );
     if (!valid && !isBackup) {
       appError(
@@ -179,7 +237,8 @@ export class TwoFaService {
         ErrorCode.VALIDATION_ERROR,
       );
     }
-    if (!(await this.isTotpValid(user.twoFactorSecret, token))) {
+    const secret = this.unsealSecret(user.twoFactorSecret);
+    if (!(await this.isTotpValid(secret, token))) {
       appError(
         HttpStatus.BAD_REQUEST,
         'Invalid TOTP code',
@@ -190,7 +249,7 @@ export class TwoFaService {
     const newBackupCodes = this.generateBackupCodes();
     await this.prisma.user.update({
       where: { id: userId },
-      data: { twoFactorBackupCodes: newBackupCodes },
+      data: { twoFactorBackupCodes: this.sealBackupCodes(newBackupCodes) },
     });
 
     return { backupCodes: newBackupCodes };
@@ -216,16 +275,18 @@ export class TwoFaService {
     });
     if (!user?.twoFactorSecret) return false;
 
-    const valid = await this.isTotpValid(user.twoFactorSecret, token);
+    const secret = this.unsealSecret(user.twoFactorSecret);
+    const valid = await this.isTotpValid(secret, token);
     if (valid) {
       await this.redisService.del(attemptKey);
       return true;
     }
 
-    const backupCodes = (user.twoFactorBackupCodes as string[]) ?? [];
-    const codeIndex = backupCodes.indexOf(token.toUpperCase());
-    if (codeIndex !== -1) {
-      const remaining = backupCodes.filter((_, i) => i !== codeIndex);
+    const { matched, remaining } = this.matchesBackupCode(
+      user.twoFactorBackupCodes,
+      token,
+    );
+    if (matched) {
       await this.prisma.user.update({
         where: { id: userId },
         data: { twoFactorBackupCodes: remaining },

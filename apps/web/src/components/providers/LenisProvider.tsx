@@ -14,6 +14,8 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
     const prefersReduced =
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
+    // Skip smooth scroll on narrow viewports (LCP + touch scroll feel) — PT-W01/W02
+    if (window.matchMedia("(max-width: 767px)").matches) return;
 
     let cancelled = false;
     let lenis: LenisInstance | null = null;

@@ -46,8 +46,16 @@ type AccountSnapshot = {
   periodPnl: number;
   openPnl: number;
   maxDd: number;
-  subscribedStrategies: Array<{ name: string; status: string; billingModel: string }>;
-  createdStrategies: Array<{ name: string; isPublished: boolean; copiesCount: number }>;
+  subscribedStrategies: Array<{
+    name: string;
+    status: string;
+    billingModel: string;
+  }>;
+  createdStrategies: Array<{
+    name: string;
+    isPublished: boolean;
+    copiesCount: number;
+  }>;
   summaryLine: string;
 };
 
@@ -463,15 +471,16 @@ export class CoachService {
         select: { profit: true, symbol: true, direction: true, volume: true },
       });
 
-      const subscribedStrategies = await this.prisma.userStrategySubscription.findMany({
-        where: { userId, status: 'ACTIVE' },
-        take: 10,
-        select: {
-          billingModel: true,
-          status: true,
-          strategy: { select: { name: true } },
-        },
-      });
+      const subscribedStrategies =
+        await this.prisma.userStrategySubscription.findMany({
+          where: { userId, status: 'ACTIVE' },
+          take: 10,
+          select: {
+            billingModel: true,
+            status: true,
+            strategy: { select: { name: true } },
+          },
+        });
 
       const createdStrategies = await this.prisma.strategy.findMany({
         where: { creatorId: userId, deletedAt: null },
@@ -612,7 +621,9 @@ Rules:
 
     const strategyLines = snap.subscribedStrategies.length
       ? snap.subscribedStrategies
-          .map((s) => `- Subscribed: ${s.name} (${s.billingModel}, ${s.status})`)
+          .map(
+            (s) => `- Subscribed: ${s.name} (${s.billingModel}, ${s.status})`,
+          )
           .join('\n')
       : '';
     const createdLines = snap.createdStrategies.length

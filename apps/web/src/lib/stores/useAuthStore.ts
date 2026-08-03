@@ -35,13 +35,22 @@ interface AuthState {
   hydrate: () => Promise<void>;
 }
 
+/** Client document.cookie flags — Secure on HTTPS so Safari does not drop flags inconsistently. */
+function clientCookieAttrs(maxAge: number): string {
+  const secure =
+    typeof window !== 'undefined' && window.location.protocol === 'https:'
+      ? '; secure'
+      : '';
+  return `path=/; max-age=${maxAge}; samesite=lax${secure}`;
+}
+
 function syncUserCookies(user: User | null | undefined) {
   if (typeof window === 'undefined' || !user) return;
   const onboardingFlag =
     isAdminUser(user) || user.onboardingCompleted ? '1' : '0';
-  document.cookie = `onboarding_completed=${onboardingFlag}; path=/; max-age=7776000; samesite=lax`;
+  document.cookie = `onboarding_completed=${onboardingFlag}; ${clientCookieAttrs(7776000)}`;
   if (user.role) {
-    document.cookie = `user_role=${user.role}; path=/; max-age=7776000; samesite=lax`;
+    document.cookie = `user_role=${user.role}; ${clientCookieAttrs(7776000)}`;
   }
 }
 
@@ -64,8 +73,8 @@ const SESSION_HINT_MAX_AGE = 7 * 24 * 60 * 60;
 function setSessionHintCookie(active: boolean) {
   if (typeof window === 'undefined') return;
   document.cookie = active
-    ? `pf_session_hint=1; path=/; max-age=${SESSION_HINT_MAX_AGE}; samesite=lax`
-    : 'pf_session_hint=; path=/; max-age=0; samesite=lax';
+    ? `pf_session_hint=1; ${clientCookieAttrs(SESSION_HINT_MAX_AGE)}`
+    : `pf_session_hint=; ${clientCookieAttrs(0)}`;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -92,9 +101,9 @@ export const useAuthStore = create<AuthState>()(
       clearAuth: () => {
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem(SESSION_TOKEN_KEY);
-          document.cookie = 'demo_access=; path=/; max-age=0; samesite=lax';
-          document.cookie = 'onboarding_completed=; path=/; max-age=0; samesite=lax';
-          document.cookie = 'user_role=; path=/; max-age=0; samesite=lax';
+          document.cookie = `demo_access=; ${clientCookieAttrs(0)}`;
+          document.cookie = `onboarding_completed=; ${clientCookieAttrs(0)}`;
+          document.cookie = `user_role=; ${clientCookieAttrs(0)}`;
           setSessionHintCookie(false);
           window.posthog?.reset();
         }
@@ -113,7 +122,7 @@ export const useAuthStore = create<AuthState>()(
           sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
           sessionStorage.removeItem(FORCE_LOGIN_KEY);
           if (accessToken.startsWith('mock_token_')) {
-            document.cookie = 'demo_access=1; path=/; max-age=86400; samesite=lax';
+            document.cookie = `demo_access=1; ${clientCookieAttrs(86400)}`;
           }
           // Set synchronously BEFORE any window.location navigation so the edge
           // middleware sees a session on the first hop even on Safari, where the

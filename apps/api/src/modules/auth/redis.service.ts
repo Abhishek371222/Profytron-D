@@ -67,9 +67,22 @@ export class RedisService {
       }
       return;
     } catch (error) {
+      const forceFailClosed =
+        process.env.NODE_ENV === 'production' ||
+        process.env.REDIS_SECURITY_FAIL_CLOSED === 'true';
+      if (isSecurityCriticalKey(key) && forceFailClosed) {
+        this.logger.error(
+          `Redis unavailable for security-critical set(${key}); fail-closed (no in-process mirror in production). ${
+            error instanceof Error ? error.message : 'unknown error'
+          }`,
+        );
+        throw error instanceof Error
+          ? error
+          : new Error('Redis unavailable for security-critical write');
+      }
       if (isSecurityCriticalKey(key)) {
         this.logger.error(
-          `Redis unavailable for security-critical set(${key}); using in-process mirror. ${
+          `Redis unavailable for security-critical set(${key}); using in-process mirror (non-prod). ${
             error instanceof Error ? error.message : 'unknown error'
           }`,
         );

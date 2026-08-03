@@ -97,6 +97,25 @@ export default function BlogPage() {
           ))}
         </div>
       </MarketingSection>
+
+      <MarketingSection className="pb-20">
+        <p className="text-sm font-semibold text-foreground">Related</p>
+        <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+          {[
+            { href: '/guides', label: 'Guides' },
+            { href: '/docs', label: 'Docs' },
+            { href: '/community', label: 'Community' },
+            { href: '/pricing', label: 'Pricing' },
+            { href: '/register', label: 'Start free trial' },
+          ].map((item) => (
+            <li key={item.href}>
+              <Link href={item.href} className="text-primary hover:underline">
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </MarketingSection>
     </PublicPageLayout>
   );
 }

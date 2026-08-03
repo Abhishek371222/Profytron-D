@@ -157,7 +157,10 @@ export function configureApp(app: INestApplication) {
 
   const httpAdapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
-  app.useGlobalInterceptors(new SentryInterceptor(), new TransformInterceptor());
+  app.useGlobalInterceptors(
+    new SentryInterceptor(),
+    new TransformInterceptor(),
+  );
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -166,7 +169,9 @@ export function configureApp(app: INestApplication) {
       transformOptions: { enableImplicitConversion: true },
       exceptionFactory: (errors) => {
         const messages = errors.flatMap((e) =>
-          Object.values(e.constraints ?? { invalid: `${e.property} is invalid` }),
+          Object.values(
+            e.constraints ?? { invalid: `${e.property} is invalid` },
+          ),
         );
         return new BadRequestException({
           message: messages,

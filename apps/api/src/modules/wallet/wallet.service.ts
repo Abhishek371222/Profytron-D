@@ -277,17 +277,52 @@ export class WalletService {
       return existing;
     }
 
-    const current = await this.getBalance(userId);
-    const transaction = await this.prisma.walletTransaction.update({
-      where: { id: existing.id },
-      data: {
-        status: 'CONFIRMED',
-        balanceAfter: current.total + existing.amount,
-        description: 'Wallet deposit confirmed',
-      },
+    // Atomic status transition avoids double-confirm TOCTOU under concurrent webhooks.
+    const confirmed = await this.prisma.$transaction(async (tx) => {
+      const currentPending = await tx.walletTransaction.findUnique({
+        where: { id: existing.id },
+      });
+      if (!currentPending) {
+        throw new NotFoundException('Deposit transaction not found');
+      }
+      if (currentPending.status === 'CONFIRMED') {
+        return currentPending;
+      }
+
+      const sums = await tx.walletTransaction.groupBy({
+        by: ['direction'],
+        where: { userId, status: 'CONFIRMED' },
+        _sum: { amount: true },
+      });
+      const credits =
+        sums.find((s) => s.direction === 'IN')?._sum.amount ?? 0;
+      const debits =
+        sums.find((s) => s.direction === 'OUT')?._sum.amount ?? 0;
+
+      const updated = await tx.walletTransaction.updateMany({
+        where: { id: existing.id, status: 'PENDING' },
+        data: {
+          status: 'CONFIRMED',
+          balanceAfter: credits - debits + currentPending.amount,
+          description: 'Wallet deposit confirmed',
+        },
+      });
+
+      if (updated.count === 0) {
+        const again = await tx.walletTransaction.findUnique({
+          where: { id: existing.id },
+        });
+        if (again) return again;
+        throw new NotFoundException('Deposit transaction not found');
+      }
+
+      return tx.walletTransaction.findUniqueOrThrow({
+        where: { id: existing.id },
+      });
     });
+
     await this.reconcileProfitShareAutoResume(userId);
-    return transaction;
+    return confirmed;
   }
 
   async previewWithdrawalImpact(userId: string, amount: number) {

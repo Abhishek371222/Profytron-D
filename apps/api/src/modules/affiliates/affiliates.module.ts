@@ -5,10 +5,7 @@ import { AffiliatesService } from './affiliates.service';
 import { AffiliatesController } from './affiliates.controller';
 
 @Module({
-  imports: [
-    ConfigModule,
-    JwtModule.register({}),
-  ],
+  imports: [ConfigModule, JwtModule.register({})],
   controllers: [AffiliatesController],
   providers: [AffiliatesService],
   exports: [AffiliatesService],

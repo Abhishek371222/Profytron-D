@@ -37,10 +37,7 @@ export class VpsController {
   @Post()
   @ApiOperation({ summary: 'Provision a new VPS instance' })
   @ApiResponse({ status: 201, description: 'Created' })
-  createVps(
-    @Req() req: any,
-    @Body() body: CreateVpsDto,
-  ) {
+  createVps(@Req() req: any, @Body() body: CreateVpsDto) {
     return this.vpsService.createVpsAccount(req.user.id, body.provider, body);
   }
 
@@ -75,10 +72,7 @@ export class VpsController {
   @Post(':id/bots')
   @ApiOperation({ summary: 'Deploy a bot instance on a VPS' })
   @ApiResponse({ status: 201, description: 'Created' })
-  createBot(
-    @Param('id') id: string,
-    @Body() body: CreateBotInstanceDto,
-  ) {
+  createBot(@Param('id') id: string, @Body() body: CreateBotInstanceDto) {
     return this.vpsService.createBotInstance(id, body.strategyId, body.name);
   }
 

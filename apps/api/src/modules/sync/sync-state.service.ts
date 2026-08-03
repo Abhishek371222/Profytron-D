@@ -33,9 +33,7 @@ export class SyncStateService {
       if (!raw) return null;
       return JSON.parse(raw) as SyncWatermark;
     } catch (err) {
-      this.logger.warn(
-        `sync watermark read failed: ${(err as Error).message}`,
-      );
+      this.logger.warn(`sync watermark read failed: ${(err as Error).message}`);
       return null;
     }
   }

@@ -14,6 +14,7 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
           queries: {
             staleTime: 60 * 1000,
             gcTime: 10 * 60 * 1000,
+            networkMode: 'online',
             retry: (failureCount, error: unknown) => {
               const status = (error as { response?: { status?: number } })?.response?.status;
               if (status && NON_RETRYABLE_STATUSES.has(status)) return false;
@@ -25,6 +26,7 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
           },
           mutations: {
             retry: false,
+            networkMode: 'online',
           },
         },
       }),

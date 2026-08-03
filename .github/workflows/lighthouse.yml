@@ -39,4 +39,5 @@ jobs:
         run: |
           pnpm dlx @lhci/cli@0.14.x autorun \
             --config=./.lighthouserc.json
-        continue-on-error: true   # report first; flip to false to gate merges
+        # Gate merges on a11y + SEO hard fails; perf remains warn-level in .lighthouserc.json
+        continue-on-error: false

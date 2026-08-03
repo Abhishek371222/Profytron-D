@@ -22,9 +22,7 @@ export function requestIdMiddleware(
   res: Response,
   next: NextFunction,
 ): void {
-  const incomingRequestId = String(
-    req.headers[REQUEST_ID_HEADER] ?? '',
-  ).trim();
+  const incomingRequestId = String(req.headers[REQUEST_ID_HEADER] ?? '').trim();
   const incomingCorrelationId = String(
     req.headers[CORRELATION_ID_HEADER] ?? '',
   ).trim();

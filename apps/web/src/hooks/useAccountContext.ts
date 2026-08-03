@@ -5,8 +5,8 @@ import { brokerApi } from '@/lib/api/broker';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { persistDashboardQuery } from '@/lib/queries/dashboard-cache';
 
-/** Align with /my-bots sync cadence; sync-bots already invalidates broker-accounts when needed. */
-const ACCOUNT_CONTEXT_REFRESH_MS = 30_000;
+/** Align with /my-bots; pause when tab hidden; slower baseline to cut chatty load. */
+const ACCOUNT_CONTEXT_REFRESH_MS = 60_000;
 
 export type BrokerAccountSummary = {
   id: string;
@@ -44,7 +44,13 @@ export function useAccountContext() {
       return normalizeAccounts(raw);
     },
     staleTime: ACCOUNT_CONTEXT_REFRESH_MS,
-    refetchInterval: ACCOUNT_CONTEXT_REFRESH_MS,
+    refetchInterval: (q) => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return ACCOUNT_CONTEXT_REFRESH_MS;
+    },
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
     retry: (count, err: any) => {

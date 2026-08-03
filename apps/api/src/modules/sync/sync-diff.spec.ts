@@ -1,8 +1,4 @@
-import {
-  diffEquity,
-  diffPositions,
-  positionFingerprint,
-} from './sync-diff';
+import { diffEquity, diffPositions, positionFingerprint } from './sync-diff';
 
 describe('sync-diff', () => {
   it('detects unchanged equity', () => {

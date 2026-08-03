@@ -1,4 +1,3 @@
-
 export type SizingMode = 'FIXED' | 'MULTIPLIER' | 'EQUITY_RATIO';
 
 export interface SizingInput {

@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 function isMissingTableError(err: unknown): boolean {
@@ -22,7 +26,11 @@ export class AccountSnapshotService {
     if (account.userId === userId) return;
 
     const share = await this.prisma.brokerAccountShare.findFirst({
-      where: { brokerAccountId: accountId, memberUserId: userId, status: 'ACTIVE' },
+      where: {
+        brokerAccountId: accountId,
+        memberUserId: userId,
+        status: 'ACTIVE',
+      },
       select: { id: true },
     });
     if (!share) throw new ForbiddenException('No access to this account');
@@ -114,11 +122,7 @@ export class AccountSnapshotService {
     };
   }
 
-  async getSnapshotHistory(
-    userId: string,
-    accountId: string,
-    limit = 200,
-  ) {
+  async getSnapshotHistory(userId: string, accountId: string, limit = 200) {
     await this.assertAccess(userId, accountId);
     const snapshots = await this.prisma.accountSnapshot.findMany({
       where: { brokerAccountId: accountId },
@@ -137,7 +141,9 @@ export class AccountSnapshotService {
         orderBy: { openTime: 'desc' },
       });
       return {
-        positions: rows.length ? rows : ((snapshot.positionsJson as any[]) ?? []),
+        positions: rows.length
+          ? rows
+          : ((snapshot.positionsJson as any[]) ?? []),
         capturedAt: snapshot.capturedAt,
         syncStatus: snapshot.syncStatus,
       };
@@ -155,12 +161,16 @@ export class AccountSnapshotService {
     const { snapshot } = await this.getLatestSnapshot(userId, accountId);
     if (!snapshot) return { orders: [], capturedAt: null };
     try {
-      const orders = await (this.prisma as any).accountSnapshotPendingOrder.findMany({
+      const orders = await (
+        this.prisma as any
+      ).accountSnapshotPendingOrder.findMany({
         where: { snapshotId: snapshot.id },
         orderBy: { createdTime: 'desc' },
       });
       return {
-        orders: orders.length ? orders : ((snapshot.pendingOrdersJson as any[]) ?? []),
+        orders: orders.length
+          ? orders
+          : ((snapshot.pendingOrdersJson as any[]) ?? []),
         capturedAt: snapshot.capturedAt,
       };
     } catch (err) {
@@ -264,7 +274,9 @@ export class AccountSnapshotService {
   async getDrawdownHistory(userId: string, accountId: string, limit?: number) {
     await this.assertAccess(userId, accountId);
     try {
-      const points = await (this.prisma as any).accountSnapshotPerformance.findMany({
+      const points = await (
+        this.prisma as any
+      ).accountSnapshotPerformance.findMany({
         where: { brokerAccountId: accountId },
         orderBy: { capturedAt: 'asc' },
         take: this.safeLimit(limit, 200, 2000),
@@ -288,7 +300,9 @@ export class AccountSnapshotService {
   async getReturnsHistory(userId: string, accountId: string, limit?: number) {
     await this.assertAccess(userId, accountId);
     try {
-      const points = await (this.prisma as any).accountSnapshotPerformance.findMany({
+      const points = await (
+        this.prisma as any
+      ).accountSnapshotPerformance.findMany({
         where: { brokerAccountId: accountId },
         orderBy: { capturedAt: 'asc' },
         take: this.safeLimit(limit, 200, 2000),
@@ -321,7 +335,9 @@ export class AccountSnapshotService {
     const { snapshot } = await this.getLatestSnapshot(userId, accountId);
     if (!snapshot) return { performance: null, capturedAt: null };
     try {
-      const performance = await (this.prisma as any).accountSnapshotPerformance.findUnique({
+      const performance = await (
+        this.prisma as any
+      ).accountSnapshotPerformance.findUnique({
         where: { snapshotId: snapshot.id },
       });
       return {
@@ -344,10 +360,16 @@ export class AccountSnapshotService {
       const risk = await (this.prisma as any).accountSnapshotRisk.findUnique({
         where: { snapshotId: snapshot.id },
       });
-      return { risk: risk ?? snapshot.riskJson, capturedAt: snapshot.capturedAt };
+      return {
+        risk: risk ?? snapshot.riskJson,
+        capturedAt: snapshot.capturedAt,
+      };
     } catch (err) {
       if (!isMissingTableError(err)) throw err;
-      return { risk: snapshot.riskJson ?? null, capturedAt: snapshot.capturedAt };
+      return {
+        risk: snapshot.riskJson ?? null,
+        capturedAt: snapshot.capturedAt,
+      };
     }
   }
 
@@ -355,12 +377,16 @@ export class AccountSnapshotService {
     const { snapshot } = await this.getLatestSnapshot(userId, accountId);
     if (!snapshot) return { symbols: [], capturedAt: null };
     try {
-      const symbols = await (this.prisma as any).accountSnapshotSymbol.findMany({
-        where: { snapshotId: snapshot.id },
-        orderBy: { symbol: 'asc' },
-      });
+      const symbols = await (this.prisma as any).accountSnapshotSymbol.findMany(
+        {
+          where: { snapshotId: snapshot.id },
+          orderBy: { symbol: 'asc' },
+        },
+      );
       return {
-        symbols: symbols.length ? symbols : ((snapshot.symbolsJson as any[]) ?? []),
+        symbols: symbols.length
+          ? symbols
+          : ((snapshot.symbolsJson as any[]) ?? []),
         capturedAt: snapshot.capturedAt,
       };
     } catch (err) {

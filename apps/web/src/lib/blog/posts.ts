@@ -1,288 +1,281 @@
-export type BlogPost = { id: string; category: string; tag: string; title: string; excerpt: string; date: string; readTime: string; content: string; };
+export type BlogPost = {
+  id: string;
+  category: string;
+  tag: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  readTime: string;
+  content: string;
+};
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    id: 'forex-trading-bots-mt5',
+    category: 'Forex Bots',
+    tag: 'bg-chart-3/10 border-chart-3/20 text-chart-3',
+    title: 'Forex Trading Bots on MT5: Deploy Automation Without the Noise',
+    excerpt:
+      'How automated forex bots work on MetaTrader 5: paper first, broker connect, risk limits, and what verified track records should actually mean.',
+    date: 'Aug 2, 2026',
+    readTime: '9 min read',
+    content: `Profytron is built for the **forex market** — automated bots on MT4/MT5 that trade FX pairs, metals such as XAUUSD, and related CFDs your broker exposes. This is not a retail India stock-product pitch. It is execution automation for operators who want rules to run while sessions roll across London, New York, and Asia.
+
+## What a forex trading bot does
+
+A bot applies entries, exits, and risk rules and sends orders through **your** MetaTrader account. On Profytron, capital stays with your forex broker. The platform connects to execute; it does not custody funds or run a pooled investment vehicle.
+
+## Why paper before live
+
+1. Confirm the bot matches its description.
+2. Confirm drawdown limits fire as configured.
+3. Confirm session pacing is livable.
+
+Only then attach live MT5 equity.
+
+## Selecting a marketplace forex bot
+
+Prefer track-record length over headline return, maximum drawdown you can sit through, symbol/session fit for forex, and verification that means broker-fed live history — not a self-drawn curve.
+
+## Risk before the first live fill
+
+Set account-level risk **before** go-live. Automated pause after a drawdown breach exists for the moment humans make the worst decisions.
+
+## Brokers and execution quality
+
+Use MT4/MT5 brokers that suit your pairs and spreads. A strong strategy on poor execution still looks broken. Start at the [brokers](/brokers) directory.
+
+## VPS for 24/5 forex
+
+Forex does not wait for your laptop. VPS hosting keeps bots online across sessions. Missed exits hurt more than missed entries.
+
+## Getting started on Profytron
+
+1. Create an account
+2. Paper trade or connect MT5
+3. Deploy a marketplace forex bot
+4. Lock risk limits
+5. Review analytics — not every tick
+
+See [pricing](/pricing) and [docs](/docs).
+
+## FAQ
+
+### Can bots lose money?
+Yes. Automation executes your rules; it does not remove market risk.
+
+## CTA
+
+Run forex bots carefully: paper → risk limits → one live strategy → analytics habit on [Profytron](/).
+
+*This article is for education. It is not financial advice. Trading forex involves risk of loss.*`,
+  },
+  {
+    id: 'mt5-trading-bots-india',
+    category: 'Forex Bots',
+    tag: 'bg-chart-3/10 border-chart-3/20 text-chart-3',
+    title: 'MT5 Forex Bots: Safe Deployment Checklist',
+    excerpt:
+      'Paper trade first, set risk limits, verify track records, then deploy one MT5 forex bot before you scale.',
+    date: 'Aug 2, 2026',
+    readTime: '8 min read',
+    content: `Use this checklist when you deploy an MT5 forex bot on Profytron.
+
+## Checklist
+
+1. Paper trade the bot
+2. Connect your MT5 forex broker
+3. Set hard drawdown limits
+4. Verify track record quality
+5. Deploy one bot before scaling
+6. Prefer VPS if you need multi-session uptime
+
+Details match our main guide on [forex trading bots on MT5](/blog/forex-trading-bots-mt5).
+
+*This article is for education. It is not financial advice. Trading forex involves risk of loss.*`,
+  },
   {
     id: 'first-trading-bot-walkthrough',
     category: 'Getting Started',
     tag: 'bg-chart-3/10 border-chart-3/20 text-chart-3',
-    title: 'From Zero to Your First Trading Bot: A 15-Minute Walkthrough',
+    title: 'From Zero to Your First Forex Trading Bot (15 Minutes)',
     excerpt:
-      'You don\'t need to write a line of code or risk a rupee to deploy your first automated strategy. Here\'s the exact path from signup to a running bot.',
+      'No code required for the first deploy: paper trading, MT5 connect, marketplace forex bot, risk limits, then live — carefully.',
     date: 'Jul 14, 2026',
     readTime: '6 min read',
-    content: `Most people overestimate how much setup automated trading requires and underestimate how much thought should go into the first few weeks after that setup. Here's the actual path, in order.
+    content: `Setup is shorter than most people expect; the discipline after setup is longer.
 
-## Step 1: Create an Account (2 minutes)
+## 1. Account (2 minutes)
 
-Sign up with email or Google. No credit card is required to start — the Free tier includes one paper trading bot, a simulated account with virtual capital, and basic analytics for 30 days. This is deliberate: you should never connect real capital before you've watched a strategy run for at least a few sessions.
+Sign up free. Paper trading exists so you never attach capital before you have seen behaviour.
 
-## Step 2: Choose Paper Trading or Connect a Broker
+## 2. Paper or MT5 forex broker
 
-If you already trade through a broker that supports MT4 or MT5, you can connect it directly — Profytron integrates with 20+ brokers via MetaAPI, and your credentials are encrypted and never held in a form Profytron staff can read. If you don't have a broker yet, or you're not ready to risk capital, start with paper trading. It behaves identically to a live account except the money isn't real.
+Connect MT4/MT5 when ready. Funds stay at the broker. Profytron is execution SaaS, not a custodian.
 
-Profytron never holds your funds directly — it connects to execute trades on your behalf using scoped API access, the same model as a self-directed brokerage tool, not a fund manager.
+## 3. Pick a marketplace forex bot
 
-## Step 3: Pick a Bot or Build One
+Prefer verified live history over pretty backtests.
 
-The fastest path for a first bot is the marketplace: browse strategies with a live, broker-verified track record (strategies only earn a "Verified" badge after a minimum 60-day live history), read the risk parameters, and subscribe. This gets you running in minutes with a strategy that has already proven something, rather than a backtest promise.
+## 4. Risk limits
 
-If you'd rather build your own logic, the Strategy Builder lets you compose entry/exit rules and risk conditions visually. For a first bot, we'd still recommend starting with a marketplace strategy — building your own is worth doing once you understand what "good" looks like from watching an established one operate.
+Configure drawdown and size **before** live fills. Automated pause exists to override you when emotions spike.
 
-## Step 4: Set Your Risk Limits
+## 5. Monitor the curve, not every tick
 
-Before your bot places its first live trade, set explicit drawdown and position-size limits. This is not optional busywork — it's what the AI Risk Engine uses to automatically pause the bot if losses exceed what you've told it you can tolerate. Set this number deliberately, in a calm moment, not after you're already three losing trades in and want to "give it more room."
+Automation only works if you stop managing each bar manually.
 
-## Step 5: Watch, Don't Hover
-
-The entire premise of automation is that you don't need to watch a screen. That said, for your first week, check in daily — not to intervene on every trade, but to confirm the bot is behaving the way its description said it would, and that your risk limits are triggering appropriately if they need to.
-
-## What "Done" Looks Like
-
-By the end of this walkthrough you should have: an account, a connected broker or paper account, one running bot with defined risk limits, and a habit of checking your Analytics dashboard rather than your open positions every five minutes. That last part is the actual point of automated trading — getting your attention out of the trade-by-trade loop entirely.`,
+Done means: account, paper or live MT5, one bot, risk locked, analytics habit.`,
   },
   {
-    id: 'copy-trading-explained',
-    category: 'Copy Trading',
+    id: 'marketplace-bots-explained',
+    category: 'Forex Bots',
     tag: 'bg-chart-4/10 border-chart-4/20 text-chart-4',
-    title: 'Copy Trading Explained: How to Follow a Strategy Without Guesswork',
+    title: 'Marketplace Forex Bots: What “Verified” Should Mean',
     excerpt:
-      'Copy trading only works if you can trust the track record behind it. Here\'s how verification, transparency, and risk controls separate a real copy-trading system from a marketing claim.',
+      'Equity curves are easy to fake. Here is how marketplace forex bot verification, risk, and account-level kill-switches should work.',
     date: 'Jun 22, 2026',
     readTime: '8 min read',
-    content: `Copy trading has a trust problem industry-wide: anyone can publish an equity curve, and screenshots are trivially easy to fabricate or cherry-pick. The entire value of a copy-trading platform rests on whether its verification is real or cosmetic.
+    content: `Forex bot marketplaces live or die on whether track records are real.
 
-## What Copy Trading Actually Is
+## What you are deploying
 
-Copy trading mirrors another trader's live executions into your own account, proportionally to your position sizing preferences, in near real time. When the strategy you're following opens a position, a corresponding position opens in your account through your own connected broker. You're not pooling funds with anyone — your capital stays in your own account the entire time.
+A marketplace bot executes into **your** MT4/MT5 forex account under **your** risk settings. Capital stays with the broker.
 
-This distinction matters. A copy-trading platform that mirrors trades through your own broker connection is structurally different from a fund that pools investor capital and trades on their behalf — the latter requires investment-manager licensing that most copy-trading platforms, including Profytron, do not hold and do not claim to hold.
+## Verification that matters
 
-## Why "Verified" Should Mean Something Specific
+Broker-fed live history over a meaningful window (on Profytron, 60+ days for Verified tags) beats self-reported backtests.
 
-The word "verified" is used loosely across the industry. On Profytron, a strategy only earns a Verified badge after a minimum 60-day live track record, with trades recorded directly from the connected broker — not self-reported by the strategy creator. This matters because self-reported performance has an obvious incentive problem: nobody publishes their bad months voluntarily.
+## Evaluate before deploy
 
-Before following any strategy — on any platform — check specifically whether "verified" means broker-confirmed live trades over a meaningful history, or just an unverified claim sitting next to a chart.
+Track-record length, max drawdown, session/symbol fit for forex, and transparent sizing rules.
 
-## What to Actually Look At Before Subscribing
+## Risk layer above bots
 
-**Track record length**, not just headline return. A strategy up 40% over three weeks tells you almost nothing about how it behaves in a drawdown. A strategy with 60+ days of live history has been through at least some adverse conditions.
+Account-level risk must be able to pause **all** active bots when combined drawdown breaches your limit — correlated FX strategies move together more often than marketing admits.
 
-**Maximum drawdown, not average return.** As covered in our guide on drawdown and risk, the number that determines whether a strategy is livable is how far it fell from its peak, not how much it made on average. A strategy with a great average return and a brutal max drawdown is a strategy most people abandon at the worst possible moment.
+## Honest limit
 
-**Position sizing transparency.** Does the strategy disclose how much of the account it risks per trade? Copy trading multiplies whatever sizing discipline (or lack of it) the original strategy uses — you're not just copying entries and exits, you're copying risk behavior.
-
-## The Risk Layer That Sits Above Any Strategy
-
-However good a strategy's own risk management is, Profytron's AI Risk Engine runs independently at the account level, across every strategy you're copying simultaneously. If your combined drawdown across all copied strategies breaches the limit you configured, copy trading pauses automatically — this protects you from a scenario where several strategies you're following each look individually reasonable but happen to draw down at the same time due to correlated market conditions.
-
-## The Honest Limitation
-
-No verification process — including a 60-day live track record — guarantees future performance. Past results, verified or not, describe what already happened, not what will happen next. Verification reduces the risk that you're following a fabricated or cherry-picked track record; it does not eliminate the underlying risk that markets change and a strategy that worked for 60 days stops working in month three. Size accordingly, and treat verification as a filter for trust, not a guarantee of return.`,
+Verification filters fabrication, not market regime change.`,
   },
   {
     id: 'ai-risk-engine-explained',
     category: 'Risk Management',
     tag: 'bg-primary/10 border-primary/20 text-primary',
-    title: "How Profytron's AI Risk Engine Actually Protects Your Capital",
+    title: "How Profytron's AI Risk Engine Protects Forex Bot Equity",
     excerpt:
-      'An automatic kill-switch is only useful if it triggers correctly, at the right threshold, without your intervention. Here\'s exactly what the AI Risk Engine monitors and what it does when a limit is breached.',
+      'Kill-switches only matter if they fire at the right threshold. What the risk engine watches across forex bots — and what it will never do.',
     date: 'May 30, 2026',
     readTime: '7 min read',
-    content: `Most retail traders who lose significant capital don't lose it to one catastrophic decision — they lose it to a series of individually defensible decisions that compound past the point where a rational person would have stopped. Automated risk controls exist specifically to remove that compounding decision from your hands in the moment it matters most.
+    content: `Most accounts die from a chain of “reasonable” decisions, not one villainous trade. Automated risk exists so that chain ends early.
 
-## What It Monitors
+## What it monitors
 
-The AI Risk Engine watches your account continuously, not just at the individual trade level but across every bot and copy-trading relationship simultaneously. Specifically, it tracks account drawdown from peak equity, open exposure across correlated positions, and volatility conditions in the underlying markets you're trading.
+Across bots: peak-to-trough drawdown, correlated exposure, and abnormal volatility — common in FX around news.
 
-This portfolio-level view is the important part. A per-bot stop-loss only protects against that one bot's logic failing. It says nothing about what happens when three bots you're running each individually look fine, but happen to be correlated — all losing money in the same adverse market move at the same time. The AI Risk Engine is watching for exactly that pattern.
+## On breach
 
-## What Happens When a Limit Is Breached
+It can pause bot trading and, depending on settings, reduce exposure without waiting for you to open the chart mid-panic.
 
-If your configured drawdown limit is breached, the platform automatically stops all copy trading and new trade execution — without waiting for you to notice and act manually. In more severe cases, it can close open positions rather than letting a bad situation continue to develop while you're not watching a screen.
+## What it does not do
 
-This is the entire point of an automated risk layer: the moment a limit is breached is very often the moment a human trader is least equipped to make a good decision, because loss-driven emotion is actively working against clear thinking. Automating the stop removes that decision from the worst possible moment to be making it.
+Predict direction, eliminate risk, or guarantee perfect fills in a gap.
 
-## Volatility-Event Detection
+## Setup
 
-Beyond hard drawdown limits, the engine also detects unusual volatility events — news spikes, flash-crash-style moves — and can pause trading temporarily even before a drawdown limit is technically breached. This matters because drawdown limits are inherently reactive; they trigger after losses have already occurred. Volatility-event detection is closer to preventive, reducing exposure during conditions where execution quality itself tends to degrade (see our guide on order flow toxicity for why volatile conditions are also when trading costs spike).
-
-## What It Doesn't Do
-
-It's worth being precise about the limits of any automated risk system. The AI Risk Engine reduces the chance that a bad situation compounds unchecked — it does not eliminate trading risk, predict market direction, or guarantee that a stopped position closes at a favorable price during a fast-moving market. Signals and risk thresholds are statistical tools, not certainties, and slippage during a volatility event can still mean a position closes at a worse price than expected even after a stop is triggered.
-
-## Setting It Up Correctly
-
-The system is only as good as the limits you configure. A drawdown limit set too loose defeats the purpose; one set unrealistically tight will trigger constantly on normal market noise and erode confidence in the tool. Configure your limit deliberately, in a calm moment — not mid-trade, and not by copying a number you saw someone else use without understanding your own capital and risk tolerance. That single setup decision does more to protect your account than almost anything else in the platform.`,
+Too loose = useless. Too tight = constant noise. Set limits when calm.`,
   },
   {
     id: 'mt4-vs-mt5-automated-trading',
     category: 'Infrastructure',
     tag: 'bg-chart-2/10 border-chart-2/20 text-chart-2',
-    title: 'MT4 vs. MT5: Which Platform Should Power Your Trading Bot?',
+    title: 'MT4 vs MT5 for Forex Bots: Which Platform Should You Automate On?',
     excerpt:
-      'MetaTrader 4 and 5 are both still widely supported by brokers, but they aren\'t interchangeable for automated trading. Here\'s what actually differs and how to choose.',
+      'Both still matter for forex automation. Here is what differs for EAs, backtests, and broker liquidity — without the hype.',
     date: 'May 6, 2026',
     readTime: '7 min read',
-    content: `MT4 and MT5 are often discussed as though MT5 simply replaced MT4. In practice, both are still actively supported by most brokers, and the right choice for an automated strategy depends on what your strategy actually needs — not just which one is newer.
+    content: `MT5 did not simply “replace” MT4 in forex. Broker depth and EA ecosystems still split.
 
-## The Core Technical Differences
+## Practical differences for bots
 
-MT5 supports a genuinely wider instrument range — beyond forex and CFDs, it natively handles exchange-traded instruments like stocks and futures with proper depth-of-market data, which MT4 was never built to handle well. If your strategy trades anything beyond forex/CFDs, MT5 is generally the better foundation.
+MT5: richer instruments and stronger tester tooling. MT4: enormous EA library still running production FX strategies.
 
-MT5's execution model also supports more order-fill modes and a more granular backtesting engine with real tick-level data, versus MT4's more limited historical simulation. For strategy development specifically, MT5's backtester produces results closer to live execution behavior.
+## Broker reality
 
-MT4, despite its age, still has the deepest ecosystem of existing Expert Advisors (EAs) and community-built indicators — if you're migrating an existing MT4 strategy, there's a real cost to porting it, not just a checkbox difference.
+Some of the tightest FX liquidity paths still live where a given broker invested years of plumbing. Check **your** broker’s MT4 vs MT5 spreads for the pairs you automate.
 
-## Why This Isn't Purely "Newer Is Better"
+## Recommendation
 
-A meaningful number of ECN brokers still run their deepest liquidity and tightest spreads on MT4 infrastructure, particularly on legacy institutional relationships that predate MT5's broader adoption. Platform choice interacts with broker choice — the "better" platform on paper can still deliver worse real-world execution if your chosen broker's MT5 liquidity pool is thinner than its MT4 pool.
-
-This is why our broker directory lists platform support per broker rather than assuming MT5 is always the right default — check what each specific broker actually offers before assuming newer means better in your specific case.
-
-## What This Means for Bot Behavior
-
-For automated strategies specifically, MT5's superior backtesting fidelity is the more decisive factor for most traders, because a backtest that doesn't reflect realistic execution (see our article on why backtests lie) undermines confidence in a strategy before it ever goes live. If you're building a new strategy from scratch rather than porting an existing MT4 EA, MT5's tick-level backtesting is generally worth the platform choice on its own.
-
-## Our Recommendation
-
-If you're starting fresh: default to MT5 for the backtesting fidelity and broader instrument support, and confirm your chosen broker's MT5 liquidity is competitive with their MT4 offering (most of our top-listed brokers — IC Markets, Pepperstone, Exness — run comparable liquidity on both). If you're migrating an existing, profitable MT4 strategy, the porting cost needs to be weighed against the marginal backtesting improvement — it's not always worth rebuilding something that already works.
-
-Either platform connects to Profytron the same way, through the same broker-credential flow, so the platform choice is really a broker-and-strategy decision, not a Profytron feature decision.`,
+New builds: often MT5. Migrating a profitable MT4 EA: only port if the cost beats the gain. Profytron connects either path through the broker credential flow.`,
   },
   {
     id: 'backtesting-lies',
     category: 'Strategy Engineering',
     tag: 'bg-primary/10 border-primary/20 text-primary',
-    title: 'Why Your Backtest Is Probably Lying to You',
+    title: 'Why Your Forex Backtest Is Probably Lying to You',
     excerpt:
-      'Survivorship bias, look-ahead bias, and overfitting are the three silent killers of algorithmic strategies. Here\'s how we think about them at Profytron.',
+      'Survivorship, look-ahead, and overfitting kill forex bot confidence. How we think about backtests before live MT5 equity.',
     date: 'Apr 8, 2026',
     readTime: '7 min read',
-    content: `Most traders encounter backtesting the same way: you spend hours perfecting a strategy, run it against five years of historical data, and watch the equity curve climb beautifully to the top right. Then you go live — and it bleeds.
+    content: `A beautiful equity curve is not evidence. In FX especially, weekend gaps, variable spreads, and news spikes punish curves that ignored costs.
 
-This isn't bad luck. It's a predictable result of three structural problems that corrupt almost every backtest if you're not deliberately guarding against them.
+## Bias families
 
-## 1. Survivorship Bias
+Survivorship, look-ahead, and overfitting are the usual suspects. If a parameter only “works” after thousands of micro-optimizations on one sample, expect live bleed.
 
-When you run a strategy against "the S&P 500" using today's index constituents, you're only testing against companies that survived to today. The companies that went bankrupt, got delisted, or were dropped from the index during your test period simply don't appear in your data.
+## What to demand
 
-This creates an invisible thumb on the scale. Strategies that buy dips, for example, look far better than they actually are — because the dips in your backtest all recovered (the companies were still around to recover). The dips that didn't recover aren't in your dataset.
+Out-of-sample windows, realistic costs, and multi-regime stress. Prefer live broker-fed history when you can get it.
 
-**The fix:** Use point-in-time data that reflects what the universe of tradeable assets actually looked like at each moment in history, not what it looks like today.
+## Paper as the bridge
 
-## 2. Look-Ahead Bias
-
-Look-ahead bias is using information at decision time that you couldn't have actually had at that moment. It's surprisingly easy to introduce accidentally.
-
-A common example: using a daily bar's closing price to trigger a signal "at the open" of the same day. In your code, the close is already in the data row. But in real life, you wouldn't have known the closing price at market open — you'd only know it hours later.
-
-Another example: using adjusted price data without realizing that dividend adjustments are retroactively applied. Your strategy in 2019 is "seeing" prices that weren't available to anyone in 2019.
-
-**The fix:** Implement strict temporal discipline. Your signal-generation logic should only consume data that was observable before the timestamp of the trade it generates.
-
-## 3. Overfitting (Curve-Fitting)
-
-This is the most seductive trap. You have 15 parameters. You run thousands of combinations through an optimizer. You find the one that produces a 340% return over the test period with a Sharpe of 2.4. You call it done.
-
-What you've actually done is memorized historical noise. That specific parameter set performed because of random idiosyncrasies in that particular slice of market data — not because of any persistent market inefficiency.
-
-A robustness test is simple: if your strategy only works at exactly one parameter setting (say, a 14-period moving average window) and breaks down at 13 or 15, it's overfit. A real edge should be relatively stable across a neighbourhood of parameter values.
-
-**The fix:** Walk-forward analysis. Train on a window of data, test on the next unseen period, roll forward, repeat. If the out-of-sample performance isn't directionally consistent with in-sample, you don't have an edge — you have a curve fit.
-
-## What We Build For
-
-At Profytron, our backtesting engine uses point-in-time constituent data, enforces strict event-time sequencing, and includes realistic transaction costs (spread, slippage, and market impact) by default. We also run automatic walk-forward validation on all strategies submitted through the platform.
-
-The goal isn't to make your backtest look good. It's to make your live performance match your backtest.`,
+Paper trading is where backtests stop arguing and behaviour shows up — before live capital.`,
   },
   {
     id: 'llm-trading-signals',
-    category: 'Signal AI',
-    tag: 'bg-chart-5/10 border-chart-5/20 text-chart-5',
-    title: 'How LLMs Are Changing the Signal Pipeline in 2026',
+    category: 'AI',
+    tag: 'bg-chart-4/10 border-chart-4/20 text-chart-4',
+    title: 'LLMs and Forex Signals: Where Language Models Help — and Where They Fail',
     excerpt:
-      'Large language models have moved from research curiosity to production infrastructure in finance. Here\'s how modern signal pipelines actually use them — and where they still fall short.',
-    date: 'Mar 24, 2026',
-    readTime: '9 min read',
-    content: `In 2023, using a large language model in a trading pipeline was a research project. In 2026, it's becoming table stakes for competitive quant shops. The shift happened faster than most expected.
+      'Language models can summarise context; they should not be an unsupervised order gateway for forex bots.',
+    date: 'Mar 18, 2026',
+    readTime: '8 min read',
+    content: `LLMs read text well. Markets are adversarial. Mixing them without hard risk gates is how people discover that “sounds smart” is not a fill quality guarantee.
 
-But the way LLMs are actually being used in production is quite different from what most people imagine when they hear "AI trading."
+## Useful roles
 
-## What LLMs Are Good At in Markets
+Post-trade coaching, journal synthesis, regime narratives — not unsupervised market orders.
 
-LLMs are exceptional at converting unstructured text into structured, queryable signals. The volume of market-relevant text generated every day is staggering — earnings calls, analyst reports, press releases, regulatory filings, social media, and central bank communications. No human team can process it at the speed and scale required.
+## Dangerous roles
 
-The key breakthrough is that domain-specific models — fine-tuned on financial language — outperform general-purpose LLMs significantly on finance-specific tasks. A phrase like "maintaining price targets despite headwinds" carries a very different implication than its surface reading suggests. General-purpose models often miss this nuance. Models fine-tuned on years of financial text understand it.
+Prompts that directly size FX positions without deterministic risk code.
 
-## From Discrete Labels to Continuous Scores
+## Profytron stance
 
-Early sentiment analysis in finance was binary or ternary: positive, negative, neutral. That's too coarse to be useful for execution.
-
-The current approach uses logit-to-score conversion — extracting continuous, rankable sentiment scores from LLMs rather than discrete labels. Instead of "this earnings call was positive," you get a score that can be compared across hundreds of assets at once and fed directly into portfolio construction models.
-
-This is a much richer signal that integrates naturally with traditional quantitative frameworks.
-
-## The Real Bottleneck: Latency
-
-The honest limitation of LLMs in trading is speed. Generating a high-quality inference from a frontier model takes time — often hundreds of milliseconds, sometimes seconds. For strategies operating on minute-bars or longer, this is fine. For anything that needs to react to a news event within ten seconds of publication, today's LLM inference pipelines are often too slow.
-
-The current solution is a two-layer approach: smaller, specialized models handle the high-frequency, low-latency signal generation, while larger models run in parallel for longer-horizon contextual analysis. The outputs are fused at the strategy level.
-
-## Where Signal Core AI Fits
-
-Signal Core AI is built around this hybrid architecture. Lightweight domain-specific models handle real-time event classification and sentiment scoring across news and social feeds, with inference latencies measured in single-digit milliseconds for most signal types. Larger contextual models run on longer cycles and inform the macro regime layer that all strategies share.
-
-The result is that strategies deployed on Profytron have access to real-time textual signal data without paying a latency penalty that would make the signals arrive after the market has already moved.
-
-## Where LLMs Still Fall Short
-
-Interpretability remains the hardest unsolved problem. When a model assigns a strong bearish sentiment score to a CEO's quarterly remarks, it's not always clear which phrases drove the score. For risk management purposes, unexplainable signals are dangerous — you can't know if the model is responding to the right features or to irrelevant noise.
-
-The industry is making progress on explainable AI for financial models, but it's not production-ready yet. For now, LLM-derived signals are treated as one input among many, with human-interpretable guardrails around position sizing and drawdown limits.`,
+Bots execute rules on MT4/MT5. AI can coach and monitor risk. It does not replace broker-side execution discipline.`,
   },
   {
     id: 'colocation-real-talk',
     category: 'Infrastructure',
     tag: 'bg-chart-2/10 border-chart-2/20 text-chart-2',
-    title: 'Colocation in 2026: What\'s Still an Edge and What Isn\'t',
+    title: 'Colocation for Forex Algos: When Latency Actually Matters',
     excerpt:
-      'NY4 and LD4 are the two most important data centers in global electronic trading. But in 2026, proximity alone is no longer enough. Here\'s what we learned building our execution infrastructure.',
-    date: 'Mar 10, 2026',
+      'Most retail FX bot edges are not 50-nanosecond races. When colocation helps — and when better signals beat more routers.',
+    date: 'Feb 12, 2026',
     readTime: '8 min read',
-    content: `When Profytron started building its execution layer, we had a decision to make: shared cloud, dedicated VPS, or true colocation inside the exchange data centers. We chose colocation. Here's what we've learned about what that advantage actually looks like in practice in 2026.
+    content: `If your edge is signal quality and risk, colocation is about removing execution noise. If your edge is pure queue racing, you need specialist hardware and teams — not a blog post.
 
-## What NY4 and LD4 Are
+## Most forex bots
 
-Equinix NY4 in Secaucus, New Jersey, and LD4 in Slough, UK, are the two most critical data centers for global electronic trading. NY4 is cross-connected to NYSE, NASDAQ, CBOE, major dark pools, and the primary Forex ECNs. LD4 hosts the London Stock Exchange, ICE, Euronext, and virtually every major European venue.
+Session logic, spreads, and risk matter more than proving you shave another microsecond.
 
-Being inside these buildings — with your server physically cross-connected via short copper or fiber runs to the exchange matching engines — eliminates a class of latency that you simply cannot buy your way out of from outside. The speed of light is not negotiable.
+## When speed is real
 
-## What Colocation Still Buys You
+Market-making and aggressive event racing compete on infrastructure; accept the cost structure before buying hopium.
 
-The honest answer in 2026 is that raw speed is table stakes, not a differentiator. The top-tier HFT firms — those running at the sub-microsecond level with FPGA-accelerated order routing — have largely commoditized the "fastest pipe" advantage among themselves.
+## Takeaway
 
-What colocation still meaningfully provides for non-HFT algorithmic traders is **consistency**. The variance in execution latency from inside NY4 versus a cloud VPS in the same region is stark. From inside NY4, your tick-to-trade latency is measured in low double-digit microseconds, and it's consistent. From a cloud instance — even a well-optimized one — you see occasional spikes of tens of milliseconds that happen at the worst possible times: during news events, when the market is moving fastest.
-
-That variance eats into alpha in ways that don't show up in backtests, which typically assume deterministic execution.
-
-## FPGA: The Real Hardware Advantage
-
-For strategies that truly need microsecond execution, the technology that matters now isn't the CPU — it's the FPGA (Field-Programmable Gate Array). FPGAs process market data and manage order flows at the hardware level, completely bypassing the operating system stack.
-
-Most algorithmic traders don't need FPGA. But for market-making strategies or anything that's competing to be first in a queue when an event occurs, a software-only stack is now at a structural disadvantage against counterparties running hardware execution.
-
-## What Our Infrastructure Looks Like
-
-Profytron's NY4 and LD4 nodes run on dedicated bare-metal, cross-connected directly to the primary matching engines. Strategies on our Enterprise tier get direct FIX and WebSocket TCP sessions, no shared infrastructure, and guaranteed latency SLAs.
-
-For Pro and Business subscribers, we route through our shared low-latency infrastructure layer, which provides the consistency advantage without the full bare-metal commitment. Most strategies at this tier see round-trip execution at a level that would have been considered competitive HFT infrastructure five years ago.
-
-## The Honest Takeaway
-
-If your strategy's edge comes from being faster than competing algorithms by 50 nanoseconds, colocation alone won't save you — you need FPGAs, custom networking, and a team of people whose only job is to squeeze out cycles.
-
-If your edge comes from better signals, better risk management, or better strategy design, then colocation is about removing execution noise from the equation — not winning a pure speed race. That's a solvable problem, and it's what we built Profytron's infrastructure layer to address.`,
+Match infrastructure spend to the actual edge. Profytron’s path is rule execution on broker-connected MT4/MT5 with account-level risk — not claiming HFT miracles for every account.`,
   },
 ];
 

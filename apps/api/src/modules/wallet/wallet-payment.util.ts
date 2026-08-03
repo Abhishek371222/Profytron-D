@@ -34,7 +34,6 @@ export function billingIdFromTransactionId(
   id: string,
   createdAt: Date,
 ): string {
-
   const stamp = createdAt.toISOString().slice(0, 10).replace(/-/g, '');
   const hex = id.replace(/-/g, '').toUpperCase();
   const suffix = (hex.slice(0, 6) + hex.slice(-2)).padEnd(8, '0').slice(0, 8);

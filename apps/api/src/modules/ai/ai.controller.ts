@@ -61,10 +61,7 @@ export class AIController {
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiOperation({ summary: 'Send a prompt to AI coach chat' })
   @Post('chat')
-  async chat(
-    @Req() req: AuthenticatedRequest,
-    @Body() body: ChatDto,
-  ) {
+  async chat(@Req() req: AuthenticatedRequest, @Body() body: ChatDto) {
     return this.aiService.chat(req.user.id, body);
   }
 

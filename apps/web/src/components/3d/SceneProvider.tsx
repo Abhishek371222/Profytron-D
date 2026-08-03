@@ -25,9 +25,22 @@ export function SceneProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    sceneManagerApi.start();
+    let cancelled = false;
+    const start = () => {
+      if (!cancelled) sceneManagerApi.start();
+    };
+    // Prefer idle so landing LCP/TBT is not competing with scene manager boot.
+    if (typeof window !== 'undefined' && typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(start, { timeout: 3500 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(id);
+      };
+    }
+    const t = window.setTimeout(start, 1200);
     return () => {
-      /* keep manager alive across soft navigations within same shell */
+      cancelled = true;
+      window.clearTimeout(t);
     };
   }, []);
 

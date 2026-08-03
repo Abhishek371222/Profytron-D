@@ -72,7 +72,8 @@ export class SyncEngineService {
       return {
         entity: 'equity',
         brokerAccountId,
-        version: prev?.version ?? (await this.state.getVersion(brokerAccountId)),
+        version:
+          prev?.version ?? (await this.state.getVersion(brokerAccountId)),
         syncedAt: prev?.syncedAt ?? Date.now(),
         upserts: [],
         removes: [],
@@ -145,12 +146,16 @@ export class SyncEngineService {
     const diff = diffPositions(prevPositions, positions);
     const version = await this.state.bumpVersion(brokerAccountId);
     const syncedAt = Date.now();
-    const redisMs = await this.state.setWatermark(brokerAccountId, 'positions', {
-      version,
-      syncedAt,
-      positions,
-      positionsFp: fp,
-    });
+    const redisMs = await this.state.setWatermark(
+      brokerAccountId,
+      'positions',
+      {
+        version,
+        syncedAt,
+        positions,
+        positionsFp: fp,
+      },
+    );
     this.recordTiming({
       entity: 'positions',
       brokerAccountId,

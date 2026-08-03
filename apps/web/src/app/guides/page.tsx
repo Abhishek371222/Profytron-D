@@ -119,9 +119,28 @@ export default function GuidesPage() {
           href="/register"
           className="inline-flex items-center gap-3 rounded-xl bg-primary px-8 py-4 font-semibold text-primary-foreground shadow-[0_0_30px_color-mix(in_srgb,var(--primary)_30%,transparent)] transition-all hover:bg-primary-hover"
         >
-          Start Building <ArrowRight className="h-4 w-4" />
+          Start free trial <ArrowRight className="h-4 w-4" />
         </Link>
       </MarketingCta>
+
+      <MarketingSection className="pb-20">
+        <p className="text-sm font-semibold text-foreground">Related</p>
+        <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+          {[
+            { href: '/blog', label: 'Blog' },
+            { href: '/docs', label: 'Docs' },
+            { href: '/brokers', label: 'Brokers' },
+            { href: '/pricing', label: 'Pricing' },
+            { href: '/help', label: 'Help' },
+          ].map((item) => (
+            <li key={item.href}>
+              <Link href={item.href} className="text-primary hover:underline">
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </MarketingSection>
     </PublicPageLayout>
   );
 }

@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class MT5Adapter {
   async connect(account: string, password: string, server: string) {
-
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     return {

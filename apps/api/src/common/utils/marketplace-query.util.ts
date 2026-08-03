@@ -43,7 +43,9 @@ export function buildStrategyWhereFragment(
     ];
     if (filters.includeCreatorInSearch) {
       or.push({
-        creator: { fullName: { contains: filters.search, mode: 'insensitive' } },
+        creator: {
+          fullName: { contains: filters.search, mode: 'insensitive' },
+        },
       });
     }
     where.OR = or;
@@ -53,9 +55,10 @@ export function buildStrategyWhereFragment(
 }
 
 /** Average-rating aggregation shared by every marketplace/strategy listing view. */
-export function computeAverageRating(
-  reviews: Array<{ rating: number }>,
-): { avgRating: number; reviewCount: number } {
+export function computeAverageRating(reviews: Array<{ rating: number }>): {
+  avgRating: number;
+  reviewCount: number;
+} {
   if (!reviews.length) return { avgRating: 0, reviewCount: 0 };
   const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
   return { avgRating: sum / reviews.length, reviewCount: reviews.length };

@@ -113,8 +113,8 @@ function StatusBadge({
 
 export default function StatusPage() {
   const [services, setServices] = React.useState<StatusService[]>(INITIAL_SERVICES);
-  const [overall, setOverall] = React.useState<ServiceStatus>(
-    MAINTENANCE ? 'maintenance' : 'degraded',
+  const [overall, setOverall] = React.useState<ServiceStatus | 'checking'>(
+    MAINTENANCE ? 'maintenance' : 'checking',
   );
   const [checkedAt, setCheckedAt] = React.useState<string | null>(null);
   const [responseMs, setResponseMs] = React.useState<number | null>(null);
@@ -199,7 +199,9 @@ export default function StatusPage() {
     return () => window.clearInterval(t);
   }, [refresh]);
 
-  const overallStyles = SERVICE_STATUS_STYLES[overall];
+  const overallKey: ServiceStatus =
+    overall === 'checking' ? 'degraded' : overall;
+  const overallStyles = SERVICE_STATUS_STYLES[overallKey];
 
   return (
     <PublicPageLayout>
@@ -220,7 +222,10 @@ export default function StatusPage() {
         sceneKey="heroTrading"
         meta={
           <div className="flex flex-wrap items-center gap-3" role="status" aria-live="polite">
-            <StatusBadge status={overall} loading={loading} />
+            <StatusBadge
+              status={overall === 'checking' ? 'degraded' : overall}
+              loading={loading || overall === 'checking'}
+            />
             {checkedAt ? (
               <span className="text-xs text-muted-foreground">
                 Last checked {formatStatusTimestamp(checkedAt)}
@@ -243,10 +248,14 @@ export default function StatusPage() {
               <p
                 className={cn(
                   'mt-1 text-2xl font-semibold tracking-tight',
-                  loading ? 'text-muted-foreground' : overallStyles.text,
+                  loading || overall === 'checking'
+                    ? 'text-muted-foreground'
+                    : overallStyles.text,
                 )}
               >
-                {loading ? 'Checking…' : SERVICE_STATUS_LABEL[overall]}
+                {loading || overall === 'checking'
+                  ? 'Checking…'
+                  : SERVICE_STATUS_LABEL[overall]}
               </p>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 Aggregated from API health, database, queue, broker connectivity, and public product
@@ -370,8 +379,8 @@ export default function StatusPage() {
           <div className="landing-panel p-6 sm:p-7">
             <h3 className="dash-section-title mb-2 text-base">Last Incident</h3>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              No critical incidents (SEV1/SEV2) are currently recorded for the closed-beta
-              operations window.
+              Beta status board: critical incident log is not published here yet. Check this page
+              during maintenance and watch Discord/email for SEV updates.
             </p>
           </div>
 
@@ -395,10 +404,10 @@ export default function StatusPage() {
                 Help center
               </Link>
               <Link
-                href="/settings/support"
+                href="/contact"
                 className="font-semibold text-primary hover:underline underline-offset-4"
               >
-                Open a ticket
+                Contact support
               </Link>
             </div>
           </div>

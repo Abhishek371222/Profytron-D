@@ -235,7 +235,7 @@ A well-designed system doesn't just alert you — it acts. That typically means 
 
 ## Profytron's AI Risk Engine
 
-This is exactly what the AI Risk Engine does at the account level: it monitors drawdown in real time across every bot and copy-trading relationship you're running, and if your configured drawdown limit is breached, it automatically stops new copy trading and can close open positions rather than waiting for you to intervene manually. It also watches for unusual volatility events — news spikes, flash-crash-style moves — and can pause trading temporarily even before a hard drawdown limit is technically breached.
+This is exactly what the AI Risk Engine does at the account level: it monitors drawdown in real time across every bot you're running, and if your configured drawdown limit is breached, it automatically pauses bot trading and can close open positions rather than waiting for you to intervene manually. It also watches for unusual volatility events — news spikes, flash-crash-style moves — and can pause trading temporarily even before a hard drawdown limit is technically breached.
 
 Set your limit deliberately, before you need it. A drawdown limit you configure calmly in advance is far more reliable than a decision you'll make in the middle of a losing streak.`,
   },

@@ -1,4 +1,10 @@
-import { IsIn, IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class ReportBridgeResultDto {
   @IsIn(['FILLED', 'FAILED'])

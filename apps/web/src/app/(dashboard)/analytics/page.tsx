@@ -237,6 +237,48 @@ export default function AnalyticsPage() {
         ))}
       </div>
 
+      {portfolioQuery.isError && (
+        <div
+          role="alert"
+          className="rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-5 text-center space-y-3"
+        >
+          <p className="text-sm font-semibold text-foreground">Couldn&apos;t load portfolio analytics</p>
+          <p className="text-xs text-muted-foreground">
+            Check your connection or try again. Empty books still load after the first closed trades.
+          </p>
+          <button
+            type="button"
+            onClick={() => void portfolioQuery.refetch()}
+            className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 text-xs font-bold uppercase tracking-wide text-primary-foreground"
+          >
+            Retry analytics
+          </button>
+        </div>
+      )}
+
+      {!portfolioQuery.isLoading && !portfolioQuery.isError && !hasTrades && (
+        <div className="rounded-2xl border border-[var(--card-border)] bg-card px-4 py-8 text-center space-y-3">
+          <p className="text-sm font-semibold text-foreground">No closed trades in this range</p>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            Activate a bot or paper account to start filling performance, risk, and trade labs.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Link
+              href="/get-bots?paper=1"
+              className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 text-xs font-bold uppercase tracking-wide text-primary-foreground"
+            >
+              Get bots
+            </Link>
+            <Link
+              href="/history"
+              className="inline-flex min-h-[44px] items-center rounded-xl border border-[var(--card-border)] px-4 text-xs font-bold uppercase tracking-wide"
+            >
+              Trade history
+            </Link>
+          </div>
+        </div>
+      )}
+
       { }
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         {KPI_CONFIG.map((kpi, idx) => {

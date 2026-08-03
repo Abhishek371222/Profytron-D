@@ -3,7 +3,8 @@ import { buildPageMetadata } from '@/lib/seo/metadata';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Press',
-  description: 'Profytron press resources.',
+  description:
+    'Profytron press kit and media resources. For interviews, brand assets, and product announcements, contact the team via the contact page.',
   path: '/press',
   noIndex: true,
 });

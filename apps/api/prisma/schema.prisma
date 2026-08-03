@@ -967,6 +967,8 @@ model Trade {
   icebergSliceIndex     Int?
   icebergSliceCount     Int?
   executionMode         String?
+  /// Stable trade signal id for idempotent execution (dedupe across workers)
+  signalId              String?
   executionMetadataJson Json?
   aiExplanation         AITradeExplanation?
   socialComments        SocialComment[]
@@ -979,8 +981,10 @@ model Trade {
   @@index([strategyId, status])
   @@index([strategyId, openedAt])
   @@unique([brokerAccountId, brokerTicket], map: "trade_broker_account_ticket_unique")
+  @@unique([brokerAccountId, signalId], map: "trade_broker_account_signal_unique")
   @@index([brokerAccountId])
   @@index([brokerTicket])
+  @@index([signalId])
   @@index([symbol])
   @@index([openedAt])
 }

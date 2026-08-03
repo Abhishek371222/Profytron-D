@@ -4,19 +4,13 @@
 
 describe('Phase 10 production readiness helpers', () => {
   function normalizeAuditPath(url: string): boolean {
-    const AUDIT_PREFIXES = [
-      '/v1/wallet',
-      '/v1/admin',
-      '/wallet',
-      '/admin',
-    ];
+    const AUDIT_PREFIXES = ['/v1/wallet', '/v1/admin', '/wallet', '/admin'];
     const pathOnly = url.split('?')[0];
     return AUDIT_PREFIXES.some((p) => pathOnly.startsWith(p));
   }
 
   function buildRequestId(incoming?: string) {
-    const id =
-      incoming && incoming.length <= 128 ? incoming : 'generated-uuid';
+    const id = incoming && incoming.length <= 128 ? incoming : 'generated-uuid';
     return id;
   }
 

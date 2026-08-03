@@ -41,6 +41,7 @@ export function StartTrialButton({
 
     try {
       await subscriptionsApi.startTrial(planId);
+      trackEvent('trial_started', { planId, planName });
       toast.success('Trial started', {
         description: `Your ${planName} trial is active for 7 days — no payment required.`,
       });

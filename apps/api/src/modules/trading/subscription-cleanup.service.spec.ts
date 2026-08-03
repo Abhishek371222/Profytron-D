@@ -17,7 +17,10 @@ describe('SubscriptionCleanupService', () => {
     jest.useFakeTimers();
     jest.setSystemTime(fixedNow);
     notifications = { create: jest.fn().mockResolvedValue(undefined) };
-    redis = { get: jest.fn().mockResolvedValue(null), set: jest.fn().mockResolvedValue('OK') };
+    redis = {
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue('OK'),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

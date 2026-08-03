@@ -52,9 +52,7 @@ export class MetricsService implements OnModuleDestroy {
       lines.push(`# TYPE ${metric} counter`);
       lines.push(`${metric} ${v}`);
     }
-    lines.push(
-      `profytron_shutting_down ${this.shuttingDown ? 1 : 0}`,
-    );
+    lines.push(`profytron_shutting_down ${this.shuttingDown ? 1 : 0}`);
     return `${lines.join('\n')}\n`;
   }
 

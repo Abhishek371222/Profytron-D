@@ -85,10 +85,11 @@ export class WalletProcessor {
           where: { id: transactionId },
           data: {
             status: 'FAILED',
-            description: `Withdrawal processing exhausted retries: ${error.message}`.slice(
-              0,
-              500,
-            ),
+            description:
+              `Withdrawal processing exhausted retries: ${error.message}`.slice(
+                0,
+                500,
+              ),
           },
         });
       }
