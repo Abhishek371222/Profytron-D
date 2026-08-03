@@ -115,7 +115,16 @@ Manual spot-check recommendation after deploy: notifications list, journal split
 
 ## Build Status
 
-Recorded at completion of this task in the engineering report (must be green for ship).
+| Gate | Result |
+|------|--------|
+| `npm run lint` | PASS (exit 0) |
+| `npx tsc --noEmit` | PASS (exit 0) |
+| `npm run build` | PASS (exit 0) |
+| `npm run test` | N/A (no web test script) |
+| Git commit | `00585839` — `fix(ui): resolve remaining P1 frontend issues` |
+| Push | `origin/main` (`8a0804c8..00585839`) |
+| Cloud Build | `56e3d50e-8b25-4711-a034-fb67d9f9fe86` **SUCCESS** |
+| Prod revision | **`web-00089-jbq`** image `web:00585839…` @ **100%** traffic |
 
 ---
 
