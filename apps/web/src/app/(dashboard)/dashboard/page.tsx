@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { useCurrentUser } from '@/lib/hooks/useCurrentUser';
 import type { MarketNewsCategory } from '@/lib/api/market';
-import { ManualOrderModal } from '@/components/trading/ManualOrderModal';
 import {
   readOverviewAccountCache,
   writeOverviewAccountCache,
@@ -39,7 +38,6 @@ import { OverviewQuickActions } from '@/components/dashboard/overview/OverviewQu
 import { OverviewAccountHealth } from '@/components/dashboard/overview/OverviewAccountHealth';
 import dynamic from 'next/dynamic';
 import { Mt5SyncBadge } from '@/platform/dashboard/Mt5SyncBadge';
-import { DashboardSceneStrip } from '@/components/3d/DashboardSceneStrip';
 import {
   REGISTRATION_FUNNEL_EVENTS,
   trackRegistrationFunnelOnce,
@@ -58,12 +56,32 @@ const LegacyPerformance = dynamic(
   },
 );
 
+/** Order modal is rare-path; keep overview chunk free of trading form weight. */
+const ManualOrderModal = dynamic(
+  () =>
+    import('@/components/trading/ManualOrderModal').then((m) => ({
+      default: m.ManualOrderModal,
+    })),
+  { ssr: false },
+);
+
+/** Ambient scene strip is decorative — load after idle so metrics/tables paint first. */
+const DashboardSceneStrip = dynamic(
+  () =>
+    import('@/components/3d/DashboardSceneStrip').then((m) => ({
+      default: m.DashboardSceneStrip,
+    })),
+  { ssr: false },
+);
+
 export default function DashboardPage() {
   const router = useRouter();
   const [manualOrderOpen, setManualOrderOpen] = React.useState(false);
   const [watchTab, setWatchTab] = React.useState<WatchTab>('forex');
   const [newsCategory, setNewsCategory] =
     React.useState<MarketNewsCategory>('forex');
+  /** Defer decorative ambient until main widgets can paint. */
+  const [ambientReady, setAmbientReady] = React.useState(false);
 
   React.useEffect(() => {
     trackRegistrationFunnelOnce(
@@ -71,6 +89,27 @@ export default function DashboardPage() {
       REGISTRATION_FUNNEL_EVENTS.DASHBOARD_VIEWED,
       { path: '/dashboard' },
     );
+  }, []);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    let idleId: number | undefined;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const arm = () => {
+      if (!cancelled) setAmbientReady(true);
+    };
+    if (typeof window.requestIdleCallback === 'function') {
+      idleId = window.requestIdleCallback(arm, { timeout: 2500 });
+    } else {
+      timeoutId = setTimeout(arm, 900);
+    }
+    return () => {
+      cancelled = true;
+      if (idleId !== undefined && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
+    };
   }, []);
 
   const { data: currentUser } = useCurrentUser();
@@ -332,7 +371,18 @@ export default function DashboardPage() {
       suppressHydrationWarning
       data-tour="dashboard-overview"
     >
-      <DashboardSceneStrip sceneKey="ambientDepth" className="mb-6" label="Dashboard ambient" />
+      {ambientReady ? (
+        <DashboardSceneStrip
+          sceneKey="ambientDepth"
+          className="mb-6"
+          label="Dashboard ambient"
+        />
+      ) : (
+        <div
+          className="mb-6 min-h-[9rem] rounded-xl bg-muted/20"
+          aria-hidden
+        />
+      )}
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="mb-2 inline-flex items-center gap-2">
@@ -556,44 +606,21 @@ export default function DashboardPage() {
               }
             />,
           )}
-        {engineOn ? (
-          <ViewportModule id="CalendarModule">
-            <Calendar
-              events={calendarQuery.data?.events ?? []}
-              loading={calendarQuery.isPending && !calendarQuery.data}
-              error={calendarQuery.isError}
-            />
-          </ViewportModule>
-        ) : (
-          slot(
-            'CalendarModule',
-            <Calendar
-              events={calendarQuery.data?.events ?? []}
-              loading={calendarQuery.isPending && !calendarQuery.data}
-              error={calendarQuery.isError}
-            />,
-          )
-        )}
-        {engineOn ? (
-          <ViewportModule id="NewsModule">
-            <News
-              news={newsQuery.data?.items ?? []}
-              category={newsCategory}
-              onCategoryChange={onNewsCategory}
-              loading={newsQuery.isPending && !newsQuery.data}
-            />
-          </ViewportModule>
-        ) : (
-          slot(
-            'NewsModule',
-            <News
-              news={newsQuery.data?.items ?? []}
-              category={newsCategory}
-              onCategoryChange={onNewsCategory}
-              loading={newsQuery.isPending && !newsQuery.data}
-            />,
-          )
-        )}
+        <ViewportModule id="CalendarModule">
+          <Calendar
+            events={calendarQuery.data?.events ?? []}
+            loading={calendarQuery.isPending && !calendarQuery.data}
+            error={calendarQuery.isError}
+          />
+        </ViewportModule>
+        <ViewportModule id="NewsModule">
+          <News
+            news={newsQuery.data?.items ?? []}
+            category={newsCategory}
+            onCategoryChange={onNewsCategory}
+            loading={newsQuery.isPending && !newsQuery.data}
+          />
+        </ViewportModule>
       </div>
 
       <div
