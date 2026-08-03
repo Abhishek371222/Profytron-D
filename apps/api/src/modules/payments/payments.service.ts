@@ -2656,6 +2656,24 @@ export class PaymentsService {
       });
     }
 
+    // Full refunds must revoke paid access + claw back marketplace creator credit.
+    // Partial refunds only adjust ledger/wallet (do not cancel the full entitlement).
+    const isFullRefund =
+      !payment || amount + 0.009 >= Number(payment.amount ?? 0);
+    let accessRevoked = false;
+    let creatorClawedBack = false;
+    if (payment && isFullRefund) {
+      const rev = await this.revokePaidAccessAfterFullRefund({
+        payment,
+        refundId,
+        source,
+        amount,
+        gatewayPaymentId: gatewayPaymentId ?? null,
+      });
+      accessRevoked = rev.accessRevoked;
+      creatorClawedBack = rev.creatorClawedBack;
+    }
+
     // Only claw back wallet when a prior DEPOSIT was credited for this gateway payment.
     const depositKeys = [
       payment?.razorpayPaymentId
@@ -2681,6 +2699,7 @@ export class PaymentsService {
               userId,
               direction: 'IN',
               status: 'CONFIRMED',
+              type: { in: ['DEPOSIT'] },
               idempotencyKey: { in: depositKeys },
             },
           })
@@ -2748,7 +2767,183 @@ export class PaymentsService {
       amount,
       walletAdjusted: Boolean(priorDeposit),
       walletTransactionId: walletTx?.id ?? null,
+      accessRevoked,
+      creatorClawedBack,
+      fullRefund: isFullRefund,
     };
+  }
+
+  /**
+   * On full refund of a paid platform/marketplace charge:
+   * - cancel ACTIVE entitlements tied to that payment
+   * - claw back marketplace creator MARKETPLACE_SALE credit when present
+   * Idempotent; does not invent subscriptions.
+   */
+  private async revokePaidAccessAfterFullRefund(params: {
+    payment: {
+      id: string;
+      userId: string;
+      amount: number;
+      razorpayPaymentId: string | null;
+      stripePaymentId: string | null;
+      metadataJson: unknown;
+    };
+    refundId: string;
+    source: string;
+    amount: number;
+    gatewayPaymentId: string | null;
+  }): Promise<{ accessRevoked: boolean; creatorClawedBack: boolean }> {
+    const { payment, refundId, source, amount, gatewayPaymentId } = params;
+    const meta =
+      payment.metadataJson && typeof payment.metadataJson === 'object'
+        ? (payment.metadataJson as Record<string, unknown>)
+        : {};
+    const now = new Date();
+    let accessRevoked = false;
+
+    // Platform plan linked by paymentId (canonical).
+    const platformByPayment = await this.prisma.userSubscription.updateMany({
+      where: {
+        paymentId: payment.id,
+        status: { in: ['ACTIVE', 'PAUSED', 'PROVISIONING'] },
+      },
+      data: {
+        status: 'CANCELLED',
+        cancelledAt: now,
+        autoRenewal: false,
+      },
+    });
+    if (platformByPayment.count > 0) accessRevoked = true;
+
+    // Fallback: platform metadata planId + same user when paymentId was not stamped.
+    if (
+      !accessRevoked &&
+      meta.type === 'platform_subscription' &&
+      typeof meta.planId === 'string'
+    ) {
+      const platformByPlan = await this.prisma.userSubscription.updateMany({
+        where: {
+          userId: payment.userId,
+          planId: meta.planId,
+          status: 'ACTIVE',
+          isTrial: false,
+        },
+        data: {
+          status: 'CANCELLED',
+          cancelledAt: now,
+          autoRenewal: false,
+        },
+      });
+      if (platformByPlan.count > 0) accessRevoked = true;
+    }
+
+    // Marketplace strategy subscription from payment metadata / notes.
+    const strategyId =
+      typeof meta.strategyId === 'string'
+        ? meta.strategyId
+        : typeof meta.strategy_id === 'string'
+          ? meta.strategy_id
+          : null;
+    if (
+      strategyId &&
+      (meta.type === 'marketplace_subscription' ||
+        meta.source === 'stripe_invoice' ||
+        meta.source === 'marketplace_sale')
+    ) {
+      const mkt = await this.prisma.userStrategySubscription.updateMany({
+        where: {
+          userId: payment.userId,
+          strategyId,
+          status: {
+            in: [
+              'ACTIVE',
+              'PROVISIONING',
+              'PAUSED',
+              'BLOCKED',
+              'INACTIVE',
+            ],
+          },
+        },
+        data: {
+          status: 'CANCELLED',
+          cancelledAt: now,
+        },
+      });
+      if (mkt.count > 0) accessRevoked = true;
+    }
+
+    // Demote platform tier only when no other ACTIVE platform plan remains.
+    if (accessRevoked && meta.type === 'platform_subscription') {
+      const still = await this.prisma.userSubscription.findFirst({
+        where: {
+          userId: payment.userId,
+          status: 'ACTIVE',
+        },
+        include: { plan: { select: { name: true } } },
+      });
+      await this.prisma.user.update({
+        where: { id: payment.userId },
+        data: {
+          subscriptionTier: still
+            ? this.tierFromPlanName(still.plan.name)
+            : 'FREE',
+        },
+      });
+    }
+
+    // Claw back creator marketplace sale credit (not deposit keys).
+    const creatorKeys = [
+      payment.razorpayPaymentId
+        ? `creator_credit_${payment.razorpayPaymentId}`
+        : null,
+      payment.stripePaymentId
+        ? `creator_credit_${payment.stripePaymentId}`
+        : null,
+      gatewayPaymentId ? `creator_credit_${gatewayPaymentId}` : null,
+      typeof meta.invoiceId === 'string'
+        ? `creator_credit_invoice_${meta.invoiceId}`
+        : null,
+      typeof meta.stripePaymentId === 'string'
+        ? `creator_credit_${meta.stripePaymentId}`
+        : null,
+    ].filter((k): k is string => Boolean(k));
+
+    let creatorClawedBack = false;
+    if (creatorKeys.length > 0) {
+      const priorSale = await this.prisma.walletTransaction.findFirst({
+        where: {
+          type: 'MARKETPLACE_SALE',
+          direction: 'IN',
+          status: 'CONFIRMED',
+          idempotencyKey: { in: creatorKeys },
+        },
+      });
+      if (priorSale) {
+        const claw = Math.min(amount, priorSale.amount);
+        await this.creditWallet(
+          priorSale.userId,
+          claw,
+          'WITHDRAWAL',
+          {
+            source: `${source}_marketplace_refund`,
+            refundId,
+            paymentId: payment.id,
+            originalSaleKey: priorSale.idempotencyKey,
+            buyerId: payment.userId,
+          },
+          `creator_refund_${refundId}`,
+        );
+        creatorClawedBack = true;
+      }
+    }
+
+    if (accessRevoked || creatorClawedBack) {
+      this.logger.log(
+        `Refund ${refundId}: accessRevoked=${accessRevoked} creatorClawedBack=${creatorClawedBack} payment=${payment.id}`,
+      );
+    }
+
+    return { accessRevoked, creatorClawedBack };
   }
 
   /**
