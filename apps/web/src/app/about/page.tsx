@@ -175,10 +175,10 @@ function MarketingBandStats() {
           </p>
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             {[
-              { label: "Speed", value: "< 1ms" },
-              { label: "Nodes", value: "Global" },
-              { label: "Integrity", value: "AES-256" },
-              { label: "Uptime", value: "99.9%" },
+              { label: "Execution", value: "Real-time" },
+              { label: "Reach", value: "Global" },
+              { label: "Encryption", value: "AES-256" },
+              { label: "Health board", value: "Live" },
             ].map((stat) => (
               <div key={stat.label} className="flex flex-col gap-1">
                 <span className="font-mono text-2xl font-bold text-foreground">{stat.value}</span>

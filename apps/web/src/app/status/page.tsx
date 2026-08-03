@@ -91,7 +91,10 @@ function StatusBadge({
 }) {
   if (loading) {
     return (
-      <span className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-muted px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <span
+        className="inline-flex items-center gap-2 rounded-full border border-[var(--card-border)] bg-muted px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+        role="status"
+      >
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-muted-foreground" aria-hidden />
         Checking…
       </span>
@@ -104,6 +107,7 @@ function StatusBadge({
         'inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-wide',
         styles.badge,
       )}
+      role="status"
     >
       <span className={cn('h-1.5 w-1.5 rounded-full', styles.dot)} aria-hidden />
       {SERVICE_STATUS_LABEL[status]}
@@ -221,7 +225,7 @@ export default function StatusPage() {
         eyebrowIcon={Activity}
         title="Platform status"
         titleAccent="at a glance."
-        description="Live health snapshot for Profytron services. Probes refresh every 30 seconds from the public API."
+        description="Live health snapshot for Profytron services. Probes refresh every 30 seconds from the public API. Times are UTC."
         sceneKey="heroTrading"
         meta={
           <div className="flex flex-wrap items-center gap-3" role="status" aria-live="polite">
@@ -238,16 +242,19 @@ export default function StatusPage() {
         }
       />
 
-      <section className="marketing-section pb-20">
+      <section className="marketing-section pb-20" aria-labelledby="status-page-heading">
         <div className="page-container max-w-5xl">
         <div className="mb-8">
           <Breadcrumbs items={[{ label: 'Status' }]} />
         </div>
+        <h1 id="status-page-heading" className="sr-only">
+          Platform system status
+        </h1>
 
         <div className="landing-panel mb-6 min-h-[8.5rem] p-6 sm:p-7">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="text-sm text-muted-foreground">Overall Platform Status</p>
+              <p className="text-sm text-muted-foreground">Overall platform status</p>
               <p
                 className={cn(
                   'mt-1 text-2xl font-semibold tracking-tight',
@@ -262,7 +269,7 @@ export default function StatusPage() {
               </p>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                 Aggregated from API health, database, queue, broker connectivity, and public product
-                endpoints.
+                endpoints. Not a contractual SLA dashboard.
               </p>
             </div>
             <button
@@ -270,7 +277,8 @@ export default function StatusPage() {
               onClick={() => void refresh()}
               disabled={refreshing}
               aria-busy={refreshing}
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[var(--card-border)] px-3.5 py-2 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-60"
+              aria-label={refreshing ? 'Refreshing status' : 'Refresh status now'}
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-[var(--card-border)] px-3.5 py-2 text-sm font-medium transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/70 disabled:opacity-60"
             >
               <RefreshCw
                 className={cn('h-4 w-4', refreshing && 'animate-spin')}
@@ -338,77 +346,81 @@ export default function StatusPage() {
           <div className="landing-panel min-h-[7rem] p-6 sm:p-7">
             <div className="mb-2 flex items-center gap-2 text-muted-foreground">
               <Clock3 className="h-4 w-4" aria-hidden />
-              <span className="text-sm font-medium">Response Time</span>
+              <span className="text-sm font-medium">Probe latency</span>
             </div>
             <p className="text-xl font-semibold tabular-nums">
               {responseMs != null ? `${responseMs} ms` : '—'}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Client-measured /health probe latency
+              Client-measured /health response time (this browser)
             </p>
           </div>
 
           <div className="landing-panel min-h-[7rem] p-6 sm:p-7">
             <div className="mb-2 flex items-center gap-2 text-muted-foreground">
               <Server className="h-4 w-4" aria-hidden />
-              <span className="text-sm font-medium">Uptime</span>
+              <span className="text-sm font-medium">Process uptime</span>
             </div>
             <p className="text-xl font-semibold tabular-nums">{uptimeLabel}</p>
-            <p className="mt-1 text-xs text-muted-foreground">API process uptime from /health</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Continuous seconds this API process has been running — not historical SLA %
+            </p>
           </div>
 
           <div className="landing-panel min-h-[7rem] p-6 sm:p-7">
             <div className="mb-2 flex items-center gap-2 text-muted-foreground">
               <Activity className="h-4 w-4" aria-hidden />
-              <span className="text-sm font-medium">Current Version</span>
+              <span className="text-sm font-medium">API version</span>
             </div>
-            <p className="text-xl font-semibold tabular-nums">{version}</p>
+            <p className="text-xl font-semibold tabular-nums break-all">{version}</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Reported by the API health endpoint
+              Reported by the API health endpoint when set
             </p>
           </div>
 
           <div className="landing-panel min-h-[7rem] p-6 sm:p-7">
             <div className="mb-2 flex items-center gap-2 text-muted-foreground">
               <GitCommit className="h-4 w-4" aria-hidden />
-              <span className="text-sm font-medium">Last Deployment</span>
+              <span className="text-sm font-medium">API git revision</span>
             </div>
-            <p className="text-base font-semibold font-mono sm:text-xl">{deployment}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Git SHA from API when available</p>
+            <p className="break-all text-base font-semibold font-mono sm:text-xl">{deployment}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Source revision from API when available (not a publish timestamp)
+            </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div className="landing-panel p-6 sm:p-7">
-            <h3 className="dash-section-title mb-2 text-base">Last Incident</h3>
+          <div className="landing-panel p-6 sm:p-7" role="status">
+            <h3 className="dash-section-title mb-2 text-base">Incident history</h3>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Beta status board: critical incident log is not published here yet. Check this page
-              during maintenance and watch Discord/email for SEV updates.
+              No public incident timeline is published here. Current component health is listed
+              above. For outages, email support or join Discord for operator updates.
             </p>
           </div>
 
           <div className="landing-panel p-6 sm:p-7">
-            <h3 className="dash-section-title mb-2 text-base">Support Contact</h3>
+            <h3 className="dash-section-title mb-2 text-base">Support contact</h3>
             <p className="mb-3 text-sm leading-relaxed text-muted-foreground">
-              Report outages or ask for status updates.
+              Report outages or request a status update.
             </p>
             <div className="flex flex-wrap gap-3 text-sm">
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
-                className="inline-flex items-center gap-2 font-semibold text-primary hover:underline underline-offset-4"
+                className="inline-flex min-h-11 items-center gap-2 font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/70"
               >
                 <Mail className="h-4 w-4" aria-hidden />
                 {SUPPORT_EMAIL}
               </a>
               <Link
                 href="/help"
-                className="font-semibold text-primary hover:underline underline-offset-4"
+                className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/70"
               >
                 Help center
               </Link>
               <Link
                 href="/contact"
-                className="font-semibold text-primary hover:underline underline-offset-4"
+                className="inline-flex min-h-11 items-center font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary/70"
               >
                 Contact support
               </Link>

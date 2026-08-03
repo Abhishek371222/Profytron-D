@@ -106,7 +106,11 @@ export function Footer() {
               href="/status"
               className="flex items-center gap-2 text-caption font-medium tracking-widest uppercase text-foreground/50 transition-colors hover:text-foreground"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-chart-3 shadow-[0_0_10px_rgba(16,185,129,0.5)]" aria-hidden />
+              {/* Neutral indicator — does not imply all systems operational */}
+              <span
+                className="h-1.5 w-1.5 rounded-full border border-foreground/40 bg-transparent"
+                aria-hidden
+              />
               System Status
             </Link>
           </div>

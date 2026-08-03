@@ -26,7 +26,7 @@ const STAT_BADGES: {
 const TRUST_ITEMS = [
   { icon: Shield, label: 'Bank-level security' },
   { icon: Zap, label: 'Real-time sync' },
-  { icon: Cloud, label: '99.9% uptime' },
+  { icon: Cloud, label: 'Live status board' },
 ] as const;
 
 const CURVE_PATH = 'M10,140 C55,134 78,120 128,114 C168,110 186,122 218,110 C252,98 274,88 310,78';
