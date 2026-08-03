@@ -47,7 +47,7 @@ export default function SupportPage() {
     category: 'general',
   });
 
-  const { data: ticketsRaw, isLoading } = useQuery({
+  const { data: ticketsRaw, isLoading, isError, refetch } = useQuery({
     queryKey: ['support-tickets'],
     queryFn: () => supportApi.getTickets(),
   });
@@ -125,17 +125,34 @@ export default function SupportPage() {
       >
         <div className="space-y-1">
           <h2 className="text-2xl font-semibold text-foreground uppercase tracking-tight">Support Center</h2>
-          <p className="text-xs text-foreground/30 uppercase tracking-widest font-semibold">Submit tickets · Track responses · Get help</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Submit tickets · Track responses · Get help</p>
           <p className="text-xs text-muted-foreground normal-case tracking-normal font-normal">We respond within 24 hours on business days.</p>
         </div>
         <button
+          type="button"
           onClick={() => setShowCreate(true)}
-          className="btn-premium flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest"
+          className="btn-premium flex min-h-[44px] items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold uppercase tracking-widest"
         >
           <Plus className="w-4 h-4" />
           New Ticket
         </button>
       </motion.div>
+
+      <p className="text-xs text-muted-foreground">
+        Prefer self-serve? See{' '}
+        <a href="/help" className="font-medium text-primary hover:underline">
+          Help center
+        </a>
+        ,{' '}
+        <a href="/docs" className="font-medium text-primary hover:underline">
+          docs
+        </a>
+        , or email{' '}
+        <a href="mailto:support@profytron.com" className="font-medium text-primary hover:underline">
+          support@profytron.com
+        </a>
+        .
+      </p>
 
       <AnimatePresence>
         {showCreate && (
@@ -154,7 +171,7 @@ export default function SupportPage() {
 
             <div className="space-y-3">
               <div>
-                <label className="text-micro font-bold text-foreground/30 uppercase tracking-widest block mb-1.5">Category</label>
+                <label className="text-micro font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">Category</label>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((cat) => (
                     <button
@@ -175,23 +192,23 @@ export default function SupportPage() {
               </div>
 
               <div>
-                <label className="text-micro font-bold text-foreground/30 uppercase tracking-widest block mb-1.5">Subject</label>
+                <label className="text-micro font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">Subject</label>
                 <input
                   value={form.subject}
                   onChange={(e) => setForm((f) => ({ ...f, subject: e.target.value }))}
                   placeholder="Briefly describe your issue..."
-                  className="w-full h-11 bg-foreground/3 border border-border rounded-xl px-4 text-sm text-foreground placeholder:text-foreground/20 focus:border-primary/40 outline-none"
+                  className="w-full h-11 bg-foreground/3 border border-border rounded-xl px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 outline-none"
                 />
               </div>
 
               <div>
-                <label className="text-micro font-bold text-foreground/30 uppercase tracking-widest block mb-1.5">Description</label>
+                <label className="text-micro font-bold text-muted-foreground uppercase tracking-widest block mb-1.5">Description</label>
                 <textarea
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   placeholder="Provide details about your issue..."
                   rows={4}
-                  className="w-full bg-foreground/3 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/20 focus:border-primary/40 outline-none resize-none"
+                  className="w-full bg-foreground/3 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 outline-none resize-none"
                 />
               </div>
 
@@ -212,7 +229,7 @@ export default function SupportPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-6">
         { }
         <div className="space-y-3">
-          <div className="text-micro font-bold text-foreground/20 uppercase tracking-widest">
+          <div className="text-micro font-bold text-muted-foreground uppercase tracking-widest">
             {tickets.length} ticket{tickets.length !== 1 ? 's' : ''}
           </div>
 
@@ -220,10 +237,33 @@ export default function SupportPage() {
             Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="h-20 rounded-2xl bg-foreground/3 animate-pulse" />
             ))
+          ) : isError ? (
+            <div className="py-12 text-center space-y-3 px-4" role="alert">
+              <AlertCircle className="w-10 h-10 text-destructive/60 mx-auto" />
+              <p className="text-sm font-semibold text-foreground">Couldn&apos;t load tickets</p>
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 text-xs font-bold uppercase tracking-wide text-primary-foreground"
+              >
+                Retry
+              </button>
+            </div>
           ) : tickets.length === 0 ? (
-            <div className="py-16 text-center space-y-3">
-              <MessageSquare className="w-10 h-10 text-foreground/10 mx-auto" />
-              <p className="text-sm text-foreground/20 uppercase tracking-widest font-semibold">No tickets yet</p>
+            <div className="py-12 text-center space-y-3 px-4">
+              <MessageSquare className="w-10 h-10 text-muted-foreground mx-auto" />
+              <p className="text-sm font-semibold text-foreground">No tickets yet</p>
+              <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                Open a ticket for billing, broker, bot, or account issues. Typical reply within one business day.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowCreate(true)}
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-primary px-4 text-xs font-bold uppercase tracking-wide text-primary-foreground"
+              >
+                <Plus className="w-4 h-4" />
+                Create first ticket
+              </button>
             </div>
           ) : (
             tickets.map((ticket, idx) => {
@@ -246,11 +286,11 @@ export default function SupportPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1.5 min-w-0">
                       <p className="text-sm font-semibold text-foreground truncate">{ticket.subject}</p>
-                      <p className="text-micro text-foreground/30 uppercase tracking-widest font-semibold">{ticket.category}</p>
+                      <p className="text-micro text-muted-foreground uppercase tracking-widest font-semibold">{ticket.category}</p>
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       <StatusBadge status={ticket.status} />
-                      <ChevronRight className="w-3.5 h-3.5 text-foreground/20" />
+                      <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                     </div>
                   </div>
                 </motion.button>
@@ -262,13 +302,16 @@ export default function SupportPage() {
         { }
         <div className="rounded-2xl bg-foreground/2 border border-border flex flex-col min-h-[400px]">
           {!selectedTicket ? (
-            <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center">
-              <MessageSquare className="w-10 h-10 text-foreground/10" />
-              <p className="text-sm text-foreground/20 uppercase tracking-widest font-semibold">Select a ticket to view</p>
+            <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-center" role="status">
+              <MessageSquare className="w-10 h-10 text-muted-foreground" />
+              <p className="text-sm font-semibold text-foreground">Select a ticket to view</p>
+              <p className="text-xs text-muted-foreground max-w-xs">
+                Choose a ticket on the left to read messages and reply.
+              </p>
             </div>
           ) : isLoadingDetail ? (
             <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="w-6 h-6 text-foreground/20 animate-spin" />
+              <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
             </div>
           ) : ticketDetail ? (
             <>
@@ -277,13 +320,15 @@ export default function SupportPage() {
                   <h3 className="text-base font-semibold text-foreground">{ticketDetail.subject}</h3>
                   <StatusBadge status={ticketDetail.status} />
                 </div>
-                <p className="text-xs text-foreground/30 uppercase tracking-widest font-semibold">{ticketDetail.category}</p>
-                <p className="text-sm text-foreground/50 leading-relaxed">{ticketDetail.description}</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">{ticketDetail.category}</p>
+                <p className="text-sm text-foreground/80 leading-relaxed">{ticketDetail.description}</p>
               </div>
 
               <div className="flex-1 overflow-y-auto p-5 space-y-3">
                 {(ticketDetail.responses || []).length === 0 ? (
-                  <p className="text-xs text-foreground/20 text-center uppercase tracking-widest py-8">No responses yet — our team will reply soon.</p>
+                  <p className="text-xs text-muted-foreground text-center py-8" role="status">
+                    No responses yet — our team will reply soon.
+                  </p>
                 ) : (
                   ticketDetail.responses!.map((resp) => (
                     <div
@@ -313,7 +358,7 @@ export default function SupportPage() {
                     onChange={(e) => setReplyText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleReply()}
                     placeholder="Type a reply..."
-                    className="flex-1 h-11 bg-foreground/3 border border-border rounded-xl px-4 text-sm text-foreground placeholder:text-foreground/20 focus:border-primary/40 outline-none"
+                    className="flex-1 h-11 bg-foreground/3 border border-border rounded-xl px-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 outline-none"
                   />
                   <button
                     onClick={handleReply}

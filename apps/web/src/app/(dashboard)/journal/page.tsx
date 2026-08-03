@@ -75,7 +75,7 @@ function StarRating({ rating, onChange }: { rating: number | null; onChange?: (r
           <Star
             className={cn(
               'w-3.5 h-3.5 transition-colors',
-              (rating ?? 0) >= s ? 'text-yellow-400 fill-yellow-400' : 'text-foreground/15',
+              (rating ?? 0) >= s ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/50',
             )}
           />
         </button>
@@ -124,7 +124,7 @@ function JournalCard({
               {entry.trade.direction}
             </span>
           </div>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest font-mono">{fmtDate(entry.createdAt)}</p>
+          <p className="text-micro text-muted-foreground uppercase tracking-widest font-mono">{fmtDate(entry.createdAt)}</p>
         </div>
         <div className="text-right shrink-0 space-y-1">
           {pnl !== null ? (
@@ -132,7 +132,7 @@ function JournalCard({
               {isWin ? '+' : ''}${Math.abs(pnl).toFixed(2)}
             </p>
           ) : (
-            <p className="text-xs text-foreground/25">Open</p>
+            <p className="text-xs text-muted-foreground">Open</p>
           )}
           <StarRating rating={entry.rating} />
         </div>
@@ -144,7 +144,7 @@ function JournalCard({
             <EmotionTag key={e} emotion={e} />
           ))}
           {emotions.length > 3 && (
-            <span className="text-micro text-foreground/20 uppercase tracking-widest self-center">
+            <span className="text-micro text-muted-foreground uppercase tracking-widest self-center">
               +{emotions.length - 3}
             </span>
           )}
@@ -154,7 +154,7 @@ function JournalCard({
       {entry.aiAnalysis && (
         <div className="flex items-center gap-1.5 mt-1.5">
           <Sparkles className="w-3 h-3 text-primary" />
-          <span className="text-micro text-primary uppercase tracking-widest font-bold">AI Analysis</span>
+          <span className="text-micro text-primary uppercase tracking-widest font-bold">Coach notes</span>
         </div>
       )}
     </motion.button>
@@ -179,24 +179,24 @@ function InsightsBar() {
     >
       <div className="flex items-center gap-2 shrink-0">
         <Brain className="w-4 h-4 text-primary" />
-        <span className="text-micro font-bold text-foreground/35 uppercase tracking-[0.3em]">Emotional Insights</span>
+        <span className="text-micro font-bold text-muted-foreground uppercase tracking-[0.3em]">Emotional Insights</span>
       </div>
       <div className="flex items-center gap-5 ml-auto">
         <div className="text-center">
           <p className="text-lg font-bold text-foreground">{data.totalEntries}</p>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest">Entries</p>
+          <p className="text-micro text-muted-foreground uppercase tracking-widest">Entries</p>
         </div>
-        <div className="w-px h-8 bg-foreground/10" />
+        <div className="w-px h-8 bg-border" />
         <div className="text-center">
           <p className="text-lg font-bold text-yellow-400">
             {data.averageRating > 0 ? data.averageRating.toFixed(1) : '—'}
           </p>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest">Avg Rating</p>
+          <p className="text-micro text-muted-foreground uppercase tracking-widest">Avg Rating</p>
         </div>
-        <div className="w-px h-8 bg-foreground/10" />
+        <div className="w-px h-8 bg-border" />
         <div className="text-center">
           <p className="text-sm font-bold text-foreground truncate max-w-[80px]">{topEmotion ? topEmotion[0] : '—'}</p>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest">Top Emotion</p>
+          <p className="text-micro text-muted-foreground uppercase tracking-widest">Top Emotion</p>
         </div>
       </div>
     </motion.div>
@@ -288,7 +288,7 @@ export default function JournalPage() {
         { }
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <p className="text-micro text-foreground/20 uppercase tracking-widest font-bold">
+            <p className="text-micro text-muted-foreground uppercase tracking-widest font-bold">
               {entries.length} entr{entries.length !== 1 ? 'ies' : 'y'}
             </p>
           </div>
@@ -305,14 +305,31 @@ export default function JournalPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="py-20 text-center space-y-4"
+              className="py-20 text-center space-y-4 px-4"
+              role="status"
             >
               <div className="w-16 h-16 rounded-[20px] bg-muted border border-[var(--card-border)] flex items-center justify-center mx-auto">
-                <BookOpen className="w-7 h-7 text-foreground/10" />
+                <BookOpen className="w-7 h-7 text-muted-foreground" />
               </div>
               <div className="space-y-1.5">
-                <p className="text-sm font-bold text-foreground/20 uppercase tracking-widest">No trades recorded</p>
-                <p className="text-xs text-foreground/15">Journal entries are created from your trade history.</p>
+                <p className="text-sm font-bold text-foreground uppercase tracking-widest">No journal entries yet</p>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                  Entries appear as trades close. Activate a bot or paper account, then check History.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                <a
+                  href="/get-bots?paper=1"
+                  className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 text-xs font-bold uppercase tracking-wide text-primary-foreground"
+                >
+                  Paper connect
+                </a>
+                <a
+                  href="/history"
+                  className="inline-flex min-h-[44px] items-center rounded-xl border border-[var(--card-border)] px-4 text-xs font-bold uppercase tracking-wide"
+                >
+                  Trade history
+                </a>
               </div>
             </motion.div>
           ) : (
@@ -334,7 +351,7 @@ export default function JournalPage() {
         { }
         <motion.div
           layout
-          className="rounded-[24px] border border-[var(--card-border)] bg-muted/505 flex flex-col min-h-[520px] overflow-hidden"
+          className="rounded-[24px] border border-[var(--card-border)] bg-muted/50 flex flex-col min-h-[520px] overflow-hidden"
         >
           <AnimatePresence mode="wait">
             {!selectedEntry ? (
@@ -344,13 +361,14 @@ export default function JournalPage() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="flex-1 flex flex-col items-center justify-center gap-4 p-10 text-center"
+                role="status"
               >
                 <div className="w-16 h-16 rounded-[20px] bg-muted border border-[var(--card-border)] flex items-center justify-center">
-                  <ChevronRight className="w-6 h-6 text-foreground/10" />
+                  <ChevronRight className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-bold text-foreground/20 uppercase tracking-widest">Select a trade</p>
-                  <p className="text-xs text-foreground/15">Click any entry to view details and insights.</p>
+                  <p className="text-sm font-bold text-foreground">Select a trade</p>
+                  <p className="text-xs text-muted-foreground">Click any entry to view details and insights.</p>
                 </div>
               </motion.div>
             ) : (
@@ -378,7 +396,7 @@ export default function JournalPage() {
                           {selectedEntry.trade.direction}
                         </span>
                       </div>
-                      <p className="text-micro text-foreground/25 font-mono">{fmtDateTime(selectedEntry.createdAt)}</p>
+                      <p className="text-micro text-muted-foreground font-mono">{fmtDateTime(selectedEntry.createdAt)}</p>
                     </div>
                     <div className="text-right space-y-1">
                       {selectedEntry.trade.profit !== null && (
@@ -404,7 +422,7 @@ export default function JournalPage() {
                 <div className="flex-1 p-5 space-y-5 overflow-y-auto">
                   { }
                   <div className="space-y-2.5">
-                    <label className="text-micro font-bold text-foreground/25 uppercase tracking-[0.3em] block">
+                    <label className="text-micro font-bold text-muted-foreground uppercase tracking-[0.3em] block">
                       Emotions During Trade
                     </label>
                     {isEditing ? (
@@ -417,7 +435,7 @@ export default function JournalPage() {
                               'px-3 py-1.5 rounded-full text-micro font-bold uppercase tracking-widest border transition-all duration-200',
                               editingEmotions.includes(e)
                                 ? EMOTION_COLORS[e] ?? 'bg-primary text-primary-foreground border-primary/40'
-                                : 'bg-muted text-foreground/30 border-[var(--card-border)] hover:border-border',
+                                : 'bg-muted text-muted-foreground border-[var(--card-border)] hover:border-border',
                             )}
                           >
                             {e}
@@ -429,7 +447,7 @@ export default function JournalPage() {
                         {editingEmotions.length > 0 ? (
                           editingEmotions.map((e) => <EmotionTag key={e} emotion={e} />)
                         ) : (
-                          <p className="text-xs text-foreground/15">No emotions recorded</p>
+                          <p className="text-xs text-muted-foreground">No emotions recorded</p>
                         )}
                       </div>
                     )}
@@ -437,7 +455,7 @@ export default function JournalPage() {
 
                   { }
                   <div className="space-y-2.5">
-                    <label className="text-micro font-bold text-foreground/25 uppercase tracking-[0.3em] block">
+                    <label className="text-micro font-bold text-muted-foreground uppercase tracking-[0.3em] block">
                       Lesson Learned
                     </label>
                     {isEditing ? (
@@ -446,11 +464,11 @@ export default function JournalPage() {
                         onChange={(e) => setEditingLesson(e.target.value)}
                         rows={4}
                         placeholder="What did you learn from this trade?"
-                        className="w-full bg-muted border border-[var(--card-border)] rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/20 focus:border-primary/40 outline-none resize-none transition-colors"
+                        className="w-full bg-muted border border-[var(--card-border)] rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/40 outline-none resize-none transition-colors"
                       />
                     ) : (
-                      <p className="text-sm text-foreground/45 leading-relaxed">
-                        {editingLesson || <span className="text-foreground/15">No lesson recorded</span>}
+                      <p className="text-sm text-foreground/80 leading-relaxed">
+                        {editingLesson || <span className="text-muted-foreground">No lesson recorded</span>}
                       </p>
                     )}
                   </div>
@@ -461,11 +479,11 @@ export default function JournalPage() {
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-3.5 h-3.5 text-primary" />
                         <label className="text-micro font-bold text-primary uppercase tracking-[0.3em]">
-                          AI Analysis
+                          Alpha Coach notes
                         </label>
                       </div>
                       <div className="p-4 rounded-xl bg-primary/[0.06] border border-primary/20">
-                        <p className="text-xs text-foreground/55 leading-relaxed whitespace-pre-line">
+                        <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-line">
                           {selectedEntry.aiAnalysis}
                         </p>
                       </div>

@@ -132,7 +132,7 @@ function NotificationCard({
       { }
       <div className="flex-1 min-w-0 space-y-1">
         <div className="flex items-start justify-between gap-2">
-          <p className={cn('text-sm font-bold leading-snug', notification.isRead ? 'text-foreground/50' : 'text-foreground')}>
+          <p className={cn('text-sm font-bold leading-snug', notification.isRead ? 'text-muted-foreground' : 'text-foreground')}>
             {notification.title}
           </p>
           {!notification.isRead && (
@@ -140,12 +140,12 @@ function NotificationCard({
           )}
         </div>
 
-        <p className={cn('text-xs leading-relaxed', notification.isRead ? 'text-foreground/25' : 'text-foreground/45')}>
+        <p className={cn('text-xs leading-relaxed', notification.isRead ? 'text-muted-foreground' : 'text-foreground/80')}>
           {notification.body}
         </p>
 
         <div className="flex items-center gap-4 pt-1">
-          <span className="text-micro text-foreground/20 uppercase tracking-[0.3em] font-mono">
+          <span className="text-micro text-muted-foreground uppercase tracking-[0.3em] font-mono">
             {timeAgo(notification.createdAt)}
           </span>
           {notification.actionUrl && (
@@ -159,7 +159,7 @@ function NotificationCard({
           {!notification.isRead && (
             <button
               onClick={onMarkRead}
-              className="text-micro text-foreground/25 uppercase tracking-widest hover:text-foreground/60 transition-colors font-bold"
+              className="text-micro text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors font-bold"
             >
               Mark read
             </button>
@@ -247,7 +247,7 @@ export default function NotificationsPage() {
           className="py-24 text-center space-y-5"
         >
           <div className="w-16 h-16 rounded-[22px] bg-muted border border-[var(--card-border)] flex items-center justify-center mx-auto">
-            <BellOff className="w-7 h-7 text-foreground/10" />
+            <BellOff className="w-7 h-7 text-muted-foreground" />
           </div>
           <div className="space-y-2">
             <p className="text-sm font-semibold text-foreground">

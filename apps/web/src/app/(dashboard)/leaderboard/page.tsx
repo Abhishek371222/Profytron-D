@@ -117,12 +117,12 @@ function PodiumCard({ entry, config, myUserId }: { entry: LeaderboardEntry; conf
           <p className={cn('text-base font-bold', entry.totalPnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
             {entry.totalPnl >= 0 ? '+' : ''}${Math.abs(entry.totalPnl).toFixed(0)}
           </p>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest">Earnings</p>
+          <p className="text-micro text-muted-foreground uppercase tracking-widest">Earnings</p>
         </div>
         <div className="w-px h-6 bg-foreground/10" />
         <div>
           <p className="text-base font-bold text-chart-5">{entry.winRate.toFixed(1)}%</p>
-          <p className="text-micro text-foreground/25 uppercase tracking-widest">Win rate</p>
+          <p className="text-micro text-muted-foreground uppercase tracking-widest">Win rate</p>
         </div>
       </div>
 
@@ -204,24 +204,24 @@ function TraderRow({
           )}
         </div>
         {entry.user.username && (
-          <p className="text-micro text-foreground/25 uppercase tracking-widest">@{entry.user.username}</p>
+          <p className="text-micro text-muted-foreground uppercase tracking-widest">@{entry.user.username}</p>
         )}
       </div>
 
       { }
       <div className="hidden shrink-0 items-center gap-4 text-right sm:flex sm:gap-6">
         <div>
-          <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Win Rate</p>
+          <p className="mb-0.5 text-micro uppercase tracking-widest text-muted-foreground">Win Rate</p>
           <p className="text-sm font-bold text-chart-3">{entry.winRate.toFixed(1)}%</p>
         </div>
         <div>
-          <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Earnings</p>
+          <p className="mb-0.5 text-micro uppercase tracking-widest text-muted-foreground">Earnings</p>
           <p className={cn('text-sm font-bold', entry.totalPnl >= 0 ? 'text-chart-3' : 'text-destructive')}>
             {entry.totalPnl >= 0 ? '+' : ''}${Math.abs(entry.totalPnl).toFixed(0)}
           </p>
         </div>
         <div>
-          <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Trades</p>
+          <p className="mb-0.5 text-micro uppercase tracking-widest text-muted-foreground">Trades</p>
           <p className="text-sm font-bold text-foreground">{entry.totalTrades}</p>
         </div>
       </div>
@@ -264,25 +264,25 @@ function StrategyRow({ strategy, idx }: { strategy: TopStrategy; idx: number }) 
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-bold text-foreground">{strategy.name}</p>
-          <p className="text-micro uppercase tracking-widest text-foreground/25">{strategy.category}</p>
+          <p className="text-micro uppercase tracking-widest text-muted-foreground">{strategy.category}</p>
         </div>
         <div className="hidden shrink-0 items-center gap-5 text-right sm:flex">
           <div>
-            <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Subscribers</p>
+            <p className="mb-0.5 text-micro uppercase tracking-widest text-muted-foreground">Subscribers</p>
             <p className="flex items-center justify-end gap-1 text-sm font-bold text-foreground">
-              <Users className="h-3 w-3 text-foreground/25" />
+              <Users className="h-3 w-3 text-muted-foreground" />
               {strategy.subscribers}
             </p>
           </div>
           <div>
-            <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Profit Rate</p>
+            <p className="mb-0.5 text-micro uppercase tracking-widest text-muted-foreground">Profit Rate</p>
             <p className={cn('text-sm font-bold', profitRateClassName(profitRate))}>
               {formatProfitRate(profitRate)}
             </p>
           </div>
           {strategy.monthlyPrice !== null && (
             <div>
-              <p className="mb-0.5 text-micro uppercase tracking-widest text-foreground/25">Price</p>
+              <p className="mb-0.5 text-micro uppercase tracking-widest text-muted-foreground">Price</p>
               <p className="text-sm font-bold text-foreground">₹{strategy.monthlyPrice}/mo</p>
             </div>
           )}
@@ -443,11 +443,11 @@ export default function LeaderboardPage() {
       ) : tab === 'Top Strategies' ? (
         <AnimatePresence mode="wait">
           <div className="space-y-3">
-            <p className="text-micro text-foreground/20 uppercase tracking-widest font-bold">{strategies.length} strategies</p>
+            <p className="text-micro text-muted-foreground uppercase tracking-widest font-bold">{strategies.length} strategies</p>
             {strategies.length === 0 ? (
               <div className="py-20 text-center space-y-4" role="status">
                 <div className="w-16 h-16 rounded-[20px] bg-muted border border-[var(--card-border)] flex items-center justify-center mx-auto">
-                  <Star className="w-7 h-7 text-foreground/10" />
+                  <Star className="w-7 h-7 text-muted-foreground" />
                 </div>
                 <p className="text-sm font-medium text-muted-foreground">No top strategies yet</p>
                 <p className="mx-auto max-w-sm text-sm text-muted-foreground/80">
@@ -483,7 +483,7 @@ export default function LeaderboardPage() {
               {rest.length === 0 && entries.length === 0 ? (
                 <div className="py-20 text-center space-y-4" role="status">
                   <div className="w-16 h-16 rounded-[20px] bg-muted border border-[var(--card-border)] flex items-center justify-center mx-auto">
-                    <Trophy className="w-7 h-7 text-foreground/10" />
+                    <Trophy className="w-7 h-7 text-muted-foreground" />
                   </div>
                   <p className="text-sm font-medium text-muted-foreground">
                     No one ranked yet
@@ -501,7 +501,7 @@ export default function LeaderboardPage() {
               ) : (
                 <>
                   {rest.length > 0 && (
-                    <p className="text-micro text-foreground/15 uppercase tracking-widest font-bold mb-3">
+                    <p className="text-micro text-muted-foreground uppercase tracking-widest font-bold mb-3">
                       {entries.length} traders
                     </p>
                   )}
