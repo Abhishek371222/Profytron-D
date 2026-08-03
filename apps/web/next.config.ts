@@ -214,6 +214,9 @@ const nextConfig: NextConfig = {
               `connect-src 'self' ${backendApiOrigin}${backendWs ? ` ${backendWs}` : ""} https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://oauth2.googleapis.com https://apis.google.com https://openrouter.ai https://*.razorpay.com https://lumberjack.razorpay.com https://api.stripe.com https://*.posthog.com https://us.i.posthog.com https://eu.i.posthog.com https://*.googleapis.com https://*.ingest.us.sentry.io https://*.ingest.sentry.io wss://*.ingest.us.sentry.io https://*.tradingview.com https://s3.tradingview.com wss://*.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com wss://*.tradingview-widget.com`,
               "frame-src 'self' https://api.razorpay.com https://*.razorpay.com https://js.stripe.com https://hooks.stripe.com https://*.tradingview.com https://s.tradingview.com https://www.tradingview.com https://tradingview-widget.com https://*.tradingview-widget.com https://accounts.google.com https://*.firebaseapp.com",
               "frame-ancestors 'none'",
+              // Sentry Session Replay compression worker uses blob: URLs; without
+              // worker-src, the browser falls back to script-src (which blocks blob:).
+              "worker-src 'self' blob:",
               "base-uri 'self'",
               "form-action 'self'",
               "object-src 'none'",
