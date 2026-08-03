@@ -10,6 +10,11 @@ import { Loader2 } from 'lucide-react';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { resolvePostLoginRedirect } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import {
+  REGISTRATION_FUNNEL_EVENTS,
+  markActivationStart,
+  trackRegistrationFunnel,
+} from '@/lib/analytics/track';
 import type { AxiosError } from 'axios';
 
 const SYNC_MAX_ATTEMPTS = 4;
@@ -115,6 +120,14 @@ export default function AuthCallbackClient() {
           });
           const user = unwrapApiResponse<any>(meRes.data);
           login(accessToken, user);
+          trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.OAUTH_COMPLETED, {
+            provider: 'oauth_code',
+          });
+          trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.LOGIN_SUCCESS, {
+            method: 'oauth',
+            provider: 'oauth_code',
+          });
+          markActivationStart();
           const redirectTo = searchParams.get('redirect') || '/dashboard';
           const dest = resolvePostLoginRedirect(user, redirectTo);
           window.location.assign(dest);
@@ -227,6 +240,14 @@ export default function AuthCallbackClient() {
           user: any;
         };
         login(accessToken, user);
+        trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.OAUTH_COMPLETED, {
+          provider,
+        });
+        trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.LOGIN_SUCCESS, {
+          method: 'oauth',
+          provider,
+        });
+        markActivationStart();
         const redirectTo = searchParams.get('redirect') || '/dashboard';
         const dest = resolvePostLoginRedirect(user, redirectTo);
         window.location.assign(dest);

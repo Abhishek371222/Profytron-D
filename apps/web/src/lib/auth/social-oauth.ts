@@ -5,6 +5,7 @@ import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapSt
 import { resolvePostLoginRedirect } from '@/lib/utils';
 import {
   REGISTRATION_FUNNEL_EVENTS,
+  markActivationStart,
   trackRegistrationFunnel,
 } from '@/lib/analytics/track';
 import type { User } from 'firebase/auth';
@@ -70,6 +71,8 @@ async function completeFirebaseLogin(fbUser: User, redirectTarget: string) {
     method: 'oauth',
     provider,
   });
+  // Activation clock for time_to_first_broker (same as password login / register)
+  markActivationStart();
   const dest = resolvePostLoginRedirect(user, redirectTarget);
   useWorkspaceBootstrapStore.getState().startBootstrap(dest);
   window.location.assign(dest);

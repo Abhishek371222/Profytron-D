@@ -22,6 +22,8 @@ declare global {
 }
 
 const ACTIVATION_T0_KEY = 'pf_activation_t0';
+/** Lifetime once: dedicated time_to_first_broker event per browser profile. */
+const TTFB_FIRED_KEY = 'pf_ttfb_fired';
 
 /** Mark signup/verify funnel clock for PT-K03 time-to-first-broker. */
 export function markActivationStart() {
@@ -55,6 +57,58 @@ export function clearActivationStart() {
     sessionStorage.removeItem(ACTIVATION_T0_KEY);
   } catch {
     /* ignore */
+  }
+}
+
+function hasFiredTimeToFirstBroker(): boolean {
+  try {
+    return localStorage.getItem(TTFB_FIRED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markTimeToFirstBrokerFired() {
+  try {
+    localStorage.setItem(TTFB_FIRED_KEY, '1');
+  } catch {
+    /* private mode */
+  }
+}
+
+/**
+ * Client analytics after a successful broker (or paper) connect.
+ * Fires durable BROKER_CONNECTED + broker_connected; emits time_to_first_broker
+ * once per browser when an activation clock exists.
+ */
+export function recordBrokerConnectSuccessAnalytics(properties: {
+  mode: string;
+  source?: string;
+}) {
+  const timeToFirstBrokerSeconds = getTimeToFirstBrokerSeconds();
+  const timing =
+    timeToFirstBrokerSeconds != null
+      ? { time_to_first_broker_seconds: timeToFirstBrokerSeconds }
+      : {};
+  const payload = {
+    mode: properties.mode,
+    ...(properties.source ? { source: properties.source } : {}),
+    ...timing,
+  };
+
+  void trackActivation(ACTIVATION_EVENTS.BROKER_CONNECTED, payload);
+  trackEvent('broker_connected', payload);
+
+  if (timeToFirstBrokerSeconds != null && !hasFiredTimeToFirstBroker()) {
+    trackEvent('time_to_first_broker', {
+      mode: properties.mode,
+      seconds: timeToFirstBrokerSeconds,
+      ...(properties.source ? { source: properties.source } : {}),
+    });
+    markTimeToFirstBrokerFired();
+    clearActivationStart();
+  } else if (timeToFirstBrokerSeconds != null) {
+    clearActivationStart();
   }
 }
 

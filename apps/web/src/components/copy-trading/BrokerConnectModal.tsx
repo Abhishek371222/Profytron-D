@@ -19,10 +19,7 @@ import {
   trackAdoptionEvent,
 } from '@/lib/analytics/track-adoption';
 import {
-  ACTIVATION_EVENTS,
-  clearActivationStart,
-  getTimeToFirstBrokerSeconds,
-  trackActivation,
+  recordBrokerConnectSuccessAnalytics,
   trackEvent,
 } from '@/lib/analytics/track';
 
@@ -125,27 +122,10 @@ export function BrokerConnectModal({ open, onClose, onConnected }: Props) {
         mode === 'paper' ? 'Paper account ready' : 'Broker connected',
         'Next: ask Alpha Coach or activate a strategy from the checklist.',
       );
-      const timeToFirstBrokerSeconds = getTimeToFirstBrokerSeconds();
-      void trackActivation(ACTIVATION_EVENTS.BROKER_CONNECTED, {
+      recordBrokerConnectSuccessAnalytics({
         mode,
-        ...(timeToFirstBrokerSeconds != null
-          ? { time_to_first_broker_seconds: timeToFirstBrokerSeconds }
-          : {}),
+        source: 'broker_connect_modal',
       });
-      trackEvent('broker_connected', {
-        mode,
-        ...(timeToFirstBrokerSeconds != null
-          ? { time_to_first_broker_seconds: timeToFirstBrokerSeconds }
-          : {}),
-      });
-      // PT-K03 — dedicated funnel event for PostHog dashboards
-      if (timeToFirstBrokerSeconds != null) {
-        trackEvent('time_to_first_broker', {
-          mode,
-          seconds: timeToFirstBrokerSeconds,
-        });
-        clearActivationStart();
-      }
       trackAdoptionEvent(ADOPTION_EVENTS.RECOVERY_SUCCESS, {
         step: 'broker',
         metadata: { mode, recovered: false },

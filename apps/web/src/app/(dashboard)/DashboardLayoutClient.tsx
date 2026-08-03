@@ -11,6 +11,10 @@ import { useTutorialStore } from '@/lib/stores/useTutorialStore';
 import { usePathname } from 'next/navigation';
 import { toast } from 'sonner';
 import { brokerApi } from '@/lib/api/broker';
+import {
+  recordBrokerConnectSuccessAnalytics,
+  trackEvent,
+} from '@/lib/analytics/track';
 import { useFcmToken } from '@/hooks/useFcmToken';
 import { useInactivityLogout } from '@/hooks/useInactivityLogout';
 import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapStore';
@@ -206,6 +210,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
   const connectDemoAccount = async () => {
     if (connectingDemo) return;
     setConnectingDemo(true);
+    trackEvent('broker_connect_started', { mode: 'paper', source: 'demo_banner' });
     try {
       await brokerApi.connectBroker({
         brokerName: 'PAPER',
@@ -217,11 +222,21 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
       toast.success('Demo account connected', {
         description: 'A paper-trading account is ready for testing.',
       });
+      recordBrokerConnectSuccessAnalytics({
+        mode: 'paper',
+        source: 'demo_banner',
+      });
       handleBrokerConnected();
     } catch (e: any) {
+      const reason =
+        e?.response?.data?.message || e?.message || 'Please try again.';
+      trackEvent('broker_connect_failed', {
+        mode: 'paper',
+        source: 'demo_banner',
+        reason: String(reason).slice(0, 120),
+      });
       toast.error('Could not start demo account', {
-        description:
-          e?.response?.data?.message || e?.message || 'Please try again.',
+        description: reason,
       });
     } finally {
       setConnectingDemo(false);
