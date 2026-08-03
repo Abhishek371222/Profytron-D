@@ -4,6 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TradingGateway } from './trading.gateway';
 import { MasterSyncService } from './master-sync.service';
 import { TrailingStopService } from './trailing-stop.service';
+import { PaperSlTpService } from './paper-sl-tp.service';
 import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
 import { BotTradeSyncService } from './bot-trade-sync.service';
 import { MarketService } from '../market/market.service';
@@ -68,6 +69,12 @@ describe('TradingService - CALCULATIONS & LOGIC (CRITICAL)', () => {
         },
         {
           provide: TrailingStopService,
+          useValue: {
+            startPolling: jest.fn(),
+          },
+        },
+        {
+          provide: PaperSlTpService,
           useValue: {
             startPolling: jest.fn(),
           },

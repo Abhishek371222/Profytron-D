@@ -8,6 +8,7 @@ import { AuthModule } from '../auth/auth.module';
 import { SubscriptionCleanupService } from './subscription-cleanup.service';
 import { MasterSyncService } from './master-sync.service';
 import { TrailingStopService } from './trailing-stop.service';
+import { PaperSlTpService } from './paper-sl-tp.service';
 import { CopyFactoryModule } from '../copy-factory/copy-factory.module';
 import { GrowthModule } from '../growth/growth.module';
 import { MarketModule } from '../market/market.module';
@@ -57,6 +58,7 @@ import { AgentsModule } from '../agents/agents.module';
     SubscriptionCleanupService,
     MasterSyncService,
     TrailingStopService,
+    PaperSlTpService,
     MarketPriceBroadcastService,
     CopyLedgerService,
     CopyFactoryPositionSyncService,
@@ -71,6 +73,7 @@ import { AgentsModule } from '../agents/agents.module';
     SubscriptionCleanupService,
     MasterSyncService,
     TrailingStopService,
+    PaperSlTpService,
     BotTradeSyncService,
     ProfitShareService,
     TrialLifecycleService,

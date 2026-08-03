@@ -501,38 +501,8 @@ export class TradeProcessor {
           }
         });
 
-      if (brokerAccount.isPaperTrading) {
-        setTimeout(async () => {
-          try {
-            const closePrice =
-              adjustedFillPrice * (1 + (Math.random() * 0.02 - 0.01));
-            const profitValue =
-              (closePrice - adjustedFillPrice) *
-              (direction === TradeDirection.LONG ? 1 : -1) *
-              1000;
-
-            const { count } = await this.prisma.trade.updateMany({
-              where: { id: trade.id, status: TradeStatus.OPEN },
-              data: {
-                status: TradeStatus.CLOSED,
-                closePrice,
-                profit: profitValue,
-                closedAt: new Date(),
-              },
-            });
-            if (count > 0) {
-              const closedTrade = await this.prisma.trade.findUnique({
-                where: { id: trade.id },
-              });
-              this.gateway.sendToUser(userId, 'trade_closed', closedTrade);
-            }
-          } catch (err) {
-            this.logger.error(
-              `Paper trade auto-close failed for ${trade.id}: ${err.message}`,
-            );
-          }
-        }, 10000);
-      }
+      // Paper positions stay OPEN until manual close, SL/TP (PaperSlTpService),
+      // or another legitimate close path. Random 10s auto-close was removed (PT1).
     } catch (error) {
       this.logger.error(`Failed to execute trade: ${error.message}`);
       throw error;

@@ -9,6 +9,7 @@ import { InjectQueue } from '@nestjs/bull';
 import { TradingGateway } from './trading.gateway';
 import { MasterSyncService } from './master-sync.service';
 import { TrailingStopService } from './trailing-stop.service';
+import { PaperSlTpService } from './paper-sl-tp.service';
 import { CopyFactoryPositionSyncService } from './copy-factory-position-sync.service';
 import { BotTradeSyncService } from './bot-trade-sync.service';
 import { MarketService, type MarketSymbol } from '../market/market.service';
@@ -32,6 +33,7 @@ export class TradingService {
     private masterSync: MasterSyncService,
     private marketService: MarketService,
     private trailingStop: TrailingStopService,
+    private paperSlTp: PaperSlTpService,
     private copyFactoryPositionSync: CopyFactoryPositionSyncService,
     private botTradeSync: BotTradeSyncService,
     @InjectQueue('trade_execution') private tradeQueue: any,
@@ -108,6 +110,13 @@ export class TradingService {
     if (process.env.TRAILING_STOP_ENABLED !== 'false') {
       this.trailingStop.startPolling(
         Number(process.env.TRAILING_STOP_INTERVAL_MS) || trailingTickDefault,
+      );
+    }
+
+    // Paper-only SL/TP: no 10s random auto-close; levels close via close_trade.
+    if (process.env.PAPER_SL_TP_ENABLED !== 'false') {
+      this.paperSlTp.startPolling(
+        Number(process.env.PAPER_SL_TP_INTERVAL_MS) || trailingTickDefault,
       );
     }
   }
