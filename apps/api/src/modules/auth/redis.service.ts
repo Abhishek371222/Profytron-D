@@ -233,30 +233,71 @@ export class RedisService {
   }
 
   async getdel(key: string): Promise<string | null> {
+    const takeMemory = (): string | null => {
+      const val = this.memoryStore.get(key) ?? null;
+      this.clearMemoryKey(key);
+      return val;
+    };
+
     try {
-      return await this.redis.getdel(key);
+      const val = await this.redis.getdel(key);
+      // Code may only live on the process mirror (set fell back to memory).
+      if (val != null) {
+        this.clearMemoryKey(key);
+        return val;
+      }
+      return takeMemory();
     } catch (error) {
       const msg = error instanceof Error ? error.message : String(error);
       if (
         msg.includes('unknown command') &&
         msg.toLowerCase().includes('getdel')
       ) {
-        const val = await this.redis.get(key);
-        if (val !== null) await this.redis.del(key);
-        return val;
+        try {
+          const val = await this.redis.get(key);
+          if (val !== null) await this.redis.del(key);
+          if (val != null) {
+            this.clearMemoryKey(key);
+            return val;
+          }
+          return takeMemory();
+        } catch (fallbackError) {
+          const mirrored = takeMemory();
+          if (mirrored != null) {
+            this.logger.warn(
+              `Redis GET+DEL fallback failed for ${key}; using in-process mirror.`,
+            );
+            return mirrored;
+          }
+          throw fallbackError;
+        }
+      }
+      const mirrored = takeMemory();
+      if (mirrored != null) {
+        this.logger.warn(
+          `Redis unavailable for getdel(${key}); using in-process mirror: ${msg}`,
+        );
+        return mirrored;
       }
       if (isSecurityCriticalKey(key)) {
-        this.logger.error(
-          `Redis unavailable for security-critical getdel(${key}). Failing hard to protect auth state.`,
+        const forceFailClosed =
+          process.env.NODE_ENV === 'production' ||
+          process.env.REDIS_SECURITY_FAIL_CLOSED === 'true';
+        if (forceFailClosed) {
+          this.logger.error(
+            `Redis unavailable for security-critical getdel(${key}). Failing hard to protect auth state.`,
+          );
+          throw error;
+        }
+        this.logger.warn(
+          `Redis unavailable for getdel(${key}) (non-prod); treating as miss: ${msg}`,
         );
-        throw error;
+        return null;
       }
       this.logger.warn(
         `Redis unavailable for getdel(${key}), reading in-memory fallback: ${msg}`,
       );
-      const val = this.memoryStore.get(key) ?? null;
-      this.clearMemoryKey(key);
-      return val;
+      return null;
     }
   }
 

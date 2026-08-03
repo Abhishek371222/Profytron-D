@@ -77,6 +77,160 @@ function setSessionHintCookie(active: boolean) {
     : `pf_session_hint=; ${clientCookieAttrs(0)}`;
 }
 
+let hydrateInFlight: Promise<void> | null = null;
+
+type AuthGet = () => AuthState;
+type AuthSet = (
+  partial:
+    | Partial<AuthState>
+    | ((state: AuthState) => Partial<AuthState>),
+) => void;
+
+async function runHydrate(get: AuthGet, set: AuthSet): Promise<void> {
+  if (isMockApiEnabled) {
+    const mockUser = get().user;
+    if (typeof window !== 'undefined' && mockUser?.id && window.posthog) {
+      window.posthog.identify(mockUser.id, {
+        email: mockUser.email,
+        name: mockUser.fullName,
+      });
+    }
+    set((state) => ({ isAuthenticated: Boolean(state.user), isHydrating: false }));
+    return;
+  }
+
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const forcedLogin = sessionStorage.getItem(FORCE_LOGIN_KEY) === '1';
+    if (
+      forcedLogin ||
+      params.get('expired') === 'true' ||
+      params.get('expired') === '1' ||
+      params.get('idle') === 'true' ||
+      params.get('superseded') === 'true'
+    ) {
+      sessionStorage.removeItem(FORCE_LOGIN_KEY);
+      sessionStorage.removeItem(SESSION_TOKEN_KEY);
+      setSessionHintCookie(false);
+      purgeWorkspaceCaches();
+      set({
+        user: null,
+        accessToken: null,
+        isAuthenticated: false,
+        isHydrating: false,
+      });
+      return;
+    }
+  }
+
+  set({ isHydrating: true, isAuthenticated: false });
+
+  const tryMe = async (token: string, opts?: { allowRefresh?: boolean }) => {
+    const meRes = await apiClient.get('/users/me', {
+      headers: { Authorization: `Bearer ${token}` },
+      _retry: !opts?.allowRefresh,
+    } as any);
+    return unwrapApiResponse<User>(meRes.data);
+  };
+
+  const memoryToken = get().accessToken;
+  const sessionToken =
+    typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_TOKEN_KEY) : null;
+  const bootstrapToken = memoryToken || sessionToken;
+
+  // Login/register hydrate must not call /auth/refresh (console 401 spam).
+  // Cookie-only sessions are restored after successful login or on protected routes.
+  if (typeof window !== 'undefined') {
+    const path = window.location.pathname;
+    const onAuthForm =
+      path === '/login' ||
+      path === '/register' ||
+      path.startsWith('/login/') ||
+      path.startsWith('/register/') ||
+      path === '/forgot-password' ||
+      path === '/reset-password' ||
+      path === '/verify-email';
+    if (onAuthForm && (!bootstrapToken || isAccessTokenStale(bootstrapToken))) {
+      if (typeof window !== 'undefined') sessionStorage.removeItem(SESSION_TOKEN_KEY);
+      setSessionHintCookie(false);
+      set({
+        user: null,
+        accessToken: null,
+        isAuthenticated: false,
+        isHydrating: false,
+      });
+      return;
+    }
+  }
+
+  if (bootstrapToken && !isAccessTokenStale(bootstrapToken)) {
+    try {
+      const user = await tryMe(bootstrapToken, { allowRefresh: true });
+      syncUserCookies(user);
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(SESSION_TOKEN_KEY, bootstrapToken);
+      }
+      setSessionHintCookie(true);
+      if (typeof window !== 'undefined' && user?.id && window.posthog) {
+        window.posthog.identify(user.id, { email: user.email, name: user.fullName });
+      }
+      set({
+        accessToken: bootstrapToken,
+        user,
+        isAuthenticated: true,
+        isHydrating: false,
+      });
+      if (user?.id) ensureWorkspaceCacheOwner(user.id);
+      return;
+    } catch {
+      if (typeof window !== 'undefined') sessionStorage.removeItem(SESSION_TOKEN_KEY);
+    }
+  }
+
+  try {
+    const accessToken = await refreshSession();
+    let user = get().user;
+    try {
+      user = await tryMe(accessToken);
+      syncUserCookies(user);
+    } catch (meError) {
+      const status = (meError as { response?: { status?: number } })?.response?.status;
+      if (status === 401 || status === 403) {
+        throw meError;
+      }
+    }
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
+    }
+    setSessionHintCookie(true);
+    if (typeof window !== 'undefined' && user?.id && window.posthog) {
+      window.posthog.identify(user.id, { email: user.email, name: user.fullName });
+    }
+    set({
+      accessToken,
+      user,
+      isAuthenticated: Boolean(user?.id || accessToken),
+      isHydrating: false,
+    });
+    if (user?.id) ensureWorkspaceCacheOwner(user.id);
+  } catch {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(SESSION_TOKEN_KEY);
+    }
+    // Terminal "not authenticated" — drop the hint so a stale value can't
+    // keep letting the edge middleware wave this browser into protected
+    // routes on the next navigation.
+    setSessionHintCookie(false);
+    purgeWorkspaceCaches();
+    set({
+      user: null,
+      accessToken: null,
+      isAuthenticated: false,
+      isHydrating: false,
+    });
+  }
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -146,123 +300,17 @@ export const useAuthStore = create<AuthState>()(
         get().clearAuth();
       },
       hydrate: async () => {
-        if (isMockApiEnabled) {
-          const mockUser = get().user;
-          if (typeof window !== 'undefined' && mockUser?.id && window.posthog) {
-            window.posthog.identify(mockUser.id, {
-              email: mockUser.email,
-              name: mockUser.fullName,
-            });
-          }
-          set((state) => ({ isAuthenticated: Boolean(state.user), isHydrating: false }));
-          return;
-        }
+        // Coalesce Strict Mode / multi-mount hydrate so we only hit /auth/refresh once.
+        if (hydrateInFlight) return hydrateInFlight;
 
-        if (typeof window !== 'undefined') {
-          const params = new URLSearchParams(window.location.search);
-          const forcedLogin = sessionStorage.getItem(FORCE_LOGIN_KEY) === '1';
-          if (
-            forcedLogin ||
-            params.get('expired') === 'true' ||
-            params.get('expired') === '1' ||
-            params.get('idle') === 'true' ||
-            params.get('superseded') === 'true'
-          ) {
-            sessionStorage.removeItem(FORCE_LOGIN_KEY);
-            sessionStorage.removeItem(SESSION_TOKEN_KEY);
-            setSessionHintCookie(false);
-            purgeWorkspaceCaches();
-            set({
-              user: null,
-              accessToken: null,
-              isAuthenticated: false,
-              isHydrating: false,
-            });
-            return;
-          }
-        }
-
-        set({ isHydrating: true, isAuthenticated: false });
-
-        const tryMe = async (token: string, opts?: { allowRefresh?: boolean }) => {
-          const meRes = await apiClient.get('/users/me', {
-            headers: { Authorization: `Bearer ${token}` },
-            _retry: !opts?.allowRefresh,
-          } as any);
-          return unwrapApiResponse<User>(meRes.data);
-        };
-
-        const memoryToken = get().accessToken;
-        const sessionToken =
-          typeof window !== 'undefined' ? sessionStorage.getItem(SESSION_TOKEN_KEY) : null;
-        const bootstrapToken = memoryToken || sessionToken;
-
-        if (bootstrapToken && !isAccessTokenStale(bootstrapToken)) {
+        hydrateInFlight = (async () => {
           try {
-            const user = await tryMe(bootstrapToken, { allowRefresh: true });
-            syncUserCookies(user);
-            if (typeof window !== 'undefined') {
-              sessionStorage.setItem(SESSION_TOKEN_KEY, bootstrapToken);
-            }
-            setSessionHintCookie(true);
-            if (typeof window !== 'undefined' && user?.id && window.posthog) {
-              window.posthog.identify(user.id, { email: user.email, name: user.fullName });
-            }
-            set({
-              accessToken: bootstrapToken,
-              user,
-              isAuthenticated: true,
-              isHydrating: false,
-            });
-            if (user?.id) ensureWorkspaceCacheOwner(user.id);
-            return;
-          } catch {
-            if (typeof window !== 'undefined') sessionStorage.removeItem(SESSION_TOKEN_KEY);
+            await runHydrate(get, set);
+          } finally {
+            hydrateInFlight = null;
           }
-        }
-
-        try {
-          const accessToken = await refreshSession();
-          let user = get().user;
-          try {
-            user = await tryMe(accessToken);
-            syncUserCookies(user);
-          } catch (meError) {
-            const status = (meError as { response?: { status?: number } })?.response?.status;
-            if (status === 401 || status === 403) {
-              throw meError;
-            }
-          }
-          if (typeof window !== 'undefined') {
-            sessionStorage.setItem(SESSION_TOKEN_KEY, accessToken);
-          }
-          setSessionHintCookie(true);
-          if (typeof window !== 'undefined' && user?.id && window.posthog) {
-            window.posthog.identify(user.id, { email: user.email, name: user.fullName });
-          }
-          set({
-            accessToken,
-            user,
-            isAuthenticated: Boolean(user?.id || accessToken),
-            isHydrating: false,
-          });
-          if (user?.id) ensureWorkspaceCacheOwner(user.id);
-        } catch {
-          if (typeof window !== 'undefined') {
-            sessionStorage.removeItem(SESSION_TOKEN_KEY);
-          }
-          // Terminal "not authenticated" — drop the hint so a stale value can't
-          // keep letting the edge middleware wave this browser into protected
-          // routes on the next navigation.
-          setSessionHintCookie(false);
-          purgeWorkspaceCaches();
-          set({
-            user: null,
-            accessToken: null,
-            isAuthenticated: false,
-            isHydrating: false,
-          });
-        }
+        })();
+        return hydrateInFlight;
       },
     }),
     {

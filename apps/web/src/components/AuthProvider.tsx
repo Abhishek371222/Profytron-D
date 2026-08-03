@@ -8,7 +8,19 @@ import { useWorkspaceBootstrapStore } from '@/lib/stores/useWorkspaceBootstrapSt
 
 const SESSION_TOKEN_KEY = 'profytron_access';
 
-/** Public marketing routes where anonymous visitors skip session network I/O. */
+/** Login/register flows — never probe cookie refresh (browser red-logs every 401). */
+function isAuthFormPath(pathname: string): boolean {
+  return (
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname.startsWith('/login/') ||
+    pathname.startsWith('/register/') ||
+    pathname === '/forgot-password' ||
+    pathname === '/reset-password' ||
+    pathname === '/verify-email'
+  );
+}
+
 function isAnonymousMarketingPath(pathname: string): boolean {
   return pathname === '/' || pathname === '';
 }
@@ -31,6 +43,30 @@ function hasSessionEvidence(): boolean {
   );
 }
 
+function hasSessionAccessToken(): boolean {
+  try {
+    const t = sessionStorage.getItem(SESSION_TOKEN_KEY);
+    return Boolean(t && t.length > 20);
+  } catch {
+    return false;
+  }
+}
+
+function settleAnonymous() {
+  try {
+    sessionStorage.removeItem(SESSION_TOKEN_KEY);
+  } catch {
+    /* private mode */
+  }
+  useAuthStore.setState({
+    user: null,
+    accessToken: null,
+    isHydrating: false,
+    isAuthenticated: false,
+    sessionReady: false,
+  });
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { hydrate, login, isHydrating, isAuthenticated } = useAuthStore();
   const bootstrapActive = useWorkspaceBootstrapStore((s) => s.active);
@@ -40,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    const pathname = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
     const oauthCode = params.get('oauthCode');
 
@@ -68,17 +105,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           hydrate();
         }
       })();
-    } else if (
-      isAnonymousMarketingPath(window.location.pathname) &&
-      !hasSessionEvidence()
-    ) {
+    } else if (isAuthFormPath(pathname)) {
+      // Register/login: never call /auth/refresh without an access token —
+      // invalid/missing refresh cookies always surface as console 401 noise.
+      if (hasSessionAccessToken()) {
+        void hydrate().catch(() => undefined);
+      } else {
+        settleAnonymous();
+      }
+    } else if (isAnonymousMarketingPath(pathname) && !hasSessionEvidence()) {
       // Anonymous landing visitors: skip refreshSession + /users/me.
-      // Logged-in users (session hint / access token) still hydrate normally.
-      useAuthStore.setState({
-        isHydrating: false,
-        isAuthenticated: false,
-        sessionReady: false,
-      });
+      settleAnonymous();
     } else {
       void hydrate().catch(() => undefined);
     }

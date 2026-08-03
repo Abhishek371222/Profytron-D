@@ -137,16 +137,20 @@ Improvements are **qualitative/architectural metrics** (chunk split, deferred wo
 
 | Command | Result |
 |---------|--------|
-| `npm run lint` | Record at ship |
-| `npx tsc --noEmit` | Record at ship |
-| `npm run build` | Record at ship |
+| `npm run lint` | PASS |
+| `npx tsc --noEmit` | PASS |
+| `npm run build` | PASS |
 | `npm run test` | Not configured for frontend |
 
 ---
 
 ## Build Status
 
-See engineering report / CI on commit.
+| Item | Value |
+|------|--------|
+| Commit | `ce5a81fcebf059b2a60dbdbd84a6d18cee4ade47` |
+| Push | `origin/main` |
+| Cloud Build | `d7ee191e-be4d-498a-9071-8411abdd622c` SUCCESS |
 
 ---
 

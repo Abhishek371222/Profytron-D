@@ -98,18 +98,6 @@ async function postRefreshOnce() {
   );
 }
 
-function isMissingRefreshSessionError(error: unknown): boolean {
-  const axiosErr = error as AxiosError<{ code?: string; message?: string }>;
-  const status = axiosErr?.response?.status;
-  if (status !== 401 && status !== 403) return false;
-  const code = axiosErr?.response?.data?.code;
-  return (
-    code === 'INTERNAL_ERROR' ||
-    code === 'INVALID_REFRESH_SESSION' ||
-    !code
-  );
-}
-
 function isTransientRefreshFailure(error: unknown): boolean {
   const axiosErr = error as AxiosError;
   const status = axiosErr?.response?.status;
@@ -185,6 +173,8 @@ export function refreshSession(): Promise<string> {
     return Promise.resolve(existing);
   }
 
+  // Assign before any await so concurrent callers share one in-flight POST
+  // (avoids double /auth/refresh 401 noise on login/register hydrate).
   const pending = (async () => {
     // Re-check after awaiting: a concurrent refresh may have finished between
     // the outer null check and this async body start.
@@ -205,14 +195,6 @@ export function refreshSession(): Promise<string> {
       const status = (err as AxiosError)?.response?.status;
       const code = (err as AxiosError<{ code?: string }>)?.response?.data?.code;
 
-      if (
-        (status === 401 || status === 403) &&
-        !useAuthStore.getState().accessToken &&
-        isMissingRefreshSessionError(err)
-      ) {
-        throw err;
-      }
-
       // Another tab/request may have won rotation; reuse in-memory winner.
       const winner = useAuthStore.getState().accessToken;
       if (
@@ -223,31 +205,31 @@ export function refreshSession(): Promise<string> {
         return winner;
       }
 
-      if (
-        status === 401 &&
-        (code === 'SESSION_SUPERSEDED' || code === 'INVALID_REFRESH_SESSION')
-      ) {
-        await new Promise((r) => setTimeout(r, 500));
-        const afterWait = useAuthStore.getState().accessToken;
+      // Definitive session failure: do not re-POST (browser console logged
+      // each attempt as a red 401 on public auth pages).
+      if (status === 401 || status === 403) {
         if (
-          afterWait &&
-          !isAccessTokenStale(afterWait) &&
-          Date.now() - lastRefreshAt < REFRESH_GRACE_MS
+          code === 'SESSION_SUPERSEDED' ||
+          code === 'INVALID_REFRESH_SESSION'
         ) {
-          return afterWait;
+          await new Promise((r) => setTimeout(r, 500));
+          const afterWait = useAuthStore.getState().accessToken;
+          if (
+            afterWait &&
+            !isAccessTokenStale(afterWait) &&
+            Date.now() - lastRefreshAt < REFRESH_GRACE_MS
+          ) {
+            return afterWait;
+          }
+          // Only retry once after rotation races — not for empty/missing cookies.
+          if (code === 'SESSION_SUPERSEDED') {
+            response = await postRefreshOnce();
+          } else {
+            throw err;
+          }
+        } else {
+          throw err;
         }
-        response = await postRefreshOnce();
-      } else if (status === 401 || status === 403) {
-        await new Promise((r) => setTimeout(r, 600));
-        const afterWait = useAuthStore.getState().accessToken;
-        if (
-          afterWait &&
-          !isAccessTokenStale(afterWait) &&
-          Date.now() - lastRefreshAt < REFRESH_GRACE_MS
-        ) {
-          return afterWait;
-        }
-        response = await postRefreshOnce();
       } else if (isTransientRefreshFailure(err)) {
         await new Promise((r) => setTimeout(r, 800));
         response = await postRefreshOnce();

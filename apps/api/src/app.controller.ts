@@ -154,9 +154,9 @@ export class AppController {
 
     const [databaseResult, redisResult, queueResult] = await Promise.allSettled(
       [
-        withTimeout(this.prismaService.$queryRaw`SELECT 1 AS ok`, 500),
-        withTimeout(this.redisService.ping(), 300),
-        withTimeout(this.tradeQueue.client.ping(), 300),
+        withTimeout(this.prismaService.$queryRaw`SELECT 1 AS ok`, 2500),
+        withTimeout(this.redisService.ping(), 500),
+        withTimeout(this.tradeQueue.client.ping(), 500),
       ],
     );
 

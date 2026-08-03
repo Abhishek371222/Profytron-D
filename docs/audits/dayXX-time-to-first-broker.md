@@ -136,7 +136,14 @@ Ordering respects existing registration funnel names. Consent-gated PostHog stil
 
 ## Build Status
 
-Recorded green in engineering report at ship time.
+| Gate | Result |
+|------|--------|
+| `npm run lint` | PASS |
+| `npx tsc --noEmit` | PASS |
+| `npm run build` | PASS |
+| Commit | `6144ec340043a6c556b05104582f7ac979cdba46` |
+| Push | `origin/main` |
+| Cloud Build | `8477c93c-8b02-463b-afb0-a6a074fb296b` (see report) |
 
 ---
 

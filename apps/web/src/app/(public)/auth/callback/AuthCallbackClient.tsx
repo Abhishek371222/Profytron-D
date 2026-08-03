@@ -20,8 +20,80 @@ import type { AxiosError } from 'axios';
 const SYNC_MAX_ATTEMPTS = 4;
 const SYNC_RETRY_DELAYS_MS = [0, 800, 2000, 4000];
 
+/** Survives React Strict Mode remounts so one-time OAuth codes are not double-spent. */
+const oauthCodeExchanges = new Map<
+  string,
+  Promise<{ accessToken: string; user: unknown }>
+>();
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function exchangeOAuthCodeOnce(oauthCode: string) {
+  const existing = oauthCodeExchanges.get(oauthCode);
+  if (existing) return existing;
+
+  const pending = (async () => {
+    const exch = await apiClient.get(
+      `/auth/oauth-token-exchange?code=${encodeURIComponent(oauthCode)}`,
+    );
+    const { accessToken } = unwrapApiResponse<{ accessToken: string }>(
+      exch.data,
+    );
+    if (!accessToken) {
+      throw new Error('OAuth exchange returned no access token');
+    }
+    const meRes = await apiClient.get('/users/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const user = unwrapApiResponse<unknown>(meRes.data);
+    return { accessToken, user };
+  })();
+
+  oauthCodeExchanges.set(oauthCode, pending);
+  try {
+    return await pending;
+  } catch (error) {
+    // Allow a later "Try again" only after a failed attempt; successful codes stay cached.
+    oauthCodeExchanges.delete(oauthCode);
+    throw error;
+  }
+}
+
+function mapOAuthExchangeError(error: unknown): string {
+  const axiosErr = error as AxiosError<{ message?: string; code?: string }>;
+  const status = axiosErr?.response?.status;
+  if (status === 401 || status === 404) {
+    return 'This sign-in link was already used or expired. Start Google/GitHub sign-in again from login.';
+  }
+  if (status === 429) {
+    return 'Too many sign-in attempts. Wait a minute and try again from login.';
+  }
+  if (
+    status === 502 ||
+    status === 503 ||
+    status === 504 ||
+    isNetworkUnavailableish(error)
+  ) {
+    return 'Service is temporarily unavailable. Please try again from login.';
+  }
+  if (status === 500) {
+    return 'Sign-in could not finish on the server. Try Google/GitHub again from login.';
+  }
+  return 'Google/GitHub sign-in could not finish. Please try again from login.';
+}
+
+function isNetworkUnavailableish(error: unknown): boolean {
+  const axiosErr = error as AxiosError;
+  return (
+    !axiosErr?.response &&
+    (axiosErr?.code === 'ECONNABORTED' ||
+      axiosErr?.code === 'ETIMEDOUT' ||
+      axiosErr?.code === 'ERR_NETWORK' ||
+      axiosErr?.code === 'ECONNREFUSED' ||
+      axiosErr?.message?.includes('timeout') === true)
+  );
 }
 
 function mapSyncError(error: unknown): string {
@@ -109,17 +181,8 @@ export default function AuthCallbackClient() {
       const oauthCode = searchParams.get('oauthCode');
       if (oauthCode) {
         try {
-          const exch = await apiClient.get(
-            `/auth/oauth-token-exchange?code=${encodeURIComponent(oauthCode)}`,
-          );
-          const { accessToken } = unwrapApiResponse<{ accessToken: string }>(
-            exch.data,
-          );
-          const meRes = await apiClient.get('/users/me', {
-            headers: { Authorization: `Bearer ${accessToken}` },
-          });
-          const user = unwrapApiResponse<any>(meRes.data);
-          login(accessToken, user);
+          const { accessToken, user } = await exchangeOAuthCodeOnce(oauthCode);
+          login(accessToken, user as any);
           trackRegistrationFunnel(REGISTRATION_FUNNEL_EVENTS.OAUTH_COMPLETED, {
             provider: 'oauth_code',
           });
@@ -129,11 +192,11 @@ export default function AuthCallbackClient() {
           });
           markActivationStart();
           const redirectTo = searchParams.get('redirect') || '/dashboard';
-          const dest = resolvePostLoginRedirect(user, redirectTo);
+          const dest = resolvePostLoginRedirect(user as any, redirectTo);
           window.location.assign(dest);
         } catch (e) {
           console.error('OAuth code exchange failed:', e);
-          fail('Google/GitHub sign-in could not finish. Please try again.');
+          fail(mapOAuthExchangeError(e));
         }
         return;
       }
@@ -278,6 +341,12 @@ export default function AuthCallbackClient() {
               type="button"
               className="min-h-[44px]"
               onClick={() => {
+                // One-time oauthCode is spent after a failed/partial exchange —
+                // replaying the URL cannot succeed; send user through login again.
+                if (searchParams.get('oauthCode')) {
+                  window.location.assign('/login');
+                  return;
+                }
                 syncStartedRef.current = false;
                 setRetryKey((k) => k + 1);
               }}
