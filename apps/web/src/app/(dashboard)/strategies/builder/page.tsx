@@ -96,7 +96,7 @@ export default function StrategyBuilderPage() {
           </div>
 
           <div className="h-11 shrink-0 border-t border-[var(--card-border)] bg-card px-4 flex items-center justify-center pb-safe">
-            <p className="text-xs text-muted-foreground">Strategy Builder launches in a future update · Use Marketplace or Get Bots today</p>
+            <p className="text-xs text-muted-foreground">Strategy Builder launches in a future update · Use Marketplace or Bot Plans today</p>
           </div>
         </div>
       </div>

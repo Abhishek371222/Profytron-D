@@ -273,8 +273,8 @@ export default function DashboardPage() {
         : 'Low Risk';
 
   const accountLabel = defaultBrokerAccount
-    ? `${isPaper ? 'Paper' : 'Real'} Account ····${defaultBrokerAccount.accountNumberLast4 || ''}`
-    : 'No account';
+    ? `${isPaper ? 'Paper' : 'Live'} account ····${defaultBrokerAccount.accountNumberLast4 || ''}`
+    : 'No account connected';
 
   const metrics = React.useMemo(
     () => ({
@@ -355,7 +355,7 @@ export default function DashboardPage() {
             <span className="inline-flex items-center gap-1.5 text-muted-foreground">
               <span className="landing-live-dot" aria-hidden />
               {defaultBrokerAccount?.brokerName || 'Broker'} ·{' '}
-              {isPaper ? 'Demo' : 'Live'}
+              {isPaper ? 'Paper' : 'Live'}
             </span>
           </div>
           {engineOn ? (

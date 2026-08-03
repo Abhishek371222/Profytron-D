@@ -268,7 +268,9 @@ export default function MyBotsPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight text-foreground">My Bots</h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">Manage your active trading bots and subscriptions</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              Bots you already run. To subscribe to a new plan, open Bot Plans; to browse strategies, use Marketplace.
+            </p>
           </div>
         </div>
         <Link
@@ -385,9 +387,9 @@ export default function MyBotsPage() {
         ) : (
           <DashboardEmptyState
             icon={ShoppingBag}
-            title="No bots here"
-            description="Browse the marketplace to subscribe to trading bots"
-            actionLabel="Go to Marketplace"
+            title="No bots running yet"
+            description="Open Marketplace to pick a strategy, or Bot Plans to subscribe. Active bots show up here."
+            actionLabel="Browse Marketplace"
             actionHref="/marketplace"
             showScene
           />

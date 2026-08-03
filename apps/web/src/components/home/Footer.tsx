@@ -16,7 +16,7 @@ const footerLinks = {
   Product: [
     { name: "Features", href: "/#features" },
     { name: "Pricing", href: "/pricing" },
-    { name: "Get Bots", href: "/get-bots" },
+    { name: "Bot Plans", href: "/get-bots" },
     { name: "Brokers", href: "/brokers" },
     { name: "Help", href: "/help" },
   ],

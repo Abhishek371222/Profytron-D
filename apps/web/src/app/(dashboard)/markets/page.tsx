@@ -709,7 +709,7 @@ export default function MarketsPage() {
     queryFn: () => marketApi.getQuotes(),
     staleTime: Math.min(15_000, session.quotePollMs),
     refetchInterval: session.quotePollMs,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const newsQuery = useQuery({
@@ -746,7 +746,7 @@ export default function MarketsPage() {
     },
     staleTime: Math.min(30_000, session.ohlcPollMs),
     refetchInterval: session.ohlcPollMs,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   const biasQuery = useQuery({
@@ -806,11 +806,11 @@ export default function MarketsPage() {
   return (
     <DashboardPage>
       <DashboardBreadcrumbs
-        items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Markets' }]}
+        items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Market Watch' }]}
       />
       <DashboardPageHeader
-        title="Markets"
-        description="Live quotes auto-refresh on session open, with AI trend and trade notes per timeframe."
+        title="Market Watch"
+        description="Live quotes and charts for your watchlist — separate from Marketplace (where you discover bots)."
         icon={Newspaper}
         actions={
           <Button

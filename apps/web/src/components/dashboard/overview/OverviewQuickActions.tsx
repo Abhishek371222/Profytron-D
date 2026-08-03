@@ -12,11 +12,11 @@ import {
 } from 'lucide-react';
 
 const ACTIONS = [
-  { href: '/wallet', label: 'Deposit Funds', icon: Wallet },
-  { href: '#new-order', label: 'New Order', icon: Plus, action: 'order' as const },
-  { href: '/alpha-coach', label: 'AI Analysis', icon: Brain },
-  { href: '/analytics', label: 'Risk Manager', icon: Shield },
-  { href: '/analytics', label: 'Reports', icon: FileBarChart2 },
+  { href: '/wallet', label: 'Deposit', icon: Wallet },
+  { href: '#new-order', label: 'New order', icon: Plus, action: 'order' as const },
+  { href: '/alpha-coach', label: 'Alpha Coach', icon: Brain },
+  { href: '/analytics/risk', label: 'Risk limits', icon: Shield },
+  { href: '/analytics', label: 'Analytics', icon: FileBarChart2 },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 

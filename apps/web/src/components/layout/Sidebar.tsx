@@ -65,9 +65,9 @@ const navGroups: NavGroup[] = [
     label: "Trading",
     items: [
       { name: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
-      { name: "Markets", icon: LineChart, href: "/markets" },
+      { name: "Market Watch", icon: LineChart, href: "/markets" },
       { name: "My Bots", icon: Server, href: "/my-bots" },
-      { name: "Get Bots", icon: Copy, href: "/get-bots" },
+      { name: "Bot Plans", icon: Copy, href: "/get-bots" },
       { name: "Connected Accounts", icon: Unplug, href: "/connected-accounts" },
       { name: "Alpha Coach", icon: Target, href: "/alpha-coach" },
       { name: "Journal", icon: BookOpen, href: "/journal" },

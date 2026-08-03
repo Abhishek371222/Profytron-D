@@ -46,10 +46,10 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
         origin: { y: 0.6 },
         colors: ['#348398', '#2D7284', '#9FE1F3', '#ffffff'],
       });
-      toast.success('Strategy deployed successfully');
+      toast.success('Bot activated successfully');
     },
     onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Deployment failed');
+      toast.error(err.response?.data?.message || 'Could not activate bot. Try again.');
       setStep(1);
     }
   });
@@ -78,25 +78,28 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
               >
                 <div className="space-y-2">
                   <div className="dash-modal-status">
-                    <Terminal className="w-4 h-4" />
-                    <span>Node Deployment Sequence Initiated</span>
+                    <Terminal className="w-4 h-4" aria-hidden />
+                    <span>Step 1 of 3 · Review bot</span>
                   </div>
-                  <h2 className="dash-title uppercase tracking-tight">Review Data</h2>
+                  <h2 className="dash-title tracking-tight">Confirm this bot</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Check the track record below, then choose paper or live mode.
+                  </p>
                 </div>
 
                 <div className="dashboard-card p-5 sm:p-6 space-y-5">
                   <div className="flex items-start gap-4">
                     <div className="h-14 w-14 rounded-xl bg-muted border border-[var(--card-border)] flex items-center justify-center shrink-0">
-                      <Cpu className="h-7 w-7 text-muted-foreground" />
+                      <Cpu className="h-7 w-7 text-muted-foreground" aria-hidden />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-lg text-foreground uppercase tracking-tight truncate">{strategy.name}</h4>
+                      <h4 className="font-bold text-lg text-foreground tracking-tight truncate">{strategy.name}</h4>
                       <div className="flex flex-wrap items-center gap-2 mt-2">
                         {strategy.category ? <span className="dash-badge dash-badge-category">{strategy.category}</span> : null}
                         {strategy.isVerified ? (
                           <span className="dash-badge dash-badge-verified">
-                            <CheckCircle2 className="h-3 w-3" />
-                            Verified Node
+                            <CheckCircle2 className="h-3 w-3" aria-hidden />
+                            Verified
                           </span>
                         ) : null}
                       </div>
@@ -105,7 +108,7 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
 
                   <div className="grid grid-cols-3 gap-2 pt-5 border-t border-[var(--card-border)]">
                     <div className="space-y-1.5">
-                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Return</p>
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Win rate</p>
                       <p className="text-xl font-bold text-[var(--success)] tabular-nums">+{strategy.latestPerformance?.winRate || 0}%</p>
                     </div>
                     <div className="space-y-1.5 border-l border-[var(--card-border)] pl-3">
@@ -120,11 +123,11 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  <button type="button" onClick={onClose} className="flex-1 h-11 rounded-xl border border-[var(--card-border)] text-foreground/50 hover:text-foreground hover:border-foreground/30 text-xs font-semibold uppercase tracking-wide transition-colors">
-                    Abort
+                  <button type="button" onClick={onClose} className="flex-1 h-11 min-h-[44px] rounded-xl border border-[var(--card-border)] text-muted-foreground hover:text-foreground hover:border-foreground/30 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    Cancel
                   </button>
-                  <button type="button" onClick={() => setStep(2)} className="flex-[2] h-11 rounded-xl bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:bg-foreground/90 transition-colors">
-                    Activate Strategy →
+                  <button type="button" onClick={() => setStep(2)} className="flex-[2] h-11 min-h-[44px] rounded-xl bg-foreground text-background text-sm font-bold hover:bg-foreground/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    Continue
                   </button>
                 </div>
               </motion.div>
@@ -140,37 +143,53 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
               >
                 <div className="space-y-2">
                   <div className="dash-modal-status">
-                    <Shield className="w-4 h-4" />
-                    <span>Security &amp; Risk Parameters</span>
+                    <Shield className="w-4 h-4" aria-hidden />
+                    <span>Step 2 of 3 · Risk &amp; mode</span>
                   </div>
-                  <h2 className="dash-title uppercase tracking-tight">Configure Node Logic</h2>
+                  <h2 className="dash-title tracking-tight">Choose paper or live</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Paper trading uses virtual funds. Live trades execute on your connected broker.
+                  </p>
                 </div>
 
                 <div className="space-y-4">
                   <div className="dashboard-card p-5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-4 min-w-0">
                         <div className={cn('p-2.5 rounded-xl shrink-0', paperTrading ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive')}>
-                          {paperTrading ? <Activity className="w-5 h-5" /> : <Activity className="w-5 h-5" />}
+                          <Activity className="w-5 h-5" aria-hidden />
                         </div>
-                        <div>
-                          <p className="text-sm font-semibold text-foreground uppercase tracking-widest">{paperTrading ? 'Simulation Matrix' : 'Live Global Capital'}</p>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-foreground">
+                            {paperTrading ? 'Paper trading' : 'Live trading'}
+                          </p>
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            {paperTrading ? 'Virtual liquidity engine engaged' : 'Warning: Real capital exposure'}
+                            {paperTrading
+                              ? 'Practice with virtual funds — no real money at risk'
+                              : 'Real capital on your connected broker account'}
                           </p>
                         </div>
                       </div>
-                      <Switch checked={paperTrading} onCheckedChange={setPaperTrading} className="scale-125 data-[state=checked]:bg-chart-4 data-[state=unchecked]:bg-destructive" />
+                      <Switch
+                        checked={paperTrading}
+                        onCheckedChange={setPaperTrading}
+                        className="scale-125 shrink-0 data-[state=checked]:bg-chart-4 data-[state=unchecked]:bg-destructive"
+                        aria-label={paperTrading ? 'Paper trading on' : 'Live trading on'}
+                      />
                     </div>
                   </div>
 
                   <div className="dashboard-card p-5 space-y-6">
-                    <div className="flex justify-between items-end">
+                    <div className="flex justify-between items-end gap-3">
                       <div className="space-y-1">
-                        <label className="dash-eyebrow">Risk Exposure Multiplier</label>
-                        <p className="text-xs text-muted-foreground mt-1">Base lot size variation</p>
+                        <label className="dash-eyebrow">Risk multiplier</label>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Scales position size relative to the bot&apos;s default lot size
+                        </p>
                       </div>
-                      <span className="text-3xl font-semibold text-foreground">{riskMultiplier[0]}x</span>
+                      <span className="text-3xl font-semibold text-foreground tabular-nums" aria-live="polite">
+                        {riskMultiplier[0]}x
+                      </span>
                     </div>
                     <Slider 
                       min={0.5} 
@@ -179,16 +198,17 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                       value={riskMultiplier} 
                       onValueChange={setRiskMultiplier}
                       className="[&_[role=slider]]:h-6 [&_[role=slider]]:w-6 [&_[role=slider]]:border-primary"
+                      aria-label="Risk multiplier"
                     />
-                    <div className="p-3 bg-muted rounded-xl text-xs text-muted-foreground uppercase text-center tracking-wide font-semibold">
-                      Output: {(riskMultiplier[0] * 0.12).toFixed(2)} lots / execution
+                    <div className="p-3 bg-muted rounded-xl text-xs text-muted-foreground text-center tracking-wide font-semibold">
+                      Approx. {(riskMultiplier[0] * 0.12).toFixed(2)} lots per execution
                     </div>
                   </div>
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  <DashButton variant="outline" onClick={() => setStep(1)} className="flex-1 h-11">Back</DashButton>
-                  <DashButton variant="primary" onClick={() => setStep(3)} className="flex-[1.5] h-11">Sign Logic Contract</DashButton>
+                  <DashButton variant="outline" onClick={() => setStep(1)} className="flex-1 h-11 min-h-[44px]">Back</DashButton>
+                  <DashButton variant="primary" onClick={() => setStep(3)} className="flex-[1.5] h-11 min-h-[44px]">Continue</DashButton>
                 </div>
               </motion.div>
             )}
@@ -202,59 +222,62 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                 className="space-y-8"
               >
                 <div className="space-y-2">
-                  <div className="dash-modal-status text-destructive">
-                    <Fingerprint className="w-4 h-4" />
-                    <span>Awaiting Profile Confirmation</span>
+                  <div className="dash-modal-status">
+                    <Fingerprint className="w-4 h-4" aria-hidden />
+                    <span>Step 3 of 3 · Confirm</span>
                   </div>
-                  <h2 className="dash-title uppercase tracking-tight">Finalize Deployment</h2>
+                  <h2 className="dash-title tracking-tight">Activate this bot</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Double-check mode and risk before starting execution.
+                  </p>
                 </div>
 
                 <div className="dashboard-card p-6 space-y-5">
                   <div className="flex items-center gap-4 pb-5 border-b border-[var(--card-border)]">
                     <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Network className="text-primary w-5 h-5" />
+                      <Network className="text-primary w-5 h-5" aria-hidden />
                     </div>
                     <div>
-                      <p className="dash-eyebrow">Routing to</p>
-                      <p className="font-semibold text-lg text-foreground">Primary Node</p>
+                      <p className="dash-eyebrow">Runs on</p>
+                      <p className="font-semibold text-lg text-foreground">Your default account</p>
                     </div>
                   </div>
 
                   <div className="space-y-3 text-sm">
                     <div className="flex justify-between gap-4">
-                      <span className="dash-eyebrow">Model Identity</span>
+                      <span className="text-muted-foreground">Bot</span>
                       <span className="font-medium text-foreground truncate">{strategy.name}</span>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <span className="dash-eyebrow">Execution Matrix</span>
-                      <span className={cn('font-semibold uppercase text-xs', paperTrading ? 'text-primary' : 'text-destructive')}>
-                        {paperTrading ? 'Simulated' : 'Live Market'}
+                      <span className="text-muted-foreground">Mode</span>
+                      <span className={cn('font-semibold text-xs', paperTrading ? 'text-primary' : 'text-destructive')}>
+                        {paperTrading ? 'Paper' : 'Live'}
                       </span>
                     </div>
                     <div className="flex justify-between gap-4">
-                      <span className="dash-eyebrow">Risk Tensor</span>
-                      <span className="font-medium text-foreground">{riskMultiplier[0]}x Base</span>
+                      <span className="text-muted-foreground">Risk size</span>
+                      <span className="font-medium text-foreground">{riskMultiplier[0]}x</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex gap-3 pt-2">
-                  <DashButton variant="outline" disabled={activateMutation.isPending} onClick={() => setStep(2)} className="flex-1 h-11">
-                    Refine
+                  <DashButton variant="outline" disabled={activateMutation.isPending} onClick={() => setStep(2)} className="flex-1 h-11 min-h-[44px]">
+                    Back
                   </DashButton>
                   <button
                     type="button"
                     disabled={activateMutation.isPending}
                     onClick={processActivation}
-                    className="flex-[1.5] h-11 inline-flex items-center justify-center gap-2 rounded-xl bg-foreground text-background text-[11px] font-bold uppercase tracking-wide hover:bg-foreground/90 disabled:opacity-50"
+                    className="flex-[1.5] h-11 min-h-[44px] inline-flex items-center justify-center gap-2 rounded-xl bg-foreground text-background text-sm font-bold hover:bg-foreground/90 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {activateMutation.isPending ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Deploying…
+                        <Loader2 className="w-4 h-4 animate-spin" aria-hidden />
+                        Activating…
                       </>
                     ) : (
-                      'Authorize Deployment'
+                      'Activate bot'
                     )}
                   </button>
                 </div>
@@ -269,16 +292,17 @@ export function StrategyActivationModal({ isOpen, onClose, strategy }: StrategyA
                 className="py-10 flex flex-col items-center text-center space-y-6"
               >
                 <div className="h-20 w-20 rounded-full bg-[var(--success)]/10 border border-[var(--success)]/30 flex items-center justify-center">
-                  <Check className="h-9 w-9 text-[var(--success)]" />
+                  <Check className="h-9 w-9 text-[var(--success)]" aria-hidden />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="dash-title uppercase">Node Deployed</h3>
+                  <h3 className="dash-title">Bot activated</h3>
                   <p className="text-sm text-muted-foreground max-w-sm mx-auto">
-                    <span className="font-semibold text-foreground">{strategy.name}</span> is now active and monitoring market conditions.
+                    <span className="font-semibold text-foreground">{strategy.name}</span>{' '}
+                    is now active. Track it under My Bots.
                   </p>
                 </div>
-                <DashButton variant="outline" onClick={onClose} className="w-full max-w-sm h-11">
-                  View active nodes
+                <DashButton variant="outline" onClick={onClose} className="w-full max-w-sm h-11 min-h-[44px]">
+                  View My Bots
                 </DashButton>
               </motion.div>
             )}

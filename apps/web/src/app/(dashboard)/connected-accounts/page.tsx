@@ -13,6 +13,7 @@ import { formatMoney } from '@/lib/currency';
 import { BROKER_ACCOUNTS_KEY, type BrokerAccountRow } from '@/lib/queries/account-queries';
 import { useAccountContext } from '@/hooks/useAccountContext';
 import { BrokerConnectModal } from '@/components/copy-trading/BrokerConnectModal';
+import { formatBotName } from '@/lib/bot-labels';
 import { AccountDetailsModal } from '@/components/broker/AccountDetailsModal';
 import {
   AlertTriangle,
@@ -857,8 +858,31 @@ export default function ConnectedAccountsPage() {
         </div>
       )}
 
-      { }
-      {!botsQuery.isLoading && accounts.length > 0 && bots.length === 0 ? (
+      {botsQuery.isError && accounts.length > 0 ? (
+        <div className="dashboard-card px-5 py-8 text-center" role="alert">
+          <p className="text-sm font-bold text-foreground">Couldn&apos;t load linked bots</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Your accounts loaded, but bots failed. Retry or open Bot Plans.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => void botsQuery.refetch()}
+              className="inline-flex min-h-[44px] items-center rounded-xl bg-primary px-4 text-xs font-bold uppercase tracking-wide text-primary-foreground"
+            >
+              Retry
+            </button>
+            <Link
+              href="/get-bots"
+              className="inline-flex min-h-[44px] items-center rounded-xl border border-[var(--card-border)] px-4 text-xs font-bold uppercase tracking-wide"
+            >
+              Get bots
+            </Link>
+          </div>
+        </div>
+      ) : null}
+
+      {!botsQuery.isLoading && !botsQuery.isError && accounts.length > 0 && bots.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -870,15 +894,22 @@ export default function ConnectedAccountsPage() {
           </div>
           <p className="text-sm font-bold text-foreground">No bots linked yet</p>
           <p className="text-xs text-muted-foreground max-w-sm leading-relaxed">
-            Subscribe to a marketplace strategy or deploy a bot to see it here alongside your
-            connected accounts.
+            Subscribe to a marketplace bot or enable a plan to see linked bots here.
           </p>
-          <Link
-            href="/marketplace"
-            className="inline-flex min-h-[44px] items-center justify-center gap-2 h-10 px-4 rounded-xl border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-foreground hover:bg-muted/40"
-          >
-            Browse marketplace
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Link
+              href="/get-bots"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 h-10 px-4 rounded-xl bg-primary text-xs font-bold uppercase tracking-wide text-primary-foreground"
+            >
+              Get bots
+            </Link>
+            <Link
+              href="/marketplace"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 h-10 px-4 rounded-xl border border-[var(--card-border)] bg-card text-xs font-bold uppercase tracking-wide text-foreground hover:bg-muted/40"
+            >
+              Browse marketplace
+            </Link>
+          </div>
         </motion.div>
       ) : null}
 
@@ -940,7 +971,9 @@ export default function ConnectedAccountsPage() {
                             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                               <Bot className="h-3.5 w-3.5" />
                             </div>
-                            <span className="text-sm font-semibold text-foreground shell-title">{bot.botName}</span>
+                            <span className="text-sm font-semibold text-foreground shell-title">
+                              {formatBotName(String(bot.botName ?? 'Bot'))}
+                            </span>
                           </div>
                         </td>
                         <td className="col-priority-md px-5 py-4">

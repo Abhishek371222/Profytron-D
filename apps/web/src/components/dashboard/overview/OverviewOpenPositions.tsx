@@ -127,7 +127,7 @@ export function OverviewOpenPositions({
             <div>
               <p className="text-sm font-medium text-foreground">No open positions</p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Live trades from your connected account will appear here.
+                Open trades from your connected paper or live account appear here.
               </p>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-2">

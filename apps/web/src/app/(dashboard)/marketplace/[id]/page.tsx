@@ -311,7 +311,7 @@ export default function MarketplaceStrategyDetailPage() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/get-bots">
-              <DashButton variant="outline">Get Bots</DashButton>
+              <DashButton variant="outline">Bot Plans</DashButton>
             </Link>
             <Link href="/my-bots">
               <DashButton variant="outline">My Bots</DashButton>
@@ -357,7 +357,7 @@ export default function MarketplaceStrategyDetailPage() {
           </DashButton>
           <Link href="/get-bots" className="min-[420px]:col-span-2 lg:col-span-1">
             <DashButton variant="outline" className="w-full lg:w-auto">
-              Open Get Bots
+              Open Bot Plans
             </DashButton>
           </Link>
         </div>

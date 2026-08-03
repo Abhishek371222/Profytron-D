@@ -20,6 +20,7 @@ import {
   CheckCircle2,
   Settings2,
   RefreshCcw,
+  Link2,
 } from 'lucide-react';
 import {
   DashboardPage,
@@ -27,6 +28,8 @@ import {
   DashboardPageHeader,
   DashButton,
   DashSectionTitle,
+  DashboardEmptyState,
+  DashErrorState,
 } from '@/components/dashboard/DashboardPrimitives';
 import { cn } from '@/lib/utils';
 import { formatBotName, findBotStrategy } from '@/lib/bot-labels';
@@ -80,14 +83,32 @@ export default function CopyTradingPage() {
   const [subscribePlan, setSubscribePlan] = React.useState<any>(null);
   const [billingModel, setBillingModel] = React.useState<SubscriptionBillingModel>('FIXED');
 
-  const { data: brokers = [] } = useQuery({
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paper') === '1' || params.get('connect') === '1') {
+      setConnectOpen(true);
+    }
+  }, []);
+
+  const {
+    data: brokers = [],
+    isLoading: brokersLoading,
+    isError: brokersError,
+    refetch: refetchBrokers,
+  } = useQuery({
     queryKey: ['broker-accounts'],
     queryFn: () => brokerApi.getBrokerAccounts(),
     staleTime: 8_000,
     refetchOnMount: false,
   });
 
-  const { data: subscriptions = [], isLoading: subLoading } = useQuery({
+  const {
+    data: subscriptions = [],
+    isLoading: subLoading,
+    isError: subError,
+    refetch: refetchSubs,
+  } = useQuery({
     queryKey: ['copy-subscriptions'],
     queryFn: () => copyTradingApi.getMySubscriptions(),
     staleTime: 60_000,
@@ -131,22 +152,46 @@ export default function CopyTradingPage() {
 
   return (
     <DashboardPage className="max-w-6xl mx-auto">
-      <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'My Bots' }]} />
+      <DashboardBreadcrumbs items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Bot Plans' }]} />
 
       <DashboardPageHeader
-        title="Automated Trading Bots"
-        description="Buy a bot plan, connect your MT5 broker, and live execution runs automatically."
+        title="Bot Plans"
+        description="Choose a plan to run bots into your broker. Manage active bots under My Bots; browse more strategies in Marketplace."
         icon={Zap}
       />
 
       <p className="-mt-2 text-xs text-muted-foreground">
-        Copy trading mirrors eligible trades from your chosen strategy into your connected broker account, subject to
-        execution delay and the risk settings you choose. Read the{' '}
+        After you subscribe and connect MT5 (paper or live), bots place trades using your
+        risk settings. Read the{' '}
         <Link href="/risk-disclosure" className="underline decoration-dotted underline-offset-2 hover:text-foreground">
           risk disclosure
         </Link>{' '}
-        before subscribing.
+        before you pay for a plan.
       </p>
+
+      {brokersError && (
+        <DashErrorState
+          message="Couldn't load connected brokers."
+          onRetry={() => void refetchBrokers()}
+        />
+      )}
+
+      {!brokersLoading && !brokersError && !hasConnectedBroker && (
+        <DashboardEmptyState
+          icon={Link2}
+          title="Connect a broker to buy bots"
+          description="Link MT5 live trading or start paper trading so plan purchases can run executions into an account."
+          actionLabel="Connect broker"
+          onAction={() => setConnectOpen(true)}
+        >
+          <Link
+            href="/connected-accounts"
+            className="mt-3 text-sm text-primary underline-offset-2 hover:underline"
+          >
+            Or open Connected Accounts
+          </Link>
+        </DashboardEmptyState>
+      )}
 
       {hasConnectedBroker && (
         <BrokerAccountsPanel
@@ -206,6 +251,11 @@ export default function CopyTradingPage() {
       {/* Plan cards */}
       <div>
         <DashSectionTitle className="mb-4">Buy a Bot Plan</DashSectionTitle>
+        {!brokersLoading && !hasConnectedBroker && (
+          <p className="mb-3 text-sm text-muted-foreground">
+            Connect a broker above to unlock Buy. Buttons stay disabled until an account is linked.
+          </p>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {planWithStrategy.map((plan) => {
             const Icon = plan.icon;
@@ -299,11 +349,28 @@ export default function CopyTradingPage() {
       <div>
         <DashSectionTitle className="mb-4">My Active Bots</DashSectionTitle>
         {subLoading ? (
-          <div className="text-sm text-muted-foreground">Loading…</div>
-        ) : subscriptions.length === 0 ? (
-          <div className="text-sm text-muted-foreground p-6 dashboard-card text-center">
-            No bots enabled yet. Buy a plan above to get started.
+          <div className="space-y-2" aria-busy="true">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-12 animate-pulse rounded-lg bg-muted/50" />
+            ))}
           </div>
+        ) : subError ? (
+          <DashErrorState
+            message="Couldn't load your bots."
+            onRetry={() => void refetchSubs()}
+          />
+        ) : subscriptions.length === 0 ? (
+          <DashboardEmptyState
+            icon={Zap}
+            title="No active bots yet"
+            description={
+              hasConnectedBroker
+                ? 'Choose a plan above to enable automated execution. Active bots will show here.'
+                : 'Connect a broker first, then pick a plan to enable bots.'
+            }
+            actionLabel={hasConnectedBroker ? undefined : 'Connect broker'}
+            onAction={hasConnectedBroker ? undefined : () => setConnectOpen(true)}
+          />
         ) : (
           <div className="rounded-xl border border-border-default overflow-hidden">
             <table className="w-full text-sm">

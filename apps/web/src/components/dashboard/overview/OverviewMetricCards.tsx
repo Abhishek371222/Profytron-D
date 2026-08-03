@@ -176,7 +176,7 @@ export function OverviewMetricCards({ metrics }: { metrics: OverviewAccountMetri
               {balanceAnim.formatted}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
-              {isPaper ? 'Paper' : 'Real'} · {currency}
+              {isPaper ? 'Paper' : 'Live'} · {currency}
             </p>
           </div>
           <div className="flex flex-col items-end gap-1">

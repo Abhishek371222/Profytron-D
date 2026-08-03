@@ -294,7 +294,7 @@ export default function TradingSettingsPage() {
             href="/get-bots"
             className="font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            Get Bots
+            Bot Plans
           </Link>
           .
         </p>
