@@ -148,19 +148,35 @@ Do **not** move or delete tag `pre-paper-close-fix`.
 
 ## Deployment
 
-(Completed after CI green and push — fill revision when deploy finishes.)
-
 | Step | Status |
 | --- | --- |
-| Commit | pending |
-| Push `main` | pending |
-| Cloud Build API | pending |
-| Cloud Run ready revision | pending |
-| Tag `pre-paper-close-fix` still present | yes |
+| Commit | **`84db36c`** — `fix(api): return real close price and PnL from paper trade close` |
+| Push `main` | **Done** |
+| Cloud Build API | **SUCCESS** `45f5b969-b124-4e18-ada0-e7671f3b6b59` (~5m43s) |
+| Cloud Run ready revision | **`api-00106-ptx`** (100% traffic) |
+| Process `gitSha` | **`84db36c`** on `/live` and `/health` |
+| Tag `pre-paper-close-fix` | **Present** → `2fa15d3` (session pre-work; not moved) |
+| Practical single-fix rollback parent | `0058583` (parent of deploy) or prior revision before `api-00106-ptx` |
+
+### Production probes (post-deploy)
+
+| Probe | Result |
+| --- | --- |
+| `GET /live` | **200** `status:ok` gitSha `84db36c` |
+| `GET /health` | **200** DB/redis/queue/ws healthy; `metaApi: configured` |
+| Wallet / trading / coach (no JWT) | **401** |
+| Subscriptions plans | **200** |
+
+Web service intentionally **not** redeployed (API-only change).
 
 ---
 
 ## Final Report
 
-**READY FOR PRODUCTION** pending commit/push/deploy verification below after ship.  
-No unrelated issues bundled.
+**READY FOR PRODUCTION**
+
+- Paper close adapter returns non-placeholder close price and PnL via shared `estimateUnrealizedPnl`.
+- Paper full closes persist adapter results; live MetaAPI path untouched.
+- Deployed as **`api-00106-ptx`** / **`84db36c`**.
+- Rollback tag **`pre-paper-close-fix`** still exists.
+- No unrelated fixes bundled.
