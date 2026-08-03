@@ -169,18 +169,34 @@ Practical single-commit undo after this fix is the parent of the deploy SHA (pre
 
 ## Deployment
 
-(Filled after ship.)
-
 | Step | Status |
 | --- | --- |
-| Commit | pending |
-| Push | pending |
-| Cloud Build API | pending |
-| Cloud Run revision | pending |
-| Tag intact | yes (`b0bdd15`) |
+| Commit | **`7af9121`** — `fix(api): keep paper trades open until manual or SL/TP close` |
+| Push `main` | **Done** |
+| Cloud Build API | **SUCCESS** `f7575d84-0c4b-406a-8ad1-a9868e029cc7` (~5m31s) |
+| Cloud Run ready revision | **`api-00107-jb8`** |
+| Process `gitSha` | **`7af9121`** |
+| Tag `pre-paper-lifecycle-fix` | **Present** → `b0bdd15` |
+
+### Production probes (post-deploy)
+
+| Probe | Result |
+| --- | --- |
+| `GET /live` | **200** `gitSha` `7af9121` |
+| `GET /health` | **200** DB/redis/queue/ws healthy; `metaApi: configured` |
+| Wallet / trading open / coach (no JWT) | **401** |
+| Subscriptions plans | **200** |
+
+Web not redeployed (API-only).
 
 ---
 
 ## Final Report
 
-**READY FOR PRODUCTION** pending commit/push/deploy checks.
+**READY FOR PRODUCTION**
+
+- 10s random paper auto-close **removed**.
+- Paper SL/TP poller uses shared `close_trade` (no new PnL engine).
+- Deployed **`api-00107-jb8`** / **`7af9121`**.
+- Rollback tag **`pre-paper-lifecycle-fix`** intact at `b0bdd15`.
+- No unrelated fixes bundled.
