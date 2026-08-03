@@ -278,7 +278,11 @@ export default function AdminStrategiesPage() {
   const strategiesQuery = useQuery({
     queryKey: ['admin', 'strategies-full'],
     queryFn: () => adminApi.getStrategies(),
-    refetchInterval: 30_000,
+    refetchInterval: () =>
+      typeof document !== 'undefined' && document.visibilityState === 'hidden'
+        ? false
+        : 30_000,
+    refetchIntervalInBackground: false,
   });
 
   useEffect(() => {

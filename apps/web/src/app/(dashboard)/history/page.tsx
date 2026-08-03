@@ -130,7 +130,12 @@ export default function HistoryPage() {
    return mapped;
   },
   staleTime: 60_000,
-  refetchInterval: 60_000,
+  refetchInterval: () => {
+    if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+      return false;
+    }
+    return 60_000;
+  },
   refetchIntervalInBackground: false,
   placeholderData: (previous) => previous,
   refetchOnMount: false,

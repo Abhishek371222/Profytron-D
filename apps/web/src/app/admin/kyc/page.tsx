@@ -40,7 +40,11 @@ export default function AdminKycPage() {
   const pendingQuery = useQuery({
     queryKey: ['admin', 'kyc-pending'],
     queryFn: () => adminApi.getPendingKyc(),
-    refetchInterval: 30_000,
+    refetchInterval: () =>
+      typeof document !== 'undefined' && document.visibilityState === 'hidden'
+        ? false
+        : 30_000,
+    refetchIntervalInBackground: false,
   });
 
   const reviewMutation = useMutation({

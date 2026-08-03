@@ -14,13 +14,21 @@ export default function AdminSystemPage() {
   const metricsQuery = useQuery({
     queryKey: ['admin', 'system-metrics'],
     queryFn: () => adminApi.getSystemMetrics(),
-    refetchInterval: 15_000,
+    refetchInterval: () =>
+      typeof document !== 'undefined' && document.visibilityState === 'hidden'
+        ? false
+        : 15_000,
+    refetchIntervalInBackground: false,
   });
 
   const healthQuery = useQuery({
     queryKey: ['admin', 'system-health'],
     queryFn: () => adminApi.getSystemHealth(),
-    refetchInterval: 15_000,
+    refetchInterval: () =>
+      typeof document !== 'undefined' && document.visibilityState === 'hidden'
+        ? false
+        : 15_000,
+    refetchIntervalInBackground: false,
   });
 
   useEffect(() => {

@@ -61,13 +61,25 @@ export default function AdminAgentsPage() {
   const dashQuery = useQuery({
     queryKey: ['admin', 'agents'],
     queryFn: () => agentsApi.getDashboard(),
-    refetchInterval: isBatchRunning ? 3_000 : 15_000,
+    refetchInterval: () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return isBatchRunning ? 3_000 : 15_000;
+    },
+    refetchIntervalInBackground: false,
   });
 
   const activityQuery = useQuery({
     queryKey: ['admin', 'agents', 'activity'],
     queryFn: () => agentsApi.getActivity(),
-    refetchInterval: isBatchRunning ? 3_000 : 10_000,
+    refetchInterval: () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return isBatchRunning ? 3_000 : 10_000;
+    },
+    refetchIntervalInBackground: false,
   });
 
   const data = dashQuery.data;

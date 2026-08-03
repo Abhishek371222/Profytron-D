@@ -128,6 +128,8 @@ export function useLiveMarketFeed(
   options: Options = {},
 ) {
   const enabled = options.enabled ?? true;
+  /** When false (dashboard cards), seed once then soft-reconcile — do not hammer REST. */
+  const allowFallback = options.allowFallback ?? true;
   const accessToken = useAuthStore((s) => s.accessToken);
   const [socketUp, setSocketUp] = React.useState(false);
 
@@ -135,15 +137,23 @@ export function useLiveMarketFeed(
     queryKey: ['live-market-quotes-v3'],
     queryFn: fetchLiveQuotesFromVercel,
     enabled,
-    staleTime: 10_000,
+    staleTime: allowFallback ? 10_000 : 60_000,
     refetchInterval: (q) => {
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
         return false;
       }
-      return 18_000;
+      const data = q.state.data as LiveQuoteMap | undefined;
+      const hasQuotes = Boolean(
+        data && SUPPORTED.some((s) => Number(data[s]?.price) > 0),
+      );
+      // Dashboard OverviewMarketWatch uses allowFallback:false — was still polling 18s.
+      if (!allowFallback) {
+        return hasQuotes ? 120_000 : 15_000;
+      }
+      return hasQuotes ? 30_000 : 15_000;
     },
     refetchIntervalInBackground: false,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: allowFallback,
     retry: 2,
   });
 
@@ -176,7 +186,7 @@ export function useLiveMarketFeed(
     if (!token) return;
     const release = acquireTradingSocket(token);
     setSocketUp(isTradingSocketConnected());
-    const id = window.setInterval(() => setSocketUp(isTradingSocketConnected()), 5000);
+    const id = window.setInterval(() => setSocketUp(isTradingSocketConnected()), 10_000);
     return () => {
       window.clearInterval(id);
       release();

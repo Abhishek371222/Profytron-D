@@ -708,7 +708,12 @@ export default function MarketsPage() {
     queryKey: ['market-quotes-page'],
     queryFn: () => marketApi.getQuotes(),
     staleTime: Math.min(15_000, session.quotePollMs),
-    refetchInterval: session.quotePollMs,
+    refetchInterval: () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return session.quotePollMs;
+    },
     refetchIntervalInBackground: false,
   });
 
@@ -723,7 +728,13 @@ export default function MarketsPage() {
       };
     },
     staleTime: 60_000,
-    refetchInterval: session.open ? 120_000 : 5 * 60_000,
+    refetchInterval: () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return session.open ? 120_000 : 5 * 60_000;
+    },
+    refetchIntervalInBackground: false,
   });
 
   const ohlcQueries = useQuery({
@@ -745,7 +756,12 @@ export default function MarketsPage() {
       >;
     },
     staleTime: Math.min(30_000, session.ohlcPollMs),
-    refetchInterval: session.ohlcPollMs,
+    refetchInterval: () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return session.ohlcPollMs;
+    },
     refetchIntervalInBackground: false,
   });
 
@@ -772,7 +788,13 @@ export default function MarketsPage() {
       });
     },
     staleTime: Math.min(90_000, session.biasPollMs),
-    refetchInterval: session.biasPollMs,
+    refetchInterval: () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return session.biasPollMs;
+    },
+    refetchIntervalInBackground: false,
   });
 
   React.useEffect(() => {

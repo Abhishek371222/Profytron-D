@@ -54,25 +54,41 @@ export default function AdminDashboardPage() {
   const dashboardQuery = useQuery({
     queryKey: ['admin', 'dashboard'],
     queryFn: () => adminApi.getDashboardMetrics(),
-    refetchInterval: 30_000,
+    refetchInterval: () =>
+      typeof document !== 'undefined' && document.visibilityState === 'hidden'
+        ? false
+        : 30_000,
+    refetchIntervalInBackground: false,
   });
 
   const paymentsQuery = useQuery({
     queryKey: ['admin', 'payments-overview'],
     queryFn: () => adminApi.getPaymentsOverview(),
-    refetchInterval: 30_000,
+    refetchInterval: () =>
+      typeof document !== 'undefined' && document.visibilityState === 'hidden'
+        ? false
+        : 30_000,
+    refetchIntervalInBackground: false,
   });
 
   const brokerAccountsQuery = useQuery({
     queryKey: ['admin', 'broker-accounts'],
     queryFn: () => adminApi.getBrokerAccounts(),
-    refetchInterval: 30_000,
+    refetchInterval: () =>
+      typeof document !== 'undefined' && document.visibilityState === 'hidden'
+        ? false
+        : 30_000,
+    refetchIntervalInBackground: false,
   });
 
   const growthQuery = useQuery({
     queryKey: ['admin', 'growth-metrics'],
     queryFn: () => growthApi.getAdminMetrics(),
-    refetchInterval: 60_000,
+    refetchInterval: () =>
+      typeof document !== 'undefined' && document.visibilityState === 'hidden'
+        ? false
+        : 60_000,
+    refetchIntervalInBackground: false,
   });
 
   const growth = growthQuery.data;

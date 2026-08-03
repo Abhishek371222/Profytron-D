@@ -194,7 +194,8 @@ export default function MyBotsPage() {
     const startTimer = setTimeout(() => {
       if (cancelled) return;
       sync();
-      intervalId = window.setInterval(sync, 30_000);
+      // 60s is enough for status reconcile; PROVISIONING has a one-shot wire path.
+      intervalId = window.setInterval(sync, 60_000);
     }, 2_000);
 
     const onVis = () => {

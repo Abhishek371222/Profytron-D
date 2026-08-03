@@ -140,8 +140,15 @@ export default function DashboardPage() {
   const newsQuery = platform.data().useWorkspaceQuery({
     queryKey: QueryKeys.marketNews(newsCategory),
     queryFn: () => platform.data().market.getNews({ category: newsCategory }),
-    staleTime: 60_000,
-    refetchInterval: 120_000,
+    staleTime: 5 * 60_000,
+    // Below-fold news; 5m is enough — pause when tab hidden.
+    refetchInterval: () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return 5 * 60_000;
+    },
+    refetchIntervalInBackground: false,
   });
 
   const calendarQuery = platform.data().useWorkspaceQuery({
@@ -159,7 +166,13 @@ export default function DashboardPage() {
       return platform.data().market.getEconomicCalendar({ from, to });
     },
     staleTime: 5 * 60_000,
-    refetchInterval: 10 * 60_000,
+    refetchInterval: () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
+      return 10 * 60_000;
+    },
+    refetchIntervalInBackground: false,
     retry: 1,
   });
 

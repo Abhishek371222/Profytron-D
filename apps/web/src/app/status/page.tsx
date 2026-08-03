@@ -195,7 +195,10 @@ export default function StatusPage() {
 
   React.useEffect(() => {
     void refresh();
-    const t = window.setInterval(() => void refresh(), 30_000);
+    const t = window.setInterval(() => {
+      if (document.visibilityState === 'hidden') return;
+      void refresh();
+    }, 30_000);
     return () => window.clearInterval(t);
   }, [refresh]);
 

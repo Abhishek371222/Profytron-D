@@ -169,10 +169,14 @@ export function useDashboardModel(chartRange: keyof typeof RANGE_MAP = '1M') {
     staleTime: 30_000,
     refetchInterval: (query) => {
       if (!accountQueriesEnabled) return false;
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
+        return false;
+      }
       // While MetaAPI sync is still pending, poll quickly for closed trades.
       if (query.state.data?.syncPending) return 5_000;
       return 60_000;
     },
+    refetchIntervalInBackground: false,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
     enabled: accountQueriesEnabled,
