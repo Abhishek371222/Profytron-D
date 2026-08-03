@@ -14,7 +14,7 @@ import Link from 'next/link';
 
 const quickstart = [
   { step: '01', title: 'Create an Account', desc: 'Register with your institutional email and complete identity verification.', link: '/register' },
-  { step: '02', title: 'Configure API Keys', desc: 'Generate your API key from the dashboard Settings → Developer panel.', link: '/dashboard' },
+  { step: '02', title: 'Secure your account', desc: 'Enable 2FA under Settings → Security. Personal user API keys are not issued in-app; sessions authenticate the product.', link: '/settings/security' },
   { step: '03', title: 'Connect a Broker', desc: 'Link paper or live MT4/MT5 from Connected Accounts or Bot Plans.', link: '/connected-accounts' },
   { step: '04', title: 'Deploy Your First Strategy', desc: 'Subscribe from Marketplace or Bot Plans and go live with your risk limits.', link: '/marketplace' },
 ];
