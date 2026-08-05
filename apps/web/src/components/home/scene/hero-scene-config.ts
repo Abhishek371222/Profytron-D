@@ -71,14 +71,28 @@ export const EXECUTION_CORE = {
    * ─── TRIAL SWITCH ──────────────────────────────────────────────────────────
    * `emblemKind` selects what sits at the centre of the core.
    *
+   *   'void'     — no symbol; the rails are consumed into a soft well with a
+   *                single breathing rim (current trial)
    *   'aperture' — mechanical iris that opens for an accepted signal and bites
-   *                shut on a rejected one (current trial)
-   *   'cross'    — the previous decision marker, kept intact
+   *                shut on a rejected one
+   *   'cross'    — the original decision marker, kept intact
    *
-   * Flip this one string to revert. Nothing else needs touching.
+   * Flip this one string to switch. Nothing else needs touching.
    * ───────────────────────────────────────────────────────────────────────────
    */
-  emblemKind: "aperture" as "aperture" | "cross",
+  emblemKind: "void" as "void" | "aperture" | "cross",
+
+  /**
+   * The three straight output lanes that ran from the core off the right edge,
+   * across the bear. They were a separate fan from the signal rails — fixed at
+   * angles [-0.34, 0, 0.34] and always horizontal, which is why they read as
+   * three deliberate lines no matter how the rails were tuned.
+   *
+   * Off by default: the radial rails already travel in every direction, so a
+   * dedicated rightward fan adds nothing but those three lines.
+   * Set true to restore them.
+   */
+  outputs: { enabled: false },
 
   /**
    * Concentric gates and the scan arc. Off leaves the aperture as the only
@@ -107,9 +121,9 @@ export const EXECUTION_CORE = {
      */
     radialCount: 34,
     /** Outer extent of a rail, in multiples of the core radius. */
-    reach: 2.8,
+    reach: 3.6,
     /** Per-rail variation on that reach, so they don't end on a clean circle. */
-    reachJitter: 2.0,
+    reachJitter: 2.4,
     /**
      * Safety net on rail length, as a fraction of the shorter stage axis.
      * Deliberately above the natural range so only a stray outlier meets it —
@@ -146,9 +160,11 @@ export const EXECUTION_CORE = {
      * Alpha ramp along a rail: transparent at the outer end, `knee` of full
      * strength at the midpoint, full where it meets the rings.
      */
-    fade: { outer: 0, knee: 0.22, kneeAt: 0.62 },
+    fade: { outer: 0, knee: 0.36, kneeAt: 0.52 },
     /** Travelling signals ramp on the same curve so they never float alone. */
-    signalFadeExponent: 1.35,
+    signalFadeExponent: 1.15,
+    /** Peak rail alpha where it meets the core. */
+    railAlpha: { dark: 0.26, light: 0.3 },
   },
 
   motion: {

@@ -607,7 +607,11 @@ export class HeroExecutionEngine {
       const color = this.pathIsBull(spec, index)
         ? material.tealSoft
         : material.crimsonSoft;
-      const peak = this.theme === "dark" ? 0.18 : 0.25;
+      const peak = radial
+        ? EXECUTION_CORE.paths.railAlpha[this.theme]
+        : this.theme === "dark"
+          ? 0.18
+          : 0.25;
 
       ctx.beginPath();
       ctx.moveTo(path.start.x, path.start.y);
@@ -872,7 +876,9 @@ export class HeroExecutionEngine {
     ctx.save();
     ctx.translate(core.x, core.y + emblemBounce);
     ctx.scale(emblemScale, emblemScale);
-    if (EXECUTION_CORE.emblemKind === "aperture") {
+    if (EXECUTION_CORE.emblemKind === "void") {
+      this.drawVoidEmblem(ctx, material, radius, motionTime);
+    } else if (EXECUTION_CORE.emblemKind === "aperture") {
       this.drawApertureEmblem(ctx, material, radius, motionTime);
     } else {
       this.drawCrossEmblem(ctx, material, radius, emblemPhase);
@@ -945,6 +951,44 @@ export class HeroExecutionEngine {
     ctx.beginPath();
     ctx.arc(0, 0, Math.max(1.1, radius * 0.025), 0, Math.PI * 2);
     ctx.fill();
+  }
+
+  /**
+   * No symbol at all — the rails converge, are consumed, and the centre holds
+   * a soft well with a single slowly-breathing rim. Nothing to recognise, so
+   * nothing to date.
+   * Assumes the caller has already translated/scaled to the core.
+   */
+  private drawVoidEmblem(
+    ctx: CanvasRenderingContext2D,
+    material: (typeof EXECUTION_CORE.theme)[ThemeMode],
+    radius: number,
+    time: number,
+  ) {
+    const dark = this.theme === "dark";
+    const outer = radius * 1.05;
+
+    const well = ctx.createRadialGradient(0, 0, 0, 0, 0, outer);
+    if (dark) {
+      well.addColorStop(0, "rgba(0,0,0,0.92)");
+      well.addColorStop(0.7, "rgba(0,0,0,0.5)");
+      well.addColorStop(1, "rgba(0,0,0,0)");
+    } else {
+      well.addColorStop(0, withAlpha(material.neutral, 0.17));
+      well.addColorStop(0.7, withAlpha(material.neutral, 0.07));
+      well.addColorStop(1, withAlpha(material.neutral, 0));
+    }
+    ctx.fillStyle = well;
+    ctx.beginPath();
+    ctx.arc(0, 0, outer, 0, Math.PI * 2);
+    ctx.fill();
+
+    const pulse = this.reduced ? 0.34 : 0.3 + 0.18 * Math.sin(time * 0.8);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.46, 0, Math.PI * 2);
+    ctx.strokeStyle = withAlpha(material.neutral, pulse);
+    ctx.lineWidth = Math.max(1, radius * 0.012);
+    ctx.stroke();
   }
 
   /**
@@ -1092,7 +1136,9 @@ export class HeroExecutionEngine {
     this.ctx.save();
     this.ctx.translate(networkOffset.x, networkOffset.y);
     this.drawPaths(time, core, geometry.radius, material);
-    this.drawOutputs(time, core, geometry.radius, material);
+    if (EXECUTION_CORE.outputs.enabled) {
+      this.drawOutputs(time, core, geometry.radius, material);
+    }
     this.ctx.restore();
     this.drawCore(time, shiftedCore, geometry.radius, material);
     this.ctx.restore();
