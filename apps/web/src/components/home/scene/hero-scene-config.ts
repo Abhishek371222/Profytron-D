@@ -52,7 +52,7 @@ export const EXECUTION_CORE = {
    * Flip this one string to revert. Nothing else needs touching.
    * ───────────────────────────────────────────────────────────────────────────
    */
-  emblemKind: "cross" as "aperture" | "cross",
+  emblemKind: "aperture" as "aperture" | "cross",
 
   motion: {
     scrollConverge: 0.035,
