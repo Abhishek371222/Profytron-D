@@ -107,16 +107,23 @@ export const EXECUTION_CORE = {
      */
     radialCount: 34,
     /** Outer extent of a rail, in multiples of the core radius. */
-    reach: 4.6,
+    reach: 2.8,
     /** Per-rail variation on that reach, so they don't end on a clean circle. */
-    reachJitter: 4.6,
+    reachJitter: 2.0,
+    /**
+     * Safety net on rail length, as a fraction of the shorter stage axis.
+     * Deliberately above the natural range so only a stray outlier meets it —
+     * if most rails clamp they all end at the same distance, which is the same
+     * uniformity problem in a different shape.
+     */
+    maxReach: 0.5,
     /** Angular offset of the fan, radians. */
     angleOffset: 0.28,
     /**
      * Random angular scatter either side of the even spacing. Without this the
      * rails sit on a perfect wheel no matter how many there are.
      */
-    angleJitter: 0.42,
+    angleJitter: 0.55,
     /**
      * Vertical squash. A circular fan reads as a starburst; flattening it
      * spreads the rails horizontally into the wide hero and keeps them off the
@@ -124,14 +131,22 @@ export const EXECUTION_CORE = {
      */
     squashY: 0.62,
     /** Upward pull on each rail's control point, as a fraction of stage height. */
-    controlLift: 0.055,
+    controlLift: 0.05,
     /** Sideways bow, in multiples of core radius. */
-    bow: 0.9,
+    bow: 1.6,
+    /**
+     * Extra bow applied in proportion to how horizontal a rail is.
+     *
+     * The vertical squash has no effect at angle 0, so without this the
+     * near-horizontal rails are the only straight lines in the fan — and a
+     * straight line across open space is exactly what the eye picks out.
+     */
+    horizontalBow: 1.15,
     /**
      * Alpha ramp along a rail: transparent at the outer end, `knee` of full
      * strength at the midpoint, full where it meets the rings.
      */
-    fade: { outer: 0, knee: 0.34, kneeAt: 0.55 },
+    fade: { outer: 0, knee: 0.22, kneeAt: 0.62 },
     /** Travelling signals ramp on the same curve so they never float alone. */
     signalFadeExponent: 1.35,
   },

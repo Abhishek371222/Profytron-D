@@ -443,7 +443,13 @@ export class HeroExecutionEngine {
       const cfg = EXECUTION_CORE.paths;
       const lane = this.radialLane(index);
       const dir = { x: Math.cos(lane.angle), y: Math.sin(lane.angle) };
-      const reach = radius * lane.reachScale;
+      // Clamped in screen terms, not just against the core radius — otherwise
+      // a horizontal rail spans the full width while a diagonal one stops at
+      // the corner, and the horizontals become their own visual feature.
+      const reach = Math.min(
+        radius * lane.reachScale,
+        Math.min(this.w, this.h) * cfg.maxReach,
+      );
       const inner = radius * 1.62;
 
       // The fan is flattened vertically so it spreads into the wide hero
@@ -454,14 +460,18 @@ export class HeroExecutionEngine {
       };
       const end = { x: core.x + dir.x * inner, y: core.y + dir.y * inner };
 
-      // Single control point pulled upward, then converted to cubic — a gentle
-      // asymmetric arc rather than a straight spoke.
+      // The squash does nothing at angle 0, so near-horizontal rails would be
+      // the only straight lines in the fan. Bow and lift both scale with how
+      // horizontal a rail is, so every one of them curves.
+      const horiz = Math.abs(dir.x);
+      const bow = lane.bend * radius * (1 + horiz * cfg.horizontalBow);
+      const lift = this.h * cfg.controlLift * (0.6 + horiz * 0.9);
+
+      // Single control point, then converted to cubic — a gentle asymmetric
+      // arc rather than a straight spoke.
       const ctrl = {
-        x: (start.x + end.x) / 2 - dir.y * lane.bend * radius,
-        y:
-          (start.y + end.y) / 2 -
-          this.h * cfg.controlLift +
-          dir.x * lane.bend * radius,
+        x: (start.x + end.x) / 2 - dir.y * bow,
+        y: (start.y + end.y) / 2 - lift + dir.x * bow,
       };
       return {
         start,
