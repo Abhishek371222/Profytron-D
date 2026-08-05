@@ -4,6 +4,12 @@ import React from "react";
 import { Moon, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type ViewTransitionDocument = Document & {
+  startViewTransition: (callback: () => void) => {
+    finished: Promise<void>;
+  };
+};
+
 function getInitialTheme(): "dark" | "light" {
   if (typeof window === "undefined") return "light";
   const saved = localStorage.getItem("theme") as "dark" | "light" | null;
@@ -20,6 +26,7 @@ export function ThemeToggle({
 }) {
   const [mounted, setMounted] = React.useState(false);
   const [theme, setTheme] = React.useState<"dark" | "light">("light");
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
@@ -27,15 +34,56 @@ export function ThemeToggle({
   }, []);
 
   const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
+    const root = document.documentElement;
+    if (root.dataset.themeTransitioning === "true") return;
+
+    const next = root.classList.contains("dark") ? "light" : "dark";
     const apply = () => {
       setTheme(next);
       localStorage.setItem("theme", next);
-      document.documentElement.classList.toggle("dark", next === "dark");
+      root.classList.toggle("dark", next === "dark");
+      window.dispatchEvent(
+        new CustomEvent("profytron:theme-change", {
+          detail: { theme: next },
+        }),
+      );
     };
-    if (typeof document !== "undefined" && "startViewTransition" in document) {
-      (document as Document & { startViewTransition: (cb: () => void) => void }).startViewTransition(apply);
-    } else {
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (!("startViewTransition" in document) || reduceMotion) {
+      apply();
+      return;
+    }
+
+    const rect = buttonRef.current?.getBoundingClientRect();
+    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    const y = rect ? rect.top + rect.height / 2 : 0;
+    const radius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y),
+    );
+
+    root.style.setProperty("--theme-transition-x", `${x}px`);
+    root.style.setProperty("--theme-transition-y", `${y}px`);
+    root.style.setProperty("--theme-transition-radius", `${radius}px`);
+    root.dataset.themeTransitioning = "true";
+
+    const cleanup = () => {
+      delete root.dataset.themeTransitioning;
+      root.style.removeProperty("--theme-transition-x");
+      root.style.removeProperty("--theme-transition-y");
+      root.style.removeProperty("--theme-transition-radius");
+    };
+
+    try {
+      const transition = (document as ViewTransitionDocument).startViewTransition(
+        apply,
+      );
+      void transition.finished.finally(cleanup);
+    } catch {
+      cleanup();
       apply();
     }
   };
@@ -51,6 +99,7 @@ export function ThemeToggle({
 
   return (
     <button
+      ref={buttonRef}
       type="button"
       onClick={toggleTheme}
       title={label}

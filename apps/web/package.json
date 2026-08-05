@@ -16,8 +16,6 @@
     "@neondatabase/serverless": "^1.1.0",
     "@profytron/ai-coach": "workspace:*",
     "@sentry/nextjs": "^10.57.0",
-    "@splinetool/react-spline": "^4.1.0",
-    "@splinetool/runtime": "^1.12.98",
     "@stripe/react-stripe-js": "^6.1.0",
     "@stripe/stripe-js": "^9.1.0",
     "@supabase/ssr": "^0.10.2",

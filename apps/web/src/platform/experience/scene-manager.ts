@@ -1,6 +1,9 @@
 /**
- * SceneManager — sole WebGL/Spline owner.
- * Pages never instantiate Spline; they register SceneSlots only.
+ * SceneManager — sole WebGL scene owner.
+ *
+ * The Spline runtime was removed (no scene URLs were ever configured, so the
+ * mount path was unreachable). Budgeting, LOD, degrade handling and the poster
+ * lifecycle are kept intact so a future renderer can plug into `mountScene`.
  */
 
 'use client';
@@ -21,10 +24,8 @@ import {
   startFpsMonitor,
   stopFpsMonitor,
   subscribeDegrade,
-  getDegradeLevel,
   type DegradeLevel,
 } from './fps-monitor';
-import { applyBrandLightingToSpline } from './brand-lighting';
 import { createLayerStreamer, type StreamPhase } from './layer-streamer';
 import { prefetchScenesForRoute } from './scene-prefetch';
 
@@ -46,8 +47,7 @@ type LiveInstance = {
   mountedAt: number;
   costMb: number;
   phase: StreamPhase;
-  splineApp: unknown | null;
-  disposeSpline: (() => void) | null;
+  disposeScene: (() => void) | null;
   cancelIdle: (() => void) | null;
   streamer: ReturnType<typeof createLayerStreamer> | null;
 };
@@ -61,8 +61,6 @@ class SceneManagerImpl {
   private started = false;
   private unsubDegrade: (() => void) | null = null;
   private visibilityHandler: (() => void) | null = null;
-  private runtimeLoader: Promise<typeof import('@splinetool/runtime')> | null =
-    null;
 
   start() {
     if (typeof window === 'undefined' || this.started) return;
@@ -109,8 +107,7 @@ class SceneManagerImpl {
       mountedAt: performance.now(),
       costMb: entry.gpuCostMb,
       phase: 'poster',
-      splineApp: null,
-      disposeSpline: null,
+      disposeScene: null,
       cancelIdle: null,
       streamer: null,
     };
@@ -130,7 +127,7 @@ class SceneManagerImpl {
     this.enforceMemory(reg.slotId, entry.gpuCostMb);
 
     live.cancelIdle = scheduleIdleLoad(() => {
-      void this.mountSpline(reg.slotId);
+      void this.mountScene(reg.slotId);
     });
   }
 
@@ -146,96 +143,27 @@ class SceneManagerImpl {
     return resolveScenePoster(key);
   }
 
-  private async loadRuntime() {
-    if (!this.runtimeLoader) {
-      this.runtimeLoader = import('@splinetool/runtime');
-    }
-    return this.runtimeLoader;
-  }
-
-  private async mountSpline(slotId: string) {
+  /**
+   * Mount point for a WebGL renderer.
+   *
+   * No renderer is currently wired up, so every slot resolves to its poster.
+   * The gate/budget checks below are the contract a future renderer must
+   * satisfy — keep them, and replace the fallback with the mount call.
+   */
+  private async mountScene(slotId: string) {
     const live = this.instances.get(slotId);
     if (!live) return;
     const { reg } = live;
     const entry = SceneRegistry[reg.key];
     const gate = evaluateSceneGate(reg.key);
-    if (!gate.allowWebGL || !entry.url?.trim()) {
-      trackScene('scene.fallback', {
-        key: reg.key,
-        reason: gate.reason,
-        slotId,
-      });
-      reg.onFallback?.(gate.reason);
-      return;
-    }
 
-    const t0 = performance.now();
-    live.streamer = createLayerStreamer(entry, getDegradeLevel(), (phase) => {
-      live.phase = phase;
-      reg.onPhase?.(phase);
+    trackScene('scene.fallback', {
+      key: reg.key,
+      reason: !gate.allowWebGL ? gate.reason : 'no-renderer',
+      slotId,
     });
-
-    const advanceLayers = () => {
-      if (!this.instances.has(slotId)) return;
-      live.streamer?.advance();
-      if (live.streamer && !live.streamer.state().done) {
-        window.setTimeout(advanceLayers, 180);
-      }
-    };
-    window.setTimeout(advanceLayers, 120);
-
-    try {
-      const { Application } = await this.loadRuntime();
-      const canvas = document.createElement('canvas');
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
-      canvas.style.display = 'block';
-      canvas.setAttribute('aria-hidden', 'true');
-      reg.container.replaceChildren(canvas);
-
-      const app = new Application(canvas);
-      await app.load(entry.url.trim());
-      applyBrandLightingToSpline(app);
-      live.splineApp = app;
-      live.disposeSpline = () => {
-        try {
-          app.dispose();
-        } catch {
-          /* ignore */
-        }
-        reg.container.replaceChildren();
-      };
-      this.ledger.add({
-        key: reg.key,
-        slotId,
-        costMb: entry.gpuCostMb,
-        mountedAt: live.mountedAt,
-      });
-      trackScene('scene.loaded', { key: reg.key, slotId });
-      trackScene('scene.loadTime', {
-        key: reg.key,
-        ms: performance.now() - t0,
-      });
-      trackScene('scene.memory', {
-        totalMb: this.ledger.totalMb(),
-        budgetMb: gpuMemoryBudgetMb(),
-      });
-      reg.onMounted?.();
-
-      while (live.streamer && !live.streamer.state().done) {
-        live.streamer.advance();
-      }
-      live.phase = 'interactive';
-      reg.onPhase?.('interactive');
-    } catch (err) {
-      trackScene('scene.failed', {
-        key: reg.key,
-        slotId,
-        error: String(err),
-      });
-      reg.onFallback?.('no-webgl');
-      reg.container.replaceChildren();
-    }
+    reg.onFallback?.(!gate.allowWebGL ? gate.reason : 'no-renderer');
+    void entry;
   }
 
   private enforceCaps(role: SlotRole, keepId: string) {
@@ -277,7 +205,7 @@ class SceneManagerImpl {
   }
 
   private pauseAll() {
-    // Spline pause is best-effort; clearing RAF pressure via dispose of ambient
+    // Relieve RAF pressure by disposing ambient slots; they re-register on resume.
     for (const live of this.instances.values()) {
       if (live.reg.role === 'ambient') {
         this.dispose(live.reg.slotId, true);
@@ -293,7 +221,7 @@ class SceneManagerImpl {
     const live = this.instances.get(slotId);
     if (!live) return;
     live.cancelIdle?.();
-    live.disposeSpline?.();
+    live.disposeScene?.();
     this.ledger.remove(slotId);
     if (!keepPoster) {
       live.reg.container.replaceChildren();

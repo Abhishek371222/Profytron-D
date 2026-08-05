@@ -48,8 +48,6 @@ const nextConfig: NextConfig = {
       "three",
       "zustand",
       "react-hook-form",
-      "@splinetool/react-spline",
-      "@splinetool/runtime",
     ],
   },
 
