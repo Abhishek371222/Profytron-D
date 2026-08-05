@@ -196,11 +196,15 @@ function QuoteCard() {
   );
 }
 
+// No `border-t` on the section below: this was the only landing section that
+// carried one, and it drew a literal hairline on the hero boundary — in dark,
+// rgba(255,255,255,0.08) against a near-black stage. Nothing above it can blend
+// a seam that is being restated as a stroked rule.
 export function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="landing-section overflow-hidden border-t border-[var(--card-border)]"
+      className="landing-section overflow-hidden"
     >
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute top-20 left-1/4 h-72 w-72 rounded-full bg-primary/10 blur-[100px]" />

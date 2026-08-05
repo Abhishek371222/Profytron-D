@@ -59,6 +59,51 @@ export const HERO_SEAM = {
   fadeKnee: 0.45,
 };
 
+/**
+ * ─── TRIAL SWITCH: ground ramp ───────────────────────────────────────────────
+ * The seam survived every gradient because it was never one problem:
+ *
+ *   1. The stage's ground colour is not the site's ground colour. Light
+ *      #E2E9EC meets --bg-secondary #ECEDF0; dark #040709 meets --background
+ *      #1E252B, which is near-black meeting mid-slate.
+ *   2. The section below draws a literal 1px `border-t` at the boundary.
+ *   3. The creatures are clipped mid-body on that same pixel row.
+ *   4. The scrim faded toward --bg-secondary in BOTH themes, so in dark it
+ *      overshot past the #1E252B it was heading for and landed brighter.
+ *
+ * Fading across the boundary cannot fix (1): a ramp between two flat fields
+ * has a knee at each end, and the eye finds those knees as readily as the
+ * original edge — which is why the last attempt read as *more* structure, not
+ * less.
+ *
+ * So this stops blending across the seam and removes the difference at it.
+ * The stage's base colour becomes the site's own token, and the hero's depth
+ * comes back as a ramp that is fully opaque through the headline and core and
+ * has already resolved to the site colour before it reaches its own bottom
+ * edge. At the boundary row the two surfaces are identical, so there is
+ * nothing left to blend.
+ *
+ * Everything hangs off `data-hero-ground` in globals.css. Set enabled false
+ * and the stage, the creature mask and the scrim all revert together.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export const HERO_GROUND = {
+  enabled: true,
+  /**
+   * Where the ramp starts leaving the hero's own colour, as a fraction of
+   * hero height. Everything above this is untouched — the approved dark stage
+   * is exactly as it was through the headline, core and creature heads.
+   */
+  holdTo: 0.42,
+  /**
+   * Where the creature cutouts start dissolving, as a fraction of each
+   * image's own box, so no body ends on the boundary row. They are fully
+   * transparent by 0.82 — see the breakpoint table in globals.css for why
+   * that single stop clears the clip at every size.
+   */
+  animalFadeFrom: 0.58,
+};
+
 const HERO_LAYOUTS = {
   anchored: {
     desktop: { x: 0.755, y: 0.515, radius: 0.115 },

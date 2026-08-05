@@ -5022,3 +5022,128 @@ input::-webkit-strong-password-auto-fill-button {
   height: 300px; /* HERO_SEAM.height */
   display: block;
 }
+
+/* ==========================================================================
+   Hero seam — ground ramp
+   --------------------------------------------------------------------------
+   See HERO_GROUND in hero-scene-config.ts for the full reasoning. In short:
+   the stage and the page were painted in different colours, so every attempt
+   to fade *across* the boundary just replaced one edge with two.
+
+   These rules remove the difference instead. The stage's base colour becomes
+   the same token the section below uses, and the hero's own depth returns as
+   a ramp that holds solid through the headline and core, then resolves to
+   that token before it reaches the bottom edge. At the boundary row both
+   surfaces are the same colour, so there is nothing to blend.
+
+   `background-image` on the stage itself paints beneath every child, which is
+   what puts this under the canvas and the creatures without another element.
+
+   The ramp is stepped rather than linear on purpose: a two-stop gradient
+   between flat fields leaves a visible knee where it starts. These stops
+   approximate a smoothstep so no segment boundary reads as a line. The stop
+   colours are written with explicit `rgb(… / 0)` rather than `transparent`
+   so the fade never routes through transparent black.
+
+   Set HERO_GROUND.enabled to false — the attribute changes and every rule in
+   this block, including the mask and the scrim override, stops matching.
+   ========================================================================== */
+.hero-stage[data-hero-ground="ramp"] {
+  background-color: var(--bg-secondary);
+  background-image: linear-gradient(
+    to bottom,
+    rgb(226 233 236 / 1) 0%,
+    rgb(226 233 236 / 1) 42%, /* HERO_GROUND.holdTo */
+    rgb(226 233 236 / 0.94) 54%,
+    rgb(226 233 236 / 0.78) 66%,
+    rgb(226 233 236 / 0.52) 77%,
+    rgb(226 233 236 / 0.26) 87%,
+    rgb(226 233 236 / 0.08) 95%,
+    rgb(226 233 236 / 0) 100%
+  );
+}
+
+.dark .hero-stage[data-hero-ground="ramp"] {
+  background-color: var(--background);
+  background-image: linear-gradient(
+    to bottom,
+    rgb(4 7 9 / 1) 0%,
+    rgb(4 7 9 / 1) 42%,
+    rgb(4 7 9 / 0.94) 54%,
+    rgb(4 7 9 / 0.78) 66%,
+    rgb(4 7 9 / 0.52) 77%,
+    rgb(4 7 9 / 0.26) 87%,
+    rgb(4 7 9 / 0.08) 95%,
+    rgb(4 7 9 / 0) 100%
+  );
+}
+
+/* The scrim was the old answer to this seam, and it is now actively wrong:
+   it faded toward --bg-secondary in both themes, so in dark it overshot past
+   the #1E252B it was aiming at and landed *brighter* than the section below —
+   a light band, then a step back down. The ramp above covers the same job
+   over ten times the distance and in the correct colour. */
+.hero-stage[data-hero-ground="ramp"] .hero-scene-scrim {
+  display: none;
+}
+
+/* The creatures were being clipped mid-body on the boundary row — the bull's
+   legs and the bear's mass simply stopped. These fade them out instead, so
+   they dissolve into the ground rather than ending on an edge.
+
+   The mask goes on the images and NOT on .hero-depth-parallax, even though the
+   wrapper is `inset: 0` and would give cleaner percentages. A mask creates a
+   stacking context, which makes the wrapper an isolated blending group — the
+   base images' `mix-blend-mode: multiply/screen` would then blend against
+   nothing instead of against the stage, and the approved light-theme look
+   would change. On the images themselves the blend still resolves against the
+   stage, because isolation only affects an element's descendants.
+
+   82% is the one stop that works at every breakpoint. Percentages here are of
+   each image's own box, and `overflow: hidden` on the wrapper already clips
+   each one where the hero's bottom edge falls inside it:
+
+     desktop  bull (100−10)/104   = 86.5%    bear (100−9)/96    = 94.8%
+     tablet   bull (100−17.8)/91  = 90.3%    bear (100−17)/84   = 98.8%
+     mobile   bull (100−47.6)/54  = 97.0%    bear (100−47)/50   = 106%
+
+   Reaching zero at 82% clears the earliest of those, so alpha is already 0
+   wherever the clip lands and nothing ends on a line — with no per-breakpoint
+   rules. The rim images are left alone: their radial masks already confine
+   them to the head, so they never reach the boundary. */
+.hero-stage[data-hero-ground="ramp"] .hero-depth-animal-base {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 58%, /* HERO_GROUND.animalFadeFrom */
+    rgb(0 0 0 / 0.74) 68%,
+    rgb(0 0 0 / 0.36) 76%,
+    rgb(0 0 0 / 0) 82%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 58%,
+    rgb(0 0 0 / 0.74) 68%,
+    rgb(0 0 0 / 0.36) 76%,
+    rgb(0 0 0 / 0) 82%
+  );
+}
+
+/* The floor reflections sit at 85.5–97.5% of the hero and run past its bottom
+   edge, so they were being clipped too — and with the creatures now dissolving
+   above them, a reflection with no feet over it reads as a stray smudge. */
+.hero-stage[data-hero-ground="ramp"] .hero-depth-reflection {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    rgb(0 0 0 / 0.4) 46%,
+    rgb(0 0 0 / 0) 78%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    rgb(0 0 0 / 0.4) 46%,
+    rgb(0 0 0 / 0) 78%
+  );
+}

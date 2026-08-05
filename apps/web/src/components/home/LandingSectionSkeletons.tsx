@@ -33,13 +33,15 @@ function SectionShell({
   );
 }
 
-/** Approximate HowItWorks: sticky copy + step list. */
+/**
+ * Approximate HowItWorks: sticky copy + step list.
+ *
+ * No top border, mirroring HowItWorks — it is gone there, and keeping it here
+ * would flash a hairline on the hero seam until the real section swaps in.
+ */
 export function HowItWorksSkeleton() {
   return (
-    <SectionShell
-      id="how-it-works"
-      className="overflow-hidden border-t border-[var(--card-border)]"
-    >
+    <SectionShell id="how-it-works" className="overflow-hidden">
       <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 xl:gap-20">
         <div>
           <Bone className="mb-6 h-7 w-36 rounded-full" />
