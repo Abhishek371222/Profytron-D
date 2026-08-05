@@ -394,7 +394,55 @@ export class HeroExecutionEngine {
     return { x: baseX, y: baseY, radius: baseRadius };
   }
 
-  private pathPoints(spec: PathSpec, core: Point, radius: number) {
+  /**
+   * Direction a rail runs, and which animal's colour it carries.
+   *
+   * In radial mode the fan is spaced evenly around the core so no quadrant is
+   * favoured, and colour follows the hemisphere — teal toward the bull on the
+   * left, crimson toward the bear on the right — rather than the authored
+   * family, which assumed the old left/right start positions.
+   */
+  private pathAngle(spec: PathSpec, index: number) {
+    if (EXECUTION_CORE.paths.style !== "radial") return spec.endAngle;
+    return (
+      (index / PATHS.length) * Math.PI * 2 + EXECUTION_CORE.paths.angleOffset
+    );
+  }
+
+  private pathIsBull(spec: PathSpec, index: number) {
+    if (EXECUTION_CORE.paths.style !== "radial") return spec.family === 0;
+    return Math.cos(this.pathAngle(spec, index)) < 0;
+  }
+
+  private pathPoints(spec: PathSpec, core: Point, radius: number, index = 0) {
+    if (EXECUTION_CORE.paths.style === "radial") {
+      const cfg = EXECUTION_CORE.paths;
+      const angle = this.pathAngle(spec, index);
+      const dir = { x: Math.cos(angle), y: Math.sin(angle) };
+      const normal = { x: -dir.y, y: dir.x };
+
+      const reach =
+        radius * (cfg.reach + seeded(index * 5 + 3) * cfg.reachJitter);
+      const inner = radius * 1.62;
+      const span = reach - inner;
+      const bow = spec.bend * radius * cfg.bow;
+
+      const start = { x: core.x + dir.x * reach, y: core.y + dir.y * reach };
+      const end = { x: core.x + dir.x * inner, y: core.y + dir.y * inner };
+      return {
+        start,
+        c1: {
+          x: start.x - dir.x * span * 0.36 + normal.x * bow,
+          y: start.y - dir.y * span * 0.36 + normal.y * bow,
+        },
+        c2: {
+          x: end.x + dir.x * span * 0.34 + normal.x * bow * 0.45,
+          y: end.y + dir.y * span * 0.34 + normal.y * bow * 0.45,
+        },
+        end,
+      };
+    }
+
     const start = { x: spec.startX * this.w, y: spec.startY * this.h };
     const end = {
       x: core.x + Math.cos(spec.endAngle) * radius * 1.62,
@@ -498,14 +546,24 @@ export class HeroExecutionEngine {
     material: (typeof EXECUTION_CORE.theme)[ThemeMode],
   ) {
     const ctx = this.ctx;
-    const paths = PATHS.map((spec) => this.pathPoints(spec, core, radius));
+    const paths = PATHS.map((spec, index) =>
+      this.pathPoints(spec, core, radius, index),
+    );
+    const radial = EXECUTION_CORE.paths.style === "radial";
+    const fade = EXECUTION_CORE.paths.fade;
 
     // The dormant rails make the processing topology readable even between
-    // pulses; accepted routes are solid, rejected forks are short and dashed.
+    // pulses. In radial mode each rail is stroked with a gradient that runs
+    // from transparent at its far end to full strength where it meets the
+    // rings, so the fan deepens inward and dissolves before it can cut across
+    // the headline.
     paths.forEach((path, index) => {
       const spec = PATHS[index];
-      const color =
-        spec.family === 0 ? material.tealSoft : material.crimsonSoft;
+      const color = this.pathIsBull(spec, index)
+        ? material.tealSoft
+        : material.crimsonSoft;
+      const peak = this.theme === "dark" ? 0.18 : 0.25;
+
       ctx.beginPath();
       ctx.moveTo(path.start.x, path.start.y);
       ctx.bezierCurveTo(
@@ -517,7 +575,21 @@ export class HeroExecutionEngine {
         path.end.y,
       );
       ctx.lineWidth = this.theme === "dark" ? 0.8 : 1;
-      ctx.strokeStyle = withAlpha(color, this.theme === "dark" ? 0.18 : 0.25);
+
+      if (radial) {
+        const grad = ctx.createLinearGradient(
+          path.start.x,
+          path.start.y,
+          path.end.x,
+          path.end.y,
+        );
+        grad.addColorStop(0, withAlpha(color, peak * fade.outer));
+        grad.addColorStop(fade.kneeAt, withAlpha(color, peak * fade.knee));
+        grad.addColorStop(1, withAlpha(color, peak));
+        ctx.strokeStyle = grad;
+      } else {
+        ctx.strokeStyle = withAlpha(color, peak);
+      }
       ctx.stroke();
     });
 
@@ -529,7 +601,13 @@ export class HeroExecutionEngine {
       progress = 1 - (1 - progress) * (1 - progress * 0.28);
       const split = 0.72;
       let point: Point;
-      let alpha = 0.25 + Math.sin(progress * Math.PI) * 0.75;
+      // Signals ride the same ramp as the rail beneath them — faint at the far
+      // end, brightening as they travel in — so a pulse is never left glowing
+      // on a line that has already faded to nothing.
+      let alpha = radial
+        ? 0.06 +
+          Math.pow(progress, EXECUTION_CORE.paths.signalFadeExponent) * 0.94
+        : 0.25 + Math.sin(progress * Math.PI) * 0.75;
 
       if (signal.rejected && progress > split) {
         const join = cubic(path.start, path.c1, path.c2, path.end, split);
@@ -559,7 +637,9 @@ export class HeroExecutionEngine {
         point = cubic(path.start, path.c1, path.c2, path.end, progress);
       }
 
-      const color = spec.family === 0 ? material.teal : material.crimson;
+      const color = this.pathIsBull(spec, signal.lane)
+        ? material.teal
+        : material.crimson;
 
       ctx.save();
       ctx.globalAlpha = clamp(alpha);

@@ -80,6 +80,36 @@ export const EXECUTION_CORE = {
    */
   emblemKind: "aperture" as "aperture" | "cross",
 
+  /**
+   * ─── TRIAL SWITCH: signal rails ────────────────────────────────────────────
+   * 'anchored' — original: rails begin at fixed screen positions, which bunch
+   *              on the left and cut across the copy at full strength.
+   * 'radial'   — rails radiate evenly around the core and fade out toward
+   *              their far ends, so they deepen into the rings and dissolve
+   *              before they reach the headline.
+   *
+   * Flip back to "anchored" to restore the original rails.
+   * ───────────────────────────────────────────────────────────────────────────
+   */
+  paths: {
+    style: "radial" as "radial" | "anchored",
+    /** Outer extent of a rail, in multiples of the core radius. */
+    reach: 4.4,
+    /** Per-rail variation on that reach, so they don't end on a clean circle. */
+    reachJitter: 1.5,
+    /** Angular offset of the fan, radians. */
+    angleOffset: 0.28,
+    /** Sideways bow, in multiples of core radius. */
+    bow: 1.8,
+    /**
+     * Alpha ramp along a rail: transparent at the outer end, `knee` of full
+     * strength at the midpoint, full where it meets the rings.
+     */
+    fade: { outer: 0, knee: 0.34, kneeAt: 0.55 },
+    /** Travelling signals ramp on the same curve so they never float alone. */
+    signalFadeExponent: 1.35,
+  },
+
   motion: {
     scrollConverge: 0.035,
     ringSpeed: 0.16,
