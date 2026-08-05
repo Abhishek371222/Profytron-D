@@ -303,7 +303,7 @@ export class HeroExecutionEngine {
       ? EXECUTION_CORE.signals.mobileCount
       : EXECUTION_CORE.signals.desktopCount;
     this.signals = Array.from({ length: count }, (_, index) => ({
-      lane: index % PATHS.length,
+      lane: index % this.laneCount,
       phase: seeded(index + 3),
       speed: 0.055 + seeded(index + 17) * 0.06,
       size: 0.7 + seeded(index + 31) * 1.45,
@@ -402,66 +402,101 @@ export class HeroExecutionEngine {
    * left, crimson toward the bear on the right — rather than the authored
    * family, which assumed the old left/right start positions.
    */
-  private pathAngle(spec: PathSpec, index: number) {
-    if (EXECUTION_CORE.paths.style !== "radial") return spec.endAngle;
-    return (
-      (index / PATHS.length) * Math.PI * 2 + EXECUTION_CORE.paths.angleOffset
-    );
+  /** How many rails exist. Radial mode generates its own; anchored uses PATHS. */
+  private get laneCount() {
+    return EXECUTION_CORE.paths.style === "radial"
+      ? EXECUTION_CORE.paths.radialCount
+      : PATHS.length;
   }
 
-  private pathIsBull(spec: PathSpec, index: number) {
-    if (EXECUTION_CORE.paths.style !== "radial") return spec.family === 0;
-    return Math.cos(this.pathAngle(spec, index)) < 0;
+  /**
+   * A radial rail, derived entirely from its index.
+   *
+   * Even spacing alone produces a wheel, so each rail carries a seeded angular
+   * offset and its own reach — that scatter is what stops the fan reading as a
+   * starburst.
+   */
+  private radialLane(index: number) {
+    const cfg = EXECUTION_CORE.paths;
+    return {
+      angle:
+        (index / cfg.radialCount) * Math.PI * 2 +
+        cfg.angleOffset +
+        (seeded(index * 11 + 5) - 0.5) * cfg.angleJitter,
+      reachScale: cfg.reach + seeded(index * 5 + 3) * cfg.reachJitter,
+      bend: (seeded(index * 7 + 9) - 0.5) * cfg.bow,
+    };
   }
 
-  private pathPoints(spec: PathSpec, core: Point, radius: number, index = 0) {
+  private pathIsBull(spec: PathSpec | undefined, index: number) {
+    if (EXECUTION_CORE.paths.style !== "radial") return spec?.family === 0;
+    return Math.cos(this.radialLane(index).angle) < 0;
+  }
+
+  private pathPoints(
+    spec: PathSpec | undefined,
+    core: Point,
+    radius: number,
+    index = 0,
+  ) {
     if (EXECUTION_CORE.paths.style === "radial") {
       const cfg = EXECUTION_CORE.paths;
-      const angle = this.pathAngle(spec, index);
-      const dir = { x: Math.cos(angle), y: Math.sin(angle) };
-      const normal = { x: -dir.y, y: dir.x };
-
-      const reach =
-        radius * (cfg.reach + seeded(index * 5 + 3) * cfg.reachJitter);
+      const lane = this.radialLane(index);
+      const dir = { x: Math.cos(lane.angle), y: Math.sin(lane.angle) };
+      const reach = radius * lane.reachScale;
       const inner = radius * 1.62;
-      const span = reach - inner;
-      const bow = spec.bend * radius * cfg.bow;
 
-      const start = { x: core.x + dir.x * reach, y: core.y + dir.y * reach };
+      // The fan is flattened vertically so it spreads into the wide hero
+      // rather than radiating as an even circle.
+      const start = {
+        x: core.x + dir.x * reach,
+        y: core.y + dir.y * reach * cfg.squashY,
+      };
       const end = { x: core.x + dir.x * inner, y: core.y + dir.y * inner };
+
+      // Single control point pulled upward, then converted to cubic — a gentle
+      // asymmetric arc rather than a straight spoke.
+      const ctrl = {
+        x: (start.x + end.x) / 2 - dir.y * lane.bend * radius,
+        y:
+          (start.y + end.y) / 2 -
+          this.h * cfg.controlLift +
+          dir.x * lane.bend * radius,
+      };
       return {
         start,
         c1: {
-          x: start.x - dir.x * span * 0.36 + normal.x * bow,
-          y: start.y - dir.y * span * 0.36 + normal.y * bow,
+          x: start.x + ((ctrl.x - start.x) * 2) / 3,
+          y: start.y + ((ctrl.y - start.y) * 2) / 3,
         },
         c2: {
-          x: end.x + dir.x * span * 0.34 + normal.x * bow * 0.45,
-          y: end.y + dir.y * span * 0.34 + normal.y * bow * 0.45,
+          x: end.x + ((ctrl.x - end.x) * 2) / 3,
+          y: end.y + ((ctrl.y - end.y) * 2) / 3,
         },
         end,
       };
     }
 
-    const start = { x: spec.startX * this.w, y: spec.startY * this.h };
+    const s = spec as PathSpec;
+    const start = { x: s.startX * this.w, y: s.startY * this.h };
     const end = {
-      x: core.x + Math.cos(spec.endAngle) * radius * 1.62,
-      y: core.y + Math.sin(spec.endAngle) * radius * 1.62,
+      x: core.x + Math.cos(s.endAngle) * radius * 1.62,
+      y: core.y + Math.sin(s.endAngle) * radius * 1.62,
     };
-    const normal = { x: -Math.sin(spec.endAngle), y: Math.cos(spec.endAngle) };
+    const normal = { x: -Math.sin(s.endAngle), y: Math.cos(s.endAngle) };
     const c1 = {
       x: start.x + (end.x - start.x) * 0.36,
-      y: start.y + (end.y - start.y) * 0.2 + spec.bend * this.h,
+      y: start.y + (end.y - start.y) * 0.2 + s.bend * this.h,
     };
     const c2 = {
       x:
         end.x +
-        Math.cos(spec.endAngle) * radius * 1.3 +
-        normal.x * spec.bend * this.h * 0.3,
+        Math.cos(s.endAngle) * radius * 1.3 +
+        normal.x * s.bend * this.h * 0.3,
       y:
         end.y +
-        Math.sin(spec.endAngle) * radius * 1.3 +
-        normal.y * spec.bend * this.h * 0.3,
+        Math.sin(s.endAngle) * radius * 1.3 +
+        normal.y * s.bend * this.h * 0.3,
     };
     return { start, c1, c2, end };
   }
@@ -546,8 +581,8 @@ export class HeroExecutionEngine {
     material: (typeof EXECUTION_CORE.theme)[ThemeMode],
   ) {
     const ctx = this.ctx;
-    const paths = PATHS.map((spec, index) =>
-      this.pathPoints(spec, core, radius, index),
+    const paths = Array.from({ length: this.laneCount }, (_, index) =>
+      this.pathPoints(PATHS[index], core, radius, index),
     );
     const radial = EXECUTION_CORE.paths.style === "radial";
     const fade = EXECUTION_CORE.paths.fade;
@@ -761,39 +796,41 @@ export class HeroExecutionEngine {
       ctx.fill();
     }
 
-    this.drawRing(
-      core.x,
-      core.y,
-      radius * 1.7 * breathe,
-      32,
-      motionTime * speed,
-      material.teal,
-      material.crimson,
-      this.theme === "dark" ? 0.48 : 0.62,
-      1.05,
-    );
-    this.drawRing(
-      core.x,
-      core.y,
-      radius * 1.38,
-      22,
-      -motionTime * speed * 1.4,
-      material.crimson,
-      material.neutral,
-      this.theme === "dark" ? 0.5 : 0.66,
-      1.35,
-    );
-    this.drawRing(
-      core.x,
-      core.y,
-      radius * 1.1 * breathe,
-      14,
-      motionTime * speed * 0.72,
-      material.teal,
-      material.neutral,
-      this.theme === "dark" ? 0.7 : 0.78,
-      1.6,
-    );
+    if (EXECUTION_CORE.showRings) {
+      this.drawRing(
+        core.x,
+        core.y,
+        radius * 1.7 * breathe,
+        32,
+        motionTime * speed,
+        material.teal,
+        material.crimson,
+        this.theme === "dark" ? 0.48 : 0.62,
+        1.05,
+      );
+      this.drawRing(
+        core.x,
+        core.y,
+        radius * 1.38,
+        22,
+        -motionTime * speed * 1.4,
+        material.crimson,
+        material.neutral,
+        this.theme === "dark" ? 0.5 : 0.66,
+        1.35,
+      );
+      this.drawRing(
+        core.x,
+        core.y,
+        radius * 1.1 * breathe,
+        14,
+        motionTime * speed * 0.72,
+        material.teal,
+        material.neutral,
+        this.theme === "dark" ? 0.7 : 0.78,
+        1.6,
+      );
+    }
 
     // Risk checkpoints orbit between the second and third gates.
     for (let i = 0; i < 6; i++) {
@@ -832,21 +869,24 @@ export class HeroExecutionEngine {
     }
     ctx.restore();
 
-    // Rotating scan arc communicates that the core is continuously evaluating.
-    ctx.beginPath();
-    ctx.arc(
-      core.x,
-      core.y,
-      radius * 0.94,
-      motionTime * 0.42,
-      motionTime * 0.42 + Math.PI * 0.38,
-    );
-    ctx.strokeStyle = withAlpha(
-      material.neutral,
-      this.theme === "dark" ? 0.56 : 0.68,
-    );
-    ctx.lineWidth = 1.4;
-    ctx.stroke();
+    // Rotating scan arc — part of the ring furniture. Without the gates it
+    // would sit inside the enlarged blades and read as a stray stroke.
+    if (EXECUTION_CORE.showRings) {
+      ctx.beginPath();
+      ctx.arc(
+        core.x,
+        core.y,
+        radius * 0.94,
+        motionTime * 0.42,
+        motionTime * 0.42 + Math.PI * 0.38,
+      );
+      ctx.strokeStyle = withAlpha(
+        material.neutral,
+        this.theme === "dark" ? 0.56 : 0.68,
+      );
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+    }
 
     ctx.restore();
   }

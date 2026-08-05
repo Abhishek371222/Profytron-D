@@ -81,6 +81,14 @@ export const EXECUTION_CORE = {
   emblemKind: "aperture" as "aperture" | "cross",
 
   /**
+   * Concentric gates and the scan arc. Off leaves the aperture as the only
+   * object at the centre, which is how the approved study read — the iris
+   * carries the beat on its own and doesn't need a frame around it.
+   * Set true to restore them.
+   */
+  showRings: false,
+
+  /**
    * ─── TRIAL SWITCH: signal rails ────────────────────────────────────────────
    * 'anchored' — original: rails begin at fixed screen positions, which bunch
    *              on the left and cut across the copy at full strength.
@@ -93,14 +101,32 @@ export const EXECUTION_CORE = {
    */
   paths: {
     style: "radial" as "radial" | "anchored",
+    /**
+     * Rail count. Ten evenly-spaced rails read as a star; the scatter only
+     * appears once there are enough of them that the eye stops counting.
+     */
+    radialCount: 34,
     /** Outer extent of a rail, in multiples of the core radius. */
-    reach: 4.4,
+    reach: 4.6,
     /** Per-rail variation on that reach, so they don't end on a clean circle. */
-    reachJitter: 1.5,
+    reachJitter: 4.6,
     /** Angular offset of the fan, radians. */
     angleOffset: 0.28,
+    /**
+     * Random angular scatter either side of the even spacing. Without this the
+     * rails sit on a perfect wheel no matter how many there are.
+     */
+    angleJitter: 0.42,
+    /**
+     * Vertical squash. A circular fan reads as a starburst; flattening it
+     * spreads the rails horizontally into the wide hero and keeps them off the
+     * headline's line height.
+     */
+    squashY: 0.62,
+    /** Upward pull on each rail's control point, as a fraction of stage height. */
+    controlLift: 0.055,
     /** Sideways bow, in multiples of core radius. */
-    bow: 1.8,
+    bow: 0.9,
     /**
      * Alpha ramp along a rail: transparent at the outer end, `knee` of full
      * strength at the midpoint, full where it meets the rings.
@@ -138,8 +164,11 @@ export const EXECUTION_CORE = {
       pressureScale: 2.4,
       /** Slow blade rotation — mechanism, not decoration. */
       spin: 0.05,
-      /** Blade span as a fraction of core radius. */
-      outer: 0.62,
+      /**
+       * Blade span as a fraction of core radius. With the gates hidden the
+       * iris takes over the space they occupied and becomes the whole object.
+       */
+      outer: 1.15,
     },
     depth: {
       lerp: 0.055,
