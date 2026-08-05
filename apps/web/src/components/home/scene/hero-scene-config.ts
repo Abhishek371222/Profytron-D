@@ -206,6 +206,68 @@ export const EXECUTION_CORE = {
    * ─────────────────────────────────────────────────────────────────────────
    */
   ribbon: {
+    /**
+     * ─── TRIAL SWITCH: ribbon form ───────────────────────────────────────
+     * 'mark' — two strands derived from the Profytron mark: the slanted stem
+     *          and the chevron, floating apart as suspended strips
+     * 'curl' — the abstract single folded strip (previous trial)
+     *
+     * Both are ribbons in the same material; only the centrelines differ.
+     * ─────────────────────────────────────────────────────────────────────
+     */
+    form: "mark" as "mark" | "curl",
+    /**
+     * Logo-derived centrelines, normalised to the mark's own bounding box
+     * (175×177 with the mark spanning x 2–171, y 2–173, so one unit is 171px
+     * and the origin is the mark's centre).
+     *
+     * Traced off brand-mark-tight.png rather than eyeballed. The stem is a
+     * parallelogram blade leaning ~15° from vertical with a constant 43px
+     * horizontal width and pointed apexes at (86,4) and (2,173); its midline
+     * runs (66.8,4) → (21.5,173). The chevron is a ">" opening left, its
+     * point at (171,35), upper arm ~12° below horizontal and lower arm ~32°,
+     * arm thickness ~30px.
+     *
+     * Two strands, not one: the mark is two separate pieces, and inventing a
+     * connector between them to make a single continuous strip would change
+     * what it reads as. Floating apart, they read as suspended sculpture
+     * rather than as a logo laid flat.
+     *
+     * The knots carry a slight lateral bow the flat mark does not have, and
+     * the chevron's point is rounded, so the form is liquid rather than
+     * origami — the shape of the logo, not the logo.
+     */
+    mark: {
+      /**
+       * The mark is taller than it is wide, so this is set against its own
+       * extent (1.067 × 1.232 normalised) rather than left at 1. At 0.86 it
+       * lands at 151×174 CSS px on desktop — the same visual weight as the
+       * curl's 164×109, not the 203×234 that scaling to `size` directly
+       * would have produced.
+       */
+      scale: 0.86,
+      stem: [
+        [-0.115, -0.488],
+        [-0.16, -0.34],
+        [-0.212, -0.13],
+        [-0.272, 0.1],
+        [-0.328, 0.31],
+        [-0.38, 0.5],
+      ],
+      stemWidth: 0.122,
+      chevron: [
+        [0.049, -0.412],
+        [0.25, -0.372],
+        [0.42, -0.33],
+        [0.477, -0.292],
+        [0.43, -0.232],
+        [0.23, -0.128],
+        [0.061, -0.032],
+      ],
+      chevronWidth: 0.088,
+      /** Centreline resolution per strand. */
+      samples: 96,
+    },
     /** Footprint as a multiple of the core radius. */
     size: 1.5,
     mobileSize: 1.1,
