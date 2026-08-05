@@ -4972,3 +4972,24 @@ input::-webkit-strong-password-auto-fill-button {
     );
   }
 }
+
+/* ==========================================================================
+   Hero layout trial — "raised" core
+   --------------------------------------------------------------------------
+   With the core centred rather than anchored right, the copy column has to
+   stop short of it. The headline already breaks at roughly half the body's
+   measure, so narrowing the body and trust chips to match reads as intent
+   rather than as a constraint — and it opens the negative space the centred
+   core needs to sit in.
+
+   Desktop only: below lg the hero is a single column and the core is still
+   anchored right, so nothing needs to change.
+
+   Driven by EXECUTION_CORE's HERO_LAYOUT_VARIANT — set it back to "anchored"
+   and this rule stops matching.
+   ========================================================================== */
+@media (min-width: 1024px) {
+  .hero-stage[data-hero-layout="raised"] .hero-copy-shield .max-w-xl {
+    max-width: 27rem;
+  }
+}

@@ -14,7 +14,10 @@ import {
 } from "@/components/home/LandingButtons";
 import { useMounted } from "@/lib/hooks/useMounted";
 import { HERO_COPY } from "@/lib/content/hero-copy";
-import { HERO_SCENE } from "@/components/home/scene/hero-scene-config";
+import {
+  HERO_LAYOUT_VARIANT,
+  HERO_SCENE,
+} from "@/components/home/scene/hero-scene-config";
 
 /** Hero scenes are pulled in only once the LCP window has passed. */
 const HeroParticleScene = dynamic(
@@ -188,6 +191,7 @@ export function HeroSection({
         sceneOn ? "hero-stage" : "bg-[var(--bg-secondary)] dark:bg-background"
       }`}
       data-hero-scene={HERO_SCENE}
+      data-hero-layout={HERO_LAYOUT_VARIANT}
     >
       {HERO_SCENE === "execution-core" ? (
         // Uses the same existing post-LCP gate as the other ambient visuals.

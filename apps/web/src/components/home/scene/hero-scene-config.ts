@@ -23,6 +23,36 @@ function read(): HeroScene {
 export const HERO_SCENE: HeroScene = read();
 
 /**
+ * ─── TRIAL SWITCH: core placement ────────────────────────────────────────────
+ * 'anchored' — core sits right, over the bear. The original arrangement.
+ * 'raised'   — core centred and lifted, so it sits between the two animals
+ *              instead of on one of them. Pairs with a narrower copy column
+ *              (see [data-hero-layout="raised"] in globals.css).
+ *
+ * Flip this one string to revert; the anchored numbers are kept verbatim.
+ *
+ * Mobile is intentionally identical in both. At phone widths the copy is a
+ * single full-width column, so a centred core would sit directly behind the
+ * headline — there is no room to centre into.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export type HeroLayoutVariant = "raised" | "anchored";
+export const HERO_LAYOUT_VARIANT: HeroLayoutVariant = "raised";
+
+const HERO_LAYOUTS = {
+  anchored: {
+    desktop: { x: 0.755, y: 0.515, radius: 0.115 },
+    tablet: { x: 0.76, y: 0.57, radius: 0.105 },
+    mobile: { x: 0.73, y: 0.78, radius: 0.105 },
+  },
+  raised: {
+    desktop: { x: 0.5, y: 0.44, radius: 0.115 },
+    tablet: { x: 0.5, y: 0.49, radius: 0.105 },
+    mobile: { x: 0.73, y: 0.78, radius: 0.105 },
+  },
+} as const;
+
+/**
  * Product-specific vector scene. Values are normalized or theme materials so
  * the dark and light renderings cannot drift into different compositions.
  */
@@ -36,11 +66,7 @@ export const EXECUTION_CORE = {
     maxWidth: 1200,
     maxHeight: 680,
   },
-  layout: {
-    desktop: { x: 0.755, y: 0.515, radius: 0.115 },
-    tablet: { x: 0.76, y: 0.57, radius: 0.105 },
-    mobile: { x: 0.73, y: 0.78, radius: 0.105 },
-  },
+  layout: HERO_LAYOUTS[HERO_LAYOUT_VARIANT],
   /**
    * ─── TRIAL SWITCH ──────────────────────────────────────────────────────────
    * `emblemKind` selects what sits at the centre of the core.
