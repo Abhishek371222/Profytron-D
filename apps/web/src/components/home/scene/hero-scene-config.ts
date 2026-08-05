@@ -121,16 +121,19 @@ export const EXECUTION_CORE = {
      */
     radialCount: 34,
     /** Outer extent of a rail, in multiples of the core radius. */
-    reach: 3.6,
+    reach: 6.5,
     /** Per-rail variation on that reach, so they don't end on a clean circle. */
-    reachJitter: 2.4,
+    reachJitter: 2.7,
     /**
      * Safety net on rail length, as a fraction of the shorter stage axis.
-     * Deliberately above the natural range so only a stray outlier meets it —
-     * if most rails clamp they all end at the same distance, which is the same
-     * uniformity problem in a different shape.
+     *
+     * Applied to the REST size only, before scroll expansion — otherwise the
+     * clamp would cap the breath itself and the fan would stop growing partway
+     * through the scroll. Set well above the natural range so it catches a
+     * stray outlier and nothing else; if most rails clamp they all end at the
+     * same distance, which is the same uniformity problem in another shape.
      */
-    maxReach: 0.5,
+    maxReach: 1.2,
     /** Angular offset of the fan, radians. */
     angleOffset: 0.28,
     /**
@@ -165,6 +168,30 @@ export const EXECUTION_CORE = {
     signalFadeExponent: 1.15,
     /** Peak rail alpha where it meets the core. */
     railAlpha: { dark: 0.26, light: 0.3 },
+  },
+
+  /**
+   * ─── TRIAL SWITCH: scroll behaviour ────────────────────────────────────────
+   * 'expand' — the converging rails and the orbiting checkpoints breathe
+   *            outward as the hero exits, and draw back in on the way up. The
+   *            core itself holds still and the void never changes size, so the
+   *            growth reads as the field opening around a fixed centre.
+   * 'drift'  — the original sideways translation of the whole core.
+   *
+   * They are mutually exclusive on purpose: a core translating sideways while
+   * its fan expands reads as a smear rather than a breath.
+   * ───────────────────────────────────────────────────────────────────────────
+   */
+  scroll: {
+    mode: "expand" as "expand" | "drift",
+    /** Rail growth at full scroll. 1.2 → 220% of rest size. */
+    railExpand: 1.2,
+    /**
+     * Checkpoint orbit growth at full scroll. These keep their rest radius —
+     * the base area increase is for the converging rails alone — but they
+     * travel outward with the scroll so the whole field breathes together.
+     */
+    orbitExpand: 1.2,
   },
 
   motion: {

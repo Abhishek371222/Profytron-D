@@ -387,9 +387,13 @@ export class HeroExecutionEngine {
     const baseRadius = this.mobile
       ? Math.min(this.w * 0.195, this.h * layout.radius)
       : Math.min(this.w, this.h) * layout.radius;
-    const baseX =
-      this.w *
-      (layout.x - this.scrollProgress * EXECUTION_CORE.motion.scrollConverge);
+    // In expand mode the core holds still; scroll is expressed as the field
+    // breathing outward instead of the whole assembly sliding sideways.
+    const drift =
+      EXECUTION_CORE.scroll.mode === "drift"
+        ? this.scrollProgress * EXECUTION_CORE.motion.scrollConverge
+        : 0;
+    const baseX = this.w * (layout.x - drift);
     const baseY = this.h * layout.y;
     return { x: baseX, y: baseY, radius: baseRadius };
   }
@@ -402,6 +406,18 @@ export class HeroExecutionEngine {
    * left, crimson toward the bear on the right — rather than the authored
    * family, which assumed the old left/right start positions.
    */
+  /** Rail growth from scroll. 1 at rest, 1 + railExpand fully scrolled. */
+  private railExpansion() {
+    if (EXECUTION_CORE.scroll.mode !== "expand") return 1;
+    return 1 + this.scrollProgress * EXECUTION_CORE.scroll.railExpand;
+  }
+
+  /** Checkpoint orbit growth from scroll. Rest radius is untouched. */
+  private orbitExpansion() {
+    if (EXECUTION_CORE.scroll.mode !== "expand") return 1;
+    return 1 + this.scrollProgress * EXECUTION_CORE.scroll.orbitExpand;
+  }
+
   /** How many rails exist. Radial mode generates its own; anchored uses PATHS. */
   private get laneCount() {
     return EXECUTION_CORE.paths.style === "radial"
@@ -446,10 +462,14 @@ export class HeroExecutionEngine {
       // Clamped in screen terms, not just against the core radius — otherwise
       // a horizontal rail spans the full width while a diagonal one stops at
       // the corner, and the horizontals become their own visual feature.
-      const reach = Math.min(
-        radius * lane.reachScale,
-        Math.min(this.w, this.h) * cfg.maxReach,
-      );
+      //
+      // The clamp is applied to the rest size and the scroll expansion is
+      // layered on afterwards, so the breath is never capped partway through.
+      const reach =
+        Math.min(
+          radius * lane.reachScale,
+          Math.min(this.w, this.h) * cfg.maxReach,
+        ) * this.railExpansion();
       const inner = radius * 1.62;
 
       // The fan is flattened vertically so it spreads into the wide hero
@@ -846,11 +866,13 @@ export class HeroExecutionEngine {
       );
     }
 
-    // Risk checkpoints orbit between the second and third gates.
+    // Risk checkpoints orbit between the second and third gates, and ride the
+    // scroll outward with the rails so the whole field breathes together.
+    const orbit = radius * 1.24 * this.orbitExpansion();
     for (let i = 0; i < 6; i++) {
       const angle = i * (Math.PI / 3) - motionTime * 0.12;
-      const x = core.x + Math.cos(angle) * radius * 1.24;
-      const y = core.y + Math.sin(angle) * radius * 1.24;
+      const x = core.x + Math.cos(angle) * orbit;
+      const y = core.y + Math.sin(angle) * orbit;
       const accepted = i !== 1 && i !== 4;
       ctx.fillStyle = accepted ? material.teal : material.crimson;
       if (this.theme === "dark") {
