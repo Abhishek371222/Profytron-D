@@ -39,22 +39,6 @@ export const HERO_SCENE: HeroScene = read();
 export type HeroLayoutVariant = "raised" | "anchored";
 export const HERO_LAYOUT_VARIANT: HeroLayoutVariant = "raised";
 
-/**
- * ─── TRIAL SWITCH: hero/page seam ────────────────────────────────────────────
- * 'seamless' — the hero's ground belongs to the page rather than to the hero.
- *              The section beneath starts at hero-black and resolves to the
- *              site colour over its own top, the core's light carries a little
- *              way past the boundary, and the hero's own scrim and the next
- *              section's top border are both removed.
- * 'scrim'    — the original: a short gradient at the bottom of the hero.
- *
- * Implemented entirely in globals.css against [data-hero-blend]; nothing
- * outside the hero and the section directly beneath it is touched.
- * ─────────────────────────────────────────────────────────────────────────────
- */
-export type HeroBlend = "seamless" | "scrim";
-export const HERO_BLEND: HeroBlend = "seamless";
-
 const HERO_LAYOUTS = {
   anchored: {
     desktop: { x: 0.755, y: 0.515, radius: 0.115 },

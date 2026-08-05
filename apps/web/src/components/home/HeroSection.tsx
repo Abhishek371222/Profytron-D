@@ -15,7 +15,6 @@ import {
 import { useMounted } from "@/lib/hooks/useMounted";
 import { HERO_COPY } from "@/lib/content/hero-copy";
 import {
-  HERO_BLEND,
   HERO_LAYOUT_VARIANT,
   HERO_SCENE,
 } from "@/components/home/scene/hero-scene-config";
@@ -193,7 +192,6 @@ export function HeroSection({
       }`}
       data-hero-scene={HERO_SCENE}
       data-hero-layout={HERO_LAYOUT_VARIANT}
-      data-hero-blend={HERO_BLEND}
     >
       {HERO_SCENE === "execution-core" ? (
         // Uses the same existing post-LCP gate as the other ambient visuals.
