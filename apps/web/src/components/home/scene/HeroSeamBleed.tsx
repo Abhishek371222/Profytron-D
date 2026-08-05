@@ -23,7 +23,12 @@
  */
 
 import React from "react";
-import { EXECUTION_CORE, HERO_SEAM } from "./hero-scene-config";
+import {
+  EXECUTION_CORE,
+  HERO_GROUND,
+  HERO_GROUND_DEEP,
+  HERO_SEAM,
+} from "./hero-scene-config";
 
 type Mode = "dark" | "light";
 
@@ -80,18 +85,21 @@ export function HeroSeamBleed({ active }: { active: boolean }) {
       const box = heroBox();
       if (!box) return;
 
-      const bleedCss = HERO_SEAM.height;
+      const mode: Mode = document.documentElement.classList.contains("dark")
+        ? "dark"
+        : "light";
+      const material = EXECUTION_CORE.theme[mode];
+
+      // The deep profile's longer reach is dark-only, matching the CSS. Light
+      // already resolves cleanly and stays on the original 300px bleed.
+      const deep = HERO_GROUND_DEEP && mode === "dark";
+      const bleedCss = deep ? HERO_GROUND.tailHeight : HERO_SEAM.height;
       const w = Math.round(box.w);
       const h = Math.round(bleedCss * box.scale);
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
         canvas.height = h;
       }
-
-      const mode: Mode = document.documentElement.classList.contains("dark")
-        ? "dark"
-        : "light";
-      const material = EXECUTION_CORE.theme[mode];
       ctx.clearRect(0, 0, w, h);
 
       // Everything is drawn in the hero's coordinate space and shifted up, so
@@ -99,9 +107,46 @@ export function HeroSeamBleed({ active }: { active: boolean }) {
       ctx.save();
       ctx.translate(0, -box.h);
 
+      // 0. The engine's radial wash, continued.
+      //
+      // This is what removes the line on the RIGHT specifically. The wash is
+      // centred at 0.76w with radius max(w,h)/2, so by the hero's bottom row
+      // it has fallen past its own end on the left (t≈1.4, contributing
+      // nothing) but still lifts the right by roughly +8/+3/+4. The ground
+      // ramp equalises the base colour underneath, but it cannot equalise a
+      // lift that exists on only one side — so the left blends away and the
+      // right keeps a visible edge. Continuing the wash past the boundary,
+      // with the identical centre, radius and stops the engine uses, makes it
+      // fall off across the seam rather than stopping on it.
+      //
+      // Dark only. Light resolves cleanly already, and at 0.065 alpha of
+      // #176B7A this would tint the top of the section below.
+      // (Already inside the hero-space translate above — do not shift again.)
+      if (deep) {
+        const wash = ctx.createRadialGradient(
+          box.w * 0.76,
+          box.h * 0.52,
+          0,
+          box.w * 0.76,
+          box.h * 0.52,
+          Math.max(box.w, box.h) * 0.5,
+        );
+        wash.addColorStop(0, withAlpha(material.teal, 0.1));
+        wash.addColorStop(0.55, withAlpha(material.crimson, 0.035));
+        wash.addColorStop(1, withAlpha(material.background, 0));
+        ctx.fillStyle = wash;
+        ctx.fillRect(0, box.h, box.w, h);
+      }
+
       // 1. Contours, continuing the same pitch and phase.
+      //
+      // Rows sit at h*(0.13 + row*0.105), so each one reaches h*(row*0.105 −
+      // 0.87) past the boundary. Five rows carry ~0.27h; the deep profile's
+      // tail is longer than that, so it gets an extra row. Out-of-range rows
+      // are skipped by the guard below either way.
       ctx.lineWidth = mode === "dark" ? 0.7 : 0.85;
-      for (let row = 7; row < 7 + HERO_SEAM.contourRows; row++) {
+      const rows = HERO_SEAM.contourRows + (deep ? 1 : 0);
+      for (let row = 7; row < 7 + rows; row++) {
         const yBase = box.h * (0.13 + row * 0.105);
         if (yBase < box.h - 40 || yBase > box.h + h + 40) continue;
         ctx.beginPath();
@@ -228,7 +273,12 @@ export function HeroSeamBleed({ active }: { active: boolean }) {
   if (!HERO_SEAM.enabled) return null;
 
   return (
-    <div ref={wrapRef} className="hero-seam-bleed" aria-hidden>
+    <div
+      ref={wrapRef}
+      className="hero-seam-bleed"
+      data-hero-tail={HERO_GROUND_DEEP ? "deep" : "balanced"}
+      aria-hidden
+    >
       <canvas ref={canvasRef} />
     </div>
   );

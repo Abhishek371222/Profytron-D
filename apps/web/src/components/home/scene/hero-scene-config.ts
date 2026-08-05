@@ -90,6 +90,24 @@ export const HERO_SEAM = {
 export const HERO_GROUND = {
   enabled: true,
   /**
+   * ─── FALLBACK ────────────────────────────────────────────────────────────
+   * "balanced" is the approved state: the ramp resolves fully to the site
+   * token by the hero's own bottom edge. Set this back to "balanced" and the
+   * deep profile — longer blacks, the tail, the wash continuation — all turn
+   * off together and the page returns to exactly that.
+   *
+   * "deep" keeps true black much further down, then hands the remaining
+   * distance to a tail that continues past the hero, so the blue-slate
+   * ground arrives well below the fold instead of at the seam.
+   *
+   * It also continues the engine's radial wash past the edge. That wash is
+   * centred at 0.76w, so at the hero's bottom row it has fallen to nothing on
+   * the left but still lifts the right by roughly +8/+3/+4 — which is why the
+   * seam reads as a line on the right only, and is invisible on the left.
+   * ─────────────────────────────────────────────────────────────────────────
+   */
+  profile: "deep" as "deep" | "balanced",
+  /**
    * Where the ramp starts leaving the hero's own colour, as a fraction of
    * hero height. Everything above this is untouched — the approved dark stage
    * is exactly as it was through the headline, core and creature heads.
@@ -102,7 +120,19 @@ export const HERO_GROUND = {
    * that single stop clears the clip at every size.
    */
   animalFadeFrom: 0.58,
+  /**
+   * deep only. How much true black is still on the hero's bottom row, as an
+   * alpha over the site token. The tail below starts at exactly this value,
+   * which is what keeps the boundary continuous — the hero no longer has to
+   * finish the whole transition inside its own box.
+   */
+  handoff: 0.5,
+  /** deep only. CSS px the black tail continues past the hero. */
+  tailHeight: 440,
 };
+
+/** Dark only. Light already resolves cleanly and is left on the balanced ramp. */
+export const HERO_GROUND_DEEP = HERO_GROUND.profile === "deep";
 
 const HERO_LAYOUTS = {
   anchored: {

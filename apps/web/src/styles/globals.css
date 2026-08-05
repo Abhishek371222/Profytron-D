@@ -5014,13 +5014,55 @@ input::-webkit-strong-password-auto-fill-button {
   pointer-events: none;
 }
 
+.hero-seam-bleed {
+  --seam-h: 300px; /* HERO_SEAM.height */
+}
+
+/* Deep profile runs the canvas the full length of the tail, so the wash
+   continuation covers the same distance the black does. Dark only — light
+   keeps the original reach, matching the `deep` flag in HeroSeamBleed. */
+.dark .hero-seam-bleed[data-hero-tail="deep"] {
+  --seam-h: 440px; /* HERO_GROUND.tailHeight */
+}
+
 .hero-seam-bleed canvas {
   position: absolute;
   inset-inline: 0;
   top: 0;
   width: 100%;
-  height: 300px; /* HERO_SEAM.height */
+  height: var(--seam-h);
   display: block;
+}
+
+/* The black tail — dark only.
+
+   Starts at exactly HERO_GROUND.handoff, the alpha the hero's ramp still has
+   on its bottom row, so the two are the same colour where they meet and the
+   boundary stays continuous. From there it decays to nothing, which is what
+   moves the blue-slate ground several hundred pixels below the seam instead
+   of putting it at the seam.
+
+   As `::before` it paints under the sibling canvas, so the bleed's contours
+   and rail tails still read as texture over this ground rather than under it.
+   Section content is at z-10 and is unaffected — only the ground behind it
+   darkens. */
+.dark .hero-seam-bleed[data-hero-tail="deep"]::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: var(--seam-h);
+  background: linear-gradient(
+    to bottom,
+    rgb(4 7 9 / 0.5) 0%, /* HERO_GROUND.handoff */
+    rgb(4 7 9 / 0.42) 14%,
+    rgb(4 7 9 / 0.3) 32%,
+    rgb(4 7 9 / 0.18) 52%,
+    rgb(4 7 9 / 0.09) 70%,
+    rgb(4 7 9 / 0.03) 85%,
+    rgb(4 7 9 / 0) 100%
+  );
+  pointer-events: none;
 }
 
 /* ==========================================================================
@@ -5048,7 +5090,8 @@ input::-webkit-strong-password-auto-fill-button {
    Set HERO_GROUND.enabled to false — the attribute changes and every rule in
    this block, including the mask and the scrim override, stops matching.
    ========================================================================== */
-.hero-stage[data-hero-ground="ramp"] {
+.hero-stage[data-hero-ground="balanced"],
+.hero-stage[data-hero-ground="deep"] {
   background-color: var(--bg-secondary);
   background-image: linear-gradient(
     to bottom,
@@ -5063,7 +5106,7 @@ input::-webkit-strong-password-auto-fill-button {
   );
 }
 
-.dark .hero-stage[data-hero-ground="ramp"] {
+.dark .hero-stage[data-hero-ground="balanced"] {
   background-color: var(--background);
   background-image: linear-gradient(
     to bottom,
@@ -5078,12 +5121,41 @@ input::-webkit-strong-password-auto-fill-button {
   );
 }
 
+/* Deep profile — dark only.
+
+   The balanced ramp above has to finish the entire transition inside the
+   hero's own box, which forces the blue-slate ground to arrive around
+   two-thirds down and reach the seam exactly. That is seamless, but it spends
+   the hero's bottom third climbing out of black.
+
+   This holds true black to 58% and then only climbs to HERO_GROUND.handoff by
+   the bottom edge, leaving the rest to `.hero-seam-bleed::before` below. The
+   two meet at the same value by construction, so the boundary stays
+   continuous while the blue arrives several hundred pixels further down.
+
+   Light is deliberately not given a deep variant — it already resolves
+   cleanly, so it stays on the balanced ramp above under both profiles. */
+.dark .hero-stage[data-hero-ground="deep"] {
+  background-color: var(--background);
+  background-image: linear-gradient(
+    to bottom,
+    rgb(4 7 9 / 1) 0%,
+    rgb(4 7 9 / 1) 58%,
+    rgb(4 7 9 / 0.97) 68%,
+    rgb(4 7 9 / 0.89) 77%,
+    rgb(4 7 9 / 0.76) 85%,
+    rgb(4 7 9 / 0.63) 93%,
+    rgb(4 7 9 / 0.5) 100% /* HERO_GROUND.handoff */
+  );
+}
+
 /* The scrim was the old answer to this seam, and it is now actively wrong:
    it faded toward --bg-secondary in both themes, so in dark it overshot past
    the #1E252B it was aiming at and landed *brighter* than the section below —
    a light band, then a step back down. The ramp above covers the same job
    over ten times the distance and in the correct colour. */
-.hero-stage[data-hero-ground="ramp"] .hero-scene-scrim {
+.hero-stage[data-hero-ground="balanced"] .hero-scene-scrim,
+.hero-stage[data-hero-ground="deep"] .hero-scene-scrim {
   display: none;
 }
 
@@ -5111,7 +5183,8 @@ input::-webkit-strong-password-auto-fill-button {
    wherever the clip lands and nothing ends on a line — with no per-breakpoint
    rules. The rim images are left alone: their radial masks already confine
    them to the head, so they never reach the boundary. */
-.hero-stage[data-hero-ground="ramp"] .hero-depth-animal-base {
+.hero-stage[data-hero-ground="balanced"] .hero-depth-animal-base,
+.hero-stage[data-hero-ground="deep"] .hero-depth-animal-base {
   -webkit-mask-image: linear-gradient(
     to bottom,
     #000 0%,
@@ -5133,7 +5206,8 @@ input::-webkit-strong-password-auto-fill-button {
 /* The floor reflections sit at 85.5–97.5% of the hero and run past its bottom
    edge, so they were being clipped too — and with the creatures now dissolving
    above them, a reflection with no feet over it reads as a stray smudge. */
-.hero-stage[data-hero-ground="ramp"] .hero-depth-reflection {
+.hero-stage[data-hero-ground="balanced"] .hero-depth-reflection,
+.hero-stage[data-hero-ground="deep"] .hero-depth-reflection {
   -webkit-mask-image: linear-gradient(
     to bottom,
     #000 0%,

@@ -193,7 +193,7 @@ export function HeroSection({
       }`}
       data-hero-scene={HERO_SCENE}
       data-hero-layout={HERO_LAYOUT_VARIANT}
-      data-hero-ground={HERO_GROUND.enabled ? "ramp" : "flat"}
+      data-hero-ground={HERO_GROUND.enabled ? HERO_GROUND.profile : "flat"}
     >
       {HERO_SCENE === "execution-core" ? (
         // Uses the same existing post-LCP gate as the other ambient visuals.
