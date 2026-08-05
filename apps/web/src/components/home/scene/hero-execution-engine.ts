@@ -115,6 +115,24 @@ export class HeroExecutionEngine {
     bear: HTMLImageElement | null;
   } = { bull: null, bear: null };
   private figureLayers: Partial<Record<ThemeMode, HTMLCanvasElement>> = {};
+  /**
+   * Ribbon centreline, normals and half-widths. The shape is static — only
+   * the lit arcs travel along it — so it is built once per footprint and
+   * rebuilt only when the core radius changes. Keyed on `size`, so a resize
+   * that lands on the same footprint reuses it.
+   */
+  private ribbonGeom: {
+    size: number;
+    samples: {
+      x: number;
+      y: number;
+      nx: number;
+      ny: number;
+      half: number;
+      t: number;
+    }[];
+    length: number;
+  } | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -896,14 +914,22 @@ export class HeroExecutionEngine {
       : 1 + Math.sin(emblemPhase - Math.PI / 2) * emblem.scale;
 
     ctx.save();
-    ctx.translate(core.x, core.y + emblemBounce);
-    ctx.scale(emblemScale, emblemScale);
-    if (EXECUTION_CORE.emblemKind === "void") {
-      this.drawVoidEmblem(ctx, material, radius, motionTime);
-    } else if (EXECUTION_CORE.emblemKind === "aperture") {
-      this.drawApertureEmblem(ctx, material, radius, motionTime);
+    if (EXECUTION_CORE.emblemKind === "ribbon") {
+      // The ribbon carries its own float — a slower, gentler one than the
+      // generic emblem bounce, and it needs the untransformed centre for the
+      // orbit rings. So it is translated but deliberately not scaled here.
+      ctx.translate(core.x, core.y);
+      this.drawRibbonEmblem(ctx, material, radius, motionTime);
     } else {
-      this.drawCrossEmblem(ctx, material, radius, emblemPhase);
+      ctx.translate(core.x, core.y + emblemBounce);
+      ctx.scale(emblemScale, emblemScale);
+      if (EXECUTION_CORE.emblemKind === "void") {
+        this.drawVoidEmblem(ctx, material, radius, motionTime);
+      } else if (EXECUTION_CORE.emblemKind === "aperture") {
+        this.drawApertureEmblem(ctx, material, radius, motionTime);
+      } else {
+        this.drawCrossEmblem(ctx, material, radius, emblemPhase);
+      }
     }
     ctx.restore();
 
@@ -1011,6 +1037,298 @@ export class HeroExecutionEngine {
     ctx.strokeStyle = withAlpha(material.neutral, pulse);
     ctx.lineWidth = Math.max(1, radius * 0.012);
     ctx.stroke();
+  }
+
+  /**
+   * Build the ribbon's geometry: centreline, per-sample normal and half-width.
+   *
+   * Cached on footprint. The shape never changes — only the lit arcs travel
+   * along it — so this runs on mount and on resize, not per frame.
+   *
+   * The centreline integrates a tangent angle rather than interpolating
+   * placed knots. See EXECUTION_CORE.ribbon for why: knots around a centre
+   * close into an oval and read as a ring, whereas a tangent that races
+   * through 2π inside one window produces a strip that folds over itself once
+   * and leaves two open ends.
+   */
+  private ribbonGeometry(size: number) {
+    if (this.ribbonGeom && this.ribbonGeom.size === size) {
+      return this.ribbonGeom;
+    }
+    const cfg = EXECUTION_CORE.ribbon;
+    const p = cfg.path;
+    const n = cfg.samples;
+
+    const raw: Point[] = [];
+    let x = 0;
+    let y = 0;
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      const s = 1 / (1 + Math.exp(-(t - p.loopAt) / p.loopWidth));
+      const phi =
+        p.phi0 +
+        p.sweep * t +
+        p.wobble * Math.sin(Math.PI * 2 * p.wobbleFreq * t) +
+        Math.PI * 2 * s;
+      x += Math.cos(phi) / n;
+      y += Math.sin(phi) / n;
+      raw.push({ x, y });
+    }
+
+    // Fit to the footprint by the longer axis, centred on its own bounds.
+    let minX = Infinity;
+    let maxX = -Infinity;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (const q of raw) {
+      if (q.x < minX) minX = q.x;
+      if (q.x > maxX) maxX = q.x;
+      if (q.y < minY) minY = q.y;
+      if (q.y > maxY) maxY = q.y;
+    }
+    const scale = size / Math.max(maxX - minX, maxY - minY);
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+
+    const maxHalf = size * cfg.width;
+    const samples: {
+      x: number;
+      y: number;
+      nx: number;
+      ny: number;
+      half: number;
+      t: number;
+    }[] = [];
+    let length = 0;
+
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      const px = (raw[i].x - cx) * scale;
+      const py = (raw[i].y - cy) * scale;
+
+      const a = raw[Math.max(0, i - 1)];
+      const b = raw[Math.min(n, i + 1)];
+      const tx = b.x - a.x;
+      const ty = b.y - a.y;
+      const m = Math.hypot(tx, ty) || 1;
+
+      // A strip, not a wire: the width pinches almost shut where the path
+      // folds over itself, and again on the outgoing tail, so the form reads
+      // as ribbon turning edge-on rather than as a stroked outline.
+      const fold = 0.2 + 0.8 * (1 - Math.exp(-(((t - 0.5) / 0.185) ** 2) * 1.7));
+      const twist =
+        0.45 + 0.55 * (1 - Math.exp(-(((t - 0.84) / 0.085) ** 2) * 1.7));
+      const taper =
+        t < 0.1
+          ? (t / 0.1) ** 0.6
+          : t > 0.9
+            ? ((1 - t) / 0.1) ** 0.6
+            : 1;
+
+      samples.push({
+        x: px,
+        y: py,
+        nx: -ty / m,
+        ny: tx / m,
+        half: maxHalf * fold * twist * (0.34 + 0.66 * taper),
+        t,
+      });
+      if (i > 0) {
+        length += Math.hypot(px - samples[i - 1].x, py - samples[i - 1].y);
+      }
+    }
+
+    const geom = { size, samples, length };
+    this.ribbonGeom = geom;
+    return geom;
+  }
+
+  /**
+   * Liquid ribbon — one continuous folded strip suspended at the core.
+   *
+   * Layered, in painting order: a localised atmospheric glow (dark only), the
+   * translucent body between the two edges, the two lit edges, and a faint
+   * internal reflection that shifts with the tilt.
+   *
+   * Both lit edges are a single dashed stroke each with an animated
+   * `lineDashOffset`, so an arc of light travels the path for two draw calls
+   * rather than one per segment.
+   *
+   * Assumes the caller has translated to the core and applied no scale.
+   */
+  private drawRibbonEmblem(
+    ctx: CanvasRenderingContext2D,
+    material: (typeof EXECUTION_CORE.theme)[ThemeMode],
+    radius: number,
+    time: number,
+  ) {
+    const cfg = EXECUTION_CORE.ribbon;
+    const tok = cfg.theme[this.theme];
+    const dark = this.theme === "dark";
+    const size = radius * (this.mobile ? cfg.mobileSize : cfg.size);
+    const geom = this.ribbonGeometry(size);
+    const pts = geom.samples;
+
+    // Rings first: they revolve around the ribbon's resting centre, so they
+    // must not inherit its float.
+    if (cfg.orbits.enabled) this.drawRibbonOrbits(ctx, material, radius, time);
+
+    // Float — brief: 8–12s, 4–6px, 2–4°, 0.985–1.015. Transform only.
+    const phase = this.reduced ? 0 : (time * Math.PI * 2) / cfg.float.seconds;
+    ctx.save();
+    ctx.translate(0, Math.sin(phase) * radius * cfg.float.lift);
+    ctx.rotate(Math.sin(phase * 0.8 + 0.7) * cfg.float.tilt);
+    const breathe = 1 + Math.sin(phase * 1.15) * cfg.float.scale;
+    ctx.scale(breathe, breathe);
+
+    if (dark && tok.glow > 0) {
+      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.62);
+      glow.addColorStop(0, withAlpha(material.teal, 0.1 * tok.glow));
+      glow.addColorStop(0.55, withAlpha(material.crimson, 0.05 * tok.glow));
+      glow.addColorStop(1, withAlpha(material.background, 0));
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(0, 0, size * 0.62, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 1. Translucent body — down one edge and back along the other.
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x + pts[0].nx * pts[0].half, pts[0].y + pts[0].ny * pts[0].half);
+    for (let i = 1; i < pts.length; i++) {
+      ctx.lineTo(pts[i].x + pts[i].nx * pts[i].half, pts[i].y + pts[i].ny * pts[i].half);
+    }
+    for (let i = pts.length - 1; i >= 0; i--) {
+      ctx.lineTo(pts[i].x - pts[i].nx * pts[i].half, pts[i].y - pts[i].ny * pts[i].half);
+    }
+    ctx.closePath();
+    const bodyFill = ctx.createLinearGradient(-size / 2, -size / 2, size / 2, size / 2);
+    bodyFill.addColorStop(0, withAlpha(tok.cyan, tok.bodyAlpha * 0.85));
+    bodyFill.addColorStop(0.5, withAlpha(tok.body, tok.bodyAlpha));
+    bodyFill.addColorStop(1, withAlpha(tok.crimson, tok.bodyAlpha * 0.8));
+    ctx.fillStyle = bodyFill;
+    ctx.fill();
+
+    // 2. The two lit edges. Cyan leads, crimson trails a little behind it.
+    const dash = geom.length * cfg.flow.arc;
+    const travel = this.reduced ? 0.2 : (time * cfg.flow.speed) % 1;
+    const edge = (
+      side: 1 | -1,
+      colour: string,
+      phaseOffset: number,
+      weight: number,
+    ) => {
+      ctx.beginPath();
+      for (let i = 0; i < pts.length; i++) {
+        const q = pts[i];
+        const ex = q.x + side * q.nx * q.half;
+        const ey = q.y + side * q.ny * q.half;
+        if (i === 0) ctx.moveTo(ex, ey);
+        else ctx.lineTo(ex, ey);
+      }
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      ctx.setLineDash([]);
+      ctx.lineWidth = weight * 0.8;
+      ctx.strokeStyle = withAlpha(colour, tok.edgeAlpha * 0.3);
+      ctx.stroke();
+
+      ctx.setLineDash([dash, geom.length - dash]);
+      ctx.lineDashOffset = -((travel + phaseOffset) % 1) * geom.length;
+      ctx.lineWidth = weight;
+      ctx.strokeStyle = withAlpha(colour, tok.edgeAlpha);
+      if (dark) {
+        ctx.shadowColor = withAlpha(colour, 0.5);
+        ctx.shadowBlur = 4;
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.setLineDash([]);
+    };
+
+    const weight = Math.max(1, size * 0.012);
+    edge(1, tok.cyan, 0, weight);
+    edge(-1, tok.crimson, cfg.flow.offset, weight * 0.82);
+
+    // 3. Internal reflection — rides just inside the body and slides across it
+    // as the ribbon tilts, which is what gives the strip a readable surface.
+    if (!this.mobile) {
+      const slide = 0.18 + 0.3 * (0.5 + 0.5 * Math.sin(phase * 0.8 + 0.7));
+      ctx.beginPath();
+      for (let i = 0; i < pts.length; i++) {
+        const q = pts[i];
+        const off = q.half * (slide * 2 - 1) * 0.72;
+        const rx = q.x + q.nx * off;
+        const ry = q.y + q.ny * off;
+        if (i === 0) ctx.moveTo(rx, ry);
+        else ctx.lineTo(rx, ry);
+      }
+      ctx.setLineDash([geom.length * 0.22, geom.length * 0.78]);
+      ctx.lineDashOffset = -((travel * 0.6 + 0.15) % 1) * geom.length;
+      ctx.lineWidth = Math.max(0.7, size * 0.006);
+      ctx.strokeStyle = withAlpha(tok.reflection, tok.reflectionAlpha);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    ctx.restore();
+  }
+
+  /**
+   * Two faint rings revolving around the ribbon. They ride `orbitExpansion()`
+   * so they widen and close with the rail field as the page scrolls, rather
+   * than being a second, unrelated motion.
+   *
+   * Assumes the caller has translated to the core.
+   */
+  private drawRibbonOrbits(
+    ctx: CanvasRenderingContext2D,
+    material: (typeof EXECUTION_CORE.theme)[ThemeMode],
+    radius: number,
+    time: number,
+  ) {
+    const cfg = EXECUTION_CORE.ribbon;
+    const tok = cfg.theme[this.theme];
+    const spread = radius * this.orbitExpansion();
+    const spin = this.reduced ? 0 : time;
+
+    ctx.save();
+    ctx.lineWidth = Math.max(0.7, radius * 0.009);
+
+    ctx.setLineDash([radius * 0.05, radius * 0.075]);
+    ctx.strokeStyle = withAlpha(material.neutral, tok.orbit);
+    ctx.beginPath();
+    ctx.ellipse(
+      0,
+      0,
+      spread * 1.62,
+      spread * 0.68,
+      spin * cfg.orbits.spin,
+      0,
+      Math.PI * 2,
+    );
+    ctx.stroke();
+
+    // The second ring is dropped on phones, where it only adds clutter.
+    if (!this.mobile) {
+      ctx.setLineDash([]);
+      ctx.strokeStyle = withAlpha(material.neutral, tok.orbit * 0.66);
+      ctx.beginPath();
+      ctx.ellipse(
+        0,
+        0,
+        spread * 1.05,
+        spread * 1.28,
+        spin * cfg.orbits.counterSpin,
+        0,
+        Math.PI * 2,
+      );
+      ctx.stroke();
+    }
+
+    ctx.setLineDash([]);
+    ctx.restore();
   }
 
   /**

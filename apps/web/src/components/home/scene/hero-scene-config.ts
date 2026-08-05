@@ -166,8 +166,10 @@ export const EXECUTION_CORE = {
    * ─── TRIAL SWITCH ──────────────────────────────────────────────────────────
    * `emblemKind` selects what sits at the centre of the core.
    *
+   *   'ribbon'   — liquid ribbon: one folded translucent strip with lit cyan
+   *                and crimson edges, revolving orbit rings (current trial)
    *   'void'     — no symbol; the rails are consumed into a soft well with a
-   *                single breathing rim (current trial)
+   *                single breathing rim (FALLBACK — the approved state)
    *   'aperture' — mechanical iris that opens for an accepted signal and bites
    *                shut on a rejected one
    *   'cross'    — the original decision marker, kept intact
@@ -175,7 +177,99 @@ export const EXECUTION_CORE = {
    * Flip this one string to switch. Nothing else needs touching.
    * ───────────────────────────────────────────────────────────────────────────
    */
-  emblemKind: "void" as "void" | "aperture" | "cross",
+  emblemKind: "ribbon" as "ribbon" | "void" | "aperture" | "cross",
+
+  /**
+   * ─── Liquid ribbon centrepiece ───────────────────────────────────────────
+   * FALLBACK: set `emblemKind` back to "void" above. Nothing else needs to
+   * change — drawVoidEmblem is untouched and this block simply stops being
+   * read. Every other trial switch is independent of it.
+   *
+   * The centreline is not a hand-authored bezier. It is built by integrating
+   * a tangent angle, which is what makes the shape a ribbon rather than a
+   * ring: hand-placed knots around a centre always close into an oval, and
+   * three attempts at that read as a chain link or a loading spinner.
+   *
+   * Integrating the tangent instead means the angle sweeps slowly along the
+   * tails and races through 2π inside one short window, so the strip runs
+   * out, folds over itself exactly once, and runs off again. Two open ends
+   * and one crossing — no closed lobes, so it cannot read as an 8, a ring,
+   * a link or a P.
+   *
+   *   phi(t) = phi0 + sweep·t + wobble·sin(2π·wobbleFreq·t) + 2π·S(t)
+   *   S(t)   = logistic centred on loopAt with scale loopWidth
+   *
+   * These values came out of a search over the parameter space for exactly
+   * one self-crossing and a ~1.5:1 footprint. The fold's radius is 0.080 in
+   * the normalised frame, comfortably clear of the pinched half-width, so
+   * the loop stays open instead of blobbing shut.
+   * ─────────────────────────────────────────────────────────────────────────
+   */
+  ribbon: {
+    /** Footprint as a multiple of the core radius. */
+    size: 1.5,
+    mobileSize: 1.1,
+    /** Widest half-width, in units of the footprint. */
+    width: 0.075,
+    /** Centreline resolution. Cached — this is not per-frame work. */
+    samples: 132,
+    path: {
+      phi0: -0.4,
+      sweep: 1.6,
+      wobble: 1.3,
+      wobbleFreq: 0.9,
+      loopAt: 0.5,
+      loopWidth: 0.058,
+    },
+    /**
+     * Travelling edge highlights. Drawn as one dashed stroke per edge with an
+     * animated dash offset, so a lit arc runs along the path for two draw
+     * calls instead of one per segment.
+     */
+    flow: { speed: 0.075, arc: 0.34, offset: 0.42 },
+    /**
+     * Slow float. Brief: 8–12s, no more than 4–6px of lift, 2–4° of tilt,
+     * 0.985–1.015 of scale. Lift is in units of the CORE radius, not the
+     * footprint, so it stays in that pixel band at every breakpoint.
+     */
+    float: { seconds: 10.5, lift: 0.055, tilt: 0.052, scale: 0.012 },
+    /**
+     * Faint rings revolving around the ribbon. They ride `orbitExpansion()`,
+     * the same scroll response the rail field and the risk checkpoints use,
+     * so the whole field still breathes as one.
+     */
+    orbits: { enabled: true, spin: 0.05, counterSpin: -0.037 },
+    /**
+     * Semantic material tokens. Light is not an inversion or a filter — it is
+     * its own set of deeper, desaturated values, and both themes composite
+     * with plain source-over. No additive blending, which would only work on
+     * a dark ground.
+     */
+    theme: {
+      dark: {
+        body: "#9DC0CC",
+        bodyAlpha: 0.13,
+        cyan: "#7BD5E6",
+        crimson: "#DF6E77",
+        reflection: "#CBDDE3",
+        reflectionAlpha: 0.22,
+        edgeAlpha: 0.72,
+        glow: 0.3,
+        orbit: 0.15,
+      },
+      light: {
+        body: "#5C7B87",
+        bodyAlpha: 0.15,
+        cyan: "#0F5F6C",
+        crimson: "#8B333A",
+        reflection: "#41606B",
+        reflectionAlpha: 0.24,
+        edgeAlpha: 0.8,
+        glow: 0,
+        orbit: 0.2,
+      },
+    },
+  },
 
   /**
    * The three straight output lanes that ran from the core off the right edge,
