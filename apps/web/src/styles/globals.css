@@ -4993,3 +4993,32 @@ input::-webkit-strong-password-auto-fill-button {
     max-width: 27rem;
   }
 }
+
+/* ==========================================================================
+   Hero seam — texture bleed
+   --------------------------------------------------------------------------
+   Occupies no layout space: height 0, with an absolutely positioned canvas
+   hanging below it.
+
+   z-index 1 is load-bearing. `.landing-section` beneath paints an OPAQUE
+   background and is a later sibling, so anything at z-auto here is painted
+   straight over. At z-index 1 this sits above that background while staying
+   below the section's own content, which is `.page-container` at z-10.
+
+   See HERO_SEAM in hero-scene-config.ts to tune or disable.
+   ========================================================================== */
+.hero-seam-bleed {
+  position: relative;
+  z-index: 1;
+  height: 0;
+  pointer-events: none;
+}
+
+.hero-seam-bleed canvas {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  width: 100%;
+  height: 300px; /* HERO_SEAM.height */
+  display: block;
+}

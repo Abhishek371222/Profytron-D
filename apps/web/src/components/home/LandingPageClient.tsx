@@ -45,6 +45,15 @@ const FaqSection = dynamic(
   { loading: () => <FaqSkeleton /> },
 );
 
+/** Carries the hero's texture past its bottom edge; see HeroSeamBleed. */
+const HeroSeamBleed = dynamic(
+  () =>
+    import("@/components/home/scene/HeroSeamBleed").then((m) => ({
+      default: m.HeroSeamBleed,
+    })),
+  { ssr: false },
+);
+
 const ExperienceDevPanel = dynamic(
   () =>
     import("@/platform/experience/experience-dev-panel").then((m) => ({
@@ -90,6 +99,9 @@ function LandingContent({
     <>
       <PublicNavbar />
       <HeroSection deferAmbient={!allowHeavyFx} />
+      {/* Sits between the two so it can paint over the next section's opaque
+          background — it cannot live inside the hero, which clips overflow. */}
+      <HeroSeamBleed active={allowHeavyFx} />
 
       <section className="relative">
         <HowItWorks />

@@ -39,6 +39,26 @@ export const HERO_SCENE: HeroScene = read();
 export type HeroLayoutVariant = "raised" | "anchored";
 export const HERO_LAYOUT_VARIANT: HeroLayoutVariant = "raised";
 
+/**
+ * ─── TRIAL SWITCH: seam texture bleed ────────────────────────────────────────
+ * Continues the hero's contours and rail tails a short way into the section
+ * below, then dissolves them, so the surface never terminates on a line.
+ *
+ * The hero's own scrim is left alone — this handles the texture edge, the
+ * scrim handles the tonal one. Set enabled false to remove it entirely.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export const HERO_SEAM = {
+  enabled: true,
+  /** How far the texture reaches past the hero, in CSS px. */
+  height: 300,
+  /** Contour rows to attempt past the edge; out-of-range ones are skipped. */
+  contourRows: 5,
+  /** Alpha remaining at `fadeKnee` down the bleed. */
+  knee: 0.34,
+  fadeKnee: 0.45,
+};
+
 const HERO_LAYOUTS = {
   anchored: {
     desktop: { x: 0.755, y: 0.515, radius: 0.115 },
